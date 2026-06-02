@@ -1,11 +1,9 @@
-/**
- * Resolves a public asset path to account for Vite's `base` config.
- * Usage: assetUrl("/logo_diyar.svg") → "/diyar-marketplace/logo_diyar.svg"
- */
-const BASE = import.meta.env.BASE_URL; // Vite injects this from vite.config.ts `base`
-
+/** Resolve a public asset path for the current Vite base URL (GitHub Pages subpath). */
 export function assetUrl(path: string): string {
-  // Remove leading slash from path, BASE already ends with /
-  const clean = path.startsWith('/') ? path.slice(1) : path;
-  return `${BASE}${clean}`;
+  const base = import.meta.env.BASE_URL;
+  const normalized = path.startsWith('/') ? path.slice(1) : path;
+  return `${base}${normalized}`;
 }
+
+/** React Router basename derived from Vite base (no trailing slash). */
+export const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '');

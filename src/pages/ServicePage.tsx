@@ -73,7 +73,7 @@ export default function ServicePage() {
           <div className="flex flex-col md:flex-row gap-6 md:items-end">
             
             {/* Logo */}
-            <div className="w-20 h-20 md:w-28 md:h-28 rounded-xl md:rounded-2xl border-4 border-white shadow-md overflow-hidden bg-white shrink-0 -mt-12 md:-mt-16">
+            <Link to="/provider/1" className="w-20 h-20 md:w-28 md:h-28 rounded-xl md:rounded-2xl border-4 border-white shadow-md overflow-hidden bg-white shrink-0 -mt-12 md:-mt-16 block hover:opacity-90 transition">
               <img 
                 src={SERVICE_INFO.logo} 
                 alt={SERVICE_INFO.provider} 
@@ -83,15 +83,15 @@ export default function ServicePage() {
                   (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=200";
                 }}
               />
-            </div>
+            </Link>
 
             {/* Info */}
             <div className="flex-1">
               <div className="mb-1">
                 <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark">{SERVICE_INFO.name}</h1>
-                <p className="text-purple-600 font-medium flex items-center gap-1.5 mt-1">
+                <Link to="/provider/1" className="text-purple-600 font-medium flex items-center gap-1.5 mt-1 w-fit hover:text-purple-700 transition">
                   <User size={16} /> مقدم الخدمة: {SERVICE_INFO.provider}
-                </p>
+                </Link>
               </div>
               <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-4 max-w-2xl pt-2">
                 {SERVICE_INFO.description}
@@ -190,7 +190,9 @@ export default function ServicePage() {
                     <div key={review.id} className="p-4 rounded-xl border border-gray-50 bg-gray-50/50 hover:bg-gray-50 transition-colors">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-3">
-                          <img src={review.avatar} alt={review.name} className="w-10 h-10 rounded-full object-cover border border-gray-100" />
+                          <div className="w-10 h-10 rounded-full bg-diyar-brown/10 text-diyar-brown flex items-center justify-center font-bold text-sm shrink-0 border border-diyar-brown/20 select-none">
+                            {review.name.charAt(0)}
+                          </div>
                           <div>
                             <h4 className="font-bold text-diyar-dark text-sm">{review.name}</h4>
                             <span className="text-xs text-gray-500">{review.date}</span>
@@ -235,9 +237,14 @@ export default function ServicePage() {
                    {SERVICE_INFO.rating} <Star size={14} className="fill-amber-400 text-amber-400" />
                  </span>
                </div>
-               <div className="flex justify-between items-center pt-1">
+               <div className="flex justify-between items-center pb-3 border-b border-gray-50 mb-3">
                  <span className="text-gray-500 text-sm">أوقات العمل</span>
                  <span className="font-medium text-diyar-dark text-sm">9 صباحاً - 5 مساءً</span>
+               </div>
+               <div className="pt-3">
+                 <Link to="/provider/1" className="block w-full text-center bg-gray-50 hover:bg-diyar-brown hover:text-white border border-gray-200 hover:border-diyar-brown text-diyar-dark font-bold py-2.5 rounded-xl text-xs transition-all">
+                   زيارة صفحة المزود
+                 </Link>
                </div>
             </div>
           </div>

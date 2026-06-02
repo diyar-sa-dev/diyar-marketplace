@@ -4,12 +4,14 @@
  */
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, User, Search, Menu, SlidersHorizontal, Home as HomeIcon, Grid, Camera, LogOut } from 'lucide-react';
-import { assetUrl } from './utils/assetUrl';
+import { ShoppingCart, Bookmark, User, Search, Menu, SlidersHorizontal, Home as HomeIcon, Grid, Camera, LogOut } from 'lucide-react';
 import { Footer } from './components/Sections.tsx';
 import { FilterModal } from './components/FilterModal.tsx';
 import { CartSidebar } from './components/CartSidebar.tsx';
 import { ImageSearchModal } from './components/ImageSearchModal.tsx';
+import { SidebarMenu } from './components/SidebarMenu.tsx';
+import { AnnouncementBar } from './components/AnnouncementBar.tsx';
+import { FloatingContactBar } from './components/FloatingContactBar.tsx';
 import HomePage from './pages/HomePage.tsx';
 import CategoryPage from './pages/CategoryPage.tsx';
 import ProductDetailsPage from './pages/ProductDetailsPage.tsx';
@@ -29,6 +31,7 @@ import NotificationsPage from './pages/NotificationsPage.tsx';
 import LanguagePage from './pages/LanguagePage.tsx';
 import AuthPage from './pages/AuthPage.tsx';
 import StorePage from './pages/StorePage.tsx';
+import ProviderPage from './pages/ProviderPage.tsx';
 import ServicePage from './pages/ServicePage.tsx';
 
 import DashboardLayout from './layouts/DashboardLayout.tsx';
@@ -51,6 +54,7 @@ import AffiliateReports from './pages/dashboard/AffiliateReports.tsx';
 import AffiliatePayouts from './pages/dashboard/AffiliatePayouts.tsx';
 import AffiliateSettings from './pages/dashboard/AffiliateSettings.tsx';
 import Notifications from './pages/dashboard/Notifications.tsx';
+import { assetUrl } from './utils/assetUrl.ts';
 
 function MobileBottomNav({ onOpenCart, isLoggedIn }: { onOpenCart: () => void, isLoggedIn: boolean }) {
   const location = useLocation();
@@ -80,8 +84,8 @@ function MobileBottomNav({ onOpenCart, isLoggedIn }: { onOpenCart: () => void, i
         <span className="text-[11px] font-medium">السلة</span>
       </div>
       <Link to="/wishlist" className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-brown cursor-pointer transition ${location.pathname === '/wishlist' ? 'text-diyar-dark' : ''}`}>
-        <Heart size={22} className="mb-1" />
-        <span className="text-[11px] font-medium">المفضلة</span>
+        <Bookmark size={22} className="mb-1" />
+        <span className="text-[11px] font-medium">المحفوظات</span>
       </Link>
       <Link to={isLoggedIn ? "/profile" : "/auth"} className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-brown cursor-pointer transition ${location.pathname.startsWith('/profile') ? 'text-diyar-dark' : ''}`}>
         <User size={22} className="mb-1" />
@@ -97,6 +101,7 @@ export default function App() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
@@ -138,17 +143,29 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-diyar-dark pb-[70px] md:pb-0" dir="rtl">
+      {!(isAuthPage || isDashboardPage) && <AnnouncementBar />}
       {!(isAuthPage || isDashboardPage) && (
-        <header className={`bg-white/90 backdrop-blur-md sticky top-0 z-50 pt-safe transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+        <header className={`bg-white/95 backdrop-blur-md sticky top-0 z-50 pt-safe transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
           <div className="max-w-7xl mx-auto px-4 py-1.5 md:px-6 md:py-2.5 flex flex-wrap md:flex-nowrap items-center justify-between gap-3 md:gap-5">
-            <div className="flex items-center w-full md:w-auto order-1 justify-between md:justify-start">
-              <Link to="/">
-                <img src={assetUrl("/logo_diyar.svg")} alt="DIYAR" className="h-7 md:h-9" />
-              </Link>
+            <div className="flex items-center w-full md:w-auto order-1 justify-between md:justify-start gap-4">
+              <div className="flex items-center gap-3 md:gap-4">
+                <button 
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="text-diyar-dark hover:bg-gray-100 rounded-full p-2 hidden md:flex items-center justify-center transition-colors -mr-2"
+                >
+                  <Menu size={24} />
+                </button>
+                <Link to="/">
+                  <img src={assetUrl("/logo_diyar.svg")} alt="DIYAR" className="h-7 md:h-9" />
+                </Link>
+              </div>
               <div className="flex items-center gap-3 md:hidden">
-                <span className="text-diyar-dark bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center">
+                <button 
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="text-diyar-dark bg-gray-100 hover:bg-gray-200 rounded-full w-9 h-9 flex items-center justify-center transition-colors"
+                >
                   <Menu size={20} />
-                </span>
+                </button>
               </div>
             </div>
             
@@ -175,8 +192,8 @@ export default function App() {
             </form>
             
             <div className="hidden md:flex items-center gap-5 order-2 md:order-3 text-diyar-dark">
-              <Link to="/wishlist">
-                <Heart className="w-6 h-6 cursor-pointer hover:text-diyar-brown transition" />
+              <Link to="/wishlist" title="المحفوظات">
+                <Bookmark className="w-6 h-6 cursor-pointer hover:text-diyar-brown transition" />
               </Link>
               <div className="relative" onClick={() => setIsCartOpen(true)}>
                 <ShoppingCart className="w-6 h-6 cursor-pointer hover:text-diyar-brown transition" />
@@ -212,6 +229,7 @@ export default function App() {
 
       <FilterModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />  
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <SidebarMenu isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <ImageSearchModal isOpen={isImageSearchOpen} onClose={() => setIsImageSearchOpen(false)} />
       
       <Routes>
@@ -219,6 +237,7 @@ export default function App() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/category/:id" element={<CategoryPage />} />
         <Route path="/store/:id" element={<StorePage />} />
+        <Route path="/provider/:id" element={<ProviderPage />} />
         <Route path="/service/:id" element={<ServicePage />} />
         <Route path="/product/:id" element={<ProductDetailsPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
@@ -263,6 +282,7 @@ export default function App() {
         </Route>
       </Routes>
 
+      {!(isAuthPage || isDashboardPage) && <FloatingContactBar />}
       {!(isAuthPage || isDashboardPage) && <Footer />}
       {!(isAuthPage || isDashboardPage) && <MobileBottomNav onOpenCart={() => setIsCartOpen(true)} isLoggedIn={isLoggedIn} />}
     </div>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { assetUrl } from '../utils/assetUrl';
 import Hero from '../components/Hero.tsx';
 import CategoriesStrip from '../components/CategoriesStrip.tsx';
 import FeaturedDeals from '../components/FeaturedDeals.tsx';
-import { BestSellers, StyleFilter, AIBanner, NewArrivals, SuggestedForYou, Reviews, Newsletter, PartnerBanner, ShopByRoom, FeaturedStores, WhyChooseDiyar, DesignBlog, AppPromo, FastOffersSlider, SummerBanner, SummerBanner2, BrandsStrip, LoyaltyPromo, ServicesSection } from '../components/Sections.tsx';
+import { BestSellers, StyleFilter, AIBanner, NewArrivals, SuggestedForYou, Reviews, Newsletter, PartnerBanner, ShopByRoom, FeaturedStores, WhyChooseDiyar, DesignBlog, AppPromo, FastOffersSlider, SummerBanner, SummerBanner2, BrandsStrip, LoyaltyPromo, ServicesSection, MostInteractiveProducts } from '../components/Sections.tsx';
+import { assetUrl } from '../utils/assetUrl.ts';
 
 export default function HomePage() {
   const [showAdPopup, setShowAdPopup] = useState(false);
@@ -21,6 +21,7 @@ export default function HomePage() {
       <Hero />
       <CategoriesStrip />
       <FastOffersSlider />
+      <MostInteractiveProducts />
       <FeaturedDeals />
       <SummerBanner2 />
       <ServicesSection />

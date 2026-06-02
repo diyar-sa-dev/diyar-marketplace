@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { 
   User, 
   Package, 
-  Heart, 
+  Bookmark, 
   MapPin, 
   Award, 
   Star, 
@@ -21,7 +21,7 @@ export default function ProfilePage() {
       group: "الطلبات والمشتريات",
       items: [
         { id: 'orders', icon: <Package size={20} />, title: "طلباتي", subtitle: "تتبع الطلبات، حالة الشحن والتركيب", link: "/orders" },
-        { id: 'wishlist', icon: <Heart size={20} />, title: "المفضلة", subtitle: "المنتجات التي تم حفظها", link: "/wishlist" },
+        { id: 'wishlist', icon: <Bookmark size={20} />, title: "المحفوظات", subtitle: "المنتجات والخدمات التي تم حفظها", link: "/wishlist" },
         { id: 'reviews', icon: <Star size={20} />, title: "تقييماتي ومراجعاتي", subtitle: "سجل التقييمات للمنتجات والخدمات", link: "/profile/reviews" },
       ]
     },

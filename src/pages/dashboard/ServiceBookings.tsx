@@ -24,6 +24,16 @@ export default function ServiceBookings() {
     return bookings;
   };
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'upcoming': return <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-200">قادم</span>;
+      case 'completed': return <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-200">مكتمل</span>;
+      case 'pending': return <span className="bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-xs font-bold border border-amber-200">قيد المراجعة</span>;
+      case 'cancelled': return <span className="bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs font-bold border border-red-200">ملغي</span>;
+      default: return <span className="bg-gray-50 text-gray-700 px-3 py-1 rounded-full text-xs font-bold border border-gray-200">{status}</span>;
+    }
+  };
+
   if (selectedBooking) {
     return (
       <div className="space-y-6 animate-in fade-in duration-300">

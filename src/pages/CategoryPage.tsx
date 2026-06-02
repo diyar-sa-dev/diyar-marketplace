@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronDown, Filter, LayoutGrid, List, SlidersHorizontal, Star, Search, X, Palette, Wrench } from 'lucide-react';
 import ProductCard from '../components/ProductCard.tsx';
-import { assetUrl } from '../utils/assetUrl';
+import ServiceCard from '../components/ServiceCard.tsx';
+import { assetUrl } from '../utils/assetUrl.ts';
 
 const CATEGORIES = {
-  "bedroom": { name: "غرف النوم", img: assetUrl("/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.png") },
-  "living-room": { name: "الصالونات", img: assetUrl("/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.png") },
-  "kitchen": { name: "المطابخ", img: assetUrl("/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.png") },
-  "office": { name: "المكاتب", img: assetUrl("/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.png") },
-  "decor": { name: "ديكورات", img: assetUrl("/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.png") },
-  "interior-design": { name: "تصميم داخلي", img: assetUrl("/categories/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%AF%D8%A7%D8%AE%D9%84%D9%8A.png") },
-  "maintenance": { name: "تركيب وصيانة", img: assetUrl("/categories/%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%20%D9%88%D8%B5%D9%8A%D8%A7%D9%86%D8%A9.png") },
-  "all": { name: "التصنيفات", img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1200" }
+  "bedroom": { name: "غرف النوم", img: assetUrl("/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.png"), subcategories: ["أسرة", "خزائن ملابس", "تسريحات", "طاولات جانبية", "مراتب"] },
+  "living-room": { name: "الصالونات", img: assetUrl("/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.png"), subcategories: ["أطقم كنب", "كراسي استرخاء", "طاولات قهوة", "طاولات تلفزيون", "مكتبات"] },
+  "kitchen": { name: "المطابخ", img: assetUrl("/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.png"), subcategories: ["خزائن مطابخ", "طاولات طعام", "كراسي طعام", "عربات تقديم"] },
+  "office": { name: "المكاتب", img: assetUrl("/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.png"), subcategories: ["مكاتب إدارية", "كراسي مكتبية", "وحدات أدراج", "مكتبات مكتبية"] },
+  "decor": { name: "ديكورات", img: assetUrl("/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.png"), subcategories: ["إضاءة", "سجاد", "لوحات جدارية", "مرايا", "نباتات زينة"] },
+  "interior-design": { name: "تصميم داخلي", img: assetUrl("/categories/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%AF%D8%A7%D8%AE%D9%84%D9%8A.png"), subcategories: ["تصميم سكني", "تصميم تجاري", "استشارات", "مخططات معمارية"] },
+  "maintenance": { name: "تركيب وصيانة", img: assetUrl("/categories/%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%20%D9%88%D8%B5%D9%8A%D8%A7%D9%86%D8%A9.png"), subcategories: ["تركيب أثاث", "صيانة خشبية", "تنجيد", "دهانات"] },
+  "all": { name: "التصنيفات", img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1200", subcategories: [] }
 };
 
 const MOCK_PRODUCTS = [
@@ -24,6 +25,13 @@ const MOCK_PRODUCTS = [
   {img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=400", name: "أريكة زاوية كبيرة", vendor: "مفروشات الرقي", price: 3800, oldPrice: 4200},
   {img: "https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format&fit=crop&q=80&w=400", name: "طاولة جانبي معدنية", vendor: "الزاوية الحديثة", price: 280, oldPrice: 400},
   {img: "https://images.unsplash.com/photo-1616627547584-bf28cee262db?auto=format&fit=crop&q=80&w=400", name: "كرسي قماش فاخر", vendor: "أناقة المنزل", price: 950, oldPrice: 1300},
+];
+
+const MOCK_SERVICES = [
+  {id: 101, img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=400", name: "تصميم داخلي متكامل للشقق", vendor: "ديار ديزاين", price: 150, rating: 4.8, type: "استشارة ومخطط"},
+  {id: 102, img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=400", name: "تركيب غرف نوم كاملة", vendor: "ورشة الإنجاز", price: 500, rating: 4.5, type: "تركيب وصيانة"},
+  {id: 103, img: "https://images.unsplash.com/photo-1581404176840-0255b7bd4b4c?auto=format&fit=crop&q=80&w=400", name: "تصميم 3D للمطابخ", vendor: "مكتب الإبداع", price: 1200, rating: 4.9, type: "التنفيذ بالقطعة"},
+  {id: 104, img: "https://images.unsplash.com/photo-1621293954908-907159247fc8?auto=format&fit=crop&q=80&w=400", name: "صيانة وطلاء الأثاث الخشبي", vendor: "مختصي الصيانة", price: 300, rating: 4.2, type: "زيارة فنية"},
 ];
 
 const FILTER_GROUPS = [
@@ -42,6 +50,21 @@ const FILTER_GROUPS = [
   {
     title: "لون المنتج",
     options: [] // Managed specially below
+  }
+];
+
+const SERVICE_FILTER_GROUPS = [
+  {
+    title: "مقدمي الخدمة",
+    options: ["ديار ديزاين", "شركة الإبداع المعماري", "مؤسسة اللمسة الفنية", "رواد التركيب", "مختصي الصيانة", "ورشة الإنجاز"]
+  },
+  {
+    title: "نوع الخدمة",
+    options: ["بالمتر المربع", "بالمقايسة", "سعر ثابت", "بالساعة", "زيارة فنية"]
+  },
+  {
+    title: "موقع تقديم الخدمة",
+    options: ["في الموقع", "استشارة عن بعد"]
   }
 ];
 
@@ -90,6 +113,10 @@ export default function CategoryPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [activeSubcategory, setActiveSubcategory] = useState('الكل');
+
+  const isServiceCategory = categoryId === 'interior-design' || categoryId === 'maintenance';
+  const currentFilters = isServiceCategory ? SERVICE_FILTER_GROUPS : FILTER_GROUPS;
 
   if (categoryId === 'all') {
     return (
@@ -190,10 +217,39 @@ export default function CategoryPage() {
         </div>
       </div>
 
+      {/* Subcategories (only if it has subcategories) */}
+      {'subcategories' in category && Array.isArray(category.subcategories) && category.subcategories.length > 0 && (
+        <div className="bg-white border-b border-gray-100 shadow-sm relative z-10 w-full mb-6">
+          <div className="max-w-7xl mx-auto px-4 py-3 md:py-4">
+            <div className="flex items-center gap-3 md:gap-4 overflow-x-auto pb-1 scrollbar-hide">
+              <button 
+                onClick={() => setActiveSubcategory('الكل')}
+                className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold shadow-sm shrink-0 transition-colors ${
+                  activeSubcategory === 'الكل' ? 'bg-diyar-dark text-white' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+                }`}
+              >
+                الكل
+              </button>
+              {category.subcategories.map((sub: string, index: number) => (
+                <button 
+                  key={index} 
+                  onClick={() => setActiveSubcategory(sub)}
+                  className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium border transition-colors shrink-0 ${
+                    activeSubcategory === sub ? 'bg-diyar-dark text-white border-diyar-dark font-bold' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+                  }`}
+                >
+                  {sub}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 mt-6 md:mt-8 flex flex-col md:flex-row gap-6 md:gap-8">
         
         {/* Desktop Sidebar Filter */}
-        <aside className="hidden md:block w-72 shrink-0 bg-white border border-gray-200 rounded-3xl p-6 self-start sticky top-28">
+        <aside className="hidden md:block w-72 shrink-0 bg-white border border-gray-200 rounded-3xl p-6 self-start">
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
             <h3 className="font-bold text-lg text-diyar-dark flex items-center gap-2">
               <SlidersHorizontal size={20} className="text-diyar-brown" />
@@ -204,7 +260,7 @@ export default function CategoryPage() {
 
           <Accordion title="نطاق السعر">
             <div className="px-1">
-              <input type="range" min="0" max="20000" step="100" className="w-full accent-diyar-brown mb-4" />
+              <input type="range" min="0" max={isServiceCategory ? "5000" : "20000"} step="100" className="w-full accent-diyar-brown mb-4" />
               <div className="flex items-center justify-between gap-4">
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
                   <span className="text-xs text-gray-500 block mb-1">من</span>
@@ -212,32 +268,34 @@ export default function CategoryPage() {
                 </div>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
                   <span className="text-xs text-gray-500 block mb-1">إلى</span>
-                  <span className="font-bold text-sm">10,000 ر.س</span>
+                  <span className="font-bold text-sm">{isServiceCategory ? '5,000' : '10,000'} ر.س</span>
                 </div>
               </div>
             </div>
           </Accordion>
 
-          <Accordion title="اللون">
-            <div className="flex flex-wrap gap-2">
-              {COLORS.map((color, idx) => (
-                <button 
-                  key={idx}
-                  title={color.name}
-                  className="w-8 h-8 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-diyar-brown focus:ring-offset-2 transition-shadow"
-                  style={{ backgroundColor: color.hex }}
-                />
-              ))}
-            </div>
-          </Accordion>
+          {!isServiceCategory && (
+            <Accordion title="اللون">
+              <div className="flex flex-wrap gap-2">
+                {COLORS.map((color, idx) => (
+                  <button 
+                    key={idx}
+                    title={color.name}
+                    className="w-8 h-8 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-diyar-brown focus:ring-offset-2 transition-shadow"
+                    style={{ backgroundColor: color.hex }}
+                  />
+                ))}
+              </div>
+            </Accordion>
+          )}
 
-          {FILTER_GROUPS.map((group, i) => (
+          {currentFilters.map((group, i) => (
             <Accordion title={group.title} key={i}>
               <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent pr-1 pl-3">
-                {group.title === "المتاجر المعتمدة" && (
+                {(group.title === "المتاجر المعتمدة" || group.title === "مقدمي الخدمة") && (
                   <div className="relative mb-3">
                     <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="text" placeholder="ابحث عن متجر..." className="w-full bg-gray-50 border border-gray-200 rounded-lg py-1.5 pr-9 pl-3 text-sm outline-none focus:border-diyar-brown" />
+                    <input type="text" placeholder={`ابحث عن ${isServiceCategory ? 'مقدم خدمة' : 'متجر'}...`} className="w-full bg-gray-50 border border-gray-200 rounded-lg py-1.5 pr-9 pl-3 text-sm outline-none focus:border-diyar-brown" />
                   </div>
                 )}
                 {group.options.map((opt, idx) => (
@@ -321,11 +379,11 @@ export default function CategoryPage() {
           {/* Active Filters */}
           <div className="flex flex-wrap gap-2 mb-6">
             <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
-              السعر: 0 - 10000 
+              السعر: 0 - {isServiceCategory ? '5000' : '10000'}
               <X size={14} className="cursor-pointer hover:text-gray-300" />
             </span>
             <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
-              الزاوية الحديثة
+              {isServiceCategory ? 'ديار ديزاين' : 'الزاوية الحديثة'}
               <X size={14} className="cursor-pointer hover:text-gray-300" />
             </span>
             <span className="text-sm text-diyar-brown font-medium cursor-pointer flex items-center px-2 hover:underline">
@@ -333,17 +391,25 @@ export default function CategoryPage() {
             </span>
           </div>
 
-          {/* Product Grid */}
+          {/* Product/Service Grid */}
           <div className={`grid gap-4 md:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
-             {MOCK_PRODUCTS.map((product, i) => (
+             {(isServiceCategory ? MOCK_SERVICES : MOCK_PRODUCTS).map((item, i) => (
                 <div key={i} className="h-full">
-                   <ProductCard product={product} />
+                   {isServiceCategory ? (
+                     <ServiceCard service={item} layout={viewMode} />
+                   ) : (
+                     <ProductCard product={item} layout={viewMode} />
+                   )}
                 </div>
              ))}
              {/* Duplicate for demo */}
-             {MOCK_PRODUCTS.map((product, i) => (
+             {(isServiceCategory ? MOCK_SERVICES : MOCK_PRODUCTS).map((item, i) => (
                 <div key={`d-${i}`} className="h-full">
-                   <ProductCard product={product} />
+                   {isServiceCategory ? (
+                     <ServiceCard service={item} layout={viewMode} />
+                   ) : (
+                     <ProductCard product={item} layout={viewMode} />
+                   )}
                 </div>
              ))}
           </div>
@@ -389,7 +455,7 @@ export default function CategoryPage() {
             <div className="flex-1 overflow-y-auto p-4 pb-24">
               <Accordion title="نطاق السعر">
                 <div className="px-1">
-                  <input type="range" min="0" max="20000" step="100" className="w-full accent-diyar-brown mb-4" />
+                  <input type="range" min="0" max={isServiceCategory ? "5000" : "20000"} step="100" className="w-full accent-diyar-brown mb-4" />
                   <div className="flex items-center justify-between gap-4">
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
                       <span className="text-xs text-gray-500 block mb-1">من</span>
@@ -397,32 +463,34 @@ export default function CategoryPage() {
                     </div>
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
                       <span className="text-xs text-gray-500 block mb-1">إلى</span>
-                      <span className="font-bold text-sm">10,000 ر.س</span>
+                      <span className="font-bold text-sm">{isServiceCategory ? '5,000' : '10,000'} ر.س</span>
                     </div>
                   </div>
                 </div>
               </Accordion>
 
-              <Accordion title="اللون">
-                <div className="flex flex-wrap gap-2">
-                  {COLORS.map((color, idx) => (
-                    <button 
-                      key={idx}
-                      title={color.name}
-                      className="w-8 h-8 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-diyar-brown focus:ring-offset-2 transition-shadow"
-                      style={{ backgroundColor: color.hex }}
-                    />
-                  ))}
-                </div>
-              </Accordion>
+              {!isServiceCategory && (
+                <Accordion title="اللون">
+                  <div className="flex flex-wrap gap-2">
+                    {COLORS.map((color, idx) => (
+                      <button 
+                        key={idx}
+                        title={color.name}
+                        className="w-8 h-8 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-diyar-brown focus:ring-offset-2 transition-shadow"
+                        style={{ backgroundColor: color.hex }}
+                      />
+                    ))}
+                  </div>
+                </Accordion>
+              )}
 
-              {FILTER_GROUPS.map((group, i) => (
+              {currentFilters.map((group, i) => (
                 <Accordion title={group.title} key={i}>
                   <div className="space-y-3 pr-1 pl-3">
-                    {group.title === "المتاجر المعتمدة" && (
+                    {(group.title === "المتاجر المعتمدة" || group.title === "مقدمي الخدمة") && (
                       <div className="relative mb-3">
                         <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input type="text" placeholder="ابحث عن متجر..." className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pr-9 pl-3 text-sm outline-none focus:border-diyar-brown" />
+                        <input type="text" placeholder={`ابحث عن ${isServiceCategory ? 'مقدم خدمة' : 'متجر'}...`} className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pr-9 pl-3 text-sm outline-none focus:border-diyar-brown" />
                       </div>
                     )}
                     {group.options.map((opt, idx) => (

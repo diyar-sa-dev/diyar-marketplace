@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from './ProductCard.tsx';
-import { Star, Quote, ArrowLeft, Send, Sparkles, UploadCloud, Grid, Store, Briefcase, Paintbrush, Smartphone, Scan, Box, BellRing, Wrench, ShieldCheck, Truck, HeadphonesIcon, CreditCard, PenTool, Twitter, Instagram, MessageCircle } from 'lucide-react';
-import { assetUrl } from '../utils/assetUrl';
+import { Star, Quote, ArrowLeft, Send, Sparkles, UploadCloud, Grid, Store, Briefcase, Paintbrush, Smartphone, Scan, Box, BellRing, Wrench, ShieldCheck, Truck, HeadphonesIcon, CreditCard, PenTool, Twitter, Instagram, MessageCircle, Heart, Bookmark, Eye } from 'lucide-react';
+import { assetUrl } from '../utils/assetUrl.ts';
 
 export function BestSellers() {
   const [tab, setTab] = useState(0);
@@ -184,38 +184,43 @@ export function StyleFilter() {
 
 export function AIBanner() {
   return (
-    <div className="bg-gradient-to-br from-diyar-cream to-[#f2ecdf] py-6 md:py-10 my-4 md:my-6 relative overflow-hidden">
+    <div className="bg-[#132624] text-white py-16 md:py-24 my-10 md:my-20 relative overflow-hidden rounded-none max-w-7xl mx-auto shadow-2xl lg:border-white/10 lg:border-x">
       {/* Decorative background elements */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-white/40 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-diyar-brown/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+      <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-[#947961]/20 rounded-full blur-[130px] -translate-y-1/2 translate-x-1/3"></div>
+      <div className="absolute bottom-0 left-0 w-[30rem] h-[30rem] bg-[#1a4a42]/30 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3"></div>
 
-      <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-12 md:gap-16 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-20 relative z-10">
         
         <div className="w-full md:w-1/2 text-center md:text-right order-2 md:order-1">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur shadow-sm text-diyar-brown font-bold rounded-full mb-6 text-sm">
-            <Sparkles size={16} />
-            <span>ميزة الذكاء الاصطناعي</span>
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 backdrop-blur-md shadow-lg text-[#d2b694] font-bold rounded-full mb-6 md:mb-8 text-sm">
+            <Sparkles size={16} className="animate-pulse" />
+            <span>تقنية الذكاء الاصطناعي من ديار</span>
           </div>
-          <h2 className="text-2xl md:text-5xl font-sans font-bold mb-6 text-diyar-dark leading-[1.3]">
-            صوّر غرفتك، <br className="hidden md:block"/> ودع الباقي لخيالنا!
+          <h2 className="text-3xl md:text-5xl font-sans font-bold mb-6 text-[#f3ecdb] leading-[1.4]">
+            المستقبل هنا. <br className="hidden md:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-l from-[#d2b694] to-white">صمم غرفتك بلمسة خيال!</span>
           </h2>
-          <p className="mb-8 text-gray-600 text-lg leading-relaxed max-w-lg mx-auto md:mx-0">
-            لا داعي للتخيل بعد الآن. ارفع صورة غرفتك وسيقوم الذكاء الاصطناعي بتحليل المساحة واقتراح وترتيب الأثاث المناسب من مختلف متاجرنا بدقة متناهية.
+          <p className="mb-8 md:mb-10 text-gray-300 text-base md:text-lg leading-relaxed max-w-xl mx-auto md:mx-0 font-light">
+            لا داعي للتخيل بعد الآن. صور مساحتك، وسيقوم الذكاء الاصطناعي المتقدم بتحليل الأبعاد والنمط، ليدمج قطع الأثاث المثالية بواقعية مذهلة، لترى غرفتك قبل التنفيذ.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
-            <button className="flex items-center justify-center gap-2 bg-diyar-dark text-white px-8 py-4 rounded-xl hover:bg-diyar-brown transition-colors text-lg shadow-xl shadow-diyar-dark/20 w-full sm:w-auto font-bold group">
+            <button className="flex items-center justify-center gap-3 bg-[#947961] text-white px-8 py-4 rounded-xl hover:bg-[#7a6450] hover:scale-105 transition-all duration-300 text-lg shadow-[0_0_30px_rgba(148,121,97,0.3)] font-bold group border border-[#947961]/50 w-full sm:w-auto">
               <UploadCloud className="group-hover:-translate-y-1 transition-transform" />
-              <span>ارفع صورة غرفتك</span>
+              <span>جرب غرفتك الآن</span>
+            </button>
+            <button className="flex items-center justify-center gap-2 bg-transparent text-white border border-white/20 px-8 py-4 rounded-xl hover:bg-white/5 transition-colors text-lg font-bold w-full sm:w-auto">
+              شاهد التفاصيل
             </button>
           </div>
         </div>
 
         <div className="w-full md:w-1/2 order-1 md:order-2 flex justify-center">
-          <div className="relative w-full max-w-md aspect-square md:aspect-[4/3] bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
+          <div className="relative w-full max-w-lg aspect-[4/3] bg-[#1a3330] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/10 ring-1 ring-white/5 mx-auto">
             
             {/* Before Image */}
-            <img src={assetUrl("/before.png")} alt="Empty Room Before" className="absolute inset-0 w-full h-full object-cover" />
+            <img src={assetUrl("/before.png")} alt="Empty Room Before" className="absolute inset-0 w-full h-full object-cover filter grayscale-[20%] opacity-90" />
             
             {/* After Image and Clip */}
             <div className="absolute inset-0 animate-[sweep_4s_ease-in-out_infinite]">
@@ -223,19 +228,19 @@ export function AIBanner() {
             </div>
             
             {/* Animated scanning line synced with clip path */}
-            <div className="absolute top-0 bottom-0 w-1 bg-diyar-brown shadow-[0_0_15px_3px_theme('colors.diyar.brown')] animate-[scan-x_4s_ease-in-out_infinite] -ml-[2px] z-10 flex flex-col items-center justify-center">
-               <div className="w-8 h-8 bg-white border-4 border-diyar-brown rounded-full shadow-md flex items-center justify-center -translate-x-[14px]">
-                 <Sparkles size={14} className="text-diyar-brown"/>
+            <div className="absolute top-0 bottom-0 w-1 bg-[#d2b694] shadow-[0_0_25px_5px_rgba(210,182,148,0.7)] animate-[scan-x_4s_ease-in-out_infinite] -ml-[2px] z-10 flex flex-col items-center justify-center">
+               <div className="w-8 h-8 md:w-10 md:h-10 bg-[#132624] border-2 border-[#d2b694] rounded-full shadow-[0_0_15px_rgba(210,182,148,0.6)] flex items-center justify-center -translate-x-[14px] md:-translate-x-[18px]">
+                 <Sparkles size={16} className="text-[#d2b694]" />
                </div>
             </div>
 
             {/* Labels */}
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full text-xs font-bold text-gray-500 shadow-sm z-0">
-               قبل
+            <div className="absolute top-4 right-4 md:top-6 md:right-6 bg-black/50 border border-white/10 backdrop-blur-md px-4 py-1.5 md:px-5 md:py-2 rounded-xl text-xs font-bold text-gray-300 shadow-xl z-0">
+               المساحة الأصلية
             </div>
-            <div className="absolute bottom-6 left-6 bg-diyar-brown/90 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-bold text-white shadow-lg z-20 flex items-center gap-2">
-               <Sparkles size={16} />
-               بعد الذكاء الاصطناعي
+            <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 bg-gradient-to-r from-[#947961] to-[#7a6450] px-4 py-1.5 md:px-5 md:py-2 rounded-xl text-xs md:text-sm font-bold text-white shadow-[0_10px_20px_rgba(148,121,97,0.4)] z-20 flex items-center gap-2 border border-white/20">
+               <Sparkles size={16} className="text-yellow-200" />
+               ترتيب الذكاء الاصطناعي
             </div>
           </div>
         </div>
@@ -571,38 +576,13 @@ export function AppPromo() {
           </div>
         </div>
 
-        <div className="w-full md:w-1/2 relative min-h-[300px] md:min-h-[450px] flex justify-center items-end mt-8 md:mt-0 overflow-hidden md:overflow-visible">
-            {/* The phones mockup */}
-            <div className="relative w-full max-w-[300px] md:max-w-md h-[300px] md:h-[450px] translate-y-12 md:translate-y-16 flex justify-center">
-               
-               {/* Back phone */}
-               <div className="absolute top-8 left-4 md:left-12 w-40 md:w-56 h-[320px] md:h-[450px] bg-black rounded-2xl md:rounded-[30px] shadow-xl border-[5px] border-[#2A2A2A] transform -rotate-12 scale-90 opacity-80 overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=400&h=800" alt="App Frame 2" className="w-full h-full object-cover" />
-               </div>
-
-               {/* Front phone */}
-               <div className="absolute top-0 right-4 md:right-12 w-48 md:w-64 h-[350px] md:h-[480px] bg-black rounded-2xl md:rounded-[35px] shadow-2xl border-[5px] border-[#444] transform rotate-[-3deg] overflow-hidden z-20">
-                  <div className="absolute top-0 inset-x-0 h-4 bg-black z-30 w-24 mx-auto rounded-b-[14px]"></div> {/* Notch */}
-                  <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=400&h=800" alt="App Frame 1" className="w-full h-full object-cover rounded-[29px]" />
-                  
-                  {/* Static Floating Mockup UI Element */}
-                  <div className="absolute bottom-12 left-3 right-3 bg-white/90 backdrop-blur-md rounded-xl p-2.5 shadow-lg border border-white/20">
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-lg bg-diyar-brown/20 flex items-center justify-center">
-                         <Scan className="text-diyar-brown" size={16} />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-gray-800">طقم كنب زاوية</p>
-                        <p className="text-[9px] text-gray-500">تم التعرف على المنتج</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="absolute bottom-2 inset-x-0 flex justify-center z-30">
-                    <div className="w-16 h-1 bg-white/50 rounded-full"></div>
-                  </div>
-               </div>
-
+        <div className="w-full md:w-1/2 relative min-h-[300px] md:min-h-[450px] flex justify-center items-center mt-8 md:mt-0">
+            <div className="relative w-full flex justify-center">
+               <img 
+                 src={assetUrl("/app mockup.png")} 
+                 alt="Diyar App Mockup" 
+                 className="w-[85%] md:w-[90%] max-w-[500px] h-auto object-contain z-20 drop-shadow-2xl hover:scale-[1.02] transition-transform duration-500" 
+               />
             </div>
         </div>
 
@@ -614,24 +594,37 @@ export function AppPromo() {
 export function FastOffersSlider() {
   const offers = [
     { 
+      img: assetUrl("/panel%204.png"),
+      color: "bg-diyar-dark",
+      span: "md:col-span-3"
+    },
+    { 
+      img: assetUrl("/panel%205.png"),
+      color: "bg-diyar-brown",
+      span: "md:col-span-3"
+    },
+    { 
       img: assetUrl("/panel%201.png"),
-      color: "bg-diyar-dark" 
+      color: "bg-diyar-dark",
+      span: "md:col-span-2"
     },
     { 
       img: assetUrl("/panel%202.png"),
-      color: "bg-diyar-brown" 
+      color: "bg-diyar-brown",
+      span: "md:col-span-2"
     },
     { 
       img: assetUrl("/panel%203.png"),
-      color: "bg-gray-800" 
+      color: "bg-gray-800",
+      span: "md:col-span-2"
     }
   ];
 
   return (
     <div className="max-w-7xl mx-auto py-4 md:py-6 px-4">
-      <div className="flex gap-4 md:gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-3 md:gap-4">
         {offers.map((offer, i) => (
-          <div key={i} className={`min-w-[85vw] md:min-w-[450px] h-48 md:h-64 rounded-2xl md:rounded-3xl overflow-hidden relative snap-center flex-shrink-0 shadow-lg group cursor-pointer ${offer.color}`}>
+          <div key={i} className={`col-span-1 ${offer.span} w-full aspect-[2/1] rounded-xl overflow-hidden relative shadow-md hover:shadow-lg transition-all duration-300 group cursor-pointer ${offer.color}`}>
             <img 
               src={offer.img} 
               alt={`Banner ${i + 1}`} 
@@ -909,6 +902,221 @@ export function ServicesSection() {
                 </div>
               </div>
             </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function MostInteractiveProducts() {
+  const [items, setItems] = useState([
+    {
+      id: 1,
+      name: "طقم كنب زاوية مخملي رويال فاخر",
+      vendor: "مفروشات الرقي",
+      price: 4500,
+      oldPrice: 5600,
+      img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=400",
+      views: 2450,
+      likes: 312,
+      saves: 184,
+      liked: false,
+      saved: false,
+      hotScore: 94
+    },
+    {
+      id: 2,
+      name: "سرير مزدوج مودرن بتصميم هادئ",
+      vendor: "بيت الراحة",
+      price: 2200,
+      oldPrice: 3100,
+      img: "https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&q=80&w=400",
+      views: 1890,
+      likes: 245,
+      saves: 142,
+      liked: false,
+      saved: false,
+      hotScore: 89
+    },
+    {
+      id: 3,
+      name: "طاولة طعام إكسباند دائرية من الخشب الطبيعي",
+      vendor: "روائع الخشب",
+      price: 2100,
+      oldPrice: 2800,
+      img: "https://images.unsplash.com/photo-1577140917170-285929fb55b7?auto=format&fit=crop&q=80&w=600",
+      views: 1530,
+      likes: 198,
+      saves: 95,
+      liked: false,
+      saved: false,
+      hotScore: 85
+    },
+    {
+      id: 4,
+      name: "خزانة ملابس 6 أبواب واسعة وعملية",
+      vendor: "إيكيا",
+      price: 1950,
+      oldPrice: 2400,
+      img: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=400",
+      views: 3120,
+      likes: 421,
+      saves: 233,
+      liked: false,
+      saved: false,
+      hotScore: 98
+    },
+    {
+      id: 5,
+      name: "كرسي استرخاء مخملي مريح جداً",
+      vendor: "أشلي",
+      price: 1200,
+      oldPrice: 1700,
+      img: "https://images.unsplash.com/photo-1598300042247-d317bd127e7b?auto=format&fit=crop&q=80&w=400",
+      views: 1210,
+      likes: 156,
+      saves: 78,
+      liked: false,
+      saved: false,
+      hotScore: 78
+    }
+  ]);
+
+  const handleLike = (id: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setItems(items.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          liked: !item.liked,
+          likes: item.liked ? item.likes - 1 : item.likes + 1,
+          hotScore: item.liked ? item.hotScore - 1 : item.hotScore + 2
+        };
+      }
+      return item;
+    }));
+  };
+
+  const handleSave = (id: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setItems(items.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          saved: !item.saved,
+          saves: item.saved ? item.saves - 1 : item.saves + 1,
+          hotScore: item.saved ? item.hotScore - 2 : item.hotScore + 3
+        };
+      }
+      return item;
+    }));
+  };
+
+  return (
+    <div className="bg-gradient-to-b from-white to-diyar-cream/10 py-8 md:py-12 border-t border-b border-gray-100/10">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex justify-between items-baseline mb-8">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="flex h-2.5 w-2.5 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+              </span>
+              <span className="text-diyar-brown text-xs md:text-sm font-bold tracking-wide">الآن مباشر</span>
+            </div>
+            <h2 className="text-xl md:text-3xl font-sans font-bold text-diyar-dark flex items-center gap-2">
+              الأكثر تفاعلاً ونشاطاً 🔥
+            </h2>
+            <p className="text-gray-500 text-xs md:text-sm mt-1">المنتجات الأكثر تصفحاً، إعجاباً وحفظاً من قبل المتسوقين في الساعات الماضية</p>
+          </div>
+          <Link to="/category/all" className="text-diyar-brown text-xs md:text-sm font-bold hover:text-diyar-dark transition shrink-0">
+            تصفح الكل
+          </Link>
+        </div>
+
+        <div className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide snap-x py-4 px-1 -mx-4 md:mx-0">
+          {items.map((item) => (
+            <div key={item.id} className="w-[280px] md:w-[320px] bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all shrink-0 snap-start overflow-hidden flex flex-col group relative">
+              {/* Badges Overlay */}
+              <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
+                <span className="bg-red-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-xl shadow-sm flex items-center gap-1">
+                  🔥 {item.hotScore}% تفاعل
+                </span>
+              </div>
+
+              {/* Product Image */}
+              <Link to={`/product/${item.id}`} className="block relative aspect-[4/3] overflow-hidden bg-gray-50">
+                <img 
+                  src={item.img} 
+                  alt={item.name} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=60&w=600";
+                  }}
+                />
+                
+                {/* Actions Overlay */}
+                <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
+                  <button 
+                    onClick={(e) => handleSave(item.id, e)}
+                    className={`p-2 rounded-full shadow-md bg-white/90 backdrop-blur-md transition-all ${item.saved ? 'text-diyar-brown scale-105' : 'text-gray-400 hover:text-diyar-brown'}`}
+                  >
+                    <Bookmark size={18} fill={item.saved ? "currentColor" : "none"} />
+                  </button>
+                  <button 
+                    onClick={(e) => handleLike(item.id, e)}
+                    className={`p-2 rounded-full shadow-md bg-white/90 backdrop-blur-md transition-all ${item.liked ? 'text-red-500 scale-105 animate-pulse' : 'text-gray-400 hover:text-red-500'}`}
+                  >
+                    <Heart size={18} fill={item.liked ? "currentColor" : "none"} />
+                  </button>
+                </div>
+              </Link>
+
+              {/* Body */}
+              <div className="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-center text-xs text-diyar-brown font-semibold mb-1">
+                    <span>{item.vendor}</span>
+                  </div>
+                  <Link to={`/product/${item.id}`} className="block hover:text-diyar-brown transition">
+                    <h3 className="font-bold text-diyar-dark text-sm leading-snug line-clamp-2 min-h-[40px] mb-2">{item.name}</h3>
+                  </Link>
+                </div>
+
+                <div>
+                  {/* Prices & Stats */}
+                  <div className="flex justify-between items-center border-t border-gray-50 pt-3 mt-2">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-gray-400 line-through">د.إ {item.oldPrice}</span>
+                      <span className="text-base font-bold text-diyar-dark">د.إ {item.price}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-lg border border-red-100/50">
+                      <span className="text-[10px] font-bold text-red-600">نشط جداً</span>
+                    </div>
+                  </div>
+
+                  {/* Real-time Interaction Bar */}
+                  <div className="mt-3 bg-gray-50 p-2 rounded-xl flex items-center justify-between text-[11px] text-gray-500 border border-gray-100/40">
+                    <span className="flex items-center gap-1">
+                      <Eye size={13} className="text-gray-400" />
+                      <strong>{item.views}</strong> مشاهدة
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Heart size={13} className="text-red-400 fill-red-400" />
+                      <strong>{item.likes}</strong> إعجاب
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Bookmark size={13} className="text-diyar-brown fill-diyar-brown" />
+                      <strong>{item.saves}</strong> حفظ
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </div>

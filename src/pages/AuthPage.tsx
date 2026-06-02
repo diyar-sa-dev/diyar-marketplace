@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChevronRight, Mail, Phone, Lock, Eye, EyeOff, Store, Briefcase, User, Megaphone, Smartphone } from 'lucide-react';
-import { assetUrl } from '../utils/assetUrl';
+import { assetUrl } from '../utils/assetUrl.ts';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export default function AuthPage() {
     setTimeout(() => {
       setIsLoading(false);
       localStorage.setItem('isLoggedIn', 'true');
-      window.location.href = import.meta.env.BASE_URL; // Reload to apply state
+      window.location.href = '/'; // Reload to apply state
     }, 1500);
   };
 

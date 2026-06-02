@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BedDouble, Sofa, CookingPot, MonitorSmartphone, Paintbrush, Wrench, PackageSearch } from 'lucide-react';
-import { assetUrl } from '../utils/assetUrl';
+import { assetUrl } from '../utils/assetUrl.ts';
 
 const categories = [
   { id: "bedroom", name: "غرف النوم", icon: BedDouble, img: assetUrl("/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.png") },

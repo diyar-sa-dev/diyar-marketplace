@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { 
-  Heart, Share2, Star, ChevronRight, ChevronLeft, Ruler, Palette, Box, 
-  CheckCircle, Store, Truck, ShieldCheck, Sparkles, AlertCircle, ShoppingCart, X
+  Bookmark, Share2, Star, ChevronRight, ChevronLeft, Ruler, Palette, Box, 
+  CheckCircle, Store, Truck, ShieldCheck, Sparkles, AlertCircle, ShoppingCart, X,
+  Heart
 } from 'lucide-react';
 import ProductCard from '../components/ProductCard.tsx';
 
@@ -58,6 +59,8 @@ export default function ProductDetailsPage() {
   const [selectedColor, setSelectedColor] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(48);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
@@ -101,23 +104,43 @@ export default function ProductDetailsPage() {
               <div className="absolute top-4 left-4 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
                 <button 
                   onClick={() => setIsFavorite(!isFavorite)}
-                  className="bg-white/80 backdrop-blur text-gray-500 hover:text-red-500 p-2.5 rounded-full shadow-sm transition-colors"
+                  className="bg-white/80 backdrop-blur text-gray-500 hover:text-diyar-brown p-2.5 rounded-full shadow-sm transition-colors"
+                  title="حفظ"
                 >
-                  <Heart size={20} fill={isFavorite ? "currentColor" : "none"} className={isFavorite ? "text-red-500" : ""} />
+                  <Bookmark size={20} fill={isFavorite ? "currentColor" : "none"} className={isFavorite ? "text-diyar-brown" : ""} />
                 </button>
-                <button className="bg-white/80 backdrop-blur text-gray-500 hover:text-diyar-dark p-2.5 rounded-full shadow-sm transition-colors">
+                <button 
+                  className="bg-white/80 backdrop-blur text-gray-500 hover:text-diyar-dark p-2.5 rounded-full shadow-sm transition-colors"
+                  title="مشاركة"
+                >
                   <Share2 size={20} />
+                </button>
+                <button 
+                  onClick={() => {
+                    setIsLiked(!isLiked);
+                    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+                  }}
+                  className="bg-white/80 backdrop-blur text-gray-500 hover:text-red-500 p-2.5 rounded-full shadow-sm transition-colors flex items-center justify-center relative group/btn"
+                  title="إعجاب"
+                >
+                  <Heart size={20} fill={isLiked ? "currentColor" : "none"} className={`transition-all ${isLiked ? "text-red-500 scale-110" : "hover:scale-110"}`} />
+                  {likesCount > 0 && (
+                    <span className="absolute -bottom-1 -left-1 bg-diyar-dark text-white text-[9px] font-bold px-1 rounded-full border border-white">
+                      {likesCount}
+                    </span>
+                  )}
                 </button>
               </div>
               
               {/* AR / Video Buttons Overlay */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 w-max max-w-[90%]" onClick={(e) => e.stopPropagation()}>
                  <button 
                    onClick={() => setIsAiModalOpen(true)}
-                   className="bg-diyar-dark/90 backdrop-blur text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-black transition-colors shadow-lg"
+                   className="bg-diyar-dark/90 backdrop-blur text-white px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium flex items-center gap-2 hover:bg-black transition-colors shadow-lg"
+                   title="تجربة في غرفتك بالذكاء الاصطناعي"
                  >
-                   <Sparkles size={16} className="text-yellow-400" />
-                   جرّب في غرفتك بالذكاء الاصطناعي
+                   <Sparkles size={16} className="text-yellow-400 shrink-0" />
+                   <span className="hidden sm:inline">جرّب في غرفتك </span>بالـ AI
                  </button>
               </div>
             </div>
@@ -127,10 +150,7 @@ export default function ProductDetailsPage() {
               {MOCK_PRODUCT.images.map((img, idx) => (
                 <button 
                   key={idx}
-                  onClick={() => {
-                    setActiveImage(idx);
-                    setIsGalleryOpen(true);
-                  }}
+                  onClick={() => setActiveImage(idx)}
                   className={`relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden flex-shrink-0 snap-start transition-all border-2 ${
                     activeImage === idx ? 'border-diyar-brown shadow-md' : 'border-transparent opacity-70 hover:opacity-100'
                   }`}

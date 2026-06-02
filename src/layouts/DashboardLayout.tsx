@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 export default function DashboardLayout() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const location = useLocation();
 
@@ -63,9 +63,19 @@ export default function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex" dir="rtl">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className={`bg-diyar-dark text-white flex flex-col transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
-        <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
+      <aside className={`fixed md:sticky top-0 right-0 z-50 h-screen bg-diyar-dark text-white flex flex-col transition-all duration-300 ${
+        isSidebarOpen ? 'w-64 translate-x-0' : 'w-64 md:w-20 translate-x-full md:translate-x-0'
+      }`}>
+        <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 shrink-0">
           {isSidebarOpen && <span className="font-bold text-xl text-diyar-cream truncate">لوحة التحكم</span>}
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
             <Menu size={20} />
@@ -84,6 +94,7 @@ export default function DashboardLayout() {
                   <li key={link.path}>
                     <Link
                       to={link.path}
+                      onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
                         isActive ? 'bg-diyar-brown text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white'
                       }`}
@@ -110,18 +121,26 @@ export default function DashboardLayout() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 shrink-0">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-diyar-dark">
+        <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 md:px-6 shrink-0">
+          <div className="flex items-center gap-3 md:gap-4">
+            <button 
+              onClick={() => setIsSidebarOpen(true)} 
+              className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors -mr-2"
+            >
+              <Menu size={20} />
+            </button>
+            <h1 className="text-lg md:text-xl font-bold text-diyar-dark truncate max-w-[150px] md:max-w-none">
               {role === 'vendor' ? 'بوابة التاجر' : role === 'service' ? 'بوابة مزود الخدمة' : role === 'affiliate' ? 'بوابة المسوق' : 'اختيار البوابة'}
             </h1>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             {/* Demo Switcher */}
             <div className="relative group">
-              <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-colors">
-                تبديل الحساب <ChevronDown size={14} />
+              <button className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg border border-gray-200 text-xs md:text-sm font-medium hover:bg-gray-50 transition-colors">
+                <span className="hidden sm:inline">تبديل الحساب</span>
+                <span className="sm:hidden">بوابة</span>
+                <ChevronDown size={14} />
               </button>
               <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
                 <Link to="/dashboard/vendor" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-sm">

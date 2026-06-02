@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Eye, Edit, Truck, Package, CheckCircle, XCircle, X, Download, ArrowRight } from 'lucide-react';
+import { Search, Filter, Eye, Edit, Truck, Package, CheckCircle, XCircle, X, Download, ArrowRight, Plus } from 'lucide-react';
 
 export default function VendorOrders() {
   const [activeTab, setActiveTab] = useState('all');
@@ -7,13 +7,57 @@ export default function VendorOrders() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
-  const MOCK_ORDERS = [
+  const [ordersList, setOrdersList] = useState([
     { id: '#10245', customer: 'أحمد محمد', date: '2024-05-15', total: 1250, status: 'processing', payment: 'paid', items: 2 },
     { id: '#10246', customer: 'سارة خالد', date: '2024-05-15', total: 450, status: 'shipped', payment: 'paid', items: 1 },
     { id: '#10247', customer: 'فهد العبدالله', date: '2024-05-14', total: 3200, status: 'delivered', payment: 'paid', items: 3 },
     { id: '#10248', customer: 'نورة السالم', date: '2024-05-14', total: 850, status: 'pending', payment: 'unpaid', items: 1 },
     { id: '#10249', customer: 'عبدالرحمن الدوسري', date: '2024-05-13', total: 1500, status: 'cancelled', payment: 'refunded', items: 2 },
-  ];
+  ]);
+
+  // Modal State
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newCustomer, setNewCustomer] = useState('');
+  const [newTotal, setNewTotal] = useState('');
+  const [newItems, setNewItems] = useState('1');
+  const [newStatus, setNewStatus] = useState('pending');
+  const [newPayment, setNewPayment] = useState('paid');
+
+  const updateOrderStatus = (orderId: string, status: string) => {
+    setOrdersList(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
+    if (selectedOrder && selectedOrder.id === orderId) {
+      setSelectedOrder((prev: any) => prev ? { ...prev, status } : null);
+    }
+  };
+
+  const handleCreateOrder = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCustomer.trim() || !newTotal.trim()) {
+      alert('يرجى ملء كافة الحقول الأساسية');
+      return;
+    }
+
+    const nextIdNum = Math.floor(Math.random() * 900) + 10250;
+    const newOrder = {
+      id: `#${nextIdNum}`,
+      customer: newCustomer,
+      date: new Date().toISOString().split('T')[0],
+      total: parseFloat(newTotal) || 0,
+      status: newStatus,
+      payment: newPayment,
+      items: parseInt(newItems) || 1,
+    };
+
+    setOrdersList(prev => [newOrder, ...prev]);
+    setIsAddModalOpen(false);
+    
+    // Reset states
+    setNewCustomer('');
+    setNewTotal('');
+    setNewItems('1');
+    setNewStatus('pending');
+    setNewPayment('paid');
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -27,7 +71,7 @@ export default function VendorOrders() {
   };
 
   const getFilteredOrders = () => {
-    let orders = MOCK_ORDERS;
+    let orders = ordersList;
     if (activeTab !== 'all') {
       orders = orders.filter(order => order.status === activeTab);
     }
@@ -60,11 +104,11 @@ export default function VendorOrders() {
                 تحديث الحالة
               </button>
               <div className="absolute left-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg opacity-0 invisible group-hover/actions:opacity-100 group-hover/actions:visible transition-all z-10 py-1">
-                <button className="w-full text-right px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"><Package size={14}/>قيد التحضير</button>
-                <button className="w-full text-right px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"><Truck size={14}/>تم الشحن</button>
-                <button className="w-full text-right px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"><CheckCircle size={14}/>تم التسليم</button>
+                <button onClick={() => updateOrderStatus(selectedOrder.id, 'processing')} className="w-full text-right px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"><Package size={14}/>قيد التحضير</button>
+                <button onClick={() => updateOrderStatus(selectedOrder.id, 'shipped')} className="w-full text-right px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"><Truck size={14}/>تم الشحن</button>
+                <button onClick={() => updateOrderStatus(selectedOrder.id, 'delivered')} className="w-full text-right px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"><CheckCircle size={14}/>تم التسليم</button>
                 <div className="border-t border-gray-100 my-1"></div>
-                <button className="w-full text-right px-4 py-2 hover:bg-red-50 text-red-600 text-sm flex items-center gap-2"><XCircle size={14}/>إلغاء الطلب</button>
+                <button onClick={() => updateOrderStatus(selectedOrder.id, 'cancelled')} className="w-full text-right px-4 py-2 hover:bg-red-50 text-red-600 text-sm flex items-center gap-2"><XCircle size={14}/>إلغاء الطلب</button>
               </div>
             </div>
           </div>
@@ -204,10 +248,23 @@ export default function VendorOrders() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1 border-b border-gray-150/45">
         <div>
           <h2 className="text-2xl font-bold text-diyar-dark">إدارة الطلبات</h2>
           <p className="text-gray-500 text-sm mt-1">عرض وتحديث حالات الطلبات الخاصة بمتجرك.</p>
+        </div>
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="bg-diyar-brown hover:bg-[#A67B5B] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:shadow transition flex items-center justify-center gap-2 self-start sm:self-auto"
+        >
+          <Plus size={18} />
+          <span>إضافة طلب جديد</span>
+        </button>
+      </div>
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span className="text-xs text-gray-400 font-bold">فرز وتصفية الطلبات النشطة</span>
         </div>
         
         <div className="flex items-center gap-3">
@@ -241,6 +298,110 @@ export default function VendorOrders() {
           </div>
         </div>
       </div>
+
+      {/* Modal for Adding structured Order */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-250" dir="rtl">
+          <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-diyar-dark flex items-center gap-2">
+                <Plus size={20} className="text-diyar-brown" />
+                إضافة طلب جديد للتاجر
+              </h3>
+              <button 
+                onClick={() => setIsAddModalOpen(false)}
+                className="p-1 px-2.5 hover:bg-gray-150 text-gray-450 hover:text-diyar-dark rounded-xl transition font-bold"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateOrder} className="p-6 space-y-4 text-right">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1.5">اسم العميل</label>
+                <input 
+                  type="text" 
+                  value={newCustomer} 
+                  onChange={(e) => setNewCustomer(e.target.value)}
+                  placeholder="مثال: محمد أحمد علي"
+                  className="w-full text-right px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-diyar-brown/20 focus:border-diyar-brown text-sm"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-1.5">إجمالي الطلب (ر.س)</label>
+                  <input 
+                    type="number" 
+                    value={newTotal} 
+                    onChange={(e) => setNewTotal(e.target.value)}
+                    placeholder="مثال: 1500"
+                    className="w-full text-right px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-diyar-brown/20 focus:border-diyar-brown text-sm"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-1.5">عدد المنتجات</label>
+                  <input 
+                    type="number" 
+                    value={newItems} 
+                    onChange={(e) => setNewItems(e.target.value)}
+                    min="1"
+                    placeholder="1"
+                    className="w-full text-right px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-diyar-brown/20 focus:border-diyar-brown text-sm"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-1.5">حالة الطلب</label>
+                  <select 
+                    value={newStatus} 
+                    onChange={(e) => setNewStatus(e.target.value)}
+                    className="w-full text-right px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-diyar-brown/20 focus:border-diyar-brown text-sm bg-white"
+                  >
+                    <option value="pending">بانتظار التأكيد</option>
+                    <option value="processing">قيد التحضير</option>
+                    <option value="shipped">تم الشحن</option>
+                    <option value="delivered">تم التسليم</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-1.5">حالة الدفع</label>
+                  <select 
+                    value={newPayment} 
+                    onChange={(e) => setNewPayment(e.target.value)}
+                    className="w-full text-right px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-diyar-brown/20 focus:border-diyar-brown text-sm bg-white"
+                  >
+                    <option value="paid">مدفوع</option>
+                    <option value="unpaid">غير مدفوع</option>
+                    <option value="refunded">مسترد</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-gray-150 flex items-center justify-end gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="px-5 py-2.5 text-sm font-bold text-gray-500 hover:text-diyar-dark hover:bg-gray-50 rounded-xl transition"
+                >
+                  إلغاء
+                </button>
+                <button 
+                  type="submit" 
+                  className="bg-diyar-brown hover:bg-[#A67B5B] text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-md transition"
+                >
+                  حفظ الطلب
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 border-b border-gray-100">
@@ -308,11 +469,11 @@ export default function VendorOrders() {
                          </button>
                          {/* Status Dropdown Mockup */}
                          <div className="absolute left-0 mt-2 w-40 bg-white border border-gray-100 rounded-xl shadow-lg opacity-0 invisible group-hover/actions:opacity-100 group-hover/actions:visible transition-all z-10 py-1">
-                           <button className="w-full text-right px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"><Package size={14}/>قيد التحضير</button>
-                           <button className="w-full text-right px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"><Truck size={14}/>تم الشحن</button>
-                           <button className="w-full text-right px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"><CheckCircle size={14}/>تم التسليم</button>
+                           <button onClick={() => updateOrderStatus(order.id, 'processing')} className="w-full text-right px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"><Package size={14}/>قيد التحضير</button>
+                           <button onClick={() => updateOrderStatus(order.id, 'shipped')} className="w-full text-right px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"><Truck size={14}/>تم الشحن</button>
+                           <button onClick={() => updateOrderStatus(order.id, 'delivered')} className="w-full text-right px-4 py-2 hover:bg-gray-50 text-sm flex items-center gap-2"><CheckCircle size={14}/>تم التسليم</button>
                            <div className="border-t border-gray-100 my-1"></div>
-                           <button className="w-full text-right px-4 py-2 hover:bg-red-50 text-red-600 text-sm flex items-center gap-2"><XCircle size={14}/>إلغاء الطلب</button>
+                           <button onClick={() => updateOrderStatus(order.id, 'cancelled')} className="w-full text-right px-4 py-2 hover:bg-red-50 text-red-600 text-sm flex items-center gap-2"><XCircle size={14}/>إلغاء الطلب</button>
                          </div>
                        </div>
                     </div>
