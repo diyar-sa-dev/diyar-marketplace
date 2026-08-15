@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { assetUrl } from '../utils/assetUrl.ts';
 
 const slides = [
   { 
     title: "منصة ديار — أثاث وخدمات متكاملة", 
     sub: "المنصة الأولى التي تجمع بين أفضل تجار الأثاث، ومقدمي خدمات التصميم والتركيب في مكان واحد.", 
     btnText: "تسوق الأثاث",
-    img: assetUrl("/hero_1.jpg") 
+    img: "/hero_1.jpg" 
   },
   { 
-    title: "جرّب الأثاث في منزلك بالذكاء الاصطناعي", 
+    title: "جرّب الأثاث في منزلك بالمساعد الشخصي", 
     sub: "لا تتردد في الاختيار. استخدم تقنيتنا المتطورة لدمج الأثاث في مساحتك الخاصة قبل الشراء.", 
     btnText: "جرب الآن",
-    img: assetUrl("/hero_2.jpg") 
+    img: "/hero_2.jpg" 
   },
   { 
     title: "برنامج ديار للولاء والتسويق بالشراكة", 
     sub: "تسوق واكسب نقاط الولاء، أو انضم كمسوق بالعمولة وابدأ بجني الأرباح مع منصة ديار.", 
     btnText: "انضم كشريك",
-    img: assetUrl("/hero_3.jpg") 
+    img: "/hero_3.jpg" 
   },
 ];
 
@@ -34,8 +33,8 @@ export default function Hero() {
   }, []);
 
   return (
-    <div className="bg-white px-4 pb-2 md:px-8 md:pb-4">
-      <div className="relative h-[75svh] md:h-[85vh] w-full overflow-hidden rounded-2xl md:rounded-3xl">
+    <div className="bg-white">
+      <div className="relative h-[calc(100vh-40px)] w-full overflow-hidden">
         {slides.map((slide, i) => (
           <div key={i} className={`absolute inset-0 transition-opacity duration-1000 ${i === current ? 'opacity-100' : 'opacity-0'}`}>
             <img 
@@ -50,9 +49,9 @@ export default function Hero() {
             <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-black/80 via-black/40 to-transparent"></div>
             <div className="relative h-full max-w-7xl mx-auto px-6 md:px-20 flex items-end md:items-center justify-center md:justify-start pb-20 md:pb-0 text-center md:text-right">
               <div className="text-white max-w-lg mb-10 md:mb-0">
-                <h1 className="text-3xl md:text-6xl font-sans font-bold mb-4 md:mb-6 leading-tight">{slide.title}</h1>
+                <h1 className="text-2xl md:text-4xl lg:text-5xl font-sans font-bold mb-4 md:mb-6 leading-snug">{slide.title}</h1>
                 <p className="text-base md:text-xl mb-8 leading-relaxed opacity-90">{slide.sub}</p>
-                <button className="bg-diyar-brown text-white px-8 py-3.5 rounded-2xl md:rounded-xl font-sans text-lg hover:bg-[#856b54] transition shadow-lg w-full md:w-auto">{slide.btnText}</button>
+                <button className="bg-diyar-brown text-white px-8 py-3.5 rounded-xl md:rounded-lg font-sans text-lg hover:bg-[#856b54] transition shadow-lg w-full md:w-auto">{slide.btnText}</button>
               </div>
             </div>
           </div>

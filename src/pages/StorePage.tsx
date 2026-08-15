@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MapPin, Star, Award, ShieldCheck, Share2, Mail, LayoutGrid, Info, Clock, Truck } from 'lucide-react';
-import ProductCard from '../components/ProductCard';
+import ProductCard from '../components/cards/ProductCard.tsx';
 
 export default function StorePage() {
   const { id } = useParams();

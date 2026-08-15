@@ -35,7 +35,7 @@ export default function LoyaltyPage() {
                   <Star size={40} className="text-amber-400 fill-amber-400" />
                 </div>
                 <div>
-                  <span className="text-white/80 font-medium tracking-wide mb-1 block text-lg">رصيد النقاط المتاح</span>
+                  <span className="text-white/80 font-medium mb-1 block text-lg">رصيد النقاط المتاح</span>
                   <div className="flex items-end gap-2">
                     <span className="text-5xl md:text-7xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">200</span>
                     <span className="text-xl md:text-2xl font-bold text-amber-500 mb-2">نقطة</span>

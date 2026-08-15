@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import { Bookmark, Star, Store, CalendarClock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useCart } from '../../context/CartContext.tsx';
 
 const ServiceCard: React.FC<{service: any; layout?: 'grid' | 'list'}> = ({service, layout = 'grid'}) => {
   const [isSaved, setIsSaved] = useState(false);
+  const { addItem } = useCart();
+  const addToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem({ type: 'service', name: service.name, vendor: service.vendor, price: service.price, img: service.img });
+  };
 
   if (layout === 'list') {
     return (
       <Link to={`/service/${service?.id || '1'}`} className="block w-full group">
-        <div className="border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-xl overflow-hidden group transition-all duration-300 hover:shadow-md bg-white relative flex flex-row h-32 sm:h-36 md:h-40">
+        <div className="border border-gray-100 shadow-sm rounded-lg overflow-hidden group transition-all duration-300 hover:shadow-md bg-white relative flex flex-row h-32 sm:h-36 md:h-40">
           <div className="relative w-1/3 min-w-[110px] sm:min-w-[130px] md:min-w-[150px] h-full overflow-hidden shrink-0">
             <img 
               src={service.img} 
@@ -52,15 +59,15 @@ const ServiceCard: React.FC<{service: any; layout?: 'grid' | 'list'}> = ({servic
 
             <div className="flex justify-start items-center gap-1 mb-1">
               <span className="text-[10px] sm:text-xs text-gray-400">السعر التقريبى:</span>
-              <span className="font-bold text-sm sm:text-lg text-diyar-dark">{service.price} ر.س</span>
+              <span className="font-bold text-sm sm:text-lg text-diyar-dark">{service.price} <span className="text-xs font-medium text-gray-400">ر.س</span></span>
             </div>
             
             <div className="flex justify-end">
               <button 
-                className="bg-diyar-brown text-white rounded-lg sm:rounded-xl py-1 px-3 sm:py-1.5 sm:px-5 font-bold text-[10px] sm:text-xs transition-all hover:bg-orange-700 flex items-center justify-center gap-1 z-10 relative"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                className="bg-diyar-brown text-white rounded-lg sm:rounded-lg py-1 px-3 sm:py-1.5 sm:px-5 font-bold text-[10px] sm:text-xs transition-all hover:bg-orange-700 flex items-center justify-center gap-1 z-10 relative"
+                onClick={addToCart}
               >
-                طلب خدمة
+                طلب تنفيذ
               </button>
             </div>
           </div>
@@ -71,7 +78,7 @@ const ServiceCard: React.FC<{service: any; layout?: 'grid' | 'list'}> = ({servic
 
   return (
     <Link to={`/service/${service?.id || '1'}`} className="block h-full group">
-      <div className="border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-xl overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg bg-white relative flex flex-col h-full">
+      <div className="border border-gray-100 shadow-sm rounded-lg overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-md bg-white relative flex flex-col h-full">
         <div className="relative mb-2 aspect-[4/3] md:h-40 overflow-hidden">
           <img 
             src={service.img} 
@@ -92,18 +99,18 @@ const ServiceCard: React.FC<{service: any; layout?: 'grid' | 'list'}> = ({servic
           />
         </div>
         
-        <div className="flex flex-col flex-grow px-3 pb-3">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-1 text-gray-500 text-[10px] font-medium">
-              <Store size={12} className="text-diyar-brown" />
-              <span>{service.vendor}</span>
+        <div className="flex flex-col flex-grow px-3.5 pb-3.5">
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <div className="flex items-center gap-1 text-gray-400 text-[10px] font-medium min-w-0">
+              <Store size={12} className="text-diyar-brown shrink-0" />
+              <span className="truncate">{service.vendor}</span>
             </div>
             <div className="flex gap-0.5 text-yellow-400">
                {[...Array(5)].map((_, i) => <Star key={i} size={10} fill={i < Math.floor(service.rating || 4) ? "currentColor" : "none"} strokeWidth={i < Math.floor(service.rating || 4) ? 0 : 2} />)}
             </div>
           </div>
           
-          <h3 className="font-bold text-sm md:text-base mb-1.5 line-clamp-2 text-diyar-dark leading-tight">{service.name}</h3>
+          <h3 className="font-bold text-sm md:text-base mb-1.5 line-clamp-2 text-diyar-dark leading-snug">{service.name}</h3>
           
           <div className="flex items-center gap-2 mb-2 mt-auto text-[10px] text-gray-500">
             <div className="flex items-center gap-1 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
@@ -113,13 +120,13 @@ const ServiceCard: React.FC<{service: any; layout?: 'grid' | 'list'}> = ({servic
 
           <div className="flex justify-start items-center gap-1 mb-3 mt-1">
             <span className="text-xs text-gray-500 ml-1">السعر التقريبي:</span>
-            <span className="font-bold text-base text-diyar-dark">{service.price} ر.س</span>
+            <span className="font-bold text-base text-diyar-dark">{service.price} <span className="text-xs font-medium text-gray-400">ر.س</span></span>
           </div>
           <button 
             className="w-full bg-diyar-brown text-white rounded-lg py-1.5 font-bold text-xs transition-colors hover:bg-orange-700 flex items-center justify-center gap-1.5 mt-auto z-10 relative"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
           >
-            طلب خدمة
+            طلب تنفيذ
           </button>
         </div>
       </div>

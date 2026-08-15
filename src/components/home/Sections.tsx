@@ -1,8 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import ProductCard from './ProductCard.tsx';
-import { Star, Quote, ArrowLeft, Send, Sparkles, UploadCloud, Grid, Store, Briefcase, Paintbrush, Smartphone, Scan, Box, BellRing, Wrench, ShieldCheck, Truck, HeadphonesIcon, CreditCard, PenTool, Twitter, Instagram, MessageCircle, Heart, Bookmark, Eye } from 'lucide-react';
-import { assetUrl } from '../utils/assetUrl.ts';
+import ProductCard from '../cards/ProductCard.tsx';
+import { Star, Quote, ArrowLeft, Send, Sparkles, UploadCloud, Grid, Store, Briefcase, Paintbrush, Smartphone, Scan, Box, BellRing, Wrench, ShieldCheck, Truck, HeadphonesIcon, CreditCard, PenTool, Twitter, Instagram, MessageCircle, Heart, Bookmark, Eye, Gift, ChevronLeft, ChevronRight } from 'lucide-react';
+
+// Edge-overlay left/right scroll arrows for horizontal card rails (desktop only).
+// Must be placed inside a `relative` wrapper around the scroll container.
+function RailArrows({ scroller }: { scroller: React.RefObject<HTMLDivElement | null> }) {
+  const scroll = (dir: number) => scroller.current?.scrollBy({ left: dir * 340, behavior: 'smooth' });
+  const base = 'hidden md:flex absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm shadow-md border border-gray-100 items-center justify-center text-diyar-dark hover:bg-diyar-brown hover:text-white hover:border-diyar-brown transition-colors';
+  return (
+    <>
+      <button onClick={() => scroll(1)} aria-label="السابق" className={`${base} -right-3`}>
+        <ChevronRight size={20} />
+      </button>
+      <button onClick={() => scroll(-1)} aria-label="التالي" className={`${base} -left-3`}>
+        <ChevronLeft size={20} />
+      </button>
+    </>
+  );
+}
 
 export function BestSellers() {
   const [tab, setTab] = useState(0);
@@ -12,17 +28,17 @@ export function BestSellers() {
     {img: "https://images.unsplash.com/photo-1583847268964-b28ce8f30e9b?auto=format&fit=crop&q=80&w=400", name: "طاولة خشب طبيعي", vendor: "روائع الخشب", price: 1200, oldPrice: 1600},
     {img: "https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&q=80&w=400", name: "سرير كينج ملكي", vendor: "أناقة المنزل", price: 4200, oldPrice: 5500},
     {img: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=400", name: "خزانة ملابس مبتكرة", vendor: "بيت التصميم", price: 3100, oldPrice: 4000},
-    {img: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=400", name: "مكتب عمل مريح", vendor: "المكتب الذكي", price: 850, oldPrice: 1100},
+    {img: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=400", name: "مكتب عمل مريح", vendor: "ركن المكاتب", price: 850, oldPrice: 1100},
     {img: "https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format&fit=crop&q=80&w=400", name: "كرسي استرخاء", vendor: "زاوية الراحة", price: 1450, oldPrice: 1900},
     {img: "https://images.unsplash.com/photo-1560606177-063fb90494f4?auto=format&fit=crop&q=80&w=400", name: "طقم طعام كلاسيك", vendor: "مفروشات الرقي", price: 9200, oldPrice: 12000},
   ];
   return (
-    <div className="max-w-7xl mx-auto py-4 md:py-6">
-      <h2 className="text-xl md:text-3xl font-sans font-bold mb-4 md:mb-8 text-center px-4">الأعلى مبيعاً</h2>
-      <div className="flex gap-2 md:gap-4 mb-6 md:mb-8 overflow-x-auto scrollbar-hide px-4 snap-x justify-start md:justify-center">
-        {["الكل", "المنصة", "غرف النوم", "الصالونات", "المطابخ"].map((t, i) => <button key={i} onClick={() => setTab(i)} className={`px-4 md:px-6 py-2 rounded-full transition whitespace-nowrap snap-start text-sm md:text-base ${tab === i ? 'bg-diyar-dark text-white shadow-md' : 'bg-diyar-cream text-diyar-dark hover:bg-diyar-brown/20'}`}>{t}</button>)}
+    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
+      <h2 className="text-xl md:text-3xl font-sans font-bold mb-4 md:mb-8 text-center">الأعلى مبيعاً</h2>
+      <div className="flex gap-2 md:gap-4 mb-6 md:mb-8 overflow-x-auto scrollbar-hide snap-x justify-start md:justify-center">
+        {["الكل", "المنصة", "غرف النوم", "الصالونات", "المطابخ"].map((t, i) => <button key={i} onClick={() => setTab(i)} className={`px-4 md:px-6 py-2 rounded-full transition whitespace-nowrap snap-start text-sm md:text-base ${tab === i ? 'bg-diyar-brown text-white shadow-md' : 'bg-diyar-cream text-diyar-dark hover:bg-diyar-brown/20'}`}>{t}</button>)}
       </div>
-      <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x px-4 py-6 -my-6">
+      <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
         {products.map((p, i) => (
           <div key={i} className="w-[200px] md:w-auto flex-shrink-0 snap-start">
             <ProductCard product={p} />
@@ -42,6 +58,7 @@ export function NewArrivals() {
     {img: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=400", name: "طقم سجاد يدوي", vendor: "سجاد الشرق", price: 2100, oldPrice: 2800},
     {img: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&q=80&w=400", name: "لوحة جدارية فنية", vendor: "لمسات فنية", price: 120, oldPrice: 200},
   ];
+  const railRef = useRef<HTMLDivElement>(null);
   return (
     <div className="bg-diyar-cream/30 py-4 md:py-6">
       <div className="max-w-7xl mx-auto px-4">
@@ -51,12 +68,15 @@ export function NewArrivals() {
             عرض الكل <ArrowLeft size={16} className="md:w-[18px] md:h-[18px]" />
           </button>
         </div>
-        <div className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6 px-4 -mx-4">
-          {products.map((p, i) => (
-            <div className="w-[200px] md:w-[230px] shrink-0 snap-start" key={i}>
-               <ProductCard product={p} />
-            </div>
-          ))}
+        <div className="relative">
+          <RailArrows scroller={railRef} />
+          <div ref={railRef} className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
+            {products.map((p, i) => (
+              <div className="w-[200px] md:w-[230px] shrink-0 snap-start" key={i}>
+                 <ProductCard product={p} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -72,12 +92,12 @@ export function SuggestedForYou() {
     {img: "https://images.unsplash.com/photo-1583847268964-b28ce8f30e9b?auto=format&fit=crop&q=80&w=400", name: "طاولة جانبية خشبية", vendor: "روائع الخشب", price: 350, oldPrice: 480},
   ];
   return (
-    <div className="max-w-7xl mx-auto py-4 md:py-6 px-4">
+    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
        <div className="text-center mb-6 md:mb-8">
-        <span className="text-diyar-brown text-sm font-medium tracking-wide mb-2 block">بناءً على تصفحك</span>
+        <span className="text-diyar-brown text-sm font-medium mb-2 block">بناءً على تصفحك</span>
         <h2 className="text-2xl md:text-3xl font-sans font-bold">مقترح لك</h2>
        </div>
-      <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6 px-4 -mx-4">
+      <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
         {products.map((p, i) => (
           <div key={i} className="w-[200px] md:w-auto flex-shrink-0 snap-start">
             <ProductCard product={p} />
@@ -100,7 +120,7 @@ export function Reviews() {
         <h2 className="text-xl md:text-3xl font-sans font-bold mb-6 md:mb-8 text-center">ماذا قال عملاؤنا</h2>
         <div className="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x">
           {reviews.map((r, i) => (
-             <div key={i} className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 relative min-w-[280px] md:min-w-0 snap-start flex-shrink-0 flex flex-col">
+             <div key={i} className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 relative min-w-[280px] md:min-w-0 snap-start flex-shrink-0 flex flex-col">
                <Quote className="absolute top-6 right-6 text-diyar-cream w-8 md:w-12 h-8 md:h-12 opacity-50 -z-0" />
                <div className="relative z-10 flex flex-col h-full">
                  <div className="flex gap-1 text-yellow-500 mb-4">
@@ -122,7 +142,7 @@ export function Reviews() {
 
 export function Newsletter() {
   return (
-    <div className="bg-white py-6 md:py-10">
+    <div className="bg-white py-6 md:py-8">
       <div className="max-w-3xl mx-auto px-4 text-center">
         <h2 className="text-2xl md:text-4xl font-sans font-bold mb-4 text-diyar-dark">اشترك في نشرتنا البريدية</h2>
         <p className="text-lg text-gray-500 mb-8">احصل على أحدث العروض، ونصائح الديكور، والمنتجات الجديدة مباشرة في صندوق الوارد الخاص بك.</p>
@@ -132,7 +152,7 @@ export function Newsletter() {
             placeholder="أدخل بريدك الإلكتروني" 
             className="flex-1 bg-diyar-cream/50 border border-gray-200 rounded-lg px-6 py-4 outline-none focus:border-diyar-brown transition"
           />
-          <button className="bg-diyar-dark text-white px-8 py-4 rounded-lg hover:bg-diyar-brown transition flex items-center justify-center gap-2">
+          <button className="bg-diyar-brown text-white px-8 py-4 rounded-lg hover:bg-diyar-brown transition flex items-center justify-center gap-2">
             <span>اشتراك</span>
             <Send className="w-5 h-5 rtl:-scale-x-100" />
           </button>
@@ -151,14 +171,14 @@ export function StyleFilter() {
     { name: "خشبي طبيعي", desc: "دفء الطبيعة في منزلك", img: "https://images.unsplash.com/photo-1449247709967-d4461a6a6103?auto=format&fit=crop&q=80&w=600" }
   ];
   return (
-    <div className="max-w-7xl mx-auto py-6 md:py-10 px-4">
+    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
       <div className="text-center mb-6 md:mb-10">
-        <span className="text-diyar-brown text-sm md:text-base font-bold tracking-widest mb-3 block">تنوع الأذواق</span>
+        <span className="text-diyar-brown text-sm md:text-base font-bold mb-3 block">تنوع الأذواق</span>
         <h2 className="text-2xl md:text-5xl font-sans font-bold text-diyar-dark">تسوق حسب الأسلوب</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:gap-5 md:h-[600px]">
         {styles.map((s, i) => (
-          <div key={i} className={`rounded-2xl md:rounded-3xl overflow-hidden relative group cursor-pointer flex flex-col justify-end ${
+          <div key={i} className={`rounded-xl md:rounded-xl overflow-hidden relative group cursor-pointer flex flex-col justify-end ${
             i === 0 ? 'md:col-span-2 md:row-span-2 h-80 md:h-full' : 'md:col-span-1 md:row-span-1 h-56 md:h-full'
           }`}>
             <img 
@@ -184,63 +204,63 @@ export function StyleFilter() {
 
 export function AIBanner() {
   return (
-    <div className="bg-[#132624] text-white py-16 md:py-24 my-10 md:my-20 relative overflow-hidden rounded-none max-w-7xl mx-auto shadow-2xl lg:border-white/10 lg:border-x">
+    <div className="bg-[#132624] text-white py-8 md:py-12 my-8 md:my-10 mx-4 md:mx-auto relative overflow-hidden rounded-3xl max-w-7xl shadow-md">
       {/* Decorative background elements */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
       <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-[#947961]/20 rounded-full blur-[130px] -translate-y-1/2 translate-x-1/3"></div>
       <div className="absolute bottom-0 left-0 w-[30rem] h-[30rem] bg-[#1a4a42]/30 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3"></div>
 
-      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-20 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-8 lg:gap-12 relative z-10">
         
         <div className="w-full md:w-1/2 text-center md:text-right order-2 md:order-1">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 backdrop-blur-md shadow-lg text-[#d2b694] font-bold rounded-full mb-6 md:mb-8 text-sm">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 backdrop-blur-md shadow-md text-[#d2b694] font-bold rounded-full mb-6 md:mb-8 text-sm">
             <Sparkles size={16} className="animate-pulse" />
-            <span>تقنية الذكاء الاصطناعي من ديار</span>
+            <span>تقنية المساعد الشخصي من ديار</span>
           </div>
           <h2 className="text-3xl md:text-5xl font-sans font-bold mb-6 text-[#f3ecdb] leading-[1.4]">
             المستقبل هنا. <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-l from-[#d2b694] to-white">صمم غرفتك بلمسة خيال!</span>
           </h2>
           <p className="mb-8 md:mb-10 text-gray-300 text-base md:text-lg leading-relaxed max-w-xl mx-auto md:mx-0 font-light">
-            لا داعي للتخيل بعد الآن. صور مساحتك، وسيقوم الذكاء الاصطناعي المتقدم بتحليل الأبعاد والنمط، ليدمج قطع الأثاث المثالية بواقعية مذهلة، لترى غرفتك قبل التنفيذ.
+            لا داعي للتخيل بعد الآن. صور مساحتك، وسيقوم المساعد الشخصي المتقدم بتحليل الأبعاد والنمط، ليدمج قطع الأثاث المثالية بواقعية مذهلة، لترى غرفتك قبل التنفيذ.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
-            <button className="flex items-center justify-center gap-3 bg-[#947961] text-white px-8 py-4 rounded-xl hover:bg-[#7a6450] hover:scale-105 transition-all duration-300 text-lg shadow-[0_0_30px_rgba(148,121,97,0.3)] font-bold group border border-[#947961]/50 w-full sm:w-auto">
+            <button className="flex items-center justify-center gap-3 bg-[#947961] text-white px-8 py-4 rounded-lg hover:bg-[#7a6450] hover:scale-105 transition-all duration-300 text-lg shadow-md font-bold group border border-[#947961]/50 w-full sm:w-auto">
               <UploadCloud className="group-hover:-translate-y-1 transition-transform" />
               <span>جرب غرفتك الآن</span>
             </button>
-            <button className="flex items-center justify-center gap-2 bg-transparent text-white border border-white/20 px-8 py-4 rounded-xl hover:bg-white/5 transition-colors text-lg font-bold w-full sm:w-auto">
+            <button className="flex items-center justify-center gap-2 bg-transparent text-white border border-white/20 px-8 py-4 rounded-lg hover:bg-white/5 transition-colors text-lg font-bold w-full sm:w-auto">
               شاهد التفاصيل
             </button>
           </div>
         </div>
 
         <div className="w-full md:w-1/2 order-1 md:order-2 flex justify-center">
-          <div className="relative w-full max-w-lg aspect-[4/3] bg-[#1a3330] rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/10 ring-1 ring-white/5 mx-auto">
+          <div className="relative w-full max-w-lg aspect-[4/3] bg-[#1a3330] rounded-xl overflow-hidden shadow-md border border-white/10 ring-1 ring-white/5 mx-auto">
             
             {/* Before Image */}
-            <img src={assetUrl("/before.png")} alt="Empty Room Before" className="absolute inset-0 w-full h-full object-cover filter grayscale-[20%] opacity-90" />
+            <img src="/before.png" alt="Empty Room Before" className="absolute inset-0 w-full h-full object-cover filter grayscale-[20%] opacity-90" />
             
             {/* After Image and Clip */}
             <div className="absolute inset-0 animate-[sweep_4s_ease-in-out_infinite]">
-               <img src={assetUrl("/after.png")} alt="Room After AI Placement" className="absolute inset-0 w-full h-full object-cover" />
+               <img src="/after.png" alt="Room After AI Placement" className="absolute inset-0 w-full h-full object-cover" />
             </div>
             
             {/* Animated scanning line synced with clip path */}
-            <div className="absolute top-0 bottom-0 w-1 bg-[#d2b694] shadow-[0_0_25px_5px_rgba(210,182,148,0.7)] animate-[scan-x_4s_ease-in-out_infinite] -ml-[2px] z-10 flex flex-col items-center justify-center">
-               <div className="w-8 h-8 md:w-10 md:h-10 bg-[#132624] border-2 border-[#d2b694] rounded-full shadow-[0_0_15px_rgba(210,182,148,0.6)] flex items-center justify-center -translate-x-[14px] md:-translate-x-[18px]">
+            <div className="absolute top-0 bottom-0 w-1 bg-[#d2b694] shadow-md animate-[scan-x_4s_ease-in-out_infinite] -ml-[2px] z-10 flex flex-col items-center justify-center">
+               <div className="w-8 h-8 md:w-10 md:h-10 bg-[#132624] border-2 border-[#d2b694] rounded-full shadow-md flex items-center justify-center -translate-x-[14px] md:-translate-x-[18px]">
                  <Sparkles size={16} className="text-[#d2b694]" />
                </div>
             </div>
 
             {/* Labels */}
-            <div className="absolute top-4 right-4 md:top-6 md:right-6 bg-black/50 border border-white/10 backdrop-blur-md px-4 py-1.5 md:px-5 md:py-2 rounded-xl text-xs font-bold text-gray-300 shadow-xl z-0">
+            <div className="absolute top-4 right-4 md:top-6 md:right-6 bg-black/50 border border-white/10 backdrop-blur-md px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-xs font-bold text-gray-300 shadow-md z-0">
                المساحة الأصلية
             </div>
-            <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 bg-gradient-to-r from-[#947961] to-[#7a6450] px-4 py-1.5 md:px-5 md:py-2 rounded-xl text-xs md:text-sm font-bold text-white shadow-[0_10px_20px_rgba(148,121,97,0.4)] z-20 flex items-center gap-2 border border-white/20">
+            <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 bg-gradient-to-r from-[#947961] to-[#7a6450] px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold text-white shadow-md z-20 flex items-center gap-2 border border-white/20">
                <Sparkles size={16} className="text-yellow-200" />
-               ترتيب الذكاء الاصطناعي
+               ترتيب المساعد الشخصي
             </div>
           </div>
         </div>
@@ -252,56 +272,85 @@ export function AIBanner() {
 
 export function PartnerBanner() {
   return (
-    <div className="max-w-7xl mx-auto px-4 my-8 md:my-16">
-      <div className="relative rounded-2xl md:rounded-[2rem] overflow-hidden bg-diyar-dark text-white shadow-2xl">
-        {/* Background image & gradient overlay */}
-        <div className="absolute inset-0">
-          <img 
-            src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200" 
-            alt="Office" 
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover opacity-25"
-            onError={(e) => {
-               (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200";
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-l from-diyar-dark via-diyar-dark/95 to-diyar-dark/70"></div>
-          {/* Subtle decorative circles */}
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-diyar-brown rounded-full mix-blend-multiply blur-3xl opacity-50"></div>
-          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-diyar-cream rounded-full mix-blend-screen blur-3xl opacity-20"></div>
+    <div className="max-w-7xl mx-auto px-4 my-8 md:my-12">
+      <div className="bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A] rounded-xl p-8 md:p-12 lg:p-16 relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8 shadow-md">
+        {/* Subtle decorative background elements */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-diyar-brown/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-diyar-cream/10 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/3"></div>
+
+        {/* Text and Actions Content */}
+        <div className="w-full lg:translate-x-0 lg:w-1/2 relative z-10 text-center lg:text-right flex flex-col justify-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-8 shadow-sm self-center lg:self-start">
+            <Store size={16} className="text-diyar-cream" />
+            <span className="text-diyar-cream text-sm font-bold">شركاء النجاح في ديار</span>
+          </div>
+          
+          <h2 className="text-3xl md:text-5xl font-sans font-bold text-white mb-6 leading-snug">
+            انضم إلى مجتمع ديار <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-l from-[#d4b08c] to-yellow-500">وابدأ قصة نجاحك</span>
+          </h2>
+          
+          <p className="text-base md:text-lg text-gray-400 leading-relaxed mb-8 max-w-xl mx-auto lg:mx-0 font-light">
+            سواءً كنت تاجر أثاث تبحث عن توسيع نطاق أعمالك، أو مقدم خدمات، أو مسوق مبدع، منصة ديار هي بوابتك للنمو المالي والمهني.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <button className="flex items-center justify-center gap-2 bg-diyar-cream text-diyar-dark px-8 py-4 rounded-xl font-bold hover:bg-white hover:-translate-y-1 transition-all duration-300 shadow-md group">
+              <Store className="group-hover:scale-110 transition-transform text-diyar-brown" size={20} />
+              <span>سجل كتاجر</span>
+            </button>
+            <button className="flex items-center justify-center gap-2 bg-white/10 border border-white/20 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/20 hover:-translate-y-1 transition-all duration-300 group">
+              <Sparkles className="group-hover:scale-110 transition-transform text-yellow-500" size={20} />
+              <span>اكتشف المزيد</span>
+            </button>
+          </div>
         </div>
 
-        <div className="relative z-10 px-6 py-12 md:py-20 md:px-16 flex flex-col items-center text-center max-w-4xl mx-auto">
-           <div className="border border-diyar-cream/30 bg-diyar-cream/10 backdrop-blur-sm px-4 py-1.5 rounded-full mb-6">
-             <span className="text-diyar-cream text-sm md:text-base font-bold tracking-widest uppercase">شركاء النجاح</span>
-           </div>
-           
-           <h2 className="text-2xl md:text-5xl font-sans font-bold mb-6 text-white leading-tight">
-             انضم إلى مجتمع ديار
-             <span className="text-diyar-brown block mt-2">وابدأ قصة نجاحك</span>
-           </h2>
-           
-           <p className="text-base md:text-lg text-white/80 mb-12 leading-relaxed max-w-2xl">
-             سواءً كنت تاجر أثاث تبحث عن توسيع نطاق أعمالك، أو مقدم خدمات (تركيب، تصميم ديكور)، أو مسوق مبدع، منصة ديار هي بوابتك للنمو المالي والمهني.
-           </p>
-           
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-             <button className="flex items-center justify-center gap-3 bg-white text-diyar-dark p-4 md:p-5 rounded-2xl font-bold hover:bg-diyar-cream hover:-translate-y-1 transition duration-300 shadow-xl group">
-               <Store className="text-diyar-brown group-hover:scale-110 transition-transform" />
-               <span className="text-base md:text-lg">سجل كتاجر</span>
-             </button>
-             
-             <button className="flex items-center justify-center gap-3 bg-white/10 border border-white/20 backdrop-blur-md text-white p-4 md:p-5 rounded-2xl font-bold hover:bg-white/20 hover:border-white/40 hover:-translate-y-1 transition duration-300 group">
-               <Briefcase className="text-diyar-cream group-hover:scale-110 transition-transform" />
-               <span className="text-base md:text-lg">انضم كمسوق</span>
-             </button>
-             
-             <button className="flex items-center justify-center gap-3 bg-white/10 border border-white/20 backdrop-blur-md text-white p-4 md:p-5 rounded-2xl font-bold hover:bg-white/20 hover:border-white/40 hover:-translate-y-1 transition duration-300 group">
-               <Paintbrush className="text-diyar-cream group-hover:scale-110 transition-transform" />
-               <span className="text-base md:text-lg">سجل كمقدم خدمة</span>
-             </button>
-           </div>
+        {/* Bento Grid layout for cards */}
+        <div className="w-full lg:w-1/2 relative z-10 flex flex-col gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[1.5rem] hover:bg-white/10 transition-all duration-300 group cursor-pointer relative overflow-hidden backdrop-blur-sm flex flex-col">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-diyar-brown/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2"></div>
+              <div className="w-14 h-14 bg-diyar-brown/20 border border-diyar-brown/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner">
+                 <Briefcase className="text-diyar-cream" size={28} />
+              </div>
+              <h3 className="text-lg md:text-xl font-bold text-white mb-2">مسوق بالعمولة</h3>
+              <p className="text-gray-400 text-sm leading-relaxed flex-1">سوق لمنتجات ديار واحصل على عمولات وتتبع أرباحك لحظة بلحظة.</p>
+              <div className="inline-flex items-center gap-1.5 text-diyar-brown text-sm font-bold group-hover:text-[#d4b08c] transition-colors mt-6">
+                <span>انضم كمسوق</span>
+                <ArrowLeft size={16} />
+              </div>
+            </div>
+            
+            <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[1.5rem] hover:bg-white/10 transition-all duration-300 group cursor-pointer relative overflow-hidden backdrop-blur-sm flex flex-col">
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-diyar-cream/10 rounded-full blur-[40px] translate-y-1/2 -translate-x-1/2"></div>
+              <div className="w-14 h-14 bg-diyar-cream/20 border border-diyar-cream/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner">
+                 <Paintbrush className="text-diyar-cream" size={28} />
+              </div>
+              <h3 className="text-lg md:text-xl font-bold text-white mb-2">مقدم خدمات</h3>
+              <p className="text-gray-400 text-sm leading-relaxed flex-1">قدم خدماتك في التصميم والتركيب والصيانة لشريحة واسعة من العملاء.</p>
+              <div className="inline-flex items-center gap-1.5 text-diyar-cream/80 text-sm font-bold group-hover:text-diyar-cream transition-colors mt-6">
+                <span>سجل مهنتك</span>
+                <ArrowLeft size={16} />
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-diyar-brown/10 border border-diyar-brown/20 p-6 md:p-8 rounded-[1.5rem] hover:bg-diyar-brown/20 transition-all duration-300 group cursor-pointer flex flex-col sm:flex-row items-center gap-6 justify-between relative overflow-hidden backdrop-blur-sm">
+            <div className="relative z-10 text-center sm:text-right w-full sm:w-[60%] flex flex-col items-center sm:items-start">
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-3">لوحة تحكم متكاملة</h3>
+              <p className="text-gray-400 text-sm leading-relaxed mb-6">أدوات احترافية لإدارة مبيعاتك، متابعة طلباتك، والتواصل مع عملائك بسهولة.</p>
+              <div className="inline-flex items-center gap-2 text-white bg-white/10 px-4 py-2 rounded-lg text-sm font-bold hover:bg-white/20 transition-colors">
+                <Store size={16} />
+                <span>شاهد العرض التجريبي</span>
+              </div>
+            </div>
+            <div className="w-full sm:w-[40%] flex justify-center opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
+               <img src="/laptop.png" alt="لوحة تحكم" className="w-40 md:w-56 object-contain drop-shadow-md" />
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   );
@@ -316,19 +365,19 @@ export function ShopByRoom() {
     { name: "الحديقة والجلسات الخارجية", img: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=600" }
   ];
   return (
-    <div className="max-w-7xl mx-auto py-4 md:py-6 px-4">
+    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
        <div className="text-center mb-6 md:mb-8">
         <h2 className="text-xl md:text-4xl font-sans font-bold text-diyar-dark mb-4">تسوق حسب غرفتك</h2>
         <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">تصفح منتجاتنا مصنفة حسب مساحات منزلك لتجربة تسوق أسهل وأكثر إلهاماً.</p>
        </div>
-       <div className="flex gap-3 md:gap-5 overflow-x-auto pb-6 scrollbar-hide snap-x">
+       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
           {rooms.map((room, i) => (
-            <div key={i} className="min-w-[190px] md:min-w-[260px] h-52 md:h-72 rounded-2xl overflow-hidden relative group cursor-pointer snap-start flex-shrink-0 shadow-sm border border-gray-100">
-               <img 
-                 src={room.img} 
-                 alt={room.name} 
+            <div key={i} className="h-44 md:h-60 rounded-xl overflow-hidden relative group cursor-pointer shadow-sm border border-gray-100">
+               <img
+                 src={room.img}
+                 alt={room.name}
                  referrerPolicy="no-referrer"
-                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                  onError={(e) => {
                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=600";
                  }}
@@ -355,11 +404,11 @@ export function FeaturedStores() {
     { name: "بيت التصميم", rating: 4.5, products: 86, logo: "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=200" }
   ];
   return (
-    <div className="bg-gray-50 py-6 md:py-10">
+    <div className="bg-gray-50 py-6 md:py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-end mb-6 md:mb-10">
            <div>
-             <span className="text-diyar-brown text-sm font-bold tracking-wider mb-2 block">شركاء النجاح</span>
+             <span className="text-diyar-brown text-sm font-bold mb-2 block">شركاء النجاح</span>
              <h2 className="text-2xl md:text-4xl font-sans font-bold text-diyar-dark">متاجر مميزة على ديار</h2>
            </div>
            <button className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition">
@@ -368,7 +417,7 @@ export function FeaturedStores() {
         </div>
         <div className="flex overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-6 gap-4 md:gap-4 pb-2 scrollbar-hide snap-x">
           {stores.map((store, i) => (
-             <Link to={`/store/${i+1}`} key={i} className="min-w-[140px] md:min-w-0 bg-white rounded-2xl p-4 md:p-3 border border-gray-100 shadow-sm hover:shadow-md transition group text-center flex flex-col items-center shrink-0 snap-start">
+             <Link to={`/store/${i+1}`} key={i} className="min-w-[140px] md:min-w-0 bg-white rounded-xl p-4 md:p-3 border border-gray-100 shadow-sm hover:shadow-md transition group text-center flex flex-col items-center shrink-0 snap-start">
                 <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gray-100 p-1 mb-3 overflow-hidden border border-gray-200">
                   <img 
                     src={store.logo} 
@@ -388,7 +437,7 @@ export function FeaturedStores() {
                   </div>
                   <span className="text-gray-400 text-[9px] md:text-[10px] font-normal">({store.products} منتج)</span>
                 </div>
-                <div className="w-full py-1.5 md:py-2 text-xs md:text-sm auto rounded-xl border border-gray-200 text-diyar-dark font-medium group-hover:bg-diyar-dark group-hover:text-white group-hover:border-diyar-dark transition mt-auto">
+                <div className="w-full py-1.5 md:py-2 text-xs md:text-sm auto rounded-lg border border-gray-200 text-diyar-dark font-medium group-hover:bg-diyar-brown group-hover:text-white group-hover:border-diyar-dark transition mt-auto">
                    تصفح المتجر
                 </div>
              </Link>
@@ -401,10 +450,10 @@ export function FeaturedStores() {
 
 export function SummerBanner() {
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 md:py-12">
-      <div className="rounded-2xl md:rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group">
+    <div className="max-w-5xl mx-auto px-4 py-8 md:py-8">
+      <div className="rounded-xl md:rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group">
         <img 
-          src={assetUrl("/بنر عروض الصيف.png")} 
+          src="/بنر عروض الصيف.png" 
           alt="عروض الصيف" 
           className="w-full h-auto object-cover group-hover:scale-[1.02] transition-transform duration-700" 
         />
@@ -416,9 +465,9 @@ export function SummerBanner() {
 export function SummerBanner2() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-      <div className="rounded-2xl md:rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group bg-diyar-cream/20">
+      <div className="rounded-xl md:rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group bg-diyar-cream/20">
         <img 
-          src={assetUrl("/بنر عروض الصيف 2.png")} 
+          src="/بنر عروض الصيف 2.png" 
           alt="عروض الصيف 2" 
           className="w-full h-auto object-cover group-hover:scale-[1.02] transition-transform duration-700" 
         />
@@ -437,30 +486,30 @@ export function WhyChooseDiyar() {
   return (
     <div className="py-6 md:py-8 border-b border-gray-100">
        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex overflow-x-auto md:grid md:grid-cols-4 gap-4 md:gap-12 text-center pb-4 md:pb-0 scrollbar-hide snap-x">
-             <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-2xl md:rounded-3xl md:rounded-none min-w-[240px] md:min-w-0 snap-start border border-gray-100 md:border-none">
-                <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-2xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
+          <div className="flex overflow-x-auto md:grid md:grid-cols-4 gap-4 md:gap-8 text-center pb-4 md:pb-0 scrollbar-hide snap-x">
+             <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-xl md:rounded-none min-w-[240px] md:min-w-0 snap-start border border-gray-100 md:border-none">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
                    <Star size={28} className="md:w-8 md:h-8" />
                 </div>
                 <h3 className="text-lg md:text-xl font-bold text-diyar-dark mb-2 md:mb-3">خيارات لا محدودة</h3>
                 <p className="text-gray-500 text-sm md:text-base leading-relaxed">آلاف القطع الفريدة من عشرات المتاجر والمصانع الموثوقة في مكان واحد.</p>
              </div>
-             <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-2xl md:rounded-3xl md:rounded-none min-w-[240px] md:min-w-0 snap-start border border-gray-100 md:border-none">
-                <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-2xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 -rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
+             <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-xl md:rounded-none min-w-[240px] md:min-w-0 snap-start border border-gray-100 md:border-none">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 -rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
                    <Sparkles size={28} className="md:w-8 md:h-8" />
                 </div>
                 <h3 className="text-lg md:text-xl font-bold text-diyar-dark mb-2 md:mb-3">تقنية الواقع المعزز</h3>
                 <p className="text-gray-500 text-sm md:text-base leading-relaxed">خاصية تجربة الأثاث في غرفتك وتخيل المساحة قبل إتمام الشراء.</p>
              </div>
-             <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-2xl md:rounded-3xl md:rounded-none min-w-[240px] md:min-w-0 snap-start border border-gray-100 md:border-none">
-                <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-2xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
+             <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-xl md:rounded-none min-w-[240px] md:min-w-0 snap-start border border-gray-100 md:border-none">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
                    <svg width="28" height="28" className="md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                 </div>
                 <h3 className="text-lg md:text-xl font-bold text-diyar-dark mb-2 md:mb-3">توصيل سريع وتركيب</h3>
                 <p className="text-gray-500 text-sm md:text-base leading-relaxed">نوفر خدمات شحن آمنة وسريعة مع خيارات التركيب لراحتك التامة.</p>
              </div>
-             <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-2xl md:rounded-3xl md:rounded-none min-w-[240px] md:min-w-0 snap-start border border-gray-100 md:border-none">
-                <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-2xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 -rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
+             <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-xl md:rounded-none min-w-[240px] md:min-w-0 snap-start border border-gray-100 md:border-none">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 -rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
                    <svg width="28" height="28" className="md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                 </div>
                 <h3 className="text-lg md:text-xl font-bold text-diyar-dark mb-2 md:mb-3">دفع آمن ومرن</h3>
@@ -479,10 +528,10 @@ export function DesignBlog() {
     { title: "٥ قطع أساسية لا غنى عنها في منزلك الجديد", category: "أساسيات المنزل", date: "٠٢ مايو", img: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=600" }
   ];
   return (
-    <div className="py-6 md:py-10 max-w-7xl mx-auto px-4">
+    <div className="py-8 md:py-12 max-w-7xl mx-auto px-4">
       <div className="flex justify-between items-end mb-6 md:mb-10">
         <div>
-           <span className="text-diyar-brown text-sm font-bold tracking-wider mb-2 block">مدونة ديار</span>
+           <span className="text-diyar-brown text-sm font-bold mb-2 block">مدونة ديار</span>
            <h2 className="text-2xl md:text-4xl font-sans font-bold text-diyar-dark">أفكار وإلهام لمنزلك</h2>
         </div>
         <button className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition">
@@ -491,8 +540,8 @@ export function DesignBlog() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
         {posts.map((post, i) => (
-           <div key={i} className="group cursor-pointer">
-              <div className="w-full h-60 rounded-2xl md:rounded-3xl overflow-hidden mb-6 relative">
+           <Link to={`/blog/${i + 1}`} key={i} className="group cursor-pointer block">
+              <div className="w-full h-60 rounded-xl md:rounded-xl overflow-hidden mb-6 relative">
                  <img 
                    src={post.img} 
                    alt={post.title} 
@@ -514,7 +563,7 @@ export function DesignBlog() {
               <h3 className="text-xl md:text-2xl font-bold font-sans text-diyar-dark leading-snug group-hover:text-diyar-brown transition">
                 {post.title}
               </h3>
-           </div>
+           </Link>
         ))}
       </div>
     </div>
@@ -523,20 +572,22 @@ export function DesignBlog() {
 
 export function AppPromo() {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 md:py-10">
-      <div className="bg-gradient-to-br from-diyar-dark to-[#342D25] rounded-2xl md:rounded-[40px] relative overflow-hidden flex flex-col md:flex-row items-center shadow-lg">
-        
-        {/* Abstract shapes in the background */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-diyar-brown/30 rounded-full mix-blend-color-dodge filter blur-[80px] translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-600/20 rounded-full mix-blend-color-dodge filter blur-[100px] -translate-x-1/3 translate-y-1/3"></div>
+    <div className="max-w-6xl mx-auto px-4 pt-16 md:pt-28 pb-8 md:pb-12">
+      <div className="bg-gradient-to-br from-diyar-dark to-[#342D25] rounded-3xl relative flex flex-col md:flex-row items-stretch shadow-md">
 
-        <div className="w-full md:w-1/2 p-6 md:p-12 relative z-10 text-center md:text-right">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-diyar-cream mb-6 backdrop-blur-md border border-white/10">
+        {/* Abstract shapes (clipped to the rounded box) */}
+        <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-diyar-brown/30 rounded-full mix-blend-color-dodge filter blur-[80px] translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-600/20 rounded-full mix-blend-color-dodge filter blur-[100px] -translate-x-1/3 translate-y-1/3"></div>
+        </div>
+
+        <div className="w-full md:w-1/2 p-6 md:p-10 relative z-10 text-center md:text-right flex flex-col justify-center">
+          <div className="inline-flex self-center md:self-start items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-diyar-cream mb-6 backdrop-blur-md border border-white/10">
             <Smartphone size={14} />
-            <span className="text-xs font-bold tracking-wider">تطبيق ديار الجديد</span>
+            <span className="text-xs font-bold">تطبيق ديار الجديد</span>
           </div>
           
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-white mb-4 leading-[1.2] font-sans">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-white mb-4 leading-[1.4] font-sans">
             تسوق أثاثك المفضل <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-diyar-cream to-amber-300">أينما كنت!</span>
           </h2>
@@ -576,14 +627,13 @@ export function AppPromo() {
           </div>
         </div>
 
-        <div className="w-full md:w-1/2 relative min-h-[300px] md:min-h-[450px] flex justify-center items-center mt-8 md:mt-0">
-            <div className="relative w-full flex justify-center">
-               <img 
-                 src={assetUrl("/app mockup.png")} 
-                 alt="Diyar App Mockup" 
-                 className="w-[85%] md:w-[90%] max-w-[500px] h-auto object-contain z-20 drop-shadow-2xl hover:scale-[1.02] transition-transform duration-500" 
-               />
-            </div>
+        <div className="w-full md:w-1/2 relative min-h-[230px] md:min-h-[260px] flex justify-center items-end mt-4 md:mt-0">
+            <img
+              src="/app mockup.png"
+              alt="Diyar App Mockup"
+              referrerPolicy="no-referrer"
+              className="w-[62%] sm:w-[46%] md:w-auto md:h-[120%] md:absolute md:bottom-0 md:left-1/2 md:-translate-x-1/2 max-w-[420px] h-auto object-contain z-20 drop-shadow-2xl hover:scale-[1.02] transition-transform duration-500"
+            />
         </div>
 
       </div>
@@ -594,37 +644,37 @@ export function AppPromo() {
 export function FastOffersSlider() {
   const offers = [
     { 
-      img: assetUrl("/panel%204.png"),
-      color: "bg-diyar-dark",
-      span: "md:col-span-3"
-    },
-    { 
-      img: assetUrl("/panel%205.png"),
+      img: "/panel%204.png",
       color: "bg-diyar-brown",
       span: "md:col-span-3"
     },
     { 
-      img: assetUrl("/panel%201.png"),
-      color: "bg-diyar-dark",
-      span: "md:col-span-2"
+      img: "/panel%205.png",
+      color: "bg-diyar-brown",
+      span: "md:col-span-3"
     },
     { 
-      img: assetUrl("/panel%202.png"),
+      img: "/panel%201.png",
       color: "bg-diyar-brown",
       span: "md:col-span-2"
     },
     { 
-      img: assetUrl("/panel%203.png"),
+      img: "/panel%202.png",
+      color: "bg-diyar-brown",
+      span: "md:col-span-2"
+    },
+    { 
+      img: "/panel%203.png",
       color: "bg-gray-800",
       span: "md:col-span-2"
     }
   ];
 
   return (
-    <div className="max-w-7xl mx-auto py-4 md:py-6 px-4">
+    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
       <div className="grid grid-cols-1 md:grid-cols-6 gap-3 md:gap-4">
         {offers.map((offer, i) => (
-          <div key={i} className={`col-span-1 ${offer.span} w-full aspect-[2/1] rounded-xl overflow-hidden relative shadow-md hover:shadow-lg transition-all duration-300 group cursor-pointer ${offer.color}`}>
+          <div key={i} className={`col-span-1 ${offer.span} w-full aspect-[2/1] rounded-lg overflow-hidden relative shadow-md hover:shadow-md transition-all duration-300 group cursor-pointer ${offer.color}`}>
             <img 
               src={offer.img} 
               alt={`Banner ${i + 1}`} 
@@ -643,122 +693,85 @@ export function FastOffersSlider() {
 
 export function LoyaltyPromo() {
   return (
-    <div className="max-w-7xl mx-auto px-4 my-2 lg:my-4">
-      <div className="bg-[#151515] rounded-2xl md:rounded-[2rem] overflow-hidden relative shadow-2xl">
-        {/* Subtle decorative background elements */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3"></div>
+    <div className="max-w-7xl mx-auto px-4 my-8 md:my-12">
+      <div className="bg-[#FFFDF8] rounded-3xl border border-[#F2DEB4]/50 shadow-sm overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] z-0"></div>
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-[#F9E8C8]/80 to-transparent blur-3xl z-0 -translate-y-1/2 translate-x-1/3"></div>
         
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12 relative z-10 px-6 pt-12 pb-6 lg:px-12 lg:py-10">
-           <div className="flex-1 text-right w-full">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 mb-4 backdrop-blur-md">
-                <Sparkles size={14} className="text-amber-400" />
-                <span className="text-amber-400 font-bold text-xs tracking-wide">برنامج ولاء ديار</span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 relative z-10 w-full items-center">
+          
+          {/* Content side */}
+          <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-center text-right order-2 lg:order-1">
+            <div className="w-fit bg-amber-100/80 border border-amber-200/60 rounded-full px-4 py-1.5 flex items-center gap-2 mb-6">
+               <span className="flex items-center justify-center w-5 h-5 bg-amber-500 rounded-full text-white">
+                 <Sparkles size={12} />
+               </span>
+               <span className="text-amber-800 text-sm font-bold">برنامج ولاء ديار</span>
+            </div>
+
+            <h2 className="text-3xl lg:text-5xl font-bold text-[#3D2E1F] leading-[1.4] mb-5">
+              كل عملية شراء هي بداية <br /> لمكافأة جديدة
+            </h2>
+            <p className="text-gray-600 text-lg mb-10 max-w-lg leading-relaxed">
+              تسوق، اجمع النقاط، وحولها إلى قسائم شرائية. استمتع بتجربة تسوق فريدة ومربحة مع ديار لأن ولائك يستحق التقدير والعطاء.
+            </p>
+
+            <div className="flex flex-col gap-5 mb-10">
+              <div className="flex items-start gap-4">
+                 <div className="w-12 h-12 shrink-0 rounded-xl bg-white border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm relative overflow-hidden group">
+                   <div className="absolute inset-0 bg-amber-50 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                   <Gift size={24} className="relative z-10" />
+                 </div>
+                 <div>
+                   <h4 className="font-bold text-[#3D2E1F] text-lg mb-1">تسوق واربح</h4>
+                   <p className="text-gray-500 text-sm leading-relaxed">اكسب النقاط بشكل تلقائي مع كل عملية دفع ناجحة عبر المنصة.</p>
+                 </div>
               </div>
-              <h2 className="text-xl lg:text-4xl font-sans font-bold text-white mb-3 leading-tight">
-                ارتقِ بتجربتك، واستمتع <br/>بـ <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">مكافآت حصرية</span>
-              </h2>
-              <p className="text-gray-400 text-sm lg:text-base mb-8 leading-relaxed max-w-xl">
-                نقدر ولاءك، لذلك صممنا برنامجًا يكافئك على كل عملية شراء. استبدل نقاطك بخصومات فريدة وعروض لا تضاهى، بخطوات بسيطة.
-              </p>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
-                    <span className="font-bold text-base font-sans">1</span>
-                  </div>
-                  <h4 className="font-bold text-white text-sm mb-1.5">اكتسب النقاط</h4>
-                  <p className="text-gray-400 text-xs leading-relaxed">احصل على نقاط فورية مع إتمام كل طلب.</p>
-                </div>
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
-                    <span className="font-bold text-base font-sans">2</span>
-                  </div>
-                  <h4 className="font-bold text-white text-sm mb-1.5">استبدل بسهولة</h4>
-                  <p className="text-gray-400 text-xs leading-relaxed">حوّل رصيدك لمعادلة شراء في السلة.</p>
-                </div>
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
-                    <span className="font-bold text-base font-sans">3</span>
-                  </div>
-                  <h4 className="font-bold text-white text-sm mb-1.5">تحكم كامل</h4>
-                  <p className="text-gray-400 text-xs leading-relaxed">شاشة خاصة تتيح لك متابعة رصيدك.</p>
-                </div>
+              <div className="flex items-start gap-4">
+                 <div className="w-12 h-12 shrink-0 rounded-xl bg-white border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm relative overflow-hidden group">
+                   <div className="absolute inset-0 bg-amber-50 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                   <ShieldCheck size={24} className="relative z-10" />
+                 </div>
+                 <div>
+                   <h4 className="font-bold text-[#3D2E1F] text-lg mb-1">استبدال مرن</h4>
+                   <p className="text-gray-500 text-sm leading-relaxed">استخدم نقاطك في أي وقت لشراء منتجاتك المفضلة بخصومات حصرية.</p>
+                 </div>
               </div>
-              
-              <Link to="/loyalty" className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all inline-flex items-center gap-2 group">
-                <span>تصفح شاشة النقاط</span>
-                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-              </Link>
-           </div>
-           
-           <div className="flex-1 relative w-full flex justify-center items-center mt-2 lg:mt-0 lg:pl-10">
-             <div className="relative w-full max-w-[500px]">
-               <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-[80px] transform scale-110 z-0"></div>
-               <img src={assetUrl("/صورة نقاط الولاء.png")} alt="برنامج نقاط الولاء" className="w-[90%] sm:w-[80%] max-w-[320px] lg:max-w-none mx-auto lg:w-[125%] lg:-ml-[12.5%] xl:w-[140%] xl:-ml-[20%] relative z-10 drop-shadow-2xl hover:-translate-y-2 transition-transform duration-700 block" />
+            </div>
+
+            <Link to="/loyalty" className="bg-[#3D2E1F] text-white px-8 py-4 rounded-full font-bold hover:bg-[#2A1F15] transition-all inline-flex items-center gap-3 w-fit group">
+              <span>استكشف عروض الولاء</span>
+              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:-translate-x-1 transition-transform">
+                <ArrowLeft size={14} />
+              </div>
+            </Link>
+          </div>
+
+          {/* Visual side */}
+          <div className="bg-[#F8EBCD] h-full min-h-[400px] flex items-center justify-center p-8 lg:p-0 relative overflow-hidden order-1 lg:order-2 border-b lg:border-b-0 lg:border-r border-amber-200/50">
+             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.05] z-0"></div>
+             
+             {/* Circular decoration */}
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] xl:w-[400px] h-[300px] xl:h-[400px] border border-amber-200 rounded-full z-0"></div>
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] xl:w-[540px] h-[400px] xl:h-[540px] border border-amber-200/50 rounded-full z-0 border-dashed"></div>
+
+             <div className="relative z-10 w-full max-w-[280px] md:max-w-[340px] xl:max-w-[420px] transition-transform duration-700 hover:scale-105">
+                <div className="absolute -inset-4 bg-amber-400/20 rounded-full blur-2xl -z-10"></div>
+                <img src="/صورة نقاط الولاء.png" alt="ديار ولاء" className="w-full drop-shadow-md" />
              </div>
-           </div>
+
+             {/* Floating elements */}
+             <div className="absolute top-[20%] right-[15%] w-14 h-14 bg-white rounded-xl rotate-12 shadow-md flex items-center justify-center animate-bounce">
+                <Sparkles size={24} className="text-amber-500" />
+             </div>
+             <div className="absolute bottom-[20%] left-[15%] w-12 h-12 bg-white rounded-full -rotate-12 shadow-md flex items-center justify-center animate-bounce" style={{ animationDelay: '0.3s' }}>
+                <Gift size={20} className="text-amber-600" />
+             </div>
+          </div>
+
         </div>
       </div>
     </div>
-  );
-}
-
-export function Footer() {
-  return (
-    <footer className="bg-diyar-dark text-white pt-6 md:pt-10 pb-4 mt-4">
-      <div className="max-w-7xl mx-auto px-6 md:px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-12 mb-6 md:mb-10 text-right">
-          <div>
-            <img src={assetUrl("/logo_diyar.svg")} alt="DIYAR" className="h-10 md:h-12 mb-6 brightness-0 invert" />
-            <p className="text-white/70 leading-relaxed mb-6 text-sm md:text-base">المنصة الأولى في المملكة لبيع الأثاث الفاخر من أعرق المتاجر والتجار لتجهيز منزلك بأرقى التصاميم.</p>
-            <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-diyar-brown hover:text-white cursor-pointer transition">
-                <Twitter size={18} />
-              </div>
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-diyar-brown hover:text-white cursor-pointer transition">
-                <Instagram size={18} />
-              </div>
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-diyar-brown hover:text-white cursor-pointer transition">
-                <MessageCircle size={18} />
-              </div>
-            </div>
-          </div>
-          <div>
-            <h3 className="text-lg md:text-xl font-sans font-bold mb-4 md:mb-6">روابط سريعة</h3>
-            <ul className="space-y-3 md:space-y-4 text-white/70 text-sm md:text-base">
-              <li className="hover:text-white cursor-pointer transition">عن ديار</li>
-              <li className="hover:text-white cursor-pointer transition">تسوق الآن</li>
-              <li className="hover:text-white cursor-pointer transition">العروض الخاصة</li>
-              <li className="hover:text-white cursor-pointer transition">انضم كتاجر</li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-xl font-sans font-bold mb-6">خدماتنا</h3>
-            <ul className="space-y-4 text-white/70">
-              <li className="hover:text-white cursor-pointer transition">الواقع المعزز</li>
-              <li className="hover:text-white cursor-pointer transition">التوصيل والتركيب</li>
-              <li className="hover:text-white cursor-pointer transition">استشارات الديكور</li>
-              <li className="hover:text-white cursor-pointer transition">سياسة الاسترجاع</li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-xl font-sans font-bold mb-6">تواصل معنا</h3>
-            <ul className="space-y-4 text-white/70">
-              <li>support@diyar.com</li>
-              <li>+966 50 000 0000</li>
-              <li>الرياض، المملكة العربية السعودية</li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-white/10 pt-8 pb-4 flex flex-col md:flex-row items-center justify-between text-white/50 text-sm gap-4">
-          <div>جميع الحقوق محفوظة منصة ديار &copy; {new Date().getFullYear()}</div>
-          <Link to="/dashboard" className="hover:text-white transition-colors" title="Dashboard Preview">
-            بوابة الشركاء (معاينة)
-          </Link>
-        </div>
-      </div>
-    </footer>
   );
 }
 
@@ -856,13 +869,13 @@ export function ServicesSection() {
   ];
 
   return (
-    <div className="py-6 md:py-10 bg-gray-50 border-b border-gray-100">
+    <div className="py-6 md:py-8 bg-gray-50 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-end mb-6">
            <div>
-             <span className="text-purple-600 text-sm font-bold tracking-wider mb-2 block">خدمات ديار</span>
+             <span className="text-purple-600 text-sm font-bold mb-2 block">خدمات ديار</span>
              <h2 className="text-2xl md:text-3xl font-sans font-bold text-diyar-dark flex items-center gap-3">
-               <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
+               <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center">
                  <Paintbrush size={20} />
                </div>
                خدمات التصميم والصيانة
@@ -874,7 +887,7 @@ export function ServicesSection() {
         </div>
         <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-4 pb-4 scrollbar-hide snap-x pt-2">
           {services.map((service, i) => (
-            <Link to={`/service/${service.id}`} key={i} className="min-w-[280px] md:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all snap-start group">
+            <Link to={`/service/${service.id}`} key={i} className="min-w-[280px] md:min-w-0 bg-white rounded-lg shadow-sm border border-gray-100 flex flex-col overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all snap-start group">
               <div className="h-40 relative overflow-hidden">
                 <img 
                   src={service.image} 
@@ -885,7 +898,7 @@ export function ServicesSection() {
                     (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=400";
                   }}
                 />
-                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-gray-700 flex items-center gap-1 shadow-sm">
+                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-gray-700 flex items-center gap-1 shadow-sm">
                   <Star size={12} className="text-amber-400 fill-amber-400" /> {service.rating}
                 </div>
               </div>
@@ -897,7 +910,7 @@ export function ServicesSection() {
                 <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
                    <span className="font-bold text-diyar-brown text-sm">{service.price}</span>
                    <div className="flex items-center text-xs text-diyar-dark font-medium gap-1 bg-diyar-cream/30 px-3 py-1.5 rounded-lg border border-diyar-cream group-hover:bg-diyar-brown group-hover:text-white transition-colors">
-                     طلب الخدمة
+                     طلب تنفيذ
                    </div>
                 </div>
               </div>
@@ -910,6 +923,7 @@ export function ServicesSection() {
 }
 
 export function MostInteractiveProducts() {
+  const railRef = useRef<HTMLDivElement>(null);
   const [items, setItems] = useState([
     {
       id: 1,
@@ -1016,7 +1030,7 @@ export function MostInteractiveProducts() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-white to-diyar-cream/10 py-8 md:py-12 border-t border-b border-gray-100/10">
+    <div className="bg-gradient-to-b from-white to-diyar-cream/10 py-8 md:py-8 border-t border-b border-gray-100/10">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-baseline mb-8">
           <div>
@@ -1025,7 +1039,7 @@ export function MostInteractiveProducts() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
               </span>
-              <span className="text-diyar-brown text-xs md:text-sm font-bold tracking-wide">الآن مباشر</span>
+              <span className="text-diyar-brown text-xs md:text-sm font-bold">الآن مباشر</span>
             </div>
             <h2 className="text-xl md:text-3xl font-sans font-bold text-diyar-dark flex items-center gap-2">
               الأكثر تفاعلاً ونشاطاً 🔥
@@ -1037,12 +1051,14 @@ export function MostInteractiveProducts() {
           </Link>
         </div>
 
-        <div className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide snap-x py-4 px-1 -mx-4 md:mx-0">
+        <div className="relative">
+        <RailArrows scroller={railRef} />
+        <div ref={railRef} className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide snap-x py-4">
           {items.map((item) => (
-            <div key={item.id} className="w-[280px] md:w-[320px] bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all shrink-0 snap-start overflow-hidden flex flex-col group relative">
+            <div key={item.id} className="w-[280px] md:w-[320px] bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all shrink-0 snap-start overflow-hidden flex flex-col group relative">
               {/* Badges Overlay */}
               <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
-                <span className="bg-red-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-xl shadow-sm flex items-center gap-1">
+                <span className="bg-red-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1">
                   🔥 {item.hotScore}% تفاعل
                 </span>
               </div>
@@ -1100,7 +1116,7 @@ export function MostInteractiveProducts() {
                   </div>
 
                   {/* Real-time Interaction Bar */}
-                  <div className="mt-3 bg-gray-50 p-2 rounded-xl flex items-center justify-between text-[11px] text-gray-500 border border-gray-100/40">
+                  <div className="mt-3 bg-gray-50 p-2 rounded-lg flex items-center justify-between text-[11px] text-gray-500 border border-gray-100/40">
                     <span className="flex items-center gap-1">
                       <Eye size={13} className="text-gray-400" />
                       <strong>{item.views}</strong> مشاهدة
@@ -1118,6 +1134,7 @@ export function MostInteractiveProducts() {
               </div>
             </div>
           ))}
+        </div>
         </div>
       </div>
     </div>

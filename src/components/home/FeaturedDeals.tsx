@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ProductCard from './ProductCard.tsx';
+import ProductCard from '../cards/ProductCard.tsx';
 
 export default function FeaturedDeals() {
   const [timeLeft, setTimeLeft] = useState(2 * 3600 + 14 * 60 + 35);
@@ -25,12 +25,12 @@ export default function FeaturedDeals() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto py-4 md:py-6 px-4">
+    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
       <div className="flex justify-between items-center mb-6 md:mb-8">
         <h2 className="text-2xl md:text-3xl font-sans font-bold">عروض مميزة</h2>
         <div className="text-sm md:text-xl font-bold bg-diyar-cream p-2 md:p-3 rounded-lg text-diyar-brown" dir="ltr">{format(timeLeft)}</div>
       </div>
-      <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6 px-4 -mx-4">
+      <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
         {products.map((p, i) => (
           <div key={i} className="w-[200px] md:w-auto flex-shrink-0 snap-start">
             <ProductCard product={p} />

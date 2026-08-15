@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChevronRight, Mail, Phone, Lock, Eye, EyeOff, Store, Briefcase, User, Megaphone, Smartphone } from 'lucide-react';
-import { assetUrl } from '../utils/assetUrl.ts';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -57,7 +56,7 @@ export default function AuthPage() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md mt-8">
         <Link to="/" className="flex items-center justify-center mb-8">
-          <img src={assetUrl("/logo_diyar.svg")} alt="DIYAR" className="h-12" />
+          <img src="/logo_diyar.svg" alt="DIYAR" className="h-12" />
         </Link>
         
         {view === 'login' && <h2 className="text-center text-2xl md:text-3xl font-extrabold text-diyar-dark mb-2">تسجيل الدخول</h2>}

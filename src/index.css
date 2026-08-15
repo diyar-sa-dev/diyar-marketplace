@@ -1,15 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-serif: "Outfit", "Tajawal", sans-serif;
-  --font-sans: "Tajawal", "Outfit", sans-serif;
+  --font-serif: "Alexandria", "Outfit", "Tajawal", sans-serif;
+  --font-sans: "Alexandria", "Tajawal", "Outfit", sans-serif;
   --color-diyar-dark: #1f3d3a;
   --color-diyar-cream: #f3ecdb;
   --color-diyar-brown: #947961;
 }
 
 @layer base {
+  /* Global type scale: phones keep 16px; tablet/laptop/desktop scale down
+     so rem-based text isn't oversized on smaller laptops (e.g. 13" screens). */
+  html {
+    font-size: 16px;
+  }
+  @media (min-width: 768px) {
+    html {
+      font-size: 14px;
+    }
+  }
+  @media (min-width: 1536px) {
+    html {
+      font-size: 16px;
+    }
+  }
   body {
     -webkit-tap-highlight-color: transparent;
   }
@@ -51,4 +66,58 @@
 .animate-marquee {
   animation: marquee 25s linear infinite;
 }
+
+/* Blog article body styling (replaces the unavailable `prose` plugin) */
+.article-content {
+  color: #4b5563;
+  font-size: 1.0625rem;
+  line-height: 2;
+}
+.article-content > p {
+  margin-bottom: 1.25rem;
+}
+.article-content h2 {
+  color: var(--color-diyar-dark);
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.5;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+.article-content h3 {
+  color: var(--color-diyar-dark);
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+.article-content img {
+  width: 100%;
+  border-radius: 1rem;
+  margin: 2rem 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+.article-content blockquote {
+  border-inline-start: 4px solid var(--color-diyar-brown);
+  background: rgba(243, 236, 219, 0.5);
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  margin: 2rem 0;
+  color: var(--color-diyar-dark);
+  font-weight: 500;
+}
+.article-content a {
+  color: var(--color-diyar-brown);
+  font-weight: 600;
+  text-decoration: underline;
+}
+.article-content ul,
+.article-content ol {
+  padding-inline-start: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.article-content ul { list-style: disc; }
+.article-content ol { list-style: decimal; }
+.article-content li { margin-bottom: 0.5rem; }
 

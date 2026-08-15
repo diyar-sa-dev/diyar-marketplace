@@ -427,7 +427,7 @@ export default function VendorProducts() {
                </div>
                <div className="p-4 flex-1 flex flex-col text-right">
                  <div className="flex items-start justify-between mb-2 gap-2">
-                   <h3 className="font-bold text-diyar-dark line-clamp-2 leading-tight text-right">{product.name}</h3>
+                   <h3 className="font-bold text-diyar-dark line-clamp-2 leading-snug text-right">{product.name}</h3>
                    <span className="font-bold text-diyar-brown shrink-0">{product.price} ر.س</span>
                  </div>
                  <p className="text-sm text-gray-400 mb-4">{product.category}</p>
@@ -490,7 +490,7 @@ export default function VendorProducts() {
                   
                   {/* Media Upload */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">صور المنتج والمعاينة</label>
+                    <label className="text-xs font-bold text-gray-400 block">صور المنتج والمعاينة</label>
                     <div className="w-full h-40 border-2 border-dashed border-gray-200 hover:border-diyar-brown/50 rounded-2xl flex flex-col items-center justify-center text-gray-400 bg-gray-50 hover:bg-diyar-brown/5 transition-colors cursor-pointer p-4 group">
                       <div className="p-3 bg-white rounded-xl shadow-sm text-diyar-brown group-hover:scale-115 transition">
                         <Upload size={22} className="mx-auto" />
@@ -522,7 +522,7 @@ export default function VendorProducts() {
 
                   {/* Colors Presets & Dynamic adding */}
                   <div className="space-y-3 text-right">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block text-right">ألوان المنتج المحددة</label>
+                    <label className="text-xs font-bold text-gray-400 block text-right">ألوان المنتج المحددة</label>
                     <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-2xl border border-gray-150 justify-start">
                       {prodColors.length === 0 ? (
                         <span className="text-xs text-gray-400 italic font-sans">لم يتم اختيار أي لون بعد...</span>
@@ -576,7 +576,7 @@ export default function VendorProducts() {
                               setCustomColorText('');
                             }
                           }}
-                          className="bg-diyar-brown hover:bg-[#A67B5B]/90 text-white font-bold h-[38px] px-4 rounded-xl leading-none transition text-xs font-sans shrink-0 border border-transparent shadow-sm flex items-center justify-center cursor-pointer"
+                          className="bg-diyar-brown hover:bg-[#A67B5B]/90 text-white font-bold h-[38px] px-4 rounded-xl leading-snug transition text-xs font-sans shrink-0 border border-transparent shadow-sm flex items-center justify-center cursor-pointer"
                         >
                           إضافة لون
                         </button>

@@ -4,7 +4,6 @@ import {
   MapPin, CreditCard, ShieldCheck, Truck, Wrench, 
   Tag, ChevronRight, CheckCircle, Package
 } from 'lucide-react';
-import { assetUrl } from '../utils/assetUrl.ts';
 
 const MOCK_ADDRESSES = [
   { id: 1, title: 'المنزل', address: 'حي الملقا، شارع الأمير محمد بن سعد، الرياض', isDefault: true },
@@ -38,10 +37,10 @@ const MOCK_CART = [
 ];
 
 const PAYMENT_METHODS = [
-  { id: 'mada', name: 'مدى', logo: assetUrl('/payment-methods/Mada_Logo.svg'), type: 'image' },
+  { id: 'mada', name: 'مدى', logo: '/payment-methods/Mada_Logo.svg', type: 'image' },
   { id: 'visa', name: 'البطاقة الائتمانية', logo: <CreditCard className="w-8 h-8 text-gray-700" />, type: 'icon' },
-  { id: 'apple', name: 'Apple Pay', logo: assetUrl('/payment-methods/Apple_Pay_logo.svg'), type: 'image' },
-  { id: 'tabby', name: 'تابي', logo: assetUrl('/payment-methods/tabby-bnpl.svg'), type: 'image' }
+  { id: 'apple', name: 'Apple Pay', logo: '/payment-methods/Apple_Pay_logo.svg', type: 'image' },
+  { id: 'tabby', name: 'تابي', logo: '/payment-methods/tabby-bnpl.svg', type: 'image' }
 ];
 
 export default function CheckoutPage() {
@@ -178,7 +177,7 @@ export default function CheckoutPage() {
                                 onChange={() => toggleAssembly(item.id)}
                               />
                               <span className="text-xs font-medium text-blue-900 flex items-center gap-1">
-                                <Wrench size={12} /> طلب خدمة تركيب (+{vendor.assemblyCostPerItem} ر.س)
+                                <Wrench size={12} /> طلب تنفيذ التركيب (+{vendor.assemblyCostPerItem} ر.س)
                               </span>
                             </label>
                           )}
@@ -259,7 +258,7 @@ export default function CheckoutPage() {
                       method.logo
                     )}
                   </div>
-                  <span className="text-[10px] md:text-xs font-bold text-diyar-dark text-center leading-tight">{method.name}</span>
+                  <span className="text-[10px] md:text-xs font-bold text-diyar-dark text-center leading-snug">{method.name}</span>
                 </div>
               ))}
             </div>

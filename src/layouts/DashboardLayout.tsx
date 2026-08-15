@@ -44,6 +44,7 @@ export default function DashboardLayout() {
     ],
     service: [
       { name: 'الرئيسية', path: '/dashboard/service', icon: LayoutDashboard },
+      { name: 'طلبات العملاء', path: '/dashboard/service/client-requests', icon: Users },
       { name: 'الحجوزات', path: '/dashboard/service/bookings', icon: Calendar },
       { name: 'خدماتي', path: '/dashboard/service/services', icon: Wrench },
       { name: 'المالية', path: '/dashboard/service/finance', icon: Wallet },

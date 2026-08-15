@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MapPin, Star, Award, ShieldCheck, Share2, Mail, LayoutGrid, Info, Clock, CheckCircle } from 'lucide-react';
-import ServiceCard from '../components/ServiceCard';
+import ServiceCard from '../components/cards/ServiceCard.tsx';
 
 export default function ProviderPage() {
   const { id } = useParams();

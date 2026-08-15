@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import ProductCard from '../components/ProductCard.tsx';
+import ProductCard from '../components/cards/ProductCard.tsx';
 import { Store, Paintbrush, ChevronLeft, Camera, Star } from 'lucide-react';
 
 function useQuery() {
@@ -214,7 +214,7 @@ export default function SearchPage() {
                         <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
                            <span className="font-bold text-diyar-brown text-sm">{service.price}</span>
                            <div className="flex items-center text-xs text-diyar-dark font-medium gap-1 bg-diyar-cream/30 px-3 py-1.5 rounded-lg border border-diyar-cream group-hover:bg-diyar-brown group-hover:text-white transition-colors">
-                             طلب الخدمة
+                             طلب تنفيذ
                            </div>
                         </div>
                       </div>

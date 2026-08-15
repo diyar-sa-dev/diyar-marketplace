@@ -175,8 +175,8 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-xl flex items-start gap-3 mb-4">
          <Sparkles className="text-yellow-600 mt-0.5" size={20} />
          <div>
-            <h4 className="font-bold text-sm text-yellow-800 mb-1">تخصيص بالذكاء الاصطناعي</h4>
-            <p className="text-xs text-yellow-700/80">ساعدنا ببعض المعلومات عن مساحتك ليقوم AI باقتراح أفضل المنتجات والمخططات المناسبة لك بدقة.</p>
+            <h4 className="font-bold text-sm text-yellow-800 mb-1">تخصيص بالمساعد الشخصي</h4>
+            <p className="text-xs text-yellow-700/80">ساعدنا ببعض المعلومات عن مساحتك ليقوم المساعد الشخصي باقتراح أفضل المنتجات والمخططات المناسبة لك بدقة.</p>
          </div>
       </div>
 
@@ -262,7 +262,7 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 onClick={() => setActiveTab('ai')}
                 className={`py-2 px-4 whitespace-nowrap rounded-xl text-sm font-bold flex items-center gap-2 transition-all flex-1 justify-center ${activeTab === 'ai' ? 'bg-gradient-to-l from-yellow-500 to-yellow-600 text-white shadow-md' : 'text-yellow-600 bg-yellow-50 border border-yellow-100 hover:bg-yellow-100'}`}
               >
-                 <Sparkles size={16} /> فلاتر الذكاء الاصطناعي
+                 <Sparkles size={16} /> فلاتر المساعد الشخصي
               </button>
            </div>
         </div>

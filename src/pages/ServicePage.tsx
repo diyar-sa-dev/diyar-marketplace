@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MapPin, Star, Share2, Mail, Info, Clock, CheckCircle, Smartphone, User, ChevronRight, ChevronLeft } from 'lucide-react';
+import ServiceCard from '../components/cards/ServiceCard.tsx';
+import { useCart } from '../context/CartContext.tsx';
 
 export default function ServicePage() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('about');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const [added, setAdded] = useState(false);
+  const { addItem } = useCart();
 
   const MOCK_REVIEWS = [
     { id: 1, name: 'أحمد محمد', rating: 5, date: 'قبل يومين', comment: 'خدمة ممتازة وتصميم رائع، التزموا بالمواعيد وبكل التفاصيل. أنصح بالتعامل معهم بشدة.', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100' },
@@ -34,6 +38,13 @@ export default function ServicePage() {
       'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&q=80&w=800'
     ]
   };
+
+  const RELATED_SERVICES = [
+    { id: 2, name: 'تنفيذ وتشطيب الديكور', vendor: 'إيوان للتصميم', rating: 4.8, type: 'زيارة معاينة', price: '٤٥٠', img: 'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?auto=format&fit=crop&q=80&w=600' },
+    { id: 3, name: 'تركيب الأثاث والمطابخ', vendor: 'فن الإنجاز', rating: 4.7, type: 'تحديد موعد', price: '٢٠٠', img: 'https://images.unsplash.com/photo-1556909212-d5b604d0c90d?auto=format&fit=crop&q=80&w=600' },
+    { id: 4, name: 'دهانات وديكورات جبسية', vendor: 'لمسات فنية', rating: 4.9, type: 'زيارة معاينة', price: '٣٥٠', img: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&q=80&w=600' },
+    { id: 5, name: 'تفصيل وتركيب الستائر', vendor: 'بيت الستائر', rating: 4.6, type: 'تحديد موعد', price: '٣٠٠', img: 'https://images.unsplash.com/photo-1513161455079-7dc1de15ef3e?auto=format&fit=crop&q=80&w=600' },
+  ];
 
   return (
     <div className="bg-gray-50 min-h-screen pb-16">
@@ -87,27 +98,28 @@ export default function ServicePage() {
 
             {/* Info */}
             <div className="flex-1">
-              <div className="mb-1">
-                <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark">{SERVICE_INFO.name}</h1>
-                <Link to="/provider/1" className="text-purple-600 font-medium flex items-center gap-1.5 mt-1 w-fit hover:text-purple-700 transition">
-                  <User size={16} /> مقدم الخدمة: {SERVICE_INFO.provider}
+              <div className="mb-4">
+                <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark leading-snug">{SERVICE_INFO.name}</h1>
+                <Link to="/provider/1" className="inline-flex items-center gap-1.5 mt-2.5 w-fit text-sm text-gray-400 hover:text-diyar-brown transition-colors group">
+                  <User size={15} className="text-diyar-brown" /> مقدم الخدمة:
+                  <span className="font-bold text-diyar-dark group-hover:text-diyar-brown transition-colors">{SERVICE_INFO.provider}</span>
                 </Link>
               </div>
-              <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-4 max-w-2xl pt-2">
+              <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-5 max-w-2xl">
                 {SERVICE_INFO.description}
               </p>
-              
-              <div className="flex flex-wrap items-center gap-3 md:gap-4 text-sm text-gray-600">
+
+              <div className="flex flex-wrap items-center gap-2.5 md:gap-3 text-sm">
                 <div className="flex items-center gap-1.5 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100 text-amber-700">
                   <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                   <span className="font-bold">{SERVICE_INFO.rating}</span>
-                  <span className="opacity-80">({SERVICE_INFO.reviews} تقييم)</span>
+                  <span className="text-amber-700/60">({SERVICE_INFO.reviews} تقييم)</span>
                 </div>
-                <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 text-gray-500">
                   <MapPin className="w-4 h-4 text-diyar-brown" />
                   <span>{SERVICE_INFO.location}</span>
                 </div>
-                <div className="flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 text-blue-700 font-bold">
+                <div className="flex items-center gap-1.5 bg-diyar-brown/10 px-3 py-1.5 rounded-lg border border-diyar-brown/20 text-diyar-brown font-bold">
                   <span>{SERVICE_INFO.price}</span>
                 </div>
               </div>
@@ -115,8 +127,14 @@ export default function ServicePage() {
 
             {/* Actions */}
             <div className="flex gap-3 md:w-auto w-full">
-              <button className="flex-1 md:flex-none bg-diyar-dark text-white font-bold py-3 px-8 rounded-xl hover:bg-black transition shadow-md w-full md:w-48 text-center text-lg">
-                طلب الخدمة
+              <button
+                onClick={() => {
+                  addItem({ type: 'service', name: SERVICE_INFO.name, vendor: SERVICE_INFO.provider, price: SERVICE_INFO.price, img: SERVICE_INFO.logo });
+                  setAdded(true);
+                }}
+                className={`flex-1 md:flex-none font-bold py-3 px-8 rounded-xl transition shadow-md w-full md:w-48 text-center text-lg ${added ? 'bg-green-600 text-white' : 'bg-diyar-dark text-white hover:bg-black'}`}
+              >
+                {added ? 'أُضيفت للسلة ✓' : 'طلب تنفيذ'}
               </button>
             </div>
           </div>
@@ -251,6 +269,24 @@ export default function ServicePage() {
           
         </div>
       </div>
+
+      {/* Related Services */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 md:pt-12 pb-4">
+        <div className="flex items-center justify-between mb-6 md:mb-8">
+          <h2 className="text-xl md:text-3xl font-bold text-diyar-dark">خدمات ذات صلة</h2>
+          <Link to="/services" className="text-diyar-brown font-bold text-sm hover:underline flex items-center gap-1 shrink-0">
+            عرض الكل <ChevronLeft size={16} />
+          </Link>
+        </div>
+        <div className="flex overflow-x-auto gap-4 md:gap-6 pb-4 scrollbar-hide snap-x pt-2 -mt-2 px-2 -mx-2 md:px-0 md:mx-0">
+          {RELATED_SERVICES.map((s) => (
+            <div key={s.id} className="min-w-[220px] md:min-w-[260px] snap-start shrink-0">
+              <ServiceCard service={s} />
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Gallery Modal */}
       {isGalleryOpen && (
         <div className="fixed inset-0 bg-black/95 z-[200] flex flex-col justify-center animate-in fade-in duration-300">

@@ -193,7 +193,7 @@ export default function VendorFinance() {
          </div>
          <div className="overflow-x-auto">
            <table className="w-full text-right text-sm">
-             <thead className="bg-gray-50 text-gray-600 border-b border-gray-100 text-xs uppercase font-bold text-right">
+             <thead className="bg-gray-50 text-gray-600 border-b border-gray-100 text-xs font-bold text-right">
                <tr>
                  <th className="px-6 py-4">المعاملة</th>
                  <th className="px-6 py-4">المبلغ</th>

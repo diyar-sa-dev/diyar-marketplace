@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronDown, Filter, LayoutGrid, List, SlidersHorizontal, Star, Search, X, Palette, Wrench } from 'lucide-react';
-import ProductCard from '../components/ProductCard.tsx';
-import ServiceCard from '../components/ServiceCard.tsx';
-import { assetUrl } from '../utils/assetUrl.ts';
+import ProductCard from '../components/cards/ProductCard.tsx';
+import ServiceCard from '../components/cards/ServiceCard.tsx';
 
 const CATEGORIES = {
-  "bedroom": { name: "غرف النوم", img: assetUrl("/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.png"), subcategories: ["أسرة", "خزائن ملابس", "تسريحات", "طاولات جانبية", "مراتب"] },
-  "living-room": { name: "الصالونات", img: assetUrl("/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.png"), subcategories: ["أطقم كنب", "كراسي استرخاء", "طاولات قهوة", "طاولات تلفزيون", "مكتبات"] },
-  "kitchen": { name: "المطابخ", img: assetUrl("/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.png"), subcategories: ["خزائن مطابخ", "طاولات طعام", "كراسي طعام", "عربات تقديم"] },
-  "office": { name: "المكاتب", img: assetUrl("/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.png"), subcategories: ["مكاتب إدارية", "كراسي مكتبية", "وحدات أدراج", "مكتبات مكتبية"] },
-  "decor": { name: "ديكورات", img: assetUrl("/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.png"), subcategories: ["إضاءة", "سجاد", "لوحات جدارية", "مرايا", "نباتات زينة"] },
-  "interior-design": { name: "تصميم داخلي", img: assetUrl("/categories/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%AF%D8%A7%D8%AE%D9%84%D9%8A.png"), subcategories: ["تصميم سكني", "تصميم تجاري", "استشارات", "مخططات معمارية"] },
-  "maintenance": { name: "تركيب وصيانة", img: assetUrl("/categories/%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%20%D9%88%D8%B5%D9%8A%D8%A7%D9%86%D8%A9.png"), subcategories: ["تركيب أثاث", "صيانة خشبية", "تنجيد", "دهانات"] },
+  "bedroom": { name: "غرف النوم", img: "/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.png", subcategories: ["أسرة", "خزائن ملابس", "تسريحات", "طاولات جانبية", "مراتب"] },
+  "living-room": { name: "الصالونات", img: "/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.png", subcategories: ["أطقم كنب", "كراسي استرخاء", "طاولات قهوة", "طاولات تلفزيون", "مكتبات"] },
+  "kitchen": { name: "المطابخ", img: "/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.png", subcategories: ["خزائن مطابخ", "طاولات طعام", "كراسي طعام", "عربات تقديم"] },
+  "office": { name: "المكاتب", img: "/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.png", subcategories: ["مكاتب إدارية", "كراسي مكتبية", "وحدات أدراج", "مكتبات مكتبية"] },
+  "decor": { name: "ديكورات", img: "/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.png", subcategories: ["إضاءة", "سجاد", "لوحات جدارية", "مرايا", "نباتات زينة"] },
+  "interior-design": { name: "تصميم داخلي", img: "/categories/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%AF%D8%A7%D8%AE%D9%84%D9%8A.png", subcategories: ["تصميم سكني", "تصميم تجاري", "استشارات", "مخططات معمارية"] },
+  "maintenance": { name: "تركيب وصيانة", img: "/categories/%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%20%D9%88%D8%B5%D9%8A%D8%A7%D9%86%D8%A9.png", subcategories: ["تركيب أثاث", "صيانة خشبية", "تنجيد", "دهانات"] },
   "all": { name: "التصنيفات", img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1200", subcategories: [] }
 };
 

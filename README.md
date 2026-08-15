@@ -1,20 +1,59 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# DIYAR Marketplace — UI/UX Prototype
 
-# Run and deploy your AI Studio app
+An Arabic (RTL), multi-vendor furniture & home-services marketplace. This is a
+**frontend-only UI/UX prototype** — there is no backend. All data is mocked
+inline and all "AI" / interactive features are simulated in the UI.
 
-This contains everything you need to run your app locally.
+## Tech stack
 
-View your app in AI Studio: https://ai.studio/apps/a80d26da-17e9-4001-b72e-fb32fab502fb
+- **React 19** + **TypeScript**
+- **Vite 6** (dev server + build)
+- **Tailwind CSS v4** (via `@tailwindcss/vite`)
+- **react-router-dom 7** for routing
+- **lucide-react** (icons), **motion** (animation), **recharts** (dashboard charts)
 
-## Run Locally
+## Run locally
 
-**Prerequisites:**  Node.js
+**Prerequisites:** Node.js 18+
 
+```bash
+npm install
+npm run dev        # http://localhost:3000
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Other scripts:
+
+```bash
+npm run build      # production build to dist/
+npm run preview    # preview the production build
+npm run lint       # type-check with tsc --noEmit
+```
+
+## Project structure
+
+```
+src/
+├── App.tsx                 # App shell: header, routes, global modals
+├── main.tsx                # React entry point
+├── index.css               # Tailwind + theme tokens (diyar-dark/cream/brown)
+├── components/
+│   ├── layout/             # AnnouncementBar, SidebarMenu, FloatingContactBar, Footer
+│   ├── modals/             # Cart, Filter, ImageSearch, RequestService
+│   ├── cards/              # ProductCard, ServiceCard
+│   └── home/               # Hero, CategoriesStrip, FeaturedDeals, Sections (homepage blocks)
+├── layouts/                # DashboardLayout (partner portal shell)
+└── pages/                  # Route pages (storefront)
+    └── dashboard/          # Vendor / Service / Affiliate partner dashboards
+```
+
+Static assets (images, logo, payment icons) live in [`public/`](public/).
+
+## Theme
+
+Brand tokens are defined in [`src/index.css`](src/index.css):
+
+| Token             | Value     |
+| ----------------- | --------- |
+| `--color-diyar-dark`  | `#1f3d3a` |
+| `--color-diyar-cream` | `#f3ecdb` |
+| `--color-diyar-brown` | `#947961` |

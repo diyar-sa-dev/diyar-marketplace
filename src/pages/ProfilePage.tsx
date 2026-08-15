@@ -12,7 +12,8 @@ import {
   Globe, 
   LogOut,
   ChevronLeft,
-  Shield
+  Shield,
+  Wrench
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -21,6 +22,7 @@ export default function ProfilePage() {
       group: "الطلبات والمشتريات",
       items: [
         { id: 'orders', icon: <Package size={20} />, title: "طلباتي", subtitle: "تتبع الطلبات، حالة الشحن والتركيب", link: "/orders" },
+        { id: 'service_requests', icon: <Wrench size={20} />, title: "طلبات الخدمات والصيانة", subtitle: "عروض الأسعار، طلبات التفصيل والصيانة", link: "/profile/service-requests" },
         { id: 'wishlist', icon: <Bookmark size={20} />, title: "المحفوظات", subtitle: "المنتجات والخدمات التي تم حفظها", link: "/wishlist" },
         { id: 'reviews', icon: <Star size={20} />, title: "تقييماتي ومراجعاتي", subtitle: "سجل التقييمات للمنتجات والخدمات", link: "/profile/reviews" },
       ]

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, Bookmark, ShoppingBag, FolderHeart, ShieldCheck } from 'lucide-react';
-import ProductCard from '../components/ProductCard.tsx';
-import ServiceCard from '../components/ServiceCard.tsx';
+import ProductCard from '../components/cards/ProductCard.tsx';
+import ServiceCard from '../components/cards/ServiceCard.tsx';
 
 export default function WishlistPage() {
   const [filterTab, setFilterTab] = useState<'all' | 'products' | 'services'>('all');

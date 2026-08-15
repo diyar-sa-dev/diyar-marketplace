@@ -11,7 +11,7 @@ const ANNOUNCEMENTS = [
   },
   {
     icon: <Sparkles className="w-4 h-4 text-yellow-400 shrink-0 animate-pulse" />,
-    text: "جرّب مصمم الغرف التفاعلي بالذكاء الاصطناعي في AI Studio",
+    text: "جرّب المساعد الشخصي التفاعلي للغرف",
     cta: "جرّب الآن",
     link: "/search", // leads to search/AI trial
   },
@@ -75,7 +75,7 @@ export function AnnouncementBar() {
               className="flex items-center justify-center gap-2 md:gap-3 text-center px-4"
             >
               {current.icon}
-              <span className="text-[11px] sm:text-xs tracking-wide">
+              <span className="text-[11px] sm:text-xs">
                 {current.text}
               </span>
               <span className="hidden sm:inline-block bg-[#947961] text-white text-[10px] font-bold px-2 py-0.5 rounded-full hover:bg-opacity-95 transition-all text-xs mr-2">
