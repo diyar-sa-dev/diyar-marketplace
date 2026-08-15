@@ -1,9 +1,46 @@
-node_modules/
-build/
-dist/
+# Dependencies
+frontend/node_modules/
+
+# Vite cache (must not live at monorepo root)
+.vite/
+frontend/node_modules/.vite/
+
+# Build outputs
+frontend/dist/
+frontend/build/
+backend/vendor/
+backend/public/build/
+backend/public/hot
+backend/public/storage
+backend/storage/*.key
+
+# Coverage & logs
 coverage/
-.DS_Store
 *.log
-.env*
+npm-debug.log*
+
+# Environment
+.env
+.env.*
 !.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Backup
 .backup/
+
+# Laravel
+backend/.phpunit.result.cache
+backend/bootstrap/cache/*
+!backend/bootstrap/cache/.gitignore

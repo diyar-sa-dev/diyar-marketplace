@@ -1,59 +1,49 @@
-# DIYAR Marketplace — UI/UX Prototype
+# DIYAR Marketplace
 
-An Arabic (RTL), multi-vendor furniture & home-services marketplace. This is a
-**frontend-only UI/UX prototype** — there is no backend. All data is mocked
-inline and all "AI" / interactive features are simulated in the UI.
+Arabic RTL multi-vendor marketplace for furniture products and home services.
 
-## Tech stack
+## Repository Structure
 
-- **React 19** + **TypeScript**
-- **Vite 6** (dev server + build)
-- **Tailwind CSS v4** (via `@tailwindcss/vite`)
-- **react-router-dom 7** for routing
-- **lucide-react** (icons), **motion** (animation), **recharts** (dashboard charts)
+```
+diyar-marketplace/
+├── conception/     # Product & architecture documentation (start here)
+├── frontend/       # React 19 + Vite UI prototype
+├── backend/        # Laravel 13 API (Stage 0 scaffold)
+└── github/         # Git workflow documentation
+```
 
-## Run locally
+## Quick Start
 
-**Prerequisites:** Node.js 18+
+### Documentation
+
+Read [conception/MASTER_DEVELOPMENT_PLAN.md](conception/MASTER_DEVELOPMENT_PLAN.md) for the full roadmap.
+
+Stage 0 completion: [conception/Stages/Stage 0/STAGE_0_COMPLETION_REPORT.md](conception/Stages/Stage%200/STAGE_0_COMPLETION_REPORT.md)
+
+### Frontend (UI prototype)
 
 ```bash
+cd frontend
 npm install
-npm run dev        # http://localhost:3000
+npm run dev        # http://localhost:3000 — run from frontend/ only
 ```
 
-Other scripts:
+### Backend
 
-```bash
-npm run build      # production build to dist/
-npm run preview    # preview the production build
-npm run lint       # type-check with tsc --noEmit
-```
+Laravel 13 scaffold in `backend/`. Business modules begin in Stage 1.
 
-## Project structure
+See [conception/runbooks/LOCAL_SETUP.md](conception/runbooks/LOCAL_SETUP.md).
 
-```
-src/
-├── App.tsx                 # App shell: header, routes, global modals
-├── main.tsx                # React entry point
-├── index.css               # Tailwind + theme tokens (diyar-dark/cream/brown)
-├── components/
-│   ├── layout/             # AnnouncementBar, SidebarMenu, FloatingContactBar, Footer
-│   ├── modals/             # Cart, Filter, ImageSearch, RequestService
-│   ├── cards/              # ProductCard, ServiceCard
-│   └── home/               # Hero, CategoriesStrip, FeaturedDeals, Sections (homepage blocks)
-├── layouts/                # DashboardLayout (partner portal shell)
-└── pages/                  # Route pages (storefront)
-    └── dashboard/          # Vendor / Service / Affiliate partner dashboards
-```
+## Status
 
-Static assets (images, logo, payment icons) live in [`public/`](public/).
+| Component | Status |
+|-----------|--------|
+| Frontend UI | Prototype (mock data) |
+| Backend API | Laravel 13 scaffold only |
+| Stage | **0 FINALIZED** — awaiting Stage 1 authorization |
 
-## Theme
+## Tech Stack (V1 baseline)
 
-Brand tokens are defined in [`src/index.css`](src/index.css):
-
-| Token             | Value     |
-| ----------------- | --------- |
-| `--color-diyar-dark`  | `#1f3d3a` |
-| `--color-diyar-cream` | `#f3ecdb` |
-| `--color-diyar-brown` | `#947961` |
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS
+- **Backend:** Laravel 13, PHP 8.3+, Sanctum, MySQL 8
+- **Architecture:** Modular monolith REST API (`/api/v1`)

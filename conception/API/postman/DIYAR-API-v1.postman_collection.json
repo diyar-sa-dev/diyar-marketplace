@@ -1,0 +1,73 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "DIYAR API — v1",
+    "description": "DIYAR Marketplace REST API — Stage 1 foundation.\n\nImplemented: GET /api/v1/health, JSON 404 behavior.\n\nAuth and business endpoints are NOT implemented until Stage 2+.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "api_version",
+      "value": "v1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /api/v1/health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "health"]
+            },
+            "description": "Operational health check. No authentication required.\n\nSee conception/API/HEALTH.md"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error / API Behavior",
+      "item": [
+        {
+          "name": "GET unknown route (JSON 404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/this-route-does-not-exist",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "this-route-does-not-exist"]
+            },
+            "description": "Verifies API JSON error envelope for unknown routes.\n\nExpected: 404, success=false, message=Resource not found."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "FUTURE — Stage 2 Identity",
+      "description": "PLANNED / NOT IMPLEMENTED\n\nFuture endpoints (do not expect 200 until Stage 2):\n- POST /api/v1/auth/register\n- POST /api/v1/auth/login\n- POST /api/v1/auth/logout\n- POST /api/v1/auth/otp/send\n- POST /api/v1/auth/otp/verify\n- GET /api/v1/auth/me\n\nOTP provider: MSEGAT (see conception/API/providers/MSEGAT.md)",
+      "item": []
+    }
+  ]
+}
