@@ -24,17 +24,9 @@ export class ErrorBoundary extends Component<Props, State> {
     }
   }
 
-  private handleRetry = () => {
-    this.setState({ hasError: false, message: undefined });
-  };
-
   render() {
     if (this.state.hasError) {
-      return (
-        this.props.fallback ?? (
-          <AppErrorFallback message={this.state.message} onRetry={this.handleRetry} />
-        )
-      );
+      return this.props.fallback ?? <AppErrorFallback message={this.state.message} />;
     }
 
     return this.props.children;

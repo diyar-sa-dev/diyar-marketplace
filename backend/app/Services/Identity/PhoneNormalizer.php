@@ -2,8 +2,6 @@
 
 namespace App\Services\Identity;
 
-use InvalidArgumentException;
-
 final class PhoneNormalizer
 {
     /**

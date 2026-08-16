@@ -58,11 +58,8 @@ export function ImageSearchModal({ isOpen, onClose }: ImageSearchModalProps) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      ></div>
-      
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
+
       <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="p-5 border-b border-gray-100 flex items-center justify-between">
@@ -70,7 +67,7 @@ export function ImageSearchModal({ isOpen, onClose }: ImageSearchModalProps) {
             <Camera className="text-diyar-brown" size={24} />
             البحث بالصورة
           </h2>
-          <button 
+          <button
             onClick={onClose}
             className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-diyar-dark transition-colors"
           >
@@ -81,32 +78,37 @@ export function ImageSearchModal({ isOpen, onClose }: ImageSearchModalProps) {
         {/* Content */}
         <div className="p-6">
           {!selectedImage ? (
-            <div 
+            <div
               className="border-2 border-dashed border-gray-300 rounded-2xl p-10 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer text-center group"
               onClick={() => fileInputRef.current?.click()}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
             >
-              <input 
-                type="file" 
-                className="hidden" 
-                ref={fileInputRef} 
+              <input
+                type="file"
+                className="hidden"
+                ref={fileInputRef}
                 accept="image/*"
                 onChange={handleImageSelect}
               />
               <div className="w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <UploadCloud size={32} className="text-diyar-brown" />
               </div>
-              <h3 className="font-bold text-lg text-diyar-dark mb-2">اسحب الصورة هنا أو اضغط للرفع</h3>
+              <h3 className="font-bold text-lg text-diyar-dark mb-2">
+                اسحب الصورة هنا أو اضغط للرفع
+              </h3>
               <p className="text-sm text-gray-500">يدعم صيغ JPG, PNG, WEBP</p>
-              
-              <div className="mt-8 flex items-center gap-4 text-xs font-bold text-gray-400 w-full" dir="ltr">
+
+              <div
+                className="mt-8 flex items-center gap-4 text-xs font-bold text-gray-400 w-full"
+                dir="ltr"
+              >
                 <div className="h-px bg-gray-200 flex-1"></div>
                 OR
                 <div className="h-px bg-gray-200 flex-1"></div>
               </div>
-              
-              <button 
+
+              <button
                 className="mt-6 flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 rounded-xl text-diyar-dark font-bold hover:border-diyar-brown hover:text-diyar-brown transition-colors w-full justify-center"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -120,13 +122,9 @@ export function ImageSearchModal({ isOpen, onClose }: ImageSearchModalProps) {
           ) : (
             <div className="flex flex-col items-center">
               <div className="relative w-full aspect-square md:aspect-video rounded-2xl overflow-hidden bg-black mb-6 max-h-[300px]">
-                <img 
-                  src={selectedImage} 
-                  alt="Selected" 
-                  className="w-full h-full object-contain"
-                />
+                <img src={selectedImage} alt="Selected" className="w-full h-full object-contain" />
                 {!isAnalyzing && (
-                  <button 
+                  <button
                     onClick={resetSelection}
                     className="absolute top-4 right-4 w-8 h-8 bg-black/50 hover:bg-black text-white rounded-full flex items-center justify-center transition-colors backdrop-blur-sm"
                   >
@@ -144,7 +142,7 @@ export function ImageSearchModal({ isOpen, onClose }: ImageSearchModalProps) {
               </div>
 
               {!isAnalyzing && (
-                <button 
+                <button
                   onClick={handleSearchClick}
                   className="w-full bg-diyar-dark text-white rounded-xl py-3.5 font-bold text-lg flex items-center justify-center gap-2 hover:bg-black transition-colors"
                 >

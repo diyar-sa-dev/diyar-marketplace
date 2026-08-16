@@ -40,7 +40,9 @@ export default function LanguagePage() {
 
       <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-xl md:text-2xl font-bold text-diyar-dark mb-2">{t('language.title')}</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-diyar-dark mb-2">
+            {t('language.title')}
+          </h1>
           <p className="text-gray-500 text-sm">{t('language.subtitle')}</p>
         </div>
 

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { accountStatusPath, isActiveAccount, isPendingAccount, isSuspendedAccount } from './accountStatus.ts';
+import {
+  accountStatusPath,
+  isActiveAccount,
+  isPendingAccount,
+  isSuspendedAccount,
+} from './accountStatus.ts';
 
 describe('accountStatus', () => {
   it('detects pending and suspended accounts', () => {

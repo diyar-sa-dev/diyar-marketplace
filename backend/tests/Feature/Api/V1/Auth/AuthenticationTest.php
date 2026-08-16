@@ -6,6 +6,8 @@ use App\Enums\RoleName;
 use App\Infrastructure\Sms\LogSmsProvider;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;
 
@@ -147,17 +149,17 @@ class AuthenticationTest extends TestCase
 
     public function test_sanctum_requires_spa_origin_for_stateful_requests(): void
     {
-        $withoutOrigin = \Illuminate\Http\Request::create('/api/v1/auth/me', 'GET');
+        $withoutOrigin = Request::create('/api/v1/auth/me', 'GET');
         $this->assertFalse(
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::fromFrontend($withoutOrigin),
+            EnsureFrontendRequestsAreStateful::fromFrontend($withoutOrigin),
             'Requests without Origin/Referer must not be treated as stateful (Postman default).',
         );
 
-        $withSpaOrigin = \Illuminate\Http\Request::create('/api/v1/auth/me', 'GET', server: [
+        $withSpaOrigin = Request::create('/api/v1/auth/me', 'GET', server: [
             'HTTP_ORIGIN' => 'http://localhost:3000',
         ]);
         $this->assertTrue(
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::fromFrontend($withSpaOrigin),
+            EnsureFrontendRequestsAreStateful::fromFrontend($withSpaOrigin),
             'SPA Origin must match SANCTUM_STATEFUL_DOMAINS.',
         );
     }

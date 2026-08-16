@@ -94,7 +94,10 @@ export function RouteStatusPage({
       </div>
 
       <div className="relative mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-lg flex-col items-center justify-center">
-        <Link to="/" className="mb-8 flex items-center justify-center transition-opacity hover:opacity-80">
+        <Link
+          to="/"
+          className="mb-8 flex items-center justify-center transition-opacity hover:opacity-80"
+        >
           <img src="/logo_diyar.svg" alt="DIYAR" className="h-10 sm:h-11" />
         </Link>
 
@@ -127,7 +130,9 @@ export function RouteStatusPage({
 
           <div
             className={`relative flex flex-col items-stretch gap-3 ${
-              singleAction ? 'mx-auto w-full max-w-xs' : 'sm:flex-row sm:items-center sm:justify-center'
+              singleAction
+                ? 'mx-auto w-full max-w-xs'
+                : 'sm:flex-row sm:items-center sm:justify-center'
             }`}
           >
             {primaryOnClick ? (

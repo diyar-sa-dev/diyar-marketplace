@@ -5,13 +5,26 @@ import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useOtpCooldown } from '../hooks/auth/useOtpCooldown.ts';
 import { useToast } from '../hooks/useToast.ts';
 import { resolveSafeReturnPath } from '../lib/auth/roles.ts';
-import { isValidPasswordClient, isValidNameClient, isValidSaudiPhoneNational, maskPhoneForDisplay, NAME_MAX_LENGTH, NAME_MIN_LENGTH, passwordsMatch } from '../lib/auth/validation.ts';
-import { collectDisplayErrors, firstFieldError, isPhoneVerificationRequired, isUnexpectedServerError } from '../utils/errors.ts';
+import {
+  isValidPasswordClient,
+  isValidNameClient,
+  isValidSaudiPhoneNational,
+  maskPhoneForDisplay,
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
+  passwordsMatch,
+} from '../lib/auth/validation.ts';
+import {
+  collectDisplayErrors,
+  firstFieldError,
+  isPhoneVerificationRequired,
+  isUnexpectedServerError,
+} from '../utils/errors.ts';
 import { PrivacyPolicyModal } from '../components/modals/PrivacyPolicyModal.tsx';
 import { AuthEmailInput, AuthFieldLabel } from '../components/auth/AuthInputIcon.tsx';
 import { PasswordInput, PasswordStrengthField } from '../components/auth/PasswordStrengthField.tsx';
 import { SaudiPhoneInput } from '../components/auth/SaudiPhoneInput.tsx';
-import { useAuthFieldDirection, useLocale } from '../lib/i18n/LocaleProvider.tsx';
+import { useAuthFieldDirection, useLocale } from '../lib/i18n/localeContext.ts';
 
 type AuthView = 'login' | 'register' | 'forgot' | 'otp' | 'reset';
 type OtpContext = 'register' | 'forgot';
@@ -149,9 +162,7 @@ export default function AuthPage() {
     } catch (err) {
       const verification = isPhoneVerificationRequired(err);
       if (verification) {
-        const phone =
-          verification.phone ||
-          (loginMethod === 'phone' ? loginPhone.trim() : '');
+        const phone = verification.phone || (loginMethod === 'phone' ? loginPhone.trim() : '');
         setPendingPhone(phone);
         setOtpContext('register');
         setOtpCode('');
@@ -470,7 +481,9 @@ export default function AuthPage() {
                       onChange={(e) => setRememberMe(e.target.checked)}
                       className="h-4 w-4 rounded border-gray-300 text-diyar-brown focus:ring-diyar-brown cursor-pointer"
                     />
-                    <span className="text-sm font-medium text-gray-600">{t('auth.fields.rememberMe')}</span>
+                    <span className="text-sm font-medium text-gray-600">
+                      {t('auth.fields.rememberMe')}
+                    </span>
                   </label>
                   <button
                     type="button"
@@ -500,7 +513,9 @@ export default function AuthPage() {
                     <div className="w-full border-t border-gray-200" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500 font-bold">{t('auth.login.noAccount')}</span>
+                    <span className="px-2 bg-white text-gray-500 font-bold">
+                      {t('auth.login.noAccount')}
+                    </span>
                   </div>
                 </div>
 
@@ -551,7 +566,9 @@ export default function AuthPage() {
                         >
                           {role.icon}
                         </div>
-                        <span className="font-bold text-sm truncate">{t(`auth.roles.${role.id}`)}</span>
+                        <span className="font-bold text-sm truncate">
+                          {t(`auth.roles.${role.id}`)}
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -643,9 +660,7 @@ export default function AuthPage() {
               </button>
 
               <div className="text-center mb-6 space-y-2">
-                <p className="text-gray-600 text-sm">
-                  {t('auth.forgot.description')}
-                </p>
+                <p className="text-gray-600 text-sm">{t('auth.forgot.description')}</p>
                 <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">
                   {t('auth.forgot.emailUnavailable')}
                 </p>

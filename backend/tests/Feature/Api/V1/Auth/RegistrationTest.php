@@ -6,6 +6,7 @@ use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Enums\UserStatus;
 use App\Infrastructure\Sms\LogSmsProvider;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\Identity\OtpCacheStore;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -166,7 +167,7 @@ class RegistrationTest extends TestCase
         ]))->assertCreated();
 
         $user = User::query()->where('phone', '966501234567')->firstOrFail();
-        $customerRole = \App\Models\Role::query()->where('name', RoleName::Customer->value)->firstOrFail();
+        $customerRole = Role::query()->where('name', RoleName::Customer->value)->firstOrFail();
         $user->roles()->attach($customerRole->id, [
             'id' => (string) str()->uuid(),
             'status' => 'active',

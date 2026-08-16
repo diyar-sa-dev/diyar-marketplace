@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  Store, 
-  Wrench, 
-  Megaphone, 
-  Menu, 
-  Bell, 
-  LogOut, 
-  Settings, 
+import {
+  Store,
+  Wrench,
+  Megaphone,
+  Menu,
+  Bell,
+  LogOut,
+  Settings,
   LayoutDashboard,
   Package,
   ShoppingCart,
@@ -16,7 +16,7 @@ import {
   Calendar,
   Link as LinkIcon,
   BarChart,
-  ChevronDown
+  ChevronDown,
 } from 'lucide-react';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useToast } from '../hooks/useToast.ts';
@@ -46,7 +46,10 @@ export default function DashboardLayout() {
     affiliate: Megaphone,
   };
 
-  const NAV_LINKS: Record<DashboardPortalKey, Array<{ name: string; path: string; icon: typeof LayoutDashboard }>> = {
+  const NAV_LINKS: Record<
+    DashboardPortalKey,
+    Array<{ name: string; path: string; icon: typeof LayoutDashboard }>
+  > = {
     vendor: [
       { name: 'الرئيسية', path: '/dashboard/vendor', icon: LayoutDashboard },
       { name: 'الطلبات', path: '/dashboard/vendor/orders', icon: ShoppingCart },
@@ -70,7 +73,7 @@ export default function DashboardLayout() {
       { name: 'التقارير', path: '/dashboard/affiliate/reports', icon: BarChart },
       { name: 'سحب الأرباح', path: '/dashboard/affiliate/payouts', icon: Wallet },
       { name: 'الإعدادات', path: '/dashboard/affiliate/settings', icon: Settings },
-    ]
+    ],
   };
 
   const links = role ? NAV_LINKS[role] : [];
@@ -79,26 +82,33 @@ export default function DashboardLayout() {
     <div className="min-h-screen bg-gray-50 flex" dir="rtl">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed md:sticky top-0 right-0 z-50 h-screen bg-diyar-dark text-white flex flex-col transition-all duration-300 ${
-        isSidebarOpen ? 'w-64 translate-x-0' : 'w-64 md:w-20 translate-x-full md:translate-x-0'
-      }`}>
+      <aside
+        className={`fixed md:sticky top-0 right-0 z-50 h-screen bg-diyar-dark text-white flex flex-col transition-all duration-300 ${
+          isSidebarOpen ? 'w-64 translate-x-0' : 'w-64 md:w-20 translate-x-full md:translate-x-0'
+        }`}
+      >
         <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 shrink-0">
-          {isSidebarOpen && <span className="font-bold text-xl text-diyar-cream truncate">لوحة التحكم</span>}
-          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+          {isSidebarOpen && (
+            <span className="font-bold text-xl text-diyar-cream truncate">لوحة التحكم</span>
+          )}
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          >
             <Menu size={20} />
           </button>
         </div>
-        
+
         <div className="flex-1 overflow-y-auto py-4">
           {!role ? (
-             <div className="px-4 text-gray-400 text-sm">الرجاء اختيار نوع الحساب</div>
+            <div className="px-4 text-gray-400 text-sm">الرجاء اختيار نوع الحساب</div>
           ) : (
             <ul className="space-y-1 px-3">
               {links.map((link) => {
@@ -110,12 +120,16 @@ export default function DashboardLayout() {
                       to={link.path}
                       onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
-                        isActive ? 'bg-diyar-brown text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                        isActive
+                          ? 'bg-diyar-brown text-white'
+                          : 'text-gray-300 hover:bg-white/5 hover:text-white'
                       }`}
                       title={link.name}
                     >
                       <Icon size={20} className="shrink-0" />
-                      {isSidebarOpen && <span className="font-medium whitespace-nowrap">{link.name}</span>}
+                      {isSidebarOpen && (
+                        <span className="font-medium whitespace-nowrap">{link.name}</span>
+                      )}
                     </Link>
                   </li>
                 );
@@ -125,7 +139,11 @@ export default function DashboardLayout() {
         </div>
 
         <div className="p-4 border-t border-white/10">
-          <Link to="/" className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors" title="العودة للمتجر">
+          <Link
+            to="/"
+            className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors"
+            title="العودة للمتجر"
+          >
             <LogOut size={20} className="shrink-0" />
             {isSidebarOpen && <span className="font-medium whitespace-nowrap">العودة للمتجر</span>}
           </Link>
@@ -137,8 +155,8 @@ export default function DashboardLayout() {
         {/* Header */}
         <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 md:px-6 shrink-0">
           <div className="flex items-center gap-3 md:gap-4">
-            <button 
-              onClick={() => setIsSidebarOpen(true)} 
+            <button
+              onClick={() => setIsSidebarOpen(true)}
               className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors -mr-2"
             >
               <Menu size={20} />
@@ -147,7 +165,7 @@ export default function DashboardLayout() {
               {activePortal?.headerTitle ?? 'اختيار البوابة'}
             </h1>
           </div>
-          
+
           <div className="flex items-center gap-2 md:gap-4">
             {showRoleSwitcher && (
               <div className="relative group">
@@ -178,8 +196,8 @@ export default function DashboardLayout() {
 
             {/* Notifications */}
             <div className="relative">
-              <button 
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)} 
+              <button
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className="relative p-2 text-gray-500 hover:text-diyar-dark transition-colors"
               >
                 <Bell size={20} />
@@ -188,16 +206,26 @@ export default function DashboardLayout() {
 
               {isNotificationsOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)}></div>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsNotificationsOpen(false)}
+                  ></div>
                   <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                       <h3 className="font-bold text-diyar-dark">الإشعارات</h3>
-                      <button className="text-xs text-diyar-brown hover:underline font-medium">تحديد الكل كمقروء</button>
+                      <button className="text-xs text-diyar-brown hover:underline font-medium">
+                        تحديد الكل كمقروء
+                      </button>
                     </div>
                     <div className="max-h-80 overflow-y-auto">
                       {[1, 2, 3].map((i) => (
-                        <div key={i} className={`p-4 border-b border-gray-50 hover:bg-gray-50 transition cursor-pointer flex gap-3 ${i === 1 ? 'bg-amber-50/30' : ''}`}>
-                          <div className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${i === 1 ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-500'}`}>
+                        <div
+                          key={i}
+                          className={`p-4 border-b border-gray-50 hover:bg-gray-50 transition cursor-pointer flex gap-3 ${i === 1 ? 'bg-amber-50/30' : ''}`}
+                        >
+                          <div
+                            className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${i === 1 ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-500'}`}
+                          >
                             {i === 1 ? <ShoppingCart size={18} /> : <Megaphone size={18} />}
                           </div>
                           <div>
@@ -205,7 +233,9 @@ export default function DashboardLayout() {
                               {i === 1 ? 'طلب جديد #1024' : 'إشعار تحديث من النظام'}
                             </h4>
                             <p className="text-xs text-gray-500 line-clamp-2 mb-2">
-                              {i === 1 ? 'تم استلام طلب جديد بقيمة 1,250 ر.س. يرجى تجهيز الطلب بأسرع وقت.' : 'تم تحديث سياسات التسعير، يرجى مراجعة الشروط والأحكام الجديدة.'}
+                              {i === 1
+                                ? 'تم استلام طلب جديد بقيمة 1,250 ر.س. يرجى تجهيز الطلب بأسرع وقت.'
+                                : 'تم تحديث سياسات التسعير، يرجى مراجعة الشروط والأحكام الجديدة.'}
                             </p>
                             <span className="text-[10px] text-gray-400">منذ ساعتين</span>
                           </div>
@@ -213,8 +243,8 @@ export default function DashboardLayout() {
                       ))}
                     </div>
                     <div className="p-3 border-t border-gray-100 bg-gray-50">
-                      <Link 
-                        to={`/dashboard/${role}/notifications`} 
+                      <Link
+                        to={`/dashboard/${role}/notifications`}
                         onClick={() => setIsNotificationsOpen(false)}
                         className="block w-full text-center py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-diyar-dark hover:bg-gray-50 hover:border-diyar-brown transition"
                       >

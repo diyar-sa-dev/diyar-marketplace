@@ -13,7 +13,7 @@ export default function NotificationSettingsPage() {
   });
 
   const toggleSetting = (key: keyof typeof settings) => {
-    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
@@ -22,11 +22,17 @@ export default function NotificationSettingsPage() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Link to="/" className="hover:text-diyar-dark transition">الرئيسية</Link>
+            <Link to="/" className="hover:text-diyar-dark transition">
+              الرئيسية
+            </Link>
             <ChevronLeft size={16} />
-            <Link to="/profile" className="hover:text-diyar-dark transition">حسابي</Link>
+            <Link to="/profile" className="hover:text-diyar-dark transition">
+              حسابي
+            </Link>
             <ChevronLeft size={16} />
-            <Link to="/profile/notifications" className="hover:text-diyar-dark transition">الإشعارات</Link>
+            <Link to="/profile/notifications" className="hover:text-diyar-dark transition">
+              الإشعارات
+            </Link>
             <ChevronLeft size={16} />
             <span className="font-bold text-diyar-dark">إعدادات الإشعارات</span>
           </div>
@@ -44,9 +50,11 @@ export default function NotificationSettingsPage() {
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-5 md:p-6 border-b border-gray-100 bg-gray-50/50">
               <h2 className="font-bold text-lg text-diyar-dark">قنوات التواصل</h2>
-              <p className="text-xs text-gray-500 mt-1">اختر الطرق التي تفضل أن نتواصل معك من خلالها</p>
+              <p className="text-xs text-gray-500 mt-1">
+                اختر الطرق التي تفضل أن نتواصل معك من خلالها
+              </p>
             </div>
-            
+
             <div className="divide-y divide-gray-50">
               {/* Push Notes */}
               <div className="p-5 md:p-6 flex items-center justify-between gap-4">
@@ -55,7 +63,9 @@ export default function NotificationSettingsPage() {
                     <Bell size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-gray-800 mb-1">إشعارات التطبيق / المتصفح</h3>
+                    <h3 className="font-bold text-sm text-gray-800 mb-1">
+                      إشعارات التطبيق / المتصفح
+                    </h3>
                     <p className="text-xs text-gray-500">تلقي التنبيهات المباشرة على جهازك</p>
                   </div>
                 </div>
@@ -98,7 +108,7 @@ export default function NotificationSettingsPage() {
               <h2 className="font-bold text-lg text-diyar-dark">أنواع الإشعارات</h2>
               <p className="text-xs text-gray-500 mt-1">اختر أنواع التنبيهات التي تود استلامها</p>
             </div>
-            
+
             <div className="divide-y divide-gray-50">
               {/* Orders */}
               <div className="p-5 md:p-6 flex items-center justify-between gap-4">
@@ -108,7 +118,9 @@ export default function NotificationSettingsPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-sm text-gray-800 mb-1">تحديثات الطلبات</h3>
-                    <p className="text-xs text-gray-500">تنبيهات حول حالة الطلب، الشحن، ومواعيد التركيب</p>
+                    <p className="text-xs text-gray-500">
+                      تنبيهات حول حالة الطلب، الشحن، ومواعيد التركيب
+                    </p>
                   </div>
                 </div>
                 <Toggle isChecked={settings.orders} onToggle={() => toggleSetting('orders')} />
@@ -125,7 +137,10 @@ export default function NotificationSettingsPage() {
                     <p className="text-xs text-gray-500">أحدث العروض الحصرية وإشعارات التخفيضات</p>
                   </div>
                 </div>
-                <Toggle isChecked={settings.promotions} onToggle={() => toggleSetting('promotions')} />
+                <Toggle
+                  isChecked={settings.promotions}
+                  onToggle={() => toggleSetting('promotions')}
+                />
               </div>
 
               {/* System */}
@@ -139,7 +154,11 @@ export default function NotificationSettingsPage() {
                     <p className="text-xs text-gray-500">تنبيهات الأمان وتغييرات ملفك الشخصي</p>
                   </div>
                 </div>
-                <Toggle isChecked={settings.system} onToggle={() => toggleSetting('system')} disabled />
+                <Toggle
+                  isChecked={settings.system}
+                  onToggle={() => toggleSetting('system')}
+                  disabled
+                />
               </div>
             </div>
           </div>
@@ -150,7 +169,15 @@ export default function NotificationSettingsPage() {
 }
 
 // Toggle Component
-function Toggle({ isChecked, onToggle, disabled = false }: { isChecked: boolean, onToggle: () => void, disabled?: boolean }) {
+function Toggle({
+  isChecked,
+  onToggle,
+  disabled = false,
+}: {
+  isChecked: boolean;
+  onToggle: () => void;
+  disabled?: boolean;
+}) {
   return (
     <button
       type="button"

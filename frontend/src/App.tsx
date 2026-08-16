@@ -4,7 +4,21 @@
  */
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Bookmark, User, Search, Menu, SlidersHorizontal, Home as HomeIcon, Grid, Camera, LogOut, Bell, Sparkles, ChevronDown } from 'lucide-react';
+import {
+  ShoppingCart,
+  Bookmark,
+  User,
+  Search,
+  Menu,
+  SlidersHorizontal,
+  Home as HomeIcon,
+  Grid,
+  Camera,
+  LogOut,
+  Bell,
+  Sparkles,
+  ChevronDown,
+} from 'lucide-react';
 import { Footer } from './components/layout/Footer.tsx';
 import { FilterModal } from './components/modals/FilterModal.tsx';
 import { CartSidebar } from './components/modals/CartSidebar.tsx';
@@ -81,39 +95,61 @@ import PendingAccountPage from './pages/account/PendingAccountPage.tsx';
 import SuspendedAccountPage from './pages/account/SuspendedAccountPage.tsx';
 import Notifications from './pages/dashboard/Notifications.tsx';
 
-function MobileBottomNav({ onOpenCart, isLoggedIn }: { onOpenCart: () => void, isLoggedIn: boolean }) {
+function MobileBottomNav({
+  onOpenCart,
+  isLoggedIn,
+}: {
+  onOpenCart: () => void;
+  isLoggedIn: boolean;
+}) {
   const location = useLocation();
   const { count } = useCart();
   const isHome = location.pathname === '/';
   const isCategory = location.pathname.startsWith('/category');
-  
-  if (['/auth', '/dashboard'].some(path => location.pathname.startsWith(path))) return null;
+
+  if (['/auth', '/dashboard'].some((path) => location.pathname.startsWith(path))) return null;
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white flex justify-around items-center h-17.5 z-50 px-2 pb-safe shadow-[0_-5px_15px_rgba(0,0,0,0.08)]">
-      <Link to="/" className={`flex flex-col items-center justify-center flex-1 h-full cursor-pointer transition ${isHome ? 'text-diyar-dark' : 'text-gray-400 hover:text-diyar-dark'}`}>
+      <Link
+        to="/"
+        className={`flex flex-col items-center justify-center flex-1 h-full cursor-pointer transition ${isHome ? 'text-diyar-dark' : 'text-gray-400 hover:text-diyar-dark'}`}
+      >
         <HomeIcon size={22} className="mb-1" />
         <span className="text-[11px] font-bold">الرئيسية</span>
       </Link>
-      <Link to="/category/all" className={`flex flex-col items-center justify-center flex-1 h-full cursor-pointer transition ${isCategory ? 'text-diyar-dark' : 'text-gray-400 hover:text-diyar-dark'}`}>
+      <Link
+        to="/category/all"
+        className={`flex flex-col items-center justify-center flex-1 h-full cursor-pointer transition ${isCategory ? 'text-diyar-dark' : 'text-gray-400 hover:text-diyar-dark'}`}
+      >
         <Grid size={22} className="mb-1" />
         <span className="text-[11px] font-medium">التصنيفات</span>
       </Link>
-      <div 
+      <div
         className="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition"
         onClick={onOpenCart}
       >
         <div className="relative">
           <ShoppingCart size={22} className="mb-1" />
-          {count > 0 && <span className="absolute -top-1.5 -right-2 bg-diyar-dark text-diyar-cream text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{count}</span>}
+          {count > 0 && (
+            <span className="absolute -top-1.5 -right-2 bg-diyar-dark text-diyar-cream text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+              {count}
+            </span>
+          )}
         </div>
         <span className="text-[11px] font-medium">السلة</span>
       </div>
-      <Link to="/wishlist" className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${location.pathname === '/wishlist' ? 'text-diyar-dark' : ''}`}>
+      <Link
+        to="/wishlist"
+        className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${location.pathname === '/wishlist' ? 'text-diyar-dark' : ''}`}
+      >
         <Bookmark size={22} className="mb-1" />
         <span className="text-[11px] font-medium">المحفوظات</span>
       </Link>
-      <Link to={isLoggedIn ? "/profile" : "/auth"} className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${location.pathname.startsWith('/profile') ? 'text-diyar-dark' : ''}`}>
+      <Link
+        to={isLoggedIn ? '/profile' : '/auth'}
+        className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${location.pathname.startsWith('/profile') ? 'text-diyar-dark' : ''}`}
+      >
         <User size={22} className="mb-1" />
         <span className="text-[11px] font-medium">حسابي</span>
       </Link>
@@ -136,7 +172,8 @@ export default function App() {
   const { toast } = useToast();
   const { dir, t } = useLocale();
   const dashboardPath = resolveDashboardEntryPath(user?.roles);
-  const showDashboardLink = isAuthenticated && isActiveAccount(user?.status) && hasDashboardAccess(user?.roles);
+  const showDashboardLink =
+    isAuthenticated && isActiveAccount(user?.status) && hasDashboardAccess(user?.roles);
 
   useEffect(() => {
     // reset scroll to top on every navigation (so pages don't open mid-scroll)
@@ -176,9 +213,7 @@ export default function App() {
     location.pathname.startsWith('/account/pending') ||
     location.pathname.startsWith('/account/suspended');
   const isStatusPage =
-    location.pathname === '/403' ||
-    location.pathname === '/404' ||
-    isAccountStatusPage;
+    location.pathname === '/403' || location.pathname === '/404' || isAccountStatusPage;
   const isHomePage = location.pathname === '/';
 
   if (isLoading && !isAuthPage) {
@@ -193,197 +228,494 @@ export default function App() {
     <div className="min-h-screen bg-white font-sans text-diyar-dark pb-17.5 md:pb-0" dir={dir}>
       {!(isAuthPage || isDashboardPage || isStatusPage) && <AnnouncementBar />}
       {!(isAuthPage || isDashboardPage || isStatusPage) && (
-        <div className={`sticky top-0 z-50 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full md:translate-y-[-120%]'} w-full flex justify-center ${isHomePage ? 'h-0 overflow-visible' : ''}`}>
-          <div className={`w-full flex justify-center left-0 right-0 pointer-events-none ${isHomePage ? 'absolute top-0 mt-2 md:mt-4' : 'relative mt-2 md:mt-4 mb-2 md:mb-4'}`}>
+        <div
+          className={`sticky top-0 z-50 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full md:translate-y-[-120%]'} w-full flex justify-center ${isHomePage ? 'h-0 overflow-visible' : ''}`}
+        >
+          <div
+            className={`w-full flex justify-center left-0 right-0 pointer-events-none ${isHomePage ? 'absolute top-0 mt-2 md:mt-4' : 'relative mt-2 md:mt-4 mb-2 md:mb-4'}`}
+          >
             <header className="max-w-350 w-full px-3 md:px-4 pointer-events-auto">
               <div className="bg-white/95 backdrop-blur-md rounded-4xl shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-nowrap items-center justify-between p-2 lg:px-4 lg:py-3 gap-3 w-full">
+                {/* Right Group: Menu, Logo, Navigation Links */}
+                <div className="flex items-center gap-3 md:gap-6 Order-1">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setIsSidebarOpen(true)}
+                      className="text-diyar-dark bg-gray-50 hover:bg-gray-100 border border-gray-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+                    >
+                      <Menu size={20} />
+                    </button>
+                    <Link to="/">
+                      <img src="/logo_diyar.svg" alt="DIYAR" className="h-7 md:h-8 mr-2 lg:mr-0" />
+                    </Link>
+                  </div>
 
-            {/* Right Group: Menu, Logo, Navigation Links */}
-            <div className="flex items-center gap-3 md:gap-6 Order-1">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="text-diyar-dark bg-gray-50 hover:bg-gray-100 border border-gray-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors"
-                >
-                  <Menu size={20} />
-                </button>
-                <Link to="/">
-                  <img src="/logo_diyar.svg" alt="DIYAR" className="h-7 md:h-8 mr-2 lg:mr-0" />
-                </Link>
-              </div>
-
-              {/* Navigation Links - Desktop Only */}
-              <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-[13px] font-medium">
-                <Link to="/" className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap">الرئيسية</Link>
-                {showDashboardLink && (
-                  <Link
-                    to={dashboardPath}
-                    className={`text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap ${
-                      isDashboardPage ? 'text-diyar-dark font-bold' : ''
-                    }`}
-                  >
-                    لوحة التحكم
-                  </Link>
-                )}
-                <Link to="/services" className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap">خدمات</Link>
-                <Link to="/b2b" className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap">B2B</Link>
-                <Link to="/ai-designer" className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors flex items-center gap-1.5 whitespace-nowrap">
-                  المساعد الشخصي
-                </Link>
-              </nav>
-            </div>
-
-            {/* Middle Group: Search */}
-            <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 md:max-w-xl bg-white border border-gray-200 rounded-full px-4 py-2 items-center gap-2 md:order-2">
-              <button type="submit" className="text-diyar-dark hover:text-diyar-dark/80 transition shrink-0">
-                <Search className="w-5 h-5 shrink-0" />
-              </button>
-              <input
-                type="text"
-                placeholder="ابحث عن منتجات، متاجر، خدمات..."
-                className="bg-transparent border-none outline-none w-full text-diyar-dark placeholder:text-gray-400 text-sm h-7"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button
-                type="button"
-                onClick={() => setIsImageSearchOpen(true)}
-                className="text-gray-400 hover:text-diyar-dark transition shrink-0 ml-1"
-              >
-                <Camera className="w-5 h-5" />
-              </button>
-              <div className="px-2 flex items-center gap-2 cursor-pointer text-diyar-dark hover:text-diyar-dark/80 transition shrink-0 border-r border-gray-200" onClick={() => setIsFilterOpen(true)}>
-                 <SlidersHorizontal className="w-4 h-4 md:w-5 md:h-5" />
-                 <span className="text-sm font-medium hidden sm:block">فلاتر</span>
-              </div>
-            </form>
-
-            {/* Left Group: Profile, Icons, CTA */}
-            <div className="flex items-center justify-end gap-2 lg:gap-3 order-2 md:order-3 w-auto">
-
-              {/* Action Icons */}
-              <div className="flex items-center gap-1.5 lg:gap-2">
-                <Link to="/search" className="md:hidden w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors">
-                  <Search className="w-5 h-5" />
-                </Link>
-                <Link to={isAuthenticated ? "/profile" : "/auth"} className="hidden xl:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors">
-                  <User size={18} />
-                </Link>
-                <div className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors" onClick={() => setIsCartOpen(true)}>
-                  <ShoppingCart className="w-5 h-5" />
-                  {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-diyar-dark text-diyar-cream text-[10px] items-center justify-center border border-white font-bold rounded-full w-4 h-4 flex">{cartCount}</span>}
+                  {/* Navigation Links - Desktop Only */}
+                  <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-[13px] font-medium">
+                    <Link
+                      to="/"
+                      className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap"
+                    >
+                      الرئيسية
+                    </Link>
+                    {showDashboardLink && (
+                      <Link
+                        to={dashboardPath}
+                        className={`text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap ${
+                          isDashboardPage ? 'text-diyar-dark font-bold' : ''
+                        }`}
+                      >
+                        لوحة التحكم
+                      </Link>
+                    )}
+                    <Link
+                      to="/services"
+                      className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap"
+                    >
+                      خدمات
+                    </Link>
+                    <Link
+                      to="/b2b"
+                      className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap"
+                    >
+                      B2B
+                    </Link>
+                    <Link
+                      to="/ai-designer"
+                      className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors flex items-center gap-1.5 whitespace-nowrap"
+                    >
+                      المساعد الشخصي
+                    </Link>
+                  </nav>
                 </div>
-                <Link to="/profile/notifications" className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors">
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute -top-1 -right-1 bg-diyar-dark text-diyar-cream text-[10px] items-center justify-center border border-white font-bold rounded-full w-4 h-4 flex">3</span>
-                </Link>
-              </div>
 
-              {/* CTA Button */}
-              <button onClick={() => setIsRequestServiceOpen(true)} className="hidden md:flex text-sm font-bold bg-diyar-dark text-diyar-cream px-5 py-2.5 rounded-2xl hover:bg-diyar-dark/90 transition-colors items-center gap-2 shrink-0">
-                 طلب تنفيذ
-              </button>
-            </div>
-          </div>
-          </header>
+                {/* Middle Group: Search */}
+                <form
+                  onSubmit={handleSearchSubmit}
+                  className="hidden md:flex flex-1 md:max-w-xl bg-white border border-gray-200 rounded-full px-4 py-2 items-center gap-2 md:order-2"
+                >
+                  <button
+                    type="submit"
+                    className="text-diyar-dark hover:text-diyar-dark/80 transition shrink-0"
+                  >
+                    <Search className="w-5 h-5 shrink-0" />
+                  </button>
+                  <input
+                    type="text"
+                    placeholder="ابحث عن منتجات، متاجر، خدمات..."
+                    className="bg-transparent border-none outline-none w-full text-diyar-dark placeholder:text-gray-400 text-sm h-7"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsImageSearchOpen(true)}
+                    className="text-gray-400 hover:text-diyar-dark transition shrink-0 ml-1"
+                  >
+                    <Camera className="w-5 h-5" />
+                  </button>
+                  <div
+                    className="px-2 flex items-center gap-2 cursor-pointer text-diyar-dark hover:text-diyar-dark/80 transition shrink-0 border-r border-gray-200"
+                    onClick={() => setIsFilterOpen(true)}
+                  >
+                    <SlidersHorizontal className="w-4 h-4 md:w-5 md:h-5" />
+                    <span className="text-sm font-medium hidden sm:block">فلاتر</span>
+                  </div>
+                </form>
+
+                {/* Left Group: Profile, Icons, CTA */}
+                <div className="flex items-center justify-end gap-2 lg:gap-3 order-2 md:order-3 w-auto">
+                  {/* Action Icons */}
+                  <div className="flex items-center gap-1.5 lg:gap-2">
+                    <Link
+                      to="/search"
+                      className="md:hidden w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
+                    >
+                      <Search className="w-5 h-5" />
+                    </Link>
+                    <Link
+                      to={isAuthenticated ? '/profile' : '/auth'}
+                      className="hidden xl:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
+                    >
+                      <User size={18} />
+                    </Link>
+                    <div
+                      className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
+                      onClick={() => setIsCartOpen(true)}
+                    >
+                      <ShoppingCart className="w-5 h-5" />
+                      {cartCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-diyar-dark text-diyar-cream text-[10px] items-center justify-center border border-white font-bold rounded-full w-4 h-4 flex">
+                          {cartCount}
+                        </span>
+                      )}
+                    </div>
+                    <Link
+                      to="/profile/notifications"
+                      className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
+                    >
+                      <Bell className="w-5 h-5" />
+                      <span className="absolute -top-1 -right-1 bg-diyar-dark text-diyar-cream text-[10px] items-center justify-center border border-white font-bold rounded-full w-4 h-4 flex">
+                        3
+                      </span>
+                    </Link>
+                  </div>
+
+                  {/* CTA Button */}
+                  <button
+                    onClick={() => setIsRequestServiceOpen(true)}
+                    className="hidden md:flex text-sm font-bold bg-diyar-dark text-diyar-cream px-5 py-2.5 rounded-2xl hover:bg-diyar-dark/90 transition-colors items-center gap-2 shrink-0"
+                  >
+                    طلب تنفيذ
+                  </button>
+                </div>
+              </div>
+            </header>
           </div>
         </div>
       )}
 
-      <FilterModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />  
+      <FilterModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <SidebarMenu isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <ImageSearchModal isOpen={isImageSearchOpen} onClose={() => setIsImageSearchOpen(false)} />
-      <RequestServiceModal isOpen={isRequestServiceOpen} onClose={() => setIsRequestServiceOpen(false)} />
-      
+      <RequestServiceModal
+        isOpen={isRequestServiceOpen}
+        onClose={() => setIsRequestServiceOpen(false)}
+      />
+
       <AccountStatusGuard>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/auth" element={<GuestRoute><AuthPage /></GuestRoute>} />
-        <Route
-          path="/account/pending"
-          element={
-            <AccountStatusRoute allowed="pending">
-              <PendingAccountPage />
-            </AccountStatusRoute>
-          }
-        />
-        <Route
-          path="/account/suspended"
-          element={
-            <AccountStatusRoute allowed="suspended">
-              <SuspendedAccountPage />
-            </AccountStatusRoute>
-          }
-        />
-        <Route path="/category/:id" element={<CategoryPage />} />
-        <Route path="/store/:id" element={<StorePage />} />
-        <Route path="/provider/:id" element={<ProviderPage />} />
-        <Route path="/b2b" element={<B2BPage />} />
-        <Route path="/b2b/:id" element={<B2BCompanyPage />} />
-        <Route path="/ai-designer" element={<AIDesignerPage />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/services" element={<ServicesPage />} />
-        <Route path="/service/:id" element={<ServicePage />} />
-        <Route path="/product/:id" element={<ProductDetailsPage />} />
-        <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
-        <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
-        <Route path="/loyalty" element={<LoyaltyPage />} />
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/blog/:id" element={<BlogArticlePage />} />
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path="/profile/service-requests" element={<ProtectedRoute><ServiceRequestsPage /></ProtectedRoute>} />
-        <Route path="/profile/security" element={<ProtectedRoute><SecurityPage /></ProtectedRoute>} />
-        <Route path="/profile/personal-info" element={<ProtectedRoute><PersonalInfoPage /></ProtectedRoute>} />
-        <Route path="/profile/addresses" element={<ProtectedRoute><AddressesPage /></ProtectedRoute>} />
-        <Route path="/profile/reviews" element={<ProtectedRoute><ReviewsPage /></ProtectedRoute>} />
-        <Route path="/profile/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-        <Route path="/profile/notification-settings" element={<ProtectedRoute><NotificationSettingsPage /></ProtectedRoute>} />
-        <Route path="/profile/language" element={<ProtectedRoute><LanguagePage /></ProtectedRoute>} />
-        <Route path="/wishlist" element={<WishlistPage />} />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/auth"
+            element={
+              <GuestRoute>
+                <AuthPage />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="/account/pending"
+            element={
+              <AccountStatusRoute allowed="pending">
+                <PendingAccountPage />
+              </AccountStatusRoute>
+            }
+          />
+          <Route
+            path="/account/suspended"
+            element={
+              <AccountStatusRoute allowed="suspended">
+                <SuspendedAccountPage />
+              </AccountStatusRoute>
+            }
+          />
+          <Route path="/category/:id" element={<CategoryPage />} />
+          <Route path="/store/:id" element={<StorePage />} />
+          <Route path="/provider/:id" element={<ProviderPage />} />
+          <Route path="/b2b" element={<B2BPage />} />
+          <Route path="/b2b/:id" element={<B2BCompanyPage />} />
+          <Route path="/ai-designer" element={<AIDesignerPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/service/:id" element={<ServicePage />} />
+          <Route path="/product/:id" element={<ProductDetailsPage />} />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <OrdersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/loyalty" element={<LoyaltyPage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/blog/:id" element={<BlogArticlePage />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/service-requests"
+            element={
+              <ProtectedRoute>
+                <ServiceRequestsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/security"
+            element={
+              <ProtectedRoute>
+                <SecurityPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/personal-info"
+            element={
+              <ProtectedRoute>
+                <PersonalInfoPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/addresses"
+            element={
+              <ProtectedRoute>
+                <AddressesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/reviews"
+            element={
+              <ProtectedRoute>
+                <ReviewsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/notifications"
+            element={
+              <ProtectedRoute>
+                <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/notification-settings"
+            element={
+              <ProtectedRoute>
+                <NotificationSettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/language"
+            element={
+              <ProtectedRoute>
+                <LanguagePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/wishlist" element={<WishlistPage />} />
 
-        <Route path="/403" element={<ForbiddenPage />} />
-        
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-          <Route index element={<DashboardIndex />} />
-          
-          <Route path="vendor" element={<ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}><VendorDashboard /></ProtectedRoute>} />
-          <Route path="vendor/orders" element={<ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}><VendorOrders /></ProtectedRoute>} />
-          <Route path="vendor/products" element={<ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}><VendorProducts /></ProtectedRoute>} />
-          <Route path="vendor/team" element={<ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}><VendorTeam /></ProtectedRoute>} />
-          <Route path="vendor/finance" element={<ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}><VendorFinance /></ProtectedRoute>} />
-          <Route path="vendor/settings" element={<ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}><VendorSettings /></ProtectedRoute>} />
-          <Route path="vendor/notifications" element={<ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}><Notifications /></ProtectedRoute>} />
-          
-          <Route path="service" element={<ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}><ServiceDashboard /></ProtectedRoute>} />
-          <Route path="service/client-requests" element={<ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}><ServiceClientRequests /></ProtectedRoute>} />
-          <Route path="service/client-requests/:id" element={<ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}><ServiceClientRequestDetails /></ProtectedRoute>} />
-          <Route path="service/bookings" element={<ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}><ServiceBookings /></ProtectedRoute>} />
-          <Route path="service/services" element={<ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}><ServiceServices /></ProtectedRoute>} />
-          <Route path="service/finance" element={<ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}><ServiceFinance /></ProtectedRoute>} />
-          <Route path="service/settings" element={<ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}><ServiceSettings /></ProtectedRoute>} />
-          <Route path="service/notifications" element={<ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}><Notifications /></ProtectedRoute>} />
+          <Route path="/403" element={<ForbiddenPage />} />
 
-          <Route path="affiliate" element={<ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}><AffiliateDashboard /></ProtectedRoute>} />
-          <Route path="affiliate/products" element={<ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}><AffiliateProducts /></ProtectedRoute>} />
-          <Route path="affiliate/links" element={<ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}><AffiliateLinks /></ProtectedRoute>} />
-          <Route path="affiliate/reports" element={<ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}><AffiliateReports /></ProtectedRoute>} />
-          <Route path="affiliate/payouts" element={<ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}><AffiliatePayouts /></ProtectedRoute>} />
-          <Route path="affiliate/settings" element={<ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}><AffiliateSettings /></ProtectedRoute>} />
-          <Route path="affiliate/notifications" element={<ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}><Notifications /></ProtectedRoute>} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<DashboardIndex />} />
+
+            <Route
+              path="vendor"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                  <VendorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="vendor/orders"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                  <VendorOrders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="vendor/products"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                  <VendorProducts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="vendor/team"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                  <VendorTeam />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="vendor/finance"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                  <VendorFinance />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="vendor/settings"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                  <VendorSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="vendor/notifications"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                  <Notifications />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="service"
+              element={
+                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                  <ServiceDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="service/client-requests"
+              element={
+                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                  <ServiceClientRequests />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="service/client-requests/:id"
+              element={
+                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                  <ServiceClientRequestDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="service/bookings"
+              element={
+                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                  <ServiceBookings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="service/services"
+              element={
+                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                  <ServiceServices />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="service/finance"
+              element={
+                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                  <ServiceFinance />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="service/settings"
+              element={
+                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                  <ServiceSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="service/notifications"
+              element={
+                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                  <Notifications />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="affiliate"
+              element={
+                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                  <AffiliateDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="affiliate/products"
+              element={
+                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                  <AffiliateProducts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="affiliate/links"
+              element={
+                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                  <AffiliateLinks />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="affiliate/reports"
+              element={
+                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                  <AffiliateReports />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="affiliate/payouts"
+              element={
+                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                  <AffiliatePayouts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="affiliate/settings"
+              element={
+                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                  <AffiliateSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="affiliate/notifications"
+              element={
+                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                  <Notifications />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+
           <Route path="*" element={<NotFoundPage />} />
-        </Route>
-
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+        </Routes>
       </AccountStatusGuard>
 
       {!(isAuthPage || isDashboardPage || isStatusPage) && <FloatingContactBar />}
       {!(isAuthPage || isDashboardPage || isStatusPage) && <Footer />}
-      {!(isAuthPage || isDashboardPage || isStatusPage) && <MobileBottomNav onOpenCart={() => setIsCartOpen(true)} isLoggedIn={isAuthenticated} />}
+      {!(isAuthPage || isDashboardPage || isStatusPage) && (
+        <MobileBottomNav onOpenCart={() => setIsCartOpen(true)} isLoggedIn={isAuthenticated} />
+      )}
     </div>
   );
 }
-
-
-

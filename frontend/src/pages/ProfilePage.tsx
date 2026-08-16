@@ -171,7 +171,10 @@ export default function ProfilePage() {
                     <h3 className="font-bold text-gray-800 text-sm mb-0.5">{item.title}</h3>
                     <p className="text-xs text-gray-500">{item.subtitle}</p>
                   </div>
-                  <ChevronLeft size={18} className="text-gray-300 group-hover:text-diyar-brown transition-colors" />
+                  <ChevronLeft
+                    size={18}
+                    className="text-gray-300 group-hover:text-diyar-brown transition-colors"
+                  />
                 </Link>
               ))}
             </div>

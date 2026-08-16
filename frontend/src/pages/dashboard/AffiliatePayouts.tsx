@@ -31,7 +31,7 @@ export default function AffiliatePayouts() {
                 <span className="text-lg text-white/80 pb-1">ر.س</span>
               </div>
             </div>
-            
+
             <div className="pt-4 border-t border-white/20">
               <h3 className="text-white/80 text-sm mb-1">الأرباح قيد المراجعة</h3>
               <div className="flex items-end gap-2">
@@ -40,7 +40,10 @@ export default function AffiliatePayouts() {
               </div>
             </div>
 
-            <button onClick={() => setIsModalOpen(true)} className="w-full bg-white text-green-600 py-3 rounded-xl font-bold hover:bg-gray-50 transition shadow-sm flex items-center justify-center gap-2 mt-4">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="w-full bg-white text-green-600 py-3 rounded-xl font-bold hover:bg-gray-50 transition shadow-sm flex items-center justify-center gap-2 mt-4"
+            >
               <Wallet size={18} />
               طلب سحب جديد
             </button>
@@ -56,22 +59,29 @@ export default function AffiliatePayouts() {
               </div>
               <div>
                 <h4 className="font-bold text-diyar-dark">نموذج الحساب البنكي الافتراضي</h4>
-                <p className="text-sm text-gray-500 mt-1" dir="ltr">SA 12 3456 7890 1234 5678 9012</p>
+                <p className="text-sm text-gray-500 mt-1" dir="ltr">
+                  SA 12 3456 7890 1234 5678 9012
+                </p>
               </div>
             </div>
-            <button className="text-sm font-bold text-blue-600 hover:text-blue-700 transition">تغيير الحساب</button>
+            <button className="text-sm font-bold text-blue-600 hover:text-blue-700 transition">
+              تغيير الحساب
+            </button>
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-               <h3 className="font-bold text-diyar-dark flex items-center gap-2">
-                 <History size={18} className="text-gray-400" />
-                 سجل المسحوبات السابقة
-               </h3>
+              <h3 className="font-bold text-diyar-dark flex items-center gap-2">
+                <History size={18} className="text-gray-400" />
+                سجل المسحوبات السابقة
+              </h3>
             </div>
             <div className="divide-y divide-gray-100">
-              {TRANSACTIONS.map(trx => (
-                <div key={trx.id} className="p-6 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
+              {TRANSACTIONS.map((trx) => (
+                <div
+                  key={trx.id}
+                  className="p-6 flex items-center justify-between hover:bg-gray-50/50 transition-colors"
+                >
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
                       <CheckCircle2 size={20} />
@@ -94,7 +104,7 @@ export default function AffiliatePayouts() {
           </div>
         </div>
       </div>
-      
+
       {/* Payout Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 z-[300] flex items-center justify-center p-4 animate-in fade-in duration-300">
@@ -103,14 +113,22 @@ export default function AffiliatePayouts() {
               <h3 className="font-bold text-xl text-diyar-dark">طلب سحب جديد</h3>
             </div>
             <div className="p-6 space-y-4 text-center pb-8">
-               <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                 <CheckCircle2 size={40} />
-               </div>
-               <h4 className="font-bold text-xl text-gray-900">تم استلام طلبك بنجاح</h4>
-               <p className="text-gray-500 text-sm">سيتم تحويل مبلغ <span className="font-bold text-diyar-dark">3,750 ر.س</span> إلى حسابك البنكي خلال 1-3 أيام عمل.</p>
+              <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 size={40} />
+              </div>
+              <h4 className="font-bold text-xl text-gray-900">تم استلام طلبك بنجاح</h4>
+              <p className="text-gray-500 text-sm">
+                سيتم تحويل مبلغ <span className="font-bold text-diyar-dark">3,750 ر.س</span> إلى
+                حسابك البنكي خلال 1-3 أيام عمل.
+              </p>
             </div>
             <div className="p-6 border-t border-gray-100 bg-gray-50 shrink-0">
-               <button onClick={() => setIsModalOpen(false)} className="w-full px-5 py-3 rounded-xl font-bold bg-diyar-dark text-white hover:bg-black transition">حسناً، إغلاق</button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="w-full px-5 py-3 rounded-xl font-bold bg-diyar-dark text-white hover:bg-black transition"
+              >
+                حسناً، إغلاق
+              </button>
             </div>
           </div>
         </div>

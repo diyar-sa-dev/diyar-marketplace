@@ -1,5 +1,16 @@
 import React, { useState, useRef } from 'react';
-import { X, Upload, Link as LinkIcon, DollarSign, FileText, Tags, Send, CheckCircle2, ConciergeBell, Check } from 'lucide-react';
+import {
+  X,
+  Upload,
+  Link as LinkIcon,
+  DollarSign,
+  FileText,
+  Tags,
+  Send,
+  CheckCircle2,
+  ConciergeBell,
+  Check,
+} from 'lucide-react';
 
 interface RequestServiceModalProps {
   isOpen: boolean;
@@ -12,7 +23,7 @@ const SERVICE_CATEGORIES = [
   'تنجيد وتجديد',
   'مخططات معمارية',
   'نقل وتغليف',
-  'أخرى'
+  'أخرى',
 ];
 
 export function RequestServiceModal({ isOpen, onClose }: RequestServiceModalProps) {
@@ -26,8 +37,8 @@ export function RequestServiceModal({ isOpen, onClose }: RequestServiceModalProp
   if (!isOpen) return null;
 
   const toggleCategory = (category: string) => {
-    setSelectedCategories(prev =>
-      prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
+    setSelectedCategories((prev) =>
+      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category],
     );
   };
 
@@ -45,9 +56,11 @@ export function RequestServiceModal({ isOpen, onClose }: RequestServiceModalProp
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-0 md:p-4 backdrop-blur-sm" dir="rtl">
+    <div
+      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-0 md:p-4 backdrop-blur-sm"
+      dir="rtl"
+    >
       <div className="bg-white rounded-none md:rounded-3xl w-full h-[100dvh] md:h-auto max-w-2xl shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col md:max-h-[90vh]">
-        
         {/* Header */}
         <div className="bg-gray-50 border-b border-gray-100 px-6 pb-6 md:px-8 md:pb-7 pt-[calc(env(safe-area-inset-top,0px)+2rem)] flex justify-between items-start gap-4 relative overflow-hidden shrink-0 rounded-none md:rounded-t-3xl">
           <div className="absolute inset-0 bg-diyar-cream/20"></div>
@@ -56,12 +69,16 @@ export function RequestServiceModal({ isOpen, onClose }: RequestServiceModalProp
               <ConciergeBell size={22} />
             </div>
             <div className="pt-0.5">
-              <h2 className="text-xl md:text-2xl font-bold text-diyar-dark leading-snug">طلب تنفيذ مخصص</h2>
-              <p className="text-gray-500 text-sm mt-2 leading-relaxed">صف ما تريد تنفيذه وسنوصلك بأفضل المختصين</p>
+              <h2 className="text-xl md:text-2xl font-bold text-diyar-dark leading-snug">
+                طلب تنفيذ مخصص
+              </h2>
+              <p className="text-gray-500 text-sm mt-2 leading-relaxed">
+                صف ما تريد تنفيذه وسنوصلك بأفضل المختصين
+              </p>
             </div>
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors shadow-sm relative z-10 shrink-0 mr-4"
           >
             <X size={20} />
@@ -80,7 +97,6 @@ export function RequestServiceModal({ isOpen, onClose }: RequestServiceModalProp
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              
               {/* Description */}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
@@ -103,11 +119,13 @@ export function RequestServiceModal({ isOpen, onClose }: RequestServiceModalProp
                   <Tags size={16} className="text-diyar-brown" />
                   تصنيف الخدمة <span className="text-diyar-brown">*</span>
                   <span className="text-gray-400 font-medium text-xs">
-                    {selectedCategories.length > 0 ? `(${selectedCategories.length} مختار)` : '(يمكنك اختيار أكثر من تصنيف)'}
+                    {selectedCategories.length > 0
+                      ? `(${selectedCategories.length} مختار)`
+                      : '(يمكنك اختيار أكثر من تصنيف)'}
                   </span>
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {SERVICE_CATEGORIES.map(category => {
+                  {SERVICE_CATEGORIES.map((category) => {
                     const active = selectedCategories.includes(category);
                     return (
                       <button
@@ -139,19 +157,21 @@ export function RequestServiceModal({ isOpen, onClose }: RequestServiceModalProp
                     placeholder="مثال: 500 - 1000"
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all"
                   />
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">ر.س</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">
+                    ر.س
+                  </span>
                 </div>
               </div>
 
               {/* Attachments & Links */}
               <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
                 <h4 className="text-sm font-bold text-gray-700 mb-4">المرفقات (اختياري)</h4>
-                
+
                 <div className="space-y-4">
                   {/* File Upload */}
                   <div>
                     <input type="file" ref={fileInputRef} className="hidden" multiple />
-                    <button 
+                    <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full border-2 border-dashed border-gray-300 rounded-xl py-6 flex flex-col items-center justify-center text-gray-500 hover:border-diyar-brown hover:bg-diyar-cream/10 transition-colors group"
@@ -160,7 +180,9 @@ export function RequestServiceModal({ isOpen, onClose }: RequestServiceModalProp
                         <Upload size={20} />
                       </div>
                       <span className="font-medium text-sm">اضغط لرفع صور أو ملفات</span>
-                      <span className="text-xs text-gray-400 mt-1">JPG, PNG, PDF (أقصى حجم 10MB)</span>
+                      <span className="text-xs text-gray-400 mt-1">
+                        JPG, PNG, PDF (أقصى حجم 10MB)
+                      </span>
                     </button>
                   </div>
 
@@ -199,7 +221,6 @@ export function RequestServiceModal({ isOpen, onClose }: RequestServiceModalProp
                   إلغاء
                 </button>
               </div>
-
             </form>
           )}
         </div>

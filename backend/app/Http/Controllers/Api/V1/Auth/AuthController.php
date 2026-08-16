@@ -10,6 +10,7 @@ use App\Http\Requests\Auth\ResendOtpRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
 use App\Http\Resources\UserResource;
+use App\Models\User;
 use App\Services\Identity\AuthService;
 use App\Services\Identity\PasswordResetService;
 use App\Services\Identity\RegistrationService;
@@ -94,7 +95,7 @@ class AuthController extends Controller
 
     public function me(Request $request): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         $user->load('roles');
 

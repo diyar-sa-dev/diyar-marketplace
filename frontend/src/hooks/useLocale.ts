@@ -1,1 +1,1 @@
-export { useLocale } from '../lib/i18n/LocaleProvider.tsx';
+export { useLocale } from '../lib/i18n/localeContext.ts';

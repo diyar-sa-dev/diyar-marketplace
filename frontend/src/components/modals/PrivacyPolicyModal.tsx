@@ -68,8 +68,8 @@ export function PrivacyPolicyModal({ isOpen, onClose }: PrivacyPolicyModalProps)
           <section>
             <h3 className="font-bold text-diyar-dark mb-1">حقوقك</h3>
             <p>
-              يمكنك طلب تحديث بياناتك أو حذف حسابك وفقاً للأنظمة المعمول بها. للاستفسارات، تواصل
-              مع فريق دعم ديار.
+              يمكنك طلب تحديث بياناتك أو حذف حسابك وفقاً للأنظمة المعمول بها. للاستفسارات، تواصل مع
+              فريق دعم ديار.
             </p>
           </section>
           <p className="text-xs text-gray-400">آخر تحديث: أغسطس 2026</p>

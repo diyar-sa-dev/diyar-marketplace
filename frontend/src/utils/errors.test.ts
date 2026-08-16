@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { isApiErrorDetail, parseApiError, getFieldErrors, formatFieldErrors, collectDisplayErrors, isPhoneVerificationRequired, isUnexpectedServerError, sanitizeErrorMessage } from './errors.ts';
+import {
+  isApiErrorDetail,
+  parseApiError,
+  getFieldErrors,
+  formatFieldErrors,
+  collectDisplayErrors,
+  isPhoneVerificationRequired,
+  isUnexpectedServerError,
+  sanitizeErrorMessage,
+} from './errors.ts';
 
 describe('parseApiError', () => {
   it('returns existing ApiErrorDetail unchanged', () => {
@@ -83,7 +92,9 @@ describe('parseApiError', () => {
         data: {
           message: 'The given data was invalid.',
           errors: {
-            phone_verification_required: ['Verify your phone with the code sent via SMS to continue.'],
+            phone_verification_required: [
+              'Verify your phone with the code sent via SMS to continue.',
+            ],
             verification_phone: ['503333333'],
           },
         },
@@ -96,7 +107,7 @@ describe('parseApiError', () => {
   });
 
   it('sanitizes technical database errors', () => {
-    const raw = "SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry";
+    const raw = 'SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry';
     expect(sanitizeErrorMessage(raw, 'en')).toContain('unexpected');
     expect(isUnexpectedServerError({ message: raw, status: 500 })).toBe(true);
   });

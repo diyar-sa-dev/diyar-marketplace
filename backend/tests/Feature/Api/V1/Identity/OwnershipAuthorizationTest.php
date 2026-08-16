@@ -3,8 +3,6 @@
 namespace Tests\Feature\Api\V1\Identity;
 
 use App\Enums\RoleName;
-use App\Models\ProviderAccount;
-use App\Models\VendorAccount;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;

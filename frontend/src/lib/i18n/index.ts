@@ -1,4 +1,5 @@
-export { LocaleProvider, useAuthFieldDirection, useLocale, useLocaleContext } from './LocaleProvider.tsx';
+export { LocaleProvider } from './LocaleProvider.tsx';
+export { useAuthFieldDirection, useLocale, useLocaleContext } from './localeContext.ts';
 export { getStaticLocale } from './staticLocale.ts';
 export { readStoredLocale, writeStoredLocale, applyDocumentLocale } from './storage.ts';
 export { translate } from './translate.ts';

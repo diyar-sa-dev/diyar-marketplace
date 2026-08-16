@@ -111,9 +111,7 @@ export function getAccessibleDashboardPortals(
     return [...DASHBOARD_PORTALS];
   }
 
-  const activeRoleNames = new Set(
-    roles.filter(isActiveDashboardRole).map((role) => role.name),
-  );
+  const activeRoleNames = new Set(roles.filter(isActiveDashboardRole).map((role) => role.name));
 
   return DASHBOARD_PORTALS.filter((portal) =>
     portal.roleNames.some((roleName) => activeRoleNames.has(roleName)),

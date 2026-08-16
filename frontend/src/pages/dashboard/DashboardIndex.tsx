@@ -3,10 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { Store, Wrench, Megaphone } from 'lucide-react';
 import { LoadingState } from '../../components/common/LoadingState.tsx';
 import { useAuthContext } from '../../context/AuthContext.tsx';
-import {
-  getAccessibleDashboardPortals,
-  type DashboardPortalKey,
-} from '../../lib/auth/roles.ts';
+import { getAccessibleDashboardPortals, type DashboardPortalKey } from '../../lib/auth/roles.ts';
 
 const PORTAL_ICONS: Record<DashboardPortalKey, typeof Store> = {
   vendor: Store,

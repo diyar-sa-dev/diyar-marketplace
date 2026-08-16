@@ -1,51 +1,62 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, MapPin, Plus, Home, Briefcase, Trash2, Edit2, CheckCircle2, X } from 'lucide-react';
+import {
+  ChevronLeft,
+  MapPin,
+  Plus,
+  Home,
+  Briefcase,
+  Trash2,
+  Edit2,
+  CheckCircle2,
+  X,
+} from 'lucide-react';
 
 export default function AddressesPage() {
   const [addresses, setAddresses] = useState([
     {
       id: 1,
-      title: "المنزل",
-      type: "home",
-      name: "أحمد محمد",
-      phone: "+966 50 123 4567",
-      details: "المملكة العربية السعودية، الرياض، حي الياسمين، شارع العليا، مبنى 12، شقة 4",
-      isDefault: true
+      title: 'المنزل',
+      type: 'home',
+      name: 'أحمد محمد',
+      phone: '+966 50 123 4567',
+      details: 'المملكة العربية السعودية، الرياض، حي الياسمين، شارع العليا، مبنى 12، شقة 4',
+      isDefault: true,
     },
     {
       id: 2,
-      title: "العمل",
-      type: "work",
-      name: "أحمد محمد",
-      phone: "+966 50 123 4567",
-      details: "المملكة العربية السعودية، الرياض، حي الملقا، طريق الملك فهد، برج الفيصلية، الدور 15",
-      isDefault: false
-    }
+      title: 'العمل',
+      type: 'work',
+      name: 'أحمد محمد',
+      phone: '+966 50 123 4567',
+      details:
+        'المملكة العربية السعودية، الرياض، حي الملقا، طريق الملك فهد، برج الفيصلية، الدور 15',
+      isDefault: false,
+    },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'add'|'edit'>('add');
+  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [formData, setFormData] = useState({
     id: 0,
-    title: "",
-    type: "home",
-    name: "",
-    phone: "",
-    details: "",
-    isDefault: false
+    title: '',
+    type: 'home',
+    name: '',
+    phone: '',
+    details: '',
+    isDefault: false,
   });
 
   const openAddModal = () => {
     setModalMode('add');
     setFormData({
       id: 0,
-      title: "",
-      type: "home",
-      name: "",
-      phone: "",
-      details: "",
-      isDefault: false
+      title: '',
+      type: 'home',
+      name: '',
+      phone: '',
+      details: '',
+      isDefault: false,
     });
     setIsModalOpen(true);
   };
@@ -66,39 +77,43 @@ export default function AddressesPage() {
       const newAddress = {
         ...formData,
         id: Date.now(),
-        isDefault: addresses.length === 0 ? true : formData.isDefault
+        isDefault: addresses.length === 0 ? true : formData.isDefault,
       };
       if (newAddress.isDefault && addresses.length > 0) {
-        setAddresses(addresses.map(a => ({...a, isDefault: false})).concat(newAddress));
+        setAddresses(addresses.map((a) => ({ ...a, isDefault: false })).concat(newAddress));
       } else {
         setAddresses([...addresses, newAddress]);
       }
     } else {
-      let updatedAddresses = addresses.map(a => a.id === formData.id ? formData : a);
+      let updatedAddresses = addresses.map((a) => (a.id === formData.id ? formData : a));
       if (formData.isDefault) {
-        updatedAddresses = updatedAddresses.map(a => ({...a, isDefault: a.id === formData.id}));
+        updatedAddresses = updatedAddresses.map((a) => ({ ...a, isDefault: a.id === formData.id }));
       }
       setAddresses(updatedAddresses);
     }
     closeModal();
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
     const target = e.target as HTMLInputElement;
     const { name, value, type, checked } = target;
     const val = type === 'checkbox' ? checked : value;
-    setFormData(prev => ({ ...prev, [name]: val }));
+    setFormData((prev) => ({ ...prev, [name]: val }));
   };
 
   const setAsDefault = (id: number) => {
-    setAddresses(addresses.map(addr => ({
-      ...addr,
-      isDefault: addr.id === id
-    })));
+    setAddresses(
+      addresses.map((addr) => ({
+        ...addr,
+        isDefault: addr.id === id,
+      })),
+    );
   };
 
   const deleteAddress = (id: number) => {
-    setAddresses(addresses.filter(addr => addr.id !== id));
+    setAddresses(addresses.filter((addr) => addr.id !== id));
   };
 
   return (
@@ -107,9 +122,13 @@ export default function AddressesPage() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Link to="/" className="hover:text-diyar-dark transition">الرئيسية</Link>
+            <Link to="/" className="hover:text-diyar-dark transition">
+              الرئيسية
+            </Link>
             <ChevronLeft size={16} />
-            <Link to="/profile" className="hover:text-diyar-dark transition">حسابي</Link>
+            <Link to="/profile" className="hover:text-diyar-dark transition">
+              حسابي
+            </Link>
             <ChevronLeft size={16} />
             <span className="font-bold text-diyar-dark">عناوين الشحن</span>
           </div>
@@ -120,9 +139,11 @@ export default function AddressesPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-xl md:text-2xl font-bold text-diyar-dark mb-1">عناوين الشحن</h1>
-            <p className="text-gray-500 text-sm">إدارة عناوين التوصيل الخاصة بك لتسهيل عملية الطلب</p>
+            <p className="text-gray-500 text-sm">
+              إدارة عناوين التوصيل الخاصة بك لتسهيل عملية الطلب
+            </p>
           </div>
-          <button 
+          <button
             onClick={openAddModal}
             className="bg-diyar-dark text-white px-6 py-2.5 rounded-xl font-bold hover:bg-black transition-colors flex items-center justify-center gap-2 shrink-0"
           >
@@ -134,17 +155,22 @@ export default function AddressesPage() {
         {addresses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {addresses.map((address) => (
-              <div key={address.id} className={`bg-white rounded-2xl p-5 border-2 transition-all ${address.isDefault ? 'border-diyar-brown shadow-md relative' : 'border-gray-100 hover:border-gray-200'}`}>
+              <div
+                key={address.id}
+                className={`bg-white rounded-2xl p-5 border-2 transition-all ${address.isDefault ? 'border-diyar-brown shadow-md relative' : 'border-gray-100 hover:border-gray-200'}`}
+              >
                 {address.isDefault && (
                   <div className="absolute top-0 right-5 -mt-3 bg-diyar-brown text-white text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
                     <CheckCircle2 size={12} />
                     <span>العنوان الافتراضي</span>
                   </div>
                 )}
-                
+
                 <div className="flex items-start justify-between mb-4 mt-2">
                   <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${address.type === 'home' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${address.type === 'home' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}
+                    >
                       {address.type === 'home' ? <Home size={24} /> : <Briefcase size={24} />}
                     </div>
                     <div>
@@ -166,21 +192,21 @@ export default function AddressesPage() {
 
                 <div className="flex items-center gap-2">
                   {!address.isDefault && (
-                    <button 
+                    <button
                       onClick={() => setAsDefault(address.id)}
                       className="flex-1 bg-gray-50 text-gray-700 font-bold text-sm py-2 rounded-xl hover:bg-gray-100 transition-colors"
                     >
                       تعيين كافتراضي
                     </button>
                   )}
-                  <button 
+                  <button
                     onClick={() => openEditModal(address)}
                     className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-diyar-dark hover:bg-gray-50 rounded-xl transition-colors"
                   >
                     <Edit2 size={18} />
                   </button>
                   {!address.isDefault && (
-                    <button 
+                    <button
                       onClick={() => deleteAddress(address.id)}
                       className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
                     >
@@ -197,8 +223,10 @@ export default function AddressesPage() {
               <MapPin size={48} strokeWidth={1.5} />
             </div>
             <h3 className="text-xl font-bold text-diyar-dark mb-2">لا يوجد عناوين مضافة</h3>
-            <p className="text-gray-500 mb-8 max-w-md mx-auto">قم بإضافة عنوان التوصيل الخاص بك لتسهيل إنهاء الطلبات في المستقبل.</p>
-            <button 
+            <p className="text-gray-500 mb-8 max-w-md mx-auto">
+              قم بإضافة عنوان التوصيل الخاص بك لتسهيل إنهاء الطلبات في المستقبل.
+            </p>
+            <button
               onClick={openAddModal}
               className="bg-diyar-dark text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all inline-flex items-center gap-2"
             >
@@ -213,34 +241,32 @@ export default function AddressesPage() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={closeModal}
-          ></div>
-          
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeModal}></div>
+
           {/* Modal Content */}
           <div className="bg-white rounded-3xl shadow-xl w-full max-w-lg relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between p-5 md:p-6 border-b border-gray-100">
               <h2 className="text-xl font-bold text-diyar-dark">
                 {modalMode === 'add' ? 'إضافة عنوان جديد' : 'تعديل العنوان'}
               </h2>
-              <button 
+              <button
                 onClick={closeModal}
                 className="w-10 h-10 bg-gray-50 text-gray-500 rounded-full flex items-center justify-center hover:bg-gray-100 hover:text-diyar-dark transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="overflow-y-auto scrollbar-hide p-5 md:p-6">
               <form onSubmit={handleSubmit} className="space-y-5" id="address-form">
-                
                 {/* Title and Type */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-sm font-bold text-gray-700 mb-2">اسم العنوان <span className="text-red-500">*</span></label>
-                    <input 
-                      type="text" 
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      اسم العنوان <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
                       name="title"
                       required
                       placeholder="مثال: المنزل، العمل"
@@ -250,8 +276,10 @@ export default function AddressesPage() {
                     />
                   </div>
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-sm font-bold text-gray-700 mb-2">نوع العنوان <span className="text-red-500">*</span></label>
-                    <select 
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      نوع العنوان <span className="text-red-500">*</span>
+                    </label>
+                    <select
                       name="type"
                       value={formData.type}
                       onChange={handleChange}
@@ -265,9 +293,11 @@ export default function AddressesPage() {
 
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">الاسم المستلم <span className="text-red-500">*</span></label>
-                  <input 
-                    type="text" 
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    الاسم المستلم <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
                     name="name"
                     required
                     value={formData.name}
@@ -278,13 +308,18 @@ export default function AddressesPage() {
 
                 {/* Phone */}
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">رقم الجوال <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    رقم الجوال <span className="text-red-500">*</span>
+                  </label>
                   <div className="flex">
-                    <div className="bg-gray-100 border border-l-0 border-gray-200 rounded-r-xl px-4 flex items-center justify-center text-gray-600 font-medium text-sm" dir="ltr">
+                    <div
+                      className="bg-gray-100 border border-l-0 border-gray-200 rounded-r-xl px-4 flex items-center justify-center text-gray-600 font-medium text-sm"
+                      dir="ltr"
+                    >
                       +966
                     </div>
-                    <input 
-                      type="tel" 
+                    <input
+                      type="tel"
                       name="phone"
                       required
                       dir="ltr"
@@ -298,8 +333,10 @@ export default function AddressesPage() {
 
                 {/* Details */}
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">تفاصيل العنوان (المدينة، الحي، الشارع) <span className="text-red-500">*</span></label>
-                  <textarea 
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    تفاصيل العنوان (المدينة، الحي، الشارع) <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
                     name="details"
                     required
                     rows={3}
@@ -312,32 +349,34 @@ export default function AddressesPage() {
 
                 {/* Default */}
                 <div className="flex items-center gap-3 pt-2">
-                  <input 
-                    type="checkbox" 
-                    id="isDefault" 
+                  <input
+                    type="checkbox"
+                    id="isDefault"
                     name="isDefault"
                     checked={formData.isDefault}
                     onChange={handleChange}
                     className="w-5 h-5 rounded text-diyar-dark focus:ring-diyar-dark border-gray-300 accent-diyar-dark cursor-pointer"
                   />
-                  <label htmlFor="isDefault" className="text-sm font-bold text-gray-700 cursor-pointer">
+                  <label
+                    htmlFor="isDefault"
+                    className="text-sm font-bold text-gray-700 cursor-pointer"
+                  >
                     تعيين كعنوان افتراضي
                   </label>
                 </div>
-
               </form>
             </div>
-            
+
             <div className="p-5 md:p-6 border-t border-gray-100 bg-gray-50/50 flex items-center justify-end gap-3">
-              <button 
+              <button
                 type="button"
                 onClick={closeModal}
                 className="px-6 py-2.5 rounded-xl font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
               >
                 إلغاء
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 form="address-form"
                 className="px-8 py-2.5 rounded-xl font-bold text-white bg-diyar-dark hover:bg-black transition-colors"
               >

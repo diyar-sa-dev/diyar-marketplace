@@ -47,7 +47,7 @@ export function FloatingContactBar() {
       )}
 
       {/* Main Toggle Button */}
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-14 h-14 bg-diyar-dark text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all outline-none ring-4 ring-diyar-dark/10"
       >

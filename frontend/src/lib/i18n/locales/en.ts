@@ -31,7 +31,8 @@ export const en = {
     },
     notFound: {
       title: 'Page not found',
-      description: 'The page you are looking for does not exist, was moved, or is no longer available.',
+      description:
+        'The page you are looking for does not exist, was moved, or is no longer available.',
     },
     unexpected: {
       title: 'Something went wrong',
@@ -43,7 +44,8 @@ export const en = {
     },
     accountPending: {
       title: 'Account pending activation',
-      description: 'Your account is not active yet. Please wait for activation or complete phone verification.',
+      description:
+        'Your account is not active yet. Please wait for activation or complete phone verification.',
       hint: 'You can refresh this page to check your status, or sign out to complete verification.',
       refresh: 'Refresh status',
       logout: 'Sign out',
@@ -53,7 +55,8 @@ export const en = {
     },
     accountSuspended: {
       title: 'Account suspended',
-      description: 'Your account has been suspended. You cannot use the platform until it is restored.',
+      description:
+        'Your account has been suspended. You cannot use the platform until it is restored.',
       refresh: 'Refresh status',
       logout: 'Sign out',
       reactivated: 'Your account is active again.',

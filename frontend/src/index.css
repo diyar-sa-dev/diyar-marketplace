@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-serif: "Alexandria", "Outfit", "Tajawal", sans-serif;
-  --font-sans: "Alexandria", "Tajawal", "Outfit", sans-serif;
+  --font-serif: 'Alexandria', 'Outfit', 'Tajawal', sans-serif;
+  --font-sans: 'Alexandria', 'Tajawal', 'Outfit', sans-serif;
   --color-diyar-dark: #1f3d3a;
   --color-diyar-cream: #f3ecdb;
   --color-diyar-brown: #947961;
@@ -47,20 +47,36 @@
 }
 
 @keyframes sweep {
-  0% { clip-path: inset(0 100% 0 0); }
-  50% { clip-path: inset(0 0% 0 0); }
-  100% { clip-path: inset(0 100% 0 0); }
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  50% {
+    clip-path: inset(0 0% 0 0);
+  }
+  100% {
+    clip-path: inset(0 100% 0 0);
+  }
 }
 
 @keyframes scan-x {
-  0% { left: 0%; }
-  50% { left: 100%; }
-  100% { left: 0%; }
+  0% {
+    left: 0%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 0%;
+  }
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); } 
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .animate-marquee {
@@ -117,7 +133,12 @@
   padding-inline-start: 1.5rem;
   margin-bottom: 1.25rem;
 }
-.article-content ul { list-style: disc; }
-.article-content ol { list-style: decimal; }
-.article-content li { margin-bottom: 0.5rem; }
-
+.article-content ul {
+  list-style: disc;
+}
+.article-content ol {
+  list-style: decimal;
+}
+.article-content li {
+  margin-bottom: 0.5rem;
+}

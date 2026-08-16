@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocaleFromRequest;
 use App\Support\Api\ApiResponse;
@@ -33,8 +35,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'security.headers' => SecurityHeaders::class,
-            'role' => \App\Http\Middleware\EnsureUserHasRole::class,
-            'account.active' => \App\Http\Middleware\EnsureAccountIsActive::class,
+            'role' => EnsureUserHasRole::class,
+            'account.active' => EnsureAccountIsActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

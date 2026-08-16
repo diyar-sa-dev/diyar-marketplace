@@ -22,7 +22,11 @@ const SEED_CONVERSATIONS: Conversation[] = [
     provider: 'إيوان للتصميم',
     service: 'تصميم داخلي متكامل',
     messages: [
-      { id: 1, from: 'them', text: 'أهلاً بك! تم استلام المخططات وسنوافيك بالتصور الأولي خلال يومين.' },
+      {
+        id: 1,
+        from: 'them',
+        text: 'أهلاً بك! تم استلام المخططات وسنوافيك بالتصور الأولي خلال يومين.',
+      },
       { id: 2, from: 'me', text: 'ممتاز، بانتظاركم.' },
     ],
   },
@@ -31,9 +35,7 @@ const SEED_CONVERSATIONS: Conversation[] = [
     provider: 'نجارة العاصمة',
     service: 'صيانة وإصلاح أبواب خشبية',
     unread: 1,
-    messages: [
-      { id: 1, from: 'them', text: 'تم إنجاز العمل، نتمنى أن تشاركنا تقييمك 🌟' },
-    ],
+    messages: [{ id: 1, from: 'them', text: 'تم إنجاز العمل، نتمنى أن تشاركنا تقييمك 🌟' }],
   },
 ];
 
@@ -51,7 +53,11 @@ export default function ChatPage() {
 
   // If we arrived from a proposal ("محادثة"), open/create that conversation
   useEffect(() => {
-    const s = location.state as { provider?: string; title?: string; price?: string | number } | null;
+    const s = location.state as {
+      provider?: string;
+      title?: string;
+      price?: string | number;
+    } | null;
     if (s?.provider) {
       setConversations((prev) => {
         const existing = prev.find((c) => c.provider === s.provider && c.service === s.title);
@@ -64,7 +70,11 @@ export default function ChatPage() {
           provider: s.provider!,
           service: s.title,
           messages: [
-            { id: 1, from: 'them', text: `مرحباً بك 👋 معك ${s.provider}. شكراً لاهتمامك بعرضنا${s.title ? ` بخصوص "${s.title}"` : ''}. كيف يمكنني خدمتك؟` },
+            {
+              id: 1,
+              from: 'them',
+              text: `مرحباً بك 👋 معك ${s.provider}. شكراً لاهتمامك بعرضنا${s.title ? ` بخصوص "${s.title}"` : ''}. كيف يمكنني خدمتك؟`,
+            },
           ],
           cartPayload: { name: s.title || 'خدمة', vendor: s.provider!, price: s.price ?? 0 },
           cartAdded: false,
@@ -101,12 +111,18 @@ export default function ChatPage() {
         let cartAdded = c.cartAdded;
         // starting the chat = first sent message → service goes to the cart
         if (c.cartPayload && !c.cartAdded) {
-          addItem({ type: 'service', name: c.cartPayload.name, vendor: c.cartPayload.vendor, price: c.cartPayload.price, attributes: 'محادثة مع المزود' });
+          addItem({
+            type: 'service',
+            name: c.cartPayload.name,
+            vendor: c.cartPayload.vendor,
+            price: c.cartPayload.price,
+            attributes: 'محادثة مع المزود',
+          });
           msgs.push({ id: Date.now() + 1, from: 'system', text: 'تمت إضافة الخدمة إلى سلتك 🛒' });
           cartAdded = true;
         }
         return { ...c, messages: msgs, cartAdded };
-      })
+      }),
     );
     setInput('');
     setIsTyping(true);
@@ -115,28 +131,42 @@ export default function ChatPage() {
       setConversations((prev) =>
         prev.map((c) =>
           c.id === active.id
-            ? { ...c, messages: [...c.messages, { id: Date.now() + 2, from: 'them', text: 'تمام، سأراجع التفاصيل وأوافيك بالمقاسات والسعر النهائي قريباً. هل يمكنك مشاركة صور للمساحة؟' }] }
-            : c
-        )
+            ? {
+                ...c,
+                messages: [
+                  ...c.messages,
+                  {
+                    id: Date.now() + 2,
+                    from: 'them',
+                    text: 'تمام، سأراجع التفاصيل وأوافيك بالمقاسات والسعر النهائي قريباً. هل يمكنك مشاركة صور للمساحة؟',
+                  },
+                ],
+              }
+            : c,
+        ),
       );
     }, 1600);
   };
 
   const filtered = conversations.filter(
-    (c) => c.provider.includes(query) || (c.service || '').includes(query)
+    (c) => c.provider.includes(query) || (c.service || '').includes(query),
   );
 
   return (
     <div className="bg-gray-50 min-h-screen" dir="rtl">
       <div className="max-w-7xl mx-auto px-0 md:px-4 py-0 md:py-8">
         <div className="bg-white md:rounded-3xl md:border md:border-gray-100 md:shadow-sm overflow-hidden flex h-[calc(100dvh-160px)] md:h-[calc(100vh-220px)] min-h-[480px]">
-
           {/* Conversations list */}
-          <aside className={`w-full md:w-80 lg:w-96 border-l border-gray-200 flex-col bg-white shrink-0 ${showThreadOnMobile ? 'hidden md:flex' : 'flex'}`}>
+          <aside
+            className={`w-full md:w-80 lg:w-96 border-l border-gray-200 flex-col bg-white shrink-0 ${showThreadOnMobile ? 'hidden md:flex' : 'flex'}`}
+          >
             <div className="p-4 border-b border-gray-100">
               <h1 className="font-bold text-lg text-diyar-dark mb-3">الرسائل</h1>
               <div className="relative">
-                <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search
+                  size={16}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
@@ -148,7 +178,9 @@ export default function ChatPage() {
 
             <div className="flex-1 overflow-y-auto">
               {filtered.length === 0 && (
-                <div className="text-center text-gray-400 text-sm py-12 px-4">لا توجد محادثات مطابقة</div>
+                <div className="text-center text-gray-400 text-sm py-12 px-4">
+                  لا توجد محادثات مطابقة
+                </div>
               )}
               {filtered.map((c) => {
                 const last = c.messages.filter((m) => m.from !== 'system').slice(-1)[0];
@@ -164,13 +196,23 @@ export default function ChatPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="font-bold text-sm text-diyar-dark truncate">{c.provider}</span>
+                        <span className="font-bold text-sm text-diyar-dark truncate">
+                          {c.provider}
+                        </span>
                         {c.unread ? (
-                          <span className="bg-diyar-brown text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shrink-0">{c.unread}</span>
+                          <span className="bg-diyar-brown text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shrink-0">
+                            {c.unread}
+                          </span>
                         ) : null}
                       </div>
-                      {c.service && <span className="block text-[11px] text-diyar-brown truncate mt-0.5">{c.service}</span>}
-                      <span className="block text-xs text-gray-400 truncate mt-0.5">{last?.text}</span>
+                      {c.service && (
+                        <span className="block text-[11px] text-diyar-brown truncate mt-0.5">
+                          {c.service}
+                        </span>
+                      )}
+                      <span className="block text-xs text-gray-400 truncate mt-0.5">
+                        {last?.text}
+                      </span>
                     </div>
                   </button>
                 );
@@ -179,7 +221,9 @@ export default function ChatPage() {
           </aside>
 
           {/* Thread */}
-          <section className={`flex-1 flex-col bg-diyar-cream/30 min-w-0 ${showThreadOnMobile ? 'flex' : 'hidden md:flex'}`}>
+          <section
+            className={`flex-1 flex-col bg-diyar-cream/30 min-w-0 ${showThreadOnMobile ? 'flex' : 'hidden md:flex'}`}
+          >
             {!active ? (
               <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-400 p-8">
                 <div className="w-16 h-16 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center mb-4">
@@ -192,14 +236,19 @@ export default function ChatPage() {
               <>
                 {/* Thread header */}
                 <div className="flex items-center gap-3 p-4 border-b border-gray-200 bg-white shrink-0">
-                  <button onClick={() => setShowThreadOnMobile(false)} className="md:hidden w-9 h-9 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                  <button
+                    onClick={() => setShowThreadOnMobile(false)}
+                    className="md:hidden w-9 h-9 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 shrink-0"
+                  >
                     <ArrowRight size={18} />
                   </button>
                   <div className="w-10 h-10 rounded-full bg-diyar-brown/10 text-diyar-brown flex items-center justify-center font-bold border border-diyar-brown/20 shrink-0">
                     {active.provider.charAt(0)}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h2 className="font-bold text-diyar-dark text-sm leading-tight truncate">{active.provider}</h2>
+                    <h2 className="font-bold text-diyar-dark text-sm leading-tight truncate">
+                      {active.provider}
+                    </h2>
                     <span className="text-[11px] text-green-600 font-medium flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> متصل الآن
                     </span>
@@ -221,19 +270,30 @@ export default function ChatPage() {
                         </span>
                       </div>
                     ) : (
-                      <div key={m.id} className={`flex ${m.from === 'me' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[80%] md:max-w-[65%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${m.from === 'me' ? 'bg-diyar-dark text-white rounded-tl-sm shadow-sm' : 'bg-white border border-gray-200 text-diyar-dark rounded-tr-sm shadow-sm'}`}>
+                      <div
+                        key={m.id}
+                        className={`flex ${m.from === 'me' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[80%] md:max-w-[65%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${m.from === 'me' ? 'bg-diyar-dark text-white rounded-tl-sm shadow-sm' : 'bg-white border border-gray-200 text-diyar-dark rounded-tr-sm shadow-sm'}`}
+                        >
                           {m.text}
                         </div>
                       </div>
-                    )
+                    ),
                   )}
                   {isTyping && (
                     <div className="flex justify-start">
                       <div className="bg-white border border-gray-100 rounded-2xl rounded-tr-sm px-4 py-3 flex gap-1.5 shadow-sm">
                         <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"></span>
-                        <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></span>
-                        <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></span>
+                        <span
+                          className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"
+                          style={{ animationDelay: '0.15s' }}
+                        ></span>
+                        <span
+                          className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"
+                          style={{ animationDelay: '0.3s' }}
+                        ></span>
                       </div>
                     </div>
                   )}
@@ -249,7 +309,9 @@ export default function ChatPage() {
                     <input
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') send();
+                      }}
                       placeholder="اكتب رسالتك..."
                       className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:bg-white focus:border-diyar-brown transition"
                     />

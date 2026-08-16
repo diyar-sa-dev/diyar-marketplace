@@ -71,16 +71,18 @@ describe('auth roles', () => {
 
   it('ignores inactive dashboard roles', () => {
     expect(
-      getAccessibleDashboardPortals([{ name: 'vendor', status: 'pending' }]).map((portal) => portal.key),
+      getAccessibleDashboardPortals([{ name: 'vendor', status: 'pending' }]).map(
+        (portal) => portal.key,
+      ),
     ).toEqual([]);
   });
 
   it('allows admin to access every portal', () => {
-    expect(getAccessibleDashboardPortals([{ name: 'admin', status: 'active' }]).map((portal) => portal.key)).toEqual([
-      'vendor',
-      'service',
-      'affiliate',
-    ]);
+    expect(
+      getAccessibleDashboardPortals([{ name: 'admin', status: 'active' }]).map(
+        (portal) => portal.key,
+      ),
+    ).toEqual(['vendor', 'service', 'affiliate']);
   });
 
   it('checks portal access securely by role', () => {

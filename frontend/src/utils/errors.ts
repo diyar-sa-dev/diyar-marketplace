@@ -18,7 +18,10 @@ export function sanitizeErrorMessage(message: string, locale: Locale = readStore
   return message;
 }
 
-export function isUnexpectedServerError(error: unknown, locale: Locale = readStoredLocale()): boolean {
+export function isUnexpectedServerError(
+  error: unknown,
+  locale: Locale = readStoredLocale(),
+): boolean {
   const parsed = parseApiError(error, locale);
 
   if (parsed.status >= 500) {

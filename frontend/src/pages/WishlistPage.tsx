@@ -8,22 +8,82 @@ export default function WishlistPage() {
   const [filterTab, setFilterTab] = useState<'all' | 'products' | 'services'>('all');
 
   const [savedProducts, setSavedProducts] = useState([
-    { id: 1, name: "طقم كنب زاوية فاخر", price: "4,500", rating: 4.8, reviews: 124, img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800", store: "مفروشات الرقي", tag: "الأكثر مبيعاً" },
-    { id: 2, name: "سرير مزدوج مودرن", price: "2,200", rating: 4.5, reviews: 89, img: "https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&q=80&w=400", store: "بيت الراحة" },
-    { id: 4, name: "خزانة ملابس 6 أبواب", price: "1,950", rating: 4.2, reviews: 34, img: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=400", store: "إيكيا" },
-    { id: 6, name: "كرسي استرخاء مخملي", price: "1,200", rating: 4.7, reviews: 78, img: "https://images.unsplash.com/photo-1598300042247-d317bd127e7b?auto=format&fit=crop&q=80&w=400", store: "أشلي" }
+    {
+      id: 1,
+      name: 'طقم كنب زاوية فاخر',
+      price: '4,500',
+      rating: 4.8,
+      reviews: 124,
+      img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800',
+      store: 'مفروشات الرقي',
+      tag: 'الأكثر مبيعاً',
+    },
+    {
+      id: 2,
+      name: 'سرير مزدوج مودرن',
+      price: '2,200',
+      rating: 4.5,
+      reviews: 89,
+      img: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&q=80&w=400',
+      store: 'بيت الراحة',
+    },
+    {
+      id: 4,
+      name: 'خزانة ملابس 6 أبواب',
+      price: '1,950',
+      rating: 4.2,
+      reviews: 34,
+      img: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=400',
+      store: 'إيكيا',
+    },
+    {
+      id: 6,
+      name: 'كرسي استرخاء مخملي',
+      price: '1,200',
+      rating: 4.7,
+      reviews: 78,
+      img: 'https://images.unsplash.com/photo-1598300042247-d317bd127e7b?auto=format&fit=crop&q=80&w=400',
+      store: 'أشلي',
+    },
   ]);
 
   const [savedServices, setSavedServices] = useState([
-    { id: 101, name: "تصميم داخلي ثلاثي الأبعاد متكامل", price: "1,500", rating: 4.9, reviews: 45, img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=400", vendor: "إيوان للتصميم", type: "استشارة مجانية أولى" },
-    { id: 102, name: "مخطط توزيع الإضاءة والكهرباء", price: "750", rating: 4.7, reviews: 29, img: "https://images.unsplash.com/photo-1565538810844-16be962f6840?auto=format&fit=crop&q=80&w=400", vendor: "مكتب الإتقان الهندسي", type: "تحديد موعد حضوري" },
-    { id: 103, name: "استشارة معمارية - زاوية البناء", price: "500", rating: 4.6, reviews: 18, img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=400", vendor: "ارابيسك للتجارة والمقاولات", type: "استشارة أونلاين" }
+    {
+      id: 101,
+      name: 'تصميم داخلي ثلاثي الأبعاد متكامل',
+      price: '1,500',
+      rating: 4.9,
+      reviews: 45,
+      img: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=400',
+      vendor: 'إيوان للتصميم',
+      type: 'استشارة مجانية أولى',
+    },
+    {
+      id: 102,
+      name: 'مخطط توزيع الإضاءة والكهرباء',
+      price: '750',
+      rating: 4.7,
+      reviews: 29,
+      img: 'https://images.unsplash.com/photo-1565538810844-16be962f6840?auto=format&fit=crop&q=80&w=400',
+      vendor: 'مكتب الإتقان الهندسي',
+      type: 'تحديد موعد حضوري',
+    },
+    {
+      id: 103,
+      name: 'استشارة معمارية - زاوية البناء',
+      price: '500',
+      rating: 4.6,
+      reviews: 18,
+      img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=400',
+      vendor: 'ارابيسك للتجارة والمقاولات',
+      type: 'استشارة أونلاين',
+    },
   ]);
 
   const totalCount = savedProducts.length + savedServices.length;
 
   const handleClearAll = () => {
-    if (confirm("هل أنت متأكد من تفريغ كافة العناصر المحفوظة؟")) {
+    if (confirm('هل أنت متأكد من تفريغ كافة العناصر المحفوظة؟')) {
       setSavedProducts([]);
       setSavedServices([]);
     }
@@ -35,9 +95,13 @@ export default function WishlistPage() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Link to="/" className="hover:text-diyar-dark transition">الرئيسية</Link>
+            <Link to="/" className="hover:text-diyar-dark transition">
+              الرئيسية
+            </Link>
             <ChevronLeft size={16} />
-            <Link to="/profile" className="hover:text-diyar-dark transition">حسابي</Link>
+            <Link to="/profile" className="hover:text-diyar-dark transition">
+              حسابي
+            </Link>
             <ChevronLeft size={16} />
             <span className="font-bold text-diyar-dark">المحفوظات</span>
           </div>
@@ -52,10 +116,12 @@ export default function WishlistPage() {
               <Bookmark className="text-diyar-brown fill-diyar-brown" size={28} />
               العناصر المحفوظة
             </h1>
-            <p className="text-gray-500 text-sm mt-1">تضم المحفوظات الخاصة بك {totalCount} من المنتجات والخدمات المميزة</p>
+            <p className="text-gray-500 text-sm mt-1">
+              تضم المحفوظات الخاصة بك {totalCount} من المنتجات والخدمات المميزة
+            </p>
           </div>
           {totalCount > 0 && (
-            <button 
+            <button
               onClick={handleClearAll}
               className="text-red-500 hover:text-red-650 font-bold text-sm bg-red-50 hover:bg-red-100/60 px-4 py-2 rounded-xl transition-all self-start sm:self-auto"
             >
@@ -122,9 +188,16 @@ export default function WishlistPage() {
                       <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-300">
                         <ShoppingBag size={28} />
                       </div>
-                      <h3 className="text-lg font-bold text-diyar-dark mb-1">لا توجد منتجات محفوظة</h3>
-                      <p className="text-gray-500 text-sm max-w-sm mb-4">تصفح أقسام الأثاث والمستلزمات واحفظ منتجاتك المفضلة هنا!</p>
-                      <Link to="/category/all" className="bg-diyar-brown text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-orange-700 transition">
+                      <h3 className="text-lg font-bold text-diyar-dark mb-1">
+                        لا توجد منتجات محفوظة
+                      </h3>
+                      <p className="text-gray-500 text-sm max-w-sm mb-4">
+                        تصفح أقسام الأثاث والمستلزمات واحفظ منتجاتك المفضلة هنا!
+                      </p>
+                      <Link
+                        to="/category/all"
+                        className="bg-diyar-brown text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-orange-700 transition"
+                      >
                         تسوق الأثاث
                       </Link>
                     </div>
@@ -154,9 +227,16 @@ export default function WishlistPage() {
                       <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-300">
                         <FolderHeart size={28} />
                       </div>
-                      <h3 className="text-lg font-bold text-diyar-dark mb-1">لا توجد خدمات محفوظة</h3>
-                      <p className="text-gray-500 text-sm max-w-sm mb-4">استكشف مقدمي الخدمات الهندسية ومخططي الديكور المناسبين لمشروعك.</p>
-                      <Link to="/" className="bg-diyar-brown text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-orange-700 transition">
+                      <h3 className="text-lg font-bold text-diyar-dark mb-1">
+                        لا توجد خدمات محفوظة
+                      </h3>
+                      <p className="text-gray-500 text-sm max-w-sm mb-4">
+                        استكشف مقدمي الخدمات الهندسية ومخططي الديكور المناسبين لمشروعك.
+                      </p>
+                      <Link
+                        to="/"
+                        className="bg-diyar-brown text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-orange-700 transition"
+                      >
                         استكشف الخدمات
                       </Link>
                     </div>
@@ -171,12 +251,21 @@ export default function WishlistPage() {
               <Bookmark size={48} strokeWidth={1.5} />
             </div>
             <h3 className="text-2xl font-bold text-diyar-dark mb-2">قائمة المحفوظات فارغة</h3>
-            <p className="text-gray-500 mb-8 max-w-md">لم تقم بإضافة أي منتجات أو خدمات إلى قائمة المحفوظات حتى الآن. اضغط على أيقونة الحفظ لتجده هنا لاحقاً.</p>
+            <p className="text-gray-500 mb-8 max-w-md">
+              لم تقم بإضافة أي منتجات أو خدمات إلى قائمة المحفوظات حتى الآن. اضغط على أيقونة الحفظ
+              لتجده هنا لاحقاً.
+            </p>
             <div className="flex gap-4">
-              <Link to="/category/all" className="bg-diyar-dark text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all">
+              <Link
+                to="/category/all"
+                className="bg-diyar-dark text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all"
+              >
                 تصفح المنتجات
               </Link>
-              <Link to="/" className="bg-gray-100 text-diyar-dark px-8 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all">
+              <Link
+                to="/"
+                className="bg-gray-100 text-diyar-dark px-8 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all"
+              >
                 الرئيسية
               </Link>
             </div>

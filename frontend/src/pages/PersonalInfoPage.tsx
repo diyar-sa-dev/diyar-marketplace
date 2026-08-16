@@ -39,7 +39,10 @@ export default function PersonalInfoPage() {
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">الاسم الكامل</label>
               <div className="relative">
-                <User size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <User
+                  size={18}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+                />
                 <input
                   type="text"
                   readOnly
@@ -50,9 +53,14 @@ export default function PersonalInfoPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">البريد الإلكتروني</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                البريد الإلكتروني
+              </label>
               <div className="relative">
-                <Mail size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Mail
+                  size={18}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+                />
                 <input
                   type="email"
                   readOnly
@@ -66,7 +74,10 @@ export default function PersonalInfoPage() {
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">رقم الجوال</label>
               <div className="relative">
-                <Phone size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Phone
+                  size={18}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+                />
                 <input
                   type="tel"
                   readOnly

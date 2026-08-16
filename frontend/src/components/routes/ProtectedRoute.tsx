@@ -20,11 +20,7 @@ export function ProtectedRoute({ children, roles }: ProtectedRouteProps) {
 
   if (!isAuthenticated) {
     return (
-      <Navigate
-        to="/auth"
-        replace
-        state={{ from: location.pathname, reason: 'auth_required' }}
-      />
+      <Navigate to="/auth" replace state={{ from: location.pathname, reason: 'auth_required' }} />
     );
   }
 
@@ -40,13 +36,7 @@ export function ProtectedRoute({ children, roles }: ProtectedRouteProps) {
   }
 
   if (roles && roles.length > 0 && !roles.some((role) => hasRole(role))) {
-    return (
-      <Navigate
-        to="/403"
-        replace
-        state={{ from: location.pathname, reason: 'forbidden' }}
-      />
-    );
+    return <Navigate to="/403" replace state={{ from: location.pathname, reason: 'forbidden' }} />;
   }
 
   return children;

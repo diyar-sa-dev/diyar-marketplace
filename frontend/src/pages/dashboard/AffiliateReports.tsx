@@ -1,6 +1,16 @@
 import React from 'react';
 import { Download, TrendingUp, Users, MousePointerClick, ShoppingBag } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from 'recharts';
 
 export default function AffiliateReports() {
   const areaData = [
@@ -26,7 +36,9 @@ export default function AffiliateReports() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-diyar-dark">تقارير الأداء</h2>
-          <p className="text-gray-500 text-sm mt-1">تحليل مفصل لأداء روابطك والتفاعلات والتحويلات.</p>
+          <p className="text-gray-500 text-sm mt-1">
+            تحليل مفصل لأداء روابطك والتفاعلات والتحويلات.
+          </p>
         </div>
         <button className="border border-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-gray-50 transition shadow-sm bg-white">
           <Download size={18} />
@@ -69,40 +81,77 @@ export default function AffiliateReports() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Performance Chart */}
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm lg:col-span-2">
-           <h3 className="font-bold text-diyar-dark mb-6">النقرات والتحويلات (آخر شهر)</h3>
-           <div className="h-72" dir="ltr">
-             <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={areaData}>
-                  <defs>
-                    <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af' }} />
-                  <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Area type="monotone" dataKey="clicks" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorClicks)" />
-                </AreaChart>
-             </ResponsiveContainer>
-           </div>
+          <h3 className="font-bold text-diyar-dark mb-6">النقرات والتحويلات (آخر شهر)</h3>
+          <div className="h-72" dir="ltr">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={areaData}>
+                <defs>
+                  <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#9ca3af' }}
+                />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af' }} />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '16px',
+                    border: 'none',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="clicks"
+                  stroke="#3b82f6"
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorClicks)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Traffic Sources */}
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-           <h3 className="font-bold text-diyar-dark mb-6">مصادر الزيارات</h3>
-           <div className="h-72" dir="ltr">
-             <ResponsiveContainer width="100%" height="100%">
-               <BarChart data={barData} layout="vertical" margin={{ top: 0, right: 0, left: 40, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f3f4f6" />
-                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af' }} />
-                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#4b5563', fontSize: 12 }} width={80} />
-                  <Tooltip cursor={{ fill: '#f9fafb' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', textAlign: 'right' }} />
-                  <Bar dataKey="value" fill="#22c55e" radius={[0, 4, 4, 0]} barSize={20} />
-               </BarChart>
-             </ResponsiveContainer>
-           </div>
+          <h3 className="font-bold text-diyar-dark mb-6">مصادر الزيارات</h3>
+          <div className="h-72" dir="ltr">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={barData}
+                layout="vertical"
+                margin={{ top: 0, right: 0, left: 40, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f3f4f6" />
+                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af' }} />
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#4b5563', fontSize: 12 }}
+                  width={80}
+                />
+                <Tooltip
+                  cursor={{ fill: '#f9fafb' }}
+                  contentStyle={{
+                    borderRadius: '12px',
+                    border: 'none',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    textAlign: 'right',
+                  }}
+                />
+                <Bar dataKey="value" fill="#22c55e" radius={[0, 4, 4, 0]} barSize={20} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>

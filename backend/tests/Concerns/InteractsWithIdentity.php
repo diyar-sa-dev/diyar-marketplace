@@ -2,15 +2,14 @@
 
 namespace Tests\Concerns;
 
+use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Enums\RoleStatus;
-use App\Enums\UserStatus;
-use App\Enums\OtpPurpose;
 use App\Infrastructure\Sms\LogSmsProvider;
+use App\Models\ProviderAccount;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Models\ProviderAccount;
 use App\Services\Identity\OtpCacheStore;
 use Database\Seeders\RoleSeeder;
 

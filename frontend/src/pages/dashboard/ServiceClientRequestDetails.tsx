@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowRight, MapPin, DollarSign, Clock, Paperclip, Send, CheckCircle2, Upload } from 'lucide-react';
+import {
+  ArrowRight,
+  MapPin,
+  DollarSign,
+  Clock,
+  Paperclip,
+  Send,
+  CheckCircle2,
+  Upload,
+} from 'lucide-react';
 
 const MOCK_REQUEST = {
   id: 'REQ-1025',
   customerName: 'أحمد عبدالله',
   category: 'تصميم داخلي',
   title: 'طلب تصميم صالة جلوس مودرن',
-  description: 'أحتاج مصمم داخلي لتصميم صالة جلوس بمساحة 20 متر مربع مع غرفة طعام. المفضل نمط مودرن مع ألوان هادئة. أحب الاستايل الإسكندنافي والخشب الفاتح. الصالة حالياً فارغة تماماً وأحتاج لتصميم ثلاثي الأبعاد مع مخطط توزيع الأثاث.',
+  description:
+    'أحتاج مصمم داخلي لتصميم صالة جلوس بمساحة 20 متر مربع مع غرفة طعام. المفضل نمط مودرن مع ألوان هادئة. أحب الاستايل الإسكندنافي والخشب الفاتح. الصالة حالياً فارغة تماماً وأحتاج لتصميم ثلاثي الأبعاد مع مخطط توزيع الأثاث.',
   budget: '1000 - 1500 ر.س',
   location: 'الرياض, حي الياسمين',
   date: 'قبل ساعتين',
@@ -37,14 +47,16 @@ export default function ServiceClientRequestDetails() {
   return (
     <div className="space-y-6" dir="rtl">
       <div className="flex items-center gap-4">
-        <Link 
-          to="/dashboard/service/client-requests" 
+        <Link
+          to="/dashboard/service/client-requests"
           className="w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
         >
           <ArrowRight size={20} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-diyar-dark">تفاصيل الطلب: {id?.toUpperCase() || MOCK_REQUEST.id}</h1>
+          <h1 className="text-2xl font-bold text-diyar-dark">
+            تفاصيل الطلب: {id?.toUpperCase() || MOCK_REQUEST.id}
+          </h1>
           <p className="text-gray-500 text-sm mt-1">تصفح تفاصيل الطلب بدقة قبل تقديم عرضك.</p>
         </div>
       </div>
@@ -82,7 +94,9 @@ export default function ServiceClientRequestDetails() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-medium">الميزانية المقترحة</p>
-                  <p className="font-bold text-gray-800" dir="ltr">{MOCK_REQUEST.budget}</p>
+                  <p className="font-bold text-gray-800" dir="ltr">
+                    {MOCK_REQUEST.budget}
+                  </p>
                 </div>
               </div>
             </div>
@@ -95,7 +109,10 @@ export default function ServiceClientRequestDetails() {
                 </h3>
                 <div className="flex flex-wrap gap-3">
                   {MOCK_REQUEST.attachments.map((file, index) => (
-                    <div key={index} className="flex items-center gap-3 bg-gray-50 border border-gray-100 p-3 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 bg-gray-50 border border-gray-100 p-3 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                    >
                       <div className="p-2 bg-white rounded-lg text-diyar-brown shadow-sm">
                         <Paperclip size={18} />
                       </div>
@@ -114,15 +131,17 @@ export default function ServiceClientRequestDetails() {
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 h-full flex flex-col">
             <h3 className="text-xl font-bold text-diyar-dark mb-6">تقديم عرض سعر</h3>
-            
+
             {isSubmitted ? (
               <div className="text-center py-8">
                 <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 size={32} className="text-green-500" />
                 </div>
                 <h4 className="text-lg font-bold text-gray-800 mb-2">تم تقديم العرض بنجاح!</h4>
-                <p className="text-gray-500 text-sm">سيقوم العميل بمراجعة عرضك والتواصل معك عند الموافقة.</p>
-                <button 
+                <p className="text-gray-500 text-sm">
+                  سيقوم العميل بمراجعة عرضك والتواصل معك عند الموافقة.
+                </p>
+                <button
                   onClick={() => setIsSubmitted(false)}
                   className="mt-6 text-diyar-brown font-bold text-sm hover:underline"
                 >
@@ -132,8 +151,10 @@ export default function ServiceClientRequestDetails() {
             ) : (
               <form onSubmit={handleOfferSubmit} className="space-y-5 flex-1 flex flex-col">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">السعر المقترح (ر.س) *</label>
-                  <input 
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    السعر المقترح (ر.س) *
+                  </label>
+                  <input
                     type="number"
                     required
                     value={offerPrice}
@@ -142,10 +163,12 @@ export default function ServiceClientRequestDetails() {
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-diyar-brown focus:bg-white outline-none transition-all"
                   />
                 </div>
-                
+
                 <div className="flex-1 flex flex-col">
-                  <label className="block text-sm font-bold text-gray-700 mb-2">رسالة للعميل *</label>
-                  <textarea 
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    رسالة للعميل *
+                  </label>
+                  <textarea
                     required
                     value={offerMessage}
                     onChange={(e) => setOfferMessage(e.target.value)}
@@ -155,10 +178,12 @@ export default function ServiceClientRequestDetails() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">ملف عرض السعر (اختياري)</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    ملف عرض السعر (اختياري)
+                  </label>
                   <div className="relative">
                     <input type="file" className="hidden" id="offer-file" />
-                    <label 
+                    <label
                       htmlFor="offer-file"
                       className="flex items-center justify-center gap-2 w-full bg-gray-50 border border-dashed border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-600 hover:bg-gray-100 hover:border-diyar-brown transition-colors cursor-pointer"
                     >
@@ -167,8 +192,8 @@ export default function ServiceClientRequestDetails() {
                     </label>
                   </div>
                 </div>
-                
-                <button 
+
+                <button
                   type="submit"
                   disabled={isSubmitting}
                   className="w-full bg-diyar-brown text-white py-3.5 rounded-xl font-bold hover:bg-[#8A6D46] transition-colors shadow-lg shadow-diyar-brown/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-auto"
