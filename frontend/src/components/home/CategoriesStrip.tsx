@@ -23,6 +23,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { useCategories } from '../../hooks/catalog/useCatalog.ts';
 
 type Cat = {
   id: string;
@@ -97,6 +98,15 @@ const SERVICES: Cat[] = [
   },
 ];
 
+const STATIC_ICON_BY_SLUG = Object.fromEntries(PRODUCTS.map((cat) => [cat.id, cat.icon])) as Record<
+  string,
+  Cat['icon']
+>;
+
+const STATIC_IMG_BY_SLUG = Object.fromEntries(
+  PRODUCTS.filter((cat) => cat.img).map((cat) => [cat.id, cat.img]),
+) as Record<string, string>;
+
 function CategoryRow({
   title,
   items,
@@ -151,16 +161,18 @@ function CategoryRow({
             <div
               className={`relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-xl mb-3 overflow-hidden transition duration-300 group-hover:-translate-y-2 group-hover:shadow-md flex items-center justify-center ${tileBg}`}
             >
-              <img
-                src={cat.img}
-                alt={cat.name}
-                referrerPolicy="no-referrer"
-                className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-300 ${loaded[cat.id] ? 'opacity-100' : 'opacity-0'}`}
-                onLoad={() => setLoaded((prev) => ({ ...prev, [cat.id]: true }))}
-                onError={() => setLoaded((prev) => ({ ...prev, [cat.id]: false }))}
-              />
+              {cat.img && (
+                <img
+                  src={cat.img}
+                  alt={cat.name}
+                  referrerPolicy="no-referrer"
+                  className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-300 ${loaded[cat.id] ? 'opacity-100' : 'opacity-0'}`}
+                  onLoad={() => setLoaded((prev) => ({ ...prev, [cat.id]: true }))}
+                  onError={() => setLoaded((prev) => ({ ...prev, [cat.id]: false }))}
+                />
+              )}
               <div
-                className={`absolute inset-0 flex items-center justify-center bg-inherit transition-opacity duration-300 ${loaded[cat.id] ? 'opacity-0' : 'opacity-100'}`}
+                className={`absolute inset-0 flex items-center justify-center bg-inherit transition-opacity duration-300 ${cat.img && loaded[cat.id] ? 'opacity-0' : 'opacity-100'}`}
               >
                 <cat.icon className="w-8 h-8 md:w-10 md:h-10" strokeWidth={1.5} />
               </div>
@@ -176,10 +188,33 @@ function CategoryRow({
 }
 
 export default function CategoriesStrip() {
+  const { data: productCategories, isLoading: productsLoading } = useCategories('product');
+  const { data: serviceCategories, isLoading: servicesLoading } = useCategories('service');
+
+  const productItems: Cat[] =
+    productsLoading || !productCategories?.length
+      ? PRODUCTS
+      : productCategories.map((cat) => ({
+          id: cat.slug,
+          name: cat.name,
+          icon: STATIC_ICON_BY_SLUG[cat.slug] ?? PackageSearch,
+          img: STATIC_IMG_BY_SLUG[cat.slug],
+        }));
+
+  const serviceItems: Cat[] =
+    servicesLoading || !serviceCategories?.length
+      ? SERVICES
+      : serviceCategories.map((cat) => ({
+          id: cat.slug,
+          name: cat.name,
+          icon: STATIC_ICON_BY_SLUG[cat.slug] ?? Paintbrush,
+          img: STATIC_IMG_BY_SLUG[cat.slug] ?? `/categories/${cat.name}.png`,
+        }));
+
   return (
     <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
-      <CategoryRow title="تصفّح الأقسام" items={PRODUCTS} accent="product" />
-      <CategoryRow title="خدمات ديار" items={SERVICES} accent="service" />
+      <CategoryRow title="تصفّح الأقسام" items={productItems} accent="product" />
+      <CategoryRow title="خدمات ديار" items={serviceItems} accent="service" />
     </div>
   );
 }

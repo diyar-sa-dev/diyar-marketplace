@@ -11,6 +11,7 @@ import { LocaleProvider } from './lib/i18n/LocaleProvider.tsx';
 import { applyDocumentLocale, readStoredLocale } from './lib/i18n/storage.ts';
 import { queryClient } from './lib/queryClient.ts';
 import './index.css';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 applyDocumentLocale(readStoredLocale());
 

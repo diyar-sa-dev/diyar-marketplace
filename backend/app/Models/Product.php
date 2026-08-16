@@ -1,0 +1,117 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\AvailabilityMode;
+use App\Enums\ProductStatus;
+use App\Enums\ProductType;
+use Database\Factories\ProductFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Product extends Model
+{
+    /** @use HasFactory<ProductFactory> */
+    use HasFactory, HasUuids, SoftDeletes;
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
+    protected $fillable = [
+        'vendor_account_id',
+        'category_id',
+        'name',
+        'slug',
+        'description',
+        'sale_price',
+        'compare_price',
+        'width',
+        'height',
+        'depth',
+        'materials',
+        'warranty',
+        'product_type',
+        'availability_mode',
+        'expected_available_at',
+        'status',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'sale_price' => 'decimal:2',
+            'compare_price' => 'decimal:2',
+            'width' => 'decimal:2',
+            'height' => 'decimal:2',
+            'depth' => 'decimal:2',
+            'materials' => 'array',
+            'product_type' => ProductType::class,
+            'availability_mode' => AvailabilityMode::class,
+            'expected_available_at' => 'date',
+            'status' => ProductStatus::class,
+        ];
+    }
+
+    public function vendorAccount(): BelongsTo
+    {
+        return $this->belongsTo(VendorAccount::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function colors(): HasMany
+    {
+        return $this->hasMany(ProductColor::class);
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
+    }
+
+    public function inventory(): HasOne
+    {
+        return $this->hasOne(ProductInventory::class);
+    }
+
+    public function inventoryMovements(): HasMany
+    {
+        return $this->hasMany(InventoryMovement::class);
+    }
+
+    public function inventoryReservations(): HasMany
+    {
+        return $this->hasMany(InventoryReservation::class);
+    }
+
+    public function likes(): HasMany
+    {
+        return $this->hasMany(ProductLike::class);
+    }
+
+    public function wishlistItems(): HasMany
+    {
+        return $this->hasMany(WishlistItem::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    public function scopePubliclyVisible($query)
+    {
+        return $query
+            ->where('status', ProductStatus::Active)
+            ->whereHas('vendorAccount', fn ($q) => $q->where('status', 'active'));
+    }
+}

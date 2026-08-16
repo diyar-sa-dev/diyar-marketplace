@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+﻿import React, { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import {
   MapPin,
   Star,
@@ -11,93 +11,90 @@ import {
   Info,
   Clock,
   Truck,
+  X,
 } from 'lucide-react';
 import ProductCard from '../components/cards/ProductCard.tsx';
+import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
+import { useVendor, useVendorProducts } from '../hooks/catalog/useCatalog.ts';
+import { mapProductCard } from '../lib/catalogMappers.ts';
+import { resolveMediaUrl } from '../lib/media.ts';
+import { LoadingState } from '../components/common/LoadingState.tsx';
+import { ErrorState } from '../components/common/ErrorState.tsx';
+import { EmptyState } from '../components/common/EmptyState.tsx';
+import { isApiErrorDetail, isNotFound } from '../utils/errors.ts';
+import { isValidStoreSlug } from '../lib/storePath.ts';
+
+const PLACEHOLDER_COVER =
+  'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1200';
+const PLACEHOLDER_LOGO =
+  'https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&q=80&w=200';
 
 export default function StorePage() {
   const { id } = useParams();
+  const slug = isValidStoreSlug(id) ? id : undefined;
   const [activeTab, setActiveTab] = useState('products');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [sort, setSort] = useState('-created_at');
 
-  const STORE_INFO = {
-    id: id || '1',
-    name: 'الروائع للأثاث',
-    logo: 'https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&q=80&w=200',
-    cover:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1200',
-    description:
-      'متجر متخصص في صناعة الأثاث الفاخر والقطع الفريدة ذات الجودة العالية والتصاميم العصرية بلمسات كلاسيكية.',
-    rating: 4.8,
-    reviews: 1250,
-    followers: '24K',
-    productsCount: 156,
-    joinedDate: '2022',
-    location: 'الرياض، المملكة العربية السعودية',
-    badges: ['متجر موثق', 'توصيل سريع', 'ضمان 5 سنوات'],
-  };
+  const {
+    data: vendor,
+    isLoading: vendorLoading,
+    isError: vendorError,
+    error: vendorErr,
+    refetch: refetchVendor,
+  } = useVendor(slug);
+  const {
+    data: productsData,
+    isLoading: productsLoading,
+    isError: productsError,
+    error: productsErr,
+    refetch: refetchProducts,
+  } = useVendorProducts(slug, { per_page: 12, page, sort });
 
-  const PRODUCTS = [
-    {
-      id: 1,
-      name: 'طقم كنب كلاسيكي فاخر - ذهبي',
-      price: '4500',
-      oldPrice: '5200',
-      img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=400',
-      vendor: STORE_INFO.name,
-    },
-    {
-      id: 2,
-      name: 'كرسي مريح قماش مخمل - أزرق داكن',
-      price: '850',
-      img: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&q=80&w=400',
-      vendor: STORE_INFO.name,
-    },
-    {
-      id: 3,
-      name: 'طاولة طعام خشب زان 6 كراسي',
-      price: '3200',
-      oldPrice: '3800',
-      img: 'https://images.unsplash.com/photo-1604578762246-41134e37f9cc?auto=format&fit=crop&q=80&w=400',
-      vendor: STORE_INFO.name,
-    },
-    {
-      id: 4,
-      name: 'سرير مزدوج تصميم مودرن مع تخزين',
-      price: '2100',
-      img: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&q=80&w=400',
-      vendor: STORE_INFO.name,
-    },
-    {
-      id: 5,
-      name: 'طاولة قهوة زجاج مع قاعدة رخام',
-      price: '650',
-      oldPrice: '900',
-      img: 'https://images.unsplash.com/photo-1532372320572-cda25653a26d?auto=format&fit=crop&q=80&w=400',
-      vendor: STORE_INFO.name,
-    },
-    {
-      id: 6,
-      name: 'مكتب عمل منزلي خشب بلوط',
-      price: '1200',
-      img: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&q=80&w=400',
-      vendor: STORE_INFO.name,
-    },
-    {
-      id: 7,
-      name: 'مكتبة تلفاز جدارية حديثة',
-      price: '1850',
-      img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=400',
-      vendor: STORE_INFO.name,
-    },
-    {
-      id: 8,
-      name: 'أريكة زاوية فخمة للصالون',
-      price: '5400',
-      oldPrice: '6000',
-      img: 'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&q=80&w=400',
-      vendor: STORE_INFO.name,
-    },
-  ];
+  if (!isValidStoreSlug(id)) {
+    return (
+      <div className="bg-gray-50 min-h-screen pb-16 pt-8">
+        <EmptyState title="المتجر غير موجود" description="لم نتمكن من العثور على هذا المتجر." />
+      </div>
+    );
+  }
+
+  if (vendorLoading) {
+    return (
+      <div className="bg-gray-50 min-h-screen pb-16 pt-8">
+        <LoadingState className="min-h-80" />
+      </div>
+    );
+  }
+
+  if (vendorError) {
+    if (isApiErrorDetail(vendorErr) && isNotFound(vendorErr)) {
+      return (
+        <div className="bg-gray-50 min-h-screen pb-16 pt-8">
+          <EmptyState title="المتجر غير موجود" description="لم نتمكن من العثور على هذا المتجر." />
+        </div>
+      );
+    }
+    return (
+      <div className="bg-gray-50 min-h-screen pb-16 pt-8">
+        <ErrorState error={vendorErr as Error} onRetry={() => refetchVendor()} />
+      </div>
+    );
+  }
+
+  if (!vendor) {
+    return (
+      <div className="bg-gray-50 min-h-screen pb-16 pt-8">
+        <EmptyState title="المتجر غير موجود" description="لم نتمكن من العثور على هذا المتجر." />
+      </div>
+    );
+  }
+
+  const coverUrl = resolveMediaUrl(vendor.cover_url) ?? PLACEHOLDER_COVER;
+  const logoUrl = resolveMediaUrl(vendor.logo_url) ?? PLACEHOLDER_LOGO;
+  const products = productsData?.items.map(mapProductCard) ?? [];
+  const productsCount = productsData?.pagination.total ?? products.length;
 
   return (
     <div className="bg-gray-50 min-h-screen pb-16">
@@ -107,8 +104,8 @@ export default function StorePage() {
         onClick={() => setIsGalleryOpen(true)}
       >
         <img
-          src={STORE_INFO.cover}
-          alt={STORE_INFO.name}
+          src={coverUrl}
+          alt={vendor.store_name}
           className="w-full h-full object-cover opacity-80 group-hover:opacity-70 transition-opacity"
           referrerPolicy="no-referrer"
           onError={(e) => {
@@ -116,7 +113,7 @@ export default function StorePage() {
               'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1200';
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
         <div className="absolute top-4 left-4 flex gap-2" onClick={(e) => e.stopPropagation()}>
           <button className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 transition">
             <Share2 size={20} />
@@ -131,8 +128,8 @@ export default function StorePage() {
             {/* Logo */}
             <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl md:rounded-2xl border-4 border-white shadow-md overflow-hidden bg-white shrink-0 -mt-16 md:-mt-20">
               <img
-                src={STORE_INFO.logo}
-                alt={STORE_INFO.name}
+                src={logoUrl}
+                alt={vendor.store_name}
                 className="w-full h-full object-cover bg-white"
                 referrerPolicy="no-referrer"
                 onError={(e) => {
@@ -146,24 +143,21 @@ export default function StorePage() {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark">
-                  {STORE_INFO.name}
+                  {vendor.store_name}
                 </h1>
                 <ShieldCheck className="text-blue-500 w-5 h-5 md:w-6 md:h-6" />
               </div>
               <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-4 max-w-2xl">
-                {STORE_INFO.description}
+                {vendor.description ?? 'متجر معتمد على منصة ديار.'}
               </p>
 
               <div className="flex flex-wrap items-center gap-3 md:gap-6 text-sm text-gray-600">
-                <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                  <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  <span className="font-bold text-diyar-dark">{STORE_INFO.rating}</span>
-                  <span className="text-xs text-gray-400">({STORE_INFO.reviews} تقييم)</span>
-                </div>
-                <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                  <MapPin className="w-4 h-4 text-diyar-brown" />
-                  <span>{STORE_INFO.location}</span>
-                </div>
+                {vendor.location && (
+                  <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                    <MapPin className="w-4 h-4 text-diyar-brown" />
+                    <span>{vendor.location}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -187,16 +181,12 @@ export default function StorePage() {
               <h3 className="font-bold text-lg text-diyar-dark mb-4">إحصائيات المتجر</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-3 border-b border-gray-50">
-                  <span className="text-gray-500 text-sm">المتابعون</span>
-                  <span className="font-bold text-diyar-dark">{STORE_INFO.followers}</span>
-                </div>
-                <div className="flex justify-between items-center pb-3 border-b border-gray-50">
                   <span className="text-gray-500 text-sm">عدد المنتجات</span>
-                  <span className="font-bold text-diyar-dark">{STORE_INFO.productsCount} منتج</span>
+                  <span className="font-bold text-diyar-dark">{productsCount} منتج</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">تاريخ الانضمام</span>
-                  <span className="font-bold text-diyar-dark">{STORE_INFO.joinedDate}</span>
+                  <span className="text-gray-500 text-sm">الموقع</span>
+                  <span className="font-bold text-diyar-dark">{vendor.location ?? '—'}</span>
                 </div>
               </div>
             </div>
@@ -264,20 +254,41 @@ export default function StorePage() {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-diyar-dark">جميع المنتجات</h2>
-                  <select className="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg py-2 px-4 outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown">
-                    <option>الأحدث</option>
-                    <option>الأعلى مبيعاً</option>
-                    <option>السعر: من الأقل للأعلى</option>
-                    <option>السعر: من الأعلى للأقل</option>
+                  <select
+                    value={sort}
+                    onChange={(e) => {
+                      setSort(e.target.value);
+                      setPage(1);
+                    }}
+                    className="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg py-2 px-4 outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown"
+                  >
+                    <option value="-created_at">الأحدث</option>
+                    <option value="popular">الأكثر شعبية</option>
+                    <option value="price">السعر: من الأقل للأعلى</option>
+                    <option value="-price">السعر: من الأعلى للأقل</option>
                   </select>
                 </div>
 
-                {PRODUCTS.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-                    {PRODUCTS.map((prod) => (
-                      <ProductCard key={prod.id} product={prod} />
-                    ))}
-                  </div>
+                {productsLoading ? (
+                  <LoadingState className="min-h-50" />
+                ) : productsError ? (
+                  <ErrorState error={productsErr as Error} onRetry={() => refetchProducts()} />
+                ) : products.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+                      {products.map((prod) => (
+                        <ProductCard key={prod.id} product={prod} />
+                      ))}
+                    </div>
+                    {productsData?.pagination && (
+                      <PaginationBar
+                        pagination={productsData.pagination}
+                        page={page}
+                        onPageChange={setPage}
+                        className="mt-10"
+                      />
+                    )}
+                  </>
                 ) : (
                   <div className="text-center py-20 bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm">
                     <LayoutGrid className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -292,10 +303,7 @@ export default function StorePage() {
               <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
                 <h2 className="text-xl font-bold text-diyar-dark mb-4">نبذة عن المتجر</h2>
                 <p className="text-gray-600 leading-relaxed mb-8">
-                  تأسست "الروائع للأثاث" في عام 2022 بهدف تقديم قطع أثاث فريدة تجمع بين أصالة
-                  التصميم الكلاسيكي وعملية التصميم العصري. نحن نؤمن بأن الأثاث ليس مجرد قطع خشبية
-                  ومعدنية، بل هو روح المكان التي تعكس شخصية أصحابه. نقدم تشكيلة واسعة من غرف النوم،
-                  الصالونات، والمكاتب المنزلية المصنوعة من أجود أنواع الأخشاب والأقمشة العالمية.
+                  {vendor.description ?? 'متجر معتمد على منصة ديار.'}
                 </p>
 
                 <h3 className="font-bold text-lg text-diyar-dark mb-4">أوقات العمل</h3>
@@ -322,17 +330,13 @@ export default function StorePage() {
                 <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                     <div className="text-center md:border-l md:border-gray-150 py-2">
-                      <p className="text-5xl font-extrabold text-diyar-dark mb-2">
-                        {STORE_INFO.rating}
-                      </p>
+                      <p className="text-5xl font-extrabold text-diyar-dark mb-2">—</p>
                       <div className="flex justify-center gap-1 text-amber-400 mb-2">
                         {[...Array(5)].map((_, i) => (
                           <Star key={i} size={18} fill="currentColor" />
                         ))}
                       </div>
-                      <p className="text-gray-500 text-xs">
-                        تقييم عام بناءً على {STORE_INFO.reviews} رأي
-                      </p>
+                      <p className="text-gray-500 text-xs">تقييمات المتجر قريباً</p>
                     </div>
 
                     <div className="col-span-2 space-y-2">
@@ -348,7 +352,7 @@ export default function StorePage() {
                             {item.stars}
                           </span>
                           <Star size={12} className="text-amber-400 fill-amber-400 shrink-0" />
-                          <div className="flex-grow bg-gray-100 h-2 rounded-full overflow-hidden">
+                          <div className="grow bg-gray-100 h-2 rounded-full overflow-hidden">
                             <div
                               className="bg-amber-400 h-full rounded-full"
                               style={{ width: `${item.pct}%` }}
@@ -429,7 +433,7 @@ export default function StorePage() {
       </div>
       {/* Gallery Modal */}
       {isGalleryOpen && (
-        <div className="fixed inset-0 bg-black/95 z-[200] flex flex-col justify-center animate-in fade-in duration-300 p-4">
+        <div className="fixed inset-0 bg-black/95 z-200 flex flex-col justify-center animate-in fade-in duration-300 p-4">
           <button
             onClick={() => setIsGalleryOpen(false)}
             className="absolute top-6 right-6 text-white hover:text-gray-300 transition z-10 bg-white/10 backdrop-blur-md p-2 rounded-full"
@@ -438,9 +442,9 @@ export default function StorePage() {
           </button>
 
           <div className="relative w-full max-w-5xl mx-auto">
-            <div className="aspect-[4/3] md:aspect-video rounded-2xl overflow-hidden shadow-2xl relative bg-black flex items-center justify-center">
+            <div className="aspect-4/3 md:aspect-video rounded-2xl overflow-hidden shadow-2xl relative bg-black flex items-center justify-center">
               <img
-                src={STORE_INFO.cover}
+                src={coverUrl}
                 alt="Store Cover"
                 className="max-w-full max-h-full object-contain"
                 referrerPolicy="no-referrer"
@@ -456,7 +460,3 @@ export default function StorePage() {
     </div>
   );
 }
-
-// Reuse icon
-import { X as XIcon } from 'lucide-react';
-const X = XIcon;

@@ -142,3 +142,54 @@
 .article-content li {
   margin-bottom: 0.5rem;
 }
+
+/* SweetAlert2 — Diyar theme */
+.swal2-container {
+  backdrop-filter: blur(4px);
+}
+.swal2-popup.diyar-swal {
+  border-radius: 1.25rem !important;
+  border: 1px solid rgba(148, 121, 97, 0.15) !important;
+  box-shadow: 0 24px 48px rgba(31, 61, 58, 0.12) !important;
+  padding: 1.75rem 1.5rem 1.5rem !important;
+  font-family: 'Alexandria', 'Tajawal', sans-serif !important;
+}
+.swal2-popup.diyar-swal .swal2-title {
+  color: #1f3d3a !important;
+  font-weight: 700 !important;
+  font-size: 1.125rem !important;
+}
+.swal2-popup.diyar-swal .swal2-html-container,
+.swal2-popup.diyar-swal .swal2-content {
+  color: #6b7280 !important;
+  font-size: 0.875rem !important;
+  line-height: 1.6 !important;
+}
+.swal2-popup.diyar-swal .swal2-icon {
+  margin: 0.5rem auto 1rem !important;
+  transform: scale(0.85);
+}
+.swal2-popup.diyar-swal .swal2-actions {
+  gap: 0.5rem !important;
+  margin-top: 1.25rem !important;
+}
+.swal2-popup.diyar-swal .swal2-confirm,
+.swal2-popup.diyar-swal .swal2-cancel {
+  border-radius: 0.75rem !important;
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  padding: 0.625rem 1.25rem !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+}
+.swal2-popup.diyar-swal .swal2-input {
+  border-radius: 0.75rem !important;
+  border-color: #e5e7eb !important;
+  font-size: 0.875rem !important;
+  direction: ltr;
+  text-align: left;
+}
+.swal2-popup.diyar-swal.swal2-toast {
+  padding: 0.75rem 1rem !important;
+  box-shadow: 0 8px 24px rgba(31, 61, 58, 0.1) !important;
+}

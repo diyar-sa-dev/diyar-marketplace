@@ -1,10 +1,19 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\Catalog\CategoryController;
+use App\Http\Controllers\Api\V1\Catalog\ProductController;
+use App\Http\Controllers\Api\V1\Catalog\ProductEngagementController;
+use App\Http\Controllers\Api\V1\Catalog\SearchController;
+use App\Http\Controllers\Api\V1\Catalog\VendorController;
+use App\Http\Controllers\Api\V1\Dashboard\VendorInventoryController;
+use App\Http\Controllers\Api\V1\Dashboard\VendorProductController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Identity\OwnershipController;
 use App\Http\Controllers\Api\V1\Profile\AddressController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
+use App\Http\Controllers\Api\V1\Profile\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,6 +26,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/health', HealthController::class)->name('api.v1.health');
+
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{slug}', [CategoryController::class, 'show']);
+Route::get('/categories/{slug}/items', [CategoryController::class, 'items']);
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
+Route::get('/products/{id}/reviews', [ProductEngagementController::class, 'reviews']);
+Route::get('/search', SearchController::class);
+Route::get('/vendors', [VendorController::class, 'index']);
+Route::get('/vendors/{slug}', [VendorController::class, 'show']);
+Route::get('/vendors/{slug}/products', [VendorController::class, 'products']);
 
 Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:otp');
@@ -60,5 +80,33 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::patch('/addresses/{address}', [AddressController::class, 'update']);
         Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
         Route::post('/addresses/{address}/default', [AddressController::class, 'setDefault']);
+
+        Route::get('/wishlist', [WishlistController::class, 'index']);
+        Route::delete('/wishlist', [WishlistController::class, 'clear']);
+    });
+
+    Route::post('/products/{id}/reviews', [ProductEngagementController::class, 'storeReview']);
+    Route::patch('/products/{id}/reviews', [ProductEngagementController::class, 'updateReview']);
+    Route::delete('/products/{id}/reviews', [ProductEngagementController::class, 'destroyReview']);
+    Route::post('/products/{id}/like', [ProductEngagementController::class, 'toggleLike']);
+    Route::post('/products/{id}/wishlist', [ProductEngagementController::class, 'toggleWishlist']);
+
+    Route::middleware('role:vendor,admin')->prefix('dashboard/vendor')->group(function () {
+        Route::get('/products', [VendorProductController::class, 'index']);
+        Route::post('/products', [VendorProductController::class, 'store']);
+        Route::get('/products/{product}', [VendorProductController::class, 'show']);
+        Route::patch('/products/{product}', [VendorProductController::class, 'update']);
+        Route::delete('/products/{product}', [VendorProductController::class, 'destroy']);
+        Route::post('/products/{product}/images', [VendorProductController::class, 'addImages']);
+        Route::delete('/products/{product}/images/{image}', [VendorProductController::class, 'deleteImage']);
+        Route::patch('/inventory/{product}', [VendorInventoryController::class, 'adjust']);
+    });
+
+    Route::middleware('role:admin')->prefix('admin')->group(function () {
+        Route::get('/categories', [AdminCategoryController::class, 'index']);
+        Route::post('/categories', [AdminCategoryController::class, 'store']);
+        Route::get('/categories/{category}', [AdminCategoryController::class, 'show']);
+        Route::patch('/categories/{category}', [AdminCategoryController::class, 'update']);
+        Route::delete('/categories/{category}', [AdminCategoryController::class, 'destroy']);
     });
 });

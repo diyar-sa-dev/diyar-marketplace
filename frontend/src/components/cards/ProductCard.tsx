@@ -1,188 +1,255 @@
-import React, { useState } from 'react';
-import { Bookmark, Star, Store, Award } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Bookmark, Store } from 'lucide-react';
 import { useCart } from '../../context/CartContext.tsx';
+import { useAuth } from '../../hooks/auth/useAuth.ts';
+import { useLocale } from '../../hooks/useLocale.ts';
+import { useProductEngagementMutations } from '../../hooks/catalog/useProductEngagement.ts';
+import { AuthPromptModal } from '../product/AuthPromptModal.tsx';
+import type { UiProductCard } from '../../lib/catalogMappers.ts';
+import { availabilityLabel, availabilityTone } from '../../lib/catalogMappers.ts';
 
-const ProductCard: React.FC<{ product: any; layout?: 'grid' | 'list' }> = ({
+const PLACEHOLDER =
+  'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=60&w=400';
+
+type CardInput = Omit<Partial<UiProductCard>, 'id' | 'price'> & {
+  id?: string | number;
+  store?: string;
+  originalPrice?: number;
+  oldPrice?: number;
+  price?: number | string;
+  img?: string;
+  rating?: number;
+  reviews?: number;
+  tag?: string;
+};
+
+function normalizeProduct(product: CardInput): UiProductCard {
+  const price = Number(product.price ?? 0);
+  const oldPrice = product.oldPrice ?? product.originalPrice;
+
+  return {
+    id: String(product.id ?? ''),
+    name: String(product.name ?? ''),
+    img: String(product.img ?? PLACEHOLDER),
+    price,
+    oldPrice: oldPrice != null ? Number(oldPrice) : undefined,
+    discountPercent: product.discountPercent,
+    vendor: product.vendor ?? product.store,
+    store: product.store ?? product.vendor,
+    category: product.category,
+    availabilityMode: product.availabilityMode,
+    availableQuantity: product.availableQuantity,
+    userSaved: product.userSaved,
+  };
+}
+
+const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = ({
   product,
   layout = 'grid',
 }) => {
-  const [isSaved, setIsSaved] = useState(false);
+  const item = normalizeProduct(product);
+  const { t } = useLocale();
+  const { isAuthenticated } = useAuth();
   const { addItem } = useCart();
+  const { wishlist } = useProductEngagementMutations(item.id || undefined);
+
+  const [isSaved, setIsSaved] = useState(Boolean(item.userSaved));
+  const [authOpen, setAuthOpen] = useState(false);
+
+  const mode = item.availabilityMode ?? 'in_stock';
+  const availableQty = item.availableQuantity ?? 0;
+  const stockTone = availabilityTone(mode, availableQty);
+
+  const availabilityLabels = useMemo(
+    () => ({
+      preorder: t('catalog.product.preorder'),
+      outOfStock: t('catalog.product.unavailable'),
+      limited: t('catalog.product.limitedStock'),
+      inStock: t('catalog.product.inStock'),
+    }),
+    [t],
+  );
+
+  const availability = availabilityLabel(mode, availableQty, availabilityLabels);
+  const canPurchase =
+    mode === 'preorder' || (mode === 'in_stock' && availableQty > 0);
+
+  const availabilityDetail =
+    stockTone === 'limited' && availableQty > 0
+      ? t('catalog.product.stockRemaining', { count: availableQty })
+      : availability;
+
+  const cartLabel =
+    mode === 'preorder'
+      ? t('catalog.product.preorder')
+      : canPurchase
+        ? t('catalog.product.addToCart')
+        : t('catalog.product.unavailable');
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setIsSaved(Boolean(item.userSaved));
+    } else {
+      setIsSaved(false);
+    }
+  }, [isAuthenticated, item.userSaved, item.id]);
+
   const addToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!canPurchase) {
+      return;
+    }
     addItem({
       type: 'product',
-      name: product.name,
-      vendor: product.vendor || product.store,
-      price: product.price,
-      img: product.img,
+      name: item.name,
+      vendor: item.vendor || item.store,
+      price: item.price,
+      img: item.img,
     });
   };
 
-  if (layout === 'list') {
-    return (
-      <Link to={`/product/${product?.id || '1'}`} className="block w-full group">
-        <div className="border border-gray-100 shadow-sm rounded-lg overflow-hidden group transition-all duration-300 hover:shadow-md bg-white relative flex flex-row h-32 sm:h-36 md:h-40">
-          <div className="relative w-1/3 min-w-[110px] sm:min-w-[130px] md:min-w-[150px] h-full overflow-hidden shrink-0">
-            <img
-              src={product.img}
-              alt={product.name}
-              referrerPolicy="no-referrer"
-              className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src =
-                  'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=60&w=400';
-              }}
-            />
-            <Bookmark
-              className={`absolute top-2 right-2 cursor-pointer bg-white/80 backdrop-blur-md p-1.5 rounded-full w-7 h-7 shadow-sm transition-all z-10 ${isSaved ? 'text-diyar-brown fill-diyar-brown' : 'text-gray-500 hover:text-diyar-brown hover:scale-110'}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsSaved(!isSaved);
-              }}
-            />
-            <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-0.5 text-[9px] font-bold rounded shadow-sm z-10">
-              تخفيض 20%
-            </span>
-          </div>
+  const handleSave = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      setAuthOpen(true);
+      return;
+    }
+    void wishlist.mutateAsync().then((result) => {
+      setIsSaved(result.saved);
+    });
+  };
 
-          <div className="flex flex-col flex-grow p-2.5 sm:p-4 justify-between h-full">
-            <div>
-              <div className="flex items-center gap-1 text-gray-500 text-[9px] sm:text-xs mb-0.5 font-medium">
-                <Store size={11} className="text-diyar-brown" />
-                <span>{product.vendor || product.store}</span>
-              </div>
+  const badge =
+    mode === 'preorder'
+      ? t('catalog.product.preorder')
+      : mode === 'out_of_stock' || availableQty === 0
+        ? t('catalog.product.unavailable')
+        : item.discountPercent
+          ? t('catalog.product.discount', { percent: item.discountPercent })
+          : null;
 
-              <h3 className="font-bold text-xs sm:text-base mb-1 line-clamp-1 sm:line-clamp-2 text-diyar-dark leading-snug">
-                {product.name}
-              </h3>
+  const cardInner = (
+    <>
+      <div
+        className={`relative overflow-hidden shrink-0 ${layout === 'list' ? 'w-1/3 min-w-27.5 sm:min-w-32.5 md:min-w-37.5 h-full' : 'mb-2 aspect-4/3 md:h-40'}`}
+      >
+        <img
+          src={item.img}
+          alt={item.name}
+          referrerPolicy="no-referrer"
+          className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = PLACEHOLDER;
+          }}
+        />
+        <button
+          type="button"
+          aria-label={t('catalog.productDetail.save')}
+          className={`absolute top-2 right-2 cursor-pointer bg-white/80 backdrop-blur-md p-1.5 rounded-full w-7 h-7 shadow-sm transition-all z-10 flex items-center justify-center ${
+            isSaved ? 'text-diyar-brown' : 'text-gray-500 hover:text-diyar-brown'
+          }`}
+          onClick={handleSave}
+        >
+          <Bookmark size={16} fill={isSaved ? 'currentColor' : 'none'} />
+        </button>
+        {badge && (
+          <span
+            className={`absolute top-2 left-2 px-2 py-0.5 text-[9px] font-bold rounded shadow-sm z-10 ${
+              mode === 'out_of_stock' || availableQty === 0
+                ? 'bg-gray-700 text-white'
+                : mode === 'preorder'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-red-500 text-white'
+            }`}
+          >
+            {badge}
+          </span>
+        )}
+      </div>
 
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 mb-1">
-                <div className="flex gap-0.5 text-yellow-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={9}
-                      fill={i < 4 ? 'currentColor' : 'none'}
-                      strokeWidth={i < 4 ? 0 : 2}
-                    />
-                  ))}
-                  <span className="text-gray-400 text-[9px] mr-1">({product.reviews || 24})</span>
-                </div>
-                <div className="flex items-center gap-1 text-diyar-brown text-[8px] sm:text-[9px] bg-diyar-cream/60 px-1.5 py-0.5 rounded-lg font-medium">
-                  <Award size={9} />
-                  <span>+50 نقطة</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-baseline gap-2 mb-1">
-              <span className="font-bold text-sm sm:text-lg text-diyar-dark">
-                {product.price} <span className="text-xs font-medium text-gray-400">ر.س</span>
-              </span>
-              {(product.oldPrice || product.originalPrice) && (
-                <span className="text-gray-400 line-through text-[9px] sm:text-xs">
-                  {product.oldPrice || product.originalPrice} ر.س
-                </span>
-              )}
-            </div>
-
-            <div className="flex justify-end mt-1">
-              <button
-                className="bg-gray-50 text-diyar-dark border border-gray-200 rounded-lg sm:rounded-lg py-1 px-3 sm:py-1.5 sm:px-5 font-bold text-[10px] sm:text-xs transition-all hover:bg-diyar-brown hover:text-white hover:border-diyar-dark flex items-center justify-center gap-1 z-10 relative"
-                onClick={addToCart}
-              >
-                أضف للسلة
-              </button>
-            </div>
-          </div>
+      <div
+        className={`flex flex-col grow ${layout === 'list' ? 'p-2.5 sm:p-4 justify-between h-full' : 'px-3.5 pb-3.5'}`}
+      >
+        <div className="flex items-center gap-1 text-gray-400 text-[10px] mb-1 font-medium">
+          <Store size={12} className="text-diyar-brown shrink-0" />
+          <span className="truncate">{item.vendor || item.store || t('catalog.product.defaultStore')}</span>
         </div>
-      </Link>
+        <h3
+          className={`font-bold text-diyar-dark leading-snug ${layout === 'list' ? 'text-xs sm:text-base mb-1 line-clamp-1 sm:line-clamp-2' : 'text-sm md:text-base mb-1.5 line-clamp-2'}`}
+        >
+          {item.name}
+        </h3>
+        <p
+          className={`text-[10px] mb-2 tabular-nums ${
+            stockTone === 'out'
+              ? 'text-red-500 font-medium'
+              : stockTone === 'limited'
+                ? 'text-orange-500 font-medium'
+                : stockTone === 'preorder'
+                  ? 'text-purple-600 font-medium'
+                  : 'text-green-600 font-medium'
+          }`}
+        >
+          {availabilityDetail}
+        </p>
+        <div className={`flex items-baseline gap-2 ${layout === 'list' ? 'mb-1' : 'mb-3'}`}>
+          <span
+            className={`font-bold text-diyar-dark tabular-nums ${layout === 'list' ? 'text-sm sm:text-lg' : 'text-lg'}`}
+          >
+            {item.price}{' '}
+            <span className="text-xs font-medium text-gray-400">{t('vendor.products.table.currency')}</span>
+          </span>
+          {item.oldPrice && (
+            <span className="text-gray-400 line-through text-[10px] tabular-nums">
+              {item.oldPrice} {t('vendor.products.table.currency')}
+            </span>
+          )}
+        </div>
+        <button
+          type="button"
+          disabled={!canPurchase}
+          className={`${layout === 'list' ? 'self-end py-1 px-3 text-[10px] sm:text-xs' : 'w-full py-1.5 text-xs'} rounded-lg font-bold border transition-all z-10 relative cursor-pointer ${
+            canPurchase
+              ? 'bg-gray-50 text-diyar-dark border-gray-200 hover:bg-diyar-brown hover:text-white hover:border-diyar-dark'
+              : 'bg-gray-100 text-gray-400 border-gray-100 cursor-not-allowed'
+          }`}
+          onClick={addToCart}
+        >
+          {cartLabel}
+        </button>
+      </div>
+    </>
+  );
+
+  const cardBody =
+    layout === 'list' ? (
+      <div className="border border-gray-100 shadow-sm rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md bg-white relative flex flex-row h-32 sm:h-36 md:h-40">
+        {cardInner}
+      </div>
+    ) : (
+      <div className="border border-gray-100 shadow-sm rounded-lg overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-md bg-white relative flex flex-col h-full">
+        {cardInner}
+      </div>
     );
-  }
 
   return (
-    <Link to={`/product/${product?.id || '1'}`} className="block h-full group">
-      <div className="border border-gray-100 shadow-sm rounded-lg overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-md bg-white relative flex flex-col h-full">
-        <div className="relative mb-2 aspect-[4/3] md:h-40 overflow-hidden">
-          <img
-            src={product.img}
-            alt={product.name}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src =
-                'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=60&w=400';
-            }}
-          />
-          <Bookmark
-            className={`absolute top-2 right-2 cursor-pointer bg-white/80 backdrop-blur-md p-1.5 rounded-full w-7 h-7 shadow-sm transition-all z-10 ${isSaved ? 'text-diyar-brown fill-diyar-brown' : 'text-gray-500 hover:text-diyar-brown hover:scale-110'}`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsSaved(!isSaved);
-            }}
-          />
-          <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-0.5 text-[9px] font-bold rounded shadow-sm z-10">
-            تخفيض 20%
-          </span>
-        </div>
+    <>
+      <Link
+        to={`/product/${item.id}`}
+        className={layout === 'list' ? 'block w-full group' : 'block h-full group'}
+      >
+        {cardBody}
+      </Link>
 
-        <div className="flex flex-col flex-grow px-3.5 pb-3.5">
-          <div className="flex items-center gap-1 text-gray-400 text-[10px] mb-1 font-medium">
-            <Store size={12} className="text-diyar-brown shrink-0" />
-            <span className="truncate">{product.vendor || product.store}</span>
-          </div>
-
-          <h3 className="font-bold text-sm md:text-base mb-1.5 line-clamp-2 text-diyar-dark leading-snug">
-            {product.name}
-          </h3>
-
-          <div className="flex flex-wrap items-center justify-between gap-y-1 mb-2 mt-auto">
-            <div className="flex gap-0.5 text-yellow-400">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  size={10}
-                  fill={i < 4 ? 'currentColor' : 'none'}
-                  strokeWidth={i < 4 ? 0 : 2}
-                />
-              ))}
-              <span className="text-gray-400 text-[9px] mr-1 mt-0.5">
-                ({product.reviews || 24})
-              </span>
-            </div>
-            <div className="flex items-center gap-1 text-diyar-brown text-[9px] bg-diyar-cream/60 px-1.5 py-0.5 rounded-lg font-medium">
-              <Award size={10} />
-              <span>+50 نقطة</span>
-            </div>
-          </div>
-
-          <div className="flex justify-start items-center gap-2 mb-3">
-            <span className="font-bold text-lg text-diyar-dark">
-              {product.price} <span className="text-xs font-medium text-gray-400">ر.س</span>
-            </span>
-            {(product.oldPrice || product.originalPrice) && (
-              <span className="text-gray-400 line-through text-[10px]">
-                {product.oldPrice || product.originalPrice} ر.س
-              </span>
-            )}
-          </div>
-          <button
-            className="w-full bg-gray-50 text-diyar-dark border border-gray-200 rounded-lg py-1.5 font-bold text-xs transition-all group-hover:bg-diyar-brown group-hover:text-white group-hover:border-diyar-dark flex items-center justify-center gap-1.5 mt-auto z-10 relative"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            أضف للسلة
-          </button>
-        </div>
-      </div>
-    </Link>
+      <AuthPromptModal
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+        message={t('catalog.product.saveAuthMessage')}
+      />
+    </>
   );
 };
 

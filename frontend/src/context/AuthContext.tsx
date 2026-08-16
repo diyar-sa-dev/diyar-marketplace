@@ -10,6 +10,9 @@ import {
 import * as authApi from '../api/auth.ts';
 import { registerUnauthorizedHandler } from '../lib/auth/sessionEvents.ts';
 import { resetCsrfCookie } from '../lib/csrf.ts';
+import { queryClient } from '../lib/queryClient.ts';
+import { productKeys } from '../hooks/catalog/queryKeys.ts';
+import { wishlistKeys } from '../hooks/profile/queryKeys.ts';
 import type {
   AuthActionResult,
   AuthState,
@@ -49,6 +52,12 @@ function hasSessionCookie(): boolean {
   return document.cookie.split(';').some((part) => part.trim().startsWith('laravel_session='));
 }
 
+function invalidateUserScopedQueries(): void {
+  void queryClient.invalidateQueries({ queryKey: productKeys.all });
+  void queryClient.invalidateQueries({ queryKey: ['product-reviews'] });
+  void queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [status, setStatus] = useState<AuthState>('loading');
@@ -58,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setStatus('unauthenticated');
     resetCsrfCookie();
+    invalidateUserScopedQueries();
   }, []);
 
   const refreshUser = useCallback(async (): Promise<AuthUser | null> => {
@@ -114,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const result = await authApi.login(payload);
           setUser(result.user);
           setStatus('authenticated');
+          invalidateUserScopedQueries();
           return result;
         }),
       register: (payload) => wrap(() => authApi.register(payload)),
@@ -122,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const result = await authApi.verifyOtp(payload);
           setUser(result.user);
           setStatus('authenticated');
+          invalidateUserScopedQueries();
           return result;
         }),
       resendOtp: (phone) => wrap(() => authApi.resendOtp(phone)),

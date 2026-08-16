@@ -1,6 +1,9 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../cards/ProductCard.tsx';
+import { useCategories, useProducts, useVendors } from '../../hooks/catalog/useCatalog.ts';
+import { isValidStoreSlug, storePath } from '../../lib/storePath.ts';
+import { mapProductCard } from '../../lib/catalogMappers.ts';
 import {
   Star,
   Quote,
@@ -54,145 +57,75 @@ function RailArrows({ scroller }: { scroller: React.RefObject<HTMLDivElement | n
 
 export function BestSellers() {
   const [tab, setTab] = useState(0);
-  const products = [
-    {
-      img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=400',
-      name: 'أريكة مخملية فاخرة',
-      vendor: 'مفروشات الرقي',
-      price: 2499,
-      oldPrice: 3200,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=400',
-      name: 'طقم صالون عصري',
-      vendor: 'الزاوية الحديثة',
-      price: 5800,
-      oldPrice: 7500,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1583847268964-b28ce8f30e9b?auto=format&fit=crop&q=80&w=400',
-      name: 'طاولة خشب طبيعي',
-      vendor: 'روائع الخشب',
-      price: 1200,
-      oldPrice: 1600,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&q=80&w=400',
-      name: 'سرير كينج ملكي',
-      vendor: 'أناقة المنزل',
-      price: 4200,
-      oldPrice: 5500,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=400',
-      name: 'خزانة ملابس مبتكرة',
-      vendor: 'بيت التصميم',
-      price: 3100,
-      oldPrice: 4000,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=400',
-      name: 'مكتب عمل مريح',
-      vendor: 'ركن المكاتب',
-      price: 850,
-      oldPrice: 1100,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format&fit=crop&q=80&w=400',
-      name: 'كرسي استرخاء',
-      vendor: 'زاوية الراحة',
-      price: 1450,
-      oldPrice: 1900,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1560606177-063fb90494f4?auto=format&fit=crop&q=80&w=400',
-      name: 'طقم طعام كلاسيك',
-      vendor: 'مفروشات الرقي',
-      price: 9200,
-      oldPrice: 12000,
-    },
-  ];
+  const tabs = [
+    { label: 'الكل', category_slug: undefined },
+    { label: 'غرف النوم', category_slug: 'bedroom' },
+    { label: 'الصالونات', category_slug: 'living-room' },
+    { label: 'المطابخ', category_slug: 'kitchen' },
+  ] as const;
+  const active = tabs[tab] ?? tabs[0];
+  const { data, isLoading } = useProducts({
+    per_page: 8,
+    sort: '-popular',
+    category_slug: active.category_slug,
+  });
+  const products = data?.items.map(mapProductCard) ?? [];
   return (
     <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
-      <h2 className="text-xl md:text-3xl font-sans font-bold mb-4 md:mb-8 text-center">
-        الأعلى مبيعاً
-      </h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 md:mb-8">
+        <h2 className="text-xl md:text-3xl font-sans font-bold text-center sm:text-start">
+          الأعلى مبيعاً
+        </h2>
+        <Link
+          to="/category/all?sort=-popular"
+          className="text-diyar-brown text-sm font-bold hover:text-diyar-dark transition self-center cursor-pointer"
+        >
+          عرض الكل
+        </Link>
+      </div>
       <div className="flex gap-2 md:gap-4 mb-6 md:mb-8 overflow-x-auto scrollbar-hide snap-x justify-start md:justify-center">
-        {['الكل', 'المنصة', 'غرف النوم', 'الصالونات', 'المطابخ'].map((t, i) => (
+        {tabs.map((t, i) => (
           <button
-            key={i}
+            key={t.label}
             onClick={() => setTab(i)}
-            className={`px-4 md:px-6 py-2 rounded-full transition whitespace-nowrap snap-start text-sm md:text-base ${tab === i ? 'bg-diyar-brown text-white shadow-md' : 'bg-diyar-cream text-diyar-dark hover:bg-diyar-brown/20'}`}
+            className={`px-4 md:px-6 py-2 rounded-full transition whitespace-nowrap snap-start text-sm md:text-base cursor-pointer ${tab === i ? 'bg-diyar-brown text-white shadow-md' : 'bg-diyar-cream text-diyar-dark hover:bg-diyar-brown/20'}`}
           >
-            {t}
+            {t.label}
           </button>
         ))}
       </div>
       <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
-        {products.map((p, i) => (
-          <div key={i} className="w-[200px] md:w-auto flex-shrink-0 snap-start">
-            <ProductCard product={p} />
-          </div>
-        ))}
+        {isLoading
+          ? [...Array(5)].map((_, i) => (
+              <div key={i} className="w-50 md:w-auto shrink-0 snap-start">
+                <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+              </div>
+            ))
+          : products.map((p) => (
+              <div key={p.id} className="w-50 md:w-auto shrink-0 snap-start">
+                <ProductCard product={p} />
+              </div>
+            ))}
       </div>
     </div>
   );
 }
 
 export function NewArrivals() {
-  const products = [
-    {
-      img: 'https://images.unsplash.com/photo-1567016376408-0226e4d0c1ea?auto=format&fit=crop&q=80&w=400',
-      name: 'مصباح أرضي مودرن',
-      vendor: 'إضاءات دبي',
-      price: 350,
-      oldPrice: 480,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1618220179428-22790b46a013?auto=format&fit=crop&q=80&w=400',
-      name: 'طاولة جانبية رخام',
-      vendor: 'روائع الخشب',
-      price: 720,
-      oldPrice: 950,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1598300042247-d317bd127e7b?auto=format&fit=crop&q=80&w=400',
-      name: 'وحدة تخزين خشبية',
-      vendor: 'بيت التصميم',
-      price: 1850,
-      oldPrice: 2400,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=400',
-      name: 'مرآة حائط كلاسيك',
-      vendor: 'أناقة المنزل',
-      price: 540,
-      oldPrice: 700,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=400',
-      name: 'طقم سجاد يدوي',
-      vendor: 'سجاد الشرق',
-      price: 2100,
-      oldPrice: 2800,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&q=80&w=400',
-      name: 'لوحة جدارية فنية',
-      vendor: 'لمسات فنية',
-      price: 120,
-      oldPrice: 200,
-    },
-  ];
+  const { data, isLoading } = useProducts({ per_page: 6, sort: '-created_at' });
+  const products = data?.items.map(mapProductCard) ?? [];
   const railRef = useRef<HTMLDivElement>(null);
   return (
     <div className="bg-diyar-cream/30 py-4 md:py-6">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center mb-6 md:mb-8">
           <h2 className="text-xl md:text-4xl font-sans font-bold">وصل حديثاً</h2>
-          <button className="text-diyar-brown text-sm md:text-base font-semibold flex items-center gap-1 md:gap-2 hover:text-diyar-dark transition">
-            عرض الكل <ArrowLeft size={16} className="md:w-[18px] md:h-[18px]" />
-          </button>
+          <Link
+            to="/category/all?sort=-created_at"
+            className="text-diyar-brown text-sm md:text-base font-semibold flex items-center gap-1 md:gap-2 hover:text-diyar-dark transition cursor-pointer"
+          >
+            عرض الكل <ArrowLeft size={16} className="md:w-4.5 md:h-4.5" />
+          </Link>
         </div>
         <div className="relative">
           <RailArrows scroller={railRef} />
@@ -200,11 +133,17 @@ export function NewArrivals() {
             ref={railRef}
             className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6"
           >
-            {products.map((p, i) => (
-              <div className="w-[200px] md:w-[230px] shrink-0 snap-start" key={i}>
-                <ProductCard product={p} />
-              </div>
-            ))}
+            {isLoading
+              ? [...Array(4)].map((_, i) => (
+                  <div key={i} className="w-50 md:w-57.5 shrink-0 snap-start">
+                    <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+                  </div>
+                ))
+              : products.map((p) => (
+                  <div className="w-50 md:w-57.5 shrink-0 snap-start" key={p.id}>
+                    <ProductCard product={p} />
+                  </div>
+                ))}
           </div>
         </div>
       </div>
@@ -213,55 +152,32 @@ export function NewArrivals() {
 }
 
 export function SuggestedForYou() {
-  const products = [
-    {
-      img: 'https://images.unsplash.com/photo-1519947486511-46149fa0a254?auto=format&fit=crop&q=80&w=400',
-      name: 'أريكة استرخاء مخمل',
-      vendor: 'زاوية الراحة',
-      price: 3400,
-      oldPrice: 4200,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format&fit=crop&q=80&w=400',
-      name: 'طاولة وسط ذهبية',
-      vendor: 'الزاوية الحديثة',
-      price: 890,
-      oldPrice: 1200,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1616627547584-bf28cee262db?auto=format&fit=crop&q=80&w=400',
-      name: 'كرسي طعام جلدي',
-      vendor: 'مفروشات الرقي',
-      price: 450,
-      oldPrice: 600,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1449247709967-d4461a6a6103?auto=format&fit=crop&q=80&w=400',
-      name: 'مكتب دراسة أطفال',
-      vendor: 'بيت التصميم',
-      price: 1100,
-      oldPrice: 1500,
-    },
-    {
-      img: 'https://images.unsplash.com/photo-1583847268964-b28ce8f30e9b?auto=format&fit=crop&q=80&w=400',
-      name: 'طاولة جانبية خشبية',
-      vendor: 'روائع الخشب',
-      price: 350,
-      oldPrice: 480,
-    },
-  ];
+  const { data, isLoading } = useProducts({ per_page: 5, sort: '-popular' });
+  const products = data?.items.map(mapProductCard) ?? [];
   return (
     <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
       <div className="text-center mb-6 md:mb-8">
         <span className="text-diyar-brown text-sm font-medium mb-2 block">بناءً على تصفحك</span>
         <h2 className="text-2xl md:text-3xl font-sans font-bold">مقترح لك</h2>
+        <Link
+          to="/category/all?sort=-popular"
+          className="inline-block mt-3 text-diyar-brown text-sm font-bold hover:text-diyar-dark transition cursor-pointer"
+        >
+          استكشف المزيد
+        </Link>
       </div>
       <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
-        {products.map((p, i) => (
-          <div key={i} className="w-[200px] md:w-auto flex-shrink-0 snap-start">
-            <ProductCard product={p} />
-          </div>
-        ))}
+        {isLoading
+          ? [...Array(5)].map((_, i) => (
+              <div key={i} className="w-50 md:w-auto shrink-0 snap-start">
+                <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+              </div>
+            ))
+          : products.map((p) => (
+              <div key={p.id} className="w-50 md:w-auto shrink-0 snap-start">
+                <ProductCard product={p} />
+              </div>
+            ))}
       </div>
     </div>
   );
@@ -295,9 +211,9 @@ export function Reviews() {
           {reviews.map((r, i) => (
             <div
               key={i}
-              className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 relative min-w-[280px] md:min-w-0 snap-start flex-shrink-0 flex flex-col"
+              className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 relative min-w-70 md:min-w-0 snap-start shrink-0 flex flex-col"
             >
-              <Quote className="absolute top-6 right-6 text-diyar-cream w-8 md:w-12 h-8 md:h-12 opacity-50 -z-0" />
+              <Quote className="absolute top-6 right-6 text-diyar-cream w-8 md:w-12 h-8 md:h-12 opacity-50 z-0" />
               <div className="relative z-10 flex flex-col h-full">
                 <div className="flex gap-1 text-yellow-500 mb-4">
                   {[...Array(5)].map((_, i) => (
@@ -384,11 +300,11 @@ export function StyleFilter() {
           تسوق حسب الأسلوب
         </h2>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:gap-5 md:h-[600px]">
+      <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:gap-5 md:h-150">
         {styles.map((s, i) => (
           <div
             key={i}
-            className={`rounded-xl md:rounded-xl overflow-hidden relative group cursor-pointer flex flex-col justify-end ${
+            className={`rounded-xl overflow-hidden relative group cursor-pointer flex flex-col justify-end ${
               i === 0
                 ? 'md:col-span-2 md:row-span-2 h-80 md:h-full'
                 : 'md:col-span-1 md:row-span-1 h-56 md:h-full'
@@ -404,7 +320,7 @@ export function StyleFilter() {
                   'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=60&w=800';
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-diyar-dark/90 via-diyar-dark/20 to-transparent"></div>
+            <div className="absolute inset-0 bg-linear-to-t from-diyar-dark/90 via-diyar-dark/20 to-transparent"></div>
             <div className="relative z-10 p-6 md:p-8 transform transition-transform duration-500 md:translate-y-4 group-hover:translate-y-0">
               <span className="block font-sans font-bold text-xl md:text-3xl text-white mb-2">
                 {s.name}
@@ -424,9 +340,9 @@ export function AIBanner() {
   return (
     <div className="bg-[#132624] text-white py-8 md:py-12 my-8 md:my-10 mx-4 md:mx-auto relative overflow-hidden rounded-3xl max-w-7xl shadow-md">
       {/* Decorative background elements */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
-      <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-[#947961]/20 rounded-full blur-[130px] -translate-y-1/2 translate-x-1/3"></div>
-      <div className="absolute bottom-0 left-0 w-[30rem] h-[30rem] bg-[#1a4a42]/30 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-size-[4rem_4rem]"></div>
+      <div className="absolute top-0 right-0 w-160 h-160 bg-diyar-brown/20 rounded-full blur-[130px] -translate-y-1/2 translate-x-1/3"></div>
+      <div className="absolute bottom-0 left-0 w-120 h-120 bg-[#1a4a42]/30 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3"></div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-8 lg:gap-12 relative z-10">
         <div className="w-full md:w-1/2 text-center md:text-right order-2 md:order-1">
@@ -434,9 +350,9 @@ export function AIBanner() {
             <Sparkles size={16} className="animate-pulse" />
             <span>تقنية المساعد الشخصي من ديار</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-sans font-bold mb-6 text-[#f3ecdb] leading-[1.4]">
+          <h2 className="text-3xl md:text-5xl font-sans font-bold mb-6 text-diyar-cream leading-[1.4]">
             المستقبل هنا. <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-l from-[#d2b694] to-white">
+            <span className="text-transparent bg-clip-text bg-linear-to-l from-[#d2b694] to-white">
               صمم غرفتك بلمسة خيال!
             </span>
           </h2>
@@ -446,7 +362,7 @@ export function AIBanner() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
-            <button className="flex items-center justify-center gap-3 bg-[#947961] text-white px-8 py-4 rounded-lg hover:bg-[#7a6450] hover:scale-105 transition-all duration-300 text-lg shadow-md font-bold group border border-[#947961]/50 w-full sm:w-auto">
+            <button className="flex items-center justify-center gap-3 bg-diyar-brown text-white px-8 py-4 rounded-lg hover:bg-[#7a6450] hover:scale-105 transition-all duration-300 text-lg shadow-md font-bold group border border-diyar-brown/50 w-full sm:w-auto">
               <UploadCloud className="group-hover:-translate-y-1 transition-transform" />
               <span>جرب غرفتك الآن</span>
             </button>
@@ -457,12 +373,12 @@ export function AIBanner() {
         </div>
 
         <div className="w-full md:w-1/2 order-1 md:order-2 flex justify-center">
-          <div className="relative w-full max-w-lg aspect-[4/3] bg-[#1a3330] rounded-xl overflow-hidden shadow-md border border-white/10 ring-1 ring-white/5 mx-auto">
+          <div className="relative w-full max-w-lg aspect-4/3 bg-[#1a3330] rounded-xl overflow-hidden shadow-md border border-white/10 ring-1 ring-white/5 mx-auto">
             {/* Before Image */}
             <img
               src="/before.png"
               alt="Empty Room Before"
-              className="absolute inset-0 w-full h-full object-cover filter grayscale-[20%] opacity-90"
+              className="absolute inset-0 w-full h-full object-cover filter grayscale-20 opacity-90"
             />
 
             {/* After Image and Clip */}
@@ -475,8 +391,8 @@ export function AIBanner() {
             </div>
 
             {/* Animated scanning line synced with clip path */}
-            <div className="absolute top-0 bottom-0 w-1 bg-[#d2b694] shadow-md animate-[scan-x_4s_ease-in-out_infinite] -ml-[2px] z-10 flex flex-col items-center justify-center">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-[#132624] border-2 border-[#d2b694] rounded-full shadow-md flex items-center justify-center -translate-x-[14px] md:-translate-x-[18px]">
+            <div className="absolute top-0 bottom-0 w-1 bg-[#d2b694] shadow-md animate-[scan-x_4s_ease-in-out_infinite] -ml-0.5 z-10 flex flex-col items-center justify-center">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-[#132624] border-2 border-[#d2b694] rounded-full shadow-md flex items-center justify-center -translate-x-3.5 md:-translate-x-4.5">
                 <Sparkles size={16} className="text-[#d2b694]" />
               </div>
             </div>
@@ -485,7 +401,7 @@ export function AIBanner() {
             <div className="absolute top-4 right-4 md:top-6 md:right-6 bg-black/50 border border-white/10 backdrop-blur-md px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-xs font-bold text-gray-300 shadow-md z-0">
               المساحة الأصلية
             </div>
-            <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 bg-gradient-to-r from-[#947961] to-[#7a6450] px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold text-white shadow-md z-20 flex items-center gap-2 border border-white/20">
+            <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 bg-linear-to-r from-diyar-brown to-[#7a6450] px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold text-white shadow-md z-20 flex items-center gap-2 border border-white/20">
               <Sparkles size={16} className="text-yellow-200" />
               ترتيب المساعد الشخصي
             </div>
@@ -499,10 +415,10 @@ export function AIBanner() {
 export function PartnerBanner() {
   return (
     <div className="max-w-7xl mx-auto px-4 my-8 md:my-12">
-      <div className="bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A] rounded-xl p-8 md:p-12 lg:p-16 relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8 shadow-md">
+      <div className="bg-linear-to-br from-[#1A1A1A] to-[#2A2A2A] rounded-xl p-8 md:p-12 lg:p-16 relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8 shadow-md">
         {/* Subtle decorative background elements */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-diyar-brown/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-diyar-cream/10 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/3"></div>
+        <div className="absolute top-0 right-0 w-150 h-150 bg-diyar-brown/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3"></div>
+        <div className="absolute bottom-0 left-0 w-100 h-100 bg-diyar-cream/10 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/3"></div>
 
         {/* Text and Actions Content */}
         <div className="w-full lg:translate-x-0 lg:w-1/2 relative z-10 text-center lg:text-right flex flex-col justify-center">
@@ -513,7 +429,7 @@ export function PartnerBanner() {
 
           <h2 className="text-3xl md:text-5xl font-sans font-bold text-white mb-6 leading-snug">
             انضم إلى مجتمع ديار <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-l from-[#d4b08c] to-yellow-500">
+            <span className="text-transparent bg-clip-text bg-linear-to-l from-[#d4b08c] to-yellow-500">
               وابدأ قصة نجاحك
             </span>
           </h2>
@@ -544,8 +460,8 @@ export function PartnerBanner() {
         {/* Bento Grid layout for cards */}
         <div className="w-full lg:w-1/2 relative z-10 flex flex-col gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[1.5rem] hover:bg-white/10 transition-all duration-300 group cursor-pointer relative overflow-hidden backdrop-blur-sm flex flex-col">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-diyar-brown/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2"></div>
+            <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl hover:bg-white/10 transition-all duration-300 group cursor-pointer relative overflow-hidden backdrop-blur-sm flex flex-col">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-diyar-brown/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
               <div className="w-14 h-14 bg-diyar-brown/20 border border-diyar-brown/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner">
                 <Briefcase className="text-diyar-cream" size={28} />
               </div>
@@ -559,8 +475,8 @@ export function PartnerBanner() {
               </div>
             </div>
 
-            <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[1.5rem] hover:bg-white/10 transition-all duration-300 group cursor-pointer relative overflow-hidden backdrop-blur-sm flex flex-col">
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-diyar-cream/10 rounded-full blur-[40px] translate-y-1/2 -translate-x-1/2"></div>
+            <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl hover:bg-white/10 transition-all duration-300 group cursor-pointer relative overflow-hidden backdrop-blur-sm flex flex-col">
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-diyar-cream/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
               <div className="w-14 h-14 bg-diyar-cream/20 border border-diyar-cream/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner">
                 <Paintbrush className="text-diyar-cream" size={28} />
               </div>
@@ -575,7 +491,7 @@ export function PartnerBanner() {
             </div>
           </div>
 
-          <div className="bg-diyar-brown/10 border border-diyar-brown/20 p-6 md:p-8 rounded-[1.5rem] hover:bg-diyar-brown/20 transition-all duration-300 group cursor-pointer flex flex-col sm:flex-row items-center gap-6 justify-between relative overflow-hidden backdrop-blur-sm">
+          <div className="bg-diyar-brown/10 border border-diyar-brown/20 p-6 md:p-8 rounded-3xl hover:bg-diyar-brown/20 transition-all duration-300 group cursor-pointer flex flex-col sm:flex-row items-center gap-6 justify-between relative overflow-hidden backdrop-blur-sm">
             <div className="relative z-10 text-center sm:text-right w-full sm:w-[60%] flex flex-col items-center sm:items-start">
               <h3 className="text-xl md:text-2xl font-bold text-white mb-3">لوحة تحكم متكاملة</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-6">
@@ -649,7 +565,7 @@ export function ShopByRoom() {
                   'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=600';
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-diyar-dark/80 via-black/20 to-transparent transition-opacity group-hover:from-diyar-dark/90"></div>
+            <div className="absolute inset-0 bg-linear-to-t from-diyar-dark/80 via-black/20 to-transparent transition-opacity group-hover:from-diyar-dark/90"></div>
             <div className="absolute bottom-4 md:bottom-6 left-4 md:left-6 right-4 md:right-6 text-white text-center">
               <h3 className="text-lg md:text-2xl font-bold font-sans mb-1 md:mb-2">{room.name}</h3>
               <span className="text-xs md:text-sm border border-white/40 px-3 md:px-4 py-1 md:py-1.5 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 inline-block">
@@ -664,44 +580,9 @@ export function ShopByRoom() {
 }
 
 export function FeaturedStores() {
-  const stores = [
-    {
-      name: 'مفروشات الرقي',
-      rating: 4.8,
-      products: 340,
-      logo: 'https://images.unsplash.com/photo-1544333346-64e4fe18274b?auto=format&fit=crop&q=80&w=200',
-    },
-    {
-      name: 'روائع الخشب',
-      rating: 4.9,
-      products: 120,
-      logo: 'https://images.unsplash.com/photo-1555529733-0e670560f7e1?auto=format&fit=crop&q=80&w=200',
-    },
-    {
-      name: 'الزاوية الحديثة',
-      rating: 4.7,
-      products: 890,
-      logo: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?auto=format&fit=crop&q=80&w=200',
-    },
-    {
-      name: 'أناقة المنزل',
-      rating: 4.6,
-      products: 45,
-      logo: 'https://images.unsplash.com/photo-1510511459019-5dee99c4bd16?auto=format&fit=crop&q=80&w=200',
-    },
-    {
-      name: 'لمسات فنية',
-      rating: 4.9,
-      products: 210,
-      logo: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=200',
-    },
-    {
-      name: 'بيت التصميم',
-      rating: 4.5,
-      products: 86,
-      logo: 'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=200',
-    },
-  ];
+  const { data, isLoading } = useVendors({ per_page: 6 });
+  const stores = data?.items ?? [];
+
   return (
     <div className="bg-gray-50 py-6 md:py-8">
       <div className="max-w-7xl mx-auto px-4">
@@ -712,43 +593,41 @@ export function FeaturedStores() {
               متاجر مميزة على ديار
             </h2>
           </div>
-          <button className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition">
+          <Link
+            to="/category/all"
+            className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition"
+          >
             عرض كل المتاجر <ArrowLeft size={18} />
-          </button>
+          </Link>
         </div>
         <div className="flex overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-6 gap-4 md:gap-4 pb-2 scrollbar-hide snap-x">
-          {stores.map((store, i) => (
+          {isLoading
+            ? [...Array(6)].map((_, i) => (
+                <div key={i} className="min-w-35 h-40 bg-white rounded-xl animate-pulse" />
+              ))
+            : stores.filter((store) => isValidStoreSlug(store.slug)).map((store) => (
             <Link
-              to={`/store/${i + 1}`}
-              key={i}
-              className="min-w-[140px] md:min-w-0 bg-white rounded-xl p-4 md:p-3 border border-gray-100 shadow-sm hover:shadow-md transition group text-center flex flex-col items-center shrink-0 snap-start"
+              to={storePath(store.slug)!}
+              key={store.id}
+              className="min-w-35 md:min-w-0 bg-white rounded-xl p-4 md:p-3 border border-gray-100 shadow-sm hover:shadow-md transition group text-center flex flex-col items-center shrink-0 snap-start"
             >
               <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gray-100 p-1 mb-3 overflow-hidden border border-gray-200">
                 <img
-                  src={store.logo}
-                  alt={store.name}
+                  src={
+                    store.logo_url ??
+                    'https://images.unsplash.com/photo-1555529733-0e670560f7e1?auto=format&fit=crop&q=60&w=200'
+                  }
+                  alt={store.store_name}
                   referrerPolicy="no-referrer"
                   className="w-full h-full rounded-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      'https://images.unsplash.com/photo-1555529733-0e670560f7e1?auto=format&fit=crop&q=60&w=200';
-                  }}
                 />
               </div>
               <h3 className="text-sm md:text-base font-bold text-diyar-dark mb-1 line-clamp-1">
-                {store.name}
+                {store.store_name}
               </h3>
-              <div className="flex flex-col xl:flex-row items-center gap-1 text-yellow-500 mb-3 md:mb-3">
-                <div className="flex items-center gap-1">
-                  <Star size={12} fill="currentColor" className="md:w-[14px] md:h-[14px]" />
-                  <span className="text-gray-600 text-[10px] md:text-xs font-medium mr-0.5">
-                    {store.rating}
-                  </span>
-                </div>
-                <span className="text-gray-400 text-[9px] md:text-[10px] font-normal">
-                  ({store.products} منتج)
-                </span>
-              </div>
+              <span className="text-gray-400 text-[9px] md:text-[10px] font-normal mb-3">
+                ({store.product_count ?? 0} منتج)
+              </span>
               <div className="w-full py-1.5 md:py-2 text-xs md:text-sm auto rounded-lg border border-gray-200 text-diyar-dark font-medium group-hover:bg-diyar-brown group-hover:text-white group-hover:border-diyar-dark transition mt-auto">
                 تصفح المتجر
               </div>
@@ -763,7 +642,7 @@ export function FeaturedStores() {
 export function SummerBanner() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 md:py-8">
-      <div className="rounded-xl md:rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group">
+      <div className="rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group">
         <img
           src="/بنر عروض الصيف.png"
           alt="عروض الصيف"
@@ -777,7 +656,7 @@ export function SummerBanner() {
 export function SummerBanner2() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-      <div className="rounded-xl md:rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group bg-diyar-cream/20">
+      <div className="rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group bg-diyar-cream/20">
         <img
           src="/بنر عروض الصيف 2.png"
           alt="عروض الصيف 2"
@@ -815,7 +694,7 @@ export function WhyChooseDiyar() {
     <div className="py-6 md:py-8 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex overflow-x-auto md:grid md:grid-cols-4 gap-4 md:gap-8 text-center pb-4 md:pb-0 scrollbar-hide snap-x">
-          <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-xl md:rounded-none min-w-[240px] md:min-w-0 snap-start border border-gray-100 md:border-none">
+          <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-none min-w-60 md:min-w-0 snap-start border border-gray-100 md:border-none">
             <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
               <Star size={28} className="md:w-8 md:h-8" />
             </div>
@@ -826,7 +705,7 @@ export function WhyChooseDiyar() {
               آلاف القطع الفريدة من عشرات المتاجر والمصانع الموثوقة في مكان واحد.
             </p>
           </div>
-          <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-xl md:rounded-none min-w-[240px] md:min-w-0 snap-start border border-gray-100 md:border-none">
+          <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-none min-w-60 md:min-w-0 snap-start border border-gray-100 md:border-none">
             <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 -rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
               <Sparkles size={28} className="md:w-8 md:h-8" />
             </div>
@@ -837,7 +716,7 @@ export function WhyChooseDiyar() {
               خاصية تجربة الأثاث في غرفتك وتخيل المساحة قبل إتمام الشراء.
             </p>
           </div>
-          <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-xl md:rounded-none min-w-[240px] md:min-w-0 snap-start border border-gray-100 md:border-none">
+          <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-none min-w-60 md:min-w-0 snap-start border border-gray-100 md:border-none">
             <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
               <svg
                 width="28"
@@ -863,7 +742,7 @@ export function WhyChooseDiyar() {
               نوفر خدمات شحن آمنة وسريعة مع خيارات التركيب لراحتك التامة.
             </p>
           </div>
-          <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-xl md:rounded-none min-w-[240px] md:min-w-0 snap-start border border-gray-100 md:border-none">
+          <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-none min-w-60 md:min-w-0 snap-start border border-gray-100 md:border-none">
             <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 -rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
               <svg
                 width="28"
@@ -930,7 +809,7 @@ export function DesignBlog() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
         {posts.map((post, i) => (
           <Link to={`/blog/${i + 1}`} key={i} className="group cursor-pointer block">
-            <div className="w-full h-60 rounded-xl md:rounded-xl overflow-hidden mb-6 relative">
+            <div className="w-full h-60 rounded-xl overflow-hidden mb-6 relative">
               <img
                 src={post.img}
                 alt={post.title}
@@ -963,7 +842,7 @@ export function DesignBlog() {
 export function AppPromo() {
   return (
     <div className="max-w-6xl mx-auto px-4 pt-16 md:pt-28 pb-8 md:pb-12">
-      <div className="bg-gradient-to-br from-diyar-dark to-[#342D25] rounded-3xl relative flex flex-col md:flex-row items-stretch shadow-md">
+      <div className="bg-linear-to-br from-diyar-dark to-[#342D25] rounded-3xl relative flex flex-col md:flex-row items-stretch shadow-md">
         {/* Abstract shapes (clipped to the rounded box) */}
         <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
           <div className="absolute top-0 right-0 w-64 h-64 bg-diyar-brown/30 rounded-full mix-blend-color-dodge filter blur-[80px] translate-x-1/2 -translate-y-1/2"></div>
@@ -978,7 +857,7 @@ export function AppPromo() {
 
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-white mb-4 leading-[1.4] font-sans">
             تسوق أثاثك المفضل <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-diyar-cream to-amber-300">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-diyar-cream to-amber-300">
               أينما كنت!
             </span>
           </h2>
@@ -987,7 +866,7 @@ export function AppPromo() {
             حمل الإلهام في جيبك. تجربة تسوق أسرع، عروض حصرية، وميزة الواقع المعزز.
           </p>
 
-          <div className="grid grid-cols-2 gap-4 mb-8 text-right hidden lg:grid">
+          <div className="hidden lg:grid grid-cols-2 gap-4 mb-8 text-right">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-diyar-cream shrink-0">
                 <Box size={16} />
@@ -1026,12 +905,12 @@ export function AppPromo() {
           </div>
         </div>
 
-        <div className="w-full md:w-1/2 relative min-h-[230px] md:min-h-[260px] flex justify-center items-end mt-4 md:mt-0">
+        <div className="w-full md:w-1/2 relative min-h-57.5 md:min-h-65 flex justify-center items-end mt-4 md:mt-0">
           <img
             src="/app mockup.png"
             alt="Diyar App Mockup"
             referrerPolicy="no-referrer"
-            className="w-[62%] sm:w-[46%] md:w-auto md:h-[120%] md:absolute md:bottom-0 md:left-1/2 md:-translate-x-1/2 max-w-[420px] h-auto object-contain z-20 drop-shadow-2xl hover:scale-[1.02] transition-transform duration-500"
+            className="w-[62%] sm:w-[46%] md:w-auto md:h-[120%] md:absolute md:bottom-0 md:left-1/2 md:-translate-x-1/2 max-w-105 h-auto object-contain z-20 drop-shadow-2xl hover:scale-[1.02] transition-transform duration-500"
           />
         </div>
       </div>
@@ -1074,7 +953,7 @@ export function FastOffersSlider() {
         {offers.map((offer, i) => (
           <div
             key={i}
-            className={`col-span-1 ${offer.span} w-full aspect-[2/1] rounded-lg overflow-hidden relative shadow-md hover:shadow-md transition-all duration-300 group cursor-pointer ${offer.color}`}
+            className={`col-span-1 ${offer.span} w-full aspect-2/1 rounded-lg overflow-hidden relative shadow-md hover:shadow-md transition-all duration-300 group cursor-pointer ${offer.color}`}
           >
             <img
               src={offer.img}
@@ -1098,7 +977,7 @@ export function LoyaltyPromo() {
     <div className="max-w-7xl mx-auto px-4 my-8 md:my-12">
       <div className="bg-[#FFFDF8] rounded-3xl border border-[#F2DEB4]/50 shadow-sm overflow-hidden relative">
         <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] z-0"></div>
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-[#F9E8C8]/80 to-transparent blur-3xl z-0 -translate-y-1/2 translate-x-1/3"></div>
+        <div className="absolute top-0 right-0 w-150 h-150 bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-[#F9E8C8]/80 to-transparent blur-3xl z-0 -translate-y-1/2 translate-x-1/3"></div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 relative z-10 w-full items-center">
           {/* Content side */}
@@ -1157,14 +1036,14 @@ export function LoyaltyPromo() {
           </div>
 
           {/* Visual side */}
-          <div className="bg-[#F8EBCD] h-full min-h-[400px] flex items-center justify-center p-8 lg:p-0 relative overflow-hidden order-1 lg:order-2 border-b lg:border-b-0 lg:border-r border-amber-200/50">
+          <div className="bg-[#F8EBCD] h-full min-h-100 flex items-center justify-center p-8 lg:p-0 relative overflow-hidden order-1 lg:order-2 border-b lg:border-b-0 lg:border-r border-amber-200/50">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.05] z-0"></div>
 
             {/* Circular decoration */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] xl:w-[400px] h-[300px] xl:h-[400px] border border-amber-200 rounded-full z-0"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] xl:w-[540px] h-[400px] xl:h-[540px] border border-amber-200/50 rounded-full z-0 border-dashed"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-75 xl:w-100 h-75 xl:h-100 border border-amber-200 rounded-full z-0"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-100 xl:w-135 h-100 xl:h-135 border border-amber-200/50 rounded-full z-0 border-dashed"></div>
 
-            <div className="relative z-10 w-full max-w-[280px] md:max-w-[340px] xl:max-w-[420px] transition-transform duration-700 hover:scale-105">
+            <div className="relative z-10 w-full max-w-70 md:max-w-85 xl:max-w-105 transition-transform duration-700 hover:scale-105">
               <div className="absolute -inset-4 bg-amber-400/20 rounded-full blur-2xl -z-10"></div>
               <img src="/صورة نقاط الولاء.png" alt="ديار ولاء" className="w-full drop-shadow-md" />
             </div>
@@ -1352,7 +1231,7 @@ export function BrandsStrip() {
         {[...brands, ...brands, ...brands, ...brands].map((brand, i) => (
           <div
             key={i}
-            className="flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300 cursor-pointer shrink-0 min-w-[120px] md:min-w-[160px] min-h-[60px]"
+            className="flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300 cursor-pointer shrink-0 min-w-30 md:min-w-40 min-h-15"
           >
             {brand.logo}
           </div>
@@ -1363,44 +1242,19 @@ export function BrandsStrip() {
 }
 
 export function ServicesSection() {
-  const services = [
-    {
-      id: 1,
-      name: 'تصميم داخلي متكامل',
-      provider: 'إيوان للتصميم',
-      rating: 4.9,
-      price: 'يبدأ من 50 ر.س/م٢',
-      image:
-        'https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&q=80&w=400',
-    },
-    {
-      id: 2,
-      name: 'تفصيل خزائن غرف نوم',
-      provider: 'نجارة الأحمد',
-      rating: 4.7,
-      price: 'حسب المقاس',
-      image:
-        'https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&q=80&w=400',
-    },
-    {
-      id: 3,
-      name: 'صيانة وتنجيد الكنب',
-      provider: 'لمسة خبير',
-      rating: 4.8,
-      price: 'يبدأ من 200 ر.س',
-      image:
-        'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&q=80&w=400',
-    },
-    {
-      id: 4,
-      name: 'تنسيق حدائق منزلية',
-      provider: 'طبيعة للتنسيق',
-      rating: 4.6,
-      price: 'يبدأ من 100 ر.س/م٢',
-      image:
-        'https://images.unsplash.com/photo-1558904541-efa843a96f0f?auto=format&fit=crop&q=80&w=400',
-    },
-  ];
+  const { data: serviceCategories, isLoading } = useCategories('service');
+  const STATIC_IMG: Record<string, string> = {
+    'interior-design': '/categories/تصميم داخلي.png',
+    maintenance: '/categories/تركيب وصيانة.png',
+    painting: '/categories/دهانات.png',
+    upholstery: '/categories/تنجيد وتجديد.png',
+    carpentry: '/categories/نجارة مخصصة.png',
+    consultation: '/categories/استشارات تصميم.png',
+    moving: '/categories/نقل وتغليف.png',
+    cleaning: '/categories/تنظيف وتلميع.png',
+    electrical: '/categories/إضاءة وكهرباء.png',
+    'curtains-install': '/categories/تركيب الستائر.png',
+  };
 
   return (
     <div className="py-6 md:py-8 bg-gray-50 border-b border-gray-100">
@@ -1416,49 +1270,36 @@ export function ServicesSection() {
             </h2>
           </div>
           <Link
-            to="/search?q=services"
+            to="/services"
             className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition"
           >
             عرض كل الخدمات <ArrowLeft size={18} />
           </Link>
         </div>
-        <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-4 pb-4 scrollbar-hide snap-x pt-2">
-          {services.map((service, i) => (
-            <Link
-              to={`/service/${service.id}`}
-              key={i}
-              className="min-w-[280px] md:min-w-0 bg-white rounded-lg shadow-sm border border-gray-100 flex flex-col overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all snap-start group"
-            >
-              <div className="h-40 relative overflow-hidden">
-                <img
-                  src={service.image}
-                  alt={service.name}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 bg-gray-200"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=400';
-                  }}
-                />
-                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-gray-700 flex items-center gap-1 shadow-sm">
-                  <Star size={12} className="text-amber-400 fill-amber-400" /> {service.rating}
-                </div>
-              </div>
-              <div className="p-4 flex flex-col flex-1">
-                <h3 className="font-bold text-diyar-dark text-base mb-1">{service.name}</h3>
-                <p className="text-gray-500 mb-3 text-sm flex items-center gap-1.5">
-                  <Store size={14} />{' '}
-                  <span className="font-medium text-diyar-dark">{service.provider}</span>
-                </p>
-                <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
-                  <span className="font-bold text-diyar-brown text-sm">{service.price}</span>
-                  <div className="flex items-center text-xs text-diyar-dark font-medium gap-1 bg-diyar-cream/30 px-3 py-1.5 rounded-lg border border-diyar-cream group-hover:bg-diyar-brown group-hover:text-white transition-colors">
-                    طلب تنفيذ
+        <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-5 pb-4 scrollbar-hide snap-x pt-2">
+          {isLoading
+            ? [...Array(5)].map((_, i) => (
+                <div key={i} className="min-w-56 h-48 bg-white rounded-lg animate-pulse" />
+              ))
+            : (serviceCategories ?? []).slice(0, 10).map((category) => (
+                <Link
+                  to={`/category/${category.slug}`}
+                  key={category.id}
+                  className="min-w-56 md:min-w-0 bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all snap-start group"
+                >
+                  <div className="h-36 relative overflow-hidden bg-diyar-brown/10">
+                    <img
+                      src={STATIC_IMG[category.slug] ?? '/logo_diyar.svg'}
+                      alt={category.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
-                </div>
-              </div>
-            </Link>
-          ))}
+                  <div className="p-4">
+                    <h3 className="font-bold text-diyar-dark text-base">{category.name}</h3>
+                    <p className="text-xs text-gray-500 mt-1">تصفح قسم الخدمة</p>
+                  </div>
+                </Link>
+              ))}
         </div>
       </div>
     </div>
@@ -1466,246 +1307,36 @@ export function ServicesSection() {
 }
 
 export function MostInteractiveProducts() {
-  const railRef = useRef<HTMLDivElement>(null);
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      name: 'طقم كنب زاوية مخملي رويال فاخر',
-      vendor: 'مفروشات الرقي',
-      price: 4500,
-      oldPrice: 5600,
-      img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=400',
-      views: 2450,
-      likes: 312,
-      saves: 184,
-      liked: false,
-      saved: false,
-      hotScore: 94,
-    },
-    {
-      id: 2,
-      name: 'سرير مزدوج مودرن بتصميم هادئ',
-      vendor: 'بيت الراحة',
-      price: 2200,
-      oldPrice: 3100,
-      img: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&q=80&w=400',
-      views: 1890,
-      likes: 245,
-      saves: 142,
-      liked: false,
-      saved: false,
-      hotScore: 89,
-    },
-    {
-      id: 3,
-      name: 'طاولة طعام إكسباند دائرية من الخشب الطبيعي',
-      vendor: 'روائع الخشب',
-      price: 2100,
-      oldPrice: 2800,
-      img: 'https://images.unsplash.com/photo-1577140917170-285929fb55b7?auto=format&fit=crop&q=80&w=600',
-      views: 1530,
-      likes: 198,
-      saves: 95,
-      liked: false,
-      saved: false,
-      hotScore: 85,
-    },
-    {
-      id: 4,
-      name: 'خزانة ملابس 6 أبواب واسعة وعملية',
-      vendor: 'إيكيا',
-      price: 1950,
-      oldPrice: 2400,
-      img: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=400',
-      views: 3120,
-      likes: 421,
-      saves: 233,
-      liked: false,
-      saved: false,
-      hotScore: 98,
-    },
-    {
-      id: 5,
-      name: 'كرسي استرخاء مخملي مريح جداً',
-      vendor: 'أشلي',
-      price: 1200,
-      oldPrice: 1700,
-      img: 'https://images.unsplash.com/photo-1598300042247-d317bd127e7b?auto=format&fit=crop&q=80&w=400',
-      views: 1210,
-      likes: 156,
-      saves: 78,
-      liked: false,
-      saved: false,
-      hotScore: 78,
-    },
-  ]);
-
-  const handleLike = (id: number, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setItems(
-      items.map((item) => {
-        if (item.id === id) {
-          return {
-            ...item,
-            liked: !item.liked,
-            likes: item.liked ? item.likes - 1 : item.likes + 1,
-            hotScore: item.liked ? item.hotScore - 1 : item.hotScore + 2,
-          };
-        }
-        return item;
-      }),
-    );
-  };
-
-  const handleSave = (id: number, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setItems(
-      items.map((item) => {
-        if (item.id === id) {
-          return {
-            ...item,
-            saved: !item.saved,
-            saves: item.saved ? item.saves - 1 : item.saves + 1,
-            hotScore: item.saved ? item.hotScore - 2 : item.hotScore + 3,
-          };
-        }
-        return item;
-      }),
-    );
-  };
+  const { data, isLoading } = useProducts({ per_page: 6, sort: '-popular' });
+  const products = data?.items.map(mapProductCard) ?? [];
 
   return (
-    <div className="bg-gradient-to-b from-white to-diyar-cream/10 py-8 md:py-8 border-t border-b border-gray-100/10">
+    <div className="bg-linear-to-b from-white to-diyar-cream/10 py-8 md:py-8 border-t border-b border-gray-100/10">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-baseline mb-8">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="flex h-2.5 w-2.5 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-              </span>
-              <span className="text-diyar-brown text-xs md:text-sm font-bold">الآن مباشر</span>
-            </div>
-            <h2 className="text-xl md:text-3xl font-sans font-bold text-diyar-dark flex items-center gap-2">
-              الأكثر تفاعلاً ونشاطاً 🔥
+            <h2 className="text-xl md:text-3xl font-sans font-bold text-diyar-dark">
+              الأكثر تفاعلاً ونشاطاً
             </h2>
             <p className="text-gray-500 text-xs md:text-sm mt-1">
-              المنتجات الأكثر تصفحاً، إعجاباً وحفظاً من قبل المتسوقين في الساعات الماضية
+              مرتبة حسب الإعجابات والتفاعل على المنصة
             </p>
           </div>
           <Link
-            to="/category/all"
-            className="text-diyar-brown text-xs md:text-sm font-bold hover:text-diyar-dark transition shrink-0"
+            to="/category/all?sort=-popular"
+            className="text-diyar-brown text-xs md:text-sm font-bold hover:text-diyar-dark transition shrink-0 cursor-pointer"
           >
             تصفح الكل
           </Link>
         </div>
-
-        <div className="relative">
-          <RailArrows scroller={railRef} />
-          <div
-            ref={railRef}
-            className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide snap-x py-4"
-          >
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="w-[280px] md:w-[320px] bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all shrink-0 snap-start overflow-hidden flex flex-col group relative"
-              >
-                {/* Badges Overlay */}
-                <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
-                  <span className="bg-red-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1">
-                    🔥 {item.hotScore}% تفاعل
-                  </span>
-                </div>
-
-                {/* Product Image */}
-                <Link
-                  to={`/product/${item.id}`}
-                  className="block relative aspect-[4/3] overflow-hidden bg-gray-50"
-                >
-                  <img
-                    src={item.img}
-                    alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=60&w=600';
-                    }}
-                  />
-
-                  {/* Actions Overlay */}
-                  <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
-                    <button
-                      onClick={(e) => handleSave(item.id, e)}
-                      className={`p-2 rounded-full shadow-md bg-white/90 backdrop-blur-md transition-all ${item.saved ? 'text-diyar-brown scale-105' : 'text-gray-400 hover:text-diyar-brown'}`}
-                    >
-                      <Bookmark size={18} fill={item.saved ? 'currentColor' : 'none'} />
-                    </button>
-                    <button
-                      onClick={(e) => handleLike(item.id, e)}
-                      className={`p-2 rounded-full shadow-md bg-white/90 backdrop-blur-md transition-all ${item.liked ? 'text-red-500 scale-105 animate-pulse' : 'text-gray-400 hover:text-red-500'}`}
-                    >
-                      <Heart size={18} fill={item.liked ? 'currentColor' : 'none'} />
-                    </button>
-                  </div>
-                </Link>
-
-                {/* Body */}
-                <div className="p-4 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-center text-xs text-diyar-brown font-semibold mb-1">
-                      <span>{item.vendor}</span>
-                    </div>
-                    <Link
-                      to={`/product/${item.id}`}
-                      className="block hover:text-diyar-brown transition"
-                    >
-                      <h3 className="font-bold text-diyar-dark text-sm leading-snug line-clamp-2 min-h-[40px] mb-2">
-                        {item.name}
-                      </h3>
-                    </Link>
-                  </div>
-
-                  <div>
-                    {/* Prices & Stats */}
-                    <div className="flex justify-between items-center border-t border-gray-50 pt-3 mt-2">
-                      <div className="flex flex-col">
-                        <span className="text-xs text-gray-400 line-through">
-                          د.إ {item.oldPrice}
-                        </span>
-                        <span className="text-base font-bold text-diyar-dark">
-                          د.إ {item.price}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-lg border border-red-100/50">
-                        <span className="text-[10px] font-bold text-red-600">نشط جداً</span>
-                      </div>
-                    </div>
-
-                    {/* Real-time Interaction Bar */}
-                    <div className="mt-3 bg-gray-50 p-2 rounded-lg flex items-center justify-between text-[11px] text-gray-500 border border-gray-100/40">
-                      <span className="flex items-center gap-1">
-                        <Eye size={13} className="text-gray-400" />
-                        <strong>{item.views}</strong> مشاهدة
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Heart size={13} className="text-red-400 fill-red-400" />
-                        <strong>{item.likes}</strong> إعجاب
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Bookmark size={13} className="text-diyar-brown fill-diyar-brown" />
-                        <strong>{item.saves}</strong> حفظ
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {isLoading
+            ? [...Array(6)].map((_, i) => (
+                <div key={i} className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+              ))
+            : products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
         </div>
       </div>
     </div>

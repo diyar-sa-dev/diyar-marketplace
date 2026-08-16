@@ -39,4 +39,14 @@ return [
         'login_decay_minutes' => (int) env('DIYAR_LOGIN_DECAY_MINUTES', 15),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Inventory Configuration
+    |--------------------------------------------------------------------------
+    */
+
+    'inventory' => [
+        'reservation_timeout_minutes' => (int) env('DIYAR_INVENTORY_RESERVATION_TIMEOUT_MINUTES', 15),
+    ],
+
 ];

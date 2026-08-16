@@ -5,12 +5,14 @@ namespace Tests\Concerns;
 use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Enums\RoleStatus;
+use App\Enums\VendorAccountStatus;
 use App\Infrastructure\Sms\LogSmsProvider;
 use App\Models\ProviderAccount;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Services\Identity\OtpCacheStore;
+use App\Support\SlugGenerator;
 use Database\Seeders\RoleSeeder;
 
 trait InteractsWithIdentity
@@ -53,6 +55,8 @@ trait InteractsWithIdentity
             VendorAccount::query()->create([
                 'user_id' => $user->id,
                 'business_name' => $user->name,
+                'slug' => SlugGenerator::unique($user->name, new VendorAccount),
+                'status' => VendorAccountStatus::Active,
             ]);
         }
 

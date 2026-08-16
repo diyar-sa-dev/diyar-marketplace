@@ -1,19 +1,30 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useMemo, useCallback } from 'react';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import {
   ChevronDown,
   Filter,
   LayoutGrid,
   List,
   SlidersHorizontal,
-  Star,
-  Search,
   X,
   Palette,
   Wrench,
 } from 'lucide-react';
 import ProductCard from '../components/cards/ProductCard.tsx';
-import ServiceCard from '../components/cards/ServiceCard.tsx';
+import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
+import {
+  useCategories,
+  useCategory,
+  useCategoryProducts,
+  useProducts,
+  useVendors,
+} from '../hooks/catalog/useCatalog.ts';
+import { mapProductCard } from '../lib/catalogMappers.ts';
+import { resolveMediaUrl } from '../lib/media.ts';
+import { isValidStoreSlug, storePath } from '../lib/storePath.ts';
+import { LoadingState } from '../components/common/LoadingState.tsx';
+import { ErrorState } from '../components/common/ErrorState.tsx';
+import { EmptyState } from '../components/common/EmptyState.tsx';
 
 const CATEGORIES = {
   bedroom: {
@@ -58,163 +69,28 @@ const CATEGORIES = {
   },
 };
 
-const MOCK_PRODUCTS = [
-  {
-    img: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&q=80&w=400',
-    name: 'أريكة 3 مقاعد مخمل',
-    vendor: 'مفروشات الرقي',
-    price: 2400,
-    oldPrice: 3000,
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=400',
-    name: 'كرسي استرخاء',
-    vendor: 'الزاوية الحديثة',
-    price: 850,
-    oldPrice: 1200,
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1540574163026-643ea20d25b5?auto=format&fit=crop&q=80&w=400',
-    name: 'طقم غرفة معيشة 5 قطع',
-    vendor: 'بيت التصميم',
-    price: 6500,
-    oldPrice: 8500,
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=400',
-    name: 'طاولة وسط رخام',
-    vendor: 'روائع الخشب',
-    price: 1200,
-    oldPrice: 1500,
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=400',
-    name: 'كرسي جانبي مودرن',
-    vendor: 'إضاءات دبي',
-    price: 450,
-    oldPrice: 600,
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=400',
-    name: 'أريكة زاوية كبيرة',
-    vendor: 'مفروشات الرقي',
-    price: 3800,
-    oldPrice: 4200,
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format&fit=crop&q=80&w=400',
-    name: 'طاولة جانبي معدنية',
-    vendor: 'الزاوية الحديثة',
-    price: 280,
-    oldPrice: 400,
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1616627547584-bf28cee262db?auto=format&fit=crop&q=80&w=400',
-    name: 'كرسي قماش فاخر',
-    vendor: 'أناقة المنزل',
-    price: 950,
-    oldPrice: 1300,
-  },
-];
+const PLACEHOLDER_CATEGORY_IMG =
+  'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1200';
 
-const MOCK_SERVICES = [
-  {
-    id: 101,
-    img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=400',
-    name: 'تصميم داخلي متكامل للشقق',
-    vendor: 'ديار ديزاين',
-    price: 150,
-    rating: 4.8,
-    type: 'استشارة ومخطط',
-  },
-  {
-    id: 102,
-    img: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=400',
-    name: 'تركيب غرف نوم كاملة',
-    vendor: 'ورشة الإنجاز',
-    price: 500,
-    rating: 4.5,
-    type: 'تركيب وصيانة',
-  },
-  {
-    id: 103,
-    img: 'https://images.unsplash.com/photo-1581404176840-0255b7bd4b4c?auto=format&fit=crop&q=80&w=400',
-    name: 'تصميم 3D للمطابخ',
-    vendor: 'مكتب الإبداع',
-    price: 1200,
-    rating: 4.9,
-    type: 'التنفيذ بالقطعة',
-  },
-  {
-    id: 104,
-    img: 'https://images.unsplash.com/photo-1621293954908-907159247fc8?auto=format&fit=crop&q=80&w=400',
-    name: 'صيانة وطلاء الأثاث الخشبي',
-    vendor: 'مختصي الصيانة',
-    price: 300,
-    rating: 4.2,
-    type: 'زيارة فنية',
-  },
-];
+const CATEGORY_ICONS: Record<string, string> = {
+  bedroom: '/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.png',
+  'living-room': '/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.png',
+  kitchen: '/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.png',
+  office: '/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.png',
+  decor: '/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.png',
+  'interior-design':
+    '/categories/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%AF%D8%A7%D8%AE%D9%84%D9%8A.png',
+  maintenance:
+    '/categories/%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%20%D9%88%D8%B5%D9%8A%D8%A7%D9%86%D8%A9.png',
+};
 
-const FILTER_GROUPS = [
-  {
-    title: 'المتاجر المعتمدة',
-    options: [
-      'مفروشات الرقي',
-      'الزاوية الحديثة',
-      'بيت التصميم',
-      'روائع الخشب',
-      'إضاءات دبي',
-      'أناقة المنزل',
-    ],
-  },
-  {
-    title: 'الفرع / التصنيف',
-    options: ['غرف نوم رئيسية', 'غرف نوم أطفال', 'خزائن ودواليب', 'تسريحات', 'طاولات جانبية'],
-  },
-  {
-    title: 'المادة',
-    options: ['خشب طبيعي', 'خشب مصنع', 'معدن', 'زجاج', 'جلد', 'قماش مخمل'],
-  },
-  {
-    title: 'لون المنتج',
-    options: [], // Managed specially below
-  },
-];
+const AVAILABILITY_OPTIONS = [
+  { value: 'in_stock', label: 'متوفر' },
+  { value: 'out_of_stock', label: 'غير متوفر' },
+  { value: 'preorder', label: 'طلب مسبق' },
+] as const;
 
-const SERVICE_FILTER_GROUPS = [
-  {
-    title: 'مقدمي الخدمة',
-    options: [
-      'ديار ديزاين',
-      'شركة الإبداع المعماري',
-      'مؤسسة اللمسة الفنية',
-      'رواد التركيب',
-      'مختصي الصيانة',
-      'ورشة الإنجاز',
-    ],
-  },
-  {
-    title: 'نوع الخدمة',
-    options: ['بالمتر المربع', 'بالمقايسة', 'سعر ثابت', 'بالساعة', 'زيارة فنية'],
-  },
-  {
-    title: 'موقع تقديم الخدمة',
-    options: ['في الموقع', 'استشارة عن بعد'],
-  },
-];
-
-const COLORS = [
-  { name: 'أسود', hex: '#000000' },
-  { name: 'أبيض', hex: '#FFFFFF' },
-  { name: 'بيج', hex: '#F5F5DC' },
-  { name: 'بني', hex: '#8B4513' },
-  { name: 'رمادي', hex: '#808080' },
-  { name: 'أزرق', hex: '#0000FF' },
-  { name: 'أخضر', hex: '#008000' },
-  { name: 'أحمر', hex: '#FF0000' },
-  { name: 'ذهبي', hex: '#FFD700' },
-];
+const MAX_PRICE = 20000;
 
 interface AccordionProps {
   title: string;
@@ -246,134 +122,427 @@ function Accordion({ title, children, defaultOpen = true }: AccordionProps) {
   );
 }
 
+function CategoryAllProductsBrowse({
+  searchParams,
+  setSearchParams,
+}: {
+  searchParams: URLSearchParams;
+  setSearchParams: ReturnType<typeof useSearchParams>[1];
+}) {
+  const page = Math.max(1, Number(searchParams.get('page') || '1'));
+  const sort = searchParams.get('sort') || '-created_at';
+  const discounted = searchParams.get('discounted') === '1';
+
+  const filters = useMemo(
+    () => ({
+      per_page: 12,
+      page,
+      sort,
+      discounted: discounted || undefined,
+    }),
+    [page, sort, discounted],
+  );
+
+  const { data, isLoading, isError, error, refetch } = useProducts(filters);
+  const products = data?.items.map(mapProductCard) ?? [];
+  const pagination = data?.pagination;
+
+  const sectionTitle = discounted
+    ? 'عروض مميزة'
+    : sort === '-popular'
+      ? 'الأكثر تفاعلاً'
+      : sort === '-created_at'
+        ? 'وصل حديثاً'
+        : 'جميع المنتجات';
+
+  return (
+    <div className="bg-gray-50 min-h-screen pb-10">
+      <div className="bg-white border-b border-gray-200 pt-6 pb-6 px-4">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="text-right">
+            <Link
+              to="/category/all"
+              className="text-sm text-diyar-brown hover:text-diyar-dark transition cursor-pointer"
+            >
+              ← جميع التصنيفات
+            </Link>
+            <h1 className="text-xl md:text-3xl font-bold text-diyar-dark mt-2">{sectionTitle}</h1>
+          </div>
+          <select
+            value={sort}
+            onChange={(e) => {
+              const next = new URLSearchParams(searchParams);
+              next.set('sort', e.target.value);
+              next.delete('page');
+              setSearchParams(next, { replace: true });
+            }}
+            className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm cursor-pointer"
+          >
+            <option value="-created_at">الأحدث</option>
+            <option value="-popular">الأكثر تفاعلاً</option>
+            <option value="-discount">أعلى خصم</option>
+            <option value="price">السعر: الأقل</option>
+            <option value="-price">السعر: الأعلى</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 mt-6">
+        {isLoading ? (
+          <LoadingState className="min-h-60" />
+        ) : isError ? (
+          <ErrorState error={error as Error} onRetry={() => refetch()} />
+        ) : products.length === 0 ? (
+          <EmptyState title="لا توجد منتجات" description="جرّب تغيير الفلاتر أو العودة لاحقاً." />
+        ) : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+            {pagination && (
+              <PaginationBar
+                pagination={pagination}
+                page={page}
+                onPageChange={(nextPage) => {
+                  const next = new URLSearchParams(searchParams);
+                  next.set('page', String(nextPage));
+                  setSearchParams(next, { replace: true });
+                }}
+                className="mt-8"
+              />
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CategoryAllLanding() {
+  const { data: productCategories, isLoading: categoriesLoading } = useCategories('product');
+  const { data: serviceCategories, isLoading: servicesLoading } = useCategories('service');
+  const { data: vendorsData, isLoading: vendorsLoading } = useVendors({ per_page: 12 });
+
+  return (
+    <div className="bg-gray-50 min-h-screen pb-10">
+      <div className="bg-white border-b border-gray-200 pt-6 pb-6 px-4">
+        <div className="max-w-7xl mx-auto text-right">
+          <h1 className="text-xl md:text-3xl font-bold text-diyar-dark mb-2">جميع التصنيفات</h1>
+          <p className="text-gray-500 text-sm md:text-base">
+            تصفح جميع أقسام المنتجات والخدمات التي تقدمها منصة ديار.
+          </p>
+        </div>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 mt-6 md:mt-10">
+        <h2 className="text-xl md:text-2xl font-bold mb-6 text-diyar-dark">تصنيفات المنتجات</h2>
+        {categoriesLoading ? (
+          <LoadingState className="min-h-40 mb-16" />
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-16 md:mb-20">
+            {(productCategories ?? []).map((cat) => (
+              <Link
+                to={`/category/${cat.slug}`}
+                key={cat.id}
+                className="flex flex-col items-center gap-3 md:gap-4 group cursor-pointer"
+              >
+                <div className="w-full aspect-4/3 rounded-3xl overflow-hidden relative shadow-sm border border-gray-100 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl bg-gray-100">
+                  <img
+                    src={CATEGORY_ICONS[cat.slug] ?? PLACEHOLDER_CATEGORY_IMG}
+                    alt={cat.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                </div>
+                <span className="font-bold text-diyar-dark text-base md:text-xl group-hover:text-diyar-brown transition-colors text-center">
+                  {cat.name}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        <div className="mb-16 md:mb-20">
+          <h2 className="text-xl md:text-2xl font-bold mb-6 text-diyar-dark">المتاجر المعتمدة</h2>
+          {vendorsLoading ? (
+            <LoadingState className="min-h-24" />
+          ) : (
+            <div className="flex gap-4 md:gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x">
+              {(vendorsData?.items ?? []).filter((vendor) => isValidStoreSlug(vendor.slug)).map((vendor) => (
+                <Link
+                  key={vendor.id}
+                  to={storePath(vendor.slug)!}
+                  className="min-w-30 md:min-w-40 aspect-square rounded-2xl bg-white border border-gray-100 shadow-sm flex flex-col items-center justify-center p-4 snap-start hover:shadow-md transition group text-center"
+                >
+                  {vendor.logo_url ? (
+                    <img
+                      src={resolveMediaUrl(vendor.logo_url) ?? ''}
+                      alt={vendor.store_name}
+                      className="w-14 h-14 rounded-full object-cover mb-2"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-diyar-cream/40 flex items-center justify-center mb-2 text-diyar-brown font-bold">
+                      {vendor.store_name.charAt(0)}
+                    </div>
+                  )}
+                  <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition line-clamp-2">
+                    {vendor.store_name}
+                  </span>
+                  {vendor.product_count != null && (
+                    <span className="text-xs text-gray-400 mt-1">{vendor.product_count} منتج</span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="mb-16">
+          <h2 className="text-xl md:text-2xl font-bold mb-6 text-diyar-dark">خدمات ديار</h2>
+          {servicesLoading ? (
+            <LoadingState className="min-h-24" />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              {(serviceCategories ?? []).slice(0, 6).map((service) => (
+                <Link
+                  key={service.id}
+                  to={`/category/${service.slug}`}
+                  className="bg-white rounded-3xl p-6 flex items-center gap-6 border border-gray-100 hover:shadow-lg hover:border-diyar-brown/30 transition group"
+                >
+                  <div className="w-20 h-20 rounded-2xl bg-diyar-cream/30 flex items-center justify-center shrink-0">
+                    {service.slug.includes('design') ? (
+                      <Palette className="w-10 h-10 text-diyar-brown group-hover:scale-110 transition" />
+                    ) : (
+                      <Wrench className="w-10 h-10 text-diyar-brown group-hover:scale-110 transition" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg md:text-xl text-diyar-dark mb-1">
+                      {service.name}
+                    </h3>
+                    <p className="text-sm text-gray-500">تصفح مقدمي الخدمة في هذا القسم.</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CatalogFilterPanel({
+  minPrice,
+  maxPrice,
+  vendorId,
+  availabilityMode,
+  vendors,
+  isServiceCategory,
+  onPatch,
+  onReset,
+}: {
+  minPrice: number;
+  maxPrice: number;
+  vendorId?: string;
+  availabilityMode?: string;
+  vendors: Array<{ id: string; store_name: string }>;
+  isServiceCategory: boolean;
+  onPatch: (updates: Record<string, string | undefined>) => void;
+  onReset: () => void;
+}) {
+  if (isServiceCategory) {
+    return (
+      <p className="text-sm text-gray-500">
+        لا توجد منتجات خدمة في هذا القسم حالياً. التصنيفات متاحة للتصفح فقط.
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+        <h3 className="font-bold text-lg text-diyar-dark flex items-center gap-2">
+          <SlidersHorizontal size={20} className="text-diyar-brown" />
+          تصفية النتائج
+        </h3>
+        <button
+          type="button"
+          onClick={onReset}
+          className="text-xs text-diyar-brown font-medium hover:underline"
+        >
+          مسح الكل
+        </button>
+      </div>
+
+      <Accordion title="نطاق السعر">
+        <div className="px-1 space-y-4">
+          <input
+            type="range"
+            min="0"
+            max={String(MAX_PRICE)}
+            step="100"
+            value={maxPrice}
+            onChange={(e) => onPatch({ max_price: e.target.value })}
+            className="w-full accent-diyar-brown"
+          />
+          <div className="flex items-center justify-between gap-4">
+            <label className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
+              <span className="text-xs text-gray-500 block mb-1">من</span>
+              <input
+                type="number"
+                min={0}
+                max={maxPrice}
+                value={minPrice}
+                onChange={(e) => onPatch({ min_price: e.target.value || undefined })}
+                className="w-full bg-transparent text-center font-bold text-sm outline-none"
+              />
+            </label>
+            <label className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
+              <span className="text-xs text-gray-500 block mb-1">إلى</span>
+              <input
+                type="number"
+                min={minPrice}
+                max={MAX_PRICE}
+                value={maxPrice}
+                onChange={(e) => onPatch({ max_price: e.target.value || undefined })}
+                className="w-full bg-transparent text-center font-bold text-sm outline-none"
+              />
+            </label>
+          </div>
+        </div>
+      </Accordion>
+
+      <Accordion title="المتاجر المعتمدة">
+        <div className="space-y-2 max-h-48 overflow-y-auto pr-1 pl-3">
+          {vendors.map((vendor) => (
+            <label key={vendor.id} className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="radio"
+                name="vendor_id"
+                checked={vendorId === vendor.id}
+                onChange={() =>
+                  onPatch({ vendor_id: vendorId === vendor.id ? undefined : vendor.id })
+                }
+                className="accent-diyar-brown"
+              />
+              <span className="text-sm text-gray-600 group-hover:text-diyar-dark transition-colors">
+                {vendor.store_name}
+              </span>
+            </label>
+          ))}
+        </div>
+      </Accordion>
+
+      <Accordion title="التوفر">
+        <div className="space-y-2">
+          {AVAILABILITY_OPTIONS.map((option) => (
+            <label key={option.value} className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="radio"
+                name="availability_mode"
+                checked={availabilityMode === option.value}
+                onChange={() =>
+                  onPatch({
+                    availability_mode: availabilityMode === option.value ? undefined : option.value,
+                  })
+                }
+                className="accent-diyar-brown"
+              />
+              <span className="text-sm text-gray-600 group-hover:text-diyar-dark transition-colors">
+                {option.label}
+              </span>
+            </label>
+          ))}
+        </div>
+      </Accordion>
+    </>
+  );
+}
+
 export default function CategoryPage() {
   const { id } = useParams();
-  const categoryId = id && CATEGORIES[id as keyof typeof CATEGORIES] ? id : 'all';
-  const category = CATEGORIES[categoryId as keyof typeof CATEGORIES];
+  const slug = id ?? 'all';
+  const staticMeta = CATEGORIES[slug as keyof typeof CATEGORIES];
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 10000]);
   const [activeSubcategory, setActiveSubcategory] = useState('الكل');
 
-  const isServiceCategory = categoryId === 'interior-design' || categoryId === 'maintenance';
-  const currentFilters = isServiceCategory ? SERVICE_FILTER_GROUPS : FILTER_GROUPS;
+  const page = Math.max(1, Number(searchParams.get('page') || '1'));
+  const sort = searchParams.get('sort') || '-created_at';
+  const vendorId = searchParams.get('vendor_id') || undefined;
+  const availabilityMode = searchParams.get('availability_mode') || undefined;
+  const minPrice = Number(searchParams.get('min_price') || '0');
+  const maxPrice = Number(searchParams.get('max_price') || String(MAX_PRICE));
 
-  if (categoryId === 'all') {
-    return (
-      <div className="bg-gray-50 min-h-screen pb-10">
-        <div className="bg-white border-b border-gray-200 pt-6 pb-6 px-4">
-          <div className="max-w-7xl mx-auto text-right">
-            <h1 className="text-xl md:text-3xl font-bold text-diyar-dark mb-2">جميع التصنيفات</h1>
-            <p className="text-gray-500 text-sm md:text-base">
-              تصفح جميع أقسام المنتجات والخدمات والمخططات التي تقدمها منصة ديار.
-            </p>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 mt-6 md:mt-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-16 md:mb-20">
-            {Object.entries(CATEGORIES)
-              .filter(([k]) => k !== 'all')
-              .map(([k, cat]) => (
-                <Link
-                  to={`/category/${k}`}
-                  key={k}
-                  className="flex flex-col items-center gap-3 md:gap-4 group cursor-pointer"
-                >
-                  <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden relative shadow-sm border border-gray-100 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl bg-gray-100">
-                    <img
-                      src={cat.img}
-                      alt={cat.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500"></div>
-                  </div>
-                  <span className="font-bold text-diyar-dark text-base md:text-xl group-hover:text-diyar-brown transition-colors text-center">
-                    {cat.name}
-                  </span>
-                </Link>
-              ))}
-          </div>
+  const patchParams = useCallback(
+    (updates: Record<string, string | undefined>, resetPage = true) => {
+      const next = new URLSearchParams(searchParams);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === undefined || value === '') {
+          next.delete(key);
+        } else {
+          next.set(key, value);
+        }
+      });
+      if (resetPage) {
+        next.delete('page');
+      }
+      setSearchParams(next, { replace: true });
+    },
+    [searchParams, setSearchParams],
+  );
 
-          <div className="mb-16 md:mb-20">
-            <h2 className="text-xl md:text-2xl font-bold mb-6 text-diyar-dark flex items-center justify-between">
-              <span>أشهر المتاجر والماركات</span>
-              <Link to="/" className="text-sm text-diyar-brown font-medium hover:underline">
-                عرض الكل
-              </Link>
-            </h2>
-            <div className="flex gap-4 md:gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="min-w-[100px] md:min-w-[140px] aspect-square rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center justify-center p-4 snap-start hover:shadow-md transition cursor-pointer group"
-                >
-                  <span className="font-bold text-gray-400 group-hover:text-diyar-brown transition">
-                    متجر {i}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+  const resetFilters = useCallback(() => {
+    setSearchParams({}, { replace: true });
+  }, [setSearchParams]);
 
-          <div className="bg-diyar-dark text-white rounded-3xl p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 mb-16 md:mb-20 relative overflow-hidden shadow-xl">
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-diyar-brown opacity-20 rounded-full blur-3xl"></div>
+  const filters = useMemo(
+    () => ({
+      min_price: minPrice > 0 ? minPrice : undefined,
+      max_price: maxPrice < MAX_PRICE ? maxPrice : undefined,
+      vendor_id: vendorId,
+      availability_mode: availabilityMode as 'in_stock' | 'out_of_stock' | 'preorder' | undefined,
+      per_page: 12,
+      page,
+      sort,
+    }),
+    [minPrice, maxPrice, vendorId, availabilityMode, page, sort],
+  );
 
-            <div className="relative z-10 text-center md:text-right flex-1">
-              <h2 className="text-xl md:text-3xl font-bold mb-3">تفصيل أثاث بمواصفاتك الخاصة؟</h2>
-              <p className="text-gray-300 text-sm md:text-base max-w-xl">
-                هل لديك تصميم معين في مخيلتك أو تبحث عن مقاسات خاصة؟ ارفع صورتك أو مخططك وسنقوم
-                بربطك بأفضل ورش التصنيع والمناجر المعتمدة لتقديم عروض أسعار.
-              </p>
-            </div>
-            <button className="bg-diyar-cream text-diyar-dark px-8 py-3.5 rounded-xl font-bold relative z-10 hover:bg-white transition whitespace-nowrap w-full md:w-auto">
-              اطلب تسعيرة تخصيص
-            </button>
-          </div>
+  const { data: apiCategory } = useCategory(slug);
+  const { data: vendorsData } = useVendors({ per_page: 50 });
+  const {
+    data: productsData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useCategoryProducts(slug, filters);
 
-          <div className="mb-16">
-            <h2 className="text-xl md:text-2xl font-bold mb-6 text-diyar-dark">
-              خدمات ديار الشاملة
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <Link
-                to="/category/interior-design"
-                className="bg-white rounded-3xl p-6 flex items-center gap-6 border border-gray-100 hover:shadow-lg hover:border-diyar-brown/30 transition group"
-              >
-                <div className="w-20 h-20 rounded-2xl bg-diyar-cream/30 flex items-center justify-center shrink-0">
-                  <Palette className="w-10 h-10 text-diyar-brown group-hover:scale-110 transition" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg md:text-xl text-diyar-dark mb-1">
-                    خدمات التصميم الداخلي
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    مهندسون ومصممون محترفون لتحويل مساحتك إلى تحفة فنية.
-                  </p>
-                </div>
-              </Link>
-              <Link
-                to="/category/maintenance"
-                className="bg-white rounded-3xl p-6 flex items-center gap-6 border border-gray-100 hover:shadow-lg hover:border-diyar-brown/30 transition group"
-              >
-                <div className="w-20 h-20 rounded-2xl bg-diyar-cream/30 flex items-center justify-center shrink-0">
-                  <Wrench className="w-10 h-10 text-diyar-brown group-hover:scale-110 transition" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg md:text-xl text-diyar-dark mb-1">
-                    خدمات التركيب والصيانة
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    فنيون معتمدون لتركيب الأثاث وصيانته في منزلك.
-                  </p>
-                </div>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  const categoryName = apiCategory?.name ?? staticMeta?.name ?? slug;
+  const categoryImg = CATEGORY_ICONS[slug] ?? staticMeta?.img ?? PLACEHOLDER_CATEGORY_IMG;
+  const subcategories = staticMeta && 'subcategories' in staticMeta ? staticMeta.subcategories : [];
+  const isServiceCategory = apiCategory?.type === 'service';
+  const products = productsData?.items.map(mapProductCard) ?? [];
+  const totalResults = productsData?.pagination.total ?? products.length;
+  const vendors = vendorsData?.items ?? [];
+  const hasActiveFilters =
+    minPrice > 0 ||
+    maxPrice < MAX_PRICE ||
+    Boolean(vendorId) ||
+    Boolean(availabilityMode) ||
+    sort !== '-created_at';
+
+  if (slug === 'all') {
+    const browseSort = searchParams.get('sort');
+    const browseDiscounted = searchParams.get('discounted');
+    if (browseSort || browseDiscounted) {
+      return <CategoryAllProductsBrowse searchParams={searchParams} setSearchParams={setSearchParams} />;
+    }
+    return <CategoryAllLanding />;
   }
 
   return (
@@ -382,174 +551,74 @@ export default function CategoryPage() {
       <div className="bg-white border-b border-gray-200 pt-4 pb-4 md:pt-6 md:pb-8 px-4">
         <div className="max-w-7xl mx-auto flex flex-row items-center gap-4 md:gap-6">
           <div className="w-16 h-16 md:w-28 md:h-28 rounded-2xl md:rounded-3xl overflow-hidden shrink-0 flex items-center justify-center bg-gray-100 shadow-sm border border-gray-100">
-            <img src={category.img} alt={category.name} className="w-full h-full object-cover" />
+            <img src={categoryImg} alt={categoryName} className="w-full h-full object-cover" />
           </div>
           <div className="text-right flex-1">
             <h1 className="text-xl md:text-4xl font-bold text-diyar-dark mb-1 md:mb-2">
-              {category.name}
+              {categoryName}
             </h1>
             <p className="text-gray-500 max-w-2xl text-xs md:text-base leading-relaxed line-clamp-2 md:line-clamp-none">
-              تصفح أحدث وأرقى المنتجات في قسم {category.name}. نقدم لك تشكيلة واسعة من أعرق المتاجر.
+              تصفح أحدث وأرقى المنتجات في قسم {categoryName}. نقدم لك تشكيلة واسعة من أعرق المتاجر.
             </p>
           </div>
         </div>
       </div>
 
       {/* Subcategories (only if it has subcategories) */}
-      {'subcategories' in category &&
-        Array.isArray(category.subcategories) &&
-        category.subcategories.length > 0 && (
-          <div className="bg-white border-b border-gray-100 shadow-sm relative z-10 w-full mb-6">
-            <div className="max-w-7xl mx-auto px-4 py-3 md:py-4">
-              <div className="flex items-center gap-3 md:gap-4 overflow-x-auto pb-1 scrollbar-hide">
+      {subcategories.length > 0 && (
+        <div className="bg-white border-b border-gray-100 shadow-sm relative z-10 w-full mb-6">
+          <div className="max-w-7xl mx-auto px-4 py-3 md:py-4">
+            <p className="text-[11px] text-gray-400 mb-2 px-1">
+              معاينة بصرية فقط — الفلاتر الفرعية لا تؤثر على نتائج البحث حالياً
+            </p>
+            <div className="flex items-center gap-3 md:gap-4 overflow-x-auto pb-1 scrollbar-hide">
+              <button
+                type="button"
+                aria-disabled="true"
+                title="معاينة بصرية — لا يفلتر النتائج"
+                onClick={() => setActiveSubcategory('الكل')}
+                className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold shadow-sm shrink-0 transition-colors cursor-default ${
+                  activeSubcategory === 'الكل'
+                    ? 'bg-diyar-dark text-white'
+                    : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+                }`}
+              >
+                الكل
+              </button>
+              {subcategories.map((sub: string, index: number) => (
                 <button
-                  onClick={() => setActiveSubcategory('الكل')}
-                  className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold shadow-sm shrink-0 transition-colors ${
-                    activeSubcategory === 'الكل'
-                      ? 'bg-diyar-dark text-white'
-                      : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+                  key={index}
+                  type="button"
+                  aria-disabled="true"
+                  title="معاينة بصرية — لا يفلتر النتائج"
+                  onClick={() => setActiveSubcategory(sub)}
+                  className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium border transition-colors shrink-0 cursor-default ${
+                    activeSubcategory === sub
+                      ? 'bg-diyar-dark text-white border-diyar-dark font-bold'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
                   }`}
                 >
-                  الكل
+                  {sub}
                 </button>
-                {category.subcategories.map((sub: string, index: number) => (
-                  <button
-                    key={index}
-                    onClick={() => setActiveSubcategory(sub)}
-                    className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium border transition-colors shrink-0 ${
-                      activeSubcategory === sub
-                        ? 'bg-diyar-dark text-white border-diyar-dark font-bold'
-                        : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
-                    }`}
-                  >
-                    {sub}
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 mt-6 md:mt-8 flex flex-col md:flex-row gap-6 md:gap-8">
         {/* Desktop Sidebar Filter */}
         <aside className="hidden md:block w-72 shrink-0 bg-white border border-gray-200 rounded-3xl p-6 self-start">
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
-            <h3 className="font-bold text-lg text-diyar-dark flex items-center gap-2">
-              <SlidersHorizontal size={20} className="text-diyar-brown" />
-              تصفية النتائج
-            </h3>
-            <span className="text-xs text-diyar-brown font-medium cursor-pointer hover:underline">
-              مسح الكل
-            </span>
-          </div>
-
-          <Accordion title="نطاق السعر">
-            <div className="px-1">
-              <input
-                type="range"
-                min="0"
-                max={isServiceCategory ? '5000' : '20000'}
-                step="100"
-                className="w-full accent-diyar-brown mb-4"
-              />
-              <div className="flex items-center justify-between gap-4">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
-                  <span className="text-xs text-gray-500 block mb-1">من</span>
-                  <span className="font-bold text-sm">0 ر.س</span>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
-                  <span className="text-xs text-gray-500 block mb-1">إلى</span>
-                  <span className="font-bold text-sm">
-                    {isServiceCategory ? '5,000' : '10,000'} ر.س
-                  </span>
-                </div>
-              </div>
-            </div>
-          </Accordion>
-
-          {!isServiceCategory && (
-            <Accordion title="اللون">
-              <div className="flex flex-wrap gap-2">
-                {COLORS.map((color, idx) => (
-                  <button
-                    key={idx}
-                    title={color.name}
-                    className="w-8 h-8 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-diyar-brown focus:ring-offset-2 transition-shadow"
-                    style={{ backgroundColor: color.hex }}
-                  />
-                ))}
-              </div>
-            </Accordion>
-          )}
-
-          {currentFilters.map((group, i) => (
-            <Accordion title={group.title} key={i}>
-              <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent pr-1 pl-3">
-                {(group.title === 'المتاجر المعتمدة' || group.title === 'مقدمي الخدمة') && (
-                  <div className="relative mb-3">
-                    <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder={`ابحث عن ${isServiceCategory ? 'مقدم خدمة' : 'متجر'}...`}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-1.5 pr-9 pl-3 text-sm outline-none focus:border-diyar-brown"
-                    />
-                  </div>
-                )}
-                {group.options.map((opt, idx) => (
-                  <label key={idx} className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative flex items-center justify-center">
-                      <input
-                        type="checkbox"
-                        className="peer appearance-none w-5 h-5 border border-gray-300 rounded checked:bg-diyar-brown checked:border-diyar-brown transition-colors cursor-pointer"
-                      />
-                      <svg
-                        className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={3}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <span className="text-sm text-gray-600 group-hover:text-diyar-dark transition-colors">
-                      {opt}
-                    </span>
-                    <span className="text-xs text-gray-400 mr-auto">
-                      ({Math.floor(Math.random() * 50) + 1})
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </Accordion>
-          ))}
-
-          <Accordion title="التقييم" defaultOpen={false}>
-            <div className="space-y-3">
-              {[4, 3, 2, 1].map((rating, i) => (
-                <label key={i} className="flex items-center gap-3 cursor-pointer group">
-                  <div className="relative flex items-center justify-center">
-                    <input
-                      type="radio"
-                      name="rating"
-                      className="peer appearance-none w-5 h-5 border border-gray-300 rounded-full checked:border-4 checked:border-diyar-brown transition-all cursor-pointer"
-                    />
-                  </div>
-                  <div className="flex gap-1 text-yellow-400">
-                    {[...Array(5)].map((_, starIdx) => (
-                      <Star
-                        key={starIdx}
-                        size={14}
-                        fill={starIdx < rating ? 'currentColor' : 'none'}
-                        strokeWidth={starIdx < rating ? 0 : 2}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-500 mr-1">فأكثر</span>
-                </label>
-              ))}
-            </div>
-          </Accordion>
+          <CatalogFilterPanel
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            vendorId={vendorId}
+            availabilityMode={availabilityMode}
+            vendors={vendors}
+            isServiceCategory={isServiceCategory}
+            onPatch={patchParams}
+            onReset={resetFilters}
+          />
         </aside>
 
         {/* Main Content */}
@@ -567,15 +636,21 @@ export default function CategoryPage() {
             </div>
 
             <div className="flex items-center gap-4 text-sm text-gray-600">
-              <span className="hidden md:inline font-medium">إظهار 1-12 من أصل 48 نتيجة</span>
+              <span className="hidden md:inline font-medium">
+                إظهار {products.length} من أصل {totalResults} نتيجة
+              </span>
               <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-1.5 bg-gray-50">
                 <span className="text-gray-500">ترتيب حسب:</span>
-                <select className="bg-transparent border-none outline-none font-bold text-diyar-dark pr-1 pl-4 cursor-pointer">
-                  <option>المقترحة</option>
-                  <option>الأحدث</option>
-                  <option>السعر: من الأقل للأعلى</option>
-                  <option>السعر: من الأعلى للأقل</option>
-                  <option>الأعلى تقييماً</option>
+                <select
+                  value={sort}
+                  onChange={(e) => patchParams({ sort: e.target.value })}
+                  className="bg-transparent border-none outline-none font-bold text-diyar-dark pr-1 pl-4 cursor-pointer"
+                >
+                  <option value="-created_at">الأحدث</option>
+                  <option value="price">السعر: من الأقل للأعلى</option>
+                  <option value="-price">السعر: من الأعلى للأقل</option>
+                  <option value="-discount">أعلى خصم</option>
+                  <option value="name">الاسم</option>
                 </select>
               </div>
             </div>
@@ -596,68 +671,86 @@ export default function CategoryPage() {
             </div>
           </div>
 
-          {/* Active Filters */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
-              السعر: 0 - {isServiceCategory ? '5000' : '10000'}
-              <X size={14} className="cursor-pointer hover:text-gray-300" />
-            </span>
-            <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
-              {isServiceCategory ? 'ديار ديزاين' : 'الزاوية الحديثة'}
-              <X size={14} className="cursor-pointer hover:text-gray-300" />
-            </span>
-            <span className="text-sm text-diyar-brown font-medium cursor-pointer flex items-center px-2 hover:underline">
-              مسح فلاتر البحث
-            </span>
-          </div>
+          {hasActiveFilters && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {(minPrice > 0 || maxPrice < MAX_PRICE) && (
+                <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
+                  السعر: {minPrice} - {maxPrice}
+                  <button
+                    type="button"
+                    aria-label="إزالة فلتر السعر"
+                    onClick={() => patchParams({ min_price: undefined, max_price: undefined })}
+                  >
+                    <X size={14} className="cursor-pointer hover:text-gray-300" />
+                  </button>
+                </span>
+              )}
+              {vendorId && (
+                <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
+                  {vendors.find((v) => v.id === vendorId)?.store_name ?? 'متجر'}
+                  <button
+                    type="button"
+                    aria-label="إزالة فلتر المتجر"
+                    onClick={() => patchParams({ vendor_id: undefined })}
+                  >
+                    <X size={14} className="cursor-pointer hover:text-gray-300" />
+                  </button>
+                </span>
+              )}
+              {availabilityMode && (
+                <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
+                  {AVAILABILITY_OPTIONS.find((o) => o.value === availabilityMode)?.label}
+                  <button
+                    type="button"
+                    aria-label="إزالة فلتر التوفر"
+                    onClick={() => patchParams({ availability_mode: undefined })}
+                  >
+                    <X size={14} className="cursor-pointer hover:text-gray-300" />
+                  </button>
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="text-sm text-diyar-brown font-medium cursor-pointer flex items-center px-2 hover:underline"
+              >
+                مسح فلاتر البحث
+              </button>
+            </div>
+          )}
 
           {/* Product/Service Grid */}
-          <div
-            className={`grid gap-4 md:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}
-          >
-            {(isServiceCategory ? MOCK_SERVICES : MOCK_PRODUCTS).map((item, i) => (
-              <div key={i} className="h-full">
-                {isServiceCategory ? (
-                  <ServiceCard service={item} layout={viewMode} />
-                ) : (
+          {isLoading ? (
+            <LoadingState className="min-h-60" />
+          ) : isError ? (
+            <ErrorState error={error as Error} onRetry={() => refetch()} />
+          ) : isServiceCategory ? (
+            <EmptyState title="لا توجد خدمات" description="سيتم إضافة خدمات هذا القسم قريباً." />
+          ) : products.length === 0 ? (
+            <EmptyState
+              title="لا توجد منتجات"
+              description="لم يتم العثور على منتجات في هذا القسم حالياً."
+            />
+          ) : (
+            <div
+              className={`grid gap-4 md:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}
+            >
+              {products.map((item) => (
+                <div key={item.id} className="h-full">
                   <ProductCard product={item} layout={viewMode} />
-                )}
-              </div>
-            ))}
-            {/* Duplicate for demo */}
-            {(isServiceCategory ? MOCK_SERVICES : MOCK_PRODUCTS).map((item, i) => (
-              <div key={`d-${i}`} className="h-full">
-                {isServiceCategory ? (
-                  <ServiceCard service={item} layout={viewMode} />
-                ) : (
-                  <ProductCard product={item} layout={viewMode} />
-                )}
-              </div>
-            ))}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
 
-          {/* Pagination */}
-          <div className="mt-12 flex justify-center items-center gap-2">
-            <button className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
-              &lt;
-            </button>
-            <button className="w-10 h-10 rounded-xl bg-diyar-dark text-white font-bold flex items-center justify-center shadow-sm">
-              1
-            </button>
-            <button className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-700 font-medium hover:bg-gray-50 transition-colors">
-              2
-            </button>
-            <button className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-700 font-medium hover:bg-gray-50 transition-colors">
-              3
-            </button>
-            <span className="text-gray-400 px-1">...</span>
-            <button className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-700 font-medium hover:bg-gray-50 transition-colors">
-              8
-            </button>
-            <button className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
-              &gt;
-            </button>
-          </div>
+          {productsData?.pagination && (
+            <PaginationBar
+              pagination={productsData.pagination}
+              page={page}
+              onPageChange={(nextPage) => patchParams({ page: String(nextPage) }, false)}
+              className="mt-12"
+            />
+          )}
         </div>
       </div>
 
@@ -680,92 +773,32 @@ export default function CategoryPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 pb-24">
-              <Accordion title="نطاق السعر">
-                <div className="px-1">
-                  <input
-                    type="range"
-                    min="0"
-                    max={isServiceCategory ? '5000' : '20000'}
-                    step="100"
-                    className="w-full accent-diyar-brown mb-4"
-                  />
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
-                      <span className="text-xs text-gray-500 block mb-1">من</span>
-                      <span className="font-bold text-sm">0 ر.س</span>
-                    </div>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
-                      <span className="text-xs text-gray-500 block mb-1">إلى</span>
-                      <span className="font-bold text-sm">
-                        {isServiceCategory ? '5,000' : '10,000'} ر.س
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Accordion>
-
-              {!isServiceCategory && (
-                <Accordion title="اللون">
-                  <div className="flex flex-wrap gap-2">
-                    {COLORS.map((color, idx) => (
-                      <button
-                        key={idx}
-                        title={color.name}
-                        className="w-8 h-8 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-diyar-brown focus:ring-offset-2 transition-shadow"
-                        style={{ backgroundColor: color.hex }}
-                      />
-                    ))}
-                  </div>
-                </Accordion>
-              )}
-
-              {currentFilters.map((group, i) => (
-                <Accordion title={group.title} key={i}>
-                  <div className="space-y-3 pr-1 pl-3">
-                    {(group.title === 'المتاجر المعتمدة' || group.title === 'مقدمي الخدمة') && (
-                      <div className="relative mb-3">
-                        <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input
-                          type="text"
-                          placeholder={`ابحث عن ${isServiceCategory ? 'مقدم خدمة' : 'متجر'}...`}
-                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pr-9 pl-3 text-sm outline-none focus:border-diyar-brown"
-                        />
-                      </div>
-                    )}
-                    {group.options.map((opt, idx) => (
-                      <label key={idx} className="flex items-center gap-3 cursor-pointer group">
-                        <div className="relative flex items-center justify-center">
-                          <input
-                            type="checkbox"
-                            className="peer appearance-none w-5 h-5 border border-gray-300 rounded checked:bg-diyar-brown checked:border-diyar-brown transition-colors"
-                          />
-                          <svg
-                            className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={3}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        <span className="text-sm text-gray-600">{opt}</span>
-                      </label>
-                    ))}
-                  </div>
-                </Accordion>
-              ))}
+              <CatalogFilterPanel
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+                vendorId={vendorId}
+                availabilityMode={availabilityMode}
+                vendors={vendors}
+                isServiceCategory={isServiceCategory}
+                onPatch={patchParams}
+                onReset={resetFilters}
+              />
             </div>
 
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 flex gap-3">
-              <button className="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl">
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl"
+              >
                 مسح الكل
               </button>
               <button
+                type="button"
                 onClick={() => setIsMobileFilterOpen(false)}
-                className="flex-[2] bg-diyar-dark text-white font-bold py-3 rounded-xl shadow-lg shadow-black/10"
+                className="flex-2 bg-diyar-dark text-white font-bold py-3 rounded-xl shadow-lg shadow-black/10"
               >
-                تطبيق الفلاتر (48)
+                عرض النتائج ({totalResults})
               </button>
             </div>
           </div>

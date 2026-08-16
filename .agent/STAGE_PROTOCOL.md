@@ -26,7 +26,8 @@ STAGE
 | 1 | Engineering Foundation | Laravel + React foundation, CI, security infra |
 | 2 | Identity & Access | **FINALIZED** — Sanctum, OTP, roles, frontend auth |
 | 3 | User Profile & Media | **COMPLETE / FINALIZED** |
-| 4+ | Business Domains (Catalog, etc.) | Per MASTER_DEVELOPMENT_PLAN — **NOT AUTHORIZED** |
+| 4 | Catalog & Products | **COMPLETE / FINALIZED** |
+| 5+ | Cart, Checkout, Orders, etc. | Per MASTER_DEVELOPMENT_PLAN — **NOT AUTHORIZED** |
 
 ---
 

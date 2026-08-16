@@ -8,17 +8,23 @@ Arabic RTL multi-vendor marketplace for furniture products and home services —
 |-------|--------|
 | Stage 0 — Discovery & Architecture | **COMPLETE** |
 | Stage 1 — Engineering Foundation | **COMPLETE / FINALIZED** |
-| Stage 2 — Identity & Access | **COMPLETE / FINALIZED** |
-| **Stage 3 — User Profile & Media** | **COMPLETE / FINALIZED** |
-| Stage 4+ — Catalog / Business Domains | **NOT AUTHORIZED** |
+| Stage 2 — Identity & Access | **COMPLETE / FINALIZED** *(committed)* |
+| Stage 3 — User Profile & Media | **COMPLETE / FINALIZED** *(committed)* |
+| Stage 4 — Catalog & Products | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** *(uncommitted on `dev`)* |
+| Stage 5 — Inventory | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** *(uncommitted)* |
+| Stage 5.5 — Storefront Integration | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** *(uncommitted)* |
+| Stage 6+ — Cart / Checkout / Orders | **NOT AUTHORIZED** |
 
 | Component | Status |
 |-----------|--------|
-| Frontend UI | React 19 SPA — auth + **profile/addresses/avatar API-connected**; catalog/checkout still mock |
-| Backend API | Laravel 13 — health + Stage 2 auth + **Stage 3 profile/addresses/media API** |
+| Frontend UI | React 19 SPA — auth, profile, **catalog storefront + vendor dashboard API-connected**; cart/checkout/orders still mock |
+| Backend API | Laravel 13 — health, auth (Stage 2), profile/media (Stage 3), **catalog + inventory + engagement APIs (Stage 4/5/5.5 on disk)** |
 | CI | GitHub Actions — lint, test, build (frontend + backend) |
 
-Live project state: [.agent/CURRENT_STATE.md](.agent/CURRENT_STATE.md)
+**Last validation (2026-08-16):** PHPUnit **143/143**, Vitest **65/65**, tsc, build, Pint, Prettier (scoped) — all pass.
+
+Live project state: [.agent/CURRENT_STATE.md](.agent/CURRENT_STATE.md)  
+Reconciliation audit: [conception/STAGE_2_5.5_RECONCILIATION_AUDIT.md](conception/STAGE_2_5.5_RECONCILIATION_AUDIT.md)
 
 ## Repository Structure
 

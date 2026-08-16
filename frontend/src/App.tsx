@@ -521,7 +521,14 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/wishlist" element={<WishlistPage />} />
+          <Route
+            path="/wishlist"
+            element={
+              <ProtectedRoute>
+                <WishlistPage />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="/403" element={<ForbiddenPage />} />
 

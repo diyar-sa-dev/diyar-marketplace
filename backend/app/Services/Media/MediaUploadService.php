@@ -2,6 +2,7 @@
 
 namespace App\Services\Media;
 
+use App\Models\MediaFile;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -70,6 +71,39 @@ final class MediaUploadService
         }
 
         return $path;
+    }
+
+    public function storeProductImage(User $user, string $productId, UploadedFile $file): MediaFile
+    {
+        $this->validateImage($file);
+
+        $extension = $this->resolveExtension($file);
+        $directory = sprintf('products/%s', $productId);
+        $filename = Str::uuid()->toString().'.'.$extension;
+        $path = $directory.'/'.$filename;
+
+        $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
+        if ($stored === false) {
+            throw new RuntimeException(__('diyar.media.upload_failed'));
+        }
+
+        return MediaFile::query()->create([
+            'disk' => $this->diskName(),
+            'path' => $path,
+            'mime_type' => (string) $file->getMimeType(),
+            'size_bytes' => (int) $file->getSize(),
+            'uploaded_by' => $user->id,
+        ]);
+    }
+
+    public function deleteMediaFile(?MediaFile $mediaFile): void
+    {
+        if ($mediaFile === null) {
+            return;
+        }
+
+        $this->deletePath($mediaFile->path);
+        $mediaFile->delete();
     }
 
     public function deletePath(?string $path): void
