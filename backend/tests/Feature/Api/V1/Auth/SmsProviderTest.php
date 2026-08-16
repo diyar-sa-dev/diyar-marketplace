@@ -5,6 +5,7 @@ namespace Tests\Feature\Api\V1\Auth;
 use App\Contracts\Sms\SmsProvider;
 use App\Enums\OtpPurpose;
 use App\Infrastructure\Sms\LogSmsProvider;
+use App\Infrastructure\Sms\SmsProviderFactory;
 use App\Services\Identity\OtpCacheStore;
 use App\Services\Identity\OtpService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -65,6 +66,35 @@ class SmsProviderTest extends TestCase
         );
 
         $this->assertNull(LogSmsProvider::lastDevelopmentOtp());
+    }
+
+    public function test_production_environment_name_is_case_insensitive_for_otp_logging(): void
+    {
+        Log::shouldReceive('info')->never();
+
+        config(['app.env' => 'Production']);
+
+        LogSmsProvider::exposeForDevelopment(
+            phone: '966508888888',
+            purpose: OtpPurpose::Registration,
+            otp: '123456',
+        );
+
+        $this->assertNull(LogSmsProvider::lastDevelopmentOtp());
+    }
+
+    public function test_production_without_msegat_credentials_fails_fast(): void
+    {
+        config([
+            'app.env' => 'production',
+            'services.msegat.username' => null,
+            'services.msegat.api_key' => null,
+            'services.msegat.sender_id' => null,
+        ]);
+
+        $this->expectException(\RuntimeException::class);
+
+        SmsProviderFactory::make();
     }
 
     public function test_msegat_credentials_disable_plain_otp_logging_even_in_local(): void

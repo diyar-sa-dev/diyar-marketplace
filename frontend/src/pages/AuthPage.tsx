@@ -346,12 +346,16 @@ export default function AuthPage() {
 
   const switchView = (next: AuthView) => {
     resetMessages();
-    setPreviousView(view);
+    setPreviousView(next === 'register' ? 'login' : view);
     setView(next);
   };
 
   const goBack = () => {
     resetMessages();
+    if (view === 'register') {
+      setView('login');
+      return;
+    }
     setView(previousView);
   };
 
@@ -537,7 +541,8 @@ export default function AuthPage() {
               <button
                 type="button"
                 onClick={goBack}
-                className="absolute top-4 inset-e-4 text-gray-400 hover:text-diyar-dark cursor-pointer"
+                aria-label={t('auth.titles.login')}
+                className="absolute top-4 inset-e-4 z-10 text-gray-400 hover:text-diyar-dark cursor-pointer"
               >
                 <ChevronRight size={24} />
               </button>

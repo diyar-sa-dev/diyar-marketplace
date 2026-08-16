@@ -56,6 +56,10 @@ final class LogSmsProvider implements SmsProvider
             return false;
         }
 
+        if (self::isProductionEnvironment()) {
+            return false;
+        }
+
         if (! app()->environment(['local', 'testing'])) {
             return false;
         }
@@ -65,6 +69,11 @@ final class LogSmsProvider implements SmsProvider
         }
 
         return true;
+    }
+
+    public static function isProductionEnvironment(): bool
+    {
+        return SmsProviderFactory::isProductionEnvironment();
     }
 
     public static function msegatCredentialsConfigured(): bool

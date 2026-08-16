@@ -4,8 +4,7 @@ namespace App\Providers;
 
 use App\Contracts\Identity\OtpCodeGenerator;
 use App\Contracts\Sms\SmsProvider;
-use App\Infrastructure\Sms\LogSmsProvider;
-use App\Infrastructure\Sms\MsegatSmsProvider;
+use App\Infrastructure\Sms\SmsProviderFactory;
 use App\Services\Identity\SecureOtpCodeGenerator;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -19,21 +18,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(OtpCodeGenerator::class, SecureOtpCodeGenerator::class);
 
-        $this->app->singleton(SmsProvider::class, function () {
-            $config = config('services.msegat');
-
-            if (! empty($config['username']) && ! empty($config['api_key']) && ! empty($config['sender_id'])) {
-                return new MsegatSmsProvider(
-                    username: (string) $config['username'],
-                    apiKey: (string) $config['api_key'],
-                    senderId: (string) $config['sender_id'],
-                    lang: (string) $config['lang'],
-                    baseUrl: (string) $config['base_url'],
-                );
-            }
-
-            return new LogSmsProvider;
-        });
+        $this->app->singleton(SmsProvider::class, fn () => SmsProviderFactory::make());
     }
 
     public function boot(): void
