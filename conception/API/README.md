@@ -1,6 +1,6 @@
 # DIYAR API Documentation
 
-> **Status:** CURRENT — Stage 2 Identity & Access implemented  
+> **Status:** CURRENT — Stage 2 Identity & Stage 3 Profile implemented  
 > **Last updated:** 2026-08-16  
 > **Base path:** `/api/v1`
 
@@ -45,6 +45,17 @@ This directory documents the **implemented and planned** DIYAR REST API. It comp
 | POST | `/api/v1/auth/reset-password` | None | [AUTHENTICATION.md](./AUTHENTICATION.md) |
 | GET | `/api/v1/vendor/accounts/{vendorAccount}` | Yes | [AUTHENTICATION.md](./AUTHENTICATION.md) |
 | GET | `/api/v1/provider/accounts/{providerAccount}` | Yes | [AUTHENTICATION.md](./AUTHENTICATION.md) |
+| GET | `/api/v1/profile` | Yes | Stage 3 — see [Stage 3 README](../Stages/Stage%203/README.md) |
+| PATCH | `/api/v1/profile` | Yes | Stage 3 |
+| PATCH | `/api/v1/profile/password` | Yes | Stage 3 |
+| POST | `/api/v1/profile/avatar` | Yes | Stage 3 |
+| DELETE | `/api/v1/profile/avatar` | Yes | Stage 3 |
+| POST | `/api/v1/profile/phone/request-change` | Yes | Stage 3 |
+| POST | `/api/v1/profile/phone/resend-change` | Yes | Stage 3 |
+| POST | `/api/v1/profile/phone/verify-change` | Yes | Stage 3 |
+| GET/POST | `/api/v1/profile/addresses` | Yes | Stage 3 |
+| GET/PATCH/DELETE | `/api/v1/profile/addresses/{id}` | Yes | Stage 3 |
+| POST | `/api/v1/profile/addresses/{id}/default` | Yes | Stage 3 |
 
 Laravel framework health (non-JSON): `GET /up`
 

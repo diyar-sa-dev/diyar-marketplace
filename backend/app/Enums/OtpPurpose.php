@@ -8,4 +8,5 @@ enum OtpPurpose: string
     case Login = 'login';
     case PhoneVerification = 'phone_verification';
     case PasswordRecovery = 'password_recovery';
+    case PhoneChange = 'phone_change';
 }

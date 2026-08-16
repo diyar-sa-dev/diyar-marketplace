@@ -8,9 +8,9 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'api_version' => env('DIYAR_API_VERSION', '1.0.0-stage2'),
+    'api_version' => env('DIYAR_API_VERSION', '1.0.0-stage3'),
 
-    'stage' => env('DIYAR_STAGE', 'Stage 2 — Identity & Access'),
+    'stage' => env('DIYAR_STAGE', 'Stage 3 — User Profile & Media'),
 
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
 

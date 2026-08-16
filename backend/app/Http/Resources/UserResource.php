@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\User;
+use App\Services\Media\MediaUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,11 +15,17 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        /** @var MediaUploadService $media */
+        $media = app(MediaUploadService::class);
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'phone' => $this->phone,
             'email' => $this->email,
+            'bio' => $this->bio,
+            'avatar_url' => $media->url($this->avatar_path),
+            'preferences' => $this->preferences ?? [],
             'status' => $this->status->value,
             'phone_verified_at' => $this->phone_verified_at?->toIso8601String(),
             'email_verified_at' => $this->email_verified_at?->toIso8601String(),

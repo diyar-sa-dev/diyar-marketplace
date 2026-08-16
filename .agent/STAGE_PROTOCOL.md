@@ -25,7 +25,8 @@ STAGE
 | 0 | Discovery & Architecture | **FINALIZED** |
 | 1 | Engineering Foundation | Laravel + React foundation, CI, security infra |
 | 2 | Identity & Access | **FINALIZED** — Sanctum, OTP, roles, frontend auth |
-| 3+ | Business Domains | Per MASTER_DEVELOPMENT_PLAN — **NOT AUTHORIZED** |
+| 3 | User Profile & Media | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** |
+| 4+ | Business Domains (Catalog, etc.) | Per MASTER_DEVELOPMENT_PLAN — **NOT AUTHORIZED** |
 
 ---
 

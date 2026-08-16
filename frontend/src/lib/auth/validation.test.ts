@@ -11,6 +11,7 @@ import {
 describe('Saudi phone validation', () => {
   it('sanitizes non-digits and limits length', () => {
     expect(sanitizeSaudiPhoneInput('+966501234567')).toBe('501234567');
+    expect(sanitizeSaudiPhoneInput('966501234567')).toBe('501234567');
     expect(sanitizeSaudiPhoneInput('50123456789')).toHaveLength(SAUDI_PHONE_DIGITS);
   });
 
@@ -37,6 +38,7 @@ describe('maskPhoneForDisplay', () => {
   it('masks phone showing first and last digit only', () => {
     expect(maskPhoneForDisplay('577777777')).toBe('5*******7');
     expect(maskPhoneForDisplay('501234567')).toBe('5*******7');
+    expect(maskPhoneForDisplay('966501848484')).toBe('5*******4');
   });
 });
 

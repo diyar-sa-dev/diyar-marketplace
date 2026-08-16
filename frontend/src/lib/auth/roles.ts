@@ -215,3 +215,19 @@ export function roleLabelAr(name: string): string {
 
   return labels[name] ?? name;
 }
+
+const ROLE_I18N_KEY: Record<string, string> = {
+  vendor: 'merchant',
+  provider: 'service_provider',
+};
+
+export function roleLabel(name: string, t: (key: string) => string): string {
+  const roleKey = ROLE_I18N_KEY[name] ?? name;
+  const translated = t(`auth.roles.${roleKey}`);
+
+  if (translated !== `auth.roles.${roleKey}`) {
+    return translated;
+  }
+
+  return roleLabelAr(name);
+}

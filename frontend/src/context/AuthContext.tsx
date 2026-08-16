@@ -38,6 +38,7 @@ type AuthContextValue = {
   resetPassword: (payload: ResetPasswordPayload) => Promise<AuthActionResult>;
   logout: () => Promise<AuthActionResult>;
   refreshUser: () => Promise<AuthUser | null>;
+  updateUser: (user: AuthUser) => void;
   clearError: () => void;
   hasRole: (role: string) => boolean;
 };
@@ -77,6 +78,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStatus('authenticated');
     return currentUser;
   }, [clearSession]);
+
+  const updateUser = useCallback((next: AuthUser) => {
+    setUser(next);
+    setStatus('authenticated');
+  }, []);
 
   useEffect(() => {
     void refreshUser();
@@ -131,10 +137,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }),
       refreshUser,
+      updateUser,
       clearError: () => setError(null),
       hasRole: (role) => user?.roles?.some((r) => r.name === role) ?? false,
     }),
-    [user, status, error, wrap, refreshUser, clearSession],
+    [user, status, error, wrap, refreshUser, updateUser, clearSession],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

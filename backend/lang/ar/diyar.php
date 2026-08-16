@@ -40,4 +40,31 @@ return [
     'errors' => [
         'unexpected' => 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.',
     ],
+
+    'profile' => [
+        'updated' => 'تم تحديث البيانات الشخصية بنجاح.',
+        'password_updated' => 'تم تحديث كلمة المرور بنجاح.',
+        'avatar_updated' => 'تم تحديث الصورة الشخصية بنجاح.',
+        'avatar_deleted' => 'تم حذف الصورة الشخصية.',
+        'current_password_invalid' => 'كلمة المرور الحالية غير صحيحة.',
+        'phone_same_as_current' => 'رقم الجوال الجديد مطابق للرقم الحالي.',
+        'phone_change_otp_sent' => 'تم إرسال رمز التحقق إلى رقم الجوال الجديد.',
+        'phone_change_otp_resent' => 'تم إرسال رمز تحقق جديد.',
+        'phone_changed' => 'تم تحديث رقم الجوال بنجاح.',
+        'phone_change_requires_otp' => 'تغيير رقم الجوال يتطلب التحقق عبر OTP.',
+        'address_created' => 'تم إضافة العنوان بنجاح.',
+        'address_updated' => 'تم تحديث العنوان بنجاح.',
+        'address_deleted' => 'تم حذف العنوان.',
+        'address_default_set' => 'تم تعيين العنوان الافتراضي.',
+        'building_prefix' => 'مبنى :value',
+        'apartment_prefix' => 'شقة :value',
+    ],
+
+    'media' => [
+        'invalid_upload' => 'ملف الرفع غير صالح.',
+        'invalid_type' => 'نوع الملف غير مدعوم.',
+        'invalid_extension' => 'امتداد الملف غير مدعوم.',
+        'file_too_large' => 'حجم الملف أكبر من الحد المسموح.',
+        'upload_failed' => 'تعذر رفع الملف.',
+    ],
 ];

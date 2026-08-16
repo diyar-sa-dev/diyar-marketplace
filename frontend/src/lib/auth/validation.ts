@@ -100,6 +100,15 @@ export function sanitizeSaudiPhoneInput(value: string): string {
   return digits.slice(0, SAUDI_PHONE_DIGITS);
 }
 
+/** API/storage format (9665xxxxxxxx) → national input (5xxxxxxxx). */
+export function toSaudiPhoneNationalInput(phone: string | null | undefined): string {
+  if (!phone) {
+    return '';
+  }
+
+  return sanitizeSaudiPhoneInput(phone);
+}
+
 export function isValidSaudiPhoneNational(value: string): boolean {
   return SAUDI_PHONE_PATTERN.test(value);
 }
@@ -123,13 +132,27 @@ export function formatPhoneDisplay(phone: string | null | undefined): string {
 
 /** Mask phone for OTP screens: first digit + asterisks + last digit (e.g. 501234567 → 5******7). */
 export function maskPhoneForDisplay(phone: string | null | undefined): string {
-  const digits = (phone ?? '').replace(/\D/g, '');
+  const digits = toSaudiPhoneNationalInput(phone);
+
+  if (!digits) {
+    return '';
+  }
 
   if (digits.length <= 2) {
     return digits;
   }
 
   return `${digits[0]}${'*'.repeat(digits.length - 2)}${digits[digits.length - 1]}`;
+}
+
+/** Masked Saudi phone with country code for display (e.g. +966 5******7). */
+export function formatMaskedSaudiPhoneInternational(phone: string | null | undefined): string {
+  const masked = maskPhoneForDisplay(phone);
+  if (!masked) {
+    return '';
+  }
+
+  return `+966 ${masked}`;
 }
 
 export function passwordStrengthLabelKey(level: PasswordStrengthLevel): string | null {

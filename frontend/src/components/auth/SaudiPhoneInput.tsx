@@ -1,4 +1,4 @@
-import { SAUDI_PHONE_DIGITS, sanitizeSaudiPhoneInput } from '../../lib/auth/validation.ts';
+import { SAUDI_PHONE_DIGITS, sanitizeSaudiPhoneInput, toSaudiPhoneNationalInput } from '../../lib/auth/validation.ts';
 
 type SaudiPhoneInputProps = {
   value: string;
@@ -13,28 +13,27 @@ export function SaudiPhoneInput({
   autoComplete = 'tel',
   id,
 }: SaudiPhoneInputProps) {
+  const nationalPhone = toSaudiPhoneNationalInput(value);
+
   return (
-    <div className="relative flex min-w-0">
+    <div className="relative flex min-w-0" dir="ltr">
+      <div className="flex items-center justify-center shrink-0 rounded-l-xl border border-gray-200 border-e-0 bg-gray-50 px-3 font-bold text-gray-600 sm:px-4">
+        +966
+      </div>
       <input
         id={id}
         type="tel"
         inputMode="numeric"
         pattern="5[0-9]{8}"
         required
-        value={value}
+        value={nationalPhone}
         onChange={(e) => onChange(sanitizeSaudiPhoneInput(e.target.value))}
         autoComplete={autoComplete}
         maxLength={SAUDI_PHONE_DIGITS}
-        className="flex-1 min-w-0 pl-3 pr-3 py-3 border border-gray-200 rounded-r-xl focus:ring-1 focus:ring-diyar-brown focus:border-diyar-brown outline-none transition-colors"
+        className="min-w-0 flex-1 rounded-r-xl border border-gray-200 py-3 pl-3 pr-3 outline-none transition-colors focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown"
         placeholder="501234567"
         dir="ltr"
       />
-      <div
-        className="bg-gray-50 border border-gray-200 border-s-0 rounded-l-xl px-3 sm:px-4 flex items-center justify-center font-bold text-gray-600 shrink-0"
-        dir="ltr"
-      >
-        +966
-      </div>
     </div>
   );
 }

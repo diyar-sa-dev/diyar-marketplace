@@ -102,7 +102,7 @@ export function RouteStatusPage({
         </Link>
 
         <div
-          className={`relative w-full overflow-hidden rounded-[2rem] border border-white/80 bg-white/95 p-8 text-center shadow-[0_24px_64px_rgba(19,38,36,0.08)] ring-1 backdrop-blur-sm sm:p-10 ${meta.ringClass}`}
+          className={`relative w-full overflow-hidden rounded-4xl border border-white/80 bg-white/95 p-8 text-center shadow-[0_24px_64px_rgba(19,38,36,0.08)] ring-1 backdrop-blur-sm sm:p-10 ${meta.ringClass}`}
         >
           <div
             aria-hidden="true"

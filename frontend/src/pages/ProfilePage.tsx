@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   User,
@@ -11,137 +11,186 @@ import {
   Globe,
   LogOut,
   ChevronLeft,
+  ChevronRight,
   Shield,
   Wrench,
 } from 'lucide-react';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useToast } from '../hooks/useToast.ts';
-import { formatPhoneDisplay } from '../lib/auth/validation.ts';
-import { roleLabelAr } from '../lib/auth/roles.ts';
+import { useDeleteAvatar, useUploadAvatar } from '../hooks/profile/useProfile.ts';
+import { UserAvatar } from '../components/profile/UserAvatar.tsx';
+import { toSaudiPhoneNationalInput } from '../lib/auth/validation.ts';
+import { roleLabel } from '../lib/auth/roles.ts';
+import { useLocale } from '../lib/i18n/localeContext.ts';
+import { collectDisplayErrors, isUnexpectedServerError } from '../utils/errors.ts';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t, locale, dir } = useLocale();
   const { user, logout } = useAuth();
+  const uploadAvatar = useUploadAvatar();
+  const deleteAvatar = useDeleteAvatar();
+
+  const MenuChevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   const handleLogout = async () => {
     const result = await logout();
-    toast.success(result.message ?? 'تم تسجيل الخروج بنجاح.');
+    toast.success(result.message ?? t('auth.toasts.logoutSuccess'));
     navigate('/');
   };
 
-  const initials = user?.name?.trim()?.charAt(0) ?? '?';
-  const phoneDisplay = formatPhoneDisplay(user?.phone);
-  const roleSummary = user?.roles?.map((role) => roleLabelAr(role.name)).join(' • ') ?? 'عضو';
+  const phoneDisplay = user?.phone ? toSaudiPhoneNationalInput(user.phone) : '';
+  const roleSummary =
+    user?.roles?.map((role) => roleLabel(role.name, t)).join(' • ') ??
+    t('profile.memberFallback');
 
-  const menuItems = [
-    {
-      group: 'الطلبات والمشتريات',
-      items: [
-        {
-          id: 'orders',
-          icon: <Package size={20} />,
-          title: 'طلباتي',
-          subtitle: 'تتبع الطلبات، حالة الشحن والتركيب',
-          link: '/orders',
-        },
-        {
-          id: 'service_requests',
-          icon: <Wrench size={20} />,
-          title: 'طلبات الخدمات والصيانة',
-          subtitle: 'عروض الأسعار، طلبات التفصيل والصيانة',
-          link: '/profile/service-requests',
-        },
-        {
-          id: 'wishlist',
-          icon: <Bookmark size={20} />,
-          title: 'المحفوظات',
-          subtitle: 'المنتجات والخدمات التي تم حفظها',
-          link: '/wishlist',
-        },
-        {
-          id: 'reviews',
-          icon: <Star size={20} />,
-          title: 'تقييماتي ومراجعاتي',
-          subtitle: 'سجل التقييمات للمنتجات والخدمات',
-          link: '/profile/reviews',
-        },
-      ],
-    },
-    {
-      group: 'حسابي',
-      items: [
-        {
-          id: 'personal',
-          icon: <User size={20} />,
-          title: 'البيانات الشخصية',
-          subtitle: 'الاسم، رقم الهاتف، البريد الإلكتروني',
-          link: '/profile/personal-info',
-        },
-        {
-          id: 'addresses',
-          icon: <MapPin size={20} />,
-          title: 'عناوين الشحن',
-          subtitle: 'إدارة وإضافة عناوين جديدة',
-          link: '/profile/addresses',
-        },
-        {
-          id: 'loyalty',
-          icon: <Award size={20} />,
-          title: 'نقاط الولاء (ديار)',
-          subtitle: 'الرصيد المتاح وسجل الاستخدام',
-          link: '/loyalty',
-        },
-      ],
-    },
-    {
-      group: 'الإعدادات',
-      items: [
-        {
-          id: 'security',
-          icon: <Shield size={20} />,
-          title: 'الأمان وكلمة المرور',
-          subtitle: 'استعادة كلمة المرور عبر OTP',
-          link: '/profile/security',
-        },
-        {
-          id: 'notifications',
-          icon: <Bell size={20} />,
-          title: 'الإشعارات',
-          subtitle: 'تفضيلات رسائل التنبيه والعروض',
-          link: '/profile/notifications',
-        },
-        {
-          id: 'language',
-          icon: <Globe size={20} />,
-          title: 'اللغة',
-          subtitle: 'العربية',
-          link: '/profile/language',
-        },
-      ],
-    },
-  ];
+  const menuItems = useMemo(
+    () => [
+      {
+        group: t('profile.menu.groups.orders'),
+        items: [
+          {
+            id: 'orders',
+            icon: <Package size={20} />,
+            title: t('profile.menu.orders.title'),
+            subtitle: t('profile.menu.orders.subtitle'),
+            link: '/orders',
+          },
+          {
+            id: 'service_requests',
+            icon: <Wrench size={20} />,
+            title: t('profile.menu.serviceRequests.title'),
+            subtitle: t('profile.menu.serviceRequests.subtitle'),
+            link: '/profile/service-requests',
+          },
+          {
+            id: 'wishlist',
+            icon: <Bookmark size={20} />,
+            title: t('profile.menu.wishlist.title'),
+            subtitle: t('profile.menu.wishlist.subtitle'),
+            link: '/wishlist',
+          },
+          {
+            id: 'reviews',
+            icon: <Star size={20} />,
+            title: t('profile.menu.reviews.title'),
+            subtitle: t('profile.menu.reviews.subtitle'),
+            link: '/profile/reviews',
+          },
+        ],
+      },
+      {
+        group: t('profile.menu.groups.account'),
+        items: [
+          {
+            id: 'personal',
+            icon: <User size={20} />,
+            title: t('profile.menu.personalInfo.title'),
+            subtitle: t('profile.menu.personalInfo.subtitle'),
+            link: '/profile/personal-info',
+          },
+          {
+            id: 'addresses',
+            icon: <MapPin size={20} />,
+            title: t('profile.menu.addresses.title'),
+            subtitle: t('profile.menu.addresses.subtitle'),
+            link: '/profile/addresses',
+          },
+          {
+            id: 'loyalty',
+            icon: <Award size={20} />,
+            title: t('profile.menu.loyalty.title'),
+            subtitle: t('profile.menu.loyalty.subtitle'),
+            link: '/loyalty',
+          },
+        ],
+      },
+      {
+        group: t('profile.menu.groups.settings'),
+        items: [
+          {
+            id: 'security',
+            icon: <Shield size={20} />,
+            title: t('profile.menu.security.title'),
+            subtitle: t('profile.menu.security.subtitle'),
+            link: '/profile/security',
+          },
+          {
+            id: 'notifications',
+            icon: <Bell size={20} />,
+            title: t('profile.menu.notifications.title'),
+            subtitle: t('profile.menu.notifications.subtitle'),
+            link: '/profile/notifications',
+          },
+          {
+            id: 'language',
+            icon: <Globe size={20} />,
+            title: t('profile.menu.language.title'),
+            subtitle: t('profile.menu.language.subtitle'),
+            link: '/profile/language',
+          },
+        ],
+      },
+    ],
+    [t],
+  );
+
+  const handleAvatarUpload = async (file: File) => {
+    try {
+      const result = await uploadAvatar.mutateAsync(file);
+      toast.success(result.message ?? t('profile.avatar.uploadSuccess'));
+    } catch (error) {
+      if (isUnexpectedServerError(error, locale)) {
+        throw new Error(collectDisplayErrors(error, locale).message);
+      }
+      toast.error(collectDisplayErrors(error, locale).message ?? t('profile.avatar.uploadError'));
+    }
+  };
+
+  const handleAvatarDelete = async () => {
+    try {
+      const result = await deleteAvatar.mutateAsync();
+      toast.success(result.message ?? t('profile.avatar.deleteSuccess'));
+    } catch (error) {
+      if (isUnexpectedServerError(error, locale)) {
+        throw new Error(collectDisplayErrors(error, locale).message);
+      }
+      toast.error(collectDisplayErrors(error, locale).message ?? t('profile.avatar.deleteError'));
+    }
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24 md:pb-12">
-      <div className="bg-diyar-dark text-white pt-10 pb-20 px-4 rounded-b-[40px] relative">
-        <div className="max-w-3xl mx-auto flex items-center gap-4">
-          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold border-2 border-white/40 shrink-0">
-            {initials}
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold mb-1">{user?.name ?? 'حسابي'}</h1>
-            <p className="text-white/70 text-sm mb-2">
-              {user?.email ?? '—'}
+      <div className="bg-diyar-dark text-white pt-12 pb-20 px-4 rounded-b-[40px] relative overflow-visible">
+        <div className="max-w-3xl mx-auto flex flex-col items-center gap-4 text-center md:flex-row md:items-center md:gap-5 md:text-start">
+          <UserAvatar
+            name={user?.name}
+            avatarUrl={user?.avatar_url}
+            variant="onDark"
+            editable
+            isUploading={uploadAvatar.isPending}
+            isDeleting={deleteAvatar.isPending}
+            onUpload={(file) => void handleAvatarUpload(file)}
+            onDelete={() => void handleAvatarDelete()}
+          />
+          <div className="min-w-0 w-full md:flex-1">
+            <h1 className="text-xl md:text-2xl font-bold mb-2 leading-normal wrap-break-word">
+              {user?.name ?? t('profile.title')}
+            </h1>
+            <p className="mb-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-white/70 md:justify-start">
+              <span className="break-all">{user?.email ?? '—'}</span>
               {phoneDisplay ? (
                 <>
-                  <span className="mx-2">•</span>
-                  {phoneDisplay}
+                  <span aria-hidden="true">•</span>
+                  <span dir="ltr" className="inline-block whitespace-nowrap">
+                    +966 {phoneDisplay}
+                  </span>
                 </>
               ) : null}
             </p>
-            <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full w-max text-xs font-semibold backdrop-blur-md">
-              <Award size={14} className="text-amber-400" />
+            <div className="mx-auto flex w-max max-w-full items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold backdrop-blur-md md:mx-0">
+              <Award size={14} className="shrink-0 text-amber-400" />
               <span>{roleSummary}</span>
             </div>
           </div>
@@ -164,16 +213,16 @@ export default function ProfilePage() {
                   to={item.link}
                   className="flex items-center p-4 hover:bg-gray-50 transition-colors group cursor-pointer"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-diyar-brown flex items-center justify-center shrink-0 ml-4 group-hover:bg-diyar-brown group-hover:text-white transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-diyar-brown flex items-center justify-center shrink-0 ms-0 me-4 group-hover:bg-diyar-brown group-hover:text-white transition-colors">
                     {item.icon}
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-gray-800 text-sm mb-0.5">{item.title}</h3>
-                    <p className="text-xs text-gray-500">{item.subtitle}</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-800 text-sm mb-0.5 text-balance leading-snug">{item.title}</h3>
+                    <p className="text-xs text-gray-500 text-balance">{item.subtitle}</p>
                   </div>
-                  <ChevronLeft
+                  <MenuChevron
                     size={18}
-                    className="text-gray-300 group-hover:text-diyar-brown transition-colors"
+                    className="text-gray-300 group-hover:text-diyar-brown transition-colors shrink-0"
                   />
                 </Link>
               ))}
@@ -187,7 +236,7 @@ export default function ProfilePage() {
           className="w-full bg-white rounded-3xl shadow-sm border border-red-100 p-4 flex items-center justify-center gap-2 text-red-600 font-bold hover:bg-red-50 transition-colors cursor-pointer"
         >
           <LogOut size={20} />
-          <span>تسجيل الخروج</span>
+          <span>{t('common.logout')}</span>
         </button>
       </div>
     </div>

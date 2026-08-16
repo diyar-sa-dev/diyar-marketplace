@@ -40,4 +40,31 @@ return [
     'errors' => [
         'unexpected' => 'Something went wrong. Please try again.',
     ],
+
+    'profile' => [
+        'updated' => 'Profile updated successfully.',
+        'password_updated' => 'Password updated successfully.',
+        'avatar_updated' => 'Profile photo updated successfully.',
+        'avatar_deleted' => 'Profile photo removed.',
+        'current_password_invalid' => 'Current password is incorrect.',
+        'phone_same_as_current' => 'The new phone number is the same as your current number.',
+        'phone_change_otp_sent' => 'A verification code was sent to the new phone number.',
+        'phone_change_otp_resent' => 'A new verification code was sent.',
+        'phone_changed' => 'Phone number updated successfully.',
+        'phone_change_requires_otp' => 'Changing your phone number requires OTP verification.',
+        'address_created' => 'Address added successfully.',
+        'address_updated' => 'Address updated successfully.',
+        'address_deleted' => 'Address deleted.',
+        'address_default_set' => 'Default address updated.',
+        'building_prefix' => 'Building :value',
+        'apartment_prefix' => 'Apt :value',
+    ],
+
+    'media' => [
+        'invalid_upload' => 'Invalid upload file.',
+        'invalid_type' => 'Unsupported file type.',
+        'invalid_extension' => 'Unsupported file extension.',
+        'file_too_large' => 'File exceeds the maximum allowed size.',
+        'upload_failed' => 'File upload failed.',
+    ],
 ];

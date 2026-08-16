@@ -1,6 +1,6 @@
 # DIYAR Marketplace — Current State
 
-> **Last updated:** 2026-08-16 (Stage 2 documentation finalized)  
+> **Last updated:** 2026-08-16 (Stage 3 audit complete)  
 > **Maintained by:** AI development agents after each phase completion
 
 ---
@@ -18,7 +18,8 @@
 | Stage 0 — Discovery & Architecture | **COMPLETE** |
 | Stage 1 — Engineering Foundation | **COMPLETE / FINALIZED** |
 | Stage 2 — Identity & Access | **COMPLETE / FINALIZED** |
-| **Stage 3 — Catalog / Marketplace** | **NOT AUTHORIZED** |
+| **Stage 3 — User Profile & Media** | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** |
+| Stage 4+ — Business Domains (Catalog, etc.) | **NOT AUTHORIZED** |
 
 ---
 
@@ -26,73 +27,45 @@
 
 | Field | Value |
 |-------|-------|
-| **Current Stage** | Stage 2 — **FINALIZED** |
-| **Current Phase** | — |
-| **Current Task** | Await explicit authorization for Stage 3 |
-| **Branch** | `dev` (Stage 2 code present, uncommitted) |
+| **Current Stage** | Stage 3 — User Profile & Media |
+| **Current Phase** | 3.1–3.3 verified |
+| **Current Task** | Product Owner review and sign-off |
+| **Branch** | `dev` (uncommitted) |
 
 ---
 
-## Stage 2 Architecture Highlights
+## Stage 3 Audit (2026-08-16)
 
-| Topic | Implementation |
-|-------|----------------|
-| Identity PKs | UUID on users, roles, user_roles, vendor/provider accounts |
-| OTP storage | **Laravel Cache** (hashed) — **no DB table** |
-| SMS | `SmsProvider` → `LogSmsProvider` (dev) / `MsegatSmsProvider` (prod adapter) |
-| Browser auth | Sanctum **session cookie** (HttpOnly) + CSRF — **no JWT / no localStorage tokens** |
-| Registration | Pending user in TX → OTP in cache → verify assigns roles + accounts |
-| Authorization | Role middleware + policies + dashboard RBAC + `/403` |
-| Localization | Backend `SetLocaleFromRequest` + frontend `LocaleProvider` (ar/en, RTL/LTR) |
-
----
-
-## Test Status (Verified 2026-08-16)
+Full report: [`conception/Stages/Stage 3/STAGE_3_AUDIT_REPORT.md`](../conception/Stages/Stage%203/STAGE_3_AUDIT_REPORT.md)
 
 | Area | Result |
 |------|--------|
-| Backend PHPUnit | **41 / 41 passed** |
-| Frontend Vitest | **36 / 36 passed** |
-| TypeScript | **Pass** |
-| ESLint | 4 warnings (react-refresh) — non-blocking |
-| Prettier | 9 files need format — non-blocking |
+| Architecture, Security, Backend, Frontend, Media, Addresses | **PASS** |
+| Localization, Responsive UI, Tests, Documentation | **PASS** |
+
+**Tests:** Backend **75/75** · Frontend **45/45** · TypeScript **Pass**
 
 ---
 
-## Implemented API
+## PO sign-off still required
 
-See `conception/API/AUTHENTICATION.md`, `conception/API/HEALTH.md`, and Postman collection.
+Do **not** mark Stage 3 **FINALIZED** until explicitly authorized.
 
----
-
-## External Providers
-
-| Domain | Provider | Status |
-|--------|----------|--------|
-| OTP/SMS | MSEGAT | Adapter implemented; **LogSmsProvider in dev**; prod credentials in `.env` only |
-| Payments | MyFatoorah | Deferred |
-| AI | OpenAI | Deferred |
+Optional follow-ups (non-blocking): in-session password change UI, dedicated frontend profile tests, Postman update.
 
 ---
 
-## Documentation
+## Local setup
 
-| Document | Path |
-|----------|------|
-| Stage 2 index | `conception/Stages/Stage 2/README.md` |
-| Stage 2 completion | `conception/Stages/Stage 2/STAGE_2_COMPLETION_REPORT.md` |
-| Stage 2 audit | `conception/Stages/Stage 2/STAGE_2_FINAL_AUDIT.md` |
-
----
-
-## Git Note
-
-Changes are **not committed** unless explicitly requested by the Product Owner. Never commit `.env` files.
+```bash
+php artisan storage:link   # avatar URLs
+# Restart Vite — /storage proxy required in dev
+```
 
 ---
 
 ## Next Authorized Stage
 
-**Stage 3 — Catalog / Marketplace** — **NOT AUTHORIZED**
+**Stage 4+** — **NOT AUTHORIZED** without explicit Product Owner approval.
 
-**Do not implement:** products catalog API, cart, checkout, payments, orders, ledger, AI, media uploads, or business domains without explicit Product Owner authorization.
+**Do not commit** unless explicitly requested. Never commit `.env`.

@@ -9,12 +9,13 @@ Arabic RTL multi-vendor marketplace for furniture products and home services —
 | Stage 0 — Discovery & Architecture | **COMPLETE** |
 | Stage 1 — Engineering Foundation | **COMPLETE / FINALIZED** |
 | Stage 2 — Identity & Access | **COMPLETE / FINALIZED** |
-| **Next:** Stage 3 — Catalog / Marketplace | **NOT AUTHORIZED** |
+| **Stage 3 — User Profile & Media** | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** |
+| Stage 4+ — Catalog / Business Domains | **NOT AUTHORIZED** |
 
 | Component | Status |
 |-----------|--------|
-| Frontend UI | React 19 SPA — auth integrated; marketplace UI still mock data |
-| Backend API | Laravel 13 — health + **Stage 2 identity/auth API** |
+| Frontend UI | React 19 SPA — auth + **profile/addresses/avatar API-connected**; catalog/checkout still mock |
+| Backend API | Laravel 13 — health + Stage 2 auth + **Stage 3 profile/addresses/media API** |
 | CI | GitHub Actions — lint, test, build (frontend + backend) |
 
 Live project state: [.agent/CURRENT_STATE.md](.agent/CURRENT_STATE.md)

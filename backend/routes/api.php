@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Identity\OwnershipController;
+use App\Http\Controllers\Api\V1\Profile\AddressController;
+use App\Http\Controllers\Api\V1\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,4 +39,26 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
 
     Route::get('/provider/accounts/{providerAccount}', [OwnershipController::class, 'showProviderAccount'])
         ->middleware('role:provider,admin');
+
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'show']);
+        Route::patch('/', [ProfileController::class, 'update']);
+        Route::patch('/password', [ProfileController::class, 'updatePassword']);
+        Route::post('/avatar', [ProfileController::class, 'uploadAvatar']);
+        Route::delete('/avatar', [ProfileController::class, 'deleteAvatar']);
+
+        Route::post('/phone/request-change', [ProfileController::class, 'requestPhoneChange'])
+            ->middleware('throttle:otp');
+        Route::post('/phone/resend-change', [ProfileController::class, 'resendPhoneChange'])
+            ->middleware('throttle:otp');
+        Route::post('/phone/verify-change', [ProfileController::class, 'verifyPhoneChange'])
+            ->middleware('throttle:otp');
+
+        Route::get('/addresses', [AddressController::class, 'index']);
+        Route::post('/addresses', [AddressController::class, 'store']);
+        Route::get('/addresses/{address}', [AddressController::class, 'show']);
+        Route::patch('/addresses/{address}', [AddressController::class, 'update']);
+        Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
+        Route::post('/addresses/{address}/default', [AddressController::class, 'setDefault']);
+    });
 });

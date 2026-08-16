@@ -10,6 +10,9 @@ export type AuthUser = {
   name: string;
   phone: string;
   email: string | null;
+  bio?: string | null;
+  avatar_url?: string | null;
+  preferences?: Record<string, unknown>;
   status: 'pending' | 'active' | 'suspended' | 'rejected';
   phone_verified_at: string | null;
   email_verified_at: string | null;

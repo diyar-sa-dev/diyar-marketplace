@@ -18,8 +18,11 @@ import {
   BarChart,
   ChevronDown,
 } from 'lucide-react';
+import { LanguageSwitcher } from '../components/common/LanguageSwitcher.tsx';
+import { UserAvatar } from '../components/profile/UserAvatar.tsx';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useToast } from '../hooks/useToast.ts';
+import { useLocale } from '../hooks/useLocale.ts';
 import {
   getAccessibleDashboardPortals,
   getPortalByKey,
@@ -30,6 +33,7 @@ import {
 export default function DashboardLayout() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t, dir } = useLocale();
   const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -39,6 +43,7 @@ export default function DashboardLayout() {
   const accessiblePortals = getAccessibleDashboardPortals(user?.roles);
   const activePortal = role ? getPortalByKey(role) : null;
   const showRoleSwitcher = Boolean(role) && accessiblePortals.length > 1;
+  const sidebarHiddenTransform = dir === 'rtl' ? 'translate-x-full' : '-translate-x-full';
 
   const PORTAL_ICONS: Record<DashboardPortalKey, typeof Store> = {
     vendor: Store,
@@ -79,8 +84,7 @@ export default function DashboardLayout() {
   const links = role ? NAV_LINKS[role] : [];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex" dir="rtl">
-      {/* Mobile Sidebar Overlay */}
+    <div className="min-h-screen bg-gray-50 flex" dir={dir}>
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity"
@@ -88,15 +92,16 @@ export default function DashboardLayout() {
         />
       )}
 
-      {/* Sidebar */}
       <aside
-        className={`fixed md:sticky top-0 right-0 z-50 h-screen bg-diyar-dark text-white flex flex-col transition-all duration-300 ${
-          isSidebarOpen ? 'w-64 translate-x-0' : 'w-64 md:w-20 translate-x-full md:translate-x-0'
+        className={`fixed md:sticky top-0 inset-s-0 z-50 h-screen bg-diyar-dark text-white flex flex-col transition-all duration-300 ${
+          isSidebarOpen
+            ? 'w-64 translate-x-0'
+            : `w-64 md:w-20 ${sidebarHiddenTransform} md:translate-x-0`
         }`}
       >
         <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 shrink-0">
           {isSidebarOpen && (
-            <span className="font-bold text-xl text-diyar-cream truncate">لوحة التحكم</span>
+            <span className="font-bold text-xl text-diyar-cream truncate">{t('dashboard.title')}</span>
           )}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -108,7 +113,7 @@ export default function DashboardLayout() {
 
         <div className="flex-1 overflow-y-auto py-4">
           {!role ? (
-            <div className="px-4 text-gray-400 text-sm">الرجاء اختيار نوع الحساب</div>
+            <div className="px-4 text-gray-400 text-sm">{t('dashboard.selectAccountType')}</div>
           ) : (
             <ul className="space-y-1 px-3">
               {links.map((link) => {
@@ -142,39 +147,39 @@ export default function DashboardLayout() {
           <Link
             to="/"
             className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors"
-            title="العودة للمتجر"
+            title={t('dashboard.backToStore')}
           >
             <LogOut size={20} className="shrink-0" />
-            {isSidebarOpen && <span className="font-medium whitespace-nowrap">العودة للمتجر</span>}
+            {isSidebarOpen && (
+              <span className="font-medium whitespace-nowrap">{t('dashboard.backToStore')}</span>
+            )}
           </Link>
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
         <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 md:px-6 shrink-0">
           <div className="flex items-center gap-3 md:gap-4">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors -mr-2"
+              className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors -ms-2"
             >
               <Menu size={20} />
             </button>
             <h1 className="text-lg md:text-xl font-bold text-diyar-dark truncate max-w-37.5 md:max-w-none">
-              {activePortal?.headerTitle ?? 'اختيار البوابة'}
+              {activePortal?.headerTitle ?? t('dashboard.selectPortal')}
             </h1>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-3">
             {showRoleSwitcher && (
               <div className="relative group">
                 <button className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg border border-gray-200 text-xs md:text-sm font-medium hover:bg-gray-50 transition-colors">
-                  <span className="hidden sm:inline">تبديل الحساب</span>
-                  <span className="sm:hidden">بوابة</span>
+                  <span className="hidden sm:inline">{t('dashboard.switchAccount')}</span>
+                  <span className="sm:hidden">{t('dashboard.portal')}</span>
                   <ChevronDown size={14} />
                 </button>
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
+                <div className="absolute top-full inset-s-0 mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
                   {accessiblePortals.map((portal) => {
                     const Icon = PORTAL_ICONS[portal.key];
 
@@ -194,14 +199,14 @@ export default function DashboardLayout() {
               </div>
             )}
 
-            {/* Notifications */}
             <div className="relative">
               <button
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className="relative p-2 text-gray-500 hover:text-diyar-dark transition-colors"
+                aria-label={t('common.notifications')}
               >
                 <Bell size={20} />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                <span className="absolute top-1 inset-e-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
               </button>
 
               {isNotificationsOpen && (
@@ -209,12 +214,12 @@ export default function DashboardLayout() {
                   <div
                     className="fixed inset-0 z-40"
                     onClick={() => setIsNotificationsOpen(false)}
-                  ></div>
-                  <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                  />
+                  <div className="absolute top-full inset-e-0 mt-2 w-80 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                      <h3 className="font-bold text-diyar-dark">الإشعارات</h3>
+                      <h3 className="font-bold text-diyar-dark">{t('common.notifications')}</h3>
                       <button className="text-xs text-diyar-brown hover:underline font-medium">
-                        تحديد الكل كمقروء
+                        {t('dashboard.markAllRead')}
                       </button>
                     </div>
                     <div className="max-h-80 overflow-y-auto">
@@ -248,37 +253,40 @@ export default function DashboardLayout() {
                         onClick={() => setIsNotificationsOpen(false)}
                         className="block w-full text-center py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-diyar-dark hover:bg-gray-50 hover:border-diyar-brown transition"
                       >
-                        عرض جميع الإشعارات
+                        {t('dashboard.viewAllNotifications')}
                       </Link>
                     </div>
                   </div>
                 </>
               )}
             </div>
+
+            <LanguageSwitcher />
+
             <Link
               to="/profile"
-              className="w-9 h-9 rounded-full bg-diyar-cream flex items-center justify-center text-diyar-dark font-bold hover:ring-2 hover:ring-diyar-brown/30 transition-all"
-              title="حسابي"
+              className="shrink-0 rounded-full transition-all hover:ring-2 hover:ring-diyar-brown/30"
+              title={t('common.myAccount')}
             >
-              {user?.name?.trim()?.charAt(0) ?? '؟'}
+              <UserAvatar name={user?.name} avatarUrl={user?.avatar_url} size="sm" />
             </Link>
+
             <button
               type="button"
               onClick={() =>
                 void logout().then((result) => {
-                  toast.success(result.message ?? 'تم تسجيل الخروج بنجاح.');
+                  toast.success(result.message ?? t('auth.toasts.logoutSuccess'));
                   navigate('/');
                 })
               }
               className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <LogOut size={16} />
-              خروج
+              {t('common.logout')}
             </button>
           </div>
         </header>
 
-        {/* Content */}
         <div className="flex-1 overflow-auto p-6">
           <Outlet />
         </div>

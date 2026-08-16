@@ -66,7 +66,7 @@ export function AccountStatusPage({
           <img src="/logo_diyar.svg" alt="DIYAR" className="h-10 sm:h-11" />
         </Link>
 
-        <div className="relative w-full overflow-hidden rounded-[2rem] border border-white/80 bg-white/90 p-8 text-center shadow-[0_20px_60px_rgba(19,38,36,0.08)] backdrop-blur-sm sm:p-10">
+        <div className="relative w-full overflow-hidden rounded-4xl border border-white/80 bg-white/90 p-8 text-center shadow-[0_20px_60px_rgba(19,38,36,0.08)] backdrop-blur-sm sm:p-10">
           <div
             className={`relative mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border ${meta.badgeClass}`}
           >

@@ -53,6 +53,7 @@ import PersonalInfoPage from './pages/PersonalInfoPage.tsx';
 import AddressesPage from './pages/AddressesPage.tsx';
 
 import SecurityPage from './pages/SecurityPage.tsx';
+import PasswordResetPage from './pages/PasswordResetPage.tsx';
 
 import NotificationsPage from './pages/NotificationsPage.tsx';
 import NotificationSettingsPage from './pages/NotificationSettingsPage.tsx';
@@ -453,6 +454,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <ServiceRequestsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/security/reset-password"
+            element={
+              <ProtectedRoute>
+                <PasswordResetPage />
               </ProtectedRoute>
             }
           />
