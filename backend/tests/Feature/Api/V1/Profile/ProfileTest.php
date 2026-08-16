@@ -3,8 +3,6 @@
 namespace Tests\Feature\Api\V1\Profile;
 
 use App\Enums\RoleName;
-use App\Models\Address;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;

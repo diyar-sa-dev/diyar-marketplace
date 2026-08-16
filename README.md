@@ -9,7 +9,7 @@ Arabic RTL multi-vendor marketplace for furniture products and home services —
 | Stage 0 — Discovery & Architecture | **COMPLETE** |
 | Stage 1 — Engineering Foundation | **COMPLETE / FINALIZED** |
 | Stage 2 — Identity & Access | **COMPLETE / FINALIZED** |
-| **Stage 3 — User Profile & Media** | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** |
+| **Stage 3 — User Profile & Media** | **COMPLETE / FINALIZED** |
 | Stage 4+ — Catalog / Business Domains | **NOT AUTHORIZED** |
 
 | Component | Status |

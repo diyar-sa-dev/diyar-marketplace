@@ -121,10 +121,7 @@ export async function resendPhoneChange(phone: string): Promise<string | undefin
   return extractMessage(response);
 }
 
-export async function verifyPhoneChange(
-  phone: string,
-  code: string,
-): Promise<ProfileActionResult> {
+export async function verifyPhoneChange(phone: string, code: string): Promise<ProfileActionResult> {
   const response = await withCsrf(() =>
     apiClient.post<ProfileResponse>('/profile/phone/verify-change', { phone, code }),
   );

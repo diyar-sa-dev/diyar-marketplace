@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AddressType;
+use Database\Factories\AddressFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Address extends Model
 {
-    /** @use HasFactory<\Database\Factories\AddressFactory> */
+    /** @use HasFactory<AddressFactory> */
     use HasFactory, HasUuids;
 
     public $incrementing = false;

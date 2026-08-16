@@ -18,7 +18,7 @@
 | Stage 0 — Discovery & Architecture | **COMPLETE** |
 | Stage 1 — Engineering Foundation | **COMPLETE / FINALIZED** |
 | Stage 2 — Identity & Access | **COMPLETE / FINALIZED** |
-| **Stage 3 — User Profile & Media** | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** |
+| **Stage 3 — User Profile & Media** | **COMPLETE / FINALIZED** |
 | Stage 4+ — Business Domains (Catalog, etc.) | **NOT AUTHORIZED** |
 
 ---
@@ -28,8 +28,8 @@
 | Field | Value |
 |-------|-------|
 | **Current Stage** | Stage 3 — User Profile & Media |
-| **Current Phase** | 3.1–3.3 verified |
-| **Current Task** | Product Owner review and sign-off |
+| **Current Phase** | 3.1–3.3 finalized |
+| **Current Task** | Await Stage 4+ authorization |
 | **Branch** | `dev` (uncommitted) |
 
 ---
@@ -47,11 +47,16 @@ Full report: [`conception/Stages/Stage 3/STAGE_3_AUDIT_REPORT.md`](../conception
 
 ---
 
-## PO sign-off still required
+## Deferred to a later increment
 
-Do **not** mark Stage 3 **FINALIZED** until explicitly authorized.
-
-Optional follow-ups (non-blocking): in-session password change UI, dedicated frontend profile tests, Postman update.
+| Item | Notes |
+|------|-------|
+| Bio/preferences UI | API-only today |
+| In-session password change UI | API exists (`PATCH /profile/password`) |
+| Dedicated frontend profile/address tests | Vitest coverage for hooks/pages |
+| Dashboard sidebar localization | Sidebar nav still Arabic-only strings |
+| 2FA / connected devices | Placeholder UI on Security page |
+| Postman profile endpoints | API docs update |
 
 ---
 

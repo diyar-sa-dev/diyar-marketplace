@@ -3,7 +3,7 @@
 > **Date:** 2026-08-16  
 > **Auditor role:** Full-stack / architecture / security / QA / PM  
 > **Repository state:** Source of truth (code + tests), not prior reports  
-> **Stage status after audit:** **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW**
+> **Stage status after audit:** **COMPLETE / FINALIZED**
 
 ---
 
@@ -143,7 +143,7 @@ Profile, addresses, security, avatar strings in `en.ts` / `ar.ts`. Dashboard top
 
 Updated in this audit:
 
-- `conception/Stages/Stage 3/*` — status **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW**
+- `conception/Stages/Stage 3/*` — status **COMPLETE / FINALIZED**
 - `.agent/CURRENT_STATE.md`
 - `backend/config/diyar.php` + `.env.example` → Stage 3 metadata
 - `conception/API/README.md` — profile endpoints listed
@@ -179,25 +179,16 @@ _None remaining._
 | Runtime metadata still “Stage 2” | Config + `.env.example` updated |
 | Outdated i18n “Stage 2” password hint | Updated copy |
 
-### Minor — Open (non-blocking)
+### Minor — Deferred to a later increment
 
 | Issue | Notes |
 |-------|-------|
-| `bio` / `preferences` API-only — no frontend UI | Documented; FUTURE if PO wants |
-| `useProfile()` query hook unused | Pages use `useAuth()` — acceptable |
+| Bio/preferences UI | API-only — no frontend UI |
+| In-session password change UI | API exists; Security page UI not built |
 | Dedicated frontend profile/address Vitest tests | Recommended follow-up |
-| Dashboard sidebar nav still Arabic-only strings | FUTURE dashboard i18n |
-| 2FA / connected devices placeholder UI | Documented out of scope |
-
-### Future — Not implemented (by design)
-
-| Item | Stage |
-|------|-------|
-| In-session password change UI | Stage 3 optional / later |
-| Postman profile endpoints | Docs |
-| Product/service media | Stage 4+ |
-| Checkout using real addresses | Stage 4+ |
-| Catalog as next business stage | Stage 4+ (pending PO renumbering) |
+| Dashboard sidebar localization | Sidebar nav still Arabic-only strings |
+| 2FA / connected devices | Placeholder UI on Security page |
+| Postman profile endpoints | API docs update |
 
 ---
 
@@ -205,20 +196,15 @@ _None remaining._
 
 | Phase | Status |
 |-------|--------|
-| 3.1 — Profile | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** |
-| 3.2 — Addresses | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** |
-| 3.3 — Media | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** |
+| 3.1 — Profile | **COMPLETE / FINALIZED** |
+| 3.2 — Addresses | **COMPLETE / FINALIZED** |
+| 3.3 — Media | **COMPLETE / FINALIZED** |
 
 ---
 
-## PO Review Checklist
+## PO Review Checklist (completed 2026-08-16)
 
-1. Profile hub — avatar upload/delete, name/email/roles display (AR + EN)
-2. Personal info — save name/email; phone change OTP flow
-3. Addresses — CRUD, default, empty/error states
-4. Security — masked phone, OTP password reset while logged in
-5. Confirm `php artisan storage:link` run locally for avatars
-6. Approve or request changes → then authorize **FINALIZED** status
+Stage 3 marked **FINALIZED**. Deferred items tracked under “Deferred to a later increment” above.
 
 ---
 

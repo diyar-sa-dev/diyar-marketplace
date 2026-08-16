@@ -1,6 +1,6 @@
 # Stage 3 — User Profile & Media
 
-> **Status:** IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW  
+> **Status:** COMPLETE / FINALIZED  
 > **Scope:** Profile CRUD, avatar media, shipping addresses, security UX  
 > **Audit:** [STAGE_3_AUDIT_REPORT.md](./STAGE_3_AUDIT_REPORT.md)
 
@@ -10,9 +10,9 @@
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 3.1 | Profile | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** |
-| 3.2 | Addresses | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** |
-| 3.3 | Media | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** |
+| 3.1 | Profile | **COMPLETE / FINALIZED** |
+| 3.2 | Addresses | **COMPLETE / FINALIZED** |
+| 3.3 | Media | **COMPLETE / FINALIZED** |
 
 ---
 
@@ -59,6 +59,19 @@
 
 ---
 
+## Deferred to a later increment
+
+| Item | Notes |
+|------|-------|
+| Bio/preferences UI | API-only |
+| In-session password change UI | API exists (`PATCH /profile/password`) |
+| Dedicated frontend profile/address tests | Vitest coverage for hooks/pages |
+| Dashboard sidebar localization | Sidebar nav still Arabic-only strings |
+| 2FA / connected devices | Placeholder UI |
+| Postman profile endpoints | API docs update |
+
+---
+
 ## Local setup
 
 ```bash
@@ -72,6 +85,4 @@ Restart Vite dev server so `/storage` proxy is active.
 
 ## Next step
 
-**PO review** → explicit authorization required before status becomes **FINALIZED**.
-
-Stage 4+ (Catalog / business domains) remains **NOT AUTHORIZED**.
+Stage 3 is **FINALIZED**. Stage 4+ (Catalog / business domains) remains **NOT AUTHORIZED**.

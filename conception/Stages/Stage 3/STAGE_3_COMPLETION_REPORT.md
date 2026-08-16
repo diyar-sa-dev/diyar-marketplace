@@ -1,6 +1,6 @@
 # Stage 3 Completion Report
 
-> **Status:** IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW  
+> **Status:** COMPLETE / FINALIZED  
 > **Date:** 2026-08-16  
 > **Audit:** [STAGE_3_AUDIT_REPORT.md](./STAGE_3_AUDIT_REPORT.md)
 
@@ -29,21 +29,21 @@
 
 ---
 
-## Not in this increment
+## Deferred to a later increment
 
 | Item | Notes |
 |------|-------|
-| Logged-in password change UI | API exists (`PATCH /profile/password`) |
 | Bio/preferences UI | API-only |
+| In-session password change UI | API exists (`PATCH /profile/password`) |
+| Dedicated frontend profile/address tests | Vitest coverage for hooks/pages |
+| Dashboard sidebar localization | Sidebar nav still Arabic-only strings |
 | 2FA / connected devices | Placeholder UI |
-| Product/service media | Stage 4+ |
-| Postman profile endpoints | Documented as future |
-| Dedicated frontend profile Vitest tests | Recommended follow-up |
+| Postman profile endpoints | API docs update |
 
 ---
 
 ## Sign-off
 
-PO review required before status becomes **FINALIZED**.
+Stage 3 marked **FINALIZED** on 2026-08-16.
 
 Do not authorize Stage 4+ without explicit PO approval.

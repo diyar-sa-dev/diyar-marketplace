@@ -70,8 +70,13 @@ export function useUpdateAddress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Parameters<typeof profileApi.updateAddress>[1] }) =>
-      profileApi.updateAddress(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Parameters<typeof profileApi.updateAddress>[1];
+    }) => profileApi.updateAddress(id, payload),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: addressKeys.all }),
   });
 }

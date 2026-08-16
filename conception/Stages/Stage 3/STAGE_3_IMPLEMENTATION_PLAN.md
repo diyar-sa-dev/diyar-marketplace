@@ -1,6 +1,6 @@
 # Stage 3 Implementation Plan
 
-> **Status:** IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW  
+> **Status:** COMPLETE / FINALIZED  
 > **Audit:** [STAGE_3_AUDIT_REPORT.md](./STAGE_3_AUDIT_REPORT.md)
 
 ---
@@ -18,7 +18,7 @@
 | 7 | **Default Address** — Secure single-default handling | ✅ Done | `POST …/addresses/{id}/default` + service logic |
 | 8 | **Frontend Integration** — Axios + TanStack Query, loading/error/toast handling | ✅ Done | `useProfile` hooks, toast context, profile query invalidation |
 | 9 | **Security & Quality** — Upload validation, IDOR, authorization, tests, responsive, AR/EN RTL | ✅ Mostly done | Backend 67 tests; frontend 45 tests; responsive profile/addresses; masked phone on security flows |
-| 10 | **Stage 3 Finalization** — Verify tests, update docs, mark finalized | ⏳ **WAITING FOR PO REVIEW** |
+| 10 | **Stage 3 Finalization** — Verify tests, update docs, mark finalized | ✅ **FINALIZED** |
 
 ---
 
@@ -35,13 +35,16 @@
 
 ---
 
-## Remaining before COMPLETE
+## Deferred to a later increment
 
-- [ ] **PO review** — walkthrough profile, avatar, addresses, security flows
-- [ ] **In-session password change UI** — API exists (`PATCH /profile/password`); Security page UI not built
-- [ ] **Dedicated frontend profile/address unit tests** — Vitest coverage for hooks/pages
-- [ ] **Postman / API doc update** — profile & address endpoints
-- [ ] **Mark Stage 3 VERIFIED / COMPLETE** in README + `.agent/CURRENT_STATE.md` after PO sign-off
+| Item | Notes |
+|------|-------|
+| Bio/preferences UI | API-only |
+| In-session password change UI | API exists (`PATCH /profile/password`) |
+| Dedicated frontend profile/address tests | Vitest coverage for hooks/pages |
+| Dashboard sidebar localization | Sidebar nav still Arabic-only strings |
+| 2FA / connected devices | Placeholder UI |
+| Postman profile endpoints | API docs update |
 
 ---
 
