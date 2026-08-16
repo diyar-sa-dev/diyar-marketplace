@@ -1,11 +1,12 @@
 # DIYAR — Master Development Plan
 
-> **Version:** 1.2  
+> **Version:** 1.3  
 > **Status:** CURRENT BASELINE  
-> **Stage 0:** FINALIZED  
-> **Stage 1:** FINALIZED  
-> **Next:** Stage 2 — Identity & Authentication  
-> **Last updated:** 2026-08-15
+> **Stage 0:** COMPLETE  
+> **Stage 1:** COMPLETE / FINALIZED  
+> **Stage 2:** COMPLETE / FINALIZED  
+> **Next:** Stage 3 — Catalog / Marketplace (**NOT AUTHORIZED**)  
+> **Last updated:** 2026-08-16
 
 ---
 
@@ -23,6 +24,7 @@ Transform the DIYAR frontend prototype into a production-ready, scalable full-st
 | [REPOSITORY_AUDIT.md](./REPOSITORY_AUDIT.md) | COMPLETED | Repo state at Stage 0 |
 | [Stages/Stage 0/STAGE_0_COMPLETION_REPORT.md](./Stages/Stage%200/STAGE_0_COMPLETION_REPORT.md) | FINALIZED | Stage 0 report |
 | [Stages/Stage 1/STAGE_1_COMPLETION_REPORT.md](./Stages/Stage%201/STAGE_1_COMPLETION_REPORT.md) | FINALIZED | Stage 1 report |
+| [Stages/Stage 2/STAGE_2_COMPLETION_REPORT.md](./Stages/Stage%202/STAGE_2_COMPLETION_REPORT.md) | FINALIZED | Stage 2 report |
 | [API/](./API/) | **CURRENT** | Implemented API docs + Postman |
 | [architecture/*.md](./architecture/) | **CURRENT BASELINE** | System, domain, DB, API contract (planned) |
 | [adr/*.md](./adr/) | **CURRENT BASELINE** | Architecture decisions |
@@ -40,13 +42,13 @@ Transform the DIYAR frontend prototype into a production-ready, scalable full-st
 | Server state | TanStack Query + Axios |
 | Backend | **Laravel 13.x**, PHP 8.3+, modular monolith |
 | API | REST `/api/v1` |
-| Auth infra | Laravel Sanctum (workflows Stage 2) |
+| Auth | Laravel Sanctum stateful sessions (Stage 2 — implemented) |
 | Database | MySQL 8 |
 | Cache | Laravel Cache |
 | Queue | Database queue |
 | Storage | Laravel filesystem → S3 prod |
 | Payments | `PaymentGateway` → **MyFatoorah (SA)** — **DEFERRED** |
-| OTP/SMS | `SmsProvider` → **MSEGAT** — **DEFERRED** |
+| OTP/SMS | `SmsProvider` → **MSEGAT** — **implemented (Stage 2)**; LogSmsProvider in dev |
 | AI | `AIProvider` / `ImageGenerationProvider` → **OpenAI** — **DEFERRED** |
 | Finance | Append-only ledger |
 | Chat V1 | HTTP polling |
@@ -71,10 +73,10 @@ diyar-marketplace/
 
 | Stage | Name | Status |
 |-------|------|--------|
-| **0** | Discovery & Architecture | **FINALIZED** |
-| **1** | Engineering Foundation | **FINALIZED** |
-| **2** | Identity & Authentication | **NEXT** |
-| **3** | Catalog & Products | Planned |
+| **0** | Discovery & Architecture | **COMPLETE** |
+| **1** | Engineering Foundation | **COMPLETE / FINALIZED** |
+| **2** | Identity & Access | **COMPLETE / FINALIZED** |
+| **3** | Catalog & Products | **NOT AUTHORIZED** |
 | **4** | Cart & Checkout | Planned |
 | **5** | Payments & Finance | Planned |
 | **6** | Vendor Operations | Planned |
@@ -93,25 +95,25 @@ Phases 1.1–1.6: backend/frontend foundation, standards, testing, CI, security 
 
 Report: [Stages/Stage 1/STAGE_1_COMPLETION_REPORT.md](./Stages/Stage%201/STAGE_1_COMPLETION_REPORT.md)
 
-### Stage 2 — Identity & Authentication (NEXT)
+### Stage 2 — Identity & Access — FINALIZED
 
-**Authorized when explicitly requested.**
+Phases 2.1–2.8: UUID identity, cache OTP, Sanctum sessions, password recovery, roles/policies, frontend auth, localization, RBAC, tests + docs.
 
-| Area | Scope |
-|------|--------|
-| Authentication | Register, login, logout |
-| Phone verification | OTP send/verify |
-| Password reset | Forgot + reset flows |
-| Roles | Role model + authorization foundation |
-| Sanctum | Token/session workflows |
+Reports: [Stages/Stage 2/STAGE_2_COMPLETION_REPORT.md](./Stages/Stage%202/STAGE_2_COMPLETION_REPORT.md)
 
-**OTP provider (selected, deferred integration until this stage):**
+**OTP architecture:**
 
 ```text
-OtpService → SmsProvider → MsegatSmsProvider → MSEGAT API (Saudi Arabia)
+OtpService → OtpCacheStore (hash) → SmsProvider → LogSmsProvider | MsegatSmsProvider → MSEGAT API
 ```
 
-See [API/AUTHENTICATION.md](./API/AUTHENTICATION.md), [API/providers/MSEGAT.md](./API/providers/MSEGAT.md).
+DIYAR verifies OTP in cache. MSEGAT is SMS delivery only.
+
+See [API/AUTHENTICATION.md](./API/AUTHENTICATION.md), [API/providers/MSEGAT.md](./API/providers/MSEGAT.md), [adr/ADR-007-spa-session-authentication.md](./adr/ADR-007-spa-session-authentication.md).
+
+### Stage 3 — Catalog & Products (NOT AUTHORIZED)
+
+**Do not implement without explicit Product Owner authorization.**
 
 ### Stage 5 — Payments & Finance (Future)
 
@@ -160,7 +162,7 @@ See [REQUIREMENTS_BASELINE.md](./REQUIREMENTS_BASELINE.md) — OD-02 through OD-
 
 Project owner authorizes each stage.
 
-**Current:** Stage 1 FINALIZED → **Stage 2 — Identity & Authentication** is next authorized stage.
+**Current:** Stage 2 FINALIZED → **Stage 3 — Catalog / Marketplace** is next stage but **NOT AUTHORIZED** until explicitly requested.
 
 ---
 

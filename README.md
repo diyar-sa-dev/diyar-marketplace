@@ -6,14 +6,15 @@ Arabic RTL multi-vendor marketplace for furniture products and home services —
 
 | Stage | Status |
 |-------|--------|
-| Stage 0 — Discovery & Architecture | **FINALIZED** |
-| Stage 1 — Engineering Foundation | **FINALIZED** |
-| Stage 2 — Identity & Authentication | **Next** |
+| Stage 0 — Discovery & Architecture | **COMPLETE** |
+| Stage 1 — Engineering Foundation | **COMPLETE / FINALIZED** |
+| Stage 2 — Identity & Access | **COMPLETE / FINALIZED** |
+| **Next:** Stage 3 — Catalog / Marketplace | **NOT AUTHORIZED** |
 
 | Component | Status |
 |-----------|--------|
-| Frontend UI | React 19 prototype (mock data) + API foundation (Axios, TanStack Query) |
-| Backend API | Laravel 13 foundation — `GET /api/v1/health` only (no business domains yet) |
+| Frontend UI | React 19 SPA — auth integrated; marketplace UI still mock data |
+| Backend API | Laravel 13 — health + **Stage 2 identity/auth API** |
 | CI | GitHub Actions — lint, test, build (frontend + backend) |
 
 Live project state: [.agent/CURRENT_STATE.md](.agent/CURRENT_STATE.md)
@@ -74,6 +75,7 @@ cd backend && vendor/bin/pint --test && php artisan test
 | [REQUIREMENTS_BASELINE.md](conception/REQUIREMENTS_BASELINE.md) | Authoritative business + tech rules |
 | [conception/API/README.md](conception/API/README.md) | API conventions, health endpoint, Postman |
 | [Stage 1 completion report](conception/Stages/Stage%201/STAGE_1_COMPLETION_REPORT.md) | Engineering foundation summary |
+| [Stage 2 completion report](conception/Stages/Stage%202/STAGE_2_COMPLETION_REPORT.md) | Identity & access summary |
 | [LOCAL_SETUP.md](conception/runbooks/LOCAL_SETUP.md) | Toolchain & environment |
 
 **Postman:** import [DIYAR API v1 collection](conception/API/postman/DIYAR-API-v1.postman_collection.json) and [local environment](conception/API/postman/DIYAR-API-Local.postman_environment.json).
@@ -83,19 +85,20 @@ cd backend && vendor/bin/pint --test && php artisan test
 | Layer | Choice |
 |-------|--------|
 | Frontend | React 19, TypeScript, Vite, Tailwind, TanStack Query, Axios |
-| Backend | Laravel 13, PHP 8.3+, Sanctum (infra), MySQL 8 |
+| Backend | Laravel 13, PHP 8.3+, MySQL 8 |
+| Auth | Sanctum stateful sessions + CSRF (Stage 2) |
 | API | REST `/api/v1`, JSON envelope |
 | Architecture | Modular monolith |
 | Cache / Queue | Laravel Cache, database queue |
 | Testing | Vitest (frontend), PHPUnit (backend) |
 
-## External Providers (selected — integrations deferred)
+## External Providers
 
-| Domain | Provider | When |
-|--------|----------|------|
-| Payments | MyFatoorah (Saudi API) | Payments stage |
-| OTP / SMS | MSEGAT / مسجات | Stage 2 Identity |
-| AI | OpenAI | Future AI stage |
+| Domain | Provider | Status |
+|--------|----------|--------|
+| Payments | MyFatoorah (Saudi API) | Adapter deferred — Payments stage |
+| OTP / SMS | MSEGAT / مسجات | **Adapter implemented (Stage 2)** — LogSmsProvider in dev |
+| AI | OpenAI | Deferred — AI stage |
 
 See [ADR-006](conception/adr/ADR-006-external-providers.md). No provider credentials belong in this repository.
 

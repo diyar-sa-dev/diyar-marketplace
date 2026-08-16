@@ -16,9 +16,11 @@ Customer · Vendor · Service Provider · Marketer · Admin
 
 ---
 
-## V1 Domains (Not Stage 1)
+## V1 Domains
 
-Identity · Users · Vendors · Providers · Catalog · Products · Categories · Inventory · Cart · Checkout · Orders · Payments · Finance · Shipping · Returns · Reviews · Services · Bookings · Coupons · Notifications · Messaging · Admin · Media
+**Stage 2 (FINALIZED):** Identity, users, roles, Sanctum auth, OTP, password recovery, ownership stubs.
+
+**Not authorized (Stage 3+):** Catalog, products, cart, checkout, orders, payments, finance, shipping, etc.
 
 ---
 
@@ -41,7 +43,7 @@ Identity · Users · Vendors · Providers · Catalog · Products · Categories �
 diyar-marketplace/
 ├── .agent/           ← AI control layer
 ├── backend/          ← Laravel 13 API
-├── frontend/         ← React 19 SPA (mock UI)
+├── frontend/         ← React 19 SPA (auth integrated; catalog still mock)
 ├── conception/       ← Product & architecture docs
 └── .github/          ← CI/CD
 ```

@@ -1,7 +1,13 @@
 import { Link } from 'react-router-dom';
 import { Twitter, Instagram, MessageCircle } from 'lucide-react';
+import { useAuth } from '../../hooks/auth/useAuth.ts';
+import { hasDashboardAccess, resolveDashboardEntryPath } from '../../lib/auth/roles.ts';
 
 export function Footer() {
+  const { isAuthenticated, user } = useAuth();
+  const dashboardPath = resolveDashboardEntryPath(user?.roles);
+  const showPartnerPortal = isAuthenticated && hasDashboardAccess(user?.roles);
+
   return (
     <footer className="bg-diyar-dark text-white pt-6 md:pt-10 pb-4 mt-4">
       <div className="max-w-7xl mx-auto px-6 md:px-4">
@@ -51,9 +57,19 @@ export function Footer() {
         </div>
         <div className="border-t border-white/10 pt-8 pb-4 flex flex-col md:flex-row items-center justify-between text-white/50 text-sm gap-4">
           <div>جميع الحقوق محفوظة منصة ديار &copy; {new Date().getFullYear()}</div>
-          <Link to="/dashboard" className="hover:text-white transition-colors" title="Dashboard Preview">
-            بوابة الشركاء (معاينة)
-          </Link>
+          {showPartnerPortal ? (
+            <Link to={dashboardPath} className="hover:text-white transition-colors">
+              بوابة الشركاء
+            </Link>
+          ) : !isAuthenticated ? (
+            <Link
+              to="/auth"
+              state={{ from: '/dashboard', reason: 'auth_required' }}
+              className="hover:text-white transition-colors"
+            >
+              بوابة الشركاء
+            </Link>
+          ) : null}
         </div>
       </div>
     </footer>

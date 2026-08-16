@@ -9,14 +9,24 @@ const repoRoot = path.resolve(frontendRoot, '..');
 
 export default defineConfig({
   root: frontendRoot,
-  // Keep Vite cache inside frontend/ — never at monorepo root
   cacheDir: path.resolve(frontendRoot, 'node_modules/.vite'),
   plugins: [react(), tailwindcss()],
   server: {
     port: 3000,
     host: '0.0.0.0',
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/sanctum': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
     watch: {
-      // Monorepo + OneDrive: do not watch Laravel backend or docs
       ignored: [
         path.join(repoRoot, 'backend/**'),
         path.join(repoRoot, 'conception/**'),
@@ -28,5 +38,17 @@ export default defineConfig({
   preview: {
     port: 3000,
     host: '0.0.0.0',
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/sanctum': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 });

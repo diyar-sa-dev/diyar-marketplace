@@ -53,8 +53,9 @@ Preserve uncommitted product-owner work. Use focused commits. Do not commit unle
 
 | Stage | Allowed | Forbidden |
 |-------|---------|-----------|
-| Stage 1 | Foundation, config, CI, tests scaffold | Business domains, fake marketplace data |
-| Stage 2+ | Per master plan | Unauthorized domain work |
+| Stage 1 | Foundation, config, CI, tests scaffold | Business domains |
+| Stage 2 | Identity, auth, roles, frontend session integration | Catalog, cart, checkout, payments |
+| Stage 3+ | **NOT AUTHORIZED** until explicit request | All business domains |
 
 Frontend mock UI may remain until API integration in later stages.
 

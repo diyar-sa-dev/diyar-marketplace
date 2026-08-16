@@ -1,7 +1,7 @@
 # API Conventions
 
-> **Status:** CURRENT — reflects Stage 1 implementation  
-> **Last updated:** 2026-08-15
+> **Status:** CURRENT — reflects Stage 2 Identity & Access  
+> **Last updated:** 2026-08-16
 
 ---
 
@@ -93,7 +93,7 @@ Implemented in `App\Support\Api\ApiResponse`.
 | **401** | Yes | `AuthenticationException` → JSON `"Unauthenticated."` |
 | **403** | Yes | `AuthorizationException` → JSON `"Forbidden."` |
 | **404** | Yes | Unknown API route → JSON `"Resource not found."` |
-| **422** | Planned | Laravel validation errors — envelope alignment in Stage 2+ |
+| **422** | Yes | Laravel validation errors on auth Form Requests (register, login, OTP, etc.) |
 | **429** | Framework | Laravel `RateLimiter::for('api')` — 60/min default (`API_RATE_LIMIT_PER_MINUTE`) |
 | **500** | Framework | Unhandled server errors — generic JSON when `Accept: application/json` |
 
@@ -105,17 +105,14 @@ Only document as **verified in Stage 1:** 200, 401, 403, 404 (plus framework 429
 
 | Stage | Status |
 |-------|--------|
-| **Stage 1** | Sanctum **infrastructure only** — `HasApiTokens`, CORS, stateful domains |
-| **Stage 2** | Login, register, logout, OTP, password reset workflows |
+| **Stage 1** | Sanctum **infrastructure** — `HasApiTokens`, CORS, stateful domains |
+| **Stage 2** | **Implemented** — register, login, logout, OTP, password reset, `/me`, CSRF |
 
-**Current endpoints:** No authentication required except future protected routes.
+**Browser SPA:** Sanctum HttpOnly session cookie + CSRF (`/sanctum/csrf-cookie`). **No JWT. No localStorage tokens.**
 
-**Future (Stage 2+):**
+**Future:** Bearer tokens for non-browser clients (not issued to SPA in V1).
 
-- SPA: Sanctum cookie + CSRF (`/sanctum/csrf-cookie`)
-- Mobile/third-party: Bearer token (`Authorization: Bearer {token}`)
-
-See [AUTHENTICATION.md](./AUTHENTICATION.md).
+See [AUTHENTICATION.md](./AUTHENTICATION.md) and [ADR-007](../adr/ADR-007-spa-session-authentication.md).
 
 ---
 
@@ -128,21 +125,21 @@ Not used in Stage 1. Planned convention:
 
 ---
 
-## Validation Errors (Planned)
+## Validation Errors
 
-Stage 2+ Form Requests will return **422** with:
+Auth Form Requests return **422** with:
 
 ```json
 {
   "success": false,
   "message": "The given data was invalid.",
   "errors": {
-    "phone": ["The phone field is required."]
+    "phone": ["رقم الجوال مسجل مسبقاً."]
   }
 }
 ```
 
-Exact 422 envelope harmonization is scheduled for Stage 2 Identity implementation.
+Messages are localized via `backend/lang/{ar,en}/`.
 
 ---
 
@@ -185,3 +182,24 @@ Idempotency-Key: {uuid}
 ```
 
 Not implemented in Stage 1.
+
+---
+
+## Authentication (Stage 2 — Implemented)
+
+Browser SPA authentication uses **Sanctum stateful sessions** (HttpOnly cookies), not bearer tokens in JavaScript.
+
+| Step | Action |
+|------|--------|
+| 1 | `GET /sanctum/csrf-cookie` (from backend origin, credentials included) |
+| 2 | POST auth endpoints with `X-XSRF-TOKEN` header (Axios auto-reads cookie) |
+| 3 | Session cookie issued on login / OTP verify — sent automatically on subsequent requests |
+
+Additional rate limiters:
+
+| Limiter | Default | Scope |
+|---------|---------|-------|
+| `auth` | 20/min | Auth endpoints per IP |
+| `otp` | 10/min | OTP endpoints per phone + IP |
+
+See [AUTHENTICATION.md](./AUTHENTICATION.md) for full endpoint list and OTP cache strategy.

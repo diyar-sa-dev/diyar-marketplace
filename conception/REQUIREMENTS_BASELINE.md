@@ -318,7 +318,7 @@ Events: registration, OTP, order created, payment success/failure, shipped, deli
 |----|----------|
 | OD-09 (formerly Laravel version) | **Laravel 13** — see ADR-001 |
 | OD-01 | **Payment provider: MyFatoorah (Saudi Arabia)** — API `https://api-sa.myfatoorah.com/` — integration **DEFERRED** to Payments stage — see ADR-006 |
-| OD-10 | **OTP/SMS provider: MSEGAT / مسجات (Saudi Arabia)** — integration **DEFERRED** to Stage 2 — see ADR-006 |
+| OD-10 | **OTP/SMS provider: MSEGAT / مسجات (Saudi Arabia)** — **adapter implemented Stage 2** — see ADR-006, `conception/API/providers/MSEGAT.md` |
 | OD-11 | **AI provider: OpenAI** (text + image generation) — integration **DEFERRED** to AI stage — see ADR-006 |
 
 ---
@@ -329,15 +329,19 @@ The following are **assigned to future stages**, not open unknowns:
 
 ```text
 PHPStan / Larastan
-Authentication workflows
-OTP / SMS integration (MSEGAT)
-Roles / authorization workflows
 Payment integration (MyFatoorah)
 Orders, catalog, media
 AI features (OpenAI)
 Staging deployment
 Production infrastructure
-External provider adapter implementations
+```
+
+**Completed in Stage 2 (no longer deferred):**
+
+```text
+Authentication workflows
+OTP / SMS adapter (MSEGAT + LogSmsProvider)
+Roles / authorization workflows
 ```
 
 See `MASTER_DEVELOPMENT_PLAN.md` and `conception/API/providers/`.

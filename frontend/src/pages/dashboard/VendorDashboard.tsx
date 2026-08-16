@@ -83,10 +83,10 @@ export default function VendorDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Chart */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm lg:col-span-2">
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm lg:col-span-2 min-w-0">
            <h3 className="font-bold text-diyar-dark mb-6">المبيعات خلال 7 أيام</h3>
-           <div className="h-72" dir="ltr">
-             <ResponsiveContainer width="100%" height="100%">
+           <div className="h-72 w-full min-w-0" dir="ltr">
+             <ResponsiveContainer width="100%" height={288}>
                 <LineChart data={data}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af' }} />
@@ -107,13 +107,13 @@ export default function VendorDashboard() {
            
            <div className="space-y-4">
              {[1, 2, 3, 4, 5].map((i) => (
-                <Link to="/dashboard/vendor/orders" key={i} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-gray-100 block">
+                <Link to="/dashboard/vendor/orders" key={i} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-gray-100">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center font-bold text-gray-500 text-sm">
                       #{1024 + i}
                     </div>
                     <div>
-                      <h4 className="font-medium text-sm text-diyar-dark truncate max-w-[120px] text-right">أريكة استرخاء مخملية</h4>
+                      <h4 className="font-medium text-sm text-diyar-dark truncate max-w-30 text-right">أريكة استرخاء مخملية</h4>
                       <p className="text-xs text-gray-500 text-right">منذ ساعتين</p>
                     </div>
                   </div>
@@ -162,7 +162,7 @@ export default function VendorDashboard() {
          {/* Inventory Alerts */}
          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
            <div className="flex items-center justify-between mb-6">
-             <h3 className="font-bold text-diyar-dark text-red-600 flex items-center gap-2">
+             <h3 className="font-bold text-red-600 flex items-center gap-2">
                تنبيهات المخزون
              </h3>
            </div>

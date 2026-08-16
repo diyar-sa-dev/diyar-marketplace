@@ -2,7 +2,8 @@
 
 > **Status:** REFERENCE — SUPERSEDED  
 > **Use instead:** [MASTER_DEVELOPMENT_PLAN.md](./MASTER_DEVELOPMENT_PLAN.md) and [REQUIREMENTS_BASELINE.md](./REQUIREMENTS_BASELINE.md)  
-> **Tech baseline updated to:** Laravel 13, MySQL
+> **Tech baseline updated to:** Laravel 13, MySQL  
+> **Stage 2 (Identity & Access):** COMPLETE / FINALIZED — see [Stages/Stage 2/STAGE_2_COMPLETION_REPORT.md](./Stages/Stage%202/STAGE_2_COMPLETION_REPORT.md)
 
 ## 0. Engineering Strategy
 
@@ -83,7 +84,7 @@ The repository currently has React 19, TypeScript, Vite, Tailwind, React Router,
 
 ---
 
-# Phase 0.2 — Requirements Baseline
+## Phase 0.2 — Requirements Baseline
 
 ### Tasks
 
@@ -118,7 +119,7 @@ The Decisions become the authoritative business baseline.
 
 ---
 
-# Phase 0.3 — Domain Architecture
+## Phase 0.3 — Domain Architecture
 
 Define the domain modules.
 
@@ -176,7 +177,7 @@ Mobile
 
 ---
 
-# Phase 0.4 — System Architecture
+## Phase 0.4 — System Architecture
 
 Final target:
 
@@ -217,7 +218,7 @@ This keeps the architecture as a **modular monolith**, rather than prematurely c
 
 ---
 
-# Phase 0.5 — Architecture Decisions
+## Phase 0.5 — Architecture Decisions
 
 Create ADRs for decisions such as:
 
@@ -242,7 +243,7 @@ Create ADRs for decisions such as:
 
 ---
 
-# Phase 0.6 — API Contract
+## Phase 0.6 — API Contract
 
 Before frontend integration, define:
 
@@ -331,7 +332,7 @@ The specification specifically identifies the current frontend's lack of API/ser
 
 ---
 
-# Phase 1.3 — Development Standards
+## Phase 1.3 — Development Standards
 
 Create:
 
@@ -348,7 +349,7 @@ Create:
 
 ---
 
-# Phase 1.4 — CI
+## Phase 1.4 — CI
 
 Pipeline:
 
@@ -478,7 +479,7 @@ A Vendor cannot access another Vendor's products/orders/finance.
 
 A Provider cannot access another Provider's bookings.
 
-A Customer cannot access vendor dashboards.
+A Customer cannot access vendor and other roles dashboards .
 
 Admin can operate platform resources.
 
@@ -555,7 +556,7 @@ Tasks:
 
 ---
 
-# Phase 4.2 — Product Model
+## Phase 4.2 — Product Model
 
 Product needs to support the fields demonstrated in your current UI:
 
@@ -580,7 +581,7 @@ Your existing product UI specifically contains up to five images, colors, dimens
 
 ---
 
-# Phase 4.3 — Product CRUD
+## Phase 4.3 — Product CRUD
 
 Vendor can:
 
@@ -598,7 +599,7 @@ Products are immediately publishable in V1 according to your decision.
 
 ---
 
-# Phase 4.4 — Product Detail
+## Phase 4.4 — Product Detail
 
 Connect:
 
@@ -624,7 +625,7 @@ Include:
 
 ---
 
-# Phase 4.5 — Storefront
+## Phase 4.5 — Storefront
 
 Connect:
 
@@ -777,7 +778,7 @@ Nothing should be trusted from frontend calculations.
 
 ---
 
-# Phase 7.2 — Multi-Vendor Order Split
+## Phase 7.2 — Multi-Vendor Order Split
 
 Use:
 
@@ -798,7 +799,7 @@ The original architecture already identified this `Order → SubOrder → OrderI
 
 ---
 
-# Phase 7.3 — Order Creation
+## Phase 7.3 — Order Creation
 
 Transaction:
 
@@ -828,7 +829,7 @@ Payment processing should not leave partially-created orders.
 
 ---
 
-# Phase 7.4 — Order State Machine
+## Phase 7.4 — Order State Machine
 
 Separate:
 
@@ -903,7 +904,7 @@ So the platform can change providers later.
 
 ---
 
-# Phase 8.2 — Payment Creation
+## Phase 8.2 — Payment Creation
 
 Support:
 
@@ -916,7 +917,7 @@ Your current final decision is that the architecture should support these, but a
 
 ---
 
-# Phase 8.3 — Webhooks
+## Phase 8.3 — Webhooks
 
 Implement:
 
@@ -971,7 +972,7 @@ adjustment
 
 ---
 
-# Phase 9.2 — Balances
+## Phase 9.2 — Balances
 
 Vendor dashboard:
 
@@ -986,7 +987,7 @@ Affiliate architecture can later use the same financial foundation.
 
 ---
 
-# Phase 9.3 — Commission Engine
+## Phase 9.3 — Commission Engine
 
 Dynamic rules:
 
@@ -1008,7 +1009,7 @@ Do not build the entire rule hierarchy unnecessarily.
 
 ---
 
-# Phase 9.4 — Escrow
+## Phase 9.4 — Escrow
 
 Your model supports:
 
@@ -1026,7 +1027,7 @@ The exact release trigger should be represented as configurable business logic.
 
 ---
 
-# Phase 9.5 — Payouts
+## Phase 9.5 — Payouts
 
 V1:
 
@@ -1235,7 +1236,7 @@ Support:
 
 ---
 
-# Phase 13.2 — Customer RFQ
+## Phase 13.2 — Customer RFQ
 
 Customer creates:
 
@@ -1250,7 +1251,7 @@ Service Request
 
 ---
 
-# Phase 13.3 — Provider Offers
+## Phase 13.3 — Provider Offers
 
 Provider submits:
 
@@ -1268,7 +1269,7 @@ Customer accepts **one**.
 
 ---
 
-# Phase 13.4 — Booking
+## Phase 13.4 — Booking
 
 After acceptance:
 
@@ -1297,7 +1298,7 @@ Booking contains:
 
 ---
 
-# Phase 13.5 — Service Payment
+## Phase 13.5 — Service Payment
 
 Use the same payment abstraction as commerce where possible.
 
@@ -1620,7 +1621,7 @@ Special attention:
 
 ---
 
-# Stage 21.2 — Frontend
+## Stage 21.2 — Frontend
 
 Use:
 
@@ -1629,7 +1630,7 @@ Use:
 
 ---
 
-# Stage 21.3 — E2E
+## Stage 21.3 — E2E
 
 Critical flows:
 

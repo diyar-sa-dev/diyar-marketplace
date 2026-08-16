@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\SetLocaleFromRequest;
 use App\Support\Api\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -22,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(prepend: [
             EnsureFrontendRequestsAreStateful::class,
+            SetLocaleFromRequest::class,
         ]);
 
         $middleware->append([
@@ -30,6 +33,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'security.headers' => SecurityHeaders::class,
+            'role' => \App\Http\Middleware\EnsureUserHasRole::class,
+            'account.active' => \App\Http\Middleware\EnsureAccountIsActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -39,19 +44,27 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
-                return ApiResponse::error('Resource not found.', 404);
+                return ApiResponse::error(__('diyar.auth.not_found'), 404);
             }
         });
 
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
-                return ApiResponse::error('Unauthenticated.', 401);
+                return ApiResponse::error(__('diyar.auth.unauthenticated'), 401);
             }
         });
 
         $exceptions->render(function (AuthorizationException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
-                return ApiResponse::error('Forbidden.', 403);
+                return ApiResponse::error(__('diyar.auth.forbidden'), 403);
+            }
+        });
+
+        $exceptions->render(function (QueryException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                report($e);
+
+                return ApiResponse::error(__('diyar.errors.unexpected'), 500);
             }
         });
     })->create();

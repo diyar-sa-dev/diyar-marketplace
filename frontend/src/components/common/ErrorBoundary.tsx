@@ -1,4 +1,5 @@
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
+import { AppErrorFallback } from './AppErrorFallback.tsx';
 
 interface Props {
   children: ReactNode;
@@ -23,14 +24,15 @@ export class ErrorBoundary extends Component<Props, State> {
     }
   }
 
+  private handleRetry = () => {
+    this.setState({ hasError: false, message: undefined });
+  };
+
   render() {
     if (this.state.hasError) {
       return (
         this.props.fallback ?? (
-          <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 p-8 text-center">
-            <p className="text-lg font-semibold text-red-600">حدث خطأ غير متوقع</p>
-            <p className="text-sm text-gray-600">{this.state.message ?? 'Something went wrong.'}</p>
-          </div>
+          <AppErrorFallback message={this.state.message} onRetry={this.handleRetry} />
         )
       );
     }

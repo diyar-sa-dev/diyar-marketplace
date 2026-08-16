@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'msegat' => [
+        'username' => env('MSEGAT_USERNAME'),
+        'api_key' => env('MSEGAT_API_KEY'),
+        'sender_id' => env('MSEGAT_SENDER_ID'),
+        'lang' => env('MSEGAT_LANG', 'Ar'),
+        'base_url' => env('MSEGAT_BASE_URL', 'https://www.msegat.com/gw'),
+    ],
+
 ];

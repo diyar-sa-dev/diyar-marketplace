@@ -15,7 +15,7 @@
 | Cache V1 | Laravel Cache — **no Redis** |
 | Queue V1 | Database queue |
 | Auth infra | Sanctum installed and configured in Stage 1 |
-| Auth workflows | Stage 2 only |
+| Auth workflows | **Implemented in Stage 2** — Sanctum stateful sessions + CSRF |
 | Timezone | `Asia/Riyadh` |
 | Locale | `ar` primary, `en` fallback |
 | Payments | `PaymentGatewayInterface` — never couple to one provider |
@@ -46,16 +46,16 @@
 
 ---
 
-## External Providers (Selected — Integrations Deferred)
+## External Providers (Selected)
 
 > External providers are **infrastructure adapters**, not business logic.
 
-| Contract | Provider | Region | Stage |
-|----------|----------|--------|-------|
-| `PaymentGateway` | MyFatoorah | Saudi Arabia | Payments |
-| `SmsProvider` | MSEGAT / مسجات | Saudi Arabia | Stage 2 Identity |
-| `AIProvider` | OpenAI | — | AI stage |
-| `ImageGenerationProvider` | OpenAI | — | AI stage |
+| Contract | Provider | Region | Status |
+|----------|----------|--------|--------|
+| `PaymentGateway` | MyFatoorah | Saudi Arabia | Deferred — Payments stage |
+| `SmsProvider` | MSEGAT / مسجات | Saudi Arabia | **Implemented (Stage 2)** — LogSmsProvider in dev |
+| `AIProvider` | OpenAI | — | Deferred — AI stage |
+| `ImageGenerationProvider` | OpenAI | — | Deferred — AI stage |
 
 Never call provider APIs from controllers or domain entities. See `conception/adr/ADR-006-external-providers.md`.
 

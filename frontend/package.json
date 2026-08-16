@@ -8,10 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint \"src/{api,lib,utils,hooks,types,components/common,routes,test}/**/*.{ts,tsx}\" --max-warnings 0",
+    "lint": "eslint \"src/{api,lib,utils,hooks,types,components/common,components/routes,routes,test}/**/*.{ts,tsx}\" --max-warnings 0",
     "lint:fix": "eslint src --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
-    "format:check": "prettier --check \"src/{api,lib,utils,hooks,types,components/common,routes,test}/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"src/{api,lib,utils,hooks,types,components/common,components/routes,routes,test}/**/*.{ts,tsx}\"",
     "test": "vitest run",
     "test:watch": "vitest"
   },

@@ -1,6 +1,6 @@
 # DIYAR Marketplace — Current State
 
-> **Last updated:** 2026-08-15  
+> **Last updated:** 2026-08-16 (Stage 2 documentation finalized)  
 > **Maintained by:** AI development agents after each phase completion
 
 ---
@@ -15,9 +15,10 @@
 
 | Stage | Status |
 |-------|--------|
-| Stage 0 — Discovery & Architecture | **FINALIZED** |
-| Stage 1 — Engineering Foundation | **FINALIZED** |
-| Stage 2 — Identity & Authentication | **NOT STARTED** |
+| Stage 0 — Discovery & Architecture | **COMPLETE** |
+| Stage 1 — Engineering Foundation | **COMPLETE / FINALIZED** |
+| Stage 2 — Identity & Access | **COMPLETE / FINALIZED** |
+| **Stage 3 — Catalog / Marketplace** | **NOT AUTHORIZED** |
 
 ---
 
@@ -25,160 +26,73 @@
 
 | Field | Value |
 |-------|-------|
-| **Current Stage** | Stage 1 — **FINALIZED** |
-| **Current Phase** | — (Stage 1 complete) |
-| **Current Task** | Stage 1 finalization complete (audit, API docs, Postman) |
-| **Branch** | `dev` (local) |
+| **Current Stage** | Stage 2 — **FINALIZED** |
+| **Current Phase** | — |
+| **Current Task** | Await explicit authorization for Stage 3 |
+| **Branch** | `dev` (Stage 2 code present, uncommitted) |
 
 ---
 
-## Stage 1 — Completed Phases
+## Stage 2 Architecture Highlights
 
-| Phase | Status |
-|-------|--------|
-| 1.1 Backend Engineering Foundation | **FINALIZED** |
-| 1.2 Frontend Engineering Foundation | **FINALIZED** |
-| 1.3 Development Standards | **FINALIZED** |
-| 1.4 Testing Foundation | **FINALIZED** |
-| 1.5 CI / Quality Gates | **FINALIZED** |
-| 1.6 Security / API / Operations | **FINALIZED** |
+| Topic | Implementation |
+|-------|----------------|
+| Identity PKs | UUID on users, roles, user_roles, vendor/provider accounts |
+| OTP storage | **Laravel Cache** (hashed) — **no DB table** |
+| SMS | `SmsProvider` → `LogSmsProvider` (dev) / `MsegatSmsProvider` (prod adapter) |
+| Browser auth | Sanctum **session cookie** (HttpOnly) + CSRF — **no JWT / no localStorage tokens** |
+| Registration | Pending user in TX → OTP in cache → verify assigns roles + accounts |
+| Authorization | Role middleware + policies + dashboard RBAC + `/403` |
+| Localization | Backend `SetLocaleFromRequest` + frontend `LocaleProvider` (ar/en, RTL/LTR) |
+
+---
+
+## Test Status (Verified 2026-08-16)
+
+| Area | Result |
+|------|--------|
+| Backend PHPUnit | **41 / 41 passed** |
+| Frontend Vitest | **36 / 36 passed** |
+| TypeScript | **Pass** |
+| ESLint | 4 warnings (react-refresh) — non-blocking |
+| Prettier | 9 files need format — non-blocking |
+
+---
+
+## Implemented API
+
+See `conception/API/AUTHENTICATION.md`, `conception/API/HEALTH.md`, and Postman collection.
+
+---
+
+## External Providers
+
+| Domain | Provider | Status |
+|--------|----------|--------|
+| OTP/SMS | MSEGAT | Adapter implemented; **LogSmsProvider in dev**; prod credentials in `.env` only |
+| Payments | MyFatoorah | Deferred |
+| AI | OpenAI | Deferred |
+
+---
+
+## Documentation
+
+| Document | Path |
+|----------|------|
+| Stage 2 index | `conception/Stages/Stage 2/README.md` |
+| Stage 2 completion | `conception/Stages/Stage 2/STAGE_2_COMPLETION_REPORT.md` |
+| Stage 2 audit | `conception/Stages/Stage 2/STAGE_2_FINAL_AUDIT.md` |
+
+---
+
+## Git Note
+
+Changes are **not committed** unless explicitly requested by the Product Owner. Never commit `.env` files.
 
 ---
 
 ## Next Authorized Stage
 
-**Stage 2 — Identity & Authentication**
+**Stage 3 — Catalog / Marketplace** — **NOT AUTHORIZED**
 
-- Register, login, logout
-- OTP via MSEGAT (`SmsProvider` abstraction)
-- Password reset, roles foundation
-- Protected API routes
-
-**Not authorized:** products, cart, checkout, payments (MyFatoorah), orders, catalog, AI (OpenAI), media domain.
-
----
-
-## External Provider Decisions (Selected — Not Integrated)
-
-| Domain | Provider | Integration |
-|--------|----------|-------------|
-| Payments | **MyFatoorah** (Saudi Arabia) | DEFERRED — Payments stage |
-| OTP/SMS | **MSEGAT / مسجات** (Saudi Arabia) | DEFERRED — Stage 2 |
-| AI | **OpenAI** | DEFERRED — AI stage |
-
-See `conception/adr/ADR-006-external-providers.md` and `conception/API/providers/`.
-
-**Rule:** Providers are infrastructure adapters behind internal interfaces — not business logic.
-
----
-
-## Implemented API (Stage 1)
-
-| Endpoint | Document |
-|----------|----------|
-| `GET /api/v1/health` | `conception/API/HEALTH.md` |
-
-Postman: `conception/API/postman/DIYAR-API-v1.postman_collection.json`
-
----
-
-## Technical Baseline
-
-- Laravel 13, PHP 8.3+, MySQL 8, Sanctum (infra), REST `/api/v1`
-- React 19, TypeScript, Vite, TanStack Query, Axios
-- CI: `.github/workflows/ci.yml`
-- Node 20 LTS (`.nvmrc`)
-
----
-
-## Open Decisions
-
-OD-02 through OD-08 — see `conception/REQUIREMENTS_BASELINE.md`
-
-**Resolved:** OD-01 MyFatoorah, OD-09 Laravel 13, OD-10 MSEGAT, OD-11 OpenAI
-
----
-
-## Completion Reports
-
-| Stage | Report |
-|-------|--------|
-| 0 | `conception/Stages/Stage 0/STAGE_0_COMPLETION_REPORT.md` |
-| 1 | `conception/Stages/Stage 1/STAGE_1_COMPLETION_REPORT.md` |
-
----
-
-## Deferred Work (Intentional)
-
-PHPStan, auth workflows, OTP, payments, orders, catalog, media, AI, staging/production deployment, provider adapter implementations — assigned to future stages, not forgotten.
-
-
-
-# STAGE 0 — DISCOVERY & ARCHITECTURE
---- 
-**COMPLETE**
-
-✓ Product discovery completed
-✓ Business requirements validated
-✓ V1 / V1.1 / V2 scope defined
-✓ Multi-role marketplace model established
-✓ Multi-vendor checkout architecture defined
-✓ Product & inventory model defined
-✓ Service marketplace workflow defined
-✓ Payment gateway abstraction defined
-✓ Commission system made configurable
-✓ Financial ledger architecture established
-✓ Order & vendor-order state machines defined
-✓ Shipping & returns rules established
-✓ REST API architecture defined
-✓ Laravel modular-monolith architecture selected
-✓ React frontend migration strategy defined
-✓ Repository reorganized into frontend/backend/conception
-✓ Stage 0 documentation and ADRs completed
-
-
-# STAGE 1 — ENGINEERING FOUNDATION
---- 
-**COMPLETE / FINALIZED**
-
-✓ Laravel 13 backend foundation
-✓ React 19 frontend foundation
-✓ API v1 foundation
-✓ Sanctum infrastructure
-✓ Axios + TanStack Query
-✓ API response/error conventions
-✓ Development standards
-✓ PHPUnit + Vitest foundation
-✓ CI / quality gates
-✓ CORS + rate limiting + security headers
-✓ Health endpoint
-✓ API documentation
-✓ Postman collection + local environment
-✓ External provider architecture
-✓ MyFatoorah selected for Saudi payments
-✓ MSEGAT selected for Saudi OTP/SMS
-✓ OpenAI selected for AI
-✓ Stage 1 audit completed
-✓ Repository validation completed
-✓ `.agent/` state finalized
-
-
-# STAGE 2 — IDENTITY & AUTHENTICATION
-
---- 
-**READY / AWAITING AUTHORIZATION**
-
-Planned:
-• Identity domain
-• Customer/vendor/provider accounts
-• Registration
-• MSEGAT OTP verification
-• Login/logout
-• Sanctum authentication
-• Roles
-• Permissions
-• Authorization
-• Password recovery
-• Identity API
-• Frontend authentication integration
-• Identity security testing
+**Do not implement:** products catalog API, cart, checkout, payments, orders, ledger, AI, media uploads, or business domains without explicit Product Owner authorization.

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Store, 
   Wrench, 
@@ -18,22 +18,35 @@ import {
   BarChart,
   ChevronDown
 } from 'lucide-react';
+import { useAuth } from '../hooks/auth/useAuth.ts';
+import { useToast } from '../hooks/useToast.ts';
+import {
+  getAccessibleDashboardPortals,
+  getPortalByKey,
+  getPortalFromPath,
+  type DashboardPortalKey,
+} from '../lib/auth/roles.ts';
 
 export default function DashboardLayout() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const location = useLocation();
 
-  const getRoleFromPath = () => {
-    if (location.pathname.includes('/vendor')) return 'vendor';
-    if (location.pathname.includes('/service')) return 'service';
-    if (location.pathname.includes('/affiliate')) return 'affiliate';
-    return null;
+  const role = getPortalFromPath(location.pathname);
+  const accessiblePortals = getAccessibleDashboardPortals(user?.roles);
+  const activePortal = role ? getPortalByKey(role) : null;
+  const showRoleSwitcher = Boolean(role) && accessiblePortals.length > 1;
+
+  const PORTAL_ICONS: Record<DashboardPortalKey, typeof Store> = {
+    vendor: Store,
+    service: Wrench,
+    affiliate: Megaphone,
   };
 
-  const role = getRoleFromPath();
-
-  const NAV_LINKS = {
+  const NAV_LINKS: Record<DashboardPortalKey, Array<{ name: string; path: string; icon: typeof LayoutDashboard }>> = {
     vendor: [
       { name: 'الرئيسية', path: '/dashboard/vendor', icon: LayoutDashboard },
       { name: 'الطلبات', path: '/dashboard/vendor/orders', icon: ShoppingCart },
@@ -130,31 +143,38 @@ export default function DashboardLayout() {
             >
               <Menu size={20} />
             </button>
-            <h1 className="text-lg md:text-xl font-bold text-diyar-dark truncate max-w-[150px] md:max-w-none">
-              {role === 'vendor' ? 'بوابة التاجر' : role === 'service' ? 'بوابة مزود الخدمة' : role === 'affiliate' ? 'بوابة المسوق' : 'اختيار البوابة'}
+            <h1 className="text-lg md:text-xl font-bold text-diyar-dark truncate max-w-37.5 md:max-w-none">
+              {activePortal?.headerTitle ?? 'اختيار البوابة'}
             </h1>
           </div>
           
           <div className="flex items-center gap-2 md:gap-4">
-            {/* Demo Switcher */}
-            <div className="relative group">
-              <button className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg border border-gray-200 text-xs md:text-sm font-medium hover:bg-gray-50 transition-colors">
-                <span className="hidden sm:inline">تبديل الحساب</span>
-                <span className="sm:hidden">بوابة</span>
-                <ChevronDown size={14} />
-              </button>
-              <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
-                <Link to="/dashboard/vendor" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-sm">
-                  <Store size={16} className="text-diyar-brown" /> تاجر
-                </Link>
-                <Link to="/dashboard/service" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-sm">
-                  <Wrench size={16} className="text-blue-500" /> مزود خدمة
-                </Link>
-                <Link to="/dashboard/affiliate" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-sm">
-                  <Megaphone size={16} className="text-green-500" /> مسوق بالعمولة
-                </Link>
+            {showRoleSwitcher && (
+              <div className="relative group">
+                <button className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg border border-gray-200 text-xs md:text-sm font-medium hover:bg-gray-50 transition-colors">
+                  <span className="hidden sm:inline">تبديل الحساب</span>
+                  <span className="sm:hidden">بوابة</span>
+                  <ChevronDown size={14} />
+                </button>
+                <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
+                  {accessiblePortals.map((portal) => {
+                    const Icon = PORTAL_ICONS[portal.key];
+
+                    return (
+                      <Link
+                        key={portal.key}
+                        to={portal.path}
+                        className={`flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-sm ${
+                          role === portal.key ? 'bg-gray-50 font-bold text-diyar-dark' : ''
+                        }`}
+                      >
+                        <Icon size={16} className={portal.iconTextClass} /> {portal.switchLabel}
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Notifications */}
             <div className="relative">
@@ -205,9 +225,26 @@ export default function DashboardLayout() {
                 </>
               )}
             </div>
-            <div className="w-9 h-9 rounded-full bg-diyar-cream flex items-center justify-center text-diyar-dark font-bold">
-              ت
-            </div>
+            <Link
+              to="/profile"
+              className="w-9 h-9 rounded-full bg-diyar-cream flex items-center justify-center text-diyar-dark font-bold hover:ring-2 hover:ring-diyar-brown/30 transition-all"
+              title="حسابي"
+            >
+              {user?.name?.trim()?.charAt(0) ?? '؟'}
+            </Link>
+            <button
+              type="button"
+              onClick={() =>
+                void logout().then((result) => {
+                  toast.success(result.message ?? 'تم تسجيل الخروج بنجاح.');
+                  navigate('/');
+                })
+              }
+              className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              <LogOut size={16} />
+              خروج
+            </button>
           </div>
         </header>
 

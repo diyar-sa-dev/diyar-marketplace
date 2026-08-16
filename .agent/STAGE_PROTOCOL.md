@@ -24,8 +24,8 @@ STAGE
 |-------|------|-------|
 | 0 | Discovery & Architecture | **FINALIZED** |
 | 1 | Engineering Foundation | Laravel + React foundation, CI, security infra |
-| 2 | Identity & Authentication | Sanctum workflows, roles, registration |
-| 3+ | Business Domains | Per MASTER_DEVELOPMENT_PLAN |
+| 2 | Identity & Access | **FINALIZED** — Sanctum, OTP, roles, frontend auth |
+| 3+ | Business Domains | Per MASTER_DEVELOPMENT_PLAN — **NOT AUTHORIZED** |
 
 ---
 
@@ -67,6 +67,8 @@ If asked to implement Phase X.Y, do **not** implement work from Phase X.Z or lat
 
 ---
 
-## Stage 1 Success Criteria
+## Stage 2 Success Criteria
 
-Stage 1 is FINALIZED when all six phases are complete, validated, documented, and `.agent/CURRENT_STATE.md` marks Stage 2 as next authorized work.
+Stage 2 is FINALIZED when phases 2.1–2.8 are complete, tests pass, and `.agent/CURRENT_STATE.md` marks Stage 3 as **NOT AUTHORIZED** until explicitly requested.
+
+Report: `conception/Stages/Stage 2/STAGE_2_COMPLETION_REPORT.md`

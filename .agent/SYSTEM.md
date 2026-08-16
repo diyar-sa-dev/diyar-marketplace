@@ -51,8 +51,9 @@ Update `.agent/CURRENT_STATE.md` after each completion. **Never delete** histori
 
 - Implement **only** the authorized Stage / Phase / Task.
 - Stage 1 = engineering foundation. **No V1 business domains.**
-- Stage 2+ = Identity, then business domains.
-- Sanctum **infrastructure** in Stage 1; **authentication workflows** in Stage 2.
+- Stage 2 = Identity & Access — **FINALIZED**.
+- Stage 3+ = Business domains — **NOT AUTHORIZED** without explicit request.
+- Sanctum **infrastructure** in Stage 1; **authentication workflows** in Stage 2 (complete).
 - Do not silently expand scope.
 
 ---

@@ -1,8 +1,8 @@
 # MSEGAT — SMS / OTP Provider
 
-> **Status:** SELECTED — integration **DEFERRED**  
+> **Status:** ADAPTER IMPLEMENTED (Stage 2)  
 > **Region:** Saudi Arabia  
-> **Target stage:** Stage 2 — Identity & Authentication
+> **Integration:** Production-ready adapter; credentials required for live SMS
 
 ---
 
@@ -10,71 +10,95 @@
 
 **MSEGAT / مسجات**
 
-Official OTP product: https://sms.msegat.com/otp-en/
+Official documentation: https://msegat.docs.apiary.io/
+
+OTP product reference: https://sms.msegat.com/otp-en/
 
 ---
 
-## Integration Status
-
-| Item | Status |
-|------|--------|
-| Provider selected | **Yes** |
-| API credentials in repo | **No** (must never be committed) |
-| `MsegatSmsProvider` implementation | **NOT YET IMPLEMENTED** |
-| OTP send/verify endpoints | **NOT YET IMPLEMENTED** |
-
----
-
-## Confirmed Capabilities (Provider Documentation)
-
-- SMS messaging
-- OTP verification
-- API integration
-- API keys and sender IDs
-- Delivery reports
-- Saudi/local and international messaging
-
----
-
-## DIYAR Architecture (Required)
+## DIYAR Architecture
 
 ```text
-Identity / OtpService
+OtpService (generates + verifies OTP via cache)
     ↓
-SmsProvider (internal interface)
-    ↓
-MsegatSmsProvider
-    ↓
-MSEGAT API
+SmsProvider (interface)
+    ├── LogSmsProvider        ← development / CI
+    └── MsegatSmsProvider     ← production
+            ↓
+        MSEGAT HTTPS JSON API
 ```
 
-**Rule:** Registration, login, and OTP business logic must depend on `SmsProvider`, not MSEGAT SDK calls directly.
+**Rule:** Controllers and Identity services depend on `SmsProvider`, never on MSEGAT directly.
 
 ---
 
-## Stage 2 Scope (Planned)
+## V1 Verification Model
 
-- Send OTP during registration / recovery
-- Verify OTP codes with throttling
-- Store OTP attempts securely (hashed, TTL, rate limits)
-- Log delivery failures; no credentials in logs
+DIYAR **generates** OTP codes, stores **hashed** values in Laravel Cache, and **verifies** locally.
+
+MSEGAT is used for **SMS delivery** only in production (`MsegatSmsProvider::send()`).
+
+MSEGAT also offers `sendOTPCode` / `verifyOTPCode` provider-side OTP APIs. These are documented for reference but are **not** used for V1 business verification to keep provider switching isolated.
 
 ---
 
-## Environment Variables (Future — Local Only)
+## MsegatSmsProvider
 
-Document in runbooks when implemented. Examples (names TBD at implementation):
+| Setting | Env variable |
+|---------|--------------|
+| Username | `MSEGAT_USERNAME` |
+| API key | `MSEGAT_API_KEY` |
+| Sender ID | `MSEGAT_SENDER_ID` |
+| Language | `MSEGAT_LANG` (`Ar` / `En`) |
+| Base URL | `MSEGAT_BASE_URL` (default `https://www.msegat.com/gw`) |
+
+Delivery endpoint: `POST /gw/sendsms.php` (JSON body)
+
+Example JSON fields:
+
+```json
+{
+  "userName": "...",
+  "apiKey": "...",
+  "userSender": "...",
+  "numbers": "9665XXXXXXXX",
+  "msg": "...",
+  "msgEncoding": "UTF8",
+  "lang": "Ar"
+}
+```
+
+---
+
+## LogSmsProvider (Development)
+
+When MSEGAT credentials are absent, `AppServiceProvider` binds `LogSmsProvider`.
+
+In `local` / `testing` environments only, `LogSmsProvider::exposeForDevelopment()` writes:
 
 ```text
-MSEGAT_API_KEY=         # local .env only — never commit
-MSEGAT_SENDER_ID=       # local .env only
+OTP issued for development testing
+{"phone":"966501234567","purpose":"registration","otp":"123456"}
 ```
 
-Use a **private** Postman environment for secrets. See [POSTMAN.md](../POSTMAN.md).
+**Never logged when:**
+- `APP_ENV=production`
+- MSEGAT credentials are present (even in local `.env`)
+
+OTP verification remains in Laravel Cache (hashed). MSEGAT delivers SMS in production without exposing codes in logs.
+
+---
+
+## Security
+
+- Never commit API keys or sender credentials
+- Never log OTP values in production
+- Use private Postman environments for manual testing
 
 ---
 
 ## Related
 
 - [AUTHENTICATION.md](../AUTHENTICATION.md)
-- [`../../adr/ADR-006-external-providers.md`](../../adr/ADR-006-external-providers.md)
+- [ADR-006-external-providers.md](../../adr/ADR-006-external-providers.md)
+- [ADR-007-spa-session-authentication.md](../../adr/ADR-007-spa-session-authentication.md)

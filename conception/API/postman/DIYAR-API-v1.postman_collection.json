@@ -2,17 +2,114 @@
   "info": {
     "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "name": "DIYAR API — v1",
-    "description": "DIYAR Marketplace REST API — Stage 1 foundation.\n\nImplemented: GET /api/v1/health, JSON 404 behavior.\n\nAuth and business endpoints are NOT implemented until Stage 2+.",
+    "description": "DIYAR Marketplace REST API — Stage 2 Identity & Access.\n\n## Sanctum session auth in Postman\n\nThe backend uses **stateful Sanctum cookies**, not Bearer tokens.\n\nPostman must mimic the React SPA:\n1. Send `Origin` + `Referer` from `frontend_origin` (default `http://localhost:3000`)\n2. Keep cookies enabled (Postman Cookie Jar)\n3. Use the same `base_url` host for all requests (`localhost` vs `127.0.0.1` must not mix)\n\nMutating requests auto-refresh CSRF via `/sanctum/csrf-cookie` so tokens stay valid after login/logout.\n\nRecommended flow: CSRF Cookie → Login → Me → Logout",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" },
+    { "key": "frontend_origin", "value": "http://localhost:3000" },
+    { "key": "api_version", "value": "v1" },
+    { "key": "phone", "value": "500000001" },
+    { "key": "password", "value": "Password123!" },
+    { "key": "xsrf_token", "value": "" }
+  ],
+  "event": [
     {
-      "key": "base_url",
-      "value": "http://localhost:8000"
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const frontendOrigin = pm.collectionVariables.get('frontend_origin') || pm.environment.get('frontend_origin') || 'http://localhost:3000';",
+          "const baseUrl = pm.collectionVariables.get('base_url') || pm.environment.get('base_url');",
+          "const referer = frontendOrigin.replace(/\\/$/, '') + '/';",
+          "",
+          "pm.request.headers.upsert({ key: 'Origin', value: frontendOrigin });",
+          "pm.request.headers.upsert({ key: 'Referer', value: referer });",
+          "pm.request.headers.upsert({ key: 'Accept', value: 'application/json' });",
+          "",
+          "function decodeXsrf(raw) {",
+          "  if (!raw) {",
+          "    return null;",
+          "  }",
+          "  try {",
+          "    return decodeURIComponent(String(raw).replace(/\\+/g, ' '));",
+          "  } catch (e) {",
+          "    return String(raw);",
+          "  }",
+          "}",
+          "",
+          "function readXsrfFromJar(url) {",
+          "  if (!url) {",
+          "    return null;",
+          "  }",
+          "  const jar = pm.cookies.toObject(url);",
+          "  if (jar && jar['XSRF-TOKEN']) {",
+          "    return decodeXsrf(jar['XSRF-TOKEN']);",
+          "  }",
+          "  const cookie = pm.cookies.get('XSRF-TOKEN', url);",
+          "  if (!cookie) {",
+          "    return null;",
+          "  }",
+          "  const raw = typeof cookie === 'string' ? cookie : cookie.value;",
+          "  return decodeXsrf(raw);",
+          "}",
+          "",
+          "function resolveXsrfToken() {",
+          "  const requestUrl = pm.request.url.toString();",
+          "  const candidates = [requestUrl, baseUrl, baseUrl + '/sanctum/csrf-cookie'];",
+          "  for (let i = 0; i < candidates.length; i += 1) {",
+          "    const token = readXsrfFromJar(candidates[i]);",
+          "    if (token) {",
+          "      return token;",
+          "    }",
+          "  }",
+          "  return pm.collectionVariables.get('xsrf_token') || pm.environment.get('xsrf_token') || null;",
+          "}",
+          "",
+          "function storeXsrfToken(token) {",
+          "  if (!token) {",
+          "    return;",
+          "  }",
+          "  pm.collectionVariables.set('xsrf_token', token);",
+          "  pm.request.headers.upsert({ key: 'X-XSRF-TOKEN', value: token });",
+          "}",
+          "",
+          "const method = pm.request.method;",
+          "const requestUrl = pm.request.url.toString();",
+          "const isCsrfBootstrap = requestUrl.indexOf('/sanctum/csrf-cookie') !== -1;",
+          "const isMutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);",
+          "",
+          "if (isMutating && !isCsrfBootstrap) {",
+          "  await pm.sendRequest({",
+          "    url: baseUrl + '/sanctum/csrf-cookie',",
+          "    method: 'GET',",
+          "    header: {",
+          "      Origin: frontendOrigin,",
+          "      Referer: referer,",
+          "      Accept: 'application/json'",
+          "    }",
+          "  });",
+          "  storeXsrfToken(resolveXsrfToken());",
+          "}"
+        ]
+      }
     },
     {
-      "key": "api_version",
-      "value": "v1"
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const baseUrl = pm.collectionVariables.get('base_url') || pm.environment.get('base_url');",
+          "const jar = pm.cookies.toObject(baseUrl);",
+          "if (jar && jar['XSRF-TOKEN']) {",
+          "  try {",
+          "    pm.collectionVariables.set('xsrf_token', decodeURIComponent(String(jar['XSRF-TOKEN']).replace(/\\+/g, ' ')));",
+          "  } catch (e) {",
+          "    pm.collectionVariables.set('xsrf_token', String(jar['XSRF-TOKEN']));",
+          "  }",
+          "}"
+        ]
+      }
     }
   ],
   "item": [
@@ -23,51 +120,204 @@
           "name": "GET /api/v1/health",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/{{api_version}}/health",
-              "host": ["{{base_url}}"],
-              "path": ["api", "{{api_version}}", "health"]
-            },
-            "description": "Operational health check. No authentication required.\n\nSee conception/API/HEALTH.md"
-          },
-          "response": []
+            "header": [],
+            "url": "{{base_url}}/api/{{api_version}}/health"
+          }
         }
       ]
     },
     {
-      "name": "Error / API Behavior",
+      "name": "Authentication",
+      "description": "Run in order for session auth:\n1. CSRF Cookie\n2. Login (or Register → Verify OTP)\n3. Me\n4. Logout\n\nPOST requests auto-refresh CSRF before sending.",
       "item": [
         {
-          "name": "GET unknown route (JSON 404)",
+          "name": "1. CSRF Cookie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('CSRF cookie request succeeds', function () {",
+                  "  pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "pm.test('XSRF-TOKEN cookie is stored', function () {",
+                  "  const baseUrl = pm.collectionVariables.get('base_url') || pm.environment.get('base_url');",
+                  "  const jar = pm.cookies.toObject(baseUrl);",
+                  "  pm.expect(jar['XSRF-TOKEN'], 'Cookie jar must store XSRF-TOKEN for ' + baseUrl).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
+            "header": [],
+            "url": "{{base_url}}/sanctum/csrf-cookie"
+          }
+        },
+        {
+          "name": "2. Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login succeeds', function () {",
+                  "  if (pm.response.code === 419) {",
+                  "    pm.expect.fail('CSRF token mismatch — clear cookies, run \"1. CSRF Cookie\", then retry Login');",
+                  "  }",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().success).to.eql(true);",
+                  "});",
+                  "",
+                  "pm.test('Session cookie is stored', function () {",
+                  "  const baseUrl = pm.collectionVariables.get('base_url') || pm.environment.get('base_url');",
+                  "  const jar = pm.cookies.toObject(baseUrl);",
+                  "  const hasSession = Object.keys(jar).some(function (name) {",
+                  "    return name.toLowerCase().includes('session');",
+                  "  });",
+                  "  pm.expect(hasSession, 'diyar-session cookie should be set after login').to.be.true;",
+                  "});"
+                ]
               }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
             ],
-            "url": {
-              "raw": "{{base_url}}/api/{{api_version}}/this-route-does-not-exist",
-              "host": ["{{base_url}}"],
-              "path": ["api", "{{api_version}}", "this-route-does-not-exist"]
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"phone\",\n  \"identifier\": \"{{phone}}\",\n  \"password\": \"{{password}}\"\n}"
             },
-            "description": "Verifies API JSON error envelope for unknown routes.\n\nExpected: 404, success=false, message=Resource not found."
-          },
-          "response": []
+            "url": "{{base_url}}/api/{{api_version}}/auth/login"
+          }
+        },
+        {
+          "name": "3. Me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Authenticated user is returned', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.success).to.eql(true);",
+                  "  pm.expect(body.data.user).to.be.an('object');",
+                  "  pm.expect(body.data.user.phone).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/{{api_version}}/auth/me"
+          }
+        },
+        {
+          "name": "4. Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Logout succeeds', function () {",
+                  "  if (pm.response.code === 419) {",
+                  "    pm.expect.fail('CSRF token mismatch — run Login + Me first, or re-import the latest collection');",
+                  "  }",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().success).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/{{api_version}}/auth/logout"
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"phone\": \"{{phone}}\",\n  \"email\": \"test@example.com\",\n  \"password\": \"{{password}}\",\n  \"password_confirmation\": \"{{password}}\",\n  \"roles\": [\"customer\"]\n}"
+            },
+            "url": "{{base_url}}/api/{{api_version}}/auth/register"
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\",\n  \"code\": \"000000\"\n}"
+            },
+            "url": "{{base_url}}/api/{{api_version}}/auth/verify-otp"
+          }
+        },
+        {
+          "name": "Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\"\n}"
+            },
+            "url": "{{base_url}}/api/{{api_version}}/auth/resend-otp"
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\"\n}"
+            },
+            "url": "{{base_url}}/api/{{api_version}}/auth/forgot-password"
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\",\n  \"code\": \"000000\",\n  \"password\": \"NewPassword123!\",\n  \"password_confirmation\": \"NewPassword123!\"\n}"
+            },
+            "url": "{{base_url}}/api/{{api_version}}/auth/reset-password"
+          }
         }
       ]
-    },
-    {
-      "name": "FUTURE — Stage 2 Identity",
-      "description": "PLANNED / NOT IMPLEMENTED\n\nFuture endpoints (do not expect 200 until Stage 2):\n- POST /api/v1/auth/register\n- POST /api/v1/auth/login\n- POST /api/v1/auth/logout\n- POST /api/v1/auth/otp/send\n- POST /api/v1/auth/otp/verify\n- GET /api/v1/auth/me\n\nOTP provider: MSEGAT (see conception/API/providers/MSEGAT.md)",
-      "item": []
     }
   ]
 }

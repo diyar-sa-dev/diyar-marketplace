@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { 
   X, ChevronLeft, ChevronDown, Grid, Home, ShoppingCart, Info, Phone, 
   Package, Compass, Sparkles, FolderGit2, ArrowLeft, Send, CheckCircle, 
-  ExternalLink, Calendar, MapPin, Eye, Wrench, RefreshCw, Layers, PhoneCall
+  ExternalLink, Calendar, MapPin, Eye, Wrench, RefreshCw, Layers, PhoneCall, LayoutDashboard
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/auth/useAuth.ts';
+import { hasDashboardAccess, resolveDashboardEntryPath } from '../../lib/auth/roles.ts';
 
 const CATEGORIES = {
   "bedroom": { name: "غرف النوم", subcategories: ["أسرة", "خزائن ملابس", "تسريحات", "طاولات جانبية", "مراتب"] },
@@ -60,6 +62,9 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [showCategoriesSection, setShowCategoriesSection] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
+  const dashboardPath = resolveDashboardEntryPath(user?.roles);
+  const showDashboardLink = isAuthenticated && hasDashboardAccess(user?.roles);
 
   // Dialog / Subview states
   const [isProjectsOpen, setIsProjectsOpen] = useState(false);
@@ -127,7 +132,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       />
       
       {/* Primary Sidebar Container */}
-      <div className="fixed top-0 right-0 h-full w-[320px] md:w-[380px] bg-white z-[60] shadow-2xl flex flex-col animate-in slide-in-from-right-full duration-300 pointer-events-auto">
+      <div className="fixed top-0 right-0 h-full w-[320px] md:w-95 bg-white z-60 shadow-2xl flex flex-col animate-in slide-in-from-right-full duration-300 pointer-events-auto">
         
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50">
@@ -160,6 +165,16 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                <Home size={18} className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors" />
                <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">الرئيسية</span>
              </button>
+
+             {showDashboardLink && (
+               <button
+                 onClick={() => handleNavigate(dashboardPath)}
+                 className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+               >
+                 <LayoutDashboard size={18} className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors" />
+                 <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">لوحة التحكم</span>
+               </button>
+             )}
 
              <button
                onClick={() => handleNavigate('/services')}
@@ -290,7 +305,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
       {/* 4. MODAL: معرض المشاريع (Hospitality Projects Showcase) */}
       {isProjectsOpen && (
-        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-250">
+        <div className="fixed inset-0 bg-black/80 z-100 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-250">
           <div className="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
             <button 
               onClick={() => setIsProjectsOpen(false)}
@@ -300,9 +315,9 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
               <X size={18} />
             </button>
 
-            <div className="p-6 md:p-8 bg-[#132624] text-[#f3ecdb] shrink-0 text-center relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.02] rounded-full -mr-8 -mt-8" />
-               <FolderGit2 className="w-12 h-12 text-[#947961] mx-auto mb-3" />
+            <div className="p-6 md:p-8 bg-[#132624] text-diyar-cream shrink-0 text-center relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-24 h-24 bg-white/2 rounded-full -mr-8 -mt-8" />
+               <FolderGit2 className="w-12 h-12 text-diyar-brown mx-auto mb-3" />
                <h3 className="text-xl md:text-2xl font-bold mb-1.5 font-sans">معرض مشاريع ديار العقارية والهندسية</h3>
                <p className="text-xs md:text-sm text-diyar-cream max-w-lg mx-auto opacity-90 leading-relaxed">
                  نفخر بتنفيذ وتجهيز الفلل الفاخرة والمجالس الرسمية في مختلف مناطق المملكة بأرقى الخامات المطابقة لتقاليد الضيافة الأصيلة.
@@ -321,7 +336,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                    <div className="p-5 md:py-6 flex-1 flex flex-col justify-between">
                      <div>
                        <div className="flex items-center gap-1.5 text-gray-400 text-xs mb-1">
-                         <MapPin size={12} className="text-[#947961]" />
+                         <MapPin size={12} className="text-diyar-brown" />
                          <span>{proj.location}</span>
                        </div>
                        <h4 className="text-base font-bold text-diyar-dark mb-2.5 leading-snug">{proj.title}</h4>
@@ -329,7 +344,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                      </div>
                      <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
                        <span className="text-[11px] text-gray-400 font-bold">2026 م • تم التسليم</span>
-                       <button className="text-xs font-bold text-[#947961] hover:text-[#132624] flex items-center gap-1 transition-colors">
+                       <button className="text-xs font-bold text-diyar-brown hover:text-[#132624] flex items-center gap-1 transition-colors">
                           تفاصيل المخطط <ChevronLeft size={14} />
                        </button>
                      </div>
@@ -343,13 +358,13 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
       {/* 5. MODAL: AI Studio Custom Simulator Workspace */}
       {isAiStudioOpen && (
-        <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-2 md:p-4 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/85 z-100 flex items-center justify-center p-2 md:p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-[#1c1c1c] text-[#fbfbf9] rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl relative max-h-[95vh] flex flex-col">
             
             {/* Topbar */}
             <div className="p-4 border-b border-white/5 flex items-center justify-between bg-black/20 shrink-0">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#947961] rounded-lg flex items-center justify-center text-white">
+                <div className="w-8 h-8 bg-diyar-brown rounded-lg flex items-center justify-center text-white">
                   <Sparkles size={16} />
                 </div>
                 <div>
@@ -381,7 +396,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                  </div>
 
                  <div className="absolute bottom-4 left-4 right-4 z-20 text-center pointer-events-none">
-                   <span className="bg-[#132624]/90 text-diyar-cream text-[10px] md:text-xs font-bold py-1.5 px-3.5 rounded-full shadow-lg border border-[#947961]/30">
+                   <span className="bg-[#132624]/90 text-diyar-cream text-[10px] md:text-xs font-bold py-1.5 px-3.5 rounded-full shadow-lg border border-diyar-brown/30">
                      اسحب القطع، كبّرها أو دوّرها لترتيب غرفتك بسهولة
                    </span>
                  </div>
@@ -392,12 +407,12 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                        <Sparkles size={22} />
                      </div>
                      <p className="text-white/90 text-sm font-bold mb-1">ابدأ بتأثيث غرفتك</p>
-                     <p className="text-white/50 text-xs max-w-[220px] leading-relaxed">اختر طابع الغرفة، ثم اضغط على أي قطعة أثاث من القائمة لإضافتها هنا.</p>
+                     <p className="text-white/50 text-xs max-w-55 leading-relaxed">اختر طابع الغرفة، ثم اضغط على أي قطعة أثاث من القائمة لإضافتها هنا.</p>
                    </div>
                  )}
 
                  {/* Simulated 2.5D Canvas Container */}
-                 <div className="relative w-full aspect-[4/3] max-w-2xl bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl border border-white/5 select-none">
+                 <div className="relative w-full aspect-4/3 max-w-2xl bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl border border-white/5 select-none">
                     {/* Background image */}
                     <img 
                       src={selectedBg.img} 
@@ -462,7 +477,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                               setSelectedBg(bg);
                               setSelectedStickerIndex(null);
                             }}
-                            className={`relative aspect-[4/3] rounded-xl overflow-hidden border-2 transition-all p-0 truncate ${selectedBg.id === bg.id ? 'border-[#947961]' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                            className={`relative aspect-4/3 rounded-xl overflow-hidden border-2 transition-all p-0 truncate ${selectedBg.id === bg.id ? 'border-diyar-brown' : 'border-transparent opacity-60 hover:opacity-100'}`}
                           >
                             <img src={bg.img} alt={bg.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-center p-1">
@@ -488,7 +503,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                              </div>
                              <div className="flex-1 truncate">
                                 <span className="font-bold block truncate text-[11px]">{item.name}</span>
-                                <span className="text-[9px] text-[#947961] block font-semibold">بأبعاد دقيقة</span>
+                                <span className="text-[9px] text-diyar-brown block font-semibold">بأبعاد دقيقة</span>
                              </div>
                           </button>
                        ))}
@@ -528,7 +543,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
       {/* 6. MODAL: من نحن (About DIYAR) */}
       {isAboutOpen && (
-        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/80 z-100 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-[#fdfbf7] text-diyar-dark rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl relative max-h-[85vh] flex flex-col border border-diyar-brown/10">
             <button 
               onClick={() => setIsAboutOpen(false)}
@@ -540,15 +555,15 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
             {/* Visual Header */}
             <div className="p-8 bg-[#132624] text-white shrink-0 text-center relative overflow-hidden">
-               <div className="absolute -bottom-10 -left-10 w-44 h-44 bg-white/[0.02] rounded-full" />
-               <h3 className="text-xl md:text-2xl font-bold mb-2 text-[#f3ecdb]">عرين الكرم والضيافة والعزة</h3>
-               <p className="text-xs text-[#947961] font-bold leading-6">عن منصة ديار لأثاث وتجهيزات الضيافة</p>
+               <div className="absolute -bottom-10 -left-10 w-44 h-44 bg-white/2 rounded-full" />
+               <h3 className="text-xl md:text-2xl font-bold mb-2 text-diyar-cream">عرين الكرم والضيافة والعزة</h3>
+               <p className="text-xs text-diyar-brown font-bold leading-6">عن منصة ديار لأثاث وتجهيزات الضيافة</p>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 leading-relaxed text-sm scrollbar-hide">
                {/* Brand Story */}
                <div>
-                  <h4 className="text-[#132624] font-bold text-base mb-2 border-r-4 border-[#947961] pr-3">حكايتنا وأصالتنا</h4>
+                  <h4 className="text-[#132624] font-bold text-base mb-2 border-r-4 border-diyar-brown pr-3">حكايتنا وأصالتنا</h4>
                   <p className="text-gray-600 font-normal text-xs md:text-sm">
                      تأسست منصة **ديار** بدافع إحياء الفنون الزخرفية والتراثية للبيوت ومجالس الضيافة في شبه الجزيرة العربية، ودمجها برؤية حديثة لترقى إلى أعلى درجات الفخامة العالمية. نختار أفخر أنواع الأخشاب الطبيعية، والأقمشة التي تجمع روعة الألوان وتماسك النسيج لنحاكي الفترات الذهبية للفن المعمري النجدي والأندلسي والحجازي.
                   </p>
@@ -567,7 +582,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   </div>
                   <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
                      <h5 className="font-bold text-diyar-dark mb-1.5 flex items-center gap-2">
-                       <span className="w-1.5 h-1.5 rounded-full bg-[#947961]"></span>
+                       <span className="w-1.5 h-1.5 rounded-full bg-diyar-brown"></span>
                        الجودة والضمان
                      </h5>
                      <p className="text-xs text-gray-500 font-normal">
@@ -588,7 +603,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
       {/* 7. MODAL: تواصل معنا (Contact us) */}
       {isContactOpen && (
-        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/80 z-100 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white text-diyar-dark rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
             <button 
               onClick={() => setIsContactOpen(false)}
@@ -604,8 +619,8 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                {/* Contact details Sidebar (dark) */}
                <div className="bg-[#132624] text-white p-6 md:p-8 md:w-2/5 flex flex-col justify-between shrink-0">
                   <div>
-                     <PhoneCall className="w-10 h-10 text-[#947961] mb-4" />
-                     <h4 className="text-lg font-bold mb-2 text-[#f3ecdb]">سررنا بخدمتك</h4>
+                     <PhoneCall className="w-10 h-10 text-diyar-brown mb-4" />
+                     <h4 className="text-lg font-bold mb-2 text-diyar-cream">سررنا بخدمتك</h4>
                      <p className="text-xs text-diyar-cream opacity-80 leading-relaxed mb-6 font-normal">
                         تواصل مع فريق المبيعات وتخطيط الديكور لطلب معاينات مجانية لمشروعك السكني أو التجاري.
                      </p>
@@ -613,14 +628,14 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
                   <div className="space-y-4">
                      <div className="flex items-start gap-2.5 text-xs">
-                        <MapPin size={16} className="text-[#947961] shrink-0 mt-0.5" />
+                        <MapPin size={16} className="text-diyar-brown shrink-0 mt-0.5" />
                         <div>
                            <p className="font-bold">المقر الرئيسي</p>
                            <p className="opacity-70">طريق الملك عبدالعزيز، حي الياسمين، الرياض</p>
                         </div>
                      </div>
                      <div className="flex items-start gap-2.5 text-xs">
-                        <Phone size={16} className="text-[#947961] shrink-0 mt-0.5" />
+                        <Phone size={16} className="text-diyar-brown shrink-0 mt-0.5" />
                         <div>
                            <p className="font-bold">قسم المبيعات</p>
                            <p className="opacity-70" dir="ltr">+966 50 123 4567</p>
@@ -648,7 +663,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                          <input 
                            type="text" 
                            required
-                           className="w-full bg-gray-50 outline-none border border-gray-100 focus:border-[#947961] focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark"
+                           className="w-full bg-gray-50 outline-none border border-gray-100 focus:border-diyar-brown focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark"
                            placeholder="مثال: فيصل بن سلمان"
                            value={contactForm.name}
                            onChange={e => setContactForm({ ...contactForm, name: e.target.value })}
@@ -661,7 +676,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                             <input 
                               type="tel"
                               required
-                              className="w-full bg-gray-50 outline-none border border-gray-100 focus:border-[#947961] focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark text-right"
+                              className="w-full bg-gray-50 outline-none border border-gray-100 focus:border-diyar-brown focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark text-right"
                               placeholder="050XXXXXXXX"
                               value={contactForm.phone}
                               onChange={e => setContactForm({ ...contactForm, phone: e.target.value })}
@@ -671,7 +686,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                             <label className="block text-[11px] font-bold text-gray-500 mb-1">البريد الإلكتروني</label>
                             <input 
                               type="email"
-                              className="w-full bg-gray-50 outline-none border border-gray-100 focus:border-[#947961] focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark"
+                              className="w-full bg-gray-50 outline-none border border-gray-100 focus:border-diyar-brown focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark"
                               placeholder="faisal@example.com"
                               value={contactForm.email}
                               onChange={e => setContactForm({ ...contactForm, email: e.target.value })}
@@ -682,7 +697,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                        <div>
                          <label className="block text-[11px] font-bold text-gray-500 mb-1">تفاصيل استشارتك أو طلبك</label>
                          <textarea 
-                           className="w-full bg-gray-50 outline-none border border-gray-100 focus:border-[#947961] focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark h-24 resize-none"
+                           className="w-full bg-gray-50 outline-none border border-gray-100 focus:border-diyar-brown focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark h-24 resize-none"
                            placeholder="اكتب هنا تفاصيل مشروعك ومساحة المجالس المطلوبة..."
                            required
                            value={contactForm.message}

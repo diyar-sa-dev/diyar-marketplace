@@ -1,14 +1,14 @@
 # DIYAR API Documentation
 
-> **Status:** CURRENT — Stage 1 foundation  
-> **Last updated:** 2026-08-15  
+> **Status:** CURRENT — Stage 2 Identity & Access implemented  
+> **Last updated:** 2026-08-16  
 > **Base path:** `/api/v1`
 
 ---
 
 ## Purpose
 
-This directory documents the **implemented and planned** DIYAR REST API. It complements the Stage 0 contract in [`../architecture/API_SPECIFICATION.md`](../architecture/API_SPECIFICATION.md), which describes future endpoints not yet built.
+This directory documents the **implemented and planned** DIYAR REST API. It complements the Stage 0 contract in [`../architecture/API_SPECIFICATION.md`](../architecture/API_SPECIFICATION.md), which describes future business endpoints not yet built.
 
 **Source of truth for implemented behavior:** repository code + tests in `backend/tests/Feature/Api/V1/`.
 
@@ -18,21 +18,33 @@ This directory documents the **implemented and planned** DIYAR REST API. It comp
 
 | Document | Scope |
 |----------|--------|
-| [API_CONVENTIONS.md](./API_CONVENTIONS.md) | Versioning, envelope, errors, auth strategy, rate limits, CORS |
-| [HEALTH.md](./HEALTH.md) | `GET /api/v1/health` (implemented) |
-| [AUTHENTICATION.md](./AUTHENTICATION.md) | Sanctum infrastructure + **planned** Stage 2 auth endpoints |
-| [POSTMAN.md](./POSTMAN.md) | Import and usage of Postman collection/environment |
-| [providers/MSEGAT.md](./providers/MSEGAT.md) | OTP/SMS provider — **SELECTED / DEFERRED** |
-| [providers/MYFATOORAH.md](./providers/MYFATOORAH.md) | Payment provider — **SELECTED / DEFERRED** |
-| [providers/OPENAI.md](./providers/OPENAI.md) | AI provider — **SELECTED / DEFERRED** |
+| [API_CONVENTIONS.md](./API_CONVENTIONS.md) | Versioning, envelope, errors, auth, rate limits, CORS |
+| [HEALTH.md](./HEALTH.md) | `GET /api/v1/health` |
+| [AUTHENTICATION.md](./AUTHENTICATION.md) | **Implemented** Stage 2 auth + sessions |
+| [POSTMAN.md](./POSTMAN.md) | Postman collection/environment |
+| [providers/MSEGAT.md](./providers/MSEGAT.md) | SMS adapter — **IMPLEMENTED (Stage 2)** |
+| [providers/MYFATOORAH.md](./providers/MYFATOORAH.md) | Payment provider — **DEFERRED** |
+| [providers/OPENAI.md](./providers/OPENAI.md) | AI provider — **DEFERRED** |
 
 ---
 
-## Implemented Endpoints (Stage 1)
+## Implemented Endpoints
 
 | Method | Path | Auth | Document |
 |--------|------|------|----------|
 | GET | `/api/v1/health` | None | [HEALTH.md](./HEALTH.md) |
+| GET | `/sanctum/csrf-cookie` | None | [AUTHENTICATION.md](./AUTHENTICATION.md) |
+| POST | `/api/v1/auth/register` | None | [AUTHENTICATION.md](./AUTHENTICATION.md) |
+| POST | `/api/v1/auth/verify-otp` | None | [AUTHENTICATION.md](./AUTHENTICATION.md) |
+| POST | `/api/v1/auth/resend-otp` | None | [AUTHENTICATION.md](./AUTHENTICATION.md) |
+| POST | `/api/v1/auth/login` | None | [AUTHENTICATION.md](./AUTHENTICATION.md) |
+| POST | `/api/v1/auth/logout` | Yes | [AUTHENTICATION.md](./AUTHENTICATION.md) |
+| GET | `/api/v1/auth/me` | Yes | [AUTHENTICATION.md](./AUTHENTICATION.md) |
+| POST | `/api/v1/auth/forgot-password` | None | [AUTHENTICATION.md](./AUTHENTICATION.md) |
+| POST | `/api/v1/auth/verify-password-reset-otp` | None | [AUTHENTICATION.md](./AUTHENTICATION.md) |
+| POST | `/api/v1/auth/reset-password` | None | [AUTHENTICATION.md](./AUTHENTICATION.md) |
+| GET | `/api/v1/vendor/accounts/{vendorAccount}` | Yes | [AUTHENTICATION.md](./AUTHENTICATION.md) |
+| GET | `/api/v1/provider/accounts/{providerAccount}` | Yes | [AUTHENTICATION.md](./AUTHENTICATION.md) |
 
 Laravel framework health (non-JSON): `GET /up`
 
@@ -40,7 +52,7 @@ Laravel framework health (non-JSON): `GET /up`
 
 ## Planned Endpoints
 
-Authentication, catalog, checkout, payments, and all business domains are documented in [`../architecture/API_SPECIFICATION.md`](../architecture/API_SPECIFICATION.md) as **planned contracts**. They are **not implemented** until their authorized stage.
+Catalog, checkout, payments, orders, and other business domains remain **planned** until their authorized stage. See [`../architecture/API_SPECIFICATION.md`](../architecture/API_SPECIFICATION.md).
 
 ---
 
@@ -51,13 +63,14 @@ Authentication, catalog, checkout, payments, and all business domains are docume
 | Collection | [`postman/DIYAR-API-v1.postman_collection.json`](./postman/DIYAR-API-v1.postman_collection.json) |
 | Environment (local example) | [`postman/DIYAR-API-Local.postman_environment.json`](./postman/DIYAR-API-Local.postman_environment.json) |
 
-See [POSTMAN.md](./POSTMAN.md).
+See [POSTMAN.md](./POSTMAN.md). **Do not commit production secrets** in environment files.
 
 ---
 
 ## Related
 
-- [`../architecture/API_SPECIFICATION.md`](../architecture/API_SPECIFICATION.md) — full V1 contract (planned)
+- [`../architecture/API_SPECIFICATION.md`](../architecture/API_SPECIFICATION.md) — full V1 contract (planned business APIs)
 - [`../adr/ADR-004-api.md`](../adr/ADR-004-api.md) — REST `/api/v1` decision
-- [`../adr/ADR-006-external-providers.md`](../adr/ADR-006-external-providers.md) — provider abstraction rule
+- [`../adr/ADR-006-external-providers.md`](../adr/ADR-006-external-providers.md) — provider abstraction
+- [`../adr/ADR-007-spa-session-authentication.md`](../adr/ADR-007-spa-session-authentication.md) — SPA session auth
 - `.agent/ARCHITECTURE_RULES.md` — operational constraints

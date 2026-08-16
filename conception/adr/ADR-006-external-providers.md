@@ -4,7 +4,7 @@
 |---|---|
 | **Status** | Accepted |
 | **Date**  | 2026-08-15 |
-| **Stage** | 1 finalization (decisions); integrations deferred |
+| **Stage** | 1 finalization (decisions); SMS adapter **implemented Stage 2** |
 
 ## Problem
 
@@ -19,7 +19,7 @@ The application layer depends on internal contracts:
 | Domain | Interface | Selected provider | Region | Integration |
 |--------|-----------|-------------------|--------|-------------|
 | Payments | `PaymentGateway` | **MyFatoorah** | Saudi Arabia (`https://api-sa.myfatoorah.com/`) | **DEFERRED** — Payments stage |
-| SMS / OTP | `SmsProvider` | **MSEGAT / مسجات** | Saudi Arabia | **DEFERRED** — Stage 2 Identity |
+| SMS / OTP | `SmsProvider` | **MSEGAT / مسجات** | Saudi Arabia | **IMPLEMENTED** — Stage 2 (LogSmsProvider in dev) |
 | AI text | `AIProvider` | **OpenAI** | — | **DEFERRED** — AI stage |
 | AI images | `ImageGenerationProvider` | **OpenAI** | — | **DEFERRED** — AI stage |
 
@@ -37,7 +37,7 @@ ImageGenerationProvider → OpenAIImageProvider
 1. No provider HTTP/SDK calls from controllers or domain entities
 2. No API keys, webhook secrets, or tokens in the repository or committed Postman environments
 3. Webhook handling (MyFatoorah V2) must verify signatures and be idempotent — when implemented
-4. OTP flows must use `OtpService` + `SmsProvider` — when implemented in Stage 2
+4. OTP flows use `OtpService` + `SmsProvider` — **implemented Stage 2**
 
 ## Reason
 
@@ -48,7 +48,7 @@ ImageGenerationProvider → OpenAIImageProvider
 
 ## Consequences
 
-- Stage 2 must introduce `SmsProvider` before OTP endpoints
+- Stage 2 introduced `SmsProvider` + cache-backed OTP — see `conception/API/AUTHENTICATION.md`
 - Payments stage must introduce `PaymentGateway` + MyFatoorah adapter before checkout goes live
 - Documentation lives in `conception/API/providers/` and `.agent/ARCHITECTURE_RULES.md`
 
