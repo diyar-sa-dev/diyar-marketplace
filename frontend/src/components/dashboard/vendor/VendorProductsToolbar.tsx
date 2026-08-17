@@ -78,7 +78,10 @@ export function VendorProductsToolbar({
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-4 pr-10 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-diyar-brown/15 focus:border-diyar-brown text-sm w-full md:w-64 text-right hover:border-gray-300 transition-colors cursor-text bg-white"
           />
-          <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <Search
+            size={18}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+          />
         </div>
 
         <div className="relative">

@@ -1,5 +1,16 @@
 import type { ReactNode } from 'react';
-import { Facebook, Instagram, Link2, Linkedin, Mail, MessageCircle, Send, Share2, Twitter, X } from 'lucide-react';
+import {
+  Facebook,
+  Instagram,
+  Link2,
+  Linkedin,
+  Mail,
+  MessageCircle,
+  Send,
+  Share2,
+  Twitter,
+  X,
+} from 'lucide-react';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
@@ -143,7 +154,9 @@ export function ProductShareSheet({ open, onClose, url, title }: ProductShareShe
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100">
-          <h3 className="font-bold text-diyar-dark text-lg">{t('catalog.productDetail.shareTitle')}</h3>
+          <h3 className="font-bold text-diyar-dark text-lg">
+            {t('catalog.productDetail.shareTitle')}
+          </h3>
           <button
             type="button"
             onClick={onClose}

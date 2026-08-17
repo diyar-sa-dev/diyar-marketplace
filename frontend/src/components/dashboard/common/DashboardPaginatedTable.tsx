@@ -44,7 +44,12 @@ export function DashboardPaginatedTable({
       {columns}
       {children}
       {pagination ? (
-        <PaginationBar pagination={pagination} page={page} onPageChange={onPageChange} className="pt-2" />
+        <PaginationBar
+          pagination={pagination}
+          page={page}
+          onPageChange={onPageChange}
+          className="pt-2"
+        />
       ) : null}
     </div>
   );

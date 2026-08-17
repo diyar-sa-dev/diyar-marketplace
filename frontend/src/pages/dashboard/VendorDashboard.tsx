@@ -1,20 +1,6 @@
 import React from 'react';
-import {
-  ShoppingCart,
-  DollarSign,
-  Package,
-  RotateCcw,
-  Wallet,
-  TrendingUp,
-} from 'lucide-react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from 'recharts';
+import { ShoppingCart, DollarSign, Package, RotateCcw, Wallet, TrendingUp } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { ChartContainer, CHART_HEIGHT } from '../../components/common/ChartContainer.tsx';
 import { Link } from 'react-router-dom';
 import { PageLoadingOverlay } from '../../components/common/PageLoadingOverlay.tsx';
@@ -149,23 +135,28 @@ export default function VendorDashboard() {
           ) : (
             <ChartContainer>
               <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af' }} />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: '16px',
-                      border: 'none',
-                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="sales"
-                    stroke="#A67B5B"
-                    strokeWidth={3}
-                    dot={{ r: 4, fill: '#A67B5B', strokeWidth: 0 }}
-                    activeDot={{ r: 6 }}
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#9ca3af' }}
+                />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af' }} />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '16px',
+                    border: 'none',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="sales"
+                  stroke="#A67B5B"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: '#A67B5B', strokeWidth: 0 }}
+                  activeDot={{ r: 6 }}
                 />
               </LineChart>
             </ChartContainer>
@@ -175,7 +166,10 @@ export default function VendorDashboard() {
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-bold text-diyar-dark">{t('vendor.dashboard.recentOrders')}</h3>
-            <Link to="/dashboard/vendor/orders" className="text-sm text-diyar-brown hover:underline">
+            <Link
+              to="/dashboard/vendor/orders"
+              className="text-sm text-diyar-brown hover:underline"
+            >
               {t('vendor.dashboard.viewAllOrders')}
             </Link>
           </div>
@@ -195,13 +189,21 @@ export default function VendorDashboard() {
                       <h4 className="font-bold text-sm text-diyar-dark leading-snug truncate">
                         {order.product_name ?? '—'}
                       </h4>
-                      <p className="mt-1 text-xs font-semibold text-diyar-brown/85 tabular-nums" dir="ltr">
+                      <p
+                        className="mt-1 text-xs font-semibold text-diyar-brown/85 tabular-nums"
+                        dir="ltr"
+                      >
                         {order.order_number ?? order.id.slice(0, 8).toUpperCase()}
                       </p>
-                      <p className="mt-1.5 text-xs text-gray-400">{formatOrderTime(order.created_at)}</p>
+                      <p className="mt-1.5 text-xs text-gray-400">
+                        {formatOrderTime(order.created_at)}
+                      </p>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-2">
-                      <span className="text-sm font-bold text-diyar-dark tabular-nums whitespace-nowrap" dir="ltr">
+                      <span
+                        className="text-sm font-bold text-diyar-dark tabular-nums whitespace-nowrap"
+                        dir="ltr"
+                      >
                         {order.vendor_total} {currency}
                       </span>
                       <VendorOrderStatusBadge status={order.status} />

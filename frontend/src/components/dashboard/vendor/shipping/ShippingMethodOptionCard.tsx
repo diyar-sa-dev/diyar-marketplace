@@ -63,7 +63,9 @@ export function ShippingMethodOptionCard({
         </span>
       ) : null}
 
-      <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${iconClassName}`}>
+      <div
+        className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${iconClassName}`}
+      >
         <Icon size={24} />
       </div>
 
@@ -71,7 +73,10 @@ export function ShippingMethodOptionCard({
       <p className="mb-4 line-clamp-2 text-xs text-gray-500">{description}</p>
 
       {selected && children ? (
-        <div className="space-y-3 border-t border-gray-100 pt-4" onClick={(event) => event.stopPropagation()}>
+        <div
+          className="space-y-3 border-t border-gray-100 pt-4"
+          onClick={(event) => event.stopPropagation()}
+        >
           {children}
         </div>
       ) : null}

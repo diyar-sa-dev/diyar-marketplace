@@ -133,8 +133,9 @@ export function useCart() {
   );
 
   const clearCartLocal = useCallback(async () => {
-    queryClient.setQueryData<Cart>(cartKeys.detail(), () =>
-      writeLocalCartEnvelope(optimisticClearCart(EMPTY_CART), false).cart,
+    queryClient.setQueryData<Cart>(
+      cartKeys.detail(),
+      () => writeLocalCartEnvelope(optimisticClearCart(EMPTY_CART), false).cart,
     );
     await cartSync.flushClear();
   }, [queryClient]);

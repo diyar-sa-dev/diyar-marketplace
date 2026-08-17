@@ -140,7 +140,9 @@ export function VendorReturnPolicyPanel() {
           <input
             type="checkbox"
             checked={form.shipping_refundable}
-            onChange={(e) => setForm((prev) => ({ ...prev, shipping_refundable: e.target.checked }))}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, shipping_refundable: e.target.checked }))
+            }
           />
           {t('returns.policyShippingRefundable')}
         </label>

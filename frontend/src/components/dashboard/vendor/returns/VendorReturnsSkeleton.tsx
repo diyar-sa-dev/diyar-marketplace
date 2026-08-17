@@ -14,7 +14,10 @@ export function VendorReturnsSkeleton() {
 
       <div className="space-y-4">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm space-y-4">
+          <div
+            key={index}
+            className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm space-y-4"
+          >
             <div className="flex justify-between gap-3">
               <div className="space-y-2 flex-1">
                 <div className="h-3 w-20 rounded bg-gray-100" />

@@ -10,7 +10,12 @@ export function RequiredLabel({ children, required, className = '' }: RequiredLa
   return (
     <label className={`block text-right ${className}`}>
       {children}
-      {required && <span className="text-red-500 mr-0.5 font-bold" aria-hidden="true"> *</span>}
+      {required && (
+        <span className="text-red-500 mr-0.5 font-bold" aria-hidden="true">
+          {' '}
+          *
+        </span>
+      )}
     </label>
   );
 }

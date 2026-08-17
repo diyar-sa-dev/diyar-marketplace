@@ -605,34 +605,36 @@ export function FeaturedStores() {
             ? [...Array(6)].map((_, i) => (
                 <div key={i} className="min-w-35 h-40 bg-white rounded-xl animate-pulse" />
               ))
-            : stores.filter((store) => isValidStoreSlug(store.slug)).map((store) => (
-            <Link
-              to={storePath(store.slug)!}
-              key={store.id}
-              className="min-w-35 md:min-w-0 bg-white rounded-xl p-4 md:p-3 border border-gray-100 shadow-sm hover:shadow-md transition group text-center flex flex-col items-center shrink-0 snap-start"
-            >
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gray-100 p-1 mb-3 overflow-hidden border border-gray-200">
-                <img
-                  src={
-                    store.logo_url ??
-                    'https://images.unsplash.com/photo-1555529733-0e670560f7e1?auto=format&fit=crop&q=60&w=200'
-                  }
-                  alt={store.store_name}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full rounded-full object-cover"
-                />
-              </div>
-              <h3 className="text-sm md:text-base font-bold text-diyar-dark mb-1 line-clamp-1">
-                {store.store_name}
-              </h3>
-              <span className="text-gray-400 text-[9px] md:text-[10px] font-normal mb-3">
-                ({store.product_count ?? 0} منتج)
-              </span>
-              <div className="w-full py-1.5 md:py-2 text-xs md:text-sm auto rounded-lg border border-gray-200 text-diyar-dark font-medium group-hover:bg-diyar-brown group-hover:text-white group-hover:border-diyar-dark transition mt-auto">
-                تصفح المتجر
-              </div>
-            </Link>
-          ))}
+            : stores
+                .filter((store) => isValidStoreSlug(store.slug))
+                .map((store) => (
+                  <Link
+                    to={storePath(store.slug)!}
+                    key={store.id}
+                    className="min-w-35 md:min-w-0 bg-white rounded-xl p-4 md:p-3 border border-gray-100 shadow-sm hover:shadow-md transition group text-center flex flex-col items-center shrink-0 snap-start"
+                  >
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gray-100 p-1 mb-3 overflow-hidden border border-gray-200">
+                      <img
+                        src={
+                          store.logo_url ??
+                          'https://images.unsplash.com/photo-1555529733-0e670560f7e1?auto=format&fit=crop&q=60&w=200'
+                        }
+                        alt={store.store_name}
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    </div>
+                    <h3 className="text-sm md:text-base font-bold text-diyar-dark mb-1 line-clamp-1">
+                      {store.store_name}
+                    </h3>
+                    <span className="text-gray-400 text-[9px] md:text-[10px] font-normal mb-3">
+                      ({store.product_count ?? 0} منتج)
+                    </span>
+                    <div className="w-full py-1.5 md:py-2 text-xs md:text-sm auto rounded-lg border border-gray-200 text-diyar-dark font-medium group-hover:bg-diyar-brown group-hover:text-white group-hover:border-diyar-dark transition mt-auto">
+                      تصفح المتجر
+                    </div>
+                  </Link>
+                ))}
         </div>
       </div>
     </div>
@@ -1334,9 +1336,7 @@ export function MostInteractiveProducts() {
             ? [...Array(6)].map((_, i) => (
                 <div key={i} className="h-64 bg-gray-100 animate-pulse rounded-lg" />
               ))
-            : products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+            : products.map((product) => <ProductCard key={product.id} product={product} />)}
         </div>
       </div>
     </div>

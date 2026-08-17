@@ -1,9 +1,5 @@
 export type ReturnReason =
-  | 'manufacturing_defect'
-  | 'damaged'
-  | 'wrong_item'
-  | 'not_as_described'
-  | 'other';
+  'manufacturing_defect' | 'damaged' | 'wrong_item' | 'not_as_described' | 'other';
 
 export type ReturnRequestStatus =
   | 'requested'

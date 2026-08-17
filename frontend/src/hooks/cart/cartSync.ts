@@ -9,11 +9,7 @@ import {
 import type { Cart } from '../../types/cart.ts';
 import { parseApiError } from '../../utils/errors.ts';
 import { cartKeys } from './queryKeys.ts';
-import {
-  lineKeyFromItem,
-  readLocalCartEnvelope,
-  writeLocalCartEnvelope,
-} from './cartLocal.ts';
+import { lineKeyFromItem, readLocalCartEnvelope, writeLocalCartEnvelope } from './cartLocal.ts';
 
 const SYNC_DEBOUNCE_MS = 750;
 const REMOVE_DEBOUNCE_MS = 200;

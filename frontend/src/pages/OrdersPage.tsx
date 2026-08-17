@@ -43,7 +43,9 @@ function OrderStatusBadge({ status, label }: { status: string; label: string }) 
           : 'bg-gray-100 text-gray-700 border-gray-200';
 
   return (
-    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${styles}`}>
+    <span
+      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${styles}`}
+    >
       {label}
     </span>
   );
@@ -67,7 +69,9 @@ function VendorShipmentBlock({
     <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 md:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
         <div>
-          <h4 className="font-bold text-diyar-dark">{t('orders.shipmentLabel', { vendor: vendorName })}</h4>
+          <h4 className="font-bold text-diyar-dark">
+            {t('orders.shipmentLabel', { vendor: vendorName })}
+          </h4>
           <p className="text-sm font-bold text-diyar-brown mt-1">{statusLabel}</p>
         </div>
         <div className="text-start">
@@ -81,17 +85,18 @@ function VendorShipmentBlock({
       {vendorOrder.status !== 'cancelled' && shipmentStatus !== 'cancelled' && (
         <ShipmentProgressSteps
           activeStep={progress}
-          labels={[t('orders.progress.prepare'), t('orders.progress.ship'), t('orders.progress.deliver')]}
+          labels={[
+            t('orders.progress.prepare'),
+            t('orders.progress.ship'),
+            t('orders.progress.deliver'),
+          ]}
         />
       )}
 
       <div className="mt-5 space-y-3 pt-4 border-t border-gray-200/80">
         {(vendorOrder.items ?? []).map((item) => (
           <div key={item.id} className="flex items-center justify-between gap-3">
-            <OrderLineItemThumb
-              item={item}
-              productFallback={t('cart.sidebar.productFallback')}
-            />
+            <OrderLineItemThumb item={item} productFallback={t('cart.sidebar.productFallback')} />
             {vendorOrder.status === 'delivered' && (
               <ReturnItemButton
                 vendorOrder={vendorOrder}
@@ -199,7 +204,9 @@ function OrderCard({
           </div>
           <div>
             <p className="text-xs text-gray-500 mb-0.5">{t('orders.orderDate')}</p>
-            <p className="text-sm font-medium text-gray-700">{formatOrderDate(order.created_at, locale)}</p>
+            <p className="text-sm font-medium text-gray-700">
+              {formatOrderDate(order.created_at, locale)}
+            </p>
           </div>
           {checkOrderNeedsPayment(order) && (
             <div>
@@ -242,7 +249,9 @@ function OrderCard({
                 <CheckCircle2 size={20} strokeWidth={2.25} />
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-green-900">{t('orders.paymentSuccessBannerTitle')}</p>
+                <p className="text-sm font-bold text-green-900">
+                  {t('orders.paymentSuccessBannerTitle')}
+                </p>
                 <p className="text-xs text-green-800/80 mt-1 leading-relaxed">
                   {t('orders.paymentSuccessBannerHint')}
                 </p>
@@ -267,7 +276,9 @@ function OrderCard({
               </span>
               <div>
                 <p className="text-sm font-bold text-diyar-dark">{t('orders.paymentDueTitle')}</p>
-                <p className="text-xs text-gray-600 mt-1 leading-relaxed">{t('orders.paymentDueHint')}</p>
+                <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+                  {t('orders.paymentDueHint')}
+                </p>
               </div>
             </div>
             <Link
@@ -380,7 +391,16 @@ export default function OrdersPage() {
     } else if (!paymentPoll.isLoading && status === 'pending') {
       toast.info(t('orders.paymentPendingVerification'));
     }
-  }, [paymentCallback, highlightId, paymentPoll.data?.status, paymentPoll.isLoading, refetch, t, toast, data?.orders]);
+  }, [
+    paymentCallback,
+    highlightId,
+    paymentPoll.data?.status,
+    paymentPoll.isLoading,
+    refetch,
+    t,
+    toast,
+    data?.orders,
+  ]);
 
   useEffect(() => {
     if (!paymentOutcome || !['paid', 'failed', 'expired'].includes(paymentOutcome)) {
@@ -414,7 +434,9 @@ export default function OrdersPage() {
 
     highlightRef.current = highlightId;
     const timer = window.setTimeout(() => {
-      document.getElementById(`order-${highlightId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document
+        .getElementById(`order-${highlightId}`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 300);
 
     return () => window.clearTimeout(timer);

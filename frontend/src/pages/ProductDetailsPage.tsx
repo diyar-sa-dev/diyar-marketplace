@@ -202,8 +202,7 @@ export default function ProductDetailsPage() {
   const canPurchase =
     product.availability_mode === 'preorder' ||
     (product.availability_mode === 'in_stock' && availableQty > 0);
-  const maxQuantity =
-    product.availability_mode === 'preorder' ? 99 : Math.max(availableQty, 1);
+  const maxQuantity = product.availability_mode === 'preorder' ? 99 : Math.max(availableQty, 1);
   const productType = productTypeLabel(product.product_type);
   const materialLines = formatMaterialLines(product.materials, {
     main: t('catalog.productDetail.materialStructure'),
@@ -347,7 +346,9 @@ export default function ProductDetailsPage() {
                   className={`${vendorButtonClass} bg-diyar-dark/90 backdrop-blur text-white px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium hover:bg-black shadow-lg`}
                 >
                   <Sparkles size={16} className="text-yellow-400 shrink-0 inline mr-1" />
-                  <span className="hidden sm:inline">{t('catalog.productDetail.tryInRoomShort')} </span>
+                  <span className="hidden sm:inline">
+                    {t('catalog.productDetail.tryInRoomShort')}{' '}
+                  </span>
                   {t('catalog.productDetail.tryInRoom')}
                 </button>
               </div>
@@ -365,7 +366,12 @@ export default function ProductDetailsPage() {
                       : 'border-transparent opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                  <img
+                    src={img}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -383,7 +389,9 @@ export default function ProductDetailsPage() {
               <div className="flex flex-wrap items-center gap-4 text-sm mb-6">
                 <div className="flex items-center gap-2">
                   <StarRating value={rating} readOnly size={18} />
-                  <span className="font-bold text-diyar-dark tabular-nums">{rating.toFixed(1)}</span>
+                  <span className="font-bold text-diyar-dark tabular-nums">
+                    {rating.toFixed(1)}
+                  </span>
                   <span className="text-gray-400">
                     {t('catalog.productDetail.reviews', { count: reviewsCount })}
                   </span>
@@ -539,7 +547,9 @@ export default function ProductDetailsPage() {
                 >
                   -
                 </button>
-                <span className="font-bold text-diyar-dark w-8 text-center tabular-nums">{quantity}</span>
+                <span className="font-bold text-diyar-dark w-8 text-center tabular-nums">
+                  {quantity}
+                </span>
                 <button
                   type="button"
                   disabled={!canPurchase || quantity >= maxQuantity}
@@ -591,7 +601,9 @@ export default function ProductDetailsPage() {
                   <ShieldCheck size={20} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-diyar-dark">{t('catalog.productDetail.warrantyTitle')}</h4>
+                  <h4 className="font-bold text-diyar-dark">
+                    {t('catalog.productDetail.warrantyTitle')}
+                  </h4>
                   <p className="text-sm text-gray-500 mt-1">{warrantyText}</p>
                 </div>
               </div>
@@ -600,8 +612,12 @@ export default function ProductDetailsPage() {
                   <Truck size={20} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-diyar-dark">{t('catalog.productDetail.deliveryTitle')}</h4>
-                  <p className="text-sm text-gray-500 mt-1">{t('catalog.productDetail.deliveryHint')}</p>
+                  <h4 className="font-bold text-diyar-dark">
+                    {t('catalog.productDetail.deliveryTitle')}
+                  </h4>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {t('catalog.productDetail.deliveryHint')}
+                  </p>
                 </div>
               </div>
             </div>
@@ -640,7 +656,9 @@ export default function ProductDetailsPage() {
             </button>
             <div className="p-6 md:p-8 text-center bg-diyar-dark text-white">
               <Sparkles className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-              <h3 className="text-xl md:text-2xl font-bold mb-2">{t('catalog.productDetail.tryInRoomShort')}</h3>
+              <h3 className="text-xl md:text-2xl font-bold mb-2">
+                {t('catalog.productDetail.tryInRoomShort')}
+              </h3>
             </div>
           </div>
         </div>
@@ -690,10 +708,17 @@ export default function ProductDetailsPage() {
                 type="button"
                 onClick={() => setActiveImage(i)}
                 className={`w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
-                  activeImage === i ? 'border-diyar-brown scale-105 shadow-lg' : 'border-transparent opacity-50'
+                  activeImage === i
+                    ? 'border-diyar-brown scale-105 shadow-lg'
+                    : 'border-transparent opacity-50'
                 }`}
               >
-                <img src={img} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <img
+                  src={img}
+                  alt=""
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
               </button>
             ))}
           </div>

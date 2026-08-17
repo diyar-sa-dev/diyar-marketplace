@@ -56,21 +56,17 @@ export default function WishlistPage() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Link
-              to="/"
-              className="hover:text-diyar-dark transition-colors cursor-pointer"
-            >
+            <Link to="/" className="hover:text-diyar-dark transition-colors cursor-pointer">
               {t('common.home')}
             </Link>
             <BreadcrumbChevron size={16} />
-            <Link
-              to="/profile"
-              className="hover:text-diyar-dark transition-colors cursor-pointer"
-            >
+            <Link to="/profile" className="hover:text-diyar-dark transition-colors cursor-pointer">
               {t('common.myAccount')}
             </Link>
             <BreadcrumbChevron size={16} />
-            <span className="font-bold text-diyar-dark">{t('profile.wishlistPage.breadcrumb')}</span>
+            <span className="font-bold text-diyar-dark">
+              {t('profile.wishlistPage.breadcrumb')}
+            </span>
           </div>
         </div>
       </div>

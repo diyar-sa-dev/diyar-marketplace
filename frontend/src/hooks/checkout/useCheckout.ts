@@ -5,7 +5,8 @@ import type { CheckoutPreviewPayload } from '../../types/checkout.ts';
 
 export const checkoutKeys = {
   all: ['checkout'] as const,
-  preview: (payload: CheckoutPreviewPayload | null) => [...checkoutKeys.all, 'preview', payload] as const,
+  preview: (payload: CheckoutPreviewPayload | null) =>
+    [...checkoutKeys.all, 'preview', payload] as const,
 };
 
 export const orderKeys = {
@@ -25,8 +26,13 @@ export function useCheckoutPreview(payload: CheckoutPreviewPayload | null, enabl
 export function useCreateOrder() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ payload, idempotencyKey }: { payload: CheckoutPreviewPayload; idempotencyKey: string }) =>
-      ordersApi.createOrder(payload, idempotencyKey),
+    mutationFn: ({
+      payload,
+      idempotencyKey,
+    }: {
+      payload: CheckoutPreviewPayload;
+      idempotencyKey: string;
+    }) => ordersApi.createOrder(payload, idempotencyKey),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: orderKeys.all });
     },

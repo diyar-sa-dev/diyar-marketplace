@@ -196,9 +196,7 @@ export function VendorProductFormModal({
           : '',
       );
       setStock(sanitizeIntegerInput(String(productDetail.inventory?.stock_quantity ?? 0)));
-      setStockAdjust(
-        sanitizeIntegerInput(String(productDetail.inventory?.stock_quantity ?? 0)),
-      );
+      setStockAdjust(sanitizeIntegerInput(String(productDetail.inventory?.stock_quantity ?? 0)));
       setWidth(
         productDetail.dimensions?.width != null
           ? sanitizeDecimalInput(String(productDetail.dimensions.width))
@@ -222,7 +220,9 @@ export function VendorProductFormModal({
       setReturnPolicyCustom(Boolean(rp?.override_enabled));
       setReturnable(rp?.returnable ?? true);
       setReturnWindowDays(String(rp?.return_window_days ?? 7));
-      setReturnReasons((rp?.return_accepted_reasons as ReturnReason[] | null) ?? ['manufacturing_defect']);
+      setReturnReasons(
+        (rp?.return_accepted_reasons as ReturnReason[] | null) ?? ['manufacturing_defect'],
+      );
       setReturnRequiresEvidence(Boolean(rp?.return_requires_evidence));
       setReturnShippingRefundable(Boolean(rp?.return_shipping_refundable));
       setErrors({});
@@ -342,7 +342,11 @@ export function VendorProductFormModal({
 
     await onSubmit({
       payload,
-      stockAdjust: editingId ? Number(stockAdjust) : stockAdjust.trim() ? Number(stockAdjust) : undefined,
+      stockAdjust: editingId
+        ? Number(stockAdjust)
+        : stockAdjust.trim()
+          ? Number(stockAdjust)
+          : undefined,
       images: pendingImages.map((item) => item.file),
     });
   };
@@ -421,7 +425,7 @@ export function VendorProductFormModal({
                               </button>
                             )}
                             <span className="absolute bottom-1 right-1 text-[9px] bg-black/50 text-white px-1.5 py-0.5 rounded">
-                            {t('vendor.form.images.saved')}
+                              {t('vendor.form.images.saved')}
                             </span>
                           </div>
                         );
@@ -468,7 +472,10 @@ export function VendorProductFormModal({
                         {t('vendor.form.images.upload')}
                       </span>
                       <span className="text-xs text-gray-450 mt-1 font-sans">
-                        {t('vendor.form.images.formats', { count: totalImageCount, max: MAX_IMAGES })}
+                        {t('vendor.form.images.formats', {
+                          count: totalImageCount,
+                          max: MAX_IMAGES,
+                        })}
                       </span>
                     </button>
                   ) : (
@@ -750,7 +757,9 @@ export function VendorProductFormModal({
                   </h4>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="space-y-1 text-center font-sans">
-                      <label className="text-xs text-stone-500 block mb-1">{t('vendor.form.width')}</label>
+                      <label className="text-xs text-stone-500 block mb-1">
+                        {t('vendor.form.width')}
+                      </label>
                       <input
                         type="text"
                         inputMode="decimal"
@@ -766,7 +775,9 @@ export function VendorProductFormModal({
                       <FieldError message={showError('width')} />
                     </div>
                     <div className="space-y-1 text-center font-sans">
-                      <label className="text-xs text-stone-500 block mb-1">{t('vendor.form.depth')}</label>
+                      <label className="text-xs text-stone-500 block mb-1">
+                        {t('vendor.form.depth')}
+                      </label>
                       <input
                         type="text"
                         inputMode="decimal"
@@ -782,7 +793,9 @@ export function VendorProductFormModal({
                       <FieldError message={showError('depth')} />
                     </div>
                     <div className="space-y-1 text-center font-sans">
-                      <label className="text-xs text-stone-500 block mb-1">{t('vendor.form.height')}</label>
+                      <label className="text-xs text-stone-500 block mb-1">
+                        {t('vendor.form.height')}
+                      </label>
                       <input
                         type="text"
                         inputMode="decimal"
@@ -864,17 +877,23 @@ export function VendorProductFormModal({
                           {t('returns.policyReturnable')}
                         </label>
                         <div>
-                          <label className="text-xs font-bold text-gray-600">{t('returns.policyWindowDays')}</label>
+                          <label className="text-xs font-bold text-gray-600">
+                            {t('returns.policyWindowDays')}
+                          </label>
                           <input
                             type="text"
                             inputMode="numeric"
                             value={returnWindowDays}
-                            onChange={(e) => setReturnWindowDays(sanitizeIntegerInput(e.target.value))}
+                            onChange={(e) =>
+                              setReturnWindowDays(sanitizeIntegerInput(e.target.value))
+                            }
                             className={`${vendorFieldClass(false)} mt-1 p-2 text-sm`}
                           />
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-gray-600 mb-2">{t('returns.policyAcceptedReasons')}</p>
+                          <p className="text-xs font-bold text-gray-600 mb-2">
+                            {t('returns.policyAcceptedReasons')}
+                          </p>
                           <div className="flex flex-wrap gap-2">
                             {RETURN_REASONS.map((reason) => (
                               <label key={reason} className="flex items-center gap-1 text-xs">

@@ -1,4 +1,8 @@
-import { SAUDI_PHONE_DIGITS, sanitizeSaudiPhoneInput, toSaudiPhoneNationalInput } from '../../lib/auth/validation.ts';
+import {
+  SAUDI_PHONE_DIGITS,
+  sanitizeSaudiPhoneInput,
+  toSaudiPhoneNationalInput,
+} from '../../lib/auth/validation.ts';
 
 type SaudiPhoneInputProps = {
   value: string;

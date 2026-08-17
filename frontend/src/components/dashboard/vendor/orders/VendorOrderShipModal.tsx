@@ -24,7 +24,11 @@ export function VendorOrderShipModal({
       <div className="w-full max-w-md rounded-3xl border border-gray-100 bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-gray-100 p-5">
           <h3 className="text-lg font-bold text-diyar-dark">{t('vendorOrders.shipModalTitle')}</h3>
-          <button type="button" onClick={onClose} className="cursor-pointer rounded-xl p-2 hover:bg-gray-100">
+          <button
+            type="button"
+            onClick={onClose}
+            className="cursor-pointer rounded-xl p-2 hover:bg-gray-100"
+          >
             <X size={18} />
           </button>
         </div>
@@ -46,7 +50,9 @@ export function VendorOrderShipModal({
           }}
         >
           <div>
-            <label className="mb-1.5 block text-xs font-bold text-gray-500">{t('vendorOrders.trackingPlaceholder')}</label>
+            <label className="mb-1.5 block text-xs font-bold text-gray-500">
+              {t('vendorOrders.trackingPlaceholder')}
+            </label>
             <input
               required
               value={trackingNumber}
@@ -55,7 +61,9 @@ export function VendorOrderShipModal({
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-bold text-gray-500">{t('vendorOrders.carrierPlaceholder')}</label>
+            <label className="mb-1.5 block text-xs font-bold text-gray-500">
+              {t('vendorOrders.carrierPlaceholder')}
+            </label>
             <input
               value={carrier}
               onChange={(event) => setCarrier(event.target.value)}

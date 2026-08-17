@@ -10,7 +10,10 @@ export function CheckoutVendorCoupon({ vendorName }: CheckoutVendorCouponProps) 
   const { t } = useLocale();
 
   return (
-    <div className="pt-4 border-t border-gray-100 opacity-60 pointer-events-none select-none" aria-disabled="true">
+    <div
+      className="pt-4 border-t border-gray-100 opacity-60 pointer-events-none select-none"
+      aria-disabled="true"
+    >
       <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
         <Tag size={16} className="text-diyar-brown" />
         {t('checkout.couponTitle', { vendor: vendorName })}

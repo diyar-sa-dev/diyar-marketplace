@@ -51,7 +51,9 @@ export function VendorCreateOrderModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm">
       <div className="w-full max-w-lg animate-in fade-in zoom-in-95 rounded-2xl border border-gray-100 bg-white shadow-2xl duration-200">
         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-          <h3 className="text-lg font-bold text-diyar-dark">{t('vendorOrders.createModalTitle')}</h3>
+          <h3 className="text-lg font-bold text-diyar-dark">
+            {t('vendorOrders.createModalTitle')}
+          </h3>
           <button
             type="button"
             onClick={onClose}
@@ -63,7 +65,9 @@ export function VendorCreateOrderModal({
 
         <form onSubmit={(event) => void handleSubmit(event)} className="space-y-5 p-6">
           <div className="space-y-2">
-            <label className="text-sm font-bold text-gray-700">{t('vendorOrders.create.customerName')}</label>
+            <label className="text-sm font-bold text-gray-700">
+              {t('vendorOrders.create.customerName')}
+            </label>
             <input
               required
               type="text"
@@ -76,7 +80,9 @@ export function VendorCreateOrderModal({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700">{t('vendorOrders.create.orderTotal')}</label>
+              <label className="text-sm font-bold text-gray-700">
+                {t('vendorOrders.create.orderTotal')}
+              </label>
               <input
                 required
                 type="text"
@@ -88,7 +94,9 @@ export function VendorCreateOrderModal({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700">{t('vendorOrders.create.itemsCount')}</label>
+              <label className="text-sm font-bold text-gray-700">
+                {t('vendorOrders.create.itemsCount')}
+              </label>
               <input
                 required
                 type="number"
@@ -103,7 +111,9 @@ export function VendorCreateOrderModal({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700">{t('vendorOrders.create.orderStatus')}</label>
+              <label className="text-sm font-bold text-gray-700">
+                {t('vendorOrders.create.orderStatus')}
+              </label>
               <select
                 value={form.status}
                 onChange={(event) => update('status', event.target.value)}
@@ -116,10 +126,14 @@ export function VendorCreateOrderModal({
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700">{t('vendorOrders.create.paymentStatus')}</label>
+              <label className="text-sm font-bold text-gray-700">
+                {t('vendorOrders.create.paymentStatus')}
+              </label>
               <select
                 value={form.payment_status}
-                onChange={(event) => update('payment_status', event.target.value as 'paid' | 'pending')}
+                onChange={(event) =>
+                  update('payment_status', event.target.value as 'paid' | 'pending')
+                }
                 className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm focus:border-diyar-brown focus:outline-none"
               >
                 <option value="paid">{t('vendorOrders.payment.paid')}</option>

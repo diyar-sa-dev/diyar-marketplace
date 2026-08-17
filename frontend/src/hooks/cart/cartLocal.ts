@@ -101,9 +101,7 @@ function toProductSnapshot(product: CartProductInput, productId: string): CartPr
 export function optimisticAddItem(cart: Cart, input: CartAddInput): Cart {
   const quantity = input.quantity ?? 1;
   const lineKey = cartLineKey(input.productId, input.color);
-  const existing = cart.items.find(
-    (item) => cartLineKey(item.product_id, item.color) === lineKey,
-  );
+  const existing = cart.items.find((item) => cartLineKey(item.product_id, item.color) === lineKey);
 
   if (existing) {
     return recalculateCart({
@@ -113,7 +111,9 @@ export function optimisticAddItem(cart: Cart, input: CartAddInput): Cart {
           ? {
               ...item,
               quantity: item.quantity + quantity,
-              product: item.product ?? (input.product ? toProductSnapshot(input.product, input.productId) : null),
+              product:
+                item.product ??
+                (input.product ? toProductSnapshot(input.product, input.productId) : null),
             }
           : item,
       ),
@@ -144,9 +144,7 @@ export function optimisticUpdateQuantity(cart: Cart, itemId: string, quantity: n
 
   return recalculateCart({
     ...cart,
-    items: cart.items.map((item) =>
-      item.id === itemId ? { ...item, quantity } : item,
-    ),
+    items: cart.items.map((item) => (item.id === itemId ? { ...item, quantity } : item)),
   });
 }
 

@@ -56,11 +56,32 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, pdo, pdo_sqlite
+          extensions: mbstring, pdo, pdo_sqlite, intl
           coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            backend/vendor
+            ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-
 
       - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            if composer install --no-interaction --prefer-dist --no-progress; then
+              exit 0
+            fi
+            echo "Composer install failed (attempt ${attempt}/5). Retrying in $((attempt * 20))s..."
+            sleep $((attempt * 20))
+          done
+          echo "Composer install failed after 5 attempts."
+          exit 1
 
       - name: Prepare environment
         run: |

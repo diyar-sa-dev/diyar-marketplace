@@ -17,7 +17,8 @@ export function useVendorShippingSettings() {
 export function useUpdateVendorShippingSettings() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: VendorShippingSettingsPayload) => shippingApi.updateVendorShippingSettings(payload),
+    mutationFn: (payload: VendorShippingSettingsPayload) =>
+      shippingApi.updateVendorShippingSettings(payload),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: shippingSettingsKeys.all }),
   });
 }

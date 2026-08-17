@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue.ts';
 import { useLocale } from '../../../hooks/useLocale.ts';
-import { useVendorOrder, useVendorOrders } from '../../../hooks/dashboard/vendor/useVendorOrders.ts';
+import {
+  useVendorOrder,
+  useVendorOrders,
+} from '../../../hooks/dashboard/vendor/useVendorOrders.ts';
 import { useVendorOrderActions } from '../../../hooks/dashboard/vendor/useVendorOrderActions.ts';
 import { ErrorState } from '../../../components/common/ErrorState.tsx';
 import { DashboardPaginatedTable } from '../../../components/dashboard/common/DashboardPaginatedTable.tsx';

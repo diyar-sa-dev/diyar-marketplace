@@ -73,10 +73,10 @@ export function OrderLineItemThumb({ item, productFallback }: OrderLineItemThumb
         )}
       </div>
       <div className="min-w-0">
-        <p className="font-bold text-sm text-diyar-dark line-clamp-2">{item.product_name || productFallback}</p>
-        {item.quantity > 1 && (
-          <p className="text-xs text-gray-500 mt-0.5">× {item.quantity}</p>
-        )}
+        <p className="font-bold text-sm text-diyar-dark line-clamp-2">
+          {item.product_name || productFallback}
+        </p>
+        {item.quantity > 1 && <p className="text-xs text-gray-500 mt-0.5">× {item.quantity}</p>}
       </div>
     </div>
   );

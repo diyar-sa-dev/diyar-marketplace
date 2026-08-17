@@ -6,7 +6,10 @@ import { formatOrderDate } from '../../../../lib/formatOrderDate.ts';
 import { openVendorOrderInvoice } from '../../../../lib/vendorOrderInvoice.ts';
 import { LoadingState } from '../../../common/LoadingState.tsx';
 import { VendorOrderStatusBadge } from './VendorOrderStatusBadge.tsx';
-import { VendorOrderProductsPanel, VendorOrderTrackingTimeline } from './VendorOrderDetailPanels.tsx';
+import {
+  VendorOrderProductsPanel,
+  VendorOrderTrackingTimeline,
+} from './VendorOrderDetailPanels.tsx';
 import { VendorOrderInfoSidebar } from './VendorOrderInfoSidebar.tsx';
 import { VendorOrderShipModal } from './VendorOrderShipModal.tsx';
 import { vendorOrderDisplayNumber, type VendorOrderAction } from './vendorOrderUtils.ts';
@@ -22,7 +25,10 @@ export function VendorOrderDetailView({
   order: VendorOrder | null;
   isLoading?: boolean;
   onBack: () => void;
-  onAction: (action: VendorOrderAction, payload?: { tracking_number: string; carrier?: string }) => void;
+  onAction: (
+    action: VendorOrderAction,
+    payload?: { tracking_number: string; carrier?: string },
+  ) => void;
   isPending: boolean;
 }) {
   const { t, locale } = useLocale();
@@ -70,7 +76,9 @@ export function VendorOrderDetailView({
             <h2 className="text-xl font-bold text-diyar-dark">
               {t('vendorOrders.detailTitle', { number: vendorOrderDisplayNumber(order) })}
             </h2>
-            <p className="mt-1 text-sm text-gray-500">{formatOrderDate(order.created_at, locale)}</p>
+            <p className="mt-1 text-sm text-gray-500">
+              {formatOrderDate(order.created_at, locale)}
+            </p>
           </div>
         </div>
 

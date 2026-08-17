@@ -205,17 +205,23 @@ export function VendorProductDetailPanel({
             </h3>
             <div className="space-y-3 font-sans">
               <div className="flex items-center justify-between py-1">
-                <span className="text-gray-500 text-sm">{t('vendor.products.detail.ordersCount')}</span>
+                <span className="text-gray-500 text-sm">
+                  {t('vendor.products.detail.ordersCount')}
+                </span>
                 <span className="font-bold text-diyar-dark tabular-nums">
                   0 {t('vendor.products.detail.ordersUnit')}
                 </span>
               </div>
               <div className="flex items-center justify-between py-1">
-                <span className="text-gray-500 text-sm">{t('vendor.products.detail.totalRevenue')}</span>
+                <span className="text-gray-500 text-sm">
+                  {t('vendor.products.detail.totalRevenue')}
+                </span>
                 <span className="font-bold text-green-600 tabular-nums">0.00 {currency}</span>
               </div>
               <div className="flex items-center justify-between py-1">
-                <span className="text-gray-500 text-sm">{t('vendor.products.detail.returnRate')}</span>
+                <span className="text-gray-500 text-sm">
+                  {t('vendor.products.detail.returnRate')}
+                </span>
                 <span className="font-bold text-diyar-dark tabular-nums">0%</span>
               </div>
             </div>

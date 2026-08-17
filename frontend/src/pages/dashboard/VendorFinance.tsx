@@ -11,14 +11,7 @@ import {
   RefreshCcw,
   Filter,
 } from 'lucide-react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { ChartContainer, CHART_HEIGHT } from '../../components/common/ChartContainer.tsx';
 import { PaginationBar } from '../../components/catalog/PaginationBar.tsx';
 import { PageLoadingOverlay } from '../../components/common/PageLoadingOverlay.tsx';
@@ -34,7 +27,11 @@ import {
   useVendorFinanceReport,
   useVendorTransactions,
 } from '../../hooks/vendor/useVendorFinance.ts';
-import type { FinancePeriod, FinancialTransaction, TransactionTypeFilter } from '../../api/vendorFinance.ts';
+import type {
+  FinancePeriod,
+  FinancialTransaction,
+  TransactionTypeFilter,
+} from '../../api/vendorFinance.ts';
 
 const PERIOD_OPTIONS: FinancePeriod[] = ['week', 'month', 'year'];
 
@@ -208,7 +205,10 @@ export default function VendorFinance() {
 
   if (reportQuery.isError || !report || !summary) {
     return (
-      <ErrorState message={t('vendor.finance.loadError')} onRetry={() => void reportQuery.refetch()} />
+      <ErrorState
+        message={t('vendor.finance.loadError')}
+        onRetry={() => void reportQuery.refetch()}
+      />
     );
   }
 
@@ -229,7 +229,9 @@ export default function VendorFinance() {
               <Icon size={18} />
             </div>
             <div>
-              <span className="font-bold text-gray-700">{transactionTypeLabel(tx.transaction_type)}</span>
+              <span className="font-bold text-gray-700">
+                {transactionTypeLabel(tx.transaction_type)}
+              </span>
               {ORDER_LINKED_TYPES.has(tx.transaction_type) && tx.order_number ? (
                 <span className="block text-xs text-gray-400 font-normal mt-0.5">
                   {t('vendor.finance.orderReference', { number: tx.order_number })}
@@ -239,7 +241,10 @@ export default function VendorFinance() {
           </div>
         </td>
         <td className="px-6 py-4">
-          <span className={`font-bold inline-block whitespace-nowrap ${visual.amountClass}`} dir="ltr">
+          <span
+            className={`font-bold inline-block whitespace-nowrap ${visual.amountClass}`}
+            dir="ltr"
+          >
             {formatSignedAmount(tx.amount, tx.direction, tx.currency)}
           </span>
         </td>
@@ -289,7 +294,9 @@ export default function VendorFinance() {
             className="border border-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-gray-50 transition shadow-sm bg-white cursor-pointer disabled:opacity-60"
           >
             <Download size={18} />
-            {downloadReport.isPending ? t('vendor.finance.exporting') : t('vendor.finance.exportReport')}
+            {downloadReport.isPending
+              ? t('vendor.finance.exporting')
+              : t('vendor.finance.exportReport')}
           </button>
         </div>
       </div>
@@ -340,14 +347,18 @@ export default function VendorFinance() {
           </div>
           <div className="flex items-center gap-1.5 text-sm font-medium text-amber-700 mt-4 bg-amber-50 px-2.5 py-1.5 rounded-lg w-fit">
             <Clock size={14} />
-            <span>{t('vendor.finance.pendingEscrow', { amount: summary.pending_escrow, currency })}</span>
+            <span>
+              {t('vendor.finance.pendingEscrow', { amount: summary.pending_escrow, currency })}
+            </span>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-gray-500 font-medium">{t('vendor.finance.platformCommission')}</h3>
+              <h3 className="text-gray-500 font-medium">
+                {t('vendor.finance.platformCommission')}
+              </h3>
               <div className="w-10 h-10 bg-red-50 text-red-600 rounded-xl flex items-center justify-center">
                 <ArrowDownRight size={20} />
               </div>
@@ -393,34 +404,39 @@ export default function VendorFinance() {
           ) : (
             <ChartContainer>
               <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: '16px',
-                      border: 'none',
-                      boxShadow: '0 4px 20px -2px rgb(0 0 0 / 0.1)',
-                    }}
-                    itemStyle={{ fontWeight: 'bold' }}
-                  />
-                  <Line
-                    name={t('vendor.finance.netEarningsSeries')}
-                    type="monotone"
-                    dataKey="net"
-                    stroke="#10b981"
-                    strokeWidth={3}
-                    dot={{ r: 4, fill: '#10b981', strokeWidth: 0 }}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Line
-                    name={t('vendor.finance.commissionSeries')}
-                    type="monotone"
-                    dataKey="fee"
-                    stroke="#fbbf24"
-                    strokeWidth={3}
-                    dot={{ r: 4, fill: '#fbbf24', strokeWidth: 0 }}
-                    activeDot={{ r: 6 }}
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#9ca3af', fontSize: 12 }}
+                />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '16px',
+                    border: 'none',
+                    boxShadow: '0 4px 20px -2px rgb(0 0 0 / 0.1)',
+                  }}
+                  itemStyle={{ fontWeight: 'bold' }}
+                />
+                <Line
+                  name={t('vendor.finance.netEarningsSeries')}
+                  type="monotone"
+                  dataKey="net"
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: '#10b981', strokeWidth: 0 }}
+                  activeDot={{ r: 6 }}
+                />
+                <Line
+                  name={t('vendor.finance.commissionSeries')}
+                  type="monotone"
+                  dataKey="fee"
+                  stroke="#fbbf24"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: '#fbbf24', strokeWidth: 0 }}
+                  activeDot={{ r: 6 }}
                 />
               </LineChart>
             </ChartContainer>
@@ -429,7 +445,9 @@ export default function VendorFinance() {
 
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-            <h3 className="font-bold text-diyar-dark mb-4">{t('vendor.finance.periodSummaryTitle')}</h3>
+            <h3 className="font-bold text-diyar-dark mb-4">
+              {t('vendor.finance.periodSummaryTitle')}
+            </h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                 <span className="text-gray-600 text-sm">{t('vendor.finance.productSales')}</span>
@@ -438,7 +456,9 @@ export default function VendorFinance() {
                 </span>
               </div>
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                <span className="text-gray-600 text-sm">{t('vendor.finance.platformCommission')}</span>
+                <span className="text-gray-600 text-sm">
+                  {t('vendor.finance.platformCommission')}
+                </span>
                 <span className="font-bold text-red-600" dir="ltr">
                   {summary.commission} {currency}
                 </span>
@@ -456,7 +476,9 @@ export default function VendorFinance() {
                 </span>
               </div>
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                <span className="text-gray-600 text-sm">{t('vendor.finance.averageOrderValue')}</span>
+                <span className="text-gray-600 text-sm">
+                  {t('vendor.finance.averageOrderValue')}
+                </span>
                 <span className="font-bold text-diyar-dark" dir="ltr">
                   {report.orders.average_order_value} {currency}
                 </span>
@@ -524,7 +546,9 @@ export default function VendorFinance() {
                     type="button"
                     onClick={() => handleFilterChange(filter)}
                     className={`w-full text-start px-3 py-2 rounded-lg text-sm font-bold cursor-pointer ${
-                      typeFilter === filter ? 'bg-diyar-dark text-white' : 'text-gray-600 hover:bg-gray-50'
+                      typeFilter === filter
+                        ? 'bg-diyar-dark text-white'
+                        : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
                     {typeFilterLabel(filter)}
@@ -554,7 +578,9 @@ export default function VendorFinance() {
                   <th className="px-6 py-4 text-start">{t('vendor.finance.tableStatus')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">{transactions.map(renderTransactionRow)}</tbody>
+              <tbody className="divide-y divide-gray-100">
+                {transactions.map(renderTransactionRow)}
+              </tbody>
             </table>
           </div>
         )}

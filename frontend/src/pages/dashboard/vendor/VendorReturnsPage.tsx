@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useLocale } from '../../../hooks/useLocale.ts';
 import { useToast } from '../../../hooks/useToast.ts';
-import { useVendorReturnActions, useVendorReturns } from '../../../hooks/dashboard/vendor/useVendorReturns.ts';
+import {
+  useVendorReturnActions,
+  useVendorReturns,
+} from '../../../hooks/dashboard/vendor/useVendorReturns.ts';
 import { VendorReturnsSkeleton } from '../../../components/dashboard/vendor/returns/VendorReturnsSkeleton.tsx';
 import { EmptyState } from '../../../components/common/EmptyState.tsx';
 import type { ReturnRequest } from '../../../types/return.ts';
@@ -97,7 +100,9 @@ function ReturnDetailCard({
           <p className="font-bold text-gray-700">{t('returns.detailRefund')}</p>
           <p className="tabular-nums">
             {item.refund.items_subtotal} + VAT {item.refund.vat_amount}
-            {Number(item.refund.shipping_amount) > 0 ? ` + shipping ${item.refund.shipping_amount}` : ''}
+            {Number(item.refund.shipping_amount) > 0
+              ? ` + shipping ${item.refund.shipping_amount}`
+              : ''}
           </p>
         </div>
       )}
@@ -175,9 +180,7 @@ export default function VendorReturnsPage() {
   ) => {
     try {
       const body =
-        action === 'refund'
-          ? { idempotency_key: `refund-${returnId}-${Date.now()}` }
-          : undefined;
+        action === 'refund' ? { idempotency_key: `refund-${returnId}-${Date.now()}` } : undefined;
       await actions.mutateAsync({ returnId, action, body });
       toast.success(t('returns.actionSuccess'));
     } catch (error) {
@@ -199,22 +202,28 @@ export default function VendorReturnsPage() {
       </div>
 
       <div className="flex gap-2 overflow-x-auto">
-        {['all', 'requested', 'under_review', 'awaiting_return', 'received', 'inspected', 'refunded'].map(
-          (tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setStatus(tab)}
-              className={`rounded-xl px-4 py-2 text-sm font-bold whitespace-nowrap cursor-pointer transition ${
-                status === tab
-                  ? 'bg-diyar-brown text-white'
-                  : 'bg-white border border-gray-200 text-gray-600 hover:border-diyar-brown/40'
-              }`}
-            >
-              {t(`returns.status.${tab}` as 'returns.status.all')}
-            </button>
-          ),
-        )}
+        {[
+          'all',
+          'requested',
+          'under_review',
+          'awaiting_return',
+          'received',
+          'inspected',
+          'refunded',
+        ].map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setStatus(tab)}
+            className={`rounded-xl px-4 py-2 text-sm font-bold whitespace-nowrap cursor-pointer transition ${
+              status === tab
+                ? 'bg-diyar-brown text-white'
+                : 'bg-white border border-gray-200 text-gray-600 hover:border-diyar-brown/40'
+            }`}
+          >
+            {t(`returns.status.${tab}` as 'returns.status.all')}
+          </button>
+        ))}
       </div>
 
       {returns.length === 0 ? (
@@ -222,7 +231,12 @@ export default function VendorReturnsPage() {
       ) : (
         <div className="space-y-4">
           {returns.map((item) => (
-            <ReturnDetailCard key={item.id} item={item} t={t} onAction={(id, action) => void handleAction(id, action)} />
+            <ReturnDetailCard
+              key={item.id}
+              item={item}
+              t={t}
+              onAction={(id, action) => void handleAction(id, action)}
+            />
           ))}
         </div>
       )}

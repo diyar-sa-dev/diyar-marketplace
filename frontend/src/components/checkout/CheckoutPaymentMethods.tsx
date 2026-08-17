@@ -12,7 +12,11 @@ type CheckoutPaymentMethodsProps = {
   disabled?: boolean;
 };
 
-export function CheckoutPaymentMethods({ selected, onChange, disabled = false }: CheckoutPaymentMethodsProps) {
+export function CheckoutPaymentMethods({
+  selected,
+  onChange,
+  disabled = false,
+}: CheckoutPaymentMethodsProps) {
   const { t } = useLocale();
 
   return (
@@ -42,14 +46,18 @@ export function CheckoutPaymentMethods({ selected, onChange, disabled = false }:
                     onError={(event) => {
                       const target = event.currentTarget;
                       target.style.display = 'none';
-                      target.parentElement?.querySelector('.payment-fallback')?.classList.remove('hidden');
+                      target.parentElement
+                        ?.querySelector('.payment-fallback')
+                        ?.classList.remove('hidden');
                     }}
                   />
                   <div className="payment-fallback hidden flex flex-col items-center">
                     {method.id === 'apple' ? (
                       <span className="text-sm font-bold">Apple Pay</span>
                     ) : (
-                      <span className="text-xs text-gray-500 font-medium">{t(method.labelKey)}</span>
+                      <span className="text-xs text-gray-500 font-medium">
+                        {t(method.labelKey)}
+                      </span>
                     )}
                   </div>
                 </div>

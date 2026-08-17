@@ -14,7 +14,12 @@ export function useOrderPayment(orderId: string, enabled = true) {
     enabled: enabled && orderId !== '',
     refetchInterval: (query) => {
       const status = query.state.data?.status;
-      if (status === 'paid' || status === 'failed' || status === 'cancelled' || status === 'expired') {
+      if (
+        status === 'paid' ||
+        status === 'failed' ||
+        status === 'cancelled' ||
+        status === 'expired'
+      ) {
         return false;
       }
       return 3000;
@@ -26,7 +31,8 @@ export function useInitiatePayment(orderId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (idempotencyKey: string) => paymentApi.initiateOrderPayment(orderId, idempotencyKey),
+    mutationFn: (idempotencyKey: string) =>
+      paymentApi.initiateOrderPayment(orderId, idempotencyKey),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: paymentKeys.order(orderId) });
     },

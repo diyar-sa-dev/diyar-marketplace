@@ -386,9 +386,7 @@ export default function App() {
       )}
 
       <FilterModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
-      {!isAuthPage && (
-        <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-      )}
+      {!isAuthPage && <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />}
       <SidebarMenu isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <ImageSearchModal isOpen={isImageSearchOpen} onClose={() => setIsImageSearchOpen(false)} />
       <RequestServiceModal

@@ -18,13 +18,16 @@ export async function openVendorOrderInvoice(vendorOrderId: string): Promise<voi
   try {
     await ensureCsrfCookie();
 
-    const response = await apiClient.get<string>(`/dashboard/vendor/orders/${vendorOrderId}/invoice`, {
-      headers: {
-        Accept: 'text/html, application/xhtml+xml',
+    const response = await apiClient.get<string>(
+      `/dashboard/vendor/orders/${vendorOrderId}/invoice`,
+      {
+        headers: {
+          Accept: 'text/html, application/xhtml+xml',
+        },
+        responseType: 'text',
+        transformResponse: [(data) => data],
       },
-      responseType: 'text',
-      transformResponse: [(data) => data],
-    });
+    );
 
     const html = typeof response.data === 'string' ? response.data : '';
 

@@ -95,7 +95,9 @@ export default function SearchPage() {
                 <p className="text-sm font-bold text-diyar-dark mb-1">
                   {t('catalog.search.uploadedImage')}
                 </p>
-                <p className="text-xs text-gray-500">{t('catalog.search.uploadedImageDescription')}</p>
+                <p className="text-xs text-gray-500">
+                  {t('catalog.search.uploadedImageDescription')}
+                </p>
               </div>
             </div>
           )}
@@ -155,29 +157,31 @@ export default function SearchPage() {
             />
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {vendors.filter((vendor) => isValidStoreSlug(vendor.slug)).map((vendor) => (
-                <Link
-                  key={vendor.id}
-                  to={storePath(vendor.slug)!}
-                  className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md transition text-center cursor-pointer"
-                >
-                  {vendor.logo_url ? (
-                    <img
-                      src={resolveMediaUrl(vendor.logo_url) ?? ''}
-                      alt={vendor.store_name}
-                      className="w-16 h-16 rounded-full object-cover mx-auto mb-3"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-diyar-cream/40 flex items-center justify-center mx-auto mb-3 text-diyar-brown font-bold">
-                      {vendor.store_name.charAt(0)}
-                    </div>
-                  )}
-                  <h3 className="font-bold text-diyar-dark">{vendor.store_name}</h3>
-                  {vendor.location && (
-                    <p className="text-xs text-gray-500 mt-1">{vendor.location}</p>
-                  )}
-                </Link>
-              ))}
+              {vendors
+                .filter((vendor) => isValidStoreSlug(vendor.slug))
+                .map((vendor) => (
+                  <Link
+                    key={vendor.id}
+                    to={storePath(vendor.slug)!}
+                    className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md transition text-center cursor-pointer"
+                  >
+                    {vendor.logo_url ? (
+                      <img
+                        src={resolveMediaUrl(vendor.logo_url) ?? ''}
+                        alt={vendor.store_name}
+                        className="w-16 h-16 rounded-full object-cover mx-auto mb-3"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-diyar-cream/40 flex items-center justify-center mx-auto mb-3 text-diyar-brown font-bold">
+                        {vendor.store_name.charAt(0)}
+                      </div>
+                    )}
+                    <h3 className="font-bold text-diyar-dark">{vendor.store_name}</h3>
+                    {vendor.location && (
+                      <p className="text-xs text-gray-500 mt-1">{vendor.location}</p>
+                    )}
+                  </Link>
+                ))}
             </div>
           )
         ) : showServicesTab ? (
@@ -210,7 +214,9 @@ export default function SearchPage() {
             <h3 className="text-2xl font-bold text-diyar-dark mb-2">
               {t('catalog.search.noResultsTitle')}
             </h3>
-            <p className="text-gray-500 mb-8 max-w-md">{t('catalog.search.noResultsDescription')}</p>
+            <p className="text-gray-500 mb-8 max-w-md">
+              {t('catalog.search.noResultsDescription')}
+            </p>
             <Link
               to="/"
               className="bg-diyar-dark text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all cursor-pointer"
@@ -240,7 +246,9 @@ export default function SearchPage() {
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
                       </svg>
                     </div>
-                    <h2 className="text-xl font-bold text-diyar-dark">{t('catalog.search.products')}</h2>
+                    <h2 className="text-xl font-bold text-diyar-dark">
+                      {t('catalog.search.products')}
+                    </h2>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">

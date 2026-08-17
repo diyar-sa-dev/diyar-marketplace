@@ -79,7 +79,9 @@ export function VendorShippingSettingsPanel() {
             onSelect={() => update('carrier_enabled', !form.carrier_enabled)}
           >
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-700">{t('shipping.flatRateShort')}</label>
+              <label className="text-xs font-bold text-gray-700">
+                {t('shipping.flatRateShort')}
+              </label>
               <input
                 type="text"
                 inputMode="decimal"
@@ -108,7 +110,9 @@ export function VendorShippingSettingsPanel() {
                   type="text"
                   inputMode="decimal"
                   value={form.carrier_free_shipping_threshold ?? ''}
-                  onChange={(event) => update('carrier_free_shipping_threshold', event.target.value)}
+                  onChange={(event) =>
+                    update('carrier_free_shipping_threshold', event.target.value)
+                  }
                   className="w-full rounded-lg border border-gray-200 py-2 pe-3 ps-8 text-sm focus:border-diyar-brown focus:outline-none"
                 />
                 <span className="pointer-events-none absolute inset-s-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
@@ -129,8 +133,13 @@ export function VendorShippingSettingsPanel() {
           >
             <div className="pointer-events-none space-y-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-700">{t('shipping.warehouseScope')}</label>
-                <select disabled className="w-full rounded-lg border border-gray-200 bg-gray-50 p-2 text-sm">
+                <label className="text-xs font-bold text-gray-700">
+                  {t('shipping.warehouseScope')}
+                </label>
+                <select
+                  disabled
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 p-2 text-sm"
+                >
                   <option>{t('shipping.warehouseSameCity')}</option>
                 </select>
               </div>

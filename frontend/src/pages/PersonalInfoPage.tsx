@@ -258,7 +258,9 @@ export default function PersonalInfoPage() {
             <div>
               <AuthFieldLabel>{t('auth.fields.phone')}</AuthFieldLabel>
               <ReadOnlySaudiPhoneDisplay phone={user?.phone} id="personal-info-phone" />
-              <p className="mt-2 text-xs text-gray-500">{t('profile.personalInfo.phoneLockedHint')}</p>
+              <p className="mt-2 text-xs text-gray-500">
+                {t('profile.personalInfo.phoneLockedHint')}
+              </p>
               <button
                 type="button"
                 onClick={openPhoneModal}
@@ -320,11 +322,7 @@ export default function PersonalInfoPage() {
                   <AuthFieldLabel required hint={saudiPhoneHint}>
                     {t('profile.personalInfo.newPhone')}
                   </AuthFieldLabel>
-                  <SaudiPhoneInput
-                    id="new-phone-change"
-                    value={newPhone}
-                    onChange={setNewPhone}
-                  />
+                  <SaudiPhoneInput id="new-phone-change" value={newPhone} onChange={setNewPhone} />
                   <button
                     type="button"
                     onClick={() => void handleRequestPhoneChange()}
@@ -339,7 +337,10 @@ export default function PersonalInfoPage() {
                   </button>
                 </>
               ) : (
-                <form onSubmit={(event) => void handleVerifyPhoneChange(event)} className="space-y-4">
+                <form
+                  onSubmit={(event) => void handleVerifyPhoneChange(event)}
+                  className="space-y-4"
+                >
                   <p className="text-sm text-gray-600 text-center">
                     {t('auth.otp.description')}{' '}
                     <span className="font-bold text-diyar-dark" dir="ltr">

@@ -70,9 +70,12 @@ export type VendorPayout = {
   rejection_reason: string | null;
 };
 
-export type TransactionTypeFilter = 'all' | 'revenue' | 'commission' | 'refund' | 'payout' | 'adjustment';
+export type TransactionTypeFilter =
+  'all' | 'revenue' | 'commission' | 'refund' | 'payout' | 'adjustment';
 
-export async function fetchVendorFinanceReport(period: FinancePeriod = 'month'): Promise<VendorFinancePeriodReport> {
+export async function fetchVendorFinanceReport(
+  period: FinancePeriod = 'month',
+): Promise<VendorFinancePeriodReport> {
   const { data } = await apiClient.get<
     ApiSuccessResponse<{ report: VendorFinancePeriodReport; summary: VendorFinanceSummary }>
   >('/dashboard/vendor/finance/summary', { params: { period } });
@@ -104,7 +107,9 @@ export async function fetchVendorTransactions(
       transactions: FinancialTransaction[];
       pagination: { current_page: number; last_page: number; total: number };
     }>
-  >('/dashboard/vendor/finance/transactions', { params: { page, type: type === 'all' ? undefined : type } });
+  >('/dashboard/vendor/finance/transactions', {
+    params: { page, type: type === 'all' ? undefined : type },
+  });
   return data.data;
 }
 

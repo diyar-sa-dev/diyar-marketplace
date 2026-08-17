@@ -160,9 +160,7 @@ export default function AddressesPage() {
     resetFormErrors();
   };
 
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const target = event.target;
     const { name, value, type } = target;
     const nextValue = type === 'checkbox' ? (target as HTMLInputElement).checked : value;
@@ -392,9 +390,7 @@ export default function AddressesPage() {
           <div className="bg-white rounded-3xl shadow-xl w-full max-w-lg relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between p-5 md:p-6 border-b border-gray-100">
               <h2 className="text-xl font-bold text-diyar-dark">
-                {modalMode === 'add'
-                  ? t('profile.addresses.addNew')
-                  : t('profile.addresses.edit')}
+                {modalMode === 'add' ? t('profile.addresses.addNew') : t('profile.addresses.edit')}
               </h2>
               <button
                 type="button"
@@ -424,7 +420,11 @@ export default function AddressesPage() {
                 </div>
               )}
 
-              <form onSubmit={(event) => void handleSubmit(event)} className="space-y-5" id="address-form">
+              <form
+                onSubmit={(event) => void handleSubmit(event)}
+                className="space-y-5"
+                id="address-form"
+              >
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2 sm:col-span-1">
                     <label className="block text-sm font-bold text-gray-700 mb-2">

@@ -102,7 +102,9 @@ export default function DashboardLayout() {
       >
         <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 shrink-0">
           {isSidebarOpen && (
-            <span className="font-bold text-xl text-diyar-cream truncate">{t('dashboard.title')}</span>
+            <span className="font-bold text-xl text-diyar-cream truncate">
+              {t('dashboard.title')}
+            </span>
           )}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}

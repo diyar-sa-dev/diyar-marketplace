@@ -74,8 +74,7 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
   );
 
   const availability = availabilityLabel(mode, availableQty, availabilityLabels);
-  const canPurchase =
-    mode === 'preorder' || (mode === 'in_stock' && availableQty > 0);
+  const canPurchase = mode === 'preorder' || (mode === 'in_stock' && availableQty > 0);
 
   const availabilityDetail =
     stockTone === 'limited' && availableQty > 0
@@ -180,7 +179,9 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
       >
         <div className="flex items-center gap-1 text-gray-400 text-[10px] mb-1 font-medium">
           <Store size={12} className="text-diyar-brown shrink-0" />
-          <span className="truncate">{item.vendor || item.store || t('catalog.product.defaultStore')}</span>
+          <span className="truncate">
+            {item.vendor || item.store || t('catalog.product.defaultStore')}
+          </span>
         </div>
         <h3
           className={`font-bold text-diyar-dark leading-snug ${layout === 'list' ? 'text-xs sm:text-base mb-1 line-clamp-1 sm:line-clamp-2' : 'text-sm md:text-base mb-1.5 line-clamp-2'}`}
@@ -205,7 +206,9 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
             className={`font-bold text-diyar-dark tabular-nums ${layout === 'list' ? 'text-sm sm:text-lg' : 'text-lg'}`}
           >
             {item.price}{' '}
-            <span className="text-xs font-medium text-gray-400">{t('vendor.products.table.currency')}</span>
+            <span className="text-xs font-medium text-gray-400">
+              {t('vendor.products.table.currency')}
+            </span>
           </span>
           {item.oldPrice && (
             <span className="text-gray-400 line-through text-[10px] tabular-nums">

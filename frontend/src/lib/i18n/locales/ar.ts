@@ -718,13 +718,15 @@ export const ar = {
     deliveryAddress: 'عنوان التوصيل',
     paymentSection: 'طريقة الدفع',
     paymentAfterOrderNote: 'بعد تأكيد الطلب سيتم تحويلك لإتمام الدفع الإلكتروني الآمن.',
-    paymentPendingNote: 'سيتم تفعيل الدفع الإلكتروني في المرحلة القادمة. الطلب يُنشأ بحالة دفع قيد الانتظار.',
+    paymentPendingNote:
+      'سيتم تفعيل الدفع الإلكتروني في المرحلة القادمة. الطلب يُنشأ بحالة دفع قيد الانتظار.',
     paymentInitFailed: 'تعذر بدء جلسة الدفع.',
     paymentMethodUnavailable: 'طريقة الدفع المختارة غير متاحة حالياً.',
     paymentMethodsUnavailable: 'لا توجد طرق دفع متاحة من البوابة. تحقق من إعدادات MyFatoorah.',
     paymentSubmitFailed: 'تعذر إرسال الدفع. يرجى المحاولة مرة أخرى.',
     paymentUrlMissing: 'بوابة الدفع لم تُرجع رابط الدفع.',
-    simulatedGatewayHint: 'وضع التطوير — MyFatoorah محاكى محلياً. اختر نتيجة الدفع في الصفحة التالية.',
+    simulatedGatewayHint:
+      'وضع التطوير — MyFatoorah محاكى محلياً. اختر نتيجة الدفع في الصفحة التالية.',
     simulatorBadge: 'محاكاة محلية',
     simulatorTitle: 'بوابة دفع تجريبية',
     simulatorHint: 'اختر نتيجة الدفع لاختبار التدفق. MyFatoorah الحقيقي سيُفعّل لاحقاً.',
@@ -742,7 +744,8 @@ export const ar = {
     choosePaymentMethod: 'اختر طريقة الدفع',
     payNow: 'ادفع الآن',
     paymentRedirecting: 'جاري التحويل إلى بوابة الدفع...',
-    paymentAuthoritativeNote: 'يتم تأكيد حالة الدفع من الخادم بعد التحقق من البوابة — وليس من إعادة التوجيه في المتصفح فقط.',
+    paymentAuthoritativeNote:
+      'يتم تأكيد حالة الدفع من الخادم بعد التحقق من البوابة — وليس من إعادة التوجيه في المتصفح فقط.',
     viewOrderLater: 'عرض الطلب والدفع لاحقاً',
     securePaymentNote: 'الدفع آمن ومحمي لمعايير ديار',
     quantity: 'الكمية',
@@ -771,7 +774,8 @@ export const ar = {
     noAddressHint: 'أضف عنوان توصيل لتفعيل حساب الشحن والإجماليات.',
     addNewAddress: 'إضافة عنوان جديد',
     addressRequired: 'اختر عنوان الشحن للمتابعة',
-    vendorShippingNotConfigured: 'إعدادات شحن هذا البائع غير مكتملة. تواصل مع البائع أو أزل منتجاته مؤقتاً.',
+    vendorShippingNotConfigured:
+      'إعدادات شحن هذا البائع غير مكتملة. تواصل مع البائع أو أزل منتجاته مؤقتاً.',
     previewUnavailable: 'تعذر حساب الإجماليات حالياً',
     pickupAt: 'نقطة الاستلام',
     couponTitle: 'كوبون خصم :vendor',
@@ -818,7 +822,8 @@ export const ar = {
     payOrder: 'إتمام الدفع',
     paymentDueTitle: 'إتمام الدفع',
     paymentDueHint: 'دفعة واحدة آمنة عبر منصة ديار — تشمل جميع شحنات التجار في هذا الطلب.',
-    paymentPerOrderExplain: 'كل رقم طلب (مثل DYR-000001 و DYR-000002) يحتاج دفعة منفصلة. لا يمكن دمج طلبين في دفعة واحدة.',
+    paymentPerOrderExplain:
+      'كل رقم طلب (مثل DYR-000001 و DYR-000002) يحتاج دفعة منفصلة. لا يمكن دمج طلبين في دفعة واحدة.',
     payThisOrder: 'ادفع هذا الطلب',
     otherPendingOrders: 'لديك {{count}} طلب/طلبات أخرى بانتظار الدفع. أكمل دفع كل طلب على حدة.',
     orderTotal: 'إجمالي الطلب',
@@ -973,7 +978,8 @@ export const ar = {
     freeShipping: 'شحن مجاني للطلبات فوق',
     pickupLabel: 'عنوان نقطة الاستلام',
     pickupPlaceholder: 'مثال: فرع الرياض — طريق الملك فهد',
-    settingsIntro: 'تحكم في خيارات التسليم والشحن المتاحة لعملائك وأسعارها. يمكنك الجمع بين عدة طرق في نفس الوقت.',
+    settingsIntro:
+      'تحكم في خيارات التسليم والشحن المتاحة لعملائك وأسعارها. يمكنك الجمع بين عدة طرق في نفس الوقت.',
     availableMethodsTitle: 'خيارات التسليم المتاحة',
     carrierCardTitle: 'شركات الشحن',
     carrierCardDescription: 'توصيل لجميع مناطق المملكة عبر شركات الشحن المعتمدة (سمسا، أرامكس...)',
@@ -1001,7 +1007,8 @@ export const ar = {
     actionSuccess: 'تم تحديث طلب الإرجاع',
     policySaved: 'تم حفظ سياسة الإرجاع',
     savePolicy: 'حفظ سياسة الإرجاع',
-    policyIntro: 'اضبط كيفية إرجاع العملاء للمنتجات من متجرك. تتجاوز إعدادات المنتج هذه السياسة عند تفعيلها.',
+    policyIntro:
+      'اضبط كيفية إرجاع العملاء للمنتجات من متجرك. تتجاوز إعدادات المنتج هذه السياسة عند تفعيلها.',
     policyReturnable: 'السماح بالإرجاع',
     policyWindowDays: 'مدة الإرجاع (أيام)',
     policyAcceptedReasons: 'الأسباب المقبولة',

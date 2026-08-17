@@ -1,6 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertTriangle, Check, ChevronLeft, ChevronRight, CreditCard, Plus, Receipt, ShieldCheck, Truck } from 'lucide-react';
+import {
+  AlertTriangle,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CreditCard,
+  Plus,
+  Receipt,
+  ShieldCheck,
+  Truck,
+} from 'lucide-react';
 import { cartSync } from '../hooks/cart/cartSync.ts';
 import { useCartQuery } from '../hooks/cart/useCart.ts';
 import { useAddresses } from '../hooks/profile/useProfile.ts';
@@ -18,7 +28,11 @@ import {
   type CheckoutPaymentMethodId,
 } from '../lib/paymentMethods.ts';
 import type { Locale } from '../lib/i18n/types.ts';
-import type { CheckoutPreviewPayload, CheckoutPreviewVendorGroup, VendorDeliverySelection } from '../types/checkout.ts';
+import type {
+  CheckoutPreviewPayload,
+  CheckoutPreviewVendorGroup,
+  VendorDeliverySelection,
+} from '../types/checkout.ts';
 import type { CartItem } from '../types/cart.ts';
 import type { ShippingMethod } from '../types/shipping.ts';
 
@@ -66,8 +80,15 @@ function isVendorShippingError(message: string): boolean {
   );
 }
 
-function findCartItem(cartItems: CartItem[], itemId: string, productId: string): CartItem | undefined {
-  return cartItems.find((entry) => entry.id === itemId) ?? cartItems.find((entry) => entry.product_id === productId);
+function findCartItem(
+  cartItems: CartItem[],
+  itemId: string,
+  productId: string,
+): CartItem | undefined {
+  return (
+    cartItems.find((entry) => entry.id === itemId) ??
+    cartItems.find((entry) => entry.product_id === productId)
+  );
 }
 
 function formatAddressLine(
@@ -80,7 +101,9 @@ function formatAddressLine(
   locale: Locale,
 ): string {
   const separator = locale === 'ar' ? '، ' : ', ';
-  return [address.district, address.street, address.city, address.building].filter(Boolean).join(separator);
+  return [address.district, address.street, address.city, address.building]
+    .filter(Boolean)
+    .join(separator);
 }
 
 export default function CheckoutPage() {
@@ -139,15 +162,18 @@ export default function CheckoutPage() {
       return null;
     }
 
-    const vendor_delivery_selections: VendorDeliverySelection[] = Object.entries(methodByVendor).map(
-      ([vendor_account_id, method]) => ({ vendor_account_id, method }),
-    );
+    const vendor_delivery_selections: VendorDeliverySelection[] = Object.entries(
+      methodByVendor,
+    ).map(([vendor_account_id, method]) => ({ vendor_account_id, method }));
 
     return { shipping_address_id: selectedAddressId, vendor_delivery_selections };
   }, [methodByVendor, selectedAddressId]);
 
   const hasAddress = addresses.length > 0 && selectedAddressId !== '';
-  const previewQuery = useCheckoutPreview(previewPayload, previewEnabled && cartFlushed && hasAddress);
+  const previewQuery = useCheckoutPreview(
+    previewPayload,
+    previewEnabled && cartFlushed && hasAddress,
+  );
 
   useEffect(() => {
     setPreviewEnabled(hasAddress);
@@ -231,13 +257,17 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gray-50 pt-20 pb-24" dir={dir}>
       <div className="max-w-6xl mx-auto px-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark mb-8">{t('checkout.pageTitle')}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark mb-8">
+          {t('checkout.pageTitle')}
+        </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <section className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <div className="flex items-center justify-between gap-4 mb-5">
-                <h2 className="font-bold text-lg text-diyar-dark">{t('checkout.deliveryAddress')}</h2>
+                <h2 className="font-bold text-lg text-diyar-dark">
+                  {t('checkout.deliveryAddress')}
+                </h2>
                 <Link
                   to="/profile/addresses"
                   className="inline-flex items-center gap-1 text-sm font-bold text-diyar-brown hover:text-diyar-dark cursor-pointer"
@@ -264,34 +294,34 @@ export default function CheckoutPage() {
                     const isSelected = selectedAddressId === address.id;
 
                     return (
-                    <label
-                      key={address.id}
-                      className={`relative block border rounded-xl p-4 cursor-pointer transition h-full ${
-                        isSelected
-                          ? 'border-diyar-brown bg-amber-50/40 ring-1 ring-diyar-brown/20 pt-5'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      {isSelected && (
-                        <div
-                          className="absolute -top-3 inset-e-4 flex h-7 w-7 items-center justify-center rounded-full bg-diyar-brown text-white shadow-md ring-2 ring-white"
-                          aria-hidden="true"
-                        >
-                          <Check size={14} strokeWidth={3} />
+                      <label
+                        key={address.id}
+                        className={`relative block border rounded-xl p-4 cursor-pointer transition h-full ${
+                          isSelected
+                            ? 'border-diyar-brown bg-amber-50/40 ring-1 ring-diyar-brown/20 pt-5'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {isSelected && (
+                          <div
+                            className="absolute -top-3 inset-e-4 flex h-7 w-7 items-center justify-center rounded-full bg-diyar-brown text-white shadow-md ring-2 ring-white"
+                            aria-hidden="true"
+                          >
+                            <Check size={14} strokeWidth={3} />
+                          </div>
+                        )}
+                        <input
+                          type="radio"
+                          name="address"
+                          className="sr-only"
+                          checked={isSelected}
+                          onChange={() => setSelectedAddressId(address.id)}
+                        />
+                        <div className="font-bold text-diyar-dark mb-1">{address.label}</div>
+                        <div className="text-sm text-gray-600 leading-relaxed">
+                          {formatAddressLine(address, locale)}
                         </div>
-                      )}
-                      <input
-                        type="radio"
-                        name="address"
-                        className="sr-only"
-                        checked={isSelected}
-                        onChange={() => setSelectedAddressId(address.id)}
-                      />
-                      <div className="font-bold text-diyar-dark mb-1">{address.label}</div>
-                      <div className="text-sm text-gray-600 leading-relaxed">
-                        {formatAddressLine(address, locale)}
-                      </div>
-                    </label>
+                      </label>
                     );
                   })}
                 </div>
@@ -336,11 +366,15 @@ export default function CheckoutPage() {
             )}
 
             <section className="space-y-4">
-              <h2 className="font-bold text-lg text-diyar-dark px-1">{t('checkout.productsAndShipping')}</h2>
+              <h2 className="font-bold text-lg text-diyar-dark px-1">
+                {t('checkout.productsAndShipping')}
+              </h2>
 
               {displayGroups.map((entry) => {
                 const vendorId =
-                  entry.type === 'preview' ? entry.group.vendor_account_id : entry.group.vendorAccountId;
+                  entry.type === 'preview'
+                    ? entry.group.vendor_account_id
+                    : entry.group.vendorAccountId;
                 const vendorName =
                   entry.type === 'preview' ? entry.group.vendor_name : entry.group.vendorName;
                 const previewGroup = entry.type === 'preview' ? entry.group : null;
@@ -360,11 +394,15 @@ export default function CheckoutPage() {
                           <Truck size={16} />
                           {t('checkout.shippingCostLabel')}: {previewGroup.shipping.cost} {currency}
                           {previewGroup.shipping.free_shipping_applied && (
-                            <span className="text-green-600 font-medium">({t('checkout.freeShipping')})</span>
+                            <span className="text-green-600 font-medium">
+                              ({t('checkout.freeShipping')})
+                            </span>
                           )}
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-400">{t('checkout.summaryPending')}</span>
+                        <span className="text-xs text-gray-400">
+                          {t('checkout.summaryPending')}
+                        </span>
                       )}
                     </div>
 
@@ -379,7 +417,10 @@ export default function CheckoutPage() {
                                   imageUrl: null,
                                   vendorName,
                                   color: item.color?.name
-                                    ? { name: item.color.name, hex_code: item.color.hex_code ?? '#ccc' }
+                                    ? {
+                                        name: item.color.name,
+                                        hex_code: item.color.hex_code ?? '#ccc',
+                                      }
                                     : null,
                                   product: null,
                                   unitPrice: item.unit_price,
@@ -413,7 +454,9 @@ export default function CheckoutPage() {
                     {previewGroup ? (
                       <>
                         <div className="pt-2 border-t border-gray-100">
-                          <p className="text-sm font-bold text-gray-700 mb-3">{t('checkout.deliveryMethod')}</p>
+                          <p className="text-sm font-bold text-gray-700 mb-3">
+                            {t('checkout.deliveryMethod')}
+                          </p>
                           <div className="flex flex-wrap gap-2">
                             {previewGroup.available_methods.map((method) => (
                               <button
@@ -434,7 +477,8 @@ export default function CheckoutPage() {
                           {methodByVendor[vendorId] === 'pickup' &&
                             previewGroup.shipping.pickup_location_label && (
                               <p className="mt-3 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-600">
-                                {t('checkout.pickupAt')}: {previewGroup.shipping.pickup_location_label}
+                                {t('checkout.pickupAt')}:{' '}
+                                {previewGroup.shipping.pickup_location_label}
                               </p>
                             )}
                         </div>
@@ -466,7 +510,9 @@ export default function CheckoutPage() {
                 selected={selectedPaymentMethod}
                 onChange={setSelectedPaymentMethod}
               />
-              <p className="text-sm text-gray-500 leading-relaxed mt-4">{t('checkout.paymentSecureHint')}</p>
+              <p className="text-sm text-gray-500 leading-relaxed mt-4">
+                {t('checkout.paymentSecureHint')}
+              </p>
             </section>
           </div>
 
@@ -484,21 +530,28 @@ export default function CheckoutPage() {
               {preview?.valid ? (
                 <div className="space-y-1 rounded-2xl border border-gray-100 bg-linear-to-b from-gray-50/90 to-white p-4">
                   <div className="flex items-center justify-between gap-4 py-2.5 border-b border-gray-100/80 last:border-0">
-                    <span className="text-sm font-semibold text-gray-500">{t('checkout.subtotal')}</span>
+                    <span className="text-sm font-semibold text-gray-500">
+                      {t('checkout.subtotal')}
+                    </span>
                     <span className="text-base font-bold text-diyar-dark tabular-nums whitespace-nowrap">
-                      {preview.totals.subtotal} <span className="text-sm font-bold text-diyar-brown">{currency}</span>
+                      {preview.totals.subtotal}{' '}
+                      <span className="text-sm font-bold text-diyar-brown">{currency}</span>
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-2.5 border-b border-gray-100/80 last:border-0">
-                    <span className="text-sm font-semibold text-gray-500">{t('checkout.shipping')}</span>
+                    <span className="text-sm font-semibold text-gray-500">
+                      {t('checkout.shipping')}
+                    </span>
                     <span className="text-base font-bold text-diyar-dark tabular-nums whitespace-nowrap">
-                      {preview.totals.shipping} <span className="text-sm font-bold text-diyar-brown">{currency}</span>
+                      {preview.totals.shipping}{' '}
+                      <span className="text-sm font-bold text-diyar-brown">{currency}</span>
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4 py-2.5">
                     <span className="text-sm font-semibold text-gray-500">{t('checkout.vat')}</span>
                     <span className="text-base font-bold text-diyar-dark tabular-nums whitespace-nowrap">
-                      {preview.totals.vat} <span className="text-sm font-bold text-diyar-brown">{currency}</span>
+                      {preview.totals.vat}{' '}
+                      <span className="text-sm font-bold text-diyar-brown">{currency}</span>
                     </span>
                   </div>
                 </div>

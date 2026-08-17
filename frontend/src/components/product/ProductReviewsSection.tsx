@@ -10,11 +10,7 @@ import {
   useProductEngagementMutations,
   useProductReviews,
 } from '../../hooks/catalog/useProductEngagement.ts';
-import {
-  confirmDeleteReview,
-  showErrorAlert,
-  showSuccessToast,
-} from '../../lib/confirmDialog.ts';
+import { confirmDeleteReview, showErrorAlert, showSuccessToast } from '../../lib/confirmDialog.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
 import type { Locale } from '../../lib/i18n/types.ts';
 
@@ -65,8 +61,7 @@ function ReviewCard({
   locale: Locale;
 }) {
   const displayDate = formatReviewDate(item.updated_at ?? item.created_at, locale);
-  const wasEdited =
-    item.updated_at && item.created_at && item.updated_at !== item.created_at;
+  const wasEdited = item.updated_at && item.created_at && item.updated_at !== item.created_at;
 
   return (
     <article className="w-full rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-md transition-shadow animate-in fade-in duration-300">
@@ -116,11 +111,7 @@ function ReviewCard({
             onClick={() => void onDelete()}
             className={`${vendorButtonClass} inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 cursor-pointer disabled:opacity-50`}
           >
-            {isDeleting ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Trash2 size={14} />
-            )}
+            {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
             {t('catalog.productDetail.deleteReview')}
           </button>
         </div>
@@ -178,11 +169,7 @@ function ReviewForm({
           onClick={onSubmit}
           className={`${vendorButtonClass} ${showCancel ? 'flex-1' : 'w-full'} bg-diyar-brown text-white py-3 rounded-xl hover:bg-[#A67B5B]/90 shadow-md cursor-pointer disabled:opacity-60`}
         >
-          {isSaving ? (
-            <Loader2 size={18} className="animate-spin mx-auto" />
-          ) : (
-            submitLabel
-          )}
+          {isSaving ? <Loader2 size={18} className="animate-spin mx-auto" /> : submitLabel}
         </button>
         {showCancel && onCancel && (
           <button
@@ -217,8 +204,7 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
   const hasOwnReview = Boolean(myReview);
   const showAddForm = isAuthenticated && !hasOwnReview && !isEditing;
   const showEditForm = isAuthenticated && hasOwnReview && isEditing;
-  const showGuestPrompt =
-    !isAuthenticated && !isLoading && reviews.length === 0 && !hasOwnReview;
+  const showGuestPrompt = !isAuthenticated && !isLoading && reviews.length === 0 && !hasOwnReview;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -320,7 +306,9 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
 
         {showGuestPrompt && (
           <div className="w-full bg-gray-50 rounded-2xl border border-gray-100 p-5 text-center mb-8">
-            <p className="text-sm text-gray-500 mb-4">{t('catalog.productDetail.signInToReview')}</p>
+            <p className="text-sm text-gray-500 mb-4">
+              {t('catalog.productDetail.signInToReview')}
+            </p>
             <button
               type="button"
               onClick={handleStartAdd}

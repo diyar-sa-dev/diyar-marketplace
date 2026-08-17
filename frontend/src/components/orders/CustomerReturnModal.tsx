@@ -121,7 +121,11 @@ export function CustomerReturnModal({
             <RotateCcw size={18} className="text-diyar-brown" />
             <h3 className="font-bold">{t('returns.modalTitle')}</h3>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100"
+          >
             <X size={18} />
           </button>
         </div>
@@ -145,11 +149,13 @@ export function CustomerReturnModal({
               <div className="rounded-xl border border-amber-100 bg-amber-50/80 p-4 text-sm text-amber-950">
                 <p className="font-bold">{t('returns.policySummaryTitle')}</p>
                 <ul className="mt-2 space-y-1 text-xs leading-relaxed">
-                  <li>
-                    {t('returns.policyWindowHint', { days: policy.return_window_days })}
-                  </li>
+                  <li>{t('returns.policyWindowHint', { days: policy.return_window_days })}</li>
                   {eligibility.deadline && (
-                    <li>{t('returns.deadlineHint', { date: new Date(eligibility.deadline).toLocaleDateString() })}</li>
+                    <li>
+                      {t('returns.deadlineHint', {
+                        date: new Date(eligibility.deadline).toLocaleDateString(),
+                      })}
+                    </li>
                   )}
                   <li>{t('returns.policyReasonsHint')}</li>
                   {policy.requires_evidence && <li>{t('returns.policyEvidenceHint')}</li>}
@@ -158,20 +164,28 @@ export function CustomerReturnModal({
             )}
 
             <div>
-              <label className="mb-1 block text-xs font-bold text-gray-600">{t('returns.fieldQuantity')}</label>
+              <label className="mb-1 block text-xs font-bold text-gray-600">
+                {t('returns.fieldQuantity')}
+              </label>
               <input
                 type="number"
                 min={1}
                 max={maxQty}
                 value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, Math.min(maxQty, Number(e.target.value) || 1)))}
+                onChange={(e) =>
+                  setQuantity(Math.max(1, Math.min(maxQty, Number(e.target.value) || 1)))
+                }
                 className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm font-bold"
               />
-              <p className="mt-1 text-xs text-gray-500">{t('returns.remainingQty', { count: maxQty })}</p>
+              <p className="mt-1 text-xs text-gray-500">
+                {t('returns.remainingQty', { count: maxQty })}
+              </p>
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-bold text-gray-600">{t('returns.fieldReason')}</label>
+              <label className="mb-1 block text-xs font-bold text-gray-600">
+                {t('returns.fieldReason')}
+              </label>
               <select
                 value={reason}
                 onChange={(e) => setReason(e.target.value as ReturnReason)}
@@ -186,7 +200,9 @@ export function CustomerReturnModal({
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-bold text-gray-600">{t('returns.fieldNote')}</label>
+              <label className="mb-1 block text-xs font-bold text-gray-600">
+                {t('returns.fieldNote')}
+              </label>
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
@@ -198,7 +214,9 @@ export function CustomerReturnModal({
 
             {policy?.requires_evidence && (
               <div>
-                <label className="mb-1 block text-xs font-bold text-gray-600">{t('returns.fieldEvidence')}</label>
+                <label className="mb-1 block text-xs font-bold text-gray-600">
+                  {t('returns.fieldEvidence')}
+                </label>
                 <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-gray-300 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50">
                   <Upload size={16} />
                   {t('returns.uploadEvidence')}

@@ -268,31 +268,35 @@ function CategoryAllLanding() {
             <LoadingState className="min-h-24" />
           ) : (
             <div className="flex gap-4 md:gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x">
-              {(vendorsData?.items ?? []).filter((vendor) => isValidStoreSlug(vendor.slug)).map((vendor) => (
-                <Link
-                  key={vendor.id}
-                  to={storePath(vendor.slug)!}
-                  className="min-w-30 md:min-w-40 aspect-square rounded-2xl bg-white border border-gray-100 shadow-sm flex flex-col items-center justify-center p-4 snap-start hover:shadow-md transition group text-center"
-                >
-                  {vendor.logo_url ? (
-                    <img
-                      src={resolveMediaUrl(vendor.logo_url) ?? ''}
-                      alt={vendor.store_name}
-                      className="w-14 h-14 rounded-full object-cover mb-2"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-full bg-diyar-cream/40 flex items-center justify-center mb-2 text-diyar-brown font-bold">
-                      {vendor.store_name.charAt(0)}
-                    </div>
-                  )}
-                  <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition line-clamp-2">
-                    {vendor.store_name}
-                  </span>
-                  {vendor.product_count != null && (
-                    <span className="text-xs text-gray-400 mt-1">{vendor.product_count} منتج</span>
-                  )}
-                </Link>
-              ))}
+              {(vendorsData?.items ?? [])
+                .filter((vendor) => isValidStoreSlug(vendor.slug))
+                .map((vendor) => (
+                  <Link
+                    key={vendor.id}
+                    to={storePath(vendor.slug)!}
+                    className="min-w-30 md:min-w-40 aspect-square rounded-2xl bg-white border border-gray-100 shadow-sm flex flex-col items-center justify-center p-4 snap-start hover:shadow-md transition group text-center"
+                  >
+                    {vendor.logo_url ? (
+                      <img
+                        src={resolveMediaUrl(vendor.logo_url) ?? ''}
+                        alt={vendor.store_name}
+                        className="w-14 h-14 rounded-full object-cover mb-2"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-diyar-cream/40 flex items-center justify-center mb-2 text-diyar-brown font-bold">
+                        {vendor.store_name.charAt(0)}
+                      </div>
+                    )}
+                    <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition line-clamp-2">
+                      {vendor.store_name}
+                    </span>
+                    {vendor.product_count != null && (
+                      <span className="text-xs text-gray-400 mt-1">
+                        {vendor.product_count} منتج
+                      </span>
+                    )}
+                  </Link>
+                ))}
             </div>
           )}
         </div>
@@ -540,7 +544,9 @@ export default function CategoryPage() {
     const browseSort = searchParams.get('sort');
     const browseDiscounted = searchParams.get('discounted');
     if (browseSort || browseDiscounted) {
-      return <CategoryAllProductsBrowse searchParams={searchParams} setSearchParams={setSearchParams} />;
+      return (
+        <CategoryAllProductsBrowse searchParams={searchParams} setSearchParams={setSearchParams} />
+      );
     }
     return <CategoryAllLanding />;
   }

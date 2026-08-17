@@ -62,9 +62,7 @@ function invalidateUserScopedQueries(): void {
   void queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
 }
 
-async function mergeGuestCartAfterAuth(
-  showWarning: (message: string) => void,
-): Promise<void> {
+async function mergeGuestCartAfterAuth(showWarning: (message: string) => void): Promise<void> {
   try {
     await cartSync.flush();
     const result = await mergeCart();

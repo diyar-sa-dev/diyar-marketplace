@@ -47,11 +47,17 @@ export function VendorProductsTable({
         <table className="w-full text-right text-sm">
           <thead className="bg-linear-to-l from-gray-50 to-white text-gray-600 border-b border-gray-100">
             <tr>
-              <th className="px-6 py-4 font-bold text-right">{t('vendor.products.table.product')}</th>
-              <th className="px-6 py-4 font-bold text-right">{t('vendor.products.table.category')}</th>
+              <th className="px-6 py-4 font-bold text-right">
+                {t('vendor.products.table.product')}
+              </th>
+              <th className="px-6 py-4 font-bold text-right">
+                {t('vendor.products.table.category')}
+              </th>
               <th className="px-6 py-4 font-bold text-right">{t('vendor.products.table.price')}</th>
               <th className="px-6 py-4 font-bold text-right">{t('vendor.products.table.stock')}</th>
-              <th className="px-6 py-4 font-bold text-left">{t('vendor.products.table.actions')}</th>
+              <th className="px-6 py-4 font-bold text-left">
+                {t('vendor.products.table.actions')}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">

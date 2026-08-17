@@ -4,7 +4,11 @@ import { Loader2, ShieldCheck } from 'lucide-react';
 import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { CheckoutPaymentMethods } from '../components/checkout/CheckoutPaymentMethods.tsx';
-import { useInitiatePayment, useOrderPayment, useSubmitPayment } from '../hooks/payment/usePayment.ts';
+import {
+  useInitiatePayment,
+  useOrderPayment,
+  useSubmitPayment,
+} from '../hooks/payment/usePayment.ts';
 import { useLocale } from '../hooks/useLocale.ts';
 import { useToast } from '../hooks/useToast.ts';
 import { parseApiError } from '../utils/errors.ts';
@@ -44,7 +48,16 @@ export default function OrderPaymentPage() {
       const parsed = parseApiError(error);
       toast.error(parsed.message || t('checkout.paymentInitFailed'));
     });
-  }, [orderId, idempotencyKey, initiate.isSuccess, initiate.isPending, initiate.isError, initiate.mutateAsync, t, toast]);
+  }, [
+    orderId,
+    idempotencyKey,
+    initiate.isSuccess,
+    initiate.isPending,
+    initiate.isError,
+    initiate.mutateAsync,
+    t,
+    toast,
+  ]);
 
   useEffect(() => {
     if (paymentQuery.data?.status === 'paid') {
@@ -54,7 +67,9 @@ export default function OrderPaymentPage() {
   }, [paymentQuery.data?.status, navigate, orderId, t, toast]);
 
   const apiMethods = initiate.data?.methods ?? [];
-  const availableApiCodes = apiMethods.filter((method) => method.available).map((method) => method.code);
+  const availableApiCodes = apiMethods
+    .filter((method) => method.available)
+    .map((method) => method.code);
   const session = initiate.data?.session;
   const payment = paymentQuery.data ?? initiate.data?.payment;
 
@@ -66,7 +81,9 @@ export default function OrderPaymentPage() {
     }
 
     return CHECKOUT_PAYMENT_METHODS.filter((method) =>
-      method.apiCodes.some((code) => availableApiCodes.map((entry) => entry.toLowerCase()).includes(code)),
+      method.apiCodes.some((code) =>
+        availableApiCodes.map((entry) => entry.toLowerCase()).includes(code),
+      ),
     );
   }, [availableApiCodes]);
 
@@ -201,11 +218,17 @@ export default function OrderPaymentPage() {
             onClick={() => void handlePay()}
             className="w-full bg-diyar-dark text-white py-4 rounded-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 hover:bg-black transition"
           >
-            {submit.isPending ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
+            {submit.isPending ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <ShieldCheck size={18} />
+            )}
             {submit.isPending ? t('checkout.paymentRedirecting') : t('checkout.payNow')}
           </button>
 
-          <p className="text-xs text-gray-500 leading-relaxed">{t('checkout.paymentAuthoritativeNote')}</p>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            {t('checkout.paymentAuthoritativeNote')}
+          </p>
 
           <button
             type="button"

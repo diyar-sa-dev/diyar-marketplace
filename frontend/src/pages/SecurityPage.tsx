@@ -47,7 +47,9 @@ export default function SecurityPage() {
                 <h2 className="font-bold text-lg text-diyar-dark leading-snug text-balance">
                   {t('profile.security.recoveryTitle')}
                 </h2>
-                <p className="text-xs text-gray-500 text-balance">{t('profile.security.recoveryHint')}</p>
+                <p className="text-xs text-gray-500 text-balance">
+                  {t('profile.security.recoveryHint')}
+                </p>
               </div>
             </div>
 
@@ -82,7 +84,9 @@ export default function SecurityPage() {
                   <h2 className="font-bold text-lg text-diyar-dark leading-snug text-balance">
                     {t('profile.security.twoFactorTitle')}
                   </h2>
-                  <p className="text-xs text-gray-500 text-balance">{t('profile.security.twoFactorHint')}</p>
+                  <p className="text-xs text-gray-500 text-balance">
+                    {t('profile.security.twoFactorHint')}
+                  </p>
                 </div>
               </div>
             </div>
@@ -93,7 +97,9 @@ export default function SecurityPage() {
                   <h3 className="font-bold text-sm text-gray-800 mb-1">
                     {t('profile.security.twoFactorSms')}
                   </h3>
-                  <p className="text-sm text-gray-600">{t('profile.security.twoFactorDescription')}</p>
+                  <p className="text-sm text-gray-600">
+                    {t('profile.security.twoFactorDescription')}
+                  </p>
                 </div>
               </div>
             </div>
@@ -108,7 +114,9 @@ export default function SecurityPage() {
                 <h2 className="font-bold text-lg text-diyar-dark leading-snug text-balance">
                   {t('profile.security.devicesTitle')}
                 </h2>
-                <p className="text-xs text-gray-500 text-balance">{t('profile.security.devicesHint')}</p>
+                <p className="text-xs text-gray-500 text-balance">
+                  {t('profile.security.devicesHint')}
+                </p>
               </div>
             </div>
             <div className="p-6">

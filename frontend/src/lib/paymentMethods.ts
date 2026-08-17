@@ -55,7 +55,9 @@ export function storePaymentMethod(id: CheckoutPaymentMethodId): void {
 
 export function resolvePaymentMethodIdFromApiCode(code: string): CheckoutPaymentMethodId | null {
   const normalized = code.toLowerCase();
-  return CHECKOUT_PAYMENT_METHODS.find((method) => method.apiCodes.includes(normalized))?.id ?? null;
+  return (
+    CHECKOUT_PAYMENT_METHODS.find((method) => method.apiCodes.includes(normalized))?.id ?? null
+  );
 }
 
 export function resolveApiCodeForPaymentMethod(

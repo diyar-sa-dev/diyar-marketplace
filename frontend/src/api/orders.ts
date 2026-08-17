@@ -36,11 +36,15 @@ export async function fetchOrder(orderId: string): Promise<Order> {
 
 export async function cancelOrder(orderId: string): Promise<Order> {
   await ensureCsrfCookie();
-  const { data } = await apiClient.post<ApiSuccessResponse<{ order: Order }>>(`/orders/${orderId}/cancel`);
+  const { data } = await apiClient.post<ApiSuccessResponse<{ order: Order }>>(
+    `/orders/${orderId}/cancel`,
+  );
   return data.data.order;
 }
 
-export async function fetchVendorOrders(filters: VendorOrderFilters = {}): Promise<VendorOrderListResponse> {
+export async function fetchVendorOrders(
+  filters: VendorOrderFilters = {},
+): Promise<VendorOrderListResponse> {
   const { data } = await apiClient.get<ApiSuccessResponse<VendorOrderListResponse>>(
     '/dashboard/vendor/orders',
     {
@@ -59,7 +63,9 @@ export async function fetchVendorOrders(filters: VendorOrderFilters = {}): Promi
   return data.data;
 }
 
-export async function createManualVendorOrder(payload: CreateManualVendorOrderPayload): Promise<VendorOrder> {
+export async function createManualVendorOrder(
+  payload: CreateManualVendorOrderPayload,
+): Promise<VendorOrder> {
   await ensureCsrfCookie();
   const { data } = await apiClient.post<ApiSuccessResponse<{ vendor_order: VendorOrder }>>(
     '/dashboard/vendor/orders',
@@ -69,9 +75,9 @@ export async function createManualVendorOrder(payload: CreateManualVendorOrderPa
 }
 
 export async function fetchVendorOrder(vendorOrderId: string) {
-  const { data } = await apiClient.get<ApiSuccessResponse<{ vendor_order: VendorOrderListResponse['vendor_orders'][number] }>>(
-    `/dashboard/vendor/orders/${vendorOrderId}`,
-  );
+  const { data } = await apiClient.get<
+    ApiSuccessResponse<{ vendor_order: VendorOrderListResponse['vendor_orders'][number] }>
+  >(`/dashboard/vendor/orders/${vendorOrderId}`);
   return data.data.vendor_order;
 }
 

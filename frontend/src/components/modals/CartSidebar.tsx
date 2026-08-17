@@ -1,5 +1,14 @@
 import React, { useMemo } from 'react';
-import { X, Trash2, Plus, Minus, ArrowLeft, ArrowRight, ShoppingBag, AlertTriangle } from 'lucide-react';
+import {
+  X,
+  Trash2,
+  Plus,
+  Minus,
+  ArrowLeft,
+  ArrowRight,
+  ShoppingBag,
+  AlertTriangle,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCart } from '../../hooks/cart/useCart.ts';
@@ -66,10 +75,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
     removeItem(itemId);
   };
 
-  const pendingCheckoutNote = useMemo(
-    () => t('cart.sidebar.checkoutPendingNote'),
-    [t],
-  );
+  const pendingCheckoutNote = useMemo(() => t('cart.sidebar.checkoutPendingNote'), [t]);
 
   return (
     <>

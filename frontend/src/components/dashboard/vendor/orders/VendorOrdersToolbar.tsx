@@ -66,18 +66,20 @@ export function VendorOrdersToolbar({
                 <h4 className="mb-1 px-4 py-1 text-xs font-bold text-gray-400">
                   {t('vendorOrders.paymentFilterTitle')}
                 </h4>
-                {(['all', 'paid', 'pending', 'failed', 'refunded'] as PaymentFilter[]).map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => onPaymentFilterChange(option)}
-                    className={`w-full cursor-pointer px-4 py-1.5 text-sm text-start hover:bg-gray-50 ${
-                      paymentFilter === option ? 'font-bold text-diyar-brown' : 'text-diyar-dark'
-                    }`}
-                  >
-                    {t(`vendorOrders.paymentFilter.${option}`)}
-                  </button>
-                ))}
+                {(['all', 'paid', 'pending', 'failed', 'refunded'] as PaymentFilter[]).map(
+                  (option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => onPaymentFilterChange(option)}
+                      className={`w-full cursor-pointer px-4 py-1.5 text-sm text-start hover:bg-gray-50 ${
+                        paymentFilter === option ? 'font-bold text-diyar-brown' : 'text-diyar-dark'
+                      }`}
+                    >
+                      {t(`vendorOrders.paymentFilter.${option}`)}
+                    </button>
+                  ),
+                )}
               </div>
             )}
           </div>

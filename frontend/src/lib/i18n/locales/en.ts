@@ -718,17 +718,22 @@ export const en = {
     productsAndShipping: 'Products & shipping details',
     deliveryAddress: 'Delivery address',
     paymentSection: 'Payment method',
-    paymentAfterOrderNote: 'After placing your order you will be redirected to complete secure online payment.',
-    paymentPendingNote: 'Online payment will be enabled in the next release. Orders are created with payment status pending.',
+    paymentAfterOrderNote:
+      'After placing your order you will be redirected to complete secure online payment.',
+    paymentPendingNote:
+      'Online payment will be enabled in the next release. Orders are created with payment status pending.',
     paymentInitFailed: 'Could not start payment session.',
     paymentMethodUnavailable: 'The selected payment method is not available right now.',
-    paymentMethodsUnavailable: 'No payment methods are available from the gateway. Check MyFatoorah configuration.',
+    paymentMethodsUnavailable:
+      'No payment methods are available from the gateway. Check MyFatoorah configuration.',
     paymentSubmitFailed: 'Could not submit payment. Please try again.',
     paymentUrlMissing: 'Payment gateway did not return a checkout URL.',
-    simulatedGatewayHint: 'Dev mode — MyFatoorah is simulated locally. Choose a payment outcome on the next screen.',
+    simulatedGatewayHint:
+      'Dev mode — MyFatoorah is simulated locally. Choose a payment outcome on the next screen.',
     simulatorBadge: 'Local simulation',
     simulatorTitle: 'Test payment gateway',
-    simulatorHint: 'Pick a payment outcome to test the flow. Real MyFatoorah will be enabled later.',
+    simulatorHint:
+      'Pick a payment outcome to test the flow. Real MyFatoorah will be enabled later.',
     simulatorChooseOutcome: 'Choose payment outcome',
     simulatorSuccess: 'Successful payment',
     simulatorFailed: 'Failed payment',
@@ -743,7 +748,8 @@ export const en = {
     choosePaymentMethod: 'Choose payment method',
     payNow: 'Pay now',
     paymentRedirecting: 'Redirecting to gateway...',
-    paymentAuthoritativeNote: 'Payment status is confirmed by the server after gateway verification — not by the browser redirect alone.',
+    paymentAuthoritativeNote:
+      'Payment status is confirmed by the server after gateway verification — not by the browser redirect alone.',
     viewOrderLater: 'View order and pay later',
     securePaymentNote: 'Secure payment protected by DIYAR standards',
     quantity: 'Quantity',
@@ -755,7 +761,8 @@ export const en = {
     previewLoading: 'Calculating totals...',
     previewError: 'Could not load checkout preview',
     invalidCart: 'Cart needs attention',
-    fixCartIssues: 'Some items in your cart are unavailable or changed. Update your cart and try again.',
+    fixCartIssues:
+      'Some items in your cart are unavailable or changed. Update your cart and try again.',
     shippingCost: 'Shipping',
     freeShipping: 'Free shipping applied',
     orderSummary: 'Order summary',
@@ -772,7 +779,8 @@ export const en = {
     noAddressHint: 'Add a delivery address to unlock shipping options and totals.',
     addNewAddress: 'Add new address',
     addressRequired: 'Select a shipping address to continue',
-    vendorShippingNotConfigured: 'This vendor has not completed shipping settings. Contact the vendor or remove their items temporarily.',
+    vendorShippingNotConfigured:
+      'This vendor has not completed shipping settings. Contact the vendor or remove their items temporarily.',
     previewUnavailable: 'Totals could not be calculated right now',
     pickupAt: 'Pickup location',
     couponTitle: ':vendor discount coupon',
@@ -804,24 +812,31 @@ export const en = {
     paymentFailed: 'Payment was not completed. You can try again from your order.',
     paymentExpired: 'Payment session expired. You can try again.',
     paymentOutcomeSuccessTitle: 'Payment successful!',
-    paymentOutcomeSuccessBody: 'Thank you. Your payment is confirmed and your order will be processed soon.',
+    paymentOutcomeSuccessBody:
+      'Thank you. Your payment is confirmed and your order will be processed soon.',
     paymentOutcomeFailedTitle: 'Payment failed',
-    paymentOutcomeFailedBody: 'The payment could not be completed. Try again from the order card below.',
+    paymentOutcomeFailedBody:
+      'The payment could not be completed. Try again from the order card below.',
     paymentOutcomeExpiredTitle: 'Session expired',
-    paymentOutcomeExpiredBody: 'The payment session timed out. Tap Complete payment to start a new attempt.',
+    paymentOutcomeExpiredBody:
+      'The payment session timed out. Tap Complete payment to start a new attempt.',
     paymentOutcomeContinue: 'Continue',
     paymentOutcomeRetry: 'OK',
     paymentSuccessBannerTitle: 'Payment successful',
-    paymentSuccessBannerHint: 'Your payment is confirmed. Vendor shipments will be prepared and tracked soon.',
+    paymentSuccessBannerHint:
+      'Your payment is confirmed. Vendor shipments will be prepared and tracked soon.',
     paymentPaidBadge: 'Paid',
     paymentIncomplete: 'Payment was cancelled or expired. You can pay later from your order.',
     paymentPendingVerification: 'Payment is being verified. This may take a few moments.',
     payOrder: 'Complete payment',
     paymentDueTitle: 'Complete payment',
-    paymentDueHint: 'One secure DIYAR platform payment — covers all vendor shipments in this order.',
-    paymentPerOrderExplain: 'Each order number (e.g. DYR-000001 and DYR-000002) requires its own payment. Orders cannot be merged into one checkout.',
+    paymentDueHint:
+      'One secure DIYAR platform payment — covers all vendor shipments in this order.',
+    paymentPerOrderExplain:
+      'Each order number (e.g. DYR-000001 and DYR-000002) requires its own payment. Orders cannot be merged into one checkout.',
     payThisOrder: 'Pay this order',
-    otherPendingOrders: 'You have {{count}} other order(s) awaiting payment. Complete each order separately.',
+    otherPendingOrders:
+      'You have {{count}} other order(s) awaiting payment. Complete each order separately.',
     orderTotal: 'Order total',
     awaitingPayment: 'Awaiting payment',
     paymentCancelledBadge: 'Payment cancelled',
@@ -974,7 +989,8 @@ export const en = {
     freeShipping: 'Free shipping above',
     pickupLabel: 'Pickup location label',
     pickupPlaceholder: 'e.g. Riyadh branch — King Fahd Road',
-    settingsIntro: 'Control delivery and shipping options available to your customers and their prices. You can combine multiple methods at the same time.',
+    settingsIntro:
+      'Control delivery and shipping options available to your customers and their prices. You can combine multiple methods at the same time.',
     availableMethodsTitle: 'Available delivery options',
     carrierCardTitle: 'Shipping companies',
     carrierCardDescription: 'Delivery across the Kingdom via approved carriers (SMSA, Aramex…)',
@@ -1002,7 +1018,8 @@ export const en = {
     actionSuccess: 'Return updated successfully',
     policySaved: 'Return policy saved',
     savePolicy: 'Save return policy',
-    policyIntro: 'Configure how customers can return products from your store. Product-level overrides take precedence when enabled.',
+    policyIntro:
+      'Configure how customers can return products from your store. Product-level overrides take precedence when enabled.',
     policyReturnable: 'Allow returns',
     policyWindowDays: 'Return window (days)',
     policyAcceptedReasons: 'Accepted reasons',

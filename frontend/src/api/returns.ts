@@ -13,9 +13,9 @@ export async function fetchReturnEligibility(
   vendorOrderId: string,
   orderItemId: string,
 ): Promise<ReturnEligibility> {
-  const { data } = await apiClient.get<
-    ApiSuccessResponse<ReturnEligibility>
-  >(`/vendor-orders/${vendorOrderId}/items/${orderItemId}/return-eligibility`);
+  const { data } = await apiClient.get<ApiSuccessResponse<ReturnEligibility>>(
+    `/vendor-orders/${vendorOrderId}/items/${orderItemId}/return-eligibility`,
+  );
   return data.data;
 }
 
@@ -50,7 +50,10 @@ export async function uploadReturnEvidence(returnId: string, file: File): Promis
   });
 }
 
-export async function fetchVendorReturns(page = 1, status = 'all'): Promise<{
+export async function fetchVendorReturns(
+  page = 1,
+  status = 'all',
+): Promise<{
   returns: ReturnRequest[];
   pagination: { current_page: number; last_page: number; per_page: number; total: number };
 }> {

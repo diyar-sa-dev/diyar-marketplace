@@ -11,9 +11,13 @@ function buildMapQuery(order: VendorOrder): string | null {
     return null;
   }
 
-  const parts = [address.city, address.district, address.street, address.building, address.apartment].filter(
-    (part) => part && part.trim() !== '' && part !== '—',
-  );
+  const parts = [
+    address.city,
+    address.district,
+    address.street,
+    address.building,
+    address.apartment,
+  ].filter((part) => part && part.trim() !== '' && part !== '—');
 
   if (parts.length === 0) {
     return null;
@@ -30,7 +34,9 @@ export function VendorOrderInfoSidebar({ order }: { order: VendorOrder }) {
   const memberSince = formatMemberSince(order.customer_member_since, locale);
   const paymentLabel =
     order.payment_method_label ??
-    (order.payment_status === 'paid' ? t('vendorOrders.payment.paid') : t('vendorOrders.payment.unpaid'));
+    (order.payment_status === 'paid'
+      ? t('vendorOrders.payment.paid')
+      : t('vendorOrders.payment.unpaid'));
 
   return (
     <div className="space-y-6">
@@ -44,14 +50,18 @@ export function VendorOrderInfoSidebar({ order }: { order: VendorOrder }) {
             <VendorOrderStatusBadge status={order.status} />
           </div>
           <div>
-            <div className="mb-1.5 text-xs text-gray-500">{t('vendorOrders.paymentStatusLabel')}</div>
+            <div className="mb-1.5 text-xs text-gray-500">
+              {t('vendorOrders.paymentStatusLabel')}
+            </div>
             <div className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
               {paymentLabel}
             </div>
           </div>
           {order.payment_reference ? (
             <div>
-              <div className="mb-1.5 text-xs text-gray-500">{t('vendorOrders.confirmationNumber')}</div>
+              <div className="mb-1.5 text-xs text-gray-500">
+                {t('vendorOrders.confirmationNumber')}
+              </div>
               <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-1.5 font-mono text-sm font-medium text-gray-700">
                 {order.payment_reference}
               </div>
@@ -98,7 +108,9 @@ export function VendorOrderInfoSidebar({ order }: { order: VendorOrder }) {
           {t('vendorOrders.shippingAddressTitle')}
         </h3>
         <div className="space-y-1 text-sm leading-relaxed text-gray-600">
-          {addressLines.heading ? <p className="font-bold text-diyar-dark">{addressLines.heading}</p> : null}
+          {addressLines.heading ? (
+            <p className="font-bold text-diyar-dark">{addressLines.heading}</p>
+          ) : null}
           {addressLines.city ? <p>{addressLines.city}</p> : null}
           {addressLines.districtStreet ? <p>{addressLines.districtStreet}</p> : null}
           {addressLines.buildingApartment ? <p>{addressLines.buildingApartment}</p> : null}

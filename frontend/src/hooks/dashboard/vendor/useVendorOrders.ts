@@ -27,7 +27,8 @@ export function useCreateManualVendorOrder() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: CreateManualVendorOrderPayload) => ordersApi.createManualVendorOrder(payload),
+    mutationFn: (payload: CreateManualVendorOrderPayload) =>
+      ordersApi.createManualVendorOrder(payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: vendorOrderKeys.all });
     },

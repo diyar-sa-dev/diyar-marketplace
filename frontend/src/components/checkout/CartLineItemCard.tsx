@@ -58,7 +58,9 @@ export function CartLineItemCard({
       </div>
 
       <div className="flex-1 min-w-0">
-        <h4 className={`font-bold text-diyar-dark line-clamp-2 ${compact ? 'text-sm md:text-base' : 'text-base'}`}>
+        <h4
+          className={`font-bold text-diyar-dark line-clamp-2 ${compact ? 'text-sm md:text-base' : 'text-base'}`}
+        >
           {name}
         </h4>
         {vendorName && <p className="text-xs text-gray-400 mt-0.5 truncate">{vendorName}</p>}
@@ -87,7 +89,8 @@ export function CartLineItemCard({
             {unitPrice} {currency}
           </span>
           <span className="text-xs text-gray-500">
-            {quantityLabel}: <span className="font-bold text-diyar-dark tabular-nums">{quantity}</span>
+            {quantityLabel}:{' '}
+            <span className="font-bold text-diyar-dark tabular-nums">{quantity}</span>
           </span>
         </div>
       </div>

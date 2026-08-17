@@ -59,9 +59,15 @@ export default function LocalPaymentSimulatorPage() {
                 <ShieldCheck size={22} />
               </span>
               <div>
-                <p className="text-xs font-bold text-amber-800 uppercase tracking-wide">{t('checkout.simulatorBadge')}</p>
-                <h1 className="text-xl font-bold text-diyar-dark mt-1">{t('checkout.simulatorTitle')}</h1>
-                <p className="text-sm text-gray-600 mt-1 leading-relaxed">{t('checkout.simulatorHint')}</p>
+                <p className="text-xs font-bold text-amber-800 uppercase tracking-wide">
+                  {t('checkout.simulatorBadge')}
+                </p>
+                <h1 className="text-xl font-bold text-diyar-dark mt-1">
+                  {t('checkout.simulatorTitle')}
+                </h1>
+                <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                  {t('checkout.simulatorHint')}
+                </p>
               </div>
             </div>
           </div>
@@ -74,7 +80,9 @@ export default function LocalPaymentSimulatorPage() {
               </span>
             </div>
 
-            <p className="text-sm font-bold text-gray-700">{t('checkout.simulatorChooseOutcome')}</p>
+            <p className="text-sm font-bold text-gray-700">
+              {t('checkout.simulatorChooseOutcome')}
+            </p>
 
             <div className="space-y-3">
               <button
@@ -83,7 +91,11 @@ export default function LocalPaymentSimulatorPage() {
                 onClick={() => void handleSimulate('success')}
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-green-600 text-white py-3.5 font-bold hover:bg-green-700 transition disabled:opacity-50 cursor-pointer"
               >
-                {pendingOutcome === 'success' ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
+                {pendingOutcome === 'success' ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <CheckCircle2 size={18} />
+                )}
                 {t('checkout.simulatorSuccess')}
               </button>
 
@@ -93,7 +105,11 @@ export default function LocalPaymentSimulatorPage() {
                 onClick={() => void handleSimulate('failed')}
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-600 text-white py-3.5 font-bold hover:bg-red-700 transition disabled:opacity-50 cursor-pointer"
               >
-                {pendingOutcome === 'failed' ? <Loader2 size={18} className="animate-spin" /> : <AlertTriangle size={18} />}
+                {pendingOutcome === 'failed' ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <AlertTriangle size={18} />
+                )}
                 {t('checkout.simulatorFailed')}
               </button>
 
@@ -103,7 +119,11 @@ export default function LocalPaymentSimulatorPage() {
                 onClick={() => void handleSimulate('expired')}
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-600 text-white py-3.5 font-bold hover:bg-amber-700 transition disabled:opacity-50 cursor-pointer"
               >
-                {pendingOutcome === 'expired' ? <Loader2 size={18} className="animate-spin" /> : <Clock size={18} />}
+                {pendingOutcome === 'expired' ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Clock size={18} />
+                )}
                 {t('checkout.simulatorExpired')}
               </button>
             </div>

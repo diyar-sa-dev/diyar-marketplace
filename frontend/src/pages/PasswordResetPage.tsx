@@ -246,7 +246,10 @@ export default function PasswordResetPage() {
             <form onSubmit={handleVerifyOtp} className="space-y-6">
               <div className="text-center mb-2">
                 <p className="text-gray-600 text-sm">{t('auth.otp.description')}</p>
-                <p className="font-bold text-diyar-dark mt-1 tracking-wide whitespace-nowrap" dir="ltr">
+                <p
+                  className="font-bold text-diyar-dark mt-1 tracking-wide whitespace-nowrap"
+                  dir="ltr"
+                >
                   {maskedPhone || '—'}
                 </p>
               </div>

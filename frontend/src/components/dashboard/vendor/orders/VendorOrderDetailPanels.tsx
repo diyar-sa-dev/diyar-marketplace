@@ -17,19 +17,30 @@ export function VendorOrderProductsPanel({ order }: { order: VendorOrder }) {
 
       <div className="divide-y divide-gray-100">
         {items.map((item) => (
-          <div key={item.id} className="flex items-center gap-4 p-6 transition-colors hover:bg-gray-50/30">
+          <div
+            key={item.id}
+            className="flex items-center gap-4 p-6 transition-colors hover:bg-gray-50/30"
+          >
             <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-gray-100">
               {item.image_url ? (
-                <img src={item.image_url} alt={item.product_name} className="h-full w-full object-cover" />
+                <img
+                  src={item.image_url}
+                  alt={item.product_name}
+                  className="h-full w-full object-cover"
+                />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">DIYAR</div>
+                <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+                  DIYAR
+                </div>
               )}
             </div>
             <div className="flex-1">
               <h4 className="mb-1 font-bold text-diyar-dark">{item.product_name}</h4>
               {(item.category_name || item.color?.name) && (
                 <div className="mb-2 text-sm text-gray-500">
-                  {item.category_name ? `${t('vendorOrders.categoryLabel')}: ${item.category_name}` : null}
+                  {item.category_name
+                    ? `${t('vendorOrders.categoryLabel')}: ${item.category_name}`
+                    : null}
                   {item.category_name && item.color?.name ? ' • ' : null}
                   {item.color?.name ? `${t('vendorOrders.colorLabel')}: ${item.color.name}` : null}
                 </div>

@@ -42,8 +42,7 @@ export default function ProfilePage() {
 
   const phoneDisplay = user?.phone ? toSaudiPhoneNationalInput(user.phone) : '';
   const roleSummary =
-    user?.roles?.map((role) => roleLabel(role.name, t)).join(' • ') ??
-    t('profile.memberFallback');
+    user?.roles?.map((role) => roleLabel(role.name, t)).join(' • ') ?? t('profile.memberFallback');
 
   const menuItems = useMemo(
     () => [
@@ -217,7 +216,9 @@ export default function ProfilePage() {
                     {item.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-800 text-sm mb-0.5 text-balance leading-snug">{item.title}</h3>
+                    <h3 className="font-bold text-gray-800 text-sm mb-0.5 text-balance leading-snug">
+                      {item.title}
+                    </h3>
                     <p className="text-xs text-gray-500 text-balance">{item.subtitle}</p>
                   </div>
                   <MenuChevron

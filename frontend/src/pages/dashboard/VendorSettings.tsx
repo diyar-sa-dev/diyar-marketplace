@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Camera,
-  Save,
-  Info,
-  Link as LinkIcon,
-  HelpCircle,
-  Wallet,
-  DollarSign,
-} from 'lucide-react';
+import { Camera, Save, Info, Link as LinkIcon, HelpCircle, Wallet, DollarSign } from 'lucide-react';
 import { VendorShippingSettingsPanel } from '../../components/dashboard/vendor/shipping/VendorShippingSettingsPanel.tsx';
 import { VendorReturnPolicyPanel } from '../../components/dashboard/vendor/returns/VendorReturnPolicyPanel.tsx';
 

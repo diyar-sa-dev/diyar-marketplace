@@ -103,15 +103,25 @@ export function formatDimension(value: string | number | null | undefined): stri
 }
 
 export function formatCompactProductSize(
-  dimensions: { width?: string | number | null; height?: string | number | null; depth?: string | number | null } | null | undefined,
+  dimensions:
+    | {
+        width?: string | number | null;
+        height?: string | number | null;
+        depth?: string | number | null;
+      }
+    | null
+    | undefined,
 ): string | null {
   if (!dimensions) {
     return null;
   }
 
-  const width = dimensions.width != null && dimensions.width !== '' ? String(dimensions.width) : null;
-  const height = dimensions.height != null && dimensions.height !== '' ? String(dimensions.height) : null;
-  const depth = dimensions.depth != null && dimensions.depth !== '' ? String(dimensions.depth) : null;
+  const width =
+    dimensions.width != null && dimensions.width !== '' ? String(dimensions.width) : null;
+  const height =
+    dimensions.height != null && dimensions.height !== '' ? String(dimensions.height) : null;
+  const depth =
+    dimensions.depth != null && dimensions.depth !== '' ? String(dimensions.depth) : null;
 
   if (width && height) {
     return `${width}x${height} سم`;

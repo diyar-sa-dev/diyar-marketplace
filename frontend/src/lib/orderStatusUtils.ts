@@ -11,7 +11,10 @@ export function resolveEffectiveOrderStatus(order: Order): Order['status'] {
 
   const vendorOrders = order.vendor_orders ?? [];
 
-  if (vendorOrders.length > 0 && vendorOrders.every((vendorOrder) => vendorOrder.status === 'cancelled')) {
+  if (
+    vendorOrders.length > 0 &&
+    vendorOrders.every((vendorOrder) => vendorOrder.status === 'cancelled')
+  ) {
     return 'cancelled';
   }
 
@@ -38,7 +41,6 @@ export function orderPaymentPaid(order: Order): boolean {
 
 export function orderPaymentCancelled(order: Order): boolean {
   return (
-    resolveEffectiveOrderStatus(order) === 'cancelled' ||
-    order.payment?.status === 'cancelled'
+    resolveEffectiveOrderStatus(order) === 'cancelled' || order.payment?.status === 'cancelled'
   );
 }
