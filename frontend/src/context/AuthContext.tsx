@@ -11,8 +11,12 @@ import * as authApi from '../api/auth.ts';
 import { registerUnauthorizedHandler } from '../lib/auth/sessionEvents.ts';
 import { resetCsrfCookie } from '../lib/csrf.ts';
 import { queryClient } from '../lib/queryClient.ts';
+import { mergeCart } from '../api/cart.ts';
+import { cartKeys } from '../hooks/cart/queryKeys.ts';
+import { cartSync } from '../hooks/cart/cartSync.ts';
 import { productKeys } from '../hooks/catalog/queryKeys.ts';
 import { wishlistKeys } from '../hooks/profile/queryKeys.ts';
+import { useToast } from '../hooks/useToast.ts';
 import type {
   AuthActionResult,
   AuthState,
@@ -58,10 +62,25 @@ function invalidateUserScopedQueries(): void {
   void queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
 }
 
+async function mergeGuestCartAfterAuth(
+  showWarning: (message: string) => void,
+): Promise<void> {
+  try {
+    await cartSync.flush();
+    const result = await mergeCart();
+    cartSync.applyServerCart(result.cart, false);
+    queryClient.setQueryData(cartKeys.mergeWarnings(), result.warnings);
+    result.warnings.forEach((warning) => showWarning(warning));
+  } catch {
+    void queryClient.invalidateQueries({ queryKey: cartKeys.detail() });
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [status, setStatus] = useState<AuthState>('loading');
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const clearSession = useCallback(() => {
     setUser(null);
@@ -125,6 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(result.user);
           setStatus('authenticated');
           invalidateUserScopedQueries();
+          await mergeGuestCartAfterAuth((message) => toast.warning(message));
           return result;
         }),
       register: (payload) => wrap(() => authApi.register(payload)),
@@ -134,6 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(result.user);
           setStatus('authenticated');
           invalidateUserScopedQueries();
+          await mergeGuestCartAfterAuth((message) => toast.warning(message));
           return result;
         }),
       resendOtp: (phone) => wrap(() => authApi.resendOtp(phone)),

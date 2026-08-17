@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             CategorySeeder::class,
             CatalogSeeder::class,
+            VendorShippingSettingsSeeder::class,
+            CommissionRuleSeeder::class,
         ]);
     }
 }

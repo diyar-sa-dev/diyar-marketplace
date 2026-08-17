@@ -15,7 +15,7 @@ return new class extends Migration
             $table->unsignedInteger('quantity');
             $table->string('status');
             $table->boolean('affects_inventory')->default(true);
-            $table->nullableMorphs('reference');
+            $table->nullableUuidMorphs('reference');
             $table->timestamp('expires_at');
             $table->timestamp('finalized_at')->nullable();
             $table->timestamp('released_at')->nullable();

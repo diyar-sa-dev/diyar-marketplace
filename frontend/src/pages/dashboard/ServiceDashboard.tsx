@@ -78,8 +78,8 @@ export default function ServiceDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <h3 className="font-bold text-diyar-dark mb-6">الأرباح خلال 7 أيام</h3>
-          <div className="h-72" dir="ltr">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-72 w-full min-w-0" dir="ltr">
+            <ResponsiveContainer width="100%" height={288}>
               <AreaChart data={data}>
                 <defs>
                   <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">

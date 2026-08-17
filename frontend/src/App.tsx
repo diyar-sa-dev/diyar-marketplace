@@ -27,7 +27,7 @@ import { RequestServiceModal } from './components/modals/RequestServiceModal.tsx
 import { SidebarMenu } from './components/layout/SidebarMenu.tsx';
 import { AnnouncementBar } from './components/layout/AnnouncementBar.tsx';
 import { FloatingContactBar } from './components/layout/FloatingContactBar.tsx';
-import { useCart } from './context/CartContext.tsx';
+import { useCart } from './hooks/cart/useCart.ts';
 import { useAuth } from './hooks/auth/useAuth.ts';
 import { useToast } from './hooks/useToast.ts';
 import { useLocale } from './hooks/useLocale.ts';
@@ -41,6 +41,8 @@ import HomePage from './pages/HomePage.tsx';
 import CategoryPage from './pages/CategoryPage.tsx';
 import ProductDetailsPage from './pages/ProductDetailsPage.tsx';
 import CheckoutPage from './pages/CheckoutPage.tsx';
+import OrderPaymentPage from './pages/OrderPaymentPage.tsx';
+import LocalPaymentSimulatorPage from './pages/LocalPaymentSimulatorPage.tsx';
 import OrdersPage from './pages/OrdersPage.tsx';
 import LoyaltyPage from './pages/LoyaltyPage.tsx';
 import SearchPage from './pages/SearchPage.tsx';
@@ -72,7 +74,8 @@ import ChatPage from './pages/ChatPage.tsx';
 import DashboardLayout from './layouts/DashboardLayout.tsx';
 import DashboardIndex from './pages/dashboard/DashboardIndex.tsx';
 import VendorDashboard from './pages/dashboard/VendorDashboard.tsx';
-import VendorOrders from './pages/dashboard/VendorOrders.tsx';
+import VendorOrdersPage from './pages/dashboard/vendor/VendorOrdersPage.tsx';
+import VendorReturnsPage from './pages/dashboard/vendor/VendorReturnsPage.tsx';
 import VendorProducts from './pages/dashboard/VendorProducts.tsx';
 import ServiceClientRequests from './pages/dashboard/ServiceClientRequests.tsx';
 import ServiceClientRequestDetails from './pages/dashboard/ServiceClientRequestDetails.tsx';
@@ -216,6 +219,12 @@ export default function App() {
   const isStatusPage =
     location.pathname === '/403' || location.pathname === '/404' || isAccountStatusPage;
   const isHomePage = location.pathname === '/';
+
+  useEffect(() => {
+    if (isAuthPage) {
+      setIsCartOpen(false);
+    }
+  }, [isAuthPage]);
 
   if (isLoading && !isAuthPage) {
     return (
@@ -377,7 +386,9 @@ export default function App() {
       )}
 
       <FilterModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
-      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      {!isAuthPage && (
+        <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      )}
       <SidebarMenu isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <ImageSearchModal isOpen={isImageSearchOpen} onClose={() => setIsImageSearchOpen(false)} />
       <RequestServiceModal
@@ -427,6 +438,22 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout/payment/:orderId/simulate"
+            element={
+              <ProtectedRoute>
+                <LocalPaymentSimulatorPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout/payment/:orderId"
+            element={
+              <ProtectedRoute>
+                <OrderPaymentPage />
               </ProtectedRoute>
             }
           />
@@ -554,7 +581,15 @@ export default function App() {
               path="vendor/orders"
               element={
                 <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
-                  <VendorOrders />
+                  <VendorOrdersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="vendor/returns"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                  <VendorReturnsPage />
                 </ProtectedRoute>
               }
             />

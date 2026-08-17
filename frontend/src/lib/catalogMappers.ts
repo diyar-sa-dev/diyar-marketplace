@@ -101,3 +101,41 @@ export function formatDimension(value: string | number | null | undefined): stri
   }
   return `${value} سم`;
 }
+
+export function formatCompactProductSize(
+  dimensions: { width?: string | number | null; height?: string | number | null; depth?: string | number | null } | null | undefined,
+): string | null {
+  if (!dimensions) {
+    return null;
+  }
+
+  const width = dimensions.width != null && dimensions.width !== '' ? String(dimensions.width) : null;
+  const height = dimensions.height != null && dimensions.height !== '' ? String(dimensions.height) : null;
+  const depth = dimensions.depth != null && dimensions.depth !== '' ? String(dimensions.depth) : null;
+
+  if (width && height) {
+    return `${width}x${height} سم`;
+  }
+
+  if (width && depth) {
+    return `${width}x${depth} سم`;
+  }
+
+  if (height && depth) {
+    return `${height}x${depth} سم`;
+  }
+
+  if (width) {
+    return `${width} سم`;
+  }
+
+  if (height) {
+    return `${height} سم`;
+  }
+
+  if (depth) {
+    return `${depth} سم`;
+  }
+
+  return null;
+}

@@ -82,8 +82,8 @@ export default function AffiliateReports() {
         {/* Performance Chart */}
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm lg:col-span-2">
           <h3 className="font-bold text-diyar-dark mb-6">النقرات والتحويلات (آخر شهر)</h3>
-          <div className="h-72" dir="ltr">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-72 w-full min-w-0" dir="ltr">
+            <ResponsiveContainer width="100%" height={288}>
               <AreaChart data={areaData}>
                 <defs>
                   <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
@@ -122,8 +122,8 @@ export default function AffiliateReports() {
         {/* Traffic Sources */}
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <h3 className="font-bold text-diyar-dark mb-6">مصادر الزيارات</h3>
-          <div className="h-72" dir="ltr">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-72 w-full min-w-0" dir="ltr">
+            <ResponsiveContainer width="100%" height={288}>
               <BarChart
                 data={barData}
                 layout="vertical"

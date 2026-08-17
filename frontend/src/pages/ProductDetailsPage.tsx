@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   Bookmark,
@@ -26,6 +26,7 @@ import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
 import { StarRating } from '../components/product/StarRating.tsx';
 import { useProduct } from '../hooks/catalog/useCatalog.ts';
 import { useProductEngagementMutations } from '../hooks/catalog/useProductEngagement.ts';
+import { useCart } from '../hooks/cart/useCart.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useLocale } from '../hooks/useLocale.ts';
 import { useToast } from '../hooks/useToast.ts';
@@ -43,7 +44,7 @@ import { vendorButtonClass } from '../lib/vendorProductValidation.ts';
 import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { EmptyState } from '../components/common/EmptyState.tsx';
-import { isApiErrorDetail, isNotFound } from '../utils/errors.ts';
+import { isApiErrorDetail, isNotFound, parseApiError } from '../utils/errors.ts';
 
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800';
@@ -55,6 +56,7 @@ export default function ProductDetailsPage() {
   const { toast } = useToast();
   const { data: product, isLoading, isError, error, refetch } = useProduct(id);
   const { like, wishlist } = useProductEngagementMutations(id);
+  const { addItem } = useCart();
 
   const [activeImage, setActiveImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(0);
@@ -66,6 +68,7 @@ export default function ProductDetailsPage() {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [cartAddedFlash, setCartAddedFlash] = useState(false);
 
   useEffect(() => {
     if (!product) {
@@ -225,6 +228,35 @@ export default function ProductDetailsPage() {
     }
     const clamped = Math.min(Math.max(1, next), maxQuantity);
     setQuantity(clamped);
+  };
+
+  const handleAddToCart = () => {
+    if (!product.id || !canPurchase) {
+      return;
+    }
+
+    const selected = colors[selectedColor];
+
+    addItem(
+      product.id,
+      quantity,
+      selected ? { name: selected.name, hex_code: selected.hex } : null,
+      {
+        name: product.name,
+        sale_price: product.sale_price,
+        slug: product.slug,
+        image_url: images[0] ?? null,
+        availability_mode: product.availability_mode,
+        vendor: product.vendor
+          ? { store_name: product.vendor.store_name, slug: product.vendor.slug }
+          : null,
+        inventory: product.inventory ? { available_quantity: availableQty } : null,
+      },
+    );
+    toast.success(t('cart.added'));
+    setCartAddedFlash(true);
+    setQuantity(1);
+    window.setTimeout(() => setCartAddedFlash(false), 2000);
   };
 
   return (
@@ -520,17 +552,22 @@ export default function ProductDetailsPage() {
               <button
                 type="button"
                 disabled={!canPurchase}
+                onClick={handleAddToCart}
                 className={`${vendorButtonClass} flex-1 font-bold h-13 rounded-xl gap-2 shadow-lg shadow-black/10 ${
                   canPurchase
-                    ? 'bg-diyar-dark text-white hover:bg-black cursor-pointer'
+                    ? cartAddedFlash
+                      ? 'bg-green-700 text-white cursor-pointer'
+                      : 'bg-diyar-dark text-white hover:bg-black cursor-pointer'
                     : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                 }`}
               >
-                <ShoppingCart size={20} />
+                {cartAddedFlash ? <CheckCircle size={20} /> : <ShoppingCart size={20} />}
                 {canPurchase
-                  ? product.availability_mode === 'preorder'
-                    ? `${t('catalog.productDetail.preorder')} • ${salePrice * quantity} ${currency}`
-                    : `${t('catalog.productDetail.addToCart')} • ${salePrice * quantity} ${currency}`
+                  ? cartAddedFlash
+                    ? t('cart.added')
+                    : product.availability_mode === 'preorder'
+                      ? `${t('catalog.productDetail.preorder')} • ${salePrice * quantity} ${currency}`
+                      : `${t('catalog.productDetail.addToCart')} • ${salePrice * quantity} ${currency}`
                   : t('catalog.productDetail.unavailable')}
               </button>
             </div>

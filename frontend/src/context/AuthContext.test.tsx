@@ -15,6 +15,39 @@ vi.mock('../api/auth.ts', () => ({
   resetPassword: vi.fn(),
 }));
 
+vi.mock('../api/cart.ts', () => ({
+  mergeCart: vi.fn().mockResolvedValue({
+    cart: {
+      id: 'cart-1',
+      status: 'active',
+      item_count: 0,
+      items: [],
+      totals: {
+        subtotal: '0.00',
+        discount: null,
+        shipping: null,
+        tax: null,
+        total: null,
+      },
+    },
+    warnings: [],
+  }),
+}));
+
+vi.mock('../hooks/useToast.ts', () => ({
+  useToast: () => ({
+    toast: {
+      success: vi.fn(),
+      error: vi.fn(),
+      warning: vi.fn(),
+      info: vi.fn(),
+    },
+    toasts: [],
+    showToast: vi.fn(),
+    dismissToast: vi.fn(),
+  }),
+}));
+
 function wrapper({ children }: { children: React.ReactNode }) {
   return <AuthProvider>{children}</AuthProvider>;
 }

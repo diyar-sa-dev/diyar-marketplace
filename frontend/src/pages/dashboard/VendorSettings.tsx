@@ -6,12 +6,10 @@ import {
   Link as LinkIcon,
   HelpCircle,
   Wallet,
-  Truck,
-  MapPin,
-  Package,
-  Check,
   DollarSign,
 } from 'lucide-react';
+import { VendorShippingSettingsPanel } from '../../components/dashboard/vendor/shipping/VendorShippingSettingsPanel.tsx';
+import { VendorReturnPolicyPanel } from '../../components/dashboard/vendor/returns/VendorReturnPolicyPanel.tsx';
 
 export default function VendorSettings() {
   const [activeTab, setActiveTab] = useState('store');
@@ -33,6 +31,7 @@ export default function VendorSettings() {
           { id: 'appearance', label: 'المظهر والتخصيص' },
           { id: 'business', label: 'المعلومات القانونية والبنكية' },
           { id: 'shipping', label: 'الشحن والتوصيل' },
+          { id: 'returns', label: 'سياسة الإرجاع' },
           { id: 'account', label: 'الحساب الشخصي' },
           { id: 'notifications', label: 'الإشعارات' },
         ].map((tab) => (
@@ -285,142 +284,14 @@ export default function VendorSettings() {
 
         {/* Shipping Tab */}
         {activeTab === 'shipping' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
-              <Info className="text-amber-600 mt-0.5 shrink-0" size={20} />
-              <div className="text-sm text-amber-800 leading-relaxed">
-                تحكم في خيارات التسليم والشحن المتاحة لعملائك واسعارها. يمكنك الجمع بين عدة طرق في
-                نفس الوقت.
-              </div>
-            </div>
+          <div className="animate-in fade-in duration-300">
+            <VendorShippingSettingsPanel />
+          </div>
+        )}
 
-            <div className="space-y-4">
-              <h3 className="font-bold text-diyar-dark border-b border-gray-100 pb-2">
-                خيارات التسليم المتاحة
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
-                {/* Option 1: Shipping Companies */}
-                <div className="border-2 border-diyar-brown bg-amber-50/10 rounded-2xl p-5 relative overflow-hidden transition-all">
-                  <div className="absolute top-4 left-4">
-                    <div className="w-5 h-5 rounded-full bg-diyar-brown flex items-center justify-center text-white text-xs">
-                      <Check size={14} />
-                    </div>
-                  </div>
-                  <div className="w-12 h-12 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center mb-4">
-                    <Truck size={24} />
-                  </div>
-                  <h4 className="font-bold text-diyar-dark mb-1">شركات الشحن</h4>
-                  <p className="text-xs text-gray-500 mb-4 line-clamp-2">
-                    توصيل لجميع مناطق المملكة عبر شركات الشحن المعتمدة (سمسا، أرامكس...)
-                  </p>
-
-                  <div className="space-y-3 pt-4 border-t border-gray-100">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-gray-700">تكلفة الشحن (ر.س)</label>
-                      <input
-                        type="number"
-                        defaultValue="28"
-                        className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:border-diyar-brown text-sm"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        id="free-shipping-threshold"
-                        className="rounded text-diyar-brown focus:ring-diyar-brown"
-                        defaultChecked
-                      />
-                      <label htmlFor="free-shipping-threshold" className="text-xs text-gray-700">
-                        شحن مجاني للطلبات فوق:
-                      </label>
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        defaultValue="300"
-                        className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-diyar-brown text-sm"
-                      />
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
-                        ر.س
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Option 2: Store's Own Delivery */}
-                <div className="border border-gray-200 bg-white rounded-2xl p-5 relative overflow-hidden opacity-60 hover:opacity-100 transition-all cursor-pointer hover:border-diyar-brown/50">
-                  <div className="absolute top-4 left-4">
-                    <div className="w-5 h-5 rounded-full border-2 border-gray-300"></div>
-                  </div>
-                  <div className="w-12 h-12 bg-gray-100 text-gray-500 rounded-xl flex items-center justify-center mb-4">
-                    <Package size={24} />
-                  </div>
-                  <h4 className="font-bold text-diyar-dark mb-1">توصيل خاص بالمستودع</h4>
-                  <p className="text-xs text-gray-500 mb-4 line-clamp-2">
-                    توصيل للمناطق المجاورة فقط يتم عبر مندوبيكم الخاص
-                  </p>
-
-                  <div className="space-y-3 pt-4 border-t border-gray-100 pointer-events-none">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-gray-700">النطاق المدعوم</label>
-                      <select className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:border-diyar-brown text-sm bg-gray-50">
-                        <option>نفس مدينة المستودع فقط</option>
-                        <option>قطر 50 كيلو متر</option>
-                      </select>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-gray-700">التكلفة (ر.س)</label>
-                      <input
-                        type="number"
-                        defaultValue="0"
-                        disabled
-                        className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:border-diyar-brown text-sm bg-gray-50"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Option 3: Local Pickup */}
-                <div className="border border-gray-200 bg-white rounded-2xl p-5 relative overflow-hidden transition-all hover:border-diyar-brown/50 cursor-pointer">
-                  <div className="absolute top-4 left-4">
-                    <div className="w-5 h-5 rounded-full bg-diyar-brown flex items-center justify-center text-white text-xs">
-                      <Check size={14} />
-                    </div>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4">
-                    <MapPin size={24} />
-                  </div>
-                  <h4 className="font-bold text-diyar-dark mb-1">الاستلام من المعرض (Pickup)</h4>
-                  <p className="text-xs text-gray-500 mb-4 line-clamp-2">
-                    يتيح للعميل الطلب والدفع واستلام الشحنة بنفسه من المعرض
-                  </p>
-
-                  <div className="space-y-3 pt-4 border-t border-gray-100">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-gray-700">
-                        الفرع المعتمد للاستلام
-                      </label>
-                      <select className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:border-diyar-brown text-sm">
-                        <option>الفرع الرئيسي (الرياض)</option>
-                        <option>مستودع جدة</option>
-                      </select>
-                    </div>
-                    <div className="bg-blue-50/50 p-2 text-xs text-blue-700 rounded-lg flex items-center gap-1">
-                      <Info size={14} />
-                      لا توجد تكاليف توصيل لهذه الطريقة
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-4">
-              <button className="bg-diyar-brown text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-[#A67B5B]/90 transition shadow-sm">
-                <Save size={18} />
-                حفظ إعدادات الشحن
-              </button>
-            </div>
+        {activeTab === 'returns' && (
+          <div className="animate-in fade-in duration-300">
+            <VendorReturnPolicyPanel />
           </div>
         )}
 
@@ -540,7 +411,7 @@ export default function VendorSettings() {
                         className="sr-only peer"
                         defaultChecked={item.id !== 4}
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-diyar-brown"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:right-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-diyar-brown"></div>
                     </label>
                   </div>
                 ))}

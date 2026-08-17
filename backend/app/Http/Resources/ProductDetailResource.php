@@ -46,6 +46,16 @@ class ProductDetailResource extends JsonResource
             ],
             'materials' => $this->normalizeMaterials($this->materials),
             'warranty' => $this->warranty,
+            'return_policy' => [
+                'override_enabled' => (bool) $this->return_policy_override_enabled,
+                'returnable' => $this->returnable,
+                'return_window_days' => $this->return_window_days,
+                'return_accepted_reasons' => $this->return_accepted_reasons,
+                'return_requires_unused' => $this->return_requires_unused,
+                'return_requires_evidence' => $this->return_requires_evidence,
+                'return_shipping_paid_by' => $this->return_shipping_paid_by,
+                'return_shipping_refundable' => $this->return_shipping_refundable,
+            ],
             'colors' => $this->when($this->relationLoaded('colors'), fn () => $this->colors->map(fn ($color) => [
                 'name' => $color->name,
                 'hex_code' => $color->hex_code,

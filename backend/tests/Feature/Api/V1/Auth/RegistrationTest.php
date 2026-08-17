@@ -60,6 +60,47 @@ class RegistrationTest extends TestCase
             ->assertJsonPath('errors.phone.0', __('diyar.registration.phone_taken'));
     }
 
+    public function test_pending_registration_can_be_updated_when_user_goes_back_from_otp(): void
+    {
+        $this->postJson('/api/v1/auth/register', $this->registrationPayload([
+            'name' => 'Original Name',
+            'roles' => ['customer'],
+        ]))->assertCreated();
+
+        $firstCode = $this->extractOtpFromLastSms();
+
+        $response = $this->postJson('/api/v1/auth/register', $this->registrationPayload([
+            'name' => 'Updated Name',
+            'roles' => ['merchant', 'customer'],
+        ]));
+
+        $response->assertCreated()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.user.name', 'Updated Name')
+            ->assertJsonPath('data.user.status', UserStatus::Pending->value);
+
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseHas('users', [
+            'phone' => '966501234567',
+            'name' => 'Updated Name',
+            'status' => UserStatus::Pending->value,
+        ]);
+
+        $secondCode = $this->extractOtpFromLastSms();
+        $this->assertNotSame($firstCode, $secondCode);
+
+        $code = $this->extractOtpFromLastSms();
+
+        $this->postStatefulJson('/api/v1/auth/verify-otp', [
+            'phone' => '501234567',
+            'code' => $code,
+        ])->assertOk();
+
+        $user = User::query()->where('phone', '966501234567')->firstOrFail();
+        $this->assertTrue($user->hasRole(RoleName::Vendor->value));
+        $this->assertTrue($user->hasRole(RoleName::Customer->value));
+    }
+
     public function test_duplicate_email_is_rejected(): void
     {
         User::factory()->create([

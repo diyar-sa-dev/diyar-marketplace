@@ -37,7 +37,7 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
       aria-atomic="true"
       className={`pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border px-4 py-3 shadow-lg transition-all duration-200 ease-out ${
         styles.container
-      } ${toast.exiting ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100 animate-in slide-in-from-bottom-2 fade-in duration-300'}`}
+      } ${toast.exiting ? '-translate-y-2 opacity-0' : 'translate-y-0 opacity-100 animate-in slide-in-from-top-2 fade-in duration-300'}`}
     >
       <Icon className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
       <p className="flex-1 text-sm font-medium leading-relaxed">{toast.message}</p>
@@ -95,7 +95,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       <div
-        className="pointer-events-none fixed inset-x-4 bottom-4 z-9999 flex flex-col items-stretch gap-2 sm:inset-x-auto sm:inset-s-4 sm:items-start"
+        className="pointer-events-none fixed inset-x-4 top-20 z-10050 flex flex-col items-center gap-2 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:items-center sm:max-w-sm sm:w-full"
         dir={dir}
         aria-label={t('common.notifications')}
       >

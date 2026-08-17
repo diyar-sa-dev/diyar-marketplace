@@ -75,8 +75,8 @@ export default function AffiliateDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <h3 className="font-bold text-diyar-dark mb-6">أداء التسويق (آخر 5 أشهر)</h3>
-          <div className="h-72" dir="ltr">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-72 w-full min-w-0" dir="ltr">
+            <ResponsiveContainer width="100%" height={288}>
               <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                 <XAxis

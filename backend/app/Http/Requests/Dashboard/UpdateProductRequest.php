@@ -4,6 +4,8 @@ namespace App\Http\Requests\Dashboard;
 
 use App\Enums\AvailabilityMode;
 use App\Enums\ProductType;
+use App\Enums\ReturnReason;
+use App\Enums\ReturnShippingPaidBy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -37,6 +39,15 @@ class UpdateProductRequest extends FormRequest
             'colors' => ['sometimes', 'array'],
             'colors.*.name' => ['required', 'string', 'max:100'],
             'colors.*.hex_code' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'return_policy_override_enabled' => ['sometimes', 'boolean'],
+            'returnable' => ['sometimes', 'nullable', 'boolean'],
+            'return_window_days' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:365'],
+            'return_accepted_reasons' => ['sometimes', 'nullable', 'array', 'min:1'],
+            'return_accepted_reasons.*' => ['string', Rule::in(ReturnReason::values())],
+            'return_requires_unused' => ['sometimes', 'nullable', 'boolean'],
+            'return_requires_evidence' => ['sometimes', 'nullable', 'boolean'],
+            'return_shipping_paid_by' => ['sometimes', 'nullable', 'string', Rule::in(ReturnShippingPaidBy::values())],
+            'return_shipping_refundable' => ['sometimes', 'nullable', 'boolean'],
             'vendor_account_id' => ['prohibited'],
             'user_id' => ['prohibited'],
         ];

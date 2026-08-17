@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bookmark, Store } from 'lucide-react';
-import { useCart } from '../../context/CartContext.tsx';
+import { useCart } from '../../hooks/cart/useCart.ts';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { useToast } from '../../hooks/useToast.ts';
 import { useProductEngagementMutations } from '../../hooks/catalog/useProductEngagement.ts';
 import { AuthPromptModal } from '../product/AuthPromptModal.tsx';
 import type { UiProductCard } from '../../lib/catalogMappers.ts';
@@ -52,6 +53,7 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
   const { t } = useLocale();
   const { isAuthenticated } = useAuth();
   const { addItem } = useCart();
+  const { toast } = useToast();
   const { wishlist } = useProductEngagementMutations(item.id || undefined);
 
   const [isSaved, setIsSaved] = useState(Boolean(item.userSaved));
@@ -98,16 +100,19 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
   const addToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!canPurchase) {
+    if (!canPurchase || !item.id) {
       return;
     }
-    addItem({
-      type: 'product',
+
+    addItem(item.id, 1, null, {
       name: item.name,
-      vendor: item.vendor || item.store,
-      price: item.price,
-      img: item.img,
+      sale_price: item.price,
+      image_url: item.img,
+      availability_mode: mode,
+      vendor: item.vendor ? { store_name: item.vendor } : null,
+      inventory: { available_quantity: availableQty },
     });
+    toast.success(t('cart.added'));
   };
 
   const handleSave = (e: React.MouseEvent) => {
@@ -210,7 +215,7 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
         </div>
         <button
           type="button"
-          disabled={!canPurchase}
+          disabled={!canPurchase || !item.id}
           className={`${layout === 'list' ? 'self-end py-1 px-3 text-[10px] sm:text-xs' : 'w-full py-1.5 text-xs'} rounded-lg font-bold border transition-all z-10 relative cursor-pointer ${
             canPurchase
               ? 'bg-gray-50 text-diyar-dark border-gray-200 hover:bg-diyar-brown hover:text-white hover:border-diyar-dark'

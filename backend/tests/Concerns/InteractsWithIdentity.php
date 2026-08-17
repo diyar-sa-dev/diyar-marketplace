@@ -14,9 +14,13 @@ use App\Models\VendorAccount;
 use App\Services\Identity\OtpCacheStore;
 use App\Support\SlugGenerator;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Testing\TestResponse;
+use Laravel\Sanctum\Sanctum;
 
 trait InteractsWithIdentity
 {
+    private bool $statefulSessionBootstrapped = false;
+
     protected function seedRoles(): void
     {
         $this->seed(RoleSeeder::class);
@@ -90,18 +94,106 @@ trait InteractsWithIdentity
         ];
     }
 
+    protected function beginStatefulSession(): void
+    {
+        $this->withCredentials();
+        $this->withHeaders($this->statefulHeaders());
+
+        if ($this->statefulSessionBootstrapped) {
+            return;
+        }
+
+        $this->persistResponseCookies($this->get('/sanctum/csrf-cookie'));
+        $this->statefulSessionBootstrapped = true;
+    }
+
+    protected function persistResponseCookies(TestResponse $response): void
+    {
+        foreach ($response->headers->getCookies() as $cookie) {
+            $this->withUnencryptedCookie($cookie->getName(), $cookie->getValue());
+        }
+    }
+
+    protected function statefulJsonHeaders(): array
+    {
+        return array_merge($this->statefulHeaders(), [
+            'X-XSRF-TOKEN' => csrf_token(),
+        ]);
+    }
+
     protected function postStatefulJson(string $uri, array $data = [])
     {
-        $this->withHeaders($this->statefulHeaders())->get('/sanctum/csrf-cookie');
+        $this->beginStatefulSession();
 
-        return $this->withHeaders(array_merge($this->statefulHeaders(), [
-            'X-XSRF-TOKEN' => csrf_token(),
-        ]))->postJson($uri, $data);
+        $response = $this->withHeaders($this->statefulJsonHeaders())->postJson($uri, $data);
+        $this->persistResponseCookies($response);
+
+        return $response;
     }
 
     protected function getStatefulJson(string $uri)
     {
-        return $this->withHeaders($this->statefulHeaders())->getJson($uri);
+        $this->beginStatefulSession();
+
+        $response = $this->withHeaders(['Accept' => 'application/json'])->get($uri);
+        $this->persistResponseCookies($response);
+
+        return $response;
+    }
+
+    protected function patchStatefulJson(string $uri, array $data = [])
+    {
+        $this->beginStatefulSession();
+
+        $response = $this->withHeaders($this->statefulJsonHeaders())->patchJson($uri, $data);
+        $this->persistResponseCookies($response);
+
+        return $response;
+    }
+
+    protected function deleteStatefulJson(string $uri, array $data = [])
+    {
+        $this->beginStatefulSession();
+
+        $response = $this->withHeaders($this->statefulJsonHeaders())->deleteJson($uri, $data);
+        $this->persistResponseCookies($response);
+
+        return $response;
+    }
+
+    protected function resetStatefulSession(): void
+    {
+        $this->statefulSessionBootstrapped = false;
+
+        if (method_exists($this, 'flushSession')) {
+            $this->flushSession();
+        }
+    }
+
+    protected function getJsonAsUser(string $uri, User $user)
+    {
+        Sanctum::actingAs($user);
+
+        return $this->getJson($uri);
+    }
+
+    protected function postJsonAsUser(string $uri, User $user, array $data = [], array $headers = [])
+    {
+        Sanctum::actingAs($user);
+
+        return $this->withHeaders($headers)->postJson($uri, $data);
+    }
+
+    protected function postStatefulJsonAsUser(string $uri, User $user, array $data = [])
+    {
+        $this->beginStatefulSession();
+
+        $response = $this->actingAs($user)
+            ->withHeaders($this->statefulJsonHeaders())
+            ->postJson($uri, $data);
+        $this->persistResponseCookies($response);
+
+        return $response;
     }
 
     protected function otpCacheState(string $phone, OtpPurpose $purpose): ?array

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Send, Paperclip, Search, ArrowRight, MessageSquare, ShoppingCart } from 'lucide-react';
-import { useCart } from '../context/CartContext.tsx';
+import { Send, Paperclip, Search, ArrowRight, MessageSquare } from 'lucide-react';
 
 type Msg = { id: number; from: 'me' | 'them' | 'system'; text: string };
 type Conversation = {
@@ -10,8 +9,7 @@ type Conversation = {
   service?: string;
   unread?: number;
   messages: Msg[];
-  // when the conversation was opened from a proposal, the service is added
-  // to the cart only once the user actually sends the first message
+  // when the conversation was opened from a proposal, the service request is tracked in chat only
   cartPayload?: { name: string; vendor: string; price: string | number };
   cartAdded?: boolean;
 };
@@ -41,7 +39,6 @@ const SEED_CONVERSATIONS: Conversation[] = [
 
 export default function ChatPage() {
   const location = useLocation();
-  const { addItem } = useCart();
 
   const [conversations, setConversations] = useState<Conversation[]>(SEED_CONVERSATIONS);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -109,16 +106,12 @@ export default function ChatPage() {
         if (c.id !== active.id) return c;
         const msgs: Msg[] = [...c.messages, { id: Date.now(), from: 'me', text }];
         let cartAdded = c.cartAdded;
-        // starting the chat = first sent message → service goes to the cart
         if (c.cartPayload && !c.cartAdded) {
-          addItem({
-            type: 'service',
-            name: c.cartPayload.name,
-            vendor: c.cartPayload.vendor,
-            price: c.cartPayload.price,
-            attributes: 'محادثة مع المزود',
+          msgs.push({
+            id: Date.now() + 1,
+            from: 'system',
+            text: 'تم تسجيل طلب الخدمة في هذه المحادثة',
           });
-          msgs.push({ id: Date.now() + 1, from: 'system', text: 'تمت إضافة الخدمة إلى سلتك 🛒' });
           cartAdded = true;
         }
         return { ...c, messages: msgs, cartAdded };
@@ -266,7 +259,7 @@ export default function ChatPage() {
                     m.from === 'system' ? (
                       <div key={m.id} className="flex justify-center">
                         <span className="inline-flex items-center gap-1.5 bg-diyar-cream/60 border border-diyar-cream text-diyar-brown text-[11px] font-bold px-3 py-1.5 rounded-full">
-                          <ShoppingCart size={12} /> {m.text}
+                          <MessageSquare size={12} /> {m.text}
                         </span>
                       </div>
                     ) : (

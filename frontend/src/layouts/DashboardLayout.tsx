@@ -56,12 +56,13 @@ export default function DashboardLayout() {
     Array<{ name: string; path: string; icon: typeof LayoutDashboard }>
   > = {
     vendor: [
-      { name: 'الرئيسية', path: '/dashboard/vendor', icon: LayoutDashboard },
-      { name: 'الطلبات', path: '/dashboard/vendor/orders', icon: ShoppingCart },
-      { name: 'المنتجات', path: '/dashboard/vendor/products', icon: Package },
-      { name: 'فريق العمل', path: '/dashboard/vendor/team', icon: Users },
-      { name: 'المالية', path: '/dashboard/vendor/finance', icon: Wallet },
-      { name: 'إعدادات المتجر', path: '/dashboard/vendor/settings', icon: Settings },
+      { name: t('vendor.nav.home'), path: '/dashboard/vendor', icon: LayoutDashboard },
+      { name: t('vendor.nav.orders'), path: '/dashboard/vendor/orders', icon: ShoppingCart },
+      { name: t('vendor.nav.returns'), path: '/dashboard/vendor/returns', icon: Package },
+      { name: t('vendor.nav.products'), path: '/dashboard/vendor/products', icon: Package },
+      { name: t('vendor.nav.team'), path: '/dashboard/vendor/team', icon: Users },
+      { name: t('vendor.nav.finance'), path: '/dashboard/vendor/finance', icon: Wallet },
+      { name: t('vendor.nav.settings'), path: '/dashboard/vendor/settings', icon: Settings },
     ],
     service: [
       { name: 'الرئيسية', path: '/dashboard/service', icon: LayoutDashboard },
@@ -105,7 +106,7 @@ export default function DashboardLayout() {
           )}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
           >
             <Menu size={20} />
           </button>
@@ -124,7 +125,7 @@ export default function DashboardLayout() {
                     <Link
                       to={link.path}
                       onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors cursor-pointer ${
                         isActive
                           ? 'bg-diyar-brown text-white'
                           : 'text-gray-300 hover:bg-white/5 hover:text-white'
@@ -146,7 +147,7 @@ export default function DashboardLayout() {
         <div className="p-4 border-t border-white/10">
           <Link
             to="/"
-            className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors"
+            className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors cursor-pointer"
             title={t('dashboard.backToStore')}
           >
             <LogOut size={20} className="shrink-0" />
@@ -162,7 +163,7 @@ export default function DashboardLayout() {
           <div className="flex items-center gap-3 md:gap-4">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors -ms-2"
+              className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer -ms-2"
             >
               <Menu size={20} />
             </button>

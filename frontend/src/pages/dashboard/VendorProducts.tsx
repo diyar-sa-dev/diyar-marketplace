@@ -19,7 +19,7 @@ import {
   type VendorProductFormSubmit,
 } from '../../components/dashboard/vendor/VendorProductFormModal.tsx';
 import { PaginationBar } from '../../components/catalog/PaginationBar.tsx';
-import { LoadingState } from '../../components/common/LoadingState.tsx';
+import { TableSkeleton } from '../../components/common/TableSkeleton.tsx';
 import { ErrorState } from '../../components/common/ErrorState.tsx';
 import {
   confirmArchiveProduct,
@@ -248,7 +248,7 @@ export default function VendorProducts() {
       />
 
       {isLoading ? (
-        <LoadingState className="min-h-60" />
+        <TableSkeleton rows={6} columns={5} className="min-h-60" />
       ) : isError ? (
         <ErrorState error={error as Error} onRetry={() => refetch()} />
       ) : viewMode === 'list' ? (

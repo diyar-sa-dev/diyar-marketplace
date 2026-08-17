@@ -87,8 +87,8 @@ export default function ServiceFinance() {
       <div className="grid grid-cols-1 mt-6">
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <h3 className="font-bold text-diyar-dark mb-6">صافي الأرباح</h3>
-          <div className="h-72" dir="ltr">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-72 w-full min-w-0" dir="ltr">
+            <ResponsiveContainer width="100%" height={288}>
               <LineChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                 <XAxis

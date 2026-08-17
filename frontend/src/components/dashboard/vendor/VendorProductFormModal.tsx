@@ -3,6 +3,7 @@ import { Plus, X, Upload, Check, Loader2 } from 'lucide-react';
 import type { Category, ProductImage } from '../../../types/catalog.ts';
 import type { ProductDetail } from '../../../types/catalog.ts';
 import type { VendorProductPayload } from '../../../api/vendorDashboard.ts';
+import type { ReturnReason } from '../../../types/return.ts';
 import { resolveMediaUrl } from '../../../lib/media.ts';
 import { LoadingState } from '../../common/LoadingState.tsx';
 import { FieldError } from './FieldError.tsx';
@@ -28,7 +29,13 @@ const WARRANTY_OPTIONS = [
   { value: '5 سنوات', labelKey: 'vendor.form.warrantyOptions.fiveYears' },
 ] as const;
 
-const PRESET_COLOR_NAMES = ['بيج', 'رمادي', 'أبيض', 'كريمي', 'أسود', 'بني', 'ذهبي', 'أزرق', 'أخضر'];
+const RETURN_REASONS: ReturnReason[] = [
+  'manufacturing_defect',
+  'damaged',
+  'wrong_item',
+  'not_as_described',
+  'other',
+];
 
 const COLOR_HEX: Record<string, string> = {
   أبيض: '#FFFFFF',
@@ -41,6 +48,8 @@ const COLOR_HEX: Record<string, string> = {
   أزرق: '#2563EB',
   أخضر: '#16A34A',
 };
+
+const PRESET_COLOR_NAMES = Object.keys(COLOR_HEX);
 
 function hexForColorName(name: string): string {
   return COLOR_HEX[name] ?? '#9CA3AF';
@@ -119,6 +128,12 @@ export function VendorProductFormModal({
   const [colors, setColors] = useState<Array<{ name: string; hex_code: string }>>([]);
   const [errors, setErrors] = useState<VendorProductFormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [returnPolicyCustom, setReturnPolicyCustom] = useState(false);
+  const [returnable, setReturnable] = useState(true);
+  const [returnWindowDays, setReturnWindowDays] = useState('7');
+  const [returnReasons, setReturnReasons] = useState<ReturnReason[]>(['manufacturing_defect']);
+  const [returnRequiresEvidence, setReturnRequiresEvidence] = useState(false);
+  const [returnShippingRefundable, setReturnShippingRefundable] = useState(false);
 
   const existingImages: ProductImage[] = useMemo(
     () => productDetail?.images ?? [],
@@ -203,6 +218,13 @@ export function VendorProductFormModal({
       setWarranty(productDetail.warranty || 'سنتين');
       setDescription(productDetail.description || '');
       setColors(productDetail.colors?.map((c) => ({ name: c.name, hex_code: c.hex_code })) ?? []);
+      const rp = productDetail.return_policy;
+      setReturnPolicyCustom(Boolean(rp?.override_enabled));
+      setReturnable(rp?.returnable ?? true);
+      setReturnWindowDays(String(rp?.return_window_days ?? 7));
+      setReturnReasons((rp?.return_accepted_reasons as ReturnReason[] | null) ?? ['manufacturing_defect']);
+      setReturnRequiresEvidence(Boolean(rp?.return_requires_evidence));
+      setReturnShippingRefundable(Boolean(rp?.return_shipping_refundable));
       setErrors({});
       setTouched({});
       setPendingImages((current) => {
@@ -302,6 +324,20 @@ export function VendorProductFormModal({
       materials: material.trim() ? [material.trim()] : null,
       warranty: warranty || null,
       colors,
+      ...(editingId
+        ? {
+            return_policy_override_enabled: returnPolicyCustom,
+            ...(returnPolicyCustom
+              ? {
+                  returnable,
+                  return_window_days: Number(returnWindowDays || 0),
+                  return_accepted_reasons: returnReasons,
+                  return_requires_evidence: returnRequiresEvidence,
+                  return_shipping_refundable: returnShippingRefundable,
+                }
+              : {}),
+          }
+        : {}),
     };
 
     await onSubmit({
@@ -374,7 +410,7 @@ export function VendorProductFormModal({
                                 type="button"
                                 disabled={deletingImageId === image.id || isSaving}
                                 onClick={() => onDeleteExistingImage(image.id)}
-                                className="absolute top-1 left-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-90 hover:opacity-100 disabled:opacity-50"
+                                className="absolute top-1 left-1 cursor-pointer w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-90 hover:opacity-100 disabled:opacity-50"
                                 aria-label="حذف الصورة"
                               >
                                 {deletingImageId === image.id ? (
@@ -401,7 +437,7 @@ export function VendorProductFormModal({
                             type="button"
                             disabled={isSaving}
                             onClick={() => removePendingImage(item.id)}
-                            className="absolute top-1 left-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-90 hover:opacity-100 disabled:opacity-50"
+                            className="absolute top-1 left-1 cursor-pointer w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-90 hover:opacity-100 disabled:opacity-50"
                             aria-label="إزالة الصورة"
                           >
                             <X size={12} />
@@ -793,6 +829,91 @@ export function VendorProductFormModal({
                     </div>
                   </div>
                 </div>
+
+                {editingId && (
+                  <div className="p-5 bg-amber-50/50 rounded-2xl border border-amber-100 space-y-4 text-right">
+                    <h4 className="text-xs font-bold text-amber-900 block border-b border-amber-100 pb-2">
+                      {t('returns.productPolicyTitle')}
+                    </h4>
+                    <div className="flex flex-wrap gap-4 text-sm">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          checked={!returnPolicyCustom}
+                          onChange={() => setReturnPolicyCustom(false)}
+                        />
+                        {t('returns.productPolicyUseStore')}
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          checked={returnPolicyCustom}
+                          onChange={() => setReturnPolicyCustom(true)}
+                        />
+                        {t('returns.productPolicyCustom')}
+                      </label>
+                    </div>
+                    {returnPolicyCustom && (
+                      <div className="space-y-3">
+                        <label className="flex items-center gap-2 text-sm font-bold">
+                          <input
+                            type="checkbox"
+                            checked={returnable}
+                            onChange={(e) => setReturnable(e.target.checked)}
+                          />
+                          {t('returns.policyReturnable')}
+                        </label>
+                        <div>
+                          <label className="text-xs font-bold text-gray-600">{t('returns.policyWindowDays')}</label>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={returnWindowDays}
+                            onChange={(e) => setReturnWindowDays(sanitizeIntegerInput(e.target.value))}
+                            className={`${vendorFieldClass(false)} mt-1 p-2 text-sm`}
+                          />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-gray-600 mb-2">{t('returns.policyAcceptedReasons')}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {RETURN_REASONS.map((reason) => (
+                              <label key={reason} className="flex items-center gap-1 text-xs">
+                                <input
+                                  type="checkbox"
+                                  checked={returnReasons.includes(reason)}
+                                  onChange={(e) => {
+                                    setReturnReasons((prev) =>
+                                      e.target.checked
+                                        ? [...prev, reason]
+                                        : prev.filter((r) => r !== reason),
+                                    );
+                                  }}
+                                />
+                                {t(`returns.reason.${reason}` as 'returns.reason.damaged')}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                        <label className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={returnRequiresEvidence}
+                            onChange={(e) => setReturnRequiresEvidence(e.target.checked)}
+                          />
+                          {t('returns.policyRequiresEvidence')}
+                        </label>
+                        <label className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={returnShippingRefundable}
+                            onChange={(e) => setReturnShippingRefundable(e.target.checked)}
+                          />
+                          {t('returns.policyShippingRefundable')}
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="space-y-1.5 text-right font-sans">
                   <label className="text-sm font-bold text-gray-700 block text-right">

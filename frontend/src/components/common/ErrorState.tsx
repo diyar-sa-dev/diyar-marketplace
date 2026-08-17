@@ -5,7 +5,9 @@ import { parseApiError, isForbidden, isUnauthorized } from '../../utils/errors.t
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
 
 interface ErrorStateProps {
-  error: ApiErrorDetail | Error | string | unknown;
+  error?: ApiErrorDetail | Error | string | unknown;
+  /** Shorthand when passing a plain string instead of `error`. */
+  message?: string;
   onRetry?: () => void;
   title?: string;
   className?: string;
@@ -37,13 +39,14 @@ function resolveMessage(
 
 export function ErrorState({
   error,
+  message,
   onRetry,
   title,
   className = '',
   compact = false,
 }: ErrorStateProps) {
   const { t, locale } = useLocale();
-  const message = resolveMessage(error, locale);
+  const resolvedMessage = resolveMessage(message ?? error, locale);
   const displayTitle = title ?? t('status.unexpected.title');
 
   return (
@@ -70,7 +73,7 @@ export function ErrorState({
         <h3 className={`font-bold text-diyar-dark ${compact ? 'text-base' : 'text-lg md:text-xl'}`}>
           {displayTitle}
         </h3>
-        <p className="text-sm text-gray-500 leading-relaxed">{message}</p>
+        <p className="text-sm text-gray-500 leading-relaxed">{resolvedMessage}</p>
       </div>
 
       {onRetry && (

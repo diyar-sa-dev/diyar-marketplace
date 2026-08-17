@@ -5,6 +5,7 @@ interface PaginationBarProps {
   page: number;
   onPageChange: (page: number) => void;
   className?: string;
+  alwaysShow?: boolean;
 }
 
 export function PaginationBar({
@@ -12,8 +13,9 @@ export function PaginationBar({
   page,
   onPageChange,
   className = '',
+  alwaysShow = false,
 }: PaginationBarProps) {
-  if (pagination.last_page <= 1) {
+  if (pagination.last_page <= 1 && !alwaysShow) {
     return null;
   }
 

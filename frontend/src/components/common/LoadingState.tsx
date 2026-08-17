@@ -1,3 +1,4 @@
+import { DiyarLoadingSpinner } from './DiyarLoadingSpinner.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
 
 interface LoadingStateProps {
@@ -8,12 +9,10 @@ interface LoadingStateProps {
 export function LoadingState({ message, className = '' }: LoadingStateProps) {
   const { t } = useLocale();
   const label = message ?? t('common.loading');
+
   return (
     <div className={`flex min-h-[120px] items-center justify-center p-6 ${className}`}>
-      <div className="flex items-center gap-3 text-gray-600">
-        <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700" />
-        <span>{label}</span>
-      </div>
+      <DiyarLoadingSpinner size="sm" message={label} />
     </div>
   );
 }

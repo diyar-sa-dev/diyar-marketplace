@@ -83,6 +83,45 @@
   animation: marquee 25s linear infinite;
 }
 
+@keyframes diyar-letter-wave {
+  0%,
+  8% {
+    color: #947961;
+    opacity: 0.45;
+    transform: translateY(0) scale(1);
+  }
+  18% {
+    color: #f3ecdb;
+    opacity: 1;
+    transform: translateY(-4px) scale(1.1);
+    text-shadow: 0 0 18px rgba(148, 121, 97, 0.55);
+  }
+  32%,
+  100% {
+    color: var(--diyar-letter-final, #947961);
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    text-shadow: none;
+  }
+}
+
+.animate-diyar-letter-wave {
+  animation: diyar-letter-wave 2.4s ease-in-out infinite;
+}
+
+@keyframes diyar-loading-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+.animate-diyar-loading-shimmer {
+  animation: diyar-loading-shimmer 2.8s ease-in-out infinite;
+}
+
 /* Blog article body styling (replaces the unavailable `prose` plugin) */
 .article-content {
   color: #4b5563;
@@ -145,6 +184,36 @@
 
 /* SweetAlert2 — Diyar theme */
 .swal2-container {
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1rem !important;
+  z-index: 10000 !important;
+}
+
+/* Toast alerts: no full-page blur — popup only at top */
+.swal2-container.swal2-top,
+.swal2-container.swal2-top-start,
+.swal2-container.swal2-top-end {
+  align-items: flex-start !important;
+  justify-content: center !important;
+  padding-top: 1.25rem !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  pointer-events: none !important;
+}
+
+.swal2-container.swal2-top .swal2-popup,
+.swal2-container.swal2-top-start .swal2-popup,
+.swal2-container.swal2-top-end .swal2-popup {
+  pointer-events: auto !important;
+}
+
+/* Modal dialogs: dim + blur overlay aligned with popup */
+.swal2-container.swal2-backdrop-show:not(.swal2-top):not(.swal2-top-start):not(.swal2-top-end) {
+  background: rgba(31, 61, 58, 0.4) !important;
   backdrop-filter: blur(4px);
 }
 .swal2-popup.diyar-swal {
@@ -192,4 +261,346 @@
 .swal2-popup.diyar-swal.swal2-toast {
   padding: 0.75rem 1rem !important;
   box-shadow: 0 8px 24px rgba(31, 61, 58, 0.1) !important;
+}
+
+/* Payment outcome SweetAlert */
+.swal2-popup.diyar-payment-swal {
+  max-width: 22rem !important;
+  padding: 2rem 1.75rem 1.5rem !important;
+  overflow: hidden !important;
+}
+
+.swal2-popup.diyar-payment-swal::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  border-radius: 1.25rem 1.25rem 0 0;
+}
+
+.swal2-popup.diyar-payment-swal--success::before {
+  background: linear-gradient(90deg, #16a34a, #4ade80, #16a34a);
+  background-size: 200% 100%;
+  animation: diyar-payment-shimmer 2.5s ease-in-out infinite;
+}
+
+.swal2-popup.diyar-payment-swal--failed::before {
+  background: linear-gradient(90deg, #dc2626, #f87171, #dc2626);
+  background-size: 200% 100%;
+  animation: diyar-payment-shimmer 2.5s ease-in-out infinite;
+}
+
+.swal2-popup.diyar-payment-swal--expired::before {
+  background: linear-gradient(90deg, #d97706, #fbbf24, #d97706);
+  background-size: 200% 100%;
+  animation: diyar-payment-shimmer 2.5s ease-in-out infinite;
+}
+
+.diyar-payment-swal-title {
+  color: #1f3d3a !important;
+  font-weight: 800 !important;
+  font-size: 1.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.diyar-payment-swal-body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.diyar-payment-swal-btn {
+  border-radius: 0.875rem !important;
+  font-weight: 800 !important;
+  font-size: 0.9375rem !important;
+  padding: 0.75rem 1.75rem !important;
+  min-width: 8rem;
+  box-shadow: 0 8px 20px rgba(31, 61, 58, 0.12) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.diyar-payment-swal-btn:hover {
+  transform: translateY(-1px);
+}
+
+.diyar-payment-outcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.diyar-payment-icon-wrap {
+  width: 5.5rem;
+  height: 5.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  margin-bottom: 0.25rem;
+  animation: diyar-payment-icon-bounce 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.diyar-payment-outcome--success .diyar-payment-icon-wrap {
+  background: linear-gradient(145deg, #dcfce7, #bbf7d0);
+  box-shadow: 0 12px 32px rgba(22, 163, 74, 0.2);
+}
+
+.diyar-payment-outcome--failed .diyar-payment-icon-wrap {
+  background: linear-gradient(145deg, #fee2e2, #fecaca);
+  box-shadow: 0 12px 32px rgba(220, 38, 38, 0.18);
+  animation: diyar-payment-icon-bounce 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    diyar-payment-shake 0.5s ease 0.65s;
+}
+
+.diyar-payment-outcome--expired .diyar-payment-icon-wrap {
+  background: linear-gradient(145deg, #fef3c7, #fde68a);
+  box-shadow: 0 12px 32px rgba(217, 119, 6, 0.18);
+  animation: diyar-payment-icon-bounce 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    diyar-payment-pulse 1.6s ease-in-out 0.7s infinite;
+}
+
+.diyar-payment-svg {
+  width: 3.25rem;
+  height: 3.25rem;
+}
+
+.diyar-payment-svg-circle {
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  animation: diyar-payment-circle-draw 0.55s ease forwards 0.15s;
+}
+
+.diyar-payment-svg--success .diyar-payment-svg-circle {
+  stroke: #16a34a;
+}
+
+.diyar-payment-svg--failed .diyar-payment-svg-circle {
+  stroke: #dc2626;
+}
+
+.diyar-payment-svg--expired .diyar-payment-svg-circle {
+  stroke: #d97706;
+}
+
+.diyar-payment-svg-check,
+.diyar-payment-svg-x,
+.diyar-payment-svg-clock {
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: diyar-payment-stroke-draw 0.45s ease forwards 0.55s;
+}
+
+.diyar-payment-svg--success .diyar-payment-svg-check {
+  stroke: #16a34a;
+}
+
+.diyar-payment-svg--failed .diyar-payment-svg-x {
+  stroke: #dc2626;
+}
+
+.diyar-payment-svg--expired .diyar-payment-svg-clock {
+  stroke: #d97706;
+}
+
+.diyar-payment-message {
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  margin: 0;
+  animation: diyar-payment-fade-up 0.5s ease 0.35s both;
+}
+
+.diyar-payment-order-badge {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.875rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  animation: diyar-payment-fade-up 0.5s ease 0.5s both;
+}
+
+.diyar-payment-order-badge span {
+  font-size: 0.6875rem;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.diyar-payment-order-badge strong {
+  font-size: 1rem;
+  color: #1f3d3a;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.diyar-payment-swal-show {
+  animation: diyar-payment-popup-in 0.45s cubic-bezier(0.34, 1.2, 0.64, 1) both !important;
+}
+
+.diyar-payment-swal-hide {
+  animation: diyar-payment-popup-out 0.25s ease forwards !important;
+}
+
+@keyframes diyar-payment-popup-in {
+  from {
+    opacity: 0;
+    transform: scale(0.82) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes diyar-payment-popup-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+@keyframes diyar-payment-icon-bounce {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes diyar-payment-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-4px);
+  }
+  40%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes diyar-payment-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 12px 32px rgba(217, 119, 6, 0.18);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 16px 40px rgba(217, 119, 6, 0.28);
+  }
+}
+
+@keyframes diyar-payment-circle-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes diyar-payment-stroke-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes diyar-payment-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes diyar-payment-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Highlighted order card after payment outcome */
+.order-card-highlight--success {
+  border-color: #4ade80 !important;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.35), 0 12px 32px rgba(22, 163, 74, 0.12) !important;
+  animation: order-card-glow-success 2.2s ease-in-out infinite;
+}
+
+.order-card-highlight--failed {
+  border-color: #f87171 !important;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.35), 0 12px 32px rgba(220, 38, 38, 0.1) !important;
+  animation: order-card-glow-failed 2.2s ease-in-out infinite;
+}
+
+.order-card-highlight--expired {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.4), 0 12px 32px rgba(217, 119, 6, 0.1) !important;
+  animation: order-card-glow-expired 2.2s ease-in-out infinite;
+}
+
+@keyframes order-card-glow-success {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.35), 0 12px 32px rgba(22, 163, 74, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(74, 222, 128, 0.2), 0 16px 40px rgba(22, 163, 74, 0.18);
+  }
+}
+
+@keyframes order-card-glow-failed {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.35), 0 12px 32px rgba(220, 38, 38, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(248, 113, 113, 0.2), 0 16px 40px rgba(220, 38, 38, 0.16);
+  }
+}
+
+@keyframes order-card-glow-expired {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.4), 0 12px 32px rgba(217, 119, 6, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(251, 191, 36, 0.25), 0 16px 40px rgba(217, 119, 6, 0.16);
+  }
+}
+
+.payment-success-banner {
+  animation: payment-success-banner-in 0.55s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+}
+
+@keyframes payment-success-banner-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

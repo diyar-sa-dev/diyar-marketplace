@@ -1,24 +1,21 @@
 import React, { useState } from 'react';
 import { Bookmark, Star, Store, CalendarClock } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../../context/CartContext.tsx';
+import { useLocale } from '../../hooks/useLocale.ts';
+import { useToast } from '../../hooks/useToast.ts';
 
 const ServiceCard: React.FC<{ service: any; layout?: 'grid' | 'list' }> = ({
   service,
   layout = 'grid',
 }) => {
   const [isSaved, setIsSaved] = useState(false);
-  const { addItem } = useCart();
-  const addToCart = (e: React.MouseEvent) => {
+  const { t } = useLocale();
+  const { toast } = useToast();
+
+  const notifyServicesUnavailable = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addItem({
-      type: 'service',
-      name: service.name,
-      vendor: service.vendor,
-      price: service.price,
-      img: service.img,
-    });
+    toast.info(t('cart.servicesUnavailable'));
   };
 
   if (layout === 'list') {
@@ -86,7 +83,7 @@ const ServiceCard: React.FC<{ service: any; layout?: 'grid' | 'list' }> = ({
             <div className="flex justify-end">
               <button
                 className="bg-diyar-brown text-white rounded-lg sm:rounded-lg py-1 px-3 sm:py-1.5 sm:px-5 font-bold text-[10px] sm:text-xs transition-all hover:bg-orange-700 flex items-center justify-center gap-1 z-10 relative"
-                onClick={addToCart}
+                onClick={notifyServicesUnavailable}
               >
                 طلب تنفيذ
               </button>
@@ -157,10 +154,7 @@ const ServiceCard: React.FC<{ service: any; layout?: 'grid' | 'list' }> = ({
           </div>
           <button
             className="w-full bg-diyar-brown text-white rounded-lg py-1.5 font-bold text-xs transition-colors hover:bg-orange-700 flex items-center justify-center gap-1.5 mt-auto z-10 relative"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
+            onClick={notifyServicesUnavailable}
           >
             طلب تنفيذ
           </button>

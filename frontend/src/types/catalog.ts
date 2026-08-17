@@ -75,6 +75,16 @@ export interface ProductDetail {
   };
   materials: Record<string, string> | string[] | null;
   warranty: string | null;
+  return_policy?: {
+    override_enabled: boolean;
+    returnable: boolean | null;
+    return_window_days: number | null;
+    return_accepted_reasons: string[] | null;
+    return_requires_unused: boolean | null;
+    return_requires_evidence: boolean | null;
+    return_shipping_paid_by: string | null;
+    return_shipping_refundable: boolean | null;
+  };
   colors?: ProductColor[];
   images?: ProductImage[];
   inventory?: {

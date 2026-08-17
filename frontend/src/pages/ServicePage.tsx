@@ -14,15 +14,16 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import ServiceCard from '../components/cards/ServiceCard.tsx';
-import { useCart } from '../context/CartContext.tsx';
+import { useLocale } from '../hooks/useLocale.ts';
+import { useToast } from '../hooks/useToast.ts';
 
 export default function ServicePage() {
   const { id } = useParams();
+  const { t } = useLocale();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('about');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
-  const [added, setAdded] = useState(false);
-  const { addItem } = useCart();
 
   const MOCK_REVIEWS = [
     {
@@ -215,19 +216,11 @@ export default function ServicePage() {
             {/* Actions */}
             <div className="flex gap-3 md:w-auto w-full">
               <button
-                onClick={() => {
-                  addItem({
-                    type: 'service',
-                    name: SERVICE_INFO.name,
-                    vendor: SERVICE_INFO.provider,
-                    price: SERVICE_INFO.price,
-                    img: SERVICE_INFO.logo,
-                  });
-                  setAdded(true);
-                }}
-                className={`flex-1 md:flex-none font-bold py-3 px-8 rounded-xl transition shadow-md w-full md:w-48 text-center text-lg ${added ? 'bg-green-600 text-white' : 'bg-diyar-dark text-white hover:bg-black'}`}
+                type="button"
+                onClick={() => toast.info(t('cart.servicesUnavailable'))}
+                className="flex-1 md:flex-none font-bold py-3 px-8 rounded-xl transition shadow-md w-full md:w-48 text-center text-lg bg-diyar-dark text-white hover:bg-black"
               >
-                {added ? 'أُضيفت للسلة ✓' : 'طلب تنفيذ'}
+                طلب تنفيذ
               </button>
             </div>
           </div>

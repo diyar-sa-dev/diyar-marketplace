@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { availabilityLabel, mapProductCard } from './catalogMappers.ts';
+import { availabilityLabel, formatCompactProductSize, mapProductCard } from './catalogMappers.ts';
 import type { ProductCard } from '../types/catalog.ts';
 
 const baseProduct: ProductCard = {
@@ -55,5 +55,15 @@ describe('availabilityLabel', () => {
 
   it('returns in stock label', () => {
     expect(availabilityLabel('in_stock', 20)).toBe('متوفر');
+  });
+});
+
+describe('formatCompactProductSize', () => {
+  it('returns width x height when both exist', () => {
+    expect(formatCompactProductSize({ width: 80, height: 120, depth: null })).toBe('80x120 سم');
+  });
+
+  it('returns null when no dimensions', () => {
+    expect(formatCompactProductSize(null)).toBeNull();
   });
 });

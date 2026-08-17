@@ -1,6 +1,6 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-08-16 (Final reconciliation audit)  
+> **Last updated:** 2026-08-17 (Stage 7 final hardening)  
 > **Maintained by:** AI development agents after each phase completion
 
 ---
@@ -17,12 +17,13 @@
 |-------|--------|
 | Stage 0 — Discovery & Architecture | **COMPLETE** |
 | Stage 1 — Engineering Foundation | **COMPLETE / FINALIZED** |
-| Stage 2 — Identity & Access | **COMPLETE / FINALIZED** *(committed `c46630e`)* |
-| Stage 3 — User Profile & Media | **COMPLETE / FINALIZED** *(committed `255c069`)* |
-| Stage 4 — Catalog & Products | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** *(uncommitted)* |
-| Stage 5 — Inventory | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** *(uncommitted)* |
-| **Stage 5.5 — Storefront Integration** | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** *(uncommitted)* |
-| Stage 6+ — Cart, Checkout, etc. | **NOT AUTHORIZED** |
+| Stage 2 — Identity & Access | **COMPLETE / FINALIZED** |
+| Stage 3 — User Profile & Media | **COMPLETE / FINALIZED** |
+| Stage 4 — Catalog & Products | **COMPLETE** |
+| Stage 5 — Inventory | **COMPLETE** |
+| Stage 5.5 — Storefront Integration | **COMPLETE** |
+| Stage 6 — Cart | **COMPLETE / VERIFIED** *(uncommitted)* |
+| **Stage 7 — Checkout & Order Engine** | **COMPLETE / PASS WITH BLOCKERS** *(uncommitted)* |
 
 ---
 
@@ -30,109 +31,41 @@
 
 | Field | Value |
 |-------|--------|
-| **Current Stage** | Stage 5.5 — Storefront & Vendor Data Integration |
-| **Current Phase** | Reconciliation complete — await PO commit authorization |
-| **Branch** | `dev` (HEAD `095c343`) |
-| **Git risk** | Stage 4/5/5.5 exists on disk but is **not committed** |
+| **Current Stage** | Stage 7 — Checkout & Order Engine (implementation complete) |
+| **Next stage** | Stage 8 — Payment Gateway |
+| **Branch** | `dev` |
+| **Blocker** | PO manual browser E2E smoke test recommended |
 
 ---
 
-## Last Validation (2026-08-16 — executed)
+## Last Validation (2026-08-17 — Stage 7 final hardening)
 
 | Check | Result |
 |-------|--------|
-| `php artisan test` | **143 / 143 PASS** |
-| `vendor/bin/pint --test` | **PASS** |
-| `npm test -- --run` | **65 / 65 PASS** |
-| `npx tsc --noEmit` | **PASS** |
-| `npm run build` | **PASS** |
-| `npm run lint` | **PASS** *(scoped paths)* |
-| `npm run format:check` | **PASS** *(scoped paths)* |
+| `php artisan test` | **178 / 178 PASS** |
 | `php artisan migrate:fresh --seed` | **PASS** |
-| `ServiceCategorySeederTest` | **3 / 3 PASS** |
+| `vendor/bin/pint --test` | **PASS** |
+| `npm test -- --run` | **71 / 71 PASS** |
+| `npx tsc --noEmit` | **PASS** |
 
 ---
 
-## Reconciliation Audits
+## Stage 7 Highlights
 
-- [Stage 2 → 5.5 reconciliation](../conception/STAGE_2_5.5_RECONCILIATION_AUDIT.md)
-- [Stage 5.5 final reconciliation](../conception/Stages/Stage%205.5%20-%20Storefront%20Integration/STAGE_5.5_FINAL_RECONCILIATION_AUDIT.md)
+- Server-authoritative checkout preview and order creation (BCMath VAT, no client totals)
+- Per-vendor shipping: carrier flat rate + pickup; vendor settings persisted server-side
+- Order hierarchy: Order → VendorOrder(s) → OrderItem(s) + Payment (pending) + Shipment stub
+- Atomic order numbers via `order_number_sequences` (parallel process test added)
+- Idempotency: `UNIQUE(user_id, idempotency_key)` with replay + 409 conflict
+- Inventory reservation via existing `InventoryService`; cart converts to `converted` on success only
+- Frontend: real API on CheckoutPage, OrdersPage, VendorOrders, VendorShippingSettingsPanel
 
-**Verdict:** **ACCEPTED WITH MINOR FOLLOW-UP**
+**Checkout API:** `POST /checkout/preview`, `POST /orders`, `GET /orders`, `GET /orders/{order}`, `POST /orders/{order}/cancel`
 
----
-
-## Stage 5.5 Highlights
-
-- Storefront catalog flows API-driven (homepage product sections, category, store, search, product detail)
-- Vendor dashboard `VendorProducts` wired to dashboard API (CRUD, inventory, images)
-- Server-side filters: price, vendor, availability, sort, pagination
-- `GET /api/v1/vendors` directory + search
-- Profile wishlist: `GET/DELETE /profile/wishlist` + product save toggle
-- Product engagement: likes, reviews on product detail
-- `CatalogSeeder`: 6 vendors, scenario products (stock/preorder/discount/pagination)
-- Service categories from API (10 slugs verified by test)
-- **`sort=popular`** uses **likes count** (not sales analytics)
-
-**Run after pull:**
-
-```bash
-php artisan migrate
-php artisan db:seed
-php artisan storage:link
-```
+**Vendor API:** `GET/PUT /dashboard/vendor/shipping-settings`, `GET /dashboard/vendor/orders`, accept action
 
 ---
 
-## SMS / OTP (Production Note)
+## CI/CD
 
-| Mode | Behavior |
-|------|----------|
-| **Development** | OTP logged via log SMS provider — **not real SMS** |
-| **Production** | Requires MSEGAT credentials in `.env` (`MSEGAT_USERNAME`, `MSEGAT_API_KEY`, `MSEGAT_SENDER_ID`) |
-| **Secrets** | Never commit `.env` or credentials |
-
----
-
-## Deferred (later increments)
-
-| Item | Notes |
-|------|-------|
-| Cart / checkout / orders backend | Stage 6+ |
-| HTTP reservation/checkout endpoints | Service exists; no cart API |
-| Service product marketplace | Categories only; no service SKUs |
-| Store reviews tab | Mock on StorePage |
-| Homepage marketing blocks | Testimonials, blog, style/room, brands — static UI |
-| Affiliate/service dashboards | Mock state retained |
-| Category subcategory chips | Decorative only (labeled in UI) |
-| Stage 3 deferred items | Bio UI, 2FA, etc. (unchanged) |
-
----
-
-## CI Notes
-
-- Primary gate: `.github/workflows/ci.yml`
-- ESLint/Prettier cover subset of `frontend/src/` (pages/home/dashboard excluded from lint scope; tsc/build cover all)
-- `deploy-pages.yml` builds without running CI first
-- `npm-publish-github-packages.yml` is stale (no root package.json)
-
----
-
-## Local Setup
-
-```bash
-php artisan migrate
-php artisan db:seed
-php artisan storage:link
-# Restart Vite — /storage proxy required in dev
-```
-
-Sample vendor slug: `diyar-furniture`
-
----
-
-## Next Authorized Stage
-
-**Stage 6+** — **NOT AUTHORIZED** without explicit Product Owner approval.
-
-**Do not commit** unless explicitly requested. Never commit `.env`, logs, caches, or uploaded media.
+Workflow: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — frontend + backend lint/test/build on push/PR.

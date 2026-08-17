@@ -188,6 +188,8 @@ final class ProductService
                 $this->syncColors($product, $attributes['colors']);
             }
 
+            $this->syncReturnPolicy($product, $attributes);
+
             return $product->fresh(['vendorAccount', 'category', 'colors', 'images.mediaFile', 'inventory']);
         });
     }
@@ -397,6 +399,47 @@ final class ProductService
     /**
      * @param  list<array{name: string, hex_code: string}>  $colors
      */
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private function syncReturnPolicy(Product $product, array $attributes): void
+    {
+        if (! array_key_exists('return_policy_override_enabled', $attributes)) {
+            return;
+        }
+
+        $enabled = (bool) $attributes['return_policy_override_enabled'];
+        $updates = ['return_policy_override_enabled' => $enabled];
+
+        if (! $enabled) {
+            $updates += [
+                'returnable' => null,
+                'return_window_days' => null,
+                'return_accepted_reasons' => null,
+                'return_requires_unused' => null,
+                'return_requires_evidence' => null,
+                'return_shipping_paid_by' => null,
+                'return_shipping_refundable' => null,
+            ];
+        } else {
+            foreach ([
+                'returnable',
+                'return_window_days',
+                'return_accepted_reasons',
+                'return_requires_unused',
+                'return_requires_evidence',
+                'return_shipping_paid_by',
+                'return_shipping_refundable',
+            ] as $field) {
+                if (array_key_exists($field, $attributes)) {
+                    $updates[$field] = $attributes[$field];
+                }
+            }
+        }
+
+        $product->forceFill($updates)->save();
+    }
+
     private function syncColors(Product $product, array $colors): void
     {
         $product->colors()->delete();

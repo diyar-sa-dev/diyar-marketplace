@@ -62,6 +62,12 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
+        $exceptions->render(function (InvalidArgumentException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return ApiResponse::error($e->getMessage(), 400);
+            }
+        });
+
         $exceptions->render(function (QueryException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 report($e);

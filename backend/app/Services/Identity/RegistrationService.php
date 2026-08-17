@@ -37,21 +37,37 @@ final class RegistrationService
             ]);
         }
 
-        if (User::query()->where('phone', $phone)->exists()) {
+        $existingByPhone = User::query()->where('phone', $phone)->first();
+
+        if ($existingByPhone !== null && $existingByPhone->status !== UserStatus::Pending) {
             throw ValidationException::withMessages([
                 'phone' => [__('diyar.registration.phone_taken')],
             ]);
         }
 
-        if ($email !== null && User::query()->where('email', $email)->exists()) {
-            throw ValidationException::withMessages([
-                'email' => [__('diyar.registration.email_taken')],
-            ]);
+        if ($email !== null) {
+            $existingByEmail = User::query()->where('email', $email)->first();
+
+            if ($existingByEmail !== null && $existingByEmail->id !== $existingByPhone?->id) {
+                throw ValidationException::withMessages([
+                    'email' => [__('diyar.registration.email_taken')],
+                ]);
+            }
         }
 
         $validatedRoleKeys = $this->validateRoleKeys($roleKeys);
 
-        $user = DB::transaction(function () use ($name, $phone, $email, $password) {
+        $user = DB::transaction(function () use ($existingByPhone, $name, $phone, $email, $password) {
+            if ($existingByPhone !== null) {
+                $existingByPhone->forceFill([
+                    'name' => $name,
+                    'email' => $email,
+                    'password' => $password,
+                ])->save();
+
+                return $existingByPhone->fresh();
+            }
+
             return User::query()->create([
                 'name' => $name,
                 'phone' => $phone,

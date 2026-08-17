@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class VendorAccount extends Model
 {
@@ -62,6 +63,16 @@ class VendorAccount extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function shippingSettings(): HasOne
+    {
+        return $this->hasOne(VendorShippingSettings::class);
+    }
+
+    public function returnPolicy(): HasOne
+    {
+        return $this->hasOne(VendorReturnPolicy::class);
     }
 
     public function scopeActive($query)

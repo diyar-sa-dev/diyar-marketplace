@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignUuid('product_id')->constrained('products')->cascadeOnDelete();
             $table->string('type');
             $table->integer('quantity');
-            $table->nullableMorphs('reference');
+            $table->nullableUuidMorphs('reference');
             $table->string('note')->nullable();
             $table->foreignUuid('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
