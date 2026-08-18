@@ -210,6 +210,8 @@ final class RegistrationService
             $resolved[$enum->value] = $enum->value;
         }
 
+        $resolved[RoleName::Customer->value] = RoleName::Customer->value;
+
         return array_values($resolved);
     }
 

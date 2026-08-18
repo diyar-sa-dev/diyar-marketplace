@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue.ts';
 import { useLocale } from '../../../hooks/useLocale.ts';
 import {
@@ -14,15 +15,18 @@ import { VendorOrdersHeader } from '../../../components/dashboard/vendor/orders/
 import { VendorOrdersToolbar } from '../../../components/dashboard/vendor/orders/VendorOrdersToolbar.tsx';
 import { VendorOrdersRowList } from '../../../components/dashboard/vendor/orders/VendorOrdersRowList.tsx';
 import { VendorOrderDetailView } from '../../../components/dashboard/vendor/orders/VendorOrderDetailView.tsx';
+import { VendorPreordersPanel } from '../../../components/dashboard/vendor/orders/VendorPreordersPanel.tsx';
 import {
   type PaymentFilter,
   type VendorOrderAction,
   type VendorOrderTab,
+  parseVendorOrderTab,
 } from '../../../components/dashboard/vendor/orders/vendorOrderUtils.ts';
 
 export default function VendorOrdersPage() {
   const { t } = useLocale();
-  const [activeTab, setActiveTab] = useState<VendorOrderTab>('all');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = parseVendorOrderTab(searchParams.get('tab'));
   const [searchInput, setSearchInput] = useState('');
   const debouncedSearch = useDebouncedValue(searchInput, 300);
   const [paymentFilter, setPaymentFilter] = useState<PaymentFilter>('all');
@@ -30,18 +34,22 @@ export default function VendorOrdersPage() {
   const [page, setPage] = useState(1);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
+  const isPreordersTab = activeTab === 'preorders';
+
   const filters = useMemo(
     () => ({
       page,
       per_page: 15,
       q: debouncedSearch.trim() || undefined,
-      status: activeTab,
+      status: isPreordersTab ? undefined : activeTab,
       payment_status: paymentFilter,
     }),
-    [activeTab, debouncedSearch, page, paymentFilter],
+    [activeTab, debouncedSearch, isPreordersTab, page, paymentFilter],
   );
 
-  const { data, isLoading, isFetching, isError, error, refetch } = useVendorOrders(filters);
+  const { data, isLoading, isFetching, isError, error, refetch } = useVendorOrders(filters, {
+    enabled: !isPreordersTab,
+  });
   const { data: vendorAccess } = useVendorAccess();
   const canWriteOrders = vendorCanWrite(vendorAccess?.permissions.orders);
   const { data: selectedOrder, isLoading: detailLoading } = useVendorOrder(selectedOrderId);
@@ -57,6 +65,7 @@ export default function VendorOrdersPage() {
     { id: 'processing' as const, label: t('vendorOrders.tabs.processing') },
     { id: 'shipped' as const, label: t('vendorOrders.tabs.shipped') },
     { id: 'delivered' as const, label: t('vendorOrders.tabs.delivered') },
+    { id: 'preorders' as const, label: t('vendorOrders.tabs.preorders') },
   ];
 
   const orders = data?.vendor_orders ?? [];
@@ -70,7 +79,17 @@ export default function VendorOrdersPage() {
     actionMutation.mutate({ orderId, action, payload });
   };
 
-  if (isError) {
+  const handleTabChange = (tab: VendorOrderTab) => {
+    setPage(1);
+    if (tab === 'all') {
+      searchParams.delete('tab');
+      setSearchParams(searchParams, { replace: true });
+      return;
+    }
+    setSearchParams({ tab }, { replace: true });
+  };
+
+  if (isError && !isPreordersTab) {
     return <ErrorState error={error} title={t('orders.error')} onRetry={() => void refetch()} />;
   }
 
@@ -120,32 +139,34 @@ export default function VendorOrdersPage() {
         onFilterToggle={() => setIsFilterOpen((open) => !open)}
         isSearching={isFetching && debouncedSearch.trim().length > 0}
         activeTab={activeTab}
-        onTabChange={(tab) => {
-          setActiveTab(tab);
-          setPage(1);
-        }}
+        onTabChange={handleTabChange}
         tabs={tabs}
+        hideFilters={isPreordersTab}
       />
 
-      <DashboardPaginatedTable
-        columns={tableHeader}
-        isLoading={isLoading}
-        isEmpty={orders.length === 0}
-        emptyTitle={t('vendorOrders.emptySearch')}
-        emptyDescription={t('vendorOrders.emptyDescription')}
-        skeletonColumns={8}
-        pagination={pagination}
-        page={page}
-        onPageChange={setPage}
-      >
-        <VendorOrdersRowList
-          orders={orders}
-          onView={(order) => setSelectedOrderId(order.id)}
-          onAction={handleAction}
-          isPending={actionMutation.isPending}
-          canWriteOrders={canWriteOrders}
-        />
-      </DashboardPaginatedTable>
+      {isPreordersTab ? (
+        <VendorPreordersPanel />
+      ) : (
+        <DashboardPaginatedTable
+          columns={tableHeader}
+          isLoading={isLoading}
+          isEmpty={orders.length === 0}
+          emptyTitle={t('vendorOrders.emptySearch')}
+          emptyDescription={t('vendorOrders.emptyDescription')}
+          skeletonColumns={8}
+          pagination={pagination}
+          page={page}
+          onPageChange={setPage}
+        >
+          <VendorOrdersRowList
+            orders={orders}
+            onView={(order) => setSelectedOrderId(order.id)}
+            onAction={handleAction}
+            isPending={actionMutation.isPending}
+            canWriteOrders={canWriteOrders}
+          />
+        </DashboardPaginatedTable>
+      )}
     </div>
   );
 }

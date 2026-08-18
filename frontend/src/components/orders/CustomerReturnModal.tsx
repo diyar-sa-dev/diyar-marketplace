@@ -8,6 +8,7 @@ import {
   uploadReturnEvidence,
 } from '../../api/returns.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { formatOrderDate } from '../../lib/formatOrderDate.ts';
 
 const ALL_REASONS: ReturnReason[] = [
   'manufacturing_defect',
@@ -34,7 +35,7 @@ export function CustomerReturnModal({
   onSubmitted,
   onError,
 }: Props) {
-  const { t, dir } = useLocale();
+  const { t, dir, locale } = useLocale();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [eligibility, setEligibility] = useState<ReturnEligibility | null>(null);
@@ -124,7 +125,7 @@ export function CustomerReturnModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100"
+            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -138,7 +139,7 @@ export function CustomerReturnModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl bg-diyar-dark px-4 py-2 text-sm font-bold text-white"
+              className="rounded-xl bg-diyar-dark px-4 py-2 text-sm font-bold text-white cursor-pointer hover:bg-black transition-colors"
             >
               {t('common.close')}
             </button>
@@ -153,7 +154,7 @@ export function CustomerReturnModal({
                   {eligibility.deadline && (
                     <li>
                       {t('returns.deadlineHint', {
-                        date: new Date(eligibility.deadline).toLocaleDateString(),
+                        date: formatOrderDate(eligibility.deadline, locale),
                       })}
                     </li>
                   )}
@@ -189,7 +190,7 @@ export function CustomerReturnModal({
               <select
                 value={reason}
                 onChange={(e) => setReason(e.target.value as ReturnReason)}
-                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm cursor-pointer"
               >
                 {reasonOptions.map((value) => (
                   <option key={value} value={value}>
@@ -240,14 +241,14 @@ export function CustomerReturnModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-600"
+                className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-600 cursor-pointer hover:bg-gray-50 transition-colors"
               >
                 {t('common.cancel')}
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex-1 rounded-xl bg-diyar-brown px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+                className="flex-1 rounded-xl bg-diyar-brown px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60 cursor-pointer hover:bg-[#A67B5B] transition-colors disabled:cursor-not-allowed"
               >
                 {submitting ? t('common.loading') : t('returns.submitReturn')}
               </button>

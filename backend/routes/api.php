@@ -37,6 +37,14 @@ use App\Http\Controllers\Api\V1\Profile\CustomerReviewController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\Profile\WishlistController;
 use App\Http\Controllers\Api\V1\Return\ReturnController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderController as ServiceProviderController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderFollowController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceBookingController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceBookingPaymentController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceCategoryController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceOfferController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceRequestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -64,6 +72,13 @@ Route::get('/vendors', [VendorController::class, 'index']);
 Route::get('/vendors/{slug}', [VendorController::class, 'show']);
 Route::get('/vendors/{slug}/products', [VendorController::class, 'products']);
 Route::get('/vendors/{slug}/reviews', [StoreReviewController::class, 'index']);
+Route::get('/service-categories', [ServiceCategoryController::class, 'index']);
+Route::get('/services', [ServiceController::class, 'index']);
+Route::get('/services/{identifier}', [ServiceController::class, 'show']);
+Route::get('/services/{identifier}/related', [ServiceController::class, 'related']);
+Route::get('/providers/{slug}', [ServiceProviderController::class, 'show']);
+Route::get('/providers/{slug}/services', [ServiceProviderController::class, 'services']);
+Route::get('/providers/{slug}/portfolio', [ServiceProviderController::class, 'portfolio']);
 
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'show']);
@@ -111,6 +126,8 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
     Route::delete('/store-reviews/{review}', [StoreReviewController::class, 'destroy']);
     Route::post('/vendors/{slug}/follow', [VendorFollowController::class, 'follow']);
     Route::delete('/vendors/{slug}/follow', [VendorFollowController::class, 'unfollow']);
+    Route::post('/providers/{slug}/follow', [ProviderFollowController::class, 'follow']);
+    Route::delete('/providers/{slug}/follow', [ProviderFollowController::class, 'unfollow']);
     Route::get('/orders/{order}/payment', [PaymentController::class, 'show']);
     Route::post('/orders/{order}/payment', [PaymentController::class, 'initiate']);
     Route::post('/orders/{order}/payment/submit', [PaymentController::class, 'submit']);
@@ -122,6 +139,18 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
     Route::get('/returns/{returnRequest}', [ReturnController::class, 'show']);
     Route::post('/returns/{returnRequest}/evidence', [ReturnController::class, 'storeEvidence']);
     Route::get('/vendor-orders/{vendorOrder}/items/{orderItem}/return-eligibility', [ReturnController::class, 'eligibility']);
+
+    Route::get('/service-requests', [ServiceRequestController::class, 'index']);
+    Route::post('/service-requests', [ServiceRequestController::class, 'store']);
+    Route::get('/service-requests/{serviceRequest}', [ServiceRequestController::class, 'show']);
+    Route::post('/service-requests/{serviceRequest}/cancel', [ServiceRequestController::class, 'cancel']);
+    Route::post('/service-requests/{serviceRequest}/attachments', [ServiceRequestController::class, 'storeAttachment']);
+    Route::post('/service-requests/{serviceRequest}/offers', [ServiceOfferController::class, 'store']);
+    Route::post('/service-offers/{serviceOffer}/accept', [ServiceOfferController::class, 'accept']);
+    Route::get('/service-bookings', [ServiceBookingController::class, 'index']);
+    Route::get('/service-bookings/{serviceBooking}', [ServiceBookingController::class, 'show']);
+    Route::get('/service-bookings/{serviceBooking}/payment', [ServiceBookingPaymentController::class, 'show']);
+    Route::post('/service-bookings/{serviceBooking}/payment/simulate', [ServiceBookingPaymentController::class, 'simulate']);
 
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'show']);
@@ -228,6 +257,14 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::get('/finance/payouts', [VendorFinanceController::class, 'payouts']);
         Route::post('/finance/payouts', [VendorFinanceController::class, 'requestPayout']);
         Route::post('/finance/payouts/{payout}/cancel', [VendorFinanceController::class, 'cancelPayout']);
+    });
+
+    Route::middleware('role:provider,admin')->prefix('dashboard/provider')->group(function () {
+        Route::get('/service-requests', [ServiceOfferController::class, 'providerInbox']);
+        Route::get('/service-requests/{serviceRequest}', [ServiceOfferController::class, 'providerShow']);
+        Route::get('/bookings', [ServiceBookingController::class, 'providerIndex']);
+        Route::post('/bookings/{serviceBooking}/start', [ServiceBookingController::class, 'start']);
+        Route::post('/bookings/{serviceBooking}/complete', [ServiceBookingController::class, 'complete']);
     });
 
     Route::middleware('role:admin')->prefix('admin')->group(function () {

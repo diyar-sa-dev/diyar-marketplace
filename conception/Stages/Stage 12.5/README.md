@@ -1,15 +1,17 @@
 # Stage 12.5 — Identity, Vendor Team & Marketplace Engagement
 
 > **Date started:** 2026-08-18  
-> **Status:** **IN PROGRESS** (core deliverables implemented; sign-off pending)  
+> **Status:** **COMPLETE** (committed `6a2ceba`)  
 > **Previous stage:** [Stage 12 — Vendor Portal Completion](../Stage%2012/README.md) — COMPLETE  
-> **Next stage:** [Stage 13 — Service Marketplace](../Stage%2013/README.md) — NOT STARTED
+> **Next stage:** [Stage 13 — Service Marketplace (Provider)](../Stage%2013/README.md) — **IN PROGRESS**
 
 ---
 
 ## Stage objective
 
-Extension to Stage 12: email identity, vendor teams with RBAC, preorders, notification preferences, and storefront/dashboard polish.
+**Vendor-side** extension to Stage 12: email identity, vendor teams with RBAC, preorders, notification preferences, and storefront/dashboard polish.
+
+> **Note:** Stage 13 is the **provider/service marketplace** domain. Stage 12.x covers **vendor/commerce** only.
 
 ---
 
@@ -17,12 +19,12 @@ Extension to Stage 12: email identity, vendor teams with RBAC, preorders, notifi
 
 | Phase | Document | Status |
 |-------|----------|--------|
-| 12.5.1 Email & transactional mail | [Phase 13.1/PHASE-13.1-EMAIL-AND-MAIL.md](./Phase%2013.1/PHASE-13.1-EMAIL-AND-MAIL.md) | Implemented |
-| 12.5.2 Vendor team & RBAC | [Phase 13.2/PHASE-13.2-VENDOR-TEAM.md](./Phase%2013.2/PHASE-13.2-VENDOR-TEAM.md) | Implemented |
-| 12.5.3 Product preorders | [Phase 13.3/PHASE-13.3-PREORDERS.md](./Phase%2013.3/PHASE-13.3-PREORDERS.md) | Implemented |
-| 12.5.4 Store engagement & UX | [Phase 13.4/PHASE-13.4-STORE-ENGAGEMENT.md](./Phase%2013.4/PHASE-13.4-STORE-ENGAGEMENT.md) | Implemented |
-| 12.5.5 Notification preferences | [Phase 13.5/PHASE-13.5-NOTIFICATION-PREFERENCES.md](./Phase%2013.5/PHASE-13.5-NOTIFICATION-PREFERENCES.md) | Implemented |
-| 12.5.6 Portal access guard | [Phase 13.6/PHASE-13.6-PORTAL-GUARD.md](./Phase%2013.6/PHASE-13.6-PORTAL-GUARD.md) | Implemented |
+| 12.5.1 Email & transactional mail | [Phase 12.5.1/PHASE-12.5.1-EMAIL-AND-MAIL.md](./Phase%2012.5.1/PHASE-12.5.1-EMAIL-AND-MAIL.md) | Implemented |
+| 12.5.2 Vendor team & RBAC | [Phase 12.5.2/PHASE-12.5.2-VENDOR-TEAM.md](./Phase%2012.5.2/PHASE-12.5.2-VENDOR-TEAM.md) | Implemented |
+| 12.5.3 Product preorders | [Phase 12.5.3/PHASE-12.5.3-PREORDERS.md](./Phase%2012.5.3/PHASE-12.5.3-PREORDERS.md) | Implemented |
+| 12.5.4 Store engagement & UX | [Phase 12.5.4/PHASE-12.5.4-STORE-ENGAGEMENT.md](./Phase%2012.5.4/PHASE-12.5.4-STORE-ENGAGEMENT.md) | Implemented |
+| 12.5.5 Notification preferences | [Phase 12.5.5/PHASE-12.5.5-NOTIFICATION-PREFERENCES.md](./Phase%2012.5.5/PHASE-12.5.5-NOTIFICATION-PREFERENCES.md) | Implemented |
+| 12.5.6 Portal access guard | [Phase 12.5.6/PHASE-12.5.6-PORTAL-GUARD.md](./Phase%2012.5.6/PHASE-12.5.6-PORTAL-GUARD.md) | Implemented |
 
 Supporting artifacts:
 

@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             CategorySeeder::class,
             CatalogSeeder::class,
+            ServiceMarketplaceSeeder::class,
             VendorShippingSettingsSeeder::class,
             CommissionRuleSeeder::class,
         ]);

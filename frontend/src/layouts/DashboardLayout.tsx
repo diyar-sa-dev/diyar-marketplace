@@ -17,7 +17,6 @@ import {
   Link as LinkIcon,
   BarChart,
   ChevronDown,
-  Clock,
   MessageSquare,
   MessagesSquare,
 } from 'lucide-react';
@@ -66,7 +65,6 @@ export default function DashboardLayout() {
     vendor: [
       { name: t('vendor.nav.home'), path: '/dashboard/vendor', icon: LayoutDashboard, permission: 'dashboard' },
       { name: t('vendor.nav.orders'), path: '/dashboard/vendor/orders', icon: ShoppingCart, permission: 'orders' },
-      { name: t('vendor.nav.preorders'), path: '/dashboard/vendor/preorders', icon: Clock, permission: 'orders' },
       { name: t('vendor.nav.returns'), path: '/dashboard/vendor/returns', icon: Package, permission: 'returns' },
       { name: t('vendor.nav.products'), path: '/dashboard/vendor/products', icon: Package, permission: 'products' },
       { name: t('vendor.nav.reviews'), path: '/dashboard/vendor/reviews', icon: MessageSquare, permission: 'reviews' },
@@ -195,7 +193,7 @@ export default function DashboardLayout() {
           <div className="flex items-center gap-2 md:gap-3">
             {showRoleSwitcher && (
               <div className="relative group">
-                <button className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg border border-gray-200 text-xs md:text-sm font-medium hover:bg-gray-50 transition-colors">
+                <button className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg border border-gray-200 text-xs md:text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer">
                   <span className="hidden sm:inline">{t('dashboard.switchAccount')}</span>
                   <span className="sm:hidden">{t('dashboard.portal')}</span>
                   <ChevronDown size={14} />

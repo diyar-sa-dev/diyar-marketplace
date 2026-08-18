@@ -396,7 +396,7 @@ export default function App() {
                   {/* CTA Button */}
                   <button
                     onClick={() => setIsRequestServiceOpen(true)}
-                    className="hidden md:flex text-sm font-bold bg-diyar-dark text-diyar-cream px-5 py-2.5 rounded-2xl hover:bg-diyar-dark/90 transition-colors items-center gap-2 shrink-0"
+                    className="hidden md:flex text-sm font-bold bg-diyar-dark text-diyar-cream px-5 py-2.5 rounded-2xl hover:bg-diyar-dark/90 transition-colors items-center gap-2 shrink-0 cursor-pointer"
                   >
                     طلب تنفيذ
                   </button>

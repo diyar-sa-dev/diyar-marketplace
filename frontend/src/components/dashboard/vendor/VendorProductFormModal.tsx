@@ -119,6 +119,8 @@ export function VendorProductFormModal({
   const [comparePrice, setComparePrice] = useState('');
   const [stock, setStock] = useState('10');
   const [stockAdjust, setStockAdjust] = useState('');
+  const [preorderEnabled, setPreorderEnabled] = useState(false);
+  const [expectedAvailableAt, setExpectedAvailableAt] = useState('');
   const [width, setWidth] = useState('');
   const [height, setHeight] = useState('');
   const [depth, setDepth] = useState('');
@@ -197,6 +199,8 @@ export function VendorProductFormModal({
       );
       setStock(sanitizeIntegerInput(String(productDetail.inventory?.stock_quantity ?? 0)));
       setStockAdjust(sanitizeIntegerInput(String(productDetail.inventory?.stock_quantity ?? 0)));
+      setPreorderEnabled(productDetail.availability_mode === 'preorder');
+      setExpectedAvailableAt(productDetail.expected_available_at?.slice(0, 10) ?? '');
       setWidth(
         productDetail.dimensions?.width != null
           ? sanitizeDecimalInput(String(productDetail.dimensions.width))
@@ -242,6 +246,8 @@ export function VendorProductFormModal({
       setComparePrice('');
       setStock('10');
       setStockAdjust('');
+      setPreorderEnabled(false);
+      setExpectedAvailableAt('');
       setWidth('');
       setHeight('');
       setDepth('');
@@ -311,6 +317,8 @@ export function VendorProductFormModal({
       return;
     }
 
+    const resolvedStock = editingId ? Number(stockAdjust) : Number(stock || 0);
+
     const payload: VendorProductPayload = {
       category_id: categoryId,
       name: name.trim(),
@@ -324,6 +332,17 @@ export function VendorProductFormModal({
       materials: material.trim() ? [material.trim()] : null,
       warranty: warranty || null,
       colors,
+      ...(preorderEnabled
+        ? {
+            availability_mode: 'preorder' as const,
+            expected_available_at: expectedAvailableAt.trim() || null,
+          }
+        : {
+            availability_mode: (resolvedStock > 0 ? 'in_stock' : 'out_of_stock') as
+              | 'in_stock'
+              | 'out_of_stock',
+            expected_available_at: null,
+          }),
       ...(editingId
         ? {
             return_policy_override_enabled: returnPolicyCustom,
@@ -755,6 +774,37 @@ export function VendorProductFormModal({
                           />
                           <FieldError message={showError('stock')} />
                         </>
+                      )}
+                    </div>
+                    <div className="md:col-span-3 space-y-3 rounded-xl border border-purple-100 bg-purple-50/40 p-4">
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={preorderEnabled}
+                          onChange={(event) => setPreorderEnabled(event.target.checked)}
+                          className="mt-1 h-4 w-4 rounded border-gray-300 text-diyar-brown focus:ring-diyar-brown/30"
+                        />
+                        <span className="text-right">
+                          <span className="block text-sm font-bold text-diyar-dark">
+                            {t('vendor.form.preorderEnabled')}
+                          </span>
+                          <span className="block text-xs text-gray-500 mt-1 leading-relaxed">
+                            {t('vendor.form.preorderHint')}
+                          </span>
+                        </span>
+                      </label>
+                      {preorderEnabled && (
+                        <div className="space-y-1.5 text-right">
+                          <label className="text-xs font-bold text-gray-700 block">
+                            {t('vendor.form.expectedAvailableAt')}
+                          </label>
+                          <input
+                            type="date"
+                            value={expectedAvailableAt}
+                            onChange={(event) => setExpectedAvailableAt(event.target.value)}
+                            className={`${vendorFieldClass(false)} p-2.5 text-right`}
+                          />
+                        </div>
                       )}
                     </div>
                   </div>

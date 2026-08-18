@@ -136,7 +136,6 @@ export default function StorePage() {
         await follow.mutateAsync();
         toast.success(t('store.followed'));
       }
-      await refetchVendor();
     } catch (error) {
       const message = parseApiError(error, locale).message;
       if (message.includes('متابعة متجرك') || message.toLowerCase().includes('follow your own')) {

@@ -6,6 +6,7 @@ use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Infrastructure\Mail\LogEmailOtpProvider;
 use App\Models\User;
+use App\Services\Identity\WelcomeEmailService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\InteractsWithIdentity;
@@ -115,7 +116,7 @@ class EmailVerificationTest extends TestCase
             ],
         ]);
 
-        app(\App\Services\Identity\WelcomeEmailService::class)->sendIfEligible($user);
+        app(WelcomeEmailService::class)->sendIfEligible($user);
 
         $this->assertNull($user->fresh()->welcome_email_sent_at);
     }

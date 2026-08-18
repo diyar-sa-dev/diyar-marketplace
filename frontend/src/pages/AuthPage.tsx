@@ -132,13 +132,16 @@ export default function AuthPage() {
   }
 
   const handleRoleToggle = (roleId: string) => {
-    if (roleId === 'customer' && selectedRoles.length === 1 && selectedRoles[0] === 'customer') {
+    if (roleId === 'customer') {
       return;
     }
 
-    setSelectedRoles((prev) =>
-      prev.includes(roleId) ? prev.filter((id) => id !== roleId) : [...prev, roleId],
-    );
+    setSelectedRoles((prev) => {
+      const next = prev.includes(roleId)
+        ? prev.filter((id) => id !== roleId)
+        : [...prev, roleId];
+      return next.includes('customer') ? next : ['customer', ...next];
+    });
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -588,10 +591,15 @@ export default function AuthPage() {
                         key={role.id}
                         type="button"
                         onClick={() => handleRoleToggle(role.id)}
-                        className={`p-3 rounded-xl border-2 flex items-center gap-2 sm:gap-3 cursor-pointer transition-colors min-w-0 ${
+                        disabled={role.id === 'customer'}
+                        className={`p-3 rounded-xl border-2 flex items-center gap-2 sm:gap-3 transition-colors min-w-0 ${
+                          role.id === 'customer'
+                            ? 'cursor-default'
+                            : 'cursor-pointer hover:border-gray-200 hover:bg-gray-50'
+                        } ${
                           selectedRoles.includes(role.id)
                             ? 'border-diyar-brown bg-orange-50 text-diyar-dark'
-                            : 'border-gray-100 text-gray-500 hover:border-gray-200 hover:bg-gray-50'
+                            : 'border-gray-100 text-gray-500'
                         }`}
                       >
                         <div
@@ -603,6 +611,7 @@ export default function AuthPage() {
                         </div>
                         <span className="font-bold text-sm truncate">
                           {t(`auth.roles.${role.id}`)}
+                          {role.id === 'customer' ? ' ✓' : ''}
                         </span>
                       </button>
                     ))}

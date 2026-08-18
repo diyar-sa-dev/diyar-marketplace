@@ -25,7 +25,7 @@ type StatCardProps = {
 function StatCard({ label, value, icon, iconClass, footer, className = '' }: StatCardProps) {
   return (
     <div
-      className={`bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow ${className}`}
+      className={`h-full flex flex-col bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow ${className}`}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <h3 className="text-sm font-medium text-gray-500 leading-snug">{label}</h3>
@@ -35,8 +35,8 @@ function StatCard({ label, value, icon, iconClass, footer, className = '' }: Sta
           {icon}
         </div>
       </div>
-      <div className="flex items-end gap-2 flex-wrap">{value}</div>
-      {footer}
+      <div className="flex items-end gap-2 flex-wrap flex-1">{value}</div>
+      {footer ? <div className="mt-auto pt-2">{footer}</div> : null}
     </div>
   );
 }
@@ -144,7 +144,7 @@ export default function VendorDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
         <StatCard
           label={t('vendor.dashboard.periodSales')}
           icon={<DollarSign size={20} />}
@@ -173,7 +173,7 @@ export default function VendorDashboard() {
           icon={<Clock size={20} />}
           iconClass="bg-purple-50 text-purple-600"
           value={
-            <Link to="/dashboard/vendor/preorders" className="text-2xl sm:text-3xl font-bold text-diyar-dark tabular-nums hover:text-diyar-brown transition-colors">
+            <Link to="/dashboard/vendor/orders?tab=preorders" className="text-2xl sm:text-3xl font-bold text-diyar-dark tabular-nums hover:text-diyar-brown transition-colors">
               {overview.preorders?.pending ?? 0}
             </Link>
           }
@@ -201,7 +201,7 @@ export default function VendorDashboard() {
             </>
           }
           footer={
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500">
               {t('vendor.finance.pendingEscrow', {
                 amount: overview.pending_escrow,
                 currency,
@@ -230,7 +230,7 @@ export default function VendorDashboard() {
             </span>
           }
           footer={
-            <p className="text-sm text-amber-600 mt-2">
+            <p className="text-sm text-amber-600">
               {t('vendor.dashboard.lowStock')}: {overview.products.low_stock}
             </p>
           }
@@ -254,7 +254,7 @@ export default function VendorDashboard() {
           }
           footer={
             overview.store_reviews.review_count > 0 ? (
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-gray-500">
                 {t('vendor.dashboard.storeRatingCount', {
                   count: overview.store_reviews.review_count,
                 })}

@@ -3,6 +3,7 @@
 namespace Tests\Concerns;
 
 use App\Enums\OtpPurpose;
+use App\Enums\ProviderAccountStatus;
 use App\Enums\RoleName;
 use App\Enums\RoleStatus;
 use App\Enums\VendorAccountStatus;
@@ -69,6 +70,8 @@ trait InteractsWithIdentity
             ProviderAccount::query()->create([
                 'user_id' => $user->id,
                 'business_name' => $user->name,
+                'slug' => SlugGenerator::unique($user->name, new ProviderAccount),
+                'status' => ProviderAccountStatus::Active,
             ]);
         }
 

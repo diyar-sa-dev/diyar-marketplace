@@ -1,6 +1,7 @@
 # DIYAR — Project Context
 
-> **Status:** CURRENT — quick reference for AI agents
+> **Status:** CURRENT — quick reference for AI agents  
+> **Live stage status:** [.agent/CURRENT_STATE.md](./CURRENT_STATE.md) · [Stage 13 README](../conception/Stages/Stage%2013/README.md)
 
 ---
 
@@ -18,9 +19,11 @@ Customer · Vendor · Service Provider · Marketer · Admin
 
 ## V1 Domains
 
-**Stage 2 (FINALIZED):** Identity, users, roles, Sanctum auth, OTP, password recovery, ownership stubs.
+**Stages 0–12.5 (COMPLETE):** Identity, catalog, commerce, payments, finance, shipping, returns, **vendor** portal, vendor teams, preorders.
 
-**Not authorized (Stage 3+):** Catalog, products, cart, checkout, orders, payments, finance, shipping, etc.
+**Stage 13 (IN PROGRESS):** **Provider / service marketplace** — catalog, RFQ, offers, bookings, service payment. Provider Portal UI **PENDING**.
+
+**Not authorized yet:** Stage 14+ admin ops, real notification pipeline, chat, production hardening.
 
 ---
 

@@ -1,13 +1,14 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-08-17 (Stage 7 final hardening)  
-> **Maintained by:** AI development agents after each phase completion
+> **Last updated:** 2026-08-18  
+> **Maintained by:** AI development agents after each phase completion  
+> **Canonical stage doc:** [conception/Stages/Stage 13/README.md](../conception/Stages/Stage%2013/README.md)
 
 ---
 
 ## Project
 
-**DIYAR Marketplace** — Arabic RTL multi-vendor marketplace (**Saudi Arabia**)
+**DIYAR Marketplace** — Arabic RTL multi-vendor marketplace + **service marketplace (provider)** — Saudi Arabia · SAR · 15% VAT
 
 ---
 
@@ -16,14 +17,21 @@
 | Stage | Status |
 |-------|--------|
 | Stage 0 — Discovery & Architecture | **COMPLETE** |
-| Stage 1 — Engineering Foundation | **COMPLETE / FINALIZED** |
-| Stage 2 — Identity & Access | **COMPLETE / FINALIZED** |
-| Stage 3 — User Profile & Media | **COMPLETE / FINALIZED** |
+| Stage 1 — Engineering Foundation | **COMPLETE** |
+| Stage 2 — Identity & Access | **COMPLETE** |
+| Stage 3 — User Profile & Media | **COMPLETE** |
 | Stage 4 — Catalog & Products | **COMPLETE** |
 | Stage 5 — Inventory | **COMPLETE** |
 | Stage 5.5 — Storefront Integration | **COMPLETE** |
-| Stage 6 — Cart | **COMPLETE / VERIFIED** *(uncommitted)* |
-| **Stage 7 — Checkout & Order Engine** | **COMPLETE / PASS WITH BLOCKERS** *(uncommitted)* |
+| Stage 6 — Cart & Checkout | **COMPLETE** |
+| Stage 7 — Order Engine | **COMPLETE** |
+| Stage 8 — Payments & Webhooks | **COMPLETE** |
+| Stage 9 — Financial Ledger | **COMPLETE** |
+| Stage 10 — Shipping | **COMPLETE** |
+| Stage 11 — Returns & Refunds | **COMPLETE** |
+| Stage 12 — Vendor Portal | **COMPLETE** |
+| Stage 12.5 — Vendor Team & Engagement | **COMPLETE** (`6a2ceba`) |
+| **Stage 13 — Service Marketplace (Provider)** | **IN PROGRESS** |
 
 ---
 
@@ -31,41 +39,73 @@
 
 | Field | Value |
 |-------|--------|
-| **Current Stage** | Stage 7 — Checkout & Order Engine (implementation complete) |
-| **Next stage** | Stage 8 — Payment Gateway |
+| **Current Stage** | **Stage 13 — Service Marketplace** |
+| **Stage 13 status** | **IN PROGRESS** — Provider Portal integration **PENDING** (blocks sign-off) |
 | **Branch** | `dev` |
-| **Blocker** | PO manual browser E2E smoke test recommended |
+| **HEAD** | `6a2ceba` — Stage 12 / 12.5 committed |
+| **Working tree** | Stage 13 backend + customer UI **uncommitted** |
 
 ---
 
-## Last Validation (2026-08-17 — Stage 7 final hardening)
+## Stage 13 — Completion Matrix
+
+| Phase | Name | Status |
+|-------|------|--------|
+| 13.1 | Service Catalog | **COMPLETE** |
+| 13.2 | Customer RFQ | **COMPLETE** |
+| 13.3 | Provider Offers | **COMPLETE** (API + customer accept); provider UI **PENDING** |
+| 13.4 | Booking | **COMPLETE** (API); provider UI **PENDING** |
+| 13.5 | Service Payment | **COMPLETE** (dev simulate) |
+| — | **Provider Portal** | **PENDING** — wire `ServiceClientRequests`, `ServiceClientRequestDetails`, `ServiceBookings` to `/dashboard/provider/*` |
+
+**Do not mark Stage 13 COMPLETE until Provider Portal passes acceptance.**
+
+---
+
+## Stage 13 Flow (implemented in working tree)
+
+```text
+Catalog → RFQ → Provider offers → Customer accept → Payment (simulate) → Booking start/complete
+```
+
+**Docs:** `conception/Stages/Stage 13/` (phases 13.1–13.5, acceptance matrix, test results)
+
+---
+
+## Last Validation (2026-08-18)
 
 | Check | Result |
 |-------|--------|
-| `php artisan test` | **178 / 178 PASS** |
-| `php artisan migrate:fresh --seed` | **PASS** |
 | `vendor/bin/pint --test` | **PASS** |
-| `npm test -- --run` | **71 / 71 PASS** |
-| `npx tsc --noEmit` | **PASS** |
+| `php artisan test` | **345 / 345 PASS** |
+| `npm run typecheck` | **PASS** |
+| `npm run lint` | **PASS** |
+| `npm run format:check` | **PASS** |
+| `npm test` | **82 / 82 PASS** |
+| `npm run build` | **PASS** |
+
+**CI fix:** `DIYAR_MAIL_ENABLED=false` in `backend/phpunit.xml` for deterministic email OTP tests.
 
 ---
 
-## Stage 7 Highlights
+## Domain Split (important)
 
-- Server-authoritative checkout preview and order creation (BCMath VAT, no client totals)
-- Per-vendor shipping: carrier flat rate + pickup; vendor settings persisted server-side
-- Order hierarchy: Order → VendorOrder(s) → OrderItem(s) + Payment (pending) + Shipment stub
-- Atomic order numbers via `order_number_sequences` (parallel process test added)
-- Idempotency: `UNIQUE(user_id, idempotency_key)` with replay + 409 conflict
-- Inventory reservation via existing `InventoryService`; cart converts to `converted` on success only
-- Frontend: real API on CheckoutPage, OrdersPage, VendorOrders, VendorShippingSettingsPanel
-
-**Checkout API:** `POST /checkout/preview`, `POST /orders`, `GET /orders`, `GET /orders/{order}`, `POST /orders/{order}/cancel`
-
-**Vendor API:** `GET/PUT /dashboard/vendor/shipping-settings`, `GET /dashboard/vendor/orders`, accept action
+| Stage | Domain |
+|-------|--------|
+| **Stage 12 / 12.5** | **Vendor** — commerce, storefront, teams, preorders |
+| **Stage 13** | **Provider / Service** — catalog, RFQ, offers, bookings, service payment |
 
 ---
 
 ## CI/CD
 
-Workflow: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — frontend + backend lint/test/build on push/PR.
+Workflow: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — frontend typecheck, lint, prettier, vitest, build · backend pint, phpunit.
+
+---
+
+## Next Actions
+
+1. Wire Provider Portal dashboard pages to existing `/dashboard/provider/*` APIs (preserve UI)
+2. QA full provider flow end-to-end
+3. Commit Stage 13 scope (see `STAGE_13_PROGRESS_REPORT.md` for recommended commit split)
+4. Sign off Stage 13 → authorize Stage 14

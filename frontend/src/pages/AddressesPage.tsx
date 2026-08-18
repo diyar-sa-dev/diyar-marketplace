@@ -436,6 +436,7 @@ export default function AddressesPage() {
                       required
                       value={formData.label}
                       onChange={handleChange}
+                      placeholder={t('profile.addresses.placeholders.label')}
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-800 focus:outline-none focus:border-diyar-dark focus:ring-1 focus:ring-diyar-dark transition-colors"
                     />
                   </div>
@@ -465,6 +466,7 @@ export default function AddressesPage() {
                     required
                     value={formData.recipient_name}
                     onChange={handleChange}
+                    placeholder={t('profile.addresses.placeholders.recipient')}
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-800 focus:outline-none focus:border-diyar-dark focus:ring-1 focus:ring-diyar-dark transition-colors"
                   />
                 </div>
@@ -490,6 +492,7 @@ export default function AddressesPage() {
                       name="city"
                       value={formData.city}
                       onChange={handleChange}
+                      placeholder={t('profile.addresses.placeholders.city')}
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-800 focus:outline-none focus:border-diyar-dark focus:ring-1 focus:ring-diyar-dark transition-colors"
                     />
                   </div>
@@ -502,6 +505,7 @@ export default function AddressesPage() {
                       name="district"
                       value={formData.district}
                       onChange={handleChange}
+                      placeholder={t('profile.addresses.placeholders.district')}
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-800 focus:outline-none focus:border-diyar-dark focus:ring-1 focus:ring-diyar-dark transition-colors"
                     />
                   </div>
@@ -516,6 +520,7 @@ export default function AddressesPage() {
                     name="street"
                     value={formData.street}
                     onChange={handleChange}
+                    placeholder={t('profile.addresses.placeholders.street')}
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-800 focus:outline-none focus:border-diyar-dark focus:ring-1 focus:ring-diyar-dark transition-colors"
                   />
                 </div>
@@ -530,6 +535,7 @@ export default function AddressesPage() {
                       name="building"
                       value={formData.building}
                       onChange={handleChange}
+                      placeholder={t('profile.addresses.placeholders.building')}
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-800 focus:outline-none focus:border-diyar-dark focus:ring-1 focus:ring-diyar-dark transition-colors"
                     />
                   </div>
@@ -542,6 +548,7 @@ export default function AddressesPage() {
                       name="apartment"
                       value={formData.apartment}
                       onChange={handleChange}
+                      placeholder={t('profile.addresses.placeholders.apartment')}
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-800 focus:outline-none focus:border-diyar-dark focus:ring-1 focus:ring-diyar-dark transition-colors"
                     />
                   </div>

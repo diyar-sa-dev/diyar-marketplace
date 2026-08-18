@@ -111,6 +111,53 @@ return [
         'category_has_products' => 'Cannot delete a category that has products.',
     ],
 
+    'services' => [
+        'not_found' => 'Service not found.',
+        'provider_not_found' => 'Service provider not found.',
+        'followed' => 'You are now following this provider.',
+        'unfollowed' => 'You unfollowed this provider.',
+        'cannot_follow_own_provider' => 'You cannot follow your own provider profile.',
+        'pricing' => [
+            'fixed' => ':price :currency',
+            'starting_from' => 'From :price :currency',
+            'hourly' => ':price :currency/hr',
+            'per_sqm' => 'From :price :currency/sqm',
+            'per_project' => ':price :currency/project',
+            'custom_quote' => 'Custom quote',
+        ],
+        'requests' => [
+            'created' => 'Your service request was submitted successfully.',
+            'cancelled' => 'Service request cancelled.',
+            'not_found' => 'Service request not found.',
+            'categories_required' => 'Select at least one service category.',
+            'invalid_categories' => 'One or more selected categories are invalid.',
+            'description_required' => 'Describe the service you need.',
+            'attachment_limit_reached' => 'Maximum number of attachments reached.',
+        ],
+        'offers' => [
+            'submitted' => 'Your offer was submitted successfully.',
+            'accepted' => 'Offer accepted. Proceed to booking payment.',
+            'already_submitted' => 'You already submitted an offer for this request.',
+            'cannot_offer_own_request' => 'You cannot submit an offer on your own request.',
+            'request_closed' => 'This service request is no longer accepting offers.',
+            'category_mismatch' => 'This request does not match your service categories.',
+            'price_required' => 'Proposed price is required.',
+            'not_acceptable' => 'This offer cannot be accepted.',
+        ],
+        'bookings' => [
+            'already_exists' => 'A booking already exists for this request.',
+            'not_found' => 'Booking not found.',
+            'invalid_transition' => 'This booking cannot move to the requested state.',
+            'started' => 'Booking marked as in progress.',
+            'completed' => 'Booking marked as completed.',
+        ],
+        'payments' => [
+            'not_payable' => 'This booking is not awaiting payment.',
+            'not_initialized' => 'Payment has not been initialized.',
+            'simulation_failed' => 'Simulated payment failed.',
+        ],
+    ],
+
     'cart' => [
         'cleared' => 'Cart cleared successfully.',
         'item_not_found' => 'Cart item not found.',

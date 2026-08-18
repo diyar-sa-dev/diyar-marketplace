@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CreditCard, CheckCircle2, ShieldCheck, RotateCcw } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useOrders } from '../hooks/checkout/useCheckout.ts';
 import { useOrderPayment } from '../hooks/payment/usePayment.ts';
 import { fetchPaymentCallback } from '../api/payment.ts';
@@ -14,6 +15,8 @@ import {
 import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { EmptyState } from '../components/common/EmptyState.tsx';
+import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
+import { ReturnStatusBadge } from '../components/orders/ReturnStatusBadge.tsx';
 import {
   OrderLineItemThumb,
   ShipmentProgressSteps,
@@ -29,9 +32,14 @@ import {
   resolveEffectiveOrderStatus,
 } from '../lib/orderStatusUtils.ts';
 import type { Order, VendorOrder, OrderItem } from '../types/order.ts';
+import type { ReturnRequest } from '../types/return.ts';
 import { CustomerReturnModal } from '../components/orders/CustomerReturnModal.tsx';
 import { StoreReviewPrompt } from '../components/orders/StoreReviewPrompt.tsx';
 import { useOrderStoreReviewEligibility } from '../hooks/storeReview/useStoreReviews.ts';
+import {
+  customerReturnKeys,
+  useCustomerReturns,
+} from '../hooks/returns/useCustomerReturns.ts';
 import type { StoreReviewEligibilityItem } from '../api/storeReviews.ts';
 
 function OrderStatusBadge({ status, label }: { status: string; label: string }) {
@@ -159,7 +167,7 @@ function ReturnItemButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1 rounded-lg border border-diyar-brown px-3 py-1.5 text-xs font-bold text-diyar-brown hover:bg-amber-50"
+        className="inline-flex items-center gap-1 rounded-lg border border-diyar-brown px-3 py-1.5 text-xs font-bold text-diyar-brown hover:bg-amber-50 cursor-pointer transition-colors"
       >
         <RotateCcw size={14} />
         {t('returns.requestReturn')}
@@ -176,6 +184,48 @@ function ReturnItemButton({
         onError={(message) => toast.error(message)}
       />
     </>
+  );
+}
+
+function CustomerReturnCard({
+  item,
+  t,
+  locale,
+}: {
+  item: ReturnRequest;
+  t: ReturnType<typeof useLocale>['t'];
+  locale: ReturnType<typeof useLocale>['locale'];
+}) {
+  return (
+    <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs text-gray-500">{item.reference}</p>
+          <h3 className="font-bold text-diyar-dark">
+            {item.order_number ?? item.order_id}
+            {item.vendor_name ? ` · ${item.vendor_name}` : ''}
+          </h3>
+          <p className="text-xs text-gray-500 mt-1">
+            {item.created_at ? formatOrderDate(item.created_at, locale) : '—'}
+          </p>
+        </div>
+        <ReturnStatusBadge
+          status={item.status}
+          label={t(`returns.status.${item.status}` as 'returns.status.requested')}
+        />
+      </div>
+
+      {item.items && item.items.length > 0 && (
+        <ul className="mt-4 space-y-2 border-t border-gray-100 pt-4 text-sm">
+          {item.items.map((line) => (
+            <li key={line.id} className="flex justify-between gap-3">
+              <span className="text-gray-700">{line.product_name ?? line.order_item_id}</span>
+              <span className="font-bold tabular-nums text-diyar-dark">× {line.quantity}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </article>
   );
 }
 
@@ -355,8 +405,10 @@ function OrderCard({
 export default function OrdersPage() {
   const { t, locale, dir } = useLocale();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [returnsPage, setReturnsPage] = useState(1);
   const highlightId = searchParams.get('highlight');
   const paymentOutcome = searchParams.get('payment');
   const paymentCallback = paymentOutcome === 'callback';
@@ -364,7 +416,13 @@ export default function OrdersPage() {
   const callbackHandledRef = useRef(false);
   const [highlightTone, setHighlightTone] = useState<'success' | 'failed' | 'expired' | null>(null);
   const { data, isLoading, isError, error, refetch } = useOrders();
+  const returnsQuery = useCustomerReturns(returnsPage);
   const paymentPoll = useOrderPayment(highlightId ?? '', paymentCallback && Boolean(highlightId));
+
+  const handleReturnSubmitted = () => {
+    void refetch();
+    void queryClient.invalidateQueries({ queryKey: customerReturnKeys.all });
+  };
 
   const resolveOrderNumber = (orderId: string | null | undefined) =>
     data?.orders?.find((order) => order.id === orderId)?.order_number;
@@ -512,10 +570,45 @@ export default function OrdersPage() {
               t={t}
               locale={locale}
               dir={dir}
-              onReturnRequested={() => void refetch()}
+              onReturnRequested={handleReturnSubmitted}
             />
           ))
         )}
+
+        <section className="pt-4 border-t border-gray-200">
+          <div className="mb-4">
+            <h2 className="text-lg font-bold text-diyar-dark">{t('orders.myReturnsTitle')}</h2>
+            <p className="text-sm text-gray-500 mt-1">{t('orders.myReturnsSubtitle')}</p>
+          </div>
+
+          {returnsQuery.isLoading ? (
+            <LoadingState className="min-h-32" />
+          ) : returnsQuery.isError ? (
+            <ErrorState
+              title={t('orders.myReturnsError')}
+              error={returnsQuery.error as Error}
+              onRetry={() => void returnsQuery.refetch()}
+            />
+          ) : (returnsQuery.data?.returns ?? []).length === 0 ? (
+            <EmptyState
+              title={t('orders.myReturnsEmpty')}
+              description={t('orders.myReturnsEmptyHint')}
+            />
+          ) : (
+            <div className={`space-y-4 ${returnsQuery.isFetching ? 'opacity-70' : ''}`}>
+              {(returnsQuery.data?.returns ?? []).map((item) => (
+                <CustomerReturnCard key={item.id} item={item} t={t} locale={locale} />
+              ))}
+              {returnsQuery.data?.pagination && (
+                <PaginationBar
+                  pagination={returnsQuery.data.pagination}
+                  page={returnsPage}
+                  onPageChange={setReturnsPage}
+                />
+              )}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

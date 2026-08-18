@@ -111,6 +111,53 @@ return [
         'category_has_products' => 'لا يمكن حذف تصنيف يحتوي على منتجات.',
     ],
 
+    'services' => [
+        'not_found' => 'الخدمة غير موجودة.',
+        'provider_not_found' => 'مزود الخدمة غير موجود.',
+        'followed' => 'أصبحت تتابع هذا المزود.',
+        'unfollowed' => 'ألغيت متابعة هذا المزود.',
+        'cannot_follow_own_provider' => 'لا يمكنك متابعة ملفك كمزود خدمة.',
+        'pricing' => [
+            'fixed' => ':price :currency',
+            'starting_from' => 'يبدأ من :price :currency',
+            'hourly' => ':price :currency/ساعة',
+            'per_sqm' => 'يبدأ من :price :currency/م²',
+            'per_project' => ':price :currency/مشروع',
+            'custom_quote' => 'عرض سعر مخصص',
+        ],
+        'requests' => [
+            'created' => 'تم تقديم طلب الخدمة بنجاح.',
+            'cancelled' => 'تم إلغاء طلب الخدمة.',
+            'not_found' => 'طلب الخدمة غير موجود.',
+            'categories_required' => 'اختر تصنيف خدمة واحداً على الأقل.',
+            'invalid_categories' => 'أحد التصنيفات المحددة غير صالح.',
+            'description_required' => 'صف الخدمة المطلوبة.',
+            'attachment_limit_reached' => 'تم الوصول إلى الحد الأقصى للمرفقات.',
+        ],
+        'offers' => [
+            'submitted' => 'تم تقديم العرض بنجاح.',
+            'accepted' => 'تم قبول العرض. تابع لإتمام الدفع.',
+            'already_submitted' => 'قدّمت عرضاً لهذا الطلب مسبقاً.',
+            'cannot_offer_own_request' => 'لا يمكنك تقديم عرض على طلبك.',
+            'request_closed' => 'هذا الطلب لم يعد يقبل عروضاً.',
+            'category_mismatch' => 'هذا الطلب لا يطابق تصنيفات خدماتك.',
+            'price_required' => 'السعر المقترح مطلوب.',
+            'not_acceptable' => 'لا يمكن قبول هذا العرض.',
+        ],
+        'bookings' => [
+            'already_exists' => 'يوجد حجز لهذا الطلب بالفعل.',
+            'not_found' => 'الحجز غير موجود.',
+            'invalid_transition' => 'لا يمكن تغيير حالة الحجز بهذه الطريقة.',
+            'started' => 'تم تحديد الحجز كقيد التنفيذ.',
+            'completed' => 'تم إكمال الحجز.',
+        ],
+        'payments' => [
+            'not_payable' => 'هذا الحجز لا ينتظر الدفع.',
+            'not_initialized' => 'لم تتم تهيئة الدفع بعد.',
+            'simulation_failed' => 'فشلت محاكاة الدفع.',
+        ],
+    ],
+
     'cart' => [
         'cleared' => 'تم تفريغ السلة بنجاح.',
         'item_not_found' => 'عنصر السلة غير موجود.',

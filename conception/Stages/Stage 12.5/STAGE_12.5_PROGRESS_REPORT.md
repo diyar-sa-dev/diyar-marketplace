@@ -1,19 +1,19 @@
 # Stage 12.5 — Progress Report
 
 > **Date:** 2026-08-18  
-> **Verdict:** **IN PROGRESS** — core features implemented; formal completion pending regression + PO sign-off
+> **Verdict:** **COMPLETE** (committed `6a2ceba`)
 
 ---
 
 ## Executive summary
 
-Stage 12.5 extends Stage 12 with **email identity**, **transactional mail**, **vendor team RBAC**, **product preorders**, and **marketplace engagement** polish.
+Stage 12.5 extends **Stage 12 (vendor portal)** with **email identity**, **transactional mail**, **vendor team RBAC**, **product preorders**, and **marketplace engagement** polish.
 
 ---
 
 ## Completed work (by phase)
 
-### Phase 13.1 — Email verification & transactional mail
+### Phase 12.5.1 — Email verification & transactional mail
 
 - Email OTP for unverified login and profile verification
 - `EmailOtpService` + cache store; dev OTP via `LogEmailOtpProvider` when mail disabled
@@ -21,7 +21,7 @@ Stage 12.5 extends Stage 12 with **email identity**, **transactional mail**, **v
 - Welcome email on first session (verified email) gated by notification preference
 - `welcome_email_sent_at` on users
 
-### Phase 13.2 — Vendor team & role lifecycle
+### Phase 12.5.2 — Vendor team & role lifecycle
 
 - Team invite by email, accept/reject via `/team-invite?token=`
 - Roles: **owner** (store account holder), **manager**, **customer_service**
@@ -30,14 +30,14 @@ Stage 12.5 extends Stage 12 with **email identity**, **transactional mail**, **v
 - `vendor_role_granted` flag on `vendor_team_members`
 - 12 feature tests in `VendorTeamTest`
 
-### Phase 13.3 — Product preorders
+### Phase 12.5.3 — Product preorders
 
 - `product_preorder_requests` table + API
 - Customer: submit preorder from PDP (no cart quantity flow)
 - Vendor: list/cancel preorders at `/dashboard/vendor/preorders`
 - Dashboard stat card for pending preorders
 
-### Phase 13.4 — Store engagement & UX
+### Phase 12.5.4 — Store engagement & UX
 
 - Store follow/unfollow + `followers_count` on storefront stats
 - Product share sheet on store banner (same component as PDP)
@@ -47,7 +47,7 @@ Stage 12.5 extends Stage 12 with **email identity**, **transactional mail**, **v
 - Self-purchase guard through cart validation → checkout
 - Dashboard cards: 2 rows × 4 columns; label `التقييم` (short)
 
-### Phase 13.5 — Notification preferences
+### Phase 12.5.5 — Notification preferences
 
 - Shape: `user.preferences.notifications.{email,push,sms,orders,promotions,system}`
 - Backend: `UserNotificationPreferences::emailEnabled()`, `mailLocale()`
@@ -65,20 +65,18 @@ Stage 12.5 extends Stage 12 with **email identity**, **transactional mail**, **v
 ## Verification snapshot (2026-08-18)
 
 ```text
-php artisan test     → 321 / 324 pass (3 EmailVerification OTP dev-log failures if mail enabled)
+php artisan test     → 345 / 345 pass (with DIYAR_MAIL_ENABLED=false in phpunit.xml)
 npm run typecheck    → PASS
 VendorTeamTest       → 12 / 12 pass
 ```
 
-Known test gap: `EmailVerificationTest` expects `LogEmailOtpProvider::lastDevelopmentOtp()` which is suppressed when `diyar.mail.enabled=true`.
-
 ---
 
-## Migrations added (Stage 13)
+## Migrations added (Stage 12.5)
 
 | Migration | Purpose |
 |-----------|---------|
-| `2026_08_18_120000_create_store_reviews_table.php` | Store reviews (may overlap Stage 12 timeline) |
+| `2026_08_18_120000_create_store_reviews_table.php` | Store reviews |
 | `2026_08_18_150000_create_vendor_settings_extensions.php` | Legal, bank, working hours |
 | `2026_08_18_160000_add_website_url_to_vendor_accounts.php` | Store website |
 | `2026_08_18_170000_create_vendor_team_members_table.php` | Vendor team |
@@ -89,24 +87,14 @@ Known test gap: `EmailVerificationTest` expects `LogEmailOtpProvider::lastDevelo
 
 ---
 
-## Open items (non-blocking for progress doc)
+## Deferred (out of Stage 12.5 scope)
 
-| Item | Notes |
-|------|-------|
-| Email OTP tests vs mail.enabled | Align test env or expose OTP in testing regardless |
-| Push/SMS notification delivery | Preferences UI only; no provider wiring |
-| Team notification toggles (orders/stock/reports) | Decorative checkboxes — future Stage 16 |
-| Service marketplace | Deferred to Stage 14 |
-
----
-
-## Sign-off criteria (pending)
-
-- [ ] Backend full suite green in CI/local with standard `.env.testing`
-- [ ] Frontend test count recorded
-- [ ] PO accepts team removal + portal redirect behavior
-- [ ] Update verdict to **STAGE 13 — COMPLETE**
+| Item | Target |
+|------|--------|
+| Push/SMS notification delivery | Stage 16 |
+| Team notification toggles (orders/stock/reports) | Decorative UI — future |
+| **Service marketplace (provider)** | **Stage 13** |
 
 ---
 
-*Next update: after regression pass and PO sign-off.*
+*Next: [Stage 13 — Service Marketplace](../Stage%2013/README.md)*

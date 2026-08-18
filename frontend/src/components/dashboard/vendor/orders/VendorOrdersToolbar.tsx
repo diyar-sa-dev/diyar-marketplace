@@ -13,6 +13,7 @@ export function VendorOrdersToolbar({
   activeTab,
   onTabChange,
   tabs,
+  hideFilters = false,
 }: {
   searchTerm: string;
   onSearchChange: (value: string) => void;
@@ -24,15 +25,19 @@ export function VendorOrdersToolbar({
   activeTab: VendorOrderTab;
   onTabChange: (tab: VendorOrderTab) => void;
   tabs: Array<{ id: VendorOrderTab; label: string }>;
+  hideFilters?: boolean;
 }) {
   const { t } = useLocale();
 
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <span className="text-xs font-bold text-gray-400">{t('vendorOrders.filterHint')}</span>
+        <span className="text-xs font-bold text-gray-400">
+          {hideFilters ? t('vendorOrders.preordersHint') : t('vendorOrders.filterHint')}
+        </span>
 
-        <div className="flex items-center gap-3">
+        {!hideFilters && (
+          <div className="flex items-center gap-3">
           <div className="relative w-full md:w-64">
             <input
               type="search"
@@ -84,6 +89,7 @@ export function VendorOrdersToolbar({
             )}
           </div>
         </div>
+        )}
       </div>
 
       <div className="mt-4 flex gap-2 overflow-x-auto border-t border-gray-100 pt-4 scrollbar-hide">

@@ -11,69 +11,56 @@ import {
   Info,
   Clock,
   CheckCircle,
+  Loader2,
+  X,
 } from 'lucide-react';
 import ServiceCard from '../components/cards/ServiceCard.tsx';
+import { useAuth } from '../hooks/auth/useAuth.ts';
+import { useProvider, useProviderFollow, useProviderServices } from '../hooks/services/useServices.ts';
+import { SERVICE_IMAGE_FALLBACK } from '../lib/services/serviceUi.ts';
 
 export default function ProviderPage() {
-  const { id } = useParams();
+  const { id: slug } = useParams();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('services');
+  const [sort, setSort] = useState<'latest' | 'most_requested' | 'price_asc' | 'price_desc'>(
+    'latest',
+  );
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
-  const PROVIDER_INFO = {
-    id: id || '1',
-    name: 'إيوان للتصميم',
-    logo: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=200',
-    cover:
-      'https://images.unsplash.com/photo-1616137422495-1e9e46e2aa77?auto=format&fit=crop&q=80&w=1200',
-    description:
-      'نقدم خدمات التصميم الداخلي الشاملة للقصور والفلل والشقق السكنية. نصمم مساحات تعكس هويتك وتلبي احتياجاتك بدقة واحترافية عالية.',
-    rating: 4.9,
-    reviews: 84,
-    completedProjects: 120,
-    servicesCount: 12,
-    joinedDate: '2020',
-    location: 'الرياض، ونقدم استشارات عن بعد',
-    badges: ['مزود موثق', 'تقييم عالي', 'مشاريع مكتملة بنجاح'],
+  const { data: provider, isLoading, isError } = useProvider(slug);
+  const { data: servicesData, isLoading: servicesLoading } = useProviderServices(slug, { sort });
+  const { followMutation, unfollowMutation } = useProviderFollow(slug);
+  const services = servicesData?.items ?? [];
+
+  const joinedYear = provider?.joined_at
+    ? new Date(provider.joined_at).getFullYear().toString()
+    : '—';
+
+  const handleFollow = () => {
+    if (!user || !provider) return;
+    if (provider.follow.is_following) {
+      unfollowMutation.mutate();
+    } else {
+      followMutation.mutate();
+    }
   };
 
-  const SERVICES = [
-    {
-      id: 101,
-      name: 'تصميم داخلي متكامل للشقق',
-      img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=400',
-      vendor: PROVIDER_INFO.name,
-      price: 'يبدأ من 50',
-      rating: 4.8,
-      type: 'استشارة ومخطط',
-    },
-    {
-      id: 102,
-      name: 'تصميم 3D للمكاتب وإخراج الصور',
-      img: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&q=80&w=400',
-      vendor: PROVIDER_INFO.name,
-      price: '1500',
-      rating: 4.9,
-      type: 'سعر ثابت',
-    },
-    {
-      id: 103,
-      name: 'توزيع وتصميم الإضاءة المعمارية',
-      img: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=400',
-      vendor: PROVIDER_INFO.name,
-      price: '600',
-      rating: 4.7,
-      type: 'مخططات فنية',
-    },
-    {
-      id: 104,
-      name: 'جلسة استشارة تصميم أونلاين',
-      img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=400',
-      vendor: PROVIDER_INFO.name,
-      price: '300',
-      rating: 5.0,
-      type: 'بالساعة',
-    },
-  ];
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="w-8 h-8 animate-spin text-diyar-brown" />
+      </div>
+    );
+  }
+
+  if (isError || !provider) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <p className="text-gray-600 font-medium">تعذر تحميل ملف المزود.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen pb-16">
@@ -83,8 +70,8 @@ export default function ProviderPage() {
         onClick={() => setIsGalleryOpen(true)}
       >
         <img
-          src={PROVIDER_INFO.cover}
-          alt={PROVIDER_INFO.name}
+          src={provider.cover_url || SERVICE_IMAGE_FALLBACK}
+          alt={provider.display_name}
           className="w-full h-full object-cover opacity-80 group-hover:opacity-70 transition-opacity"
           referrerPolicy="no-referrer"
           onError={(e) => {
@@ -92,7 +79,7 @@ export default function ProviderPage() {
               'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=1200';
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
         <div className="absolute top-4 left-4 flex gap-2" onClick={(e) => e.stopPropagation()}>
           <button className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 transition">
             <Share2 size={20} />
@@ -107,8 +94,8 @@ export default function ProviderPage() {
             {/* Logo */}
             <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl md:rounded-2xl border-4 border-white shadow-md overflow-hidden bg-white shrink-0 -mt-16 md:-mt-20">
               <img
-                src={PROVIDER_INFO.logo}
-                alt={PROVIDER_INFO.name}
+                src={provider.avatar_url || SERVICE_IMAGE_FALLBACK}
+                alt={provider.display_name}
                 className="w-full h-full object-cover bg-white"
                 referrerPolicy="no-referrer"
                 onError={(e) => {
@@ -122,33 +109,44 @@ export default function ProviderPage() {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark">
-                  {PROVIDER_INFO.name}
+                  {provider.display_name}
                 </h1>
-                <ShieldCheck className="text-blue-500 w-5 h-5 md:w-6 md:h-6" />
+                {provider.verified && (
+                  <ShieldCheck className="text-blue-500 w-5 h-5 md:w-6 md:h-6" />
+                )}
               </div>
               <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-4 max-w-2xl">
-                {PROVIDER_INFO.description}
+                {provider.bio}
               </p>
 
               <div className="flex flex-wrap items-center gap-3 md:gap-6 text-sm text-gray-600">
                 <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
                   <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  <span className="font-bold text-diyar-dark">{PROVIDER_INFO.rating}</span>
-                  <span className="text-xs text-gray-400">({PROVIDER_INFO.reviews} تقييم)</span>
+                  <span className="font-bold text-diyar-dark">{provider.rating_average}</span>
+                  <span className="text-xs text-gray-400">({provider.reviews_count} تقييم)</span>
                 </div>
                 <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
                   <MapPin className="w-4 h-4 text-diyar-brown" />
-                  <span>{PROVIDER_INFO.location}</span>
+                  <span>{provider.location}</span>
                 </div>
               </div>
             </div>
 
             {/* Actions */}
             <div className="flex gap-3 md:w-auto w-full">
-              <button className="flex-1 md:flex-none bg-diyar-dark text-white font-bold py-2.5 px-8 rounded-xl hover:bg-black transition shadow-md">
-                متابعة المزود
+              <button
+                type="button"
+                onClick={handleFollow}
+                disabled={!user || followMutation.isPending || unfollowMutation.isPending}
+                className="flex-1 md:flex-none bg-diyar-dark text-white font-bold py-2.5 px-8 rounded-xl hover:bg-black transition shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {provider.follow.is_following ? 'إلغاء المتابعة' : 'متابعة المزود'}
               </button>
-              <button className="flex-1 md:flex-none bg-gray-100 text-diyar-dark font-bold py-2.5 px-6 rounded-xl hover:bg-gray-200 transition border border-gray-200 flex items-center justify-center gap-2">
+              <button
+                type="button"
+                disabled
+                className="flex-1 md:flex-none bg-gray-100 text-gray-400 font-bold py-2.5 px-6 rounded-xl border border-gray-200 flex items-center justify-center gap-2 cursor-not-allowed"
+              >
                 <Mail size={18} />
                 تواصل
               </button>
@@ -165,18 +163,18 @@ export default function ProviderPage() {
                 <div className="flex justify-between items-center pb-3 border-b border-gray-50">
                   <span className="text-gray-500 text-sm">مشاريع منجزة</span>
                   <span className="font-bold text-diyar-dark">
-                    {PROVIDER_INFO.completedProjects}+
+                    {provider.completed_projects_count}+
                   </span>
                 </div>
                 <div className="flex justify-between items-center pb-3 border-b border-gray-50">
                   <span className="text-gray-500 text-sm">عدد الخدمات</span>
                   <span className="font-bold text-diyar-dark">
-                    {PROVIDER_INFO.servicesCount} خدمات
+                    {provider.active_services_count ?? 0} خدمات
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500 text-sm">تاريخ الانضمام</span>
-                  <span className="font-bold text-diyar-dark">{PROVIDER_INFO.joinedDate}</span>
+                  <span className="font-bold text-diyar-dark">{joinedYear}</span>
                 </div>
               </div>
             </div>
@@ -184,24 +182,16 @@ export default function ProviderPage() {
             <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-5 shadow-sm">
               <h3 className="font-bold text-lg text-diyar-dark mb-4">مميزات المزود</h3>
               <div className="space-y-3">
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                    <ShieldCheck className="w-4 h-4 text-blue-500" />
-                  </div>
-                  <span className="text-gray-700 font-medium">مزود موثوق ومعتمد من ديار</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center shrink-0">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  </div>
-                  <span className="text-gray-700 font-medium">تسليم المشاريع في الوقت المحدد</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
-                    <Award className="w-4 h-4 text-amber-500" />
-                  </div>
-                  <span className="text-gray-700 font-medium">رضا عملاء مرتفع 4.9/5</span>
-                </div>
+                {(provider.badges.length > 0 ? provider.badges : ['مزود خدمات معتمد']).map(
+                  (badge) => (
+                    <div key={badge} className="flex items-center gap-3 text-sm">
+                      <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-4 h-4 text-blue-500" />
+                      </div>
+                      <span className="text-gray-700 font-medium">{badge}</span>
+                    </div>
+                  ),
+                )}
               </div>
             </div>
           </div>
@@ -244,17 +234,33 @@ export default function ProviderPage() {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-diyar-dark">جميع الخدمات والمعروضات</h2>
-                  <select className="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg py-2 px-4 outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown">
-                    <option>الأحدث</option>
-                    <option>الأكثر طلباً</option>
-                    <option>السعر: من الأقل للأعلى</option>
-                    <option>السعر: من الأعلى للأقل</option>
+                  <select
+                    value={sort}
+                    onChange={(e) =>
+                      setSort(
+                        e.target.value as
+                          | 'latest'
+                          | 'most_requested'
+                          | 'price_asc'
+                          | 'price_desc',
+                      )
+                    }
+                    className="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg py-2 px-4 outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown cursor-pointer"
+                  >
+                    <option value="latest">الأحدث</option>
+                    <option value="most_requested">الأكثر طلباً</option>
+                    <option value="price_asc">السعر: من الأقل للأعلى</option>
+                    <option value="price_desc">السعر: من الأعلى للأقل</option>
                   </select>
                 </div>
 
-                {SERVICES.length > 0 ? (
+                {servicesLoading ? (
+                  <div className="flex justify-center py-16">
+                    <Loader2 className="w-8 h-8 animate-spin text-diyar-brown" />
+                  </div>
+                ) : services.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
-                    {SERVICES.map((srv) => (
+                    {services.map((srv) => (
                       <ServiceCard key={srv.id} service={srv} />
                     ))}
                   </div>
@@ -271,11 +277,7 @@ export default function ProviderPage() {
             {activeTab === 'about' && (
               <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
                 <h2 className="text-xl font-bold text-diyar-dark mb-4">نبذة عن المزود</h2>
-                <p className="text-gray-600 leading-relaxed mb-8">
-                  تأسس مكتب "إيوان للتصميم" كفريق من المصممين المعماريين والداخليين الشغوفين بابتكار
-                  مساحات معيشية وعملية تعكس هوية ساكنيها. ندمج بين الفن والعلم لنحول الخيالات إلى
-                  واقع يتخطى توقعات العملاء.
-                </p>
+                <p className="text-gray-600 leading-relaxed mb-8">{provider.bio}</p>
 
                 <h3 className="font-bold text-lg text-diyar-dark mb-4">أوقات العمل</h3>
                 <div className="flex items-center gap-3 text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100 mb-8 w-fit">
@@ -296,110 +298,15 @@ export default function ProviderPage() {
             )}
 
             {activeTab === 'reviews' && (
-              <div className="space-y-6">
-                {/* Rating Overview */}
-                <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                    <div className="text-center md:border-l md:border-gray-150 py-2">
-                      <p className="text-5xl font-extrabold text-diyar-dark mb-2">
-                        {PROVIDER_INFO.rating}
-                      </p>
-                      <div className="flex justify-center gap-1 text-amber-400 mb-2">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} size={18} fill="currentColor" />
-                        ))}
-                      </div>
-                      <p className="text-gray-500 text-xs">
-                        تقييم عام بناءً على {PROVIDER_INFO.reviews} رأي
-                      </p>
-                    </div>
-
-                    <div className="col-span-2 space-y-2">
-                      {[
-                        { stars: 5, pct: 90, count: 76 },
-                        { stars: 4, pct: 8, count: 6 },
-                        { stars: 3, pct: 2, count: 2 },
-                        { stars: 2, pct: 0, count: 0 },
-                        { stars: 1, pct: 0, count: 0 },
-                      ].map((item) => (
-                        <div key={item.stars} className="flex items-center gap-3">
-                          <span className="text-xs text-gray-500 font-bold shrink-0 w-3">
-                            {item.stars}
-                          </span>
-                          <Star size={12} className="text-amber-400 fill-amber-400 shrink-0" />
-                          <div className="flex-grow bg-gray-100 h-2 rounded-full overflow-hidden">
-                            <div
-                              className="bg-amber-400 h-full rounded-full"
-                              style={{ width: `${item.pct}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-gray-450 shrink-0 w-10 text-left">
-                            {item.pct}%
-                          </span>
-                          <span className="text-xs text-gray-400 shrink-0 w-12 hidden sm:inline">
-                            ({item.count})
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Reviews List */}
-                <div className="space-y-4">
-                  {[
-                    {
-                      id: 1,
-                      name: 'عبدالرحمن الحربي',
-                      rating: 5,
-                      date: 'منذ ٣ أيام',
-                      text: 'تعاملت مع مكتب إيوان لتصميم شقتي السكنية والنتيجة كانت مبهرة جداً. استغلال رائع للمساحات وخبرة هندسية واضحة في توزيع الإضاءة ومخططات السباكة والكهرباء.',
-                    },
-                    {
-                      id: 2,
-                      name: 'منى الدوسري',
-                      rating: 5,
-                      date: 'منذ أسبوعين',
-                      text: 'مهندسين محترفين جداً ومستمعين جيدين لكل متطلبات العميل. التصميم ثلاثي الأبعاد كان مطابقاً تماماً لما تمنيته وسرعة في إنجاز المخططات الأساسية.',
-                    },
-                    {
-                      id: 3,
-                      name: 'خالد السديري',
-                      rating: 4,
-                      date: 'منذ شهر',
-                      text: 'الخدمة ممتازة والتصاميم مبتكرة جداً ومناسبة للميزانية المحددة. تم طلب تعديل بسيط على إحدى الغرف وتجاوبوا بسرعة.',
-                    },
-                  ].map((rev) => (
-                    <div
-                      key={rev.id}
-                      className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-5 shadow-sm flex gap-4"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-diyar-brown/10 text-diyar-brown flex items-center justify-center font-bold text-sm shrink-0 border border-diyar-brown/20 select-none">
-                        {rev.name.charAt(0)}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h4 className="font-bold text-diyar-dark text-sm sm:text-base">
-                              {rev.name}
-                            </h4>
-                            <div className="flex gap-0.5 text-amber-400 mt-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  size={11}
-                                  fill={i < rev.rating ? 'currentColor' : 'none'}
-                                  strokeWidth={i < rev.rating ? 0 : 2}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                          <span className="text-xs text-gray-400">{rev.date}</span>
-                        </div>
-                        <p className="text-gray-600 text-sm leading-relaxed">{rev.text}</p>
-                      </div>
-                    </div>
-                  ))}
+              <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
+                <div className="text-center py-8">
+                  <p className="text-5xl font-extrabold text-diyar-dark mb-2">
+                    {provider.rating_average}
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    بناءً على {provider.reviews_count} تقييم — ستظهر المراجعات التفصيلية بعد إطلاق
+                    تقييمات الخدمات.
+                  </p>
                 </div>
               </div>
             )}
@@ -408,7 +315,7 @@ export default function ProviderPage() {
       </div>
       {/* Gallery Modal */}
       {isGalleryOpen && (
-        <div className="fixed inset-0 bg-black/95 z-[200] flex flex-col justify-center animate-in fade-in duration-300 p-4">
+        <div className="fixed inset-0 bg-black/95 z-200 flex flex-col justify-center animate-in fade-in duration-300 p-4">
           <button
             onClick={() => setIsGalleryOpen(false)}
             className="absolute top-6 right-6 text-white hover:text-gray-300 transition z-10 bg-white/10 backdrop-blur-md p-2 rounded-full"
@@ -417,9 +324,9 @@ export default function ProviderPage() {
           </button>
 
           <div className="relative w-full max-w-5xl mx-auto">
-            <div className="aspect-[4/3] md:aspect-video rounded-2xl overflow-hidden shadow-2xl relative bg-black flex items-center justify-center">
+            <div className="aspect-4/3 md:aspect-video rounded-2xl overflow-hidden shadow-2xl relative bg-black flex items-center justify-center">
               <img
-                src={PROVIDER_INFO.cover}
+                src={provider.cover_url || SERVICE_IMAGE_FALLBACK}
                 alt="Provider Cover"
                 className="max-w-full max-h-full object-contain"
                 referrerPolicy="no-referrer"
@@ -436,6 +343,3 @@ export default function ProviderPage() {
   );
 }
 
-// Reuse icon
-import { X as XIcon } from 'lucide-react';
-const X = XIcon;

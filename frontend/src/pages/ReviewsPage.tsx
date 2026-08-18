@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, Star } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
 import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
@@ -8,6 +8,8 @@ import { EmptyState } from '../components/common/EmptyState.tsx';
 import { PublishedReviewCard } from '../components/reviews/PublishedReviewCard.tsx';
 import { PendingReviewCard } from '../components/reviews/PendingReviewCard.tsx';
 import { useCustomerReviews, useInvalidateCustomerReviews } from '../hooks/reviews/useCustomerReviews.ts';
+import { useOrders } from '../hooks/checkout/useCheckout.ts';
+import { orderPaymentPaid as checkOrderPaymentPaid } from '../lib/orderStatusUtils.ts';
 import { resolveAccountSettingsBackPath } from '../lib/auth/roles.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useLocale } from '../hooks/useLocale.ts';
@@ -55,6 +57,7 @@ export default function ReviewsPage() {
     page,
     10,
   );
+  const ordersQuery = useOrders();
 
   const otherStatus: CustomerReviewStatus = activeTab === 'published' ? 'pending' : 'published';
   const otherSummaryQuery = useCustomerReviews(otherStatus, 'all', 1, 1);
@@ -80,6 +83,24 @@ export default function ReviewsPage() {
       return !skippedKeys.has(item.pending_key);
     });
   }, [activeTab, data?.items, skippedKeys]);
+
+  const rawPendingItems = activeTab === 'pending' ? (data?.items ?? []) : [];
+  const allPendingSkipped =
+    activeTab === 'pending' && rawPendingItems.length > 0 && items.length === 0;
+
+  const hasAwaitingDelivery = useMemo(() => {
+    if (activeTab !== 'pending' || pendingCount > 0) {
+      return false;
+    }
+    return (ordersQuery.data?.orders ?? []).some(
+      (order) =>
+        checkOrderPaymentPaid(order) &&
+        (order.vendor_orders ?? []).some(
+          (vendorOrder) =>
+            vendorOrder.status !== 'delivered' && vendorOrder.status !== 'cancelled',
+        ),
+    );
+  }, [activeTab, pendingCount, ordersQuery.data?.orders]);
 
   const handleSkip = (pendingKey: string) => {
     setSkippedKeys((prev) => {
@@ -126,7 +147,11 @@ export default function ReviewsPage() {
   const emptyDescription =
     activeTab === 'published'
       ? t('customerReviews.emptyPublishedHint')
-      : t('customerReviews.emptyPendingHint');
+      : allPendingSkipped
+        ? t('customerReviews.allPendingSkipped')
+        : hasAwaitingDelivery
+          ? t('customerReviews.emptyPendingHint')
+          : t('customerReviews.emptyPendingHint');
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24 md:pb-12" dir={dir}>
@@ -210,6 +235,11 @@ export default function ReviewsPage() {
             title={t('customerReviews.emptyService')}
             description={t('customerReviews.serviceComingSoon')}
           />
+        ) : allPendingSkipped ? (
+          <EmptyState
+            title={t('customerReviews.emptyPending')}
+            description={t('customerReviews.allPendingSkipped')}
+          />
         ) : items.length === 0 ? (
           <EmptyState title={emptyTitle} description={emptyDescription} />
         ) : (
@@ -242,13 +272,6 @@ export default function ReviewsPage() {
                 className="pt-4"
               />
             )}
-          </div>
-        )}
-
-        {activeTab === 'pending' && pendingCount > 0 && items.length === 0 && !isLoading && (
-          <div className="mt-6 rounded-2xl border border-gray-100 bg-white p-8 text-center">
-            <Star className="mx-auto text-gray-300 mb-3" size={28} />
-            <p className="text-sm text-gray-500">{t('customerReviews.allPendingSkipped')}</p>
           </div>
         )}
       </div>

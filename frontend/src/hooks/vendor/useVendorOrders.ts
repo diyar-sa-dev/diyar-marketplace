@@ -8,10 +8,11 @@ export const vendorOrderKeys = {
   detail: (id: string) => [...vendorOrderKeys.all, 'detail', id] as const,
 };
 
-export function useVendorOrders(filters: VendorOrderFilters = {}) {
+export function useVendorOrders(filters: VendorOrderFilters = {}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: vendorOrderKeys.list(filters),
     queryFn: () => ordersApi.fetchVendorOrders(filters),
+    enabled: options?.enabled ?? true,
   });
 }
 

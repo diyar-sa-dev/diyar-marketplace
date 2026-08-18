@@ -1,7 +1,30 @@
 import type { VendorOrder } from '../../../../types/order.ts';
 import type { Locale } from '../../../../lib/i18n/types.ts';
 
-export type VendorOrderTab = 'all' | 'pending' | 'processing' | 'shipped' | 'delivered';
+export type VendorOrderTab =
+  | 'all'
+  | 'pending'
+  | 'processing'
+  | 'shipped'
+  | 'delivered'
+  | 'preorders';
+
+const VENDOR_ORDER_TABS: VendorOrderTab[] = [
+  'all',
+  'pending',
+  'processing',
+  'shipped',
+  'delivered',
+  'preorders',
+];
+
+export function parseVendorOrderTab(value: string | null | undefined): VendorOrderTab {
+  if (value && VENDOR_ORDER_TABS.includes(value as VendorOrderTab)) {
+    return value as VendorOrderTab;
+  }
+
+  return 'all';
+}
 
 export type VendorOrderAction = 'accept' | 'process' | 'ship' | 'deliver' | 'cancel';
 

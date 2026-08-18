@@ -1,77 +1,77 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Search,
   Calendar as CalendarIcon,
   Clock,
   MapPin,
-  Edit,
-  Eye,
   Filter,
   CheckCircle,
-  XCircle,
-  X,
   ArrowRight,
-  User,
   Phone,
   Mail,
 } from 'lucide-react';
+import { ErrorState } from '../../components/common/ErrorState.tsx';
+import { LoadingState } from '../../components/common/LoadingState.tsx';
+import {
+  useProviderBookingActions,
+  useProviderBookings,
+} from '../../hooks/provider/useProviderDashboard.ts';
+import {
+  formatBookingDisplayDate,
+  formatBookingDisplayTime,
+  mapProviderBookingUiStatus,
+} from '../../lib/providerDashboardUi.ts';
+import type { ProviderBooking } from '../../types/providerDashboard.ts';
+import { parseApiError } from '../../utils/errors.ts';
+import { useLocale } from '../../hooks/useLocale.ts';
+
+type BookingUiStatus = 'pending' | 'upcoming' | 'completed' | 'cancelled';
+
+type BookingView = ProviderBooking & { uiStatus: BookingUiStatus };
 
 export default function ServiceBookings() {
+  const { locale } = useLocale();
   const [activeTab, setActiveTab] = useState('upcoming');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [selectedBooking, setSelectedBooking] = useState<BookingView | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const MOCK_BOOKINGS = [
-    {
-      id: '#B-102',
-      customer: 'أحمد محمد',
-      service: 'تصميم داخلي (غرفة جلوس)',
-      date: '2024-05-20',
-      time: '10:00 صباحاً',
-      location: 'حي الياسمين، الرياض',
-      status: 'upcoming',
-      price: 1500,
-    },
-    {
-      id: '#B-101',
-      customer: 'سارة خالد',
-      service: 'استشارة ميدانية',
-      date: '2024-05-18',
-      time: '02:00 مساءً',
-      location: 'حي الملقا، الرياض',
-      status: 'completed',
-      price: 500,
-    },
-    {
-      id: '#B-103',
-      customer: 'نورة السالم',
-      service: 'تنسيق أثاث',
-      date: '2024-05-22',
-      time: '04:00 مساءً',
-      location: 'حي النرجس، الرياض',
-      status: 'pending',
-      price: 800,
-    },
-  ];
+  const { data, isLoading, isError, error, refetch } = useProviderBookings(1, 50);
+  const { start, complete } = useProviderBookingActions();
+
+  const bookings = useMemo<BookingView[]>(() => {
+    return (data?.items ?? []).map((booking) => ({
+      ...booking,
+      uiStatus: mapProviderBookingUiStatus(booking),
+    }));
+  }, [data?.items]);
 
   const getFilteredBookings = () => {
-    let bookings = MOCK_BOOKINGS;
+    let filtered = bookings;
     if (activeTab !== 'all') {
-      bookings = bookings.filter((b) => b.status === activeTab);
+      filtered = filtered.filter((booking) => booking.uiStatus === activeTab);
     }
     if (searchTerm) {
-      bookings = bookings.filter(
-        (b) =>
-          b.id.includes(searchTerm) ||
-          b.customer.includes(searchTerm) ||
-          b.service.includes(searchTerm),
-      );
+      const query = searchTerm.trim().toLowerCase();
+      filtered = filtered.filter((booking) => {
+        const haystack = [
+          booking.reference,
+          booking.customer?.name,
+          booking.service_title,
+          booking.service_request?.title,
+          booking.location,
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        return haystack.includes(query);
+      });
     }
-    return bookings;
+    return filtered;
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: BookingUiStatus) => {
     switch (status) {
       case 'upcoming':
         return (
@@ -106,7 +106,32 @@ export default function ServiceBookings() {
     }
   };
 
+  const serviceLabel = (booking: BookingView) =>
+    booking.service_title ?? booking.service_request?.title ?? 'خدمة';
+
+  const handleComplete = async (booking: BookingView) => {
+    setActionError(null);
+    try {
+      if (booking.status === 'confirmed') {
+        await start.mutateAsync(booking.id);
+      }
+      await complete.mutateAsync(booking.id);
+      setSelectedBooking(null);
+      void refetch();
+    } catch (mutationError) {
+      setActionError(parseApiError(mutationError, locale).message);
+    }
+  };
+
+  const isActionPending = start.isPending || complete.isPending;
+
   if (selectedBooking) {
+    const customerName = selectedBooking.customer?.name ?? 'عميل';
+    const customerNotes =
+      selectedBooking.customer_notes ??
+      selectedBooking.service_request?.description ??
+      'لا توجد ملاحظات إضافية من العميل حول هذا الحجز.';
+
     return (
       <div className="space-y-6 animate-in fade-in duration-300">
         <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
@@ -119,30 +144,48 @@ export default function ServiceBookings() {
             </button>
             <div>
               <h2 className="text-xl font-bold text-diyar-dark">
-                تفاصيل الحجز {selectedBooking.id}
+                تفاصيل الحجز {selectedBooking.reference}
               </h2>
-              <p className="text-sm text-gray-500 mt-1">{selectedBooking.service}</p>
+              <p className="text-sm text-gray-500 mt-1">{serviceLabel(selectedBooking)}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {selectedBooking.status === 'pending' && (
+            {selectedBooking.uiStatus === 'pending' && (
               <>
-                <button className="px-4 py-2 text-sm font-bold text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition shadow-sm">
+                <button
+                  disabled
+                  title="بانتظار دفع العميل"
+                  className="px-4 py-2 text-sm font-bold text-red-600 bg-red-50 rounded-xl transition shadow-sm opacity-60 cursor-not-allowed"
+                >
                   رفض الحجز
                 </button>
-                <button className="px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition shadow-sm">
+                <button
+                  disabled
+                  title="بانتظار دفع العميل"
+                  className="px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-xl transition shadow-sm opacity-60 cursor-not-allowed"
+                >
                   قبول الحجز
                 </button>
               </>
             )}
-            {selectedBooking.status === 'upcoming' && (
-              <button className="px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-xl hover:bg-green-700 transition shadow-sm flex items-center gap-2">
+            {selectedBooking.uiStatus === 'upcoming' && (
+              <button
+                onClick={() => void handleComplete(selectedBooking)}
+                disabled={isActionPending}
+                className="px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-xl hover:bg-green-700 transition shadow-sm flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
                 <CheckCircle size={16} />
                 تعليم كمكتمل
               </button>
             )}
           </div>
         </div>
+
+        {actionError && (
+          <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+            {actionError}
+          </p>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
@@ -158,7 +201,9 @@ export default function ServiceBookings() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 mb-0.5">تاريخ الموعد</p>
-                      <p className="font-bold text-diyar-dark">{selectedBooking.date}</p>
+                      <p className="font-bold text-diyar-dark">
+                        {formatBookingDisplayDate(selectedBooking)}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -167,7 +212,9 @@ export default function ServiceBookings() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 mb-0.5">الوقت المحجوز</p>
-                      <p className="font-bold text-diyar-dark">{selectedBooking.time}</p>
+                      <p className="font-bold text-diyar-dark">
+                        {formatBookingDisplayTime(selectedBooking)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -181,7 +228,7 @@ export default function ServiceBookings() {
                       <div>
                         <p className="text-sm text-gray-500 mb-0.5">موقع الخدمة</p>
                         <p className="font-bold text-diyar-dark leading-relaxed">
-                          {selectedBooking.location}
+                          {selectedBooking.location ?? '—'}
                         </p>
                       </div>
                     </div>
@@ -200,12 +247,10 @@ export default function ServiceBookings() {
                 ملاحظات العميل
               </h3>
               <div className="bg-gray-50 p-4 rounded-xl text-sm leading-relaxed text-gray-700 border border-gray-100">
-                {selectedBooking.service === 'تصميم داخلي (غرفة جلوس)'
-                  ? 'أرغب في تصميم غرفة الجلوس بأسلوب نيو كلاسيك مع التركيز على الألوان الترابية المتماشية مع بعض اللمسات الذهبية. مساحة الغرفة 5x6 متر.'
-                  : 'لا توجد ملاحظات إضافية من العميل حول هذا الحجز.'}
+                {customerNotes}
               </div>
 
-              {selectedBooking.status === 'upcoming' && (
+              {selectedBooking.uiStatus === 'upcoming' && (
                 <div className="mt-6">
                   <h4 className="font-bold text-gray-700 mb-3 text-sm">
                     إضافة ملاحظات (تظهر للعميل بعد إكمال الخدمة)
@@ -227,23 +272,23 @@ export default function ServiceBookings() {
               </h3>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center font-bold text-xl">
-                  {selectedBooking.customer.charAt(0)}
+                  {customerName.charAt(0)}
                 </div>
                 <div>
-                  <h4 className="font-bold text-diyar-dark">{selectedBooking.customer}</h4>
-                  <p className="text-xs text-gray-500">مشترك منذ أكتوبر 2023</p>
+                  <h4 className="font-bold text-diyar-dark">{customerName}</h4>
+                  <p className="text-xs text-gray-500">عميل منصة ديار</p>
                 </div>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                   <Phone size={18} className="text-gray-400" />
                   <span className="text-sm font-medium text-gray-700" dir="ltr">
-                    +966 50 123 4567
+                    —
                   </span>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                   <Mail size={18} className="text-gray-400" />
-                  <span className="text-sm font-medium text-gray-700">customer@example.com</span>
+                  <span className="text-sm font-medium text-gray-700">—</span>
                 </div>
               </div>
             </div>
@@ -251,15 +296,18 @@ export default function ServiceBookings() {
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden text-center">
               <div className="p-6 border-b border-gray-100">
                 <div className="text-gray-500 mb-2 text-sm">الحالة</div>
-                <div className="inline-block">{getStatusBadge(selectedBooking.status)}</div>
+                <div className="inline-block">{getStatusBadge(selectedBooking.uiStatus)}</div>
               </div>
               <div className="p-6 bg-gray-50 flex flex-col justify-center items-center">
                 <div className="text-gray-500 mb-1 text-sm">إجمالي السعر</div>
                 <div className="font-bold text-3xl text-blue-600">
-                  {selectedBooking.price} <span className="text-lg text-blue-600/70">ر.س</span>
+                  {selectedBooking.price}{' '}
+                  <span className="text-lg text-blue-600/70">ر.س</span>
                 </div>
                 <div className="mt-3 text-xs text-gray-500 bg-white px-3 py-1.5 rounded-lg border border-gray-200">
-                  الدفع عبر المنصة (محفوظ)
+                  {selectedBooking.uiStatus === 'pending'
+                    ? 'بانتظار دفع العميل'
+                    : 'الدفع عبر المنصة (محفوظ)'}
                 </div>
               </div>
             </div>
@@ -268,6 +316,28 @@ export default function ServiceBookings() {
       </div>
     );
   }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <LoadingState className="min-h-96" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="space-y-6">
+        <ErrorState
+          message="تعذر تحميل الحجوزات"
+          error={error as Error}
+          onRetry={() => void refetch()}
+        />
+      </div>
+    );
+  }
+
+  const filteredBookings = getFilteredBookings();
 
   return (
     <div className="space-y-6">
@@ -315,7 +385,6 @@ export default function ServiceBookings() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 border-b border-gray-100">
         {[
           { id: 'all', label: 'الكل' },
@@ -338,34 +407,39 @@ export default function ServiceBookings() {
         ))}
       </div>
 
-      {/* Grid */}
+      {actionError && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+          {actionError}
+        </p>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {getFilteredBookings().map((booking) => (
+        {filteredBookings.map((booking) => (
           <div
             key={booking.id}
             className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="flex items-start justify-between mb-4">
               <div>
-                <span className="text-xs text-gray-500 mb-1 inline-block">{booking.id}</span>
-                <h3 className="font-bold text-diyar-dark">{booking.service}</h3>
-                <p className="text-sm text-gray-600 mt-0.5">{booking.customer}</p>
+                <span className="text-xs text-gray-500 mb-1 inline-block">{booking.reference}</span>
+                <h3 className="font-bold text-diyar-dark">{serviceLabel(booking)}</h3>
+                <p className="text-sm text-gray-600 mt-0.5">{booking.customer?.name ?? 'عميل'}</p>
               </div>
-              {getStatusBadge(booking.status)}
+              {getStatusBadge(booking.uiStatus)}
             </div>
 
             <div className="space-y-2 mt-4 pt-4 border-t border-gray-100 text-sm">
               <div className="flex items-center gap-2 text-gray-600">
                 <CalendarIcon size={16} className="text-gray-400" />
-                <span>{booking.date}</span>
+                <span>{formatBookingDisplayDate(booking)}</span>
               </div>
               <div className="flex items-center gap-2 text-gray-600">
                 <Clock size={16} className="text-gray-400" />
-                <span>{booking.time}</span>
+                <span>{formatBookingDisplayTime(booking)}</span>
               </div>
               <div className="flex items-center gap-2 text-gray-600">
                 <MapPin size={16} className="text-gray-400" />
-                <span className="truncate">{booking.location}</span>
+                <span className="truncate">{booking.location ?? '—'}</span>
               </div>
             </div>
 
@@ -376,18 +450,30 @@ export default function ServiceBookings() {
               >
                 التفاصيل
               </button>
-              {booking.status === 'pending' && (
+              {booking.uiStatus === 'pending' && (
                 <>
-                  <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-xl text-sm font-bold transition">
+                  <button
+                    disabled
+                    title="بانتظار دفع العميل"
+                    className="flex-1 bg-blue-500 text-white py-2 rounded-xl text-sm font-bold transition opacity-60 cursor-not-allowed"
+                  >
                     قبول
                   </button>
-                  <button className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-xl text-sm font-bold transition">
+                  <button
+                    disabled
+                    title="بانتظار دفع العميل"
+                    className="flex-1 bg-red-50 text-red-600 py-2 rounded-xl text-sm font-bold transition opacity-60 cursor-not-allowed"
+                  >
                     رفض
                   </button>
                 </>
               )}
-              {booking.status === 'upcoming' && (
-                <button className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl text-sm font-bold transition">
+              {booking.uiStatus === 'upcoming' && (
+                <button
+                  onClick={() => void handleComplete(booking)}
+                  disabled={isActionPending}
+                  className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl text-sm font-bold transition disabled:opacity-70 disabled:cursor-not-allowed"
+                >
                   إكمال الخدمة
                 </button>
               )}
@@ -395,7 +481,7 @@ export default function ServiceBookings() {
           </div>
         ))}
 
-        {getFilteredBookings().length === 0 && (
+        {filteredBookings.length === 0 && (
           <div className="col-span-full py-12 text-center text-gray-500">
             لا توجد حجوزات تطابق بحثك...
           </div>

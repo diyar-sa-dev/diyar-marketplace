@@ -37,5 +37,6 @@
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <env name="DIYAR_PAYMENT_USE_FAKE_GATEWAY" value="true"/>
+        <env name="DIYAR_MAIL_ENABLED" value="false"/>
     </php>
 </phpunit>

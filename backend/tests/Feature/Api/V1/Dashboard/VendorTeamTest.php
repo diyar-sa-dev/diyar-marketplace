@@ -4,6 +4,7 @@ namespace Tests\Feature\Api\V1\Dashboard;
 
 use App\Enums\RoleName;
 use App\Enums\RoleStatus;
+use App\Enums\VendorAccountStatus;
 use App\Enums\VendorTeamRole;
 use App\Enums\VendorTeamStatus;
 use App\Models\Product;
@@ -11,7 +12,6 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorTeamMember;
-use App\Enums\VendorAccountStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;

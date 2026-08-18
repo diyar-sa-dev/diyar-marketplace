@@ -7,6 +7,8 @@ import {
 } from '../../../hooks/vendor/useVendorReturns.ts';
 import { VendorReturnsSkeleton } from '../../../components/dashboard/vendor/returns/VendorReturnsSkeleton.tsx';
 import { EmptyState } from '../../../components/common/EmptyState.tsx';
+import { PaginationBar } from '../../../components/catalog/PaginationBar.tsx';
+import { ReturnStatusBadge } from '../../../components/orders/ReturnStatusBadge.tsx';
 import type { ReturnRequest } from '../../../types/return.ts';
 
 function effectivePolicy(snapshot: Record<string, unknown>): Record<string, unknown> {
@@ -37,10 +39,15 @@ function ReturnDetailCard({
         <div>
           <p className="text-xs text-gray-500">{item.reference}</p>
           <h3 className="font-bold text-diyar-dark">{item.order_number ?? item.order_id}</h3>
-          <p className="text-sm text-gray-600 mt-1">
-            {t(`returns.reason.${item.reason}` as 'returns.reason.damaged')} ·{' '}
-            {t(`returns.status.${item.status}` as 'returns.status.requested')}
-          </p>
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            <ReturnStatusBadge
+              status={item.status}
+              label={t(`returns.status.${item.status}` as 'returns.status.requested')}
+            />
+            <span className="text-sm text-gray-600">
+              {t(`returns.reason.${item.reason}` as 'returns.reason.damaged')}
+            </span>
+          </div>
         </div>
         {item.refund?.total_amount && (
           <p className="text-sm font-bold text-diyar-brown tabular-nums">
@@ -112,7 +119,7 @@ function ReturnDetailCard({
           <button
             type="button"
             onClick={() => onAction(item.id, 'submit-review')}
-            className="rounded-lg bg-diyar-dark px-3 py-2 text-xs font-bold text-white"
+            className="rounded-lg bg-diyar-dark px-3 py-2 text-xs font-bold text-white cursor-pointer hover:bg-black transition-colors"
           >
             {t('returns.actions.submitReview')}
           </button>
@@ -122,14 +129,14 @@ function ReturnDetailCard({
             <button
               type="button"
               onClick={() => onAction(item.id, 'approve')}
-              className="rounded-lg bg-green-700 px-3 py-2 text-xs font-bold text-white"
+              className="rounded-lg bg-green-700 px-3 py-2 text-xs font-bold text-white cursor-pointer hover:bg-green-800 transition-colors"
             >
               {t('returns.actions.approve')}
             </button>
             <button
               type="button"
               onClick={() => onAction(item.id, 'reject')}
-              className="rounded-lg bg-red-600 px-3 py-2 text-xs font-bold text-white"
+              className="rounded-lg bg-red-600 px-3 py-2 text-xs font-bold text-white cursor-pointer hover:bg-red-700 transition-colors"
             >
               {t('returns.actions.reject')}
             </button>
@@ -139,7 +146,7 @@ function ReturnDetailCard({
           <button
             type="button"
             onClick={() => onAction(item.id, 'received')}
-            className="rounded-lg bg-diyar-brown px-3 py-2 text-xs font-bold text-white"
+            className="rounded-lg bg-diyar-brown px-3 py-2 text-xs font-bold text-white cursor-pointer hover:bg-[#A67B5B] transition-colors"
           >
             {t('returns.actions.received')}
           </button>
@@ -148,7 +155,7 @@ function ReturnDetailCard({
           <button
             type="button"
             onClick={() => onAction(item.id, 'inspect')}
-            className="rounded-lg bg-diyar-brown px-3 py-2 text-xs font-bold text-white"
+            className="rounded-lg bg-diyar-brown px-3 py-2 text-xs font-bold text-white cursor-pointer hover:bg-[#A67B5B] transition-colors"
           >
             {t('returns.actions.inspect')}
           </button>
@@ -157,7 +164,7 @@ function ReturnDetailCard({
           <button
             type="button"
             onClick={() => onAction(item.id, 'refund')}
-            className="rounded-lg bg-diyar-dark px-3 py-2 text-xs font-bold text-white"
+            className="rounded-lg bg-diyar-dark px-3 py-2 text-xs font-bold text-white cursor-pointer hover:bg-black transition-colors"
           >
             {t('returns.actions.refund')}
           </button>
@@ -171,8 +178,14 @@ export default function VendorReturnsPage() {
   const { t } = useLocale();
   const { toast } = useToast();
   const [status, setStatus] = useState('all');
-  const { data, isLoading } = useVendorReturns(status);
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isFetching } = useVendorReturns(status, page);
   const actions = useVendorReturnActions();
+
+  const handleStatusChange = (nextStatus: string) => {
+    setStatus(nextStatus);
+    setPage(1);
+  };
 
   const handleAction = async (
     returnId: string,
@@ -201,11 +214,13 @@ export default function VendorReturnsPage() {
         <p className="text-sm text-gray-500 mt-1">{t('returns.vendorSubtitle')}</p>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto">
+      <div className="flex gap-2 overflow-x-auto pb-1">
         {[
           'all',
           'requested',
           'under_review',
+          'approved',
+          'rejected',
           'awaiting_return',
           'received',
           'inspected',
@@ -214,7 +229,7 @@ export default function VendorReturnsPage() {
           <button
             key={tab}
             type="button"
-            onClick={() => setStatus(tab)}
+            onClick={() => handleStatusChange(tab)}
             className={`rounded-xl px-4 py-2 text-sm font-bold whitespace-nowrap cursor-pointer transition ${
               status === tab
                 ? 'bg-diyar-brown text-white'
@@ -229,7 +244,7 @@ export default function VendorReturnsPage() {
       {returns.length === 0 ? (
         <EmptyState title={t('returns.emptyVendor')} />
       ) : (
-        <div className="space-y-4">
+        <div className={`space-y-4 ${isFetching ? 'opacity-70' : ''}`}>
           {returns.map((item) => (
             <ReturnDetailCard
               key={item.id}
@@ -238,6 +253,15 @@ export default function VendorReturnsPage() {
               onAction={(id, action) => void handleAction(id, action)}
             />
           ))}
+
+          {data?.pagination && (
+            <PaginationBar
+              pagination={data.pagination}
+              page={page}
+              onPageChange={setPage}
+              className="pt-2"
+            />
+          )}
         </div>
       )}
     </div>

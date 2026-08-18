@@ -2,8 +2,8 @@
 
 > **Status:** REFERENCE — SUPERSEDED  
 > **Use instead:** [MASTER_DEVELOPMENT_PLAN.md](./MASTER_DEVELOPMENT_PLAN.md) (v2.0, updated 2026-08-18)  
-> **Current stage:** **Stage 12.5 — IN PROGRESS** — [Stages/Stage 12.5/README.md](./Stages/Stage%2012.5/README.md)  
-> **Next stage:** **Stage 13 — Service Marketplace** — [Stages/Stage 13/README.md](./Stages/Stage%2013/README.md)  
+> **Current stage:** **Stage 13 — IN PROGRESS** — [Stages/Stage 13/README.md](./Stages/Stage%2013/README.md)  
+> **Previous:** Stage 12.5 — COMPLETE — [Stages/Stage 12.5/README.md](./Stages/Stage%2012.5/README.md)  
 > **Tech baseline:** Laravel 13, MySQL, React 19
 
 ## 0. Engineering Strategy
@@ -1553,6 +1553,7 @@ Empty
 Error
 Unauthorized
 Forbidden
+Maintence
 ```
 
 ---
