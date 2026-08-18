@@ -12,6 +12,8 @@ trait InteractsWithPayments
     {
         FakePaymentGateway::reset();
 
+        config(['diyar.payments.use_fake_gateway' => true]);
+
         $fake = new FakePaymentGateway;
         $this->app->instance(PaymentGatewayInterface::class, $fake);
         $this->app->instance(PaymentGatewayManager::class, new PaymentGatewayManager($fake));

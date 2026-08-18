@@ -75,7 +75,7 @@ return [
             $explicit = env('DIYAR_PAYMENT_USE_FAKE_GATEWAY');
 
             if ($explicit === null || $explicit === '') {
-                return env('APP_ENV', 'production') === 'local';
+                return in_array(env('APP_ENV', 'production'), ['local', 'testing'], true);
             }
 
             return filter_var($explicit, FILTER_VALIDATE_BOOL);
