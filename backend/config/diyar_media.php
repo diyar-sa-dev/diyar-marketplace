@@ -6,4 +6,11 @@ return [
     'allowed_mimes' => ['image/jpeg', 'image/png', 'image/webp'],
     'allowed_extensions' => ['jpg', 'jpeg', 'png', 'webp'],
     'avatar_directory' => 'users',
+    'vendor_logo_max_kb' => (int) env('DIYAR_VENDOR_LOGO_MAX_KB', 2048),
+    'vendor_logo_mimes' => ['image/jpeg', 'image/png', 'image/svg+xml'],
+    'vendor_logo_extensions' => ['jpg', 'jpeg', 'png', 'svg'],
+    'vendor_cover_max_kb' => (int) env('DIYAR_VENDOR_COVER_MAX_KB', 5120),
+    'vendor_cover_mimes' => ['image/jpeg', 'image/png', 'image/webp'],
+    'vendor_cover_extensions' => ['jpg', 'jpeg', 'png', 'webp'],
+    'vendor_directory' => 'vendors',
 ];

@@ -5,7 +5,7 @@ import { useToast } from '../../../../hooks/useToast.ts';
 import {
   useUpdateVendorShippingSettings,
   useVendorShippingSettings,
-} from '../../../../hooks/dashboard/vendor/useVendorShippingSettings.ts';
+} from '../../../../hooks/vendor/useVendorShippingSettings.ts';
 import { LoadingState } from '../../../common/LoadingState.tsx';
 import { ShippingMethodOptionCard } from './ShippingMethodOptionCard.tsx';
 import type { VendorShippingSettingsPayload } from '../../../../types/shipping.ts';

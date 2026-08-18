@@ -5,6 +5,8 @@ namespace App\Policies;
 use App\Models\ReturnRequest;
 use App\Models\User;
 use App\Models\VendorOrder;
+use App\Services\Vendor\VendorAccessService;
+use App\Support\Vendor\VendorAccessResolver;
 
 class ReturnRequestPolicy
 {
@@ -23,13 +25,7 @@ class ReturnRequestPolicy
             return true;
         }
 
-        $vendorAccount = $user->vendorAccount;
-
-        return $vendorAccount !== null
-            && VendorOrder::query()
-                ->where('id', $returnRequest->vendor_order_id)
-                ->where('vendor_account_id', $vendorAccount->id)
-                ->exists();
+        return $this->belongsToVendor($user, $returnRequest);
     }
 
     public function create(User $user): bool
@@ -43,7 +39,13 @@ class ReturnRequestPolicy
             return true;
         }
 
-        $vendorAccount = $user->vendorAccount;
+        return $this->belongsToVendor($user, $returnRequest)
+            && app(VendorAccessService::class)->canWrite($user, 'returns');
+    }
+
+    private function belongsToVendor(User $user, ReturnRequest $returnRequest): bool
+    {
+        $vendorAccount = VendorAccessResolver::vendorAccount($user);
 
         return $vendorAccount !== null
             && VendorOrder::query()

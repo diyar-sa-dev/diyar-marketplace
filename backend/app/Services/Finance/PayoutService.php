@@ -5,6 +5,7 @@ namespace App\Services\Finance;
 use App\Enums\PayoutStatus;
 use App\Models\User;
 use App\Models\VendorAccount;
+use App\Models\VendorBankAccount;
 use App\Models\VendorPayout;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -24,6 +25,15 @@ final class PayoutService
 
         if (bccomp($amount, $minimum, 2) < 0) {
             throw new InvalidArgumentException(__('diyar.finance.payout_below_minimum', ['minimum' => $minimum]));
+        }
+
+        $hasBankAccount = VendorBankAccount::query()
+            ->where('vendor_account_id', $vendorAccount->id)
+            ->where('is_active', true)
+            ->exists();
+
+        if (! $hasBankAccount) {
+            throw new InvalidArgumentException(__('diyar.finance.bank_account_required'));
         }
 
         return DB::transaction(function () use ($vendorAccount, $amount, $currency) {

@@ -63,6 +63,7 @@ final class RegistrationService
                     'name' => $name,
                     'email' => $email,
                     'password' => $password,
+                    'email_verified_at' => null,
                 ])->save();
 
                 return $existingByPhone->fresh();
@@ -74,6 +75,7 @@ final class RegistrationService
                 'email' => $email,
                 'password' => $password,
                 'status' => UserStatus::Pending,
+                'email_verified_at' => null,
             ]);
         });
 

@@ -38,6 +38,15 @@ export function ShippingMethodOptionCard({
         disabled || !onSelect
           ? undefined
           : (event) => {
+              const target = event.target as HTMLElement;
+              if (
+                target.tagName === 'INPUT'
+                || target.tagName === 'TEXTAREA'
+                || target.tagName === 'SELECT'
+              ) {
+                return;
+              }
+
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 onSelect();
@@ -76,6 +85,7 @@ export function ShippingMethodOptionCard({
         <div
           className="space-y-3 border-t border-gray-100 pt-4"
           onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
         >
           {children}
         </div>

@@ -19,9 +19,8 @@ export function ProtectedRoute({ children, roles }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    return (
-      <Navigate to="/auth" replace state={{ from: location.pathname, reason: 'auth_required' }} />
-    );
+    const returnTo = `${location.pathname}${location.search}`;
+    return <Navigate to="/auth" replace state={{ from: returnTo, reason: 'auth_required' }} />;
   }
 
   const restrictedPath = accountStatusPath(user?.status);

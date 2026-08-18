@@ -1,5 +1,5 @@
-﻿import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import {
   MapPin,
   Star,
@@ -7,33 +7,46 @@ import {
   ShieldCheck,
   Share2,
   Mail,
+  Phone,
+  Globe,
   LayoutGrid,
   Info,
   Clock,
   Truck,
   X,
+  UserCheck,
 } from 'lucide-react';
 import ProductCard from '../components/cards/ProductCard.tsx';
 import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
 import { useVendor, useVendorProducts } from '../hooks/catalog/useCatalog.ts';
 import { mapProductCard } from '../lib/catalogMappers.ts';
 import { resolveMediaUrl } from '../lib/media.ts';
+import { formatTimeRange } from '../lib/formatTimeRange.ts';
 import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { EmptyState } from '../components/common/EmptyState.tsx';
-import { isApiErrorDetail, isNotFound } from '../utils/errors.ts';
+import { isApiErrorDetail, isNotFound, parseApiError } from '../utils/errors.ts';
 import { isValidStoreSlug } from '../lib/storePath.ts';
+import { StoreReviewsTab } from '../components/store/StoreReviewsTab.tsx';
+import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
+import { StarRating } from '../components/product/StarRating.tsx';
+import { useLocale } from '../hooks/useLocale.ts';
+import { useAuth } from '../hooks/auth/useAuth.ts';
+import { useStoreFollow } from '../hooks/store/useStoreFollow.ts';
+import { useToast } from '../hooks/useToast.ts';
 
-const PLACEHOLDER_COVER =
-  'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1200';
-const PLACEHOLDER_LOGO =
-  'https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&q=80&w=200';
+import { PLACEHOLDER_STORE_COVER, PLACEHOLDER_STORE_LOGO } from '../lib/storeMediaDefaults.ts';
 
 export default function StorePage() {
+  const { t, locale, dir } = useLocale();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const { id } = useParams();
   const slug = isValidStoreSlug(id) ? id : undefined;
+  const { follow, unfollow } = useStoreFollow(slug);
   const [activeTab, setActiveTab] = useState('products');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState('-created_at');
 
@@ -91,10 +104,48 @@ export default function StorePage() {
     );
   }
 
-  const coverUrl = resolveMediaUrl(vendor.cover_url) ?? PLACEHOLDER_COVER;
-  const logoUrl = resolveMediaUrl(vendor.logo_url) ?? PLACEHOLDER_LOGO;
+  const canonicalSlug = vendor.slug;
+  if (canonicalSlug && slug !== canonicalSlug) {
+    return <Navigate to={`/store/${canonicalSlug}`} replace />;
+  }
+
+  const storeSlug = canonicalSlug ?? slug;
+  const coverUrl = resolveMediaUrl(vendor.cover_url) ?? PLACEHOLDER_STORE_COVER;
+  const logoUrl = resolveMediaUrl(vendor.logo_url) ?? PLACEHOLDER_STORE_LOGO;
   const products = productsData?.items.map(mapProductCard) ?? [];
-  const productsCount = productsData?.pagination.total ?? products.length;
+  const productsCount = vendor.products_count ?? productsData?.pagination.total ?? products.length;
+
+  const isOwnStore = Boolean(vendor.is_own_store);
+
+  const handleFollowToggle = async () => {
+    if (!user) {
+      toast.error(t('store.followLoginRequired'));
+      return;
+    }
+
+    if (isOwnStore) {
+      toast.warning(t('store.followOwnStore'));
+      return;
+    }
+
+    try {
+      if (vendor.is_following) {
+        await unfollow.mutateAsync();
+        toast.success(t('store.unfollowed'));
+      } else {
+        await follow.mutateAsync();
+        toast.success(t('store.followed'));
+      }
+      await refetchVendor();
+    } catch (error) {
+      const message = parseApiError(error, locale).message;
+      if (message.includes('متابعة متجرك') || message.toLowerCase().includes('follow your own')) {
+        toast.warning(t('store.followOwnStore'));
+      } else {
+        toast.error(t('store.followError'));
+      }
+    }
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen pb-16">
@@ -115,7 +166,12 @@ export default function StorePage() {
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
         <div className="absolute top-4 left-4 flex gap-2" onClick={(e) => e.stopPropagation()}>
-          <button className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 transition">
+          <button
+            type="button"
+            onClick={() => setShareOpen(true)}
+            className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 transition cursor-pointer"
+            title={t('store.share')}
+          >
             <Share2 size={20} />
           </button>
         </div>
@@ -142,7 +198,10 @@ export default function StorePage() {
             {/* Info */}
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark">
+                <h1
+                  className="text-2xl md:text-3xl font-bold text-diyar-dark wrap-break-word line-clamp-2 max-w-full"
+                  title={vendor.store_name}
+                >
                   {vendor.store_name}
                 </h1>
                 <ShieldCheck className="text-blue-500 w-5 h-5 md:w-6 md:h-6" />
@@ -158,17 +217,45 @@ export default function StorePage() {
                     <span>{vendor.location}</span>
                   </div>
                 )}
+                {(vendor.reviews_count ?? 0) > 0 && vendor.rating_avg != null && (
+                  <div className="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
+                    <StarRating value={vendor.rating_avg} readOnly size={14} />
+                    <span className="font-bold text-diyar-dark tabular-nums">
+                      {vendor.rating_avg.toFixed(1)}
+                    </span>
+                    <span className="text-gray-500">
+                      {t('storeReviews.overallRatingCount', { count: vendor.reviews_count ?? 0 })}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Actions */}
             <div className="flex gap-3 md:w-auto w-full">
-              <button className="flex-1 md:flex-none bg-diyar-brown text-white font-bold py-2.5 px-8 rounded-xl hover:bg-[#856b54] transition shadow-md">
-                متابعة
-              </button>
-              <button className="flex-1 md:flex-none bg-gray-100 text-diyar-dark font-bold py-2.5 px-6 rounded-xl hover:bg-gray-200 transition border border-gray-200 flex items-center justify-center gap-2">
+              {!isOwnStore ? (
+                <button
+                  type="button"
+                  onClick={() => void handleFollowToggle()}
+                  disabled={follow.isPending || unfollow.isPending}
+                  className={`flex-1 md:flex-none font-bold py-2.5 px-8 rounded-xl transition shadow-md disabled:opacity-60 cursor-pointer inline-flex items-center justify-center gap-2 ${
+                    vendor.is_following
+                      ? 'bg-emerald-600 text-white ring-2 ring-emerald-200 hover:bg-emerald-700'
+                      : 'bg-diyar-brown text-white hover:bg-[#856b54]'
+                  }`}
+                >
+                  {vendor.is_following ? <UserCheck size={18} /> : null}
+                  {vendor.is_following ? t('store.following') : t('store.follow')}
+                </button>
+              ) : null}
+              <button
+                type="button"
+                disabled
+                title={t('store.contactSoon')}
+                className="flex-1 md:flex-none bg-gray-100 text-gray-400 font-bold py-2.5 px-6 rounded-xl border border-gray-200 flex items-center justify-center gap-2 cursor-not-allowed"
+              >
                 <Mail size={18} />
-                تواصل
+                {t('store.contact')}
               </button>
             </div>
           </div>
@@ -178,14 +265,22 @@ export default function StorePage() {
           {/* Sidebar */}
           <div className="md:col-span-1 space-y-6">
             <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-5 shadow-sm">
-              <h3 className="font-bold text-lg text-diyar-dark mb-4">إحصائيات المتجر</h3>
+              <h3 className="font-bold text-lg text-diyar-dark mb-4">{t('store.statsTitle')}</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-3 border-b border-gray-50">
-                  <span className="text-gray-500 text-sm">عدد المنتجات</span>
-                  <span className="font-bold text-diyar-dark">{productsCount} منتج</span>
+                  <span className="text-gray-500 text-sm">{t('store.statsProducts')}</span>
+                  <span className="font-bold text-diyar-dark">
+                    {t('store.productsCount', { count: productsCount })}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pb-3 border-b border-gray-50">
+                  <span className="text-gray-500 text-sm">{t('store.statsFollowers')}</span>
+                  <span className="font-bold text-diyar-dark tabular-nums">
+                    {t('store.followersCount', { count: vendor.followers_count ?? 0 })}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">الموقع</span>
+                  <span className="text-gray-500 text-sm">{t('store.statsLocation')}</span>
                   <span className="font-bold text-diyar-dark">{vendor.location ?? '—'}</span>
                 </div>
               </div>
@@ -219,30 +314,45 @@ export default function StorePage() {
           {/* Main Content */}
           <div className="md:col-span-3">
             {/* Tabs */}
-            <div className="flex border-b border-gray-200 mb-6 font-medium text-sm md:text-base">
+            <div className="flex overflow-x-auto border-b border-gray-200 mb-6 font-medium text-sm md:text-base scrollbar-hide -mx-1 px-1">
               <button
+                type="button"
                 onClick={() => setActiveTab('products')}
-                className={`py-3 px-6 shrink-0 transition-colors ${activeTab === 'products' ? 'border-b-2 border-diyar-brown text-diyar-brown font-bold' : 'text-gray-500 hover:text-diyar-dark'}`}
+                className={`py-3 px-4 sm:px-6 shrink-0 transition-colors cursor-pointer ${
+                  activeTab === 'products'
+                    ? 'border-b-2 border-diyar-brown text-diyar-brown font-bold'
+                    : 'text-gray-500 hover:text-diyar-dark'
+                }`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 whitespace-nowrap">
                   <LayoutGrid size={18} />
                   المنتجات
                 </div>
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab('about')}
-                className={`py-3 px-6 shrink-0 transition-colors ${activeTab === 'about' ? 'border-b-2 border-diyar-brown text-diyar-brown font-bold' : 'text-gray-500 hover:text-diyar-dark'}`}
+                className={`py-3 px-4 sm:px-6 shrink-0 transition-colors cursor-pointer ${
+                  activeTab === 'about'
+                    ? 'border-b-2 border-diyar-brown text-diyar-brown font-bold'
+                    : 'text-gray-500 hover:text-diyar-dark'
+                }`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 whitespace-nowrap">
                   <Info size={18} />
                   عن المتجر
                 </div>
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab('reviews')}
-                className={`py-3 px-6 shrink-0 transition-colors ${activeTab === 'reviews' ? 'border-b-2 border-diyar-brown text-diyar-brown font-bold' : 'text-gray-500 hover:text-diyar-dark'}`}
+                className={`py-3 px-4 sm:px-6 shrink-0 transition-colors cursor-pointer ${
+                  activeTab === 'reviews'
+                    ? 'border-b-2 border-diyar-brown text-diyar-brown font-bold'
+                    : 'text-gray-500 hover:text-diyar-dark'
+                }`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 whitespace-nowrap">
                   <Star size={18} />
                   التقييمات
                 </div>
@@ -301,133 +411,110 @@ export default function StorePage() {
 
             {activeTab === 'about' && (
               <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
-                <h2 className="text-xl font-bold text-diyar-dark mb-4">نبذة عن المتجر</h2>
+                <h2 className="text-xl font-bold text-diyar-dark mb-4">{t('store.aboutTitle')}</h2>
                 <p className="text-gray-600 leading-relaxed mb-8">
-                  {vendor.description ?? 'متجر معتمد على منصة ديار.'}
+                  {vendor.description ?? t('store.defaultDescription')}
                 </p>
 
-                <h3 className="font-bold text-lg text-diyar-dark mb-4">أوقات العمل</h3>
-                <div className="flex items-center gap-3 text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100 mb-8 w-fit">
-                  <Clock className="text-diyar-brown shrink-0" />
-                  <div>
-                    <p className="font-medium">السبت - الخميس: 9:00 صباحاً - 10:00 مساءً</p>
-                    <p className="text-sm mt-1">الجمعة: 4:00 عصراً - 10:00 مساءً</p>
-                  </div>
-                </div>
-
-                <h3 className="font-bold text-lg text-diyar-dark mb-4">سياسة المتجر</h3>
-                <ul className="list-disc list-inside space-y-2 text-gray-600">
-                  <li>الاسترجاع متاح خلال 7 أيام من تاريخ الاستلام في حال وجود عيب مصنعي.</li>
-                  <li>الشحن مجاني للطلبات التي تزيد عن 3000 ريال داخل الرياض.</li>
-                  <li>ضمان لمدة 5 سنوات على الإسفنج والخشب.</li>
-                </ul>
-              </div>
-            )}
-
-            {activeTab === 'reviews' && (
-              <div className="space-y-6">
-                {/* Rating Overview */}
-                <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                    <div className="text-center md:border-l md:border-gray-150 py-2">
-                      <p className="text-5xl font-extrabold text-diyar-dark mb-2">—</p>
-                      <div className="flex justify-center gap-1 text-amber-400 mb-2">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} size={18} fill="currentColor" />
-                        ))}
-                      </div>
-                      <p className="text-gray-500 text-xs">تقييمات المتجر قريباً</p>
+                {(vendor.support_phone || vendor.support_email || vendor.website_url) && (
+                  <>
+                    <h3 className="font-bold text-lg text-diyar-dark mb-4">
+                      {t('vendor.settings.store.contactTitle')}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                      {vendor.support_phone && (
+                        <a
+                          href={`tel:${vendor.support_phone}`}
+                          className="flex items-center gap-3 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:border-diyar-brown/30 transition"
+                          dir="ltr"
+                        >
+                          <Phone size={18} className="text-diyar-brown shrink-0" />
+                          <span className="font-medium text-diyar-dark">{vendor.support_phone}</span>
+                        </a>
+                      )}
+                      {vendor.support_email && (
+                        <a
+                          href={`mailto:${vendor.support_email}`}
+                          className="flex items-center gap-3 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:border-diyar-brown/30 transition"
+                          dir="ltr"
+                        >
+                          <Mail size={18} className="text-diyar-brown shrink-0" />
+                          <span className="font-medium text-diyar-dark truncate">{vendor.support_email}</span>
+                        </a>
+                      )}
+                      {vendor.website_url && (
+                        <a
+                          href={vendor.website_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:border-diyar-brown/30 transition sm:col-span-2"
+                          dir="ltr"
+                        >
+                          <Globe size={18} className="text-diyar-brown shrink-0" />
+                          <span className="font-medium text-diyar-brown truncate">{vendor.website_url}</span>
+                        </a>
+                      )}
                     </div>
+                  </>
+                )}
 
-                    <div className="col-span-2 space-y-2">
-                      {[
-                        { stars: 5, pct: 85, count: 1062 },
-                        { stars: 4, pct: 10, count: 125 },
-                        { stars: 3, pct: 3, count: 37 },
-                        { stars: 2, pct: 1, count: 12 },
-                        { stars: 1, pct: 1, count: 14 },
-                      ].map((item) => (
-                        <div key={item.stars} className="flex items-center gap-3">
-                          <span className="text-xs text-gray-500 font-bold shrink-0 w-3">
-                            {item.stars}
-                          </span>
-                          <Star size={12} className="text-amber-400 fill-amber-400 shrink-0" />
-                          <div className="grow bg-gray-100 h-2 rounded-full overflow-hidden">
-                            <div
-                              className="bg-amber-400 h-full rounded-full"
-                              style={{ width: `${item.pct}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-gray-400 shrink-0 w-10 text-left">
-                            {item.pct}%
-                          </span>
-                          <span className="text-xs text-gray-400 shrink-0 w-12 hidden sm:inline">
-                            ({item.count})
-                          </span>
+                {(vendor.working_hours?.length ?? 0) > 0 && (
+                  <>
+                    <h3 className="font-bold text-lg text-diyar-dark mb-4">{t('store.workingHours')}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mb-8">
+                      {vendor.working_hours?.map((hour) => (
+                        <div
+                          key={hour.day}
+                          className={`rounded-xl border p-4 text-start ${
+                            hour.is_closed
+                              ? 'border-gray-100 bg-gray-50 text-gray-400'
+                              : 'border-diyar-brown/15 bg-amber-50/30'
+                          }`}
+                          dir={dir}
+                        >
+                          <p className="font-bold text-sm text-diyar-dark mb-1">
+                            {t(`vendor.settings.weekdays.${hour.day}`)}
+                          </p>
+                          {hour.is_closed ? (
+                            <p className="text-sm">{t('store.closed')}</p>
+                          ) : (
+                            <p
+                              className="text-sm tabular-nums text-gray-600 [unicode-bidi:isolate]"
+                              dir="ltr"
+                            >
+                              {formatTimeRange(hour.opens_at, hour.closes_at, locale)}
+                            </p>
+                          )}
                         </div>
                       ))}
                     </div>
-                  </div>
-                </div>
+                  </>
+                )}
 
-                {/* Reviews List */}
-                <div className="space-y-4">
-                  {[
-                    {
-                      id: 1,
-                      name: 'سارة العتيبي',
-                      rating: 5,
-                      date: 'منذ يومين',
-                      text: 'جودة الأثاث رائعة جداً والخدمة في قمة الرقي. طلبت طقم الكنب الكلاسيكي ووصل بنفس المواصفات تماماً واللمسات الذهبية جداً فخمة. شكراً لكم!',
-                    },
-                    {
-                      id: 2,
-                      name: 'محمد الشهراني',
-                      rating: 5,
-                      date: 'منذ أسبوع',
-                      text: 'رقي في التعامل، والتزام دقيق بالمواعيد. التوصيل كان سريع والتركيب احترافي جداً ولا توجد أي خدوش. أنصح بالتعامل معهم بشدة.',
-                    },
-                    {
-                      id: 3,
-                      name: 'ريما خالد',
-                      rating: 4,
-                      date: 'منذ أسبوعين',
-                      text: 'الخامات فخمة جداً ولكن التوصيل تأخر يوم واحد عن الموعد المتفق عليه. بخلاف ذلك الكرسي المخمل مريح جداً ولونه رائع.',
-                    },
-                  ].map((rev) => (
-                    <div
-                      key={rev.id}
-                      className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-5 shadow-sm flex gap-4"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-diyar-brown/10 text-diyar-brown flex items-center justify-center font-bold text-sm shrink-0 border border-diyar-brown/20 select-none">
-                        {rev.name.charAt(0)}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h4 className="font-bold text-diyar-dark text-sm sm:text-base">
-                              {rev.name}
-                            </h4>
-                            <div className="flex gap-0.5 text-amber-400 mt-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  size={11}
-                                  fill={i < rev.rating ? 'currentColor' : 'none'}
-                                  strokeWidth={i < rev.rating ? 0 : 2}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                          <span className="text-xs text-gray-400">{rev.date}</span>
-                        </div>
-                        <p className="text-gray-600 text-sm leading-relaxed">{rev.text}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <h3 className="font-bold text-lg text-diyar-dark mb-4">{t('store.policyTitle')}</h3>
+                {(vendor.return_policy_summary?.length ?? 0) > 0 ||
+                (vendor.shipping_summary?.length ?? 0) > 0 ? (
+                  <ul className="list-disc list-inside space-y-2 text-gray-600">
+                    {vendor.return_policy_summary?.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                    {vendor.shipping_summary?.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500 text-sm">{t('store.noPolicyConfigured')}</p>
+                )}
               </div>
             )}
+
+            {activeTab === 'reviews' && storeSlug ? (
+              <StoreReviewsTab
+                slug={storeSlug}
+                storeName={vendor.store_name}
+                storeLogoUrl={vendor.logo_url}
+              />
+            ) : null}
           </div>
         </div>
       </div>
@@ -457,6 +544,13 @@ export default function StorePage() {
           </div>
         </div>
       )}
+      <ProductShareSheet
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        url={storeSlug ? `${window.location.origin}/store/${storeSlug}` : window.location.href}
+        title={vendor.store_name}
+        context="store"
+      />
     </div>
   );
 }

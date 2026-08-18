@@ -17,6 +17,11 @@ export type AuthUser = {
   phone_verified_at: string | null;
   email_verified_at: string | null;
   roles?: UserRole[];
+  vendor_account?: {
+    id: string;
+    slug: string;
+    store_name: string;
+  } | null;
   created_at?: string;
 };
 
@@ -39,6 +44,11 @@ export type RegisterPayload = {
 
 export type VerifyOtpPayload = {
   phone: string;
+  code: string;
+};
+
+export type VerifyEmailOtpPayload = {
+  email: string;
   code: string;
 };
 

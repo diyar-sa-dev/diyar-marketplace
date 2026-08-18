@@ -4,11 +4,15 @@ namespace App\Services\Catalog;
 
 use App\Enums\AvailabilityMode;
 use App\Enums\InventoryMovementType;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Enums\ReservationStatus;
 use App\Models\InventoryReservation;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductInventory;
 use App\Models\User;
+use App\Services\Vendor\VendorAccessService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -76,6 +80,14 @@ final class InventoryService
             $newStock = $previousStock + $delta;
             if ($newStock < 0) {
                 throw new InvalidArgumentException(__('diyar.catalog.insufficient_stock'));
+            }
+
+            if ($newStock < $inventory->reserved_quantity) {
+                throw new InvalidArgumentException(__('diyar.catalog.stock_below_reserved', [
+                    'quantity' => $newStock,
+                    'reserved' => $inventory->reserved_quantity,
+                    'minimum' => $inventory->reserved_quantity,
+                ]));
             }
 
             if ($delta === 0) {
@@ -306,6 +318,47 @@ final class InventoryService
         return $released;
     }
 
+    public function releaseStaleOrderReservations(): int
+    {
+        $released = 0;
+
+        InventoryReservation::query()
+            ->where('status', ReservationStatus::Pending)
+            ->where('reference_type', Order::class)
+            ->whereNotNull('reference_id')
+            ->orderBy('created_at')
+            ->chunkById(100, function ($reservations) use (&$released) {
+                foreach ($reservations as $reservation) {
+                    $order = Order::query()->with('payment')->find($reservation->reference_id);
+
+                    if ($order === null) {
+                        continue;
+                    }
+
+                    $payment = $order->payment;
+                    $shouldRelease = $order->status === OrderStatus::Cancelled
+                        || ($payment !== null && in_array($payment->status, [
+                            PaymentStatus::Failed,
+                            PaymentStatus::Expired,
+                            PaymentStatus::Cancelled,
+                        ], true));
+
+                    if (! $shouldRelease) {
+                        continue;
+                    }
+
+                    try {
+                        $this->release($reservation, finalStatus: ReservationStatus::Released);
+                        $released++;
+                    } catch (InvalidArgumentException) {
+                        continue;
+                    }
+                }
+            });
+
+        return $released;
+    }
+
     public function assertReservationOwnedBy(InventoryReservation $reservation, User $user): void
     {
         if ($reservation->user_id !== $user->id) {
@@ -315,9 +368,29 @@ final class InventoryService
 
     public function assertProductOwnership(User $user, Product $product): void
     {
-        $vendorAccount = $user->vendorAccount;
+        $vendorAccount = app(VendorAccessService::class)->resolveVendorAccount($user);
         if ($vendorAccount === null || $product->vendor_account_id !== $vendorAccount->id) {
             throw new AccessDeniedHttpException(__('diyar.auth.forbidden'));
+        }
+    }
+
+    public function releasePendingForOrder(
+        Order $order,
+        ?User $actor = null,
+        ReservationStatus $finalStatus = ReservationStatus::Released,
+    ): void {
+        $reservations = InventoryReservation::query()
+            ->where('reference_type', Order::class)
+            ->where('reference_id', $order->id)
+            ->where('status', ReservationStatus::Pending)
+            ->get();
+
+        foreach ($reservations as $reservation) {
+            try {
+                $this->release($reservation, $actor ?? $order->user, $finalStatus);
+            } catch (InvalidArgumentException) {
+                continue;
+            }
         }
     }
 

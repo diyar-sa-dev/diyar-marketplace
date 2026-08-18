@@ -27,6 +27,9 @@ class VendorAccount extends Model
         'status',
         'logo_path',
         'cover_path',
+        'support_phone',
+        'support_email',
+        'website_url',
     ];
 
     protected function casts(): array
@@ -73,6 +76,41 @@ class VendorAccount extends Model
     public function returnPolicy(): HasOne
     {
         return $this->hasOne(VendorReturnPolicy::class);
+    }
+
+    public function storeReviews(): HasMany
+    {
+        return $this->hasMany(StoreReview::class);
+    }
+
+    public function legalProfile(): HasOne
+    {
+        return $this->hasOne(VendorLegalProfile::class);
+    }
+
+    public function bankAccounts(): HasMany
+    {
+        return $this->hasMany(VendorBankAccount::class);
+    }
+
+    public function activeBankAccount(): HasOne
+    {
+        return $this->hasOne(VendorBankAccount::class)->where('is_active', true)->latest();
+    }
+
+    public function workingHours(): HasMany
+    {
+        return $this->hasMany(VendorWorkingHour::class);
+    }
+
+    public function followers(): HasMany
+    {
+        return $this->hasMany(VendorStoreFollow::class);
+    }
+
+    public function teamMembers(): HasMany
+    {
+        return $this->hasMany(VendorTeamMember::class);
     }
 
     public function scopeActive($query)

@@ -726,6 +726,15 @@ export function VendorProductFormModal({
                             className={`${vendorFieldClass(Boolean(showError('stockAdjust')))} p-2.5 font-bold text-right`}
                           />
                           <FieldError message={showError('stockAdjust')} />
+                          {productDetail?.inventory && productDetail.inventory.reserved_quantity > 0 && (
+                            <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-2.5 py-2 leading-relaxed border border-amber-100">
+                              {t('vendor.form.stockReservedHint', {
+                                reserved: productDetail.inventory.reserved_quantity,
+                                available: productDetail.inventory.available_quantity,
+                                minimum: productDetail.inventory.reserved_quantity,
+                              })}
+                            </p>
+                          )}
                         </>
                       ) : (
                         <>

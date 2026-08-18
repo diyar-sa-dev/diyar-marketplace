@@ -5,7 +5,7 @@ import { useToast } from '../../../../hooks/useToast.ts';
 import {
   useUpdateVendorReturnPolicy,
   useVendorReturnPolicy,
-} from '../../../../hooks/dashboard/vendor/useVendorReturns.ts';
+} from '../../../../hooks/vendor/useVendorReturns.ts';
 import { LoadingState } from '../../../common/LoadingState.tsx';
 import type { ReturnReason, VendorReturnPolicyPayload } from '../../../../types/return.ts';
 
@@ -153,7 +153,7 @@ export function VendorReturnPolicyPanel() {
           type="button"
           onClick={() => void handleSave()}
           disabled={saveMutation.isPending}
-          className="inline-flex items-center gap-2 rounded-xl bg-diyar-brown px-6 py-3 font-bold text-white"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-diyar-brown px-6 py-3 font-bold text-white transition hover:bg-diyar-brown/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Save size={18} />
           {t('returns.savePolicy')}

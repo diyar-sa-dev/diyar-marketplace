@@ -9,6 +9,7 @@ use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\Catalog\ProductService;
+use App\Services\Order\SelfPurchaseGuard;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -18,6 +19,7 @@ final class CartService
 {
     public function __construct(
         private readonly ProductService $products,
+        private readonly SelfPurchaseGuard $selfPurchase,
     ) {}
 
     public function maxQuantityPerItem(): int
@@ -96,6 +98,13 @@ final class CartService
             $cart = Cart::query()->whereKey($cart->id)->lockForUpdate()->firstOrFail();
             $product = $this->products->findPublic($productId);
             $product->loadMissing('colors');
+
+            if ($cart->user_id !== null) {
+                $cartUser = User::query()->find($cart->user_id);
+                if ($cartUser !== null) {
+                    $this->selfPurchase->assertProductNotSelfPurchase($cartUser, $product);
+                }
+            }
             $color = $this->resolveColorSelection($product, $colorName, $colorHex);
             $unitPrice = (string) $product->sale_price;
 
@@ -146,6 +155,13 @@ final class CartService
 
             if ($product === null) {
                 throw new NotFoundHttpException(__('diyar.catalog.product_not_found'));
+            }
+
+            if ($cart->user_id !== null) {
+                $cartUser = User::query()->find($cart->user_id);
+                if ($cartUser !== null) {
+                    $this->selfPurchase->assertProductNotSelfPurchase($cartUser, $product);
+                }
             }
 
             $this->assertQuantityAllowedForProduct($product, $quantity);

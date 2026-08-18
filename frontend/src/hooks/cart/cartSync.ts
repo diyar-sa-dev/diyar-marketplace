@@ -7,7 +7,7 @@ import {
   updateCartItem,
 } from '../../api/cart.ts';
 import type { Cart } from '../../types/cart.ts';
-import { parseApiError } from '../../utils/errors.ts';
+import { parseApiError, isForbidden } from '../../utils/errors.ts';
 import { cartKeys } from './queryKeys.ts';
 import { lineKeyFromItem, readLocalCartEnvelope, writeLocalCartEnvelope } from './cartLocal.ts';
 
@@ -80,7 +80,7 @@ class CartSyncManager {
 
     try {
       let serverCart = await fetchCart();
-      const target = envelope.cart;
+      let target = envelope.cart;
 
       const targetByLine = new Map(target.items.map((item) => [lineKeyFromItem(item), item]));
 
@@ -100,12 +100,25 @@ class CartSyncManager {
 
       for (const [key, targetItem] of targetByLine) {
         if (!serverByLine.has(key)) {
-          serverCart = await addCartItem(
-            targetItem.product_id,
-            targetItem.quantity,
-            targetItem.color,
-          );
-          serverByLine = serverLines();
+          try {
+            serverCart = await addCartItem(
+              targetItem.product_id,
+              targetItem.quantity,
+              targetItem.color,
+            );
+            serverByLine = serverLines();
+          } catch (error) {
+            const parsed = parseApiError(error);
+            if (isForbidden(parsed) || parsed.status === 422) {
+              const remainingItems = target.items.filter((item) => lineKeyFromItem(item) !== key);
+              target = { ...target, items: remainingItems };
+              targetByLine.delete(key);
+              writeLocalCartEnvelope(target, remainingItems.length > 0);
+              this.onError?.(parsed.message);
+              continue;
+            }
+            throw error;
+          }
         }
       }
 
@@ -122,8 +135,14 @@ class CartSyncManager {
       this.applyServerCart(serverCart, false);
       return serverCart;
     } catch (error) {
-      this.onError?.(parseApiError(error).message);
-      this.scheduleSync(2000);
+      const parsed = parseApiError(error);
+      if (!isForbidden(parsed)) {
+        this.onError?.(parsed.message);
+        this.scheduleSync(2000);
+      } else {
+        this.onError?.(parsed.message);
+        writeLocalCartEnvelope(envelope.cart, false);
+      }
       return null;
     } finally {
       this.isSyncing = false;

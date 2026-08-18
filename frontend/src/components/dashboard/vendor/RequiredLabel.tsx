@@ -8,10 +8,10 @@ interface RequiredLabelProps {
 
 export function RequiredLabel({ children, required, className = '' }: RequiredLabelProps) {
   return (
-    <label className={`block text-right ${className}`}>
+    <label className={`block text-start ${className}`}>
       {children}
       {required && (
-        <span className="text-red-500 mr-0.5 font-bold" aria-hidden="true">
+        <span className="text-red-500 ms-0.5 font-bold" aria-hidden="true">
           {' '}
           *
         </span>

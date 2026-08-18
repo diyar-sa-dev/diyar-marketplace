@@ -11,9 +11,15 @@ describe('i18n translate', () => {
     expect(translate('en', 'auth.titles.login')).toBe('Sign in');
   });
 
-  it('interpolates params', () => {
+  it('interpolates colon params', () => {
     expect(translate('en', 'validation.nameHint', { min: 2, max: 255 })).toContain('2');
     expect(translate('en', 'validation.nameHint', { min: 2, max: 255 })).toContain('255');
+  });
+
+  it('interpolates double-brace params', () => {
+    expect(translate('ar', 'vendor.dashboard.topSellingMeta', { orders: 3, remaining: 12 })).toBe(
+      '3 طلب • 12 متبقي',
+    );
   });
 
   it('maps locale to direction', () => {

@@ -24,10 +24,11 @@ import {
   Layers,
   PhoneCall,
   LayoutDashboard,
+  User,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
-import { hasDashboardAccess, resolveDashboardEntryPath } from '../../lib/auth/roles.ts';
+import { shouldShowStorefrontDashboardLink, resolveAccountHubPath, resolveDashboardEntryPath } from '../../lib/auth/roles.ts';
 
 const CATEGORIES = {
   bedroom: {
@@ -138,7 +139,12 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const dashboardPath = resolveDashboardEntryPath(user?.roles);
-  const showDashboardLink = isAuthenticated && hasDashboardAccess(user?.roles);
+  const accountHubPath = resolveAccountHubPath(user?.roles);
+  const showDashboardLink = shouldShowStorefrontDashboardLink(
+    isAuthenticated,
+    user?.status,
+    user?.roles,
+  );
 
   // Dialog / Subview states
   const [isProjectsOpen, setIsProjectsOpen] = useState(false);
@@ -267,6 +273,21 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 />
                 <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
                   لوحة التحكم
+                </span>
+              </button>
+            )}
+
+            {isAuthenticated && (
+              <button
+                onClick={() => handleNavigate(accountHubPath)}
+                className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+              >
+                <User
+                  size={18}
+                  className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
+                />
+                <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
+                  حسابي
                 </span>
               </button>
             )}

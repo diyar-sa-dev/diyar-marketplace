@@ -7,8 +7,10 @@ use App\Http\Requests\Profile\RequestPhoneChangeRequest;
 use App\Http\Requests\Profile\UpdateProfilePasswordRequest;
 use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Http\Requests\Profile\UploadAvatarRequest;
+use App\Http\Requests\Profile\VerifyEmailVerificationRequest;
 use App\Http\Requests\Profile\VerifyPhoneChangeRequest;
 use App\Http\Resources\ProfileResource;
+use App\Services\Identity\EmailVerificationService;
 use App\Services\Profile\PhoneChangeService;
 use App\Services\Profile\ProfileService;
 use App\Support\Api\ApiResponse;
@@ -21,6 +23,7 @@ class ProfileController extends Controller
     public function __construct(
         private readonly ProfileService $profile,
         private readonly PhoneChangeService $phoneChange,
+        private readonly EmailVerificationService $emailVerification,
     ) {}
 
     public function show(Request $request): JsonResponse
@@ -114,6 +117,39 @@ class ProfileController extends Controller
         return ApiResponse::success(
             data: ['profile' => new ProfileResource($user)],
             message: __('diyar.profile.phone_changed'),
+        );
+    }
+
+    public function requestEmailVerification(Request $request): JsonResponse
+    {
+        $this->emailVerification->requestForUser(
+            user: $request->user(),
+            locale: app()->getLocale(),
+        );
+
+        return ApiResponse::success(message: __('diyar.profile.email_verification_sent'));
+    }
+
+    public function resendEmailVerification(Request $request): JsonResponse
+    {
+        $this->emailVerification->resendForUser(
+            user: $request->user(),
+            locale: app()->getLocale(),
+        );
+
+        return ApiResponse::success(message: __('diyar.profile.email_verification_resent'));
+    }
+
+    public function verifyEmailVerification(VerifyEmailVerificationRequest $request): JsonResponse
+    {
+        $user = $this->emailVerification->verifyForUser(
+            user: $request->user(),
+            code: $request->string('code')->toString(),
+        );
+
+        return ApiResponse::success(
+            data: ['profile' => new ProfileResource($user)],
+            message: __('diyar.auth.email_verified'),
         );
     }
 }

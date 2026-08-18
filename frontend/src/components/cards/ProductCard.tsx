@@ -42,6 +42,7 @@ function normalizeProduct(product: CardInput): UiProductCard {
     availabilityMode: product.availabilityMode,
     availableQuantity: product.availableQuantity,
     userSaved: product.userSaved,
+    isOwnStore: product.isOwnStore,
   };
 }
 
@@ -74,15 +75,22 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
   );
 
   const availability = availabilityLabel(mode, availableQty, availabilityLabels);
-  const canPurchase = mode === 'preorder' || (mode === 'in_stock' && availableQty > 0);
+  const canPurchase = !item.isOwnStore && mode === 'in_stock' && availableQty > 0;
+  const isPreorder = !item.isOwnStore && mode === 'preorder';
 
-  const availabilityDetail =
-    stockTone === 'limited' && availableQty > 0
+  const availabilityDetail = item.isOwnStore
+    ? stockTone === 'limited' || (mode === 'in_stock' && availableQty > 0 && availableQty <= 5)
+      ? t('catalog.product.limitedStock')
+      : availability
+    : stockTone === 'limited' && availableQty > 0
       ? t('catalog.product.stockRemaining', { count: availableQty })
-      : availability;
+      : stockTone === 'in_stock' && availableQty > 0
+        ? t('catalog.product.inStock')
+        : availability;
 
-  const cartLabel =
-    mode === 'preorder'
+  const cartLabel = item.isOwnStore
+    ? t('catalog.product.selfPurchaseBlocked')
+    : isPreorder
       ? t('catalog.product.preorder')
       : canPurchase
         ? t('catalog.product.addToCart')
@@ -99,7 +107,7 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
   const addToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!canPurchase || !item.id) {
+    if (item.isOwnStore || !canPurchase || !item.id || isPreorder) {
       return;
     }
 
@@ -131,9 +139,11 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
       ? t('catalog.product.preorder')
       : mode === 'out_of_stock' || availableQty === 0
         ? t('catalog.product.unavailable')
-        : item.discountPercent
-          ? t('catalog.product.discount', { percent: item.discountPercent })
-          : null;
+        : stockTone === 'limited'
+          ? t('catalog.product.limitedStock')
+          : item.discountPercent
+            ? t('catalog.product.discount', { percent: item.discountPercent })
+            : null;
 
   const cardInner = (
     <>
@@ -164,6 +174,8 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
             className={`absolute top-2 left-2 px-2 py-0.5 text-[9px] font-bold rounded shadow-sm z-10 ${
               mode === 'out_of_stock' || availableQty === 0
                 ? 'bg-gray-700 text-white'
+                : stockTone === 'limited'
+                  ? 'bg-orange-500 text-white'
                 : mode === 'preorder'
                   ? 'bg-purple-600 text-white'
                   : 'bg-red-500 text-white'
@@ -190,7 +202,9 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
         </h3>
         <p
           className={`text-[10px] mb-2 tabular-nums ${
-            stockTone === 'out'
+            item.isOwnStore
+              ? 'text-orange-500 font-medium'
+              : stockTone === 'out'
               ? 'text-red-500 font-medium'
               : stockTone === 'limited'
                 ? 'text-orange-500 font-medium'
@@ -201,6 +215,7 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
         >
           {availabilityDetail}
         </p>
+        {!item.isOwnStore ? (
         <div className={`flex items-baseline gap-2 ${layout === 'list' ? 'mb-1' : 'mb-3'}`}>
           <span
             className={`font-bold text-diyar-dark tabular-nums ${layout === 'list' ? 'text-sm sm:text-lg' : 'text-lg'}`}
@@ -216,15 +231,20 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
             </span>
           )}
         </div>
+        ) : (
+          <div className={layout === 'list' ? 'mb-1' : 'mb-3'} />
+        )}
         <button
           type="button"
-          disabled={!canPurchase || !item.id}
+          disabled={!canPurchase && !isPreorder}
           className={`${layout === 'list' ? 'self-end py-1 px-3 text-[10px] sm:text-xs' : 'w-full py-1.5 text-xs'} rounded-lg font-bold border transition-all z-10 relative cursor-pointer ${
-            canPurchase
+            isPreorder
+              ? 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-700 hover:text-white hover:border-purple-700'
+              : canPurchase
               ? 'bg-gray-50 text-diyar-dark border-gray-200 hover:bg-diyar-brown hover:text-white hover:border-diyar-dark'
               : 'bg-gray-100 text-gray-400 border-gray-100 cursor-not-allowed'
           }`}
-          onClick={addToCart}
+          onClick={isPreorder ? undefined : addToCart}
         >
           {cartLabel}
         </button>

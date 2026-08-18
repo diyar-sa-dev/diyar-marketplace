@@ -1,3 +1,5 @@
+import { isActiveAccount, type AccountStatus } from './accountStatus.ts';
+
 export const RoleName = {
   Customer: 'customer',
   Vendor: 'vendor',
@@ -7,8 +9,6 @@ export const RoleName = {
 } as const;
 
 export type RoleNameValue = (typeof RoleName)[keyof typeof RoleName];
-
-/** Registration UI keys accepted by the backend. */
 export const RegistrationRoleKey = {
   Customer: 'customer',
   Merchant: 'merchant',
@@ -92,6 +92,84 @@ export function hasAnyRole(
   return roles.some((role) => expected.includes(role.name));
 }
 
+export function hasActiveRole(roles: UserRoleLike[] | undefined, roleName: string): boolean {
+  if (!roles?.length) {
+    return false;
+  }
+
+  return roles.some((role) => role.name === roleName && isActiveDashboardRole(role));
+}
+
+export function hasCustomerRole(roles: UserRoleLike[] | undefined): boolean {
+  return hasActiveRole(roles, RoleName.Customer);
+}
+
+export function isVendorOnlyAccount(roles: UserRoleLike[] | undefined): boolean {
+  return hasActiveRole(roles, RoleName.Vendor) && !hasCustomerRole(roles);
+}
+
+export const VENDOR_SETTINGS_ACCOUNT_PATH = '/dashboard/vendor/settings?tab=account';
+
+export const VENDOR_SETTINGS_NOTIFICATIONS_PATH = '/dashboard/vendor/settings?tab=notifications';
+
+/** Primary "my account" destination in storefront chrome (header, bottom nav, dashboard avatar). */
+export function resolveAccountHubPath(roles: UserRoleLike[] | undefined): string {
+  if (hasCustomerRole(roles)) {
+    return '/profile';
+  }
+
+  if (hasActiveRole(roles, RoleName.Vendor)) {
+    return VENDOR_SETTINGS_ACCOUNT_PATH;
+  }
+
+  return '/profile';
+}
+
+export function resolveAccountSettingsBackPath(roles: UserRoleLike[] | undefined): string {
+  return resolveAccountHubPath(roles);
+}
+
+export function resolveNotificationsHubPath(roles: UserRoleLike[] | undefined): string {
+  if (hasCustomerRole(roles)) {
+    return '/profile/notifications';
+  }
+
+  if (hasActiveRole(roles, RoleName.Vendor)) {
+    return VENDOR_SETTINGS_NOTIFICATIONS_PATH;
+  }
+
+  return '/profile/notifications';
+}
+
+export function isAccountHubPath(
+  pathname: string,
+  search: string,
+  roles: UserRoleLike[] | undefined,
+): boolean {
+  if (hasCustomerRole(roles)) {
+    return pathname.startsWith('/profile');
+  }
+
+  if (isVendorOnlyAccount(roles)) {
+    if (!pathname.startsWith('/dashboard/vendor/settings')) {
+      return pathname.startsWith('/profile/security');
+    }
+
+    const tab = new URLSearchParams(search).get('tab');
+    return tab === null || tab === 'account' || tab === 'notifications';
+  }
+
+  return pathname.startsWith('/profile');
+}
+
+export function requiresCustomerRoleForProfilePath(pathname: string): boolean {
+  if (!pathname.startsWith('/profile')) {
+    return false;
+  }
+
+  return !pathname.startsWith('/profile/security');
+}
+
 function isActiveDashboardRole(role: UserRoleLike): boolean {
   if (!role.status) {
     return true;
@@ -120,6 +198,34 @@ export function getAccessibleDashboardPortals(
 
 export function hasDashboardAccess(roles: UserRoleLike[] | undefined): boolean {
   return getAccessibleDashboardPortals(roles).length > 0;
+}
+
+/** True when the user has no seller/provider/marketer portal (customer-only or no roles). */
+export function isCustomerOnlyAccount(roles: UserRoleLike[] | undefined): boolean {
+  if (!roles?.length) {
+    return true;
+  }
+
+  const activeRoleNames = roles.filter(isActiveDashboardRole).map((role) => role.name);
+
+  if (activeRoleNames.length === 0) {
+    return true;
+  }
+
+  return activeRoleNames.every((name) => name === RoleName.Customer);
+}
+
+/** Storefront chrome: show لوحة التحكم for partner roles, hide for customer-only accounts. */
+export function shouldShowStorefrontDashboardLink(
+  isAuthenticated: boolean,
+  status: AccountStatus | undefined,
+  roles: UserRoleLike[] | undefined,
+): boolean {
+  if (!isAuthenticated || !isActiveAccount(status)) {
+    return false;
+  }
+
+  return hasDashboardAccess(roles) && !isCustomerOnlyAccount(roles);
 }
 
 export function resolveDashboardEntryPath(roles: UserRoleLike[] | undefined): string {

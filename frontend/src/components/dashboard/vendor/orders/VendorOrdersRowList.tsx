@@ -16,6 +16,7 @@ function VendorOrderRowActions({
   onView,
   onAction,
   isPending,
+  canWriteOrders = true,
 }: {
   order: VendorOrder;
   onView: () => void;
@@ -24,6 +25,7 @@ function VendorOrderRowActions({
     payload?: { tracking_number: string; carrier?: string },
   ) => void;
   isPending: boolean;
+  canWriteOrders?: boolean;
 }) {
   const { t } = useLocale();
   const [shipOpen, setShipOpen] = useState(false);
@@ -48,7 +50,7 @@ function VendorOrderRowActions({
           <Eye size={18} />
         </button>
 
-        {order.status !== 'delivered' && order.status !== 'cancelled' && (
+        {canWriteOrders && order.status !== 'delivered' && order.status !== 'cancelled' && (
           <div className="group/actions relative">
             <button
               type="button"
@@ -130,6 +132,7 @@ export function VendorOrdersRowList({
   onView,
   onAction,
   isPending,
+  canWriteOrders = true,
 }: {
   orders: VendorOrder[];
   onView: (order: VendorOrder) => void;
@@ -139,6 +142,7 @@ export function VendorOrdersRowList({
     payload?: { tracking_number: string; carrier?: string },
   ) => void;
   isPending: boolean;
+  canWriteOrders?: boolean;
 }) {
   const { t, locale } = useLocale();
 
@@ -174,6 +178,7 @@ export function VendorOrdersRowList({
                 onView={() => onView(order)}
                 onAction={(action, payload) => onAction(order.id, action, payload)}
                 isPending={isPending}
+                canWriteOrders={canWriteOrders}
               />
             </div>
           </div>
@@ -208,6 +213,7 @@ export function VendorOrdersRowList({
                 onView={() => onView(order)}
                 onAction={(action, payload) => onAction(order.id, action, payload)}
                 isPending={isPending}
+                canWriteOrders={canWriteOrders}
               />
             </div>
           </div>

@@ -163,3 +163,15 @@ export function isPhoneVerificationRequired(error: unknown): { phone: string } |
     phone: fields.verification_phone?.[0]?.trim() ?? '',
   };
 }
+
+export function isEmailVerificationRequired(error: unknown): { email: string } | null {
+  const fields = getFieldErrors(error);
+
+  if (!fields.email_verification_required?.length) {
+    return null;
+  }
+
+  return {
+    email: fields.verification_email?.[0]?.trim() ?? '',
+  };
+}

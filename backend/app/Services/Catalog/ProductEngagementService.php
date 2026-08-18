@@ -7,14 +7,20 @@ use App\Models\ProductLike;
 use App\Models\ProductReview;
 use App\Models\User;
 use App\Models\WishlistItem;
+use App\Services\Review\ProductReviewEligibilityService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use InvalidArgumentException;
 
 class ProductEngagementService
 {
+    public function __construct(
+        private readonly ProductReviewEligibilityService $reviewEligibility,
+    ) {}
+
     public function findPublicProduct(string $id): Product
     {
         return app(ProductService::class)->findPublic($id);
@@ -78,7 +84,7 @@ class ProductEngagementService
     public function paginateReviews(Product $product, int $page = 1, int $perPage = 5): LengthAwarePaginator
     {
         return ProductReview::query()
-            ->with('user:id,name,avatar_path')
+            ->with(['user:id,name,avatar_path', 'product.vendorAccount:id,business_name'])
             ->where('product_id', $product->id)
             ->latest()
             ->paginate(perPage: min($perPage, 20), page: max($page, 1));
@@ -91,7 +97,7 @@ class ProductEngagementService
         }
 
         return ProductReview::query()
-            ->with('user:id,name,avatar_path')
+            ->with(['user:id,name,avatar_path', 'product.vendorAccount:id,business_name'])
             ->where('user_id', $user->id)
             ->where('product_id', $product->id)
             ->first();
@@ -103,21 +109,33 @@ class ProductEngagementService
             throw new InvalidArgumentException(__('diyar.catalog.review_rating_invalid'));
         }
 
-        return ProductReview::query()->updateOrCreate(
-            [
+        $this->reviewEligibility->assertCommentProvided($comment);
+        $this->reviewEligibility->assertCanCreateReview($user, $product);
+
+        $normalizedComment = $this->reviewEligibility->normalizeComment($comment);
+
+        try {
+            return ProductReview::query()->create([
                 'user_id' => $user->id,
                 'product_id' => $product->id,
-            ],
-            [
                 'rating' => $rating,
-                'comment' => $comment,
-            ],
-        )->load('user:id,name,avatar_path');
+                'comment' => $normalizedComment,
+            ])->load('user:id,name,avatar_path');
+        } catch (QueryException $exception) {
+            if ($this->reviewEligibility->isUniqueConstraintViolation($exception)) {
+                throw $this->reviewEligibility->duplicateReviewException();
+            }
+
+            throw $exception;
+        }
     }
 
     public function updateReview(User $user, Product $product, int $rating, ?string $comment): ProductReview
     {
-        $review = $this->findUserReview($user, $product);
+        $review = ProductReview::query()
+            ->where('product_id', $product->id)
+            ->where('user_id', $user->id)
+            ->first();
 
         if ($review === null) {
             throw new InvalidArgumentException(__('diyar.catalog.review_not_found'));
@@ -127,9 +145,12 @@ class ProductEngagementService
             throw new InvalidArgumentException(__('diyar.catalog.review_rating_invalid'));
         }
 
+        $this->reviewEligibility->assertCommentProvided($comment);
+        $this->reviewEligibility->assertReviewOwnership($user, $review);
+
         $review->update([
             'rating' => $rating,
-            'comment' => $comment,
+            'comment' => $this->reviewEligibility->normalizeComment($comment),
         ]);
 
         return $review->fresh(['user:id,name,avatar_path']);
@@ -137,12 +158,16 @@ class ProductEngagementService
 
     public function deleteReview(User $user, Product $product): void
     {
-        $review = $this->findUserReview($user, $product);
+        $review = ProductReview::query()
+            ->where('product_id', $product->id)
+            ->where('user_id', $user->id)
+            ->first();
 
         if ($review === null) {
             throw new InvalidArgumentException(__('diyar.catalog.review_not_found'));
         }
 
+        $this->reviewEligibility->assertReviewOwnership($user, $review);
         $review->delete();
     }
 

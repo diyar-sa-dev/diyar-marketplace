@@ -18,14 +18,18 @@ import {
   ShoppingCart,
   X,
   Heart,
+  UserCheck,
+  Clock,
 } from 'lucide-react';
 import ProductCard from '../components/cards/ProductCard.tsx';
 import { ProductReviewsSection } from '../components/product/ProductReviewsSection.tsx';
 import { AuthPromptModal } from '../components/product/AuthPromptModal.tsx';
 import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
 import { StarRating } from '../components/product/StarRating.tsx';
-import { useProduct } from '../hooks/catalog/useCatalog.ts';
+import { useProduct, useVendor } from '../hooks/catalog/useCatalog.ts';
+import { useStoreFollow } from '../hooks/store/useStoreFollow.ts';
 import { useProductEngagementMutations } from '../hooks/catalog/useProductEngagement.ts';
+import { useSubmitProductPreorder } from '../hooks/catalog/useProductPreorder.ts';
 import { useCart } from '../hooks/cart/useCart.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useLocale } from '../hooks/useLocale.ts';
@@ -51,11 +55,15 @@ const PLACEHOLDER_IMAGE =
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
-  const { t, dir } = useLocale();
+  const { t, dir, locale } = useLocale();
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
   const { data: product, isLoading, isError, error, refetch } = useProduct(id);
+  const vendorSlug = isValidStoreSlug(product?.vendor?.slug) ? product?.vendor?.slug : undefined;
+  const { data: vendorProfile, refetch: refetchVendorProfile } = useVendor(vendorSlug);
+  const { follow, unfollow } = useStoreFollow(vendorSlug);
   const { like, wishlist } = useProductEngagementMutations(id);
+  const submitPreorder = useSubmitProductPreorder(id);
   const { addItem } = useCart();
 
   const [activeImage, setActiveImage] = useState(0);
@@ -69,6 +77,7 @@ export default function ProductDetailsPage() {
   const [authOpen, setAuthOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [cartAddedFlash, setCartAddedFlash] = useState(false);
+  const [preorderSubmitted, setPreorderSubmitted] = useState(false);
 
   useEffect(() => {
     if (!product) {
@@ -77,6 +86,7 @@ export default function ProductDetailsPage() {
     setActiveImage(0);
     setSelectedColor(0);
     setQuantity(1);
+    setPreorderSubmitted(false);
     setLikesCount(product.likes_count ?? 0);
     if (isAuthenticated) {
       setIsFavorite(Boolean(product.user_saved));
@@ -199,10 +209,19 @@ export default function ProductDetailsPage() {
     availabilityLabels,
   );
   const stockTone = availabilityTone(product.availability_mode, availableQty);
+  const isOwnStore = Boolean(product?.is_own_store ?? vendorProfile?.is_own_store);
+  const availabilityDisplay =
+    isOwnStore && product.availability_mode === 'in_stock' && availableQty > 0
+      ? t('catalog.product.limitedStock')
+      : availability;
+  const isPreorderProduct = product.availability_mode === 'preorder';
   const canPurchase =
-    product.availability_mode === 'preorder' ||
-    (product.availability_mode === 'in_stock' && availableQty > 0);
-  const maxQuantity = product.availability_mode === 'preorder' ? 99 : Math.max(availableQty, 1);
+    !isOwnStore &&
+    product.availability_mode === 'in_stock' &&
+    availableQty > 0;
+  const canPreorder = !isOwnStore && isPreorderProduct;
+  const hasPendingPreorder = Boolean(product.user_preorder_pending) || preorderSubmitted;
+  const maxQuantity = Math.max(availableQty, 1);
   const productType = productTypeLabel(product.product_type);
   const materialLines = formatMaterialLines(product.materials, {
     main: t('catalog.productDetail.materialStructure'),
@@ -213,8 +232,40 @@ export default function ProductDetailsPage() {
   const categoryLabel = product.category?.name ?? t('catalog.search.products');
   const categorySlug = product.category?.slug ?? 'all';
   const vendorName = product.vendor?.store_name ?? t('catalog.product.defaultStore');
-  const vendorSlug = isValidStoreSlug(product.vendor?.slug) ? product.vendor?.slug : null;
-  const vendorStorePath = storePath(vendorSlug);
+  const vendorStorePath = storePath(vendorSlug ?? null);
+  const isFollowingStore = Boolean(vendorProfile?.is_following);
+  const isOwnVendorStore = Boolean(product?.is_own_store ?? vendorProfile?.is_own_store);
+
+  const handleFollowStore = async () => {
+    if (!isAuthenticated) {
+      setAuthOpen(true);
+      return;
+    }
+
+    if (isOwnVendorStore) {
+      toast.warning(t('store.followOwnStore'));
+      return;
+    }
+
+    try {
+      if (isFollowingStore) {
+        await unfollow.mutateAsync();
+        toast.success(t('store.unfollowed'));
+      } else {
+        await follow.mutateAsync();
+        toast.success(t('store.followed'));
+      }
+      await refetchVendorProfile();
+    } catch (followError) {
+      const message = parseApiError(followError, locale).message;
+      if (message.includes('متابعة متجرك') || message.toLowerCase().includes('follow your own')) {
+        toast.warning(t('store.followOwnStore'));
+      } else {
+        toast.error(t('store.followError'));
+      }
+    }
+  };
+
   const rating = product.rating_avg ?? 0;
   const reviewsCount = product.reviews_count ?? 0;
   const description = product.description ?? t('catalog.productDetail.noDescription');
@@ -256,6 +307,29 @@ export default function ProductDetailsPage() {
     setCartAddedFlash(true);
     setQuantity(1);
     window.setTimeout(() => setCartAddedFlash(false), 2000);
+  };
+
+  const handlePreorder = () => {
+    if (!product.id || !canPreorder || hasPendingPreorder) {
+      return;
+    }
+
+    requireAuth(() => {
+      const selected = colors[selectedColor];
+      void submitPreorder
+        .mutateAsync({
+          selected_color: selected ? { name: selected.name, hex_code: selected.hex } : null,
+        })
+        .then(() => {
+          setPreorderSubmitted(true);
+          toast.success(t('catalog.productDetail.preorderSubmitted'));
+          void refetch();
+        })
+        .catch((submitError) => {
+          const message = parseApiError(submitError, locale).message;
+          toast.error(message);
+        });
+    });
   };
 
   return (
@@ -415,10 +489,11 @@ export default function ProductDetailsPage() {
                   ) : (
                     <CheckCircle size={16} />
                   )}
-                  {availability}
+                  {availabilityDisplay}
                 </div>
               </div>
 
+              {!isOwnStore ? (
               <div className="flex items-end gap-3 mb-6">
                 <span className="text-3xl md:text-4xl font-bold text-diyar-dark tabular-nums">
                   {salePrice}
@@ -430,28 +505,46 @@ export default function ProductDetailsPage() {
                   </span>
                 )}
               </div>
+              ) : null}
 
               {vendorStorePath ? (
-                <Link
-                  to={vendorStorePath}
-                  className="flex items-center justify-between p-4 mb-8 bg-gray-50 border border-gray-100 rounded-2xl hover:border-diyar-brown/30 hover:shadow-sm transition-all group cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-200 text-gray-400 group-hover:text-diyar-brown transition-colors">
-                      <Store size={24} />
+                <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                  <Link
+                    to={vendorStorePath}
+                    className="flex flex-1 items-center justify-between p-4 bg-gray-50 border border-gray-100 rounded-2xl hover:border-diyar-brown/30 hover:shadow-sm transition-all group cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-200 text-gray-400 group-hover:text-diyar-brown transition-colors shrink-0">
+                        <Store size={24} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-500 font-medium mb-0.5">
+                          {t('catalog.productDetail.providedBy')}
+                        </p>
+                        <p className="text-sm font-bold text-diyar-dark truncate">{vendorName}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-gray-500 font-medium mb-0.5">
-                        {t('catalog.productDetail.providedBy')}
-                      </p>
-                      <p className="text-sm font-bold text-diyar-dark">{vendorName}</p>
+                    <div className="flex items-center gap-1 text-xs font-bold text-diyar-brown bg-diyar-brown/10 px-3 py-1.5 rounded-full shrink-0">
+                      {t('catalog.productDetail.visitStore')}
+                      <ChevronLeft size={14} />
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs font-bold text-diyar-brown bg-diyar-brown/10 px-3 py-1.5 rounded-full">
-                    {t('catalog.productDetail.visitStore')}
-                    <ChevronLeft size={14} />
-                  </div>
-                </Link>
+                  </Link>
+                  {!isOwnVendorStore ? (
+                    <button
+                      type="button"
+                      onClick={() => void handleFollowStore()}
+                      disabled={follow.isPending || unfollow.isPending}
+                      className={`${vendorButtonClass} shrink-0 px-5 py-4 rounded-2xl font-bold inline-flex items-center justify-center gap-2 transition shadow-sm disabled:opacity-60 ${
+                        isFollowingStore
+                          ? 'bg-emerald-600 text-white ring-2 ring-emerald-200 hover:bg-emerald-700'
+                          : 'bg-diyar-brown text-white hover:bg-[#856b54]'
+                      }`}
+                    >
+                      {isFollowingStore ? <UserCheck size={18} /> : null}
+                      {isFollowingStore ? t('store.following') : t('store.follow')}
+                    </button>
+                  ) : null}
+                </div>
               ) : null}
             </div>
 
@@ -533,7 +626,35 @@ export default function ProductDetailsPage() {
               </div>
             )}
 
+            {isPreorderProduct && (
+              <p className="text-sm text-purple-700 bg-purple-50 border border-purple-100 rounded-xl px-4 py-3 mb-4">
+                {hasPendingPreorder
+                  ? t('catalog.productDetail.preorderPending')
+                  : t('catalog.productDetail.preorderHint')}
+              </p>
+            )}
+
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 z-50 md:relative md:p-0 md:border-0 md:bg-transparent flex items-center gap-4">
+              {canPreorder ? (
+                <button
+                  type="button"
+                  disabled={hasPendingPreorder || submitPreorder.isPending}
+                  onClick={handlePreorder}
+                  className={`${vendorButtonClass} flex-1 font-bold h-13 rounded-xl gap-2 shadow-lg shadow-black/10 ${
+                    hasPendingPreorder
+                      ? 'bg-green-700 text-white cursor-default'
+                      : 'bg-purple-700 text-white hover:bg-purple-800 cursor-pointer'
+                  } disabled:opacity-80`}
+                >
+                  {hasPendingPreorder ? <CheckCircle size={20} /> : <Clock size={20} />}
+                  {isOwnStore
+                    ? t('catalog.productDetail.selfPurchaseBlocked')
+                    : hasPendingPreorder
+                      ? t('catalog.productDetail.preorderPending')
+                      : `${t('catalog.productDetail.preorderSubmit')} • ${salePrice} ${currency}`}
+                </button>
+              ) : (
+                <>
               <div
                 className={`flex items-center gap-4 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 h-13 ${
                   !canPurchase ? 'opacity-50 pointer-events-none select-none' : ''
@@ -572,14 +693,16 @@ export default function ProductDetailsPage() {
                 }`}
               >
                 {cartAddedFlash ? <CheckCircle size={20} /> : <ShoppingCart size={20} />}
-                {canPurchase
-                  ? cartAddedFlash
-                    ? t('cart.added')
-                    : product.availability_mode === 'preorder'
-                      ? `${t('catalog.productDetail.preorder')} • ${salePrice * quantity} ${currency}`
+                {isOwnStore
+                  ? t('catalog.productDetail.selfPurchaseBlocked')
+                  : canPurchase
+                    ? cartAddedFlash
+                      ? t('cart.added')
                       : `${t('catalog.productDetail.addToCart')} • ${salePrice * quantity} ${currency}`
-                  : t('catalog.productDetail.unavailable')}
+                    : t('catalog.productDetail.unavailable')}
               </button>
+                </>
+              )}
             </div>
             <div className="h-4 md:hidden" />
           </div>
@@ -625,7 +748,7 @@ export default function ProductDetailsPage() {
         </div>
       </div>
 
-      <ProductReviewsSection productId={product.id} />
+      <ProductReviewsSection productId={product.id} isOwnStore={isOwnStore} />
 
       <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
         <h2 className="text-xl md:text-3xl font-bold text-diyar-dark mb-8">

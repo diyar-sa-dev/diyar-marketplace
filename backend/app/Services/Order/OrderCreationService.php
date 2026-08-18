@@ -32,6 +32,7 @@ final class OrderCreationService
         private readonly OrderNumberService $orderNumbers,
         private readonly OrderTotalsReconciliationService $reconciliation,
         private readonly InventoryService $inventory,
+        private readonly SelfPurchaseGuard $selfPurchase,
     ) {}
 
     /**
@@ -107,6 +108,9 @@ final class OrderCreationService
         if ($cart === null) {
             throw new UnprocessableEntityHttpException(__('diyar.checkout.cart_empty'));
         }
+
+        $cart->loadMissing('items.product');
+        $this->selfPurchase->assertCartItemsNotSelfPurchase($user, $cart->items);
 
         $preview = $this->checkoutPreview->preview($user, $shippingAddressId, $deliverySelections);
 

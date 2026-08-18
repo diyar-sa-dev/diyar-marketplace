@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Lock, Shield, Smartphone, LogOut } from 'lucide-react';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { formatMaskedSaudiPhoneInternational } from '../lib/auth/validation.ts';
+import { resolveAccountSettingsBackPath } from '../lib/auth/roles.ts';
 import { useLocale } from '../lib/i18n/localeContext.ts';
 
 export default function SecurityPage() {
@@ -10,6 +11,7 @@ export default function SecurityPage() {
   const { t, dir } = useLocale();
   const BreadcrumbChevron = dir === 'rtl' ? ChevronRight : ChevronLeft;
   const maskedPhone = formatMaskedSaudiPhoneInternational(user?.phone);
+  const accountBackPath = resolveAccountSettingsBackPath(user?.roles);
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24 md:pb-12">
@@ -20,7 +22,7 @@ export default function SecurityPage() {
               {t('common.home')}
             </Link>
             <BreadcrumbChevron size={16} />
-            <Link to="/profile" className="hover:text-diyar-dark transition cursor-pointer">
+            <Link to={accountBackPath} className="hover:text-diyar-dark transition cursor-pointer">
               {t('common.myAccount')}
             </Link>
             <BreadcrumbChevron size={16} />

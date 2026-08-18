@@ -5,12 +5,23 @@ namespace Tests\Feature\Api\V1\Catalog;
 use App\Enums\RoleName;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\InteractsWithCheckout;
+use Tests\Concerns\InteractsWithDeliveredOrders;
+use Tests\Concerns\InteractsWithFinance;
 use Tests\Concerns\InteractsWithIdentity;
+use Tests\Concerns\InteractsWithPayments;
 use Tests\TestCase;
 
 class ProductEngagementTest extends TestCase
 {
-    use InteractsWithIdentity, RefreshDatabase;
+    use InteractsWithCheckout, InteractsWithDeliveredOrders, InteractsWithFinance, InteractsWithIdentity, InteractsWithPayments, RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seedCommissionRules();
+        $this->fakePaymentGateway();
+    }
 
     public function test_user_can_like_product_once(): void
     {
@@ -44,8 +55,7 @@ class ProductEngagementTest extends TestCase
 
     public function test_user_can_submit_and_list_reviews(): void
     {
-        $user = $this->createUserWithRole(RoleName::Customer);
-        $product = Product::factory()->create();
+        [$user, , , $product] = $this->deliverSingleItemOrder();
 
         $this->actingAs($user)->postJson('/api/v1/products/'.$product->id.'/reviews', [
             'rating' => 5,
@@ -68,8 +78,7 @@ class ProductEngagementTest extends TestCase
 
     public function test_user_can_update_and_delete_own_review(): void
     {
-        $user = $this->createUserWithRole(RoleName::Customer);
-        $product = Product::factory()->create();
+        [$user, , , $product] = $this->deliverSingleItemOrder();
 
         $this->actingAs($user)->postJson('/api/v1/products/'.$product->id.'/reviews', [
             'rating' => 4,

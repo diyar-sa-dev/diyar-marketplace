@@ -4,11 +4,15 @@ import {
   canAccessPath,
   getAccessibleDashboardPortals,
   hasAnyRole,
+  hasCustomerRole,
+  isVendorOnlyAccount,
   primaryDashboardPath,
+  resolveAccountHubPath,
   resolveDashboardEntryPath,
   resolvePostAuthPath,
   resolveSafeReturnPath,
   RoleName,
+  VENDOR_SETTINGS_ACCOUNT_PATH,
 } from './roles.ts';
 import { resolveLoginMethod, isValidPasswordClient, getPasswordStrength } from './validation.ts';
 
@@ -88,6 +92,23 @@ describe('auth roles', () => {
   it('checks portal access securely by role', () => {
     expect(canAccessPortal([{ name: 'vendor', status: 'active' }], 'vendor')).toBe(true);
     expect(canAccessPortal([{ name: 'vendor', status: 'active' }], 'service')).toBe(false);
+  });
+
+  it('routes vendor-only accounts to vendor settings account tab', () => {
+    expect(resolveAccountHubPath([{ name: 'vendor', status: 'active' }])).toBe(
+      VENDOR_SETTINGS_ACCOUNT_PATH,
+    );
+    expect(isVendorOnlyAccount([{ name: 'vendor', status: 'active' }])).toBe(true);
+  });
+
+  it('routes dual-role vendor+customer users to customer profile', () => {
+    const roles = [
+      { name: 'vendor', status: 'active' },
+      { name: 'customer', status: 'active' },
+    ];
+    expect(resolveAccountHubPath(roles)).toBe('/profile');
+    expect(hasCustomerRole(roles)).toBe(true);
+    expect(isVendorOnlyAccount(roles)).toBe(false);
   });
 });
 

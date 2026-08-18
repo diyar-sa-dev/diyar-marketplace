@@ -7,12 +7,14 @@ use App\Enums\CartStatus;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\User;
+use App\Services\Order\SelfPurchaseGuard;
 use Illuminate\Support\Facades\DB;
 
 final class CartMergeService
 {
     public function __construct(
         private readonly CartService $cartService,
+        private readonly SelfPurchaseGuard $selfPurchase,
     ) {}
 
     /**

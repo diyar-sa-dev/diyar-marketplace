@@ -25,6 +25,7 @@ import type {
   LoginPayload,
   RegisterPayload,
   ResetPasswordPayload,
+  VerifyEmailOtpPayload,
   VerifyOtpPayload,
 } from '../types/auth.ts';
 import { parseApiError } from '../utils/errors.ts';
@@ -39,7 +40,9 @@ type AuthContextValue = {
   login: (payload: LoginPayload) => Promise<AuthUserResult>;
   register: (payload: RegisterPayload) => Promise<AuthUserResult>;
   verifyOtp: (payload: VerifyOtpPayload) => Promise<AuthUserResult>;
+  verifyEmailOtp: (payload: VerifyEmailOtpPayload) => Promise<AuthUserResult>;
   resendOtp: (phone: string) => Promise<AuthActionResult>;
+  resendEmailOtp: (email: string) => Promise<AuthActionResult>;
   forgotPassword: (phone: string) => Promise<AuthActionResult>;
   verifyPasswordResetOtp: (payload: VerifyOtpPayload) => Promise<AuthActionResult>;
   resetPassword: (payload: ResetPasswordPayload) => Promise<AuthActionResult>;
@@ -155,7 +158,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await mergeGuestCartAfterAuth((message) => toast.warning(message));
           return result;
         }),
+      verifyEmailOtp: (payload) =>
+        wrap(async () => {
+          const result = await authApi.verifyEmailOtp(payload);
+          setUser(result.user);
+          setStatus('authenticated');
+          invalidateUserScopedQueries();
+          await mergeGuestCartAfterAuth((message) => toast.warning(message));
+          return result;
+        }),
       resendOtp: (phone) => wrap(() => authApi.resendOtp(phone)),
+      resendEmailOtp: (email) => wrap(() => authApi.resendEmailOtp(email)),
       forgotPassword: (phone) => wrap(() => authApi.forgotPassword(phone)),
       verifyPasswordResetOtp: (payload) => wrap(() => authApi.verifyPasswordResetOtp(payload)),
       resetPassword: (payload) => wrap(() => authApi.resetPassword(payload)),

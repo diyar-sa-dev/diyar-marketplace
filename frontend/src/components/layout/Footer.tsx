@@ -1,12 +1,16 @@
 import { Link } from 'react-router-dom';
 import { Twitter, Instagram, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
-import { hasDashboardAccess, resolveDashboardEntryPath } from '../../lib/auth/roles.ts';
+import { shouldShowStorefrontDashboardLink, resolveDashboardEntryPath } from '../../lib/auth/roles.ts';
 
 export function Footer() {
   const { isAuthenticated, user } = useAuth();
   const dashboardPath = resolveDashboardEntryPath(user?.roles);
-  const showPartnerPortal = isAuthenticated && hasDashboardAccess(user?.roles);
+  const showPartnerPortal = shouldShowStorefrontDashboardLink(
+    isAuthenticated,
+    user?.status,
+    user?.roles,
+  );
 
   return (
     <footer className="bg-diyar-dark text-white pt-6 md:pt-10 pb-4 mt-4">

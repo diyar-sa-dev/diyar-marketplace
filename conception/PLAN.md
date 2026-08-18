@@ -1,9 +1,10 @@
 # DIYAR — Master Software Development Plan
 
 > **Status:** REFERENCE — SUPERSEDED  
-> **Use instead:** [MASTER_DEVELOPMENT_PLAN.md](./MASTER_DEVELOPMENT_PLAN.md) and [REQUIREMENTS_BASELINE.md](./REQUIREMENTS_BASELINE.md)  
-> **Tech baseline updated to:** Laravel 13, MySQL  
-> **Stage 2 (Identity & Access):** COMPLETE / FINALIZED — see [Stages/Stage 2/STAGE_2_COMPLETION_REPORT.md](./Stages/Stage%202/STAGE_2_COMPLETION_REPORT.md)
+> **Use instead:** [MASTER_DEVELOPMENT_PLAN.md](./MASTER_DEVELOPMENT_PLAN.md) (v2.0, updated 2026-08-18)  
+> **Current stage:** **Stage 12.5 — IN PROGRESS** — [Stages/Stage 12.5/README.md](./Stages/Stage%2012.5/README.md)  
+> **Next stage:** **Stage 13 — Service Marketplace** — [Stages/Stage 13/README.md](./Stages/Stage%2013/README.md)  
+> **Tech baseline:** Laravel 13, MySQL, React 19
 
 ## 0. Engineering Strategy
 

@@ -12,7 +12,7 @@ return [
 
     'stage' => env('DIYAR_STAGE', 'Stage 3 — User Profile & Media'),
 
-    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
+    'frontend_url' => env('DIYAR_FRONTEND_URL', env('FRONTEND_URL', 'http://localhost:5173')),
 
     /*
     |--------------------------------------------------------------------------
@@ -92,6 +92,44 @@ return [
         'currency' => env('DIYAR_FINANCE_CURRENCY', 'SAR'),
         'escrow_release_trigger' => env('DIYAR_ESCROW_RELEASE_TRIGGER', 'vendor_order_delivered'),
         'payout_minimum' => env('DIYAR_PAYOUT_MINIMUM', '100.00'),
+        'payout_schedule' => [
+            'min_days' => (int) env('DIYAR_PAYOUT_MIN_DAYS', 1),
+            'max_days' => (int) env('DIYAR_PAYOUT_MAX_DAYS', 3),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Vendor store settings (Stage 12)
+    |--------------------------------------------------------------------------
+    */
+
+    'vendor' => [
+        'store_domain' => env('DIYAR_STORE_DOMAIN', 'diyar.sa'),
+        'low_stock_threshold' => (int) env('DIYAR_LOW_STOCK_THRESHOLD', 5),
+        'reserved_slugs' => [
+            'admin',
+            'api',
+            'dashboard',
+            'login',
+            'register',
+            'profile',
+            'orders',
+            'cart',
+            'checkout',
+            'search',
+            'vendors',
+            'products',
+            'settings',
+            'finance',
+            'support',
+            'help',
+            'about',
+            'terms',
+            'privacy',
+            'null',
+            'undefined',
+        ],
     ],
 
     /*
@@ -125,5 +163,33 @@ return [
             'return_shipping_paid_by' => 'customer',
             'shipping_refundable' => false,
         ],
+    ],
+
+    'mail' => [
+        'enabled' => (function (): bool {
+            $explicit = env('DIYAR_MAIL_ENABLED');
+            if ($explicit !== null) {
+                return filter_var($explicit, FILTER_VALIDATE_BOOL);
+            }
+
+            $username = env('DIYAR_MAIL_USERNAME', env('EMAIL_USER', env('MAIL_USERNAME')));
+
+            return is_string($username) && $username !== '';
+        })(),
+        'fail_silently' => (bool) env('DIYAR_MAIL_FAIL_SILENTLY', true),
+        'brand_name' => env('DIYAR_MAIL_BRAND', 'Diyar'),
+        'host' => env('DIYAR_MAIL_HOST', env('EMAIL_HOST', env('MAIL_HOST', 'smtp.gmail.com'))),
+        'port' => (int) env('DIYAR_MAIL_PORT', env('EMAIL_PORT', env('MAIL_PORT', 587))),
+        'username' => env('DIYAR_MAIL_USERNAME', env('EMAIL_USER', env('MAIL_USERNAME'))),
+        'password' => str_replace(' ', '', (string) env(
+            'DIYAR_MAIL_PASSWORD',
+            env('EMAIL_PASS', env('MAIL_PASSWORD', '')),
+        )),
+        'encryption' => env('DIYAR_MAIL_ENCRYPTION', env('EMAIL_SECURE') === 'false' ? 'tls' : 'tls'),
+        'from_address' => env(
+            'DIYAR_MAIL_FROM_ADDRESS',
+            env('EMAIL_USER', env('MAIL_FROM_ADDRESS', 'noreply@diyar.sa')),
+        ),
+        'from_name' => env('DIYAR_MAIL_FROM_NAME', env('MAIL_FROM_NAME', 'Diyar')),
     ],
 ];

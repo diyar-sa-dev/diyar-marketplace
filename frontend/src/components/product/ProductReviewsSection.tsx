@@ -12,12 +12,14 @@ import {
 } from '../../hooks/catalog/useProductEngagement.ts';
 import { confirmDeleteReview, showErrorAlert, showSuccessToast } from '../../lib/confirmDialog.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
+import { VendorReplyBlock } from '../reviews/VendorReplyBlock.tsx';
 import type { Locale } from '../../lib/i18n/types.ts';
 
 const MAX_COMMENT_LENGTH = 2000;
 
 interface ProductReviewsSectionProps {
   productId: string;
+  isOwnStore?: boolean;
 }
 
 function formatReviewDate(iso: string | undefined, locale: Locale): string {
@@ -51,6 +53,7 @@ function ReviewCard({
   isDeleting,
   t,
   locale,
+  vendorStore,
 }: {
   item: ProductReview;
   canManage: boolean;
@@ -59,6 +62,7 @@ function ReviewCard({
   isDeleting?: boolean;
   t: (key: string) => string;
   locale: Locale;
+  vendorStore?: { name: string; logo_url?: string | null } | null;
 }) {
   const displayDate = formatReviewDate(item.updated_at ?? item.created_at, locale);
   const wasEdited = item.updated_at && item.created_at && item.updated_at !== item.created_at;
@@ -93,6 +97,20 @@ function ReviewCard({
         <p className="text-sm text-gray-600 leading-relaxed text-right pr-0 md:pr-14">
           {item.comment}
         </p>
+      )}
+
+      {item.vendor_reply && (
+        <div className="mt-4 pr-0 md:pr-14">
+          <VendorReplyBlock
+            reply={item.vendor_reply}
+            repliedBy={item.vendor_replied_by ?? vendorStore?.name}
+            repliedAt={item.vendor_replied_at}
+            avatarUrl={vendorStore?.logo_url}
+            locale={locale}
+            t={t}
+            compact
+          />
+        </div>
       )}
 
       {canManage && onEdit && onDelete && (
@@ -185,7 +203,7 @@ function ReviewForm({
   );
 }
 
-export function ProductReviewsSection({ productId }: ProductReviewsSectionProps) {
+export function ProductReviewsSection({ productId, isOwnStore = false }: ProductReviewsSectionProps) {
   const { t, dir, locale } = useLocale();
   const { isAuthenticated } = useAuth();
   const [page, setPage] = useState(1);
@@ -199,12 +217,14 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
 
   const reviews = data?.items ?? [];
   const myReview = isAuthenticated ? (data?.my_review ?? null) : null;
+  const vendorStore = data?.vendor_store ?? null;
   const pagination = data?.pagination;
   const totalPages = pagination?.last_page ?? 1;
   const hasOwnReview = Boolean(myReview);
-  const showAddForm = isAuthenticated && !hasOwnReview && !isEditing;
+  const showAddForm = isAuthenticated && !hasOwnReview && !isEditing && !isOwnStore;
   const showEditForm = isAuthenticated && hasOwnReview && isEditing;
-  const showGuestPrompt = !isAuthenticated && !isLoading && reviews.length === 0 && !hasOwnReview;
+  const showGuestPrompt =
+    !isAuthenticated && !isLoading && reviews.length === 0 && !hasOwnReview && !isOwnStore;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -374,6 +394,7 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
                   isDeleting={deleteReview.isPending}
                   t={t}
                   locale={locale}
+                  vendorStore={vendorStore}
                 />
               );
             })

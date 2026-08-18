@@ -4,12 +4,14 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\VendorPayout;
+use App\Services\Vendor\VendorAccessService;
+use App\Support\Vendor\VendorAccessResolver;
 
 class VendorPayoutPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('vendor') || $user->hasRole('admin');
+        return app(VendorAccessService::class)->allows($user, 'finance');
     }
 
     public function view(User $user, VendorPayout $payout): bool
@@ -18,19 +20,19 @@ class VendorPayoutPolicy
             return true;
         }
 
-        $vendorAccount = $user->vendorAccount;
+        $vendorAccount = VendorAccessResolver::vendorAccount($user);
 
         return $vendorAccount !== null && $payout->vendor_account_id === $vendorAccount->id;
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole('vendor') && $user->vendorAccount !== null;
+        return app(VendorAccessService::class)->allows($user, 'finance_withdraw');
     }
 
     public function cancel(User $user, VendorPayout $payout): bool
     {
-        return $this->view($user, $payout);
+        return $this->create($user) && $this->view($user, $payout);
     }
 
     public function approve(User $user): bool

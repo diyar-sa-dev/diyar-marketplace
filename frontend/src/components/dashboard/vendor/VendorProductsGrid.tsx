@@ -3,6 +3,7 @@ import { Tag, Edit, Trash2, Eye } from 'lucide-react';
 import type { VendorProductRow } from './VendorProductsTable.tsx';
 import { resolveMediaUrl } from '../../../lib/media.ts';
 import { useLocale } from '../../../hooks/useLocale.ts';
+import { stockStatus } from '../../../lib/stockStatus.ts';
 import { vendorActionButtonClass } from '../../../lib/vendorProductValidation.ts';
 
 interface VendorProductsGridProps {
@@ -10,6 +11,8 @@ interface VendorProductsGridProps {
   onView: (id: string) => void;
   onEdit: (id: string) => void;
   onArchive: (id: string) => void;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 export function VendorProductsGrid({
@@ -17,6 +20,8 @@ export function VendorProductsGrid({
   onView,
   onEdit,
   onArchive,
+  canEdit = true,
+  canDelete = true,
 }: VendorProductsGridProps) {
   const { t } = useLocale();
   const currency = t('vendor.products.table.currency');
@@ -61,17 +66,31 @@ export function VendorProductsGrid({
               <p className="text-sm text-gray-400 mb-4">{product.category}</p>
               <div className="mt-auto flex items-center gap-2 pt-1">
                 <div className="flex-1 text-right">
-                  {product.stock > 0 ? (
-                    <span className="text-green-650 text-xs font-bold flex items-center gap-1 justify-start">
-                      <span className="w-2 h-2 rounded-full bg-green-500" />
-                      {t('vendor.products.table.inStock', { count: product.stock })}
-                    </span>
-                  ) : (
-                    <span className="text-red-600 text-xs font-bold flex items-center gap-1 justify-start">
-                      <span className="w-2 h-2 rounded-full bg-red-500" />
-                      {t('vendor.products.table.outOfStock')}
-                    </span>
-                  )}
+                  {(() => {
+                    const status = stockStatus(product.stock);
+                    if (status === 'out_of_stock') {
+                      return (
+                        <span className="text-red-600 text-xs font-bold flex items-center gap-1 justify-start">
+                          <span className="w-2 h-2 rounded-full bg-red-500" />
+                          {t('vendor.products.table.outOfStock')}
+                        </span>
+                      );
+                    }
+                    if (status === 'limited') {
+                      return (
+                        <span className="text-orange-600 text-xs font-bold flex items-center gap-1 justify-start">
+                          <span className="w-2 h-2 rounded-full bg-orange-500" />
+                          {t('vendor.products.table.limitedStock', { count: product.stock })}
+                        </span>
+                      );
+                    }
+                    return (
+                      <span className="text-green-650 text-xs font-bold flex items-center gap-1 justify-start">
+                        <span className="w-2 h-2 rounded-full bg-green-500" />
+                        {t('vendor.products.table.inStock', { count: product.stock })}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <button
                   type="button"
@@ -81,6 +100,7 @@ export function VendorProductsGrid({
                 >
                   <Eye size={18} />
                 </button>
+                {canEdit ? (
                 <button
                   type="button"
                   onClick={() => onEdit(product.id)}
@@ -89,6 +109,8 @@ export function VendorProductsGrid({
                 >
                   <Edit size={18} />
                 </button>
+                ) : null}
+                {canDelete ? (
                 <button
                   type="button"
                   onClick={() => onArchive(product.id)}
@@ -97,6 +119,7 @@ export function VendorProductsGrid({
                 >
                   <Trash2 size={18} />
                 </button>
+                ) : null}
               </div>
             </div>
           </div>

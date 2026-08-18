@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\SaudiBank;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class VendorBankAccount extends Model
+{
+    use HasUuids;
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
+    protected $fillable = [
+        'vendor_account_id',
+        'bank_code',
+        'beneficiary_name',
+        'iban',
+        'iban_last4',
+        'is_active',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'bank_code' => SaudiBank::class,
+            'is_active' => 'boolean',
+        ];
+    }
+
+    public function vendorAccount(): BelongsTo
+    {
+        return $this->belongsTo(VendorAccount::class);
+    }
+}

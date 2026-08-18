@@ -7,23 +7,33 @@ use App\Http\Controllers\Api\V1\Cart\CartController;
 use App\Http\Controllers\Api\V1\Catalog\CategoryController;
 use App\Http\Controllers\Api\V1\Catalog\ProductController;
 use App\Http\Controllers\Api\V1\Catalog\ProductEngagementController;
+use App\Http\Controllers\Api\V1\Catalog\ProductPreorderController;
 use App\Http\Controllers\Api\V1\Catalog\SearchController;
+use App\Http\Controllers\Api\V1\Catalog\StoreReviewController;
 use App\Http\Controllers\Api\V1\Catalog\VendorController;
+use App\Http\Controllers\Api\V1\Catalog\VendorFollowController;
 use App\Http\Controllers\Api\V1\Checkout\CheckoutController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorDashboardController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorFinanceController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorInventoryController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorOrderController;
+use App\Http\Controllers\Api\V1\Dashboard\VendorPreorderController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorProductController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorReturnController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorReturnPolicyController;
+use App\Http\Controllers\Api\V1\Dashboard\VendorReviewInboxController;
+use App\Http\Controllers\Api\V1\Dashboard\VendorSettingsController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorShippingSettingsController;
+use App\Http\Controllers\Api\V1\Dashboard\VendorTeamController;
+use App\Http\Controllers\Api\V1\Dashboard\VendorTeamInviteController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Identity\OwnershipController;
 use App\Http\Controllers\Api\V1\Order\OrderController;
+use App\Http\Controllers\Api\V1\Order\OrderStoreReviewController;
 use App\Http\Controllers\Api\V1\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\Payment\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\Profile\AddressController;
+use App\Http\Controllers\Api\V1\Profile\CustomerReviewController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\Profile\WishlistController;
 use App\Http\Controllers\Api\V1\Return\ReturnController;
@@ -53,6 +63,7 @@ Route::get('/search', SearchController::class);
 Route::get('/vendors', [VendorController::class, 'index']);
 Route::get('/vendors/{slug}', [VendorController::class, 'show']);
 Route::get('/vendors/{slug}/products', [VendorController::class, 'products']);
+Route::get('/vendors/{slug}/reviews', [StoreReviewController::class, 'index']);
 
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'show']);
@@ -66,6 +77,8 @@ Route::prefix('cart')->group(function () {
 Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:otp');
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->middleware('throttle:otp');
+    Route::post('/verify-email-otp', [AuthController::class, 'verifyEmailOtp'])->middleware('throttle:otp');
+    Route::post('/resend-email-otp', [AuthController::class, 'resendEmailOtp'])->middleware('throttle:otp');
     Route::post('/resend-otp', [AuthController::class, 'resendOtp'])->middleware('throttle:otp');
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:otp');
@@ -91,7 +104,13 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders/{order}', [OrderController::class, 'show']);
+    Route::get('/orders/{order}/store-review-eligibility', [OrderStoreReviewController::class, 'eligibility']);
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
+    Route::post('/vendors/{slug}/reviews', [StoreReviewController::class, 'store']);
+    Route::patch('/store-reviews/{review}', [StoreReviewController::class, 'update']);
+    Route::delete('/store-reviews/{review}', [StoreReviewController::class, 'destroy']);
+    Route::post('/vendors/{slug}/follow', [VendorFollowController::class, 'follow']);
+    Route::delete('/vendors/{slug}/follow', [VendorFollowController::class, 'unfollow']);
     Route::get('/orders/{order}/payment', [PaymentController::class, 'show']);
     Route::post('/orders/{order}/payment', [PaymentController::class, 'initiate']);
     Route::post('/orders/{order}/payment/submit', [PaymentController::class, 'submit']);
@@ -118,6 +137,13 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::post('/phone/verify-change', [ProfileController::class, 'verifyPhoneChange'])
             ->middleware('throttle:otp');
 
+        Route::post('/email/request-verification', [ProfileController::class, 'requestEmailVerification'])
+            ->middleware('throttle:otp');
+        Route::post('/email/resend-verification', [ProfileController::class, 'resendEmailVerification'])
+            ->middleware('throttle:otp');
+        Route::post('/email/verify', [ProfileController::class, 'verifyEmailVerification'])
+            ->middleware('throttle:otp');
+
         Route::get('/addresses', [AddressController::class, 'index']);
         Route::post('/addresses', [AddressController::class, 'store']);
         Route::get('/addresses/{address}', [AddressController::class, 'show']);
@@ -127,6 +153,9 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
 
         Route::get('/wishlist', [WishlistController::class, 'index']);
         Route::delete('/wishlist', [WishlistController::class, 'clear']);
+        Route::get('/reviews', [CustomerReviewController::class, 'index']);
+        Route::get('/reviews/{type}/{id}', [CustomerReviewController::class, 'show'])
+            ->whereIn('type', ['product', 'store']);
     });
 
     Route::post('/products/{id}/reviews', [ProductEngagementController::class, 'storeReview']);
@@ -134,9 +163,33 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
     Route::delete('/products/{id}/reviews', [ProductEngagementController::class, 'destroyReview']);
     Route::post('/products/{id}/like', [ProductEngagementController::class, 'toggleLike']);
     Route::post('/products/{id}/wishlist', [ProductEngagementController::class, 'toggleWishlist']);
+    Route::post('/products/{id}/preorder', [ProductPreorderController::class, 'store']);
+    Route::get('/products/{id}/preorder', [ProductPreorderController::class, 'status']);
+
+    Route::prefix('team-invites')->group(function () {
+        Route::get('/{token}', [VendorTeamInviteController::class, 'show']);
+        Route::post('/{token}/accept', [VendorTeamInviteController::class, 'accept']);
+        Route::post('/{token}/reject', [VendorTeamInviteController::class, 'reject']);
+    });
 
     Route::middleware('role:vendor,admin')->prefix('dashboard/vendor')->group(function () {
+        Route::get('/access', [VendorTeamController::class, 'access']);
+        Route::get('/team', [VendorTeamController::class, 'index']);
+        Route::post('/team/invite', [VendorTeamController::class, 'invite']);
+        Route::patch('/team/{member}', [VendorTeamController::class, 'update']);
+        Route::delete('/team/{member}', [VendorTeamController::class, 'destroy']);
+        Route::get('/reviews/inbox', [VendorReviewInboxController::class, 'index']);
+        Route::post('/reviews/inbox/{type}/{reviewId}/reply', [VendorReviewInboxController::class, 'reply']);
         Route::get('/overview', [VendorDashboardController::class, 'overview']);
+        Route::get('/settings', [VendorSettingsController::class, 'show']);
+        Route::patch('/settings', [VendorSettingsController::class, 'update']);
+        Route::post('/settings/logo', [VendorSettingsController::class, 'uploadLogo']);
+        Route::delete('/settings/logo', [VendorSettingsController::class, 'deleteLogo']);
+        Route::post('/settings/cover', [VendorSettingsController::class, 'uploadCover']);
+        Route::delete('/settings/cover', [VendorSettingsController::class, 'deleteCover']);
+        Route::put('/settings/legal', [VendorSettingsController::class, 'updateLegal']);
+        Route::put('/settings/bank-account', [VendorSettingsController::class, 'updateBankAccount']);
+        Route::put('/settings/working-hours', [VendorSettingsController::class, 'updateWorkingHours']);
         Route::get('/shipping-settings', [VendorShippingSettingsController::class, 'show']);
         Route::put('/shipping-settings', [VendorShippingSettingsController::class, 'update']);
         Route::get('/return-policy', [VendorReturnPolicyController::class, 'show']);
@@ -150,6 +203,8 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::post('/returns/{returnRequest}/inspect', [VendorReturnController::class, 'inspect']);
         Route::post('/returns/{returnRequest}/refund', [VendorReturnController::class, 'refund']);
         Route::get('/orders', [VendorOrderController::class, 'index']);
+        Route::get('/preorders', [VendorPreorderController::class, 'index']);
+        Route::post('/preorders/{preorder}/cancel', [VendorPreorderController::class, 'cancel']);
         Route::post('/orders', [VendorOrderController::class, 'store']);
         Route::get('/orders/{vendorOrder}', [VendorOrderController::class, 'show']);
         Route::get('/orders/{vendorOrder}/invoice', [VendorOrderController::class, 'invoice']);

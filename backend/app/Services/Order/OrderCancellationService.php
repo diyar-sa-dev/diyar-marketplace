@@ -7,6 +7,7 @@ use App\Enums\PaymentStatus;
 use App\Enums\VendorOrderStatus;
 use App\Models\Order;
 use App\Models\VendorOrder;
+use App\Services\Catalog\InventoryService;
 use InvalidArgumentException;
 
 final class OrderCancellationService
@@ -14,6 +15,7 @@ final class OrderCancellationService
     public function __construct(
         private readonly OrderStateService $orderState,
         private readonly PaymentStateService $paymentState,
+        private readonly InventoryService $inventory,
     ) {}
 
     public function cancel(Order $order): Order
@@ -31,6 +33,8 @@ final class OrderCancellationService
                 'failure_reason' => __('diyar.payment.cancelled_with_order'),
             ]);
         }
+
+        $this->inventory->releasePendingForOrder($order->fresh(['user']));
 
         return $order->fresh(['payment', 'vendorOrders.items', 'vendorOrders.vendorAccount']);
     }

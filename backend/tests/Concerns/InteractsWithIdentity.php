@@ -6,6 +6,7 @@ use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Enums\RoleStatus;
 use App\Enums\VendorAccountStatus;
+use App\Infrastructure\Mail\LogEmailOtpProvider;
 use App\Infrastructure\Sms\LogSmsProvider;
 use App\Models\ProviderAccount;
 use App\Models\Role;
@@ -184,6 +185,20 @@ trait InteractsWithIdentity
         return $this->withHeaders($headers)->postJson($uri, $data);
     }
 
+    protected function patchJsonAsUser(string $uri, User $user, array $data = [], array $headers = [])
+    {
+        Sanctum::actingAs($user);
+
+        return $this->withHeaders($headers)->patchJson($uri, $data);
+    }
+
+    protected function deleteJsonAsUser(string $uri, User $user, array $data = [], array $headers = [])
+    {
+        Sanctum::actingAs($user);
+
+        return $this->withHeaders($headers)->deleteJson($uri, $data);
+    }
+
     protected function postStatefulJsonAsUser(string $uri, User $user, array $data = [])
     {
         $this->beginStatefulSession();
@@ -199,5 +214,13 @@ trait InteractsWithIdentity
     protected function otpCacheState(string $phone, OtpPurpose $purpose): ?array
     {
         return app(OtpCacheStore::class)->get($phone, $purpose);
+    }
+
+    protected function extractEmailOtpFromLog(): string
+    {
+        $developmentOtp = LogEmailOtpProvider::lastDevelopmentOtp();
+        $this->assertNotNull($developmentOtp);
+
+        return $developmentOtp['otp'];
     }
 }

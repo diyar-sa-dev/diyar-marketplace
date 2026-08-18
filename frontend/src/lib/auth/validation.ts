@@ -145,6 +145,29 @@ export function maskPhoneForDisplay(phone: string | null | undefined): string {
   return `${digits[0]}${'*'.repeat(digits.length - 2)}${digits[digits.length - 1]}`;
 }
 
+/** Mask email for OTP screens: first char + stars + @domain (e.g. y***@gmail.com). */
+export function maskEmailForDisplay(email: string | null | undefined): string {
+  const normalized = email?.trim().toLowerCase() ?? '';
+
+  if (!normalized.includes('@')) {
+    return '****';
+  }
+
+  const [local, domain] = normalized.split('@');
+
+  if (!local || !domain) {
+    return '****';
+  }
+
+  if (local.length === 1) {
+    return `${local}****@${domain}`;
+  }
+
+  const stars = '*'.repeat(Math.min(Math.max(local.length - 1, 4), 8));
+
+  return `${local[0]}${stars}@${domain}`;
+}
+
 /** Masked Saudi phone with country code for display (e.g. +966 5******7). */
 export function formatMaskedSaudiPhoneInternational(phone: string | null | undefined): string {
   const masked = maskPhoneForDisplay(phone);

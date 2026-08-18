@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\RoleName;
 use App\Enums\UserStatus;
+use App\Enums\VendorTeamStatus;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,6 +35,7 @@ class User extends Authenticatable
         'status',
         'phone_verified_at',
         'email_verified_at',
+        'welcome_email_sent_at',
     ];
 
     protected $hidden = [
@@ -47,6 +49,7 @@ class User extends Authenticatable
             'status' => UserStatus::class,
             'phone_verified_at' => 'datetime',
             'email_verified_at' => 'datetime',
+            'welcome_email_sent_at' => 'datetime',
             'password' => 'hashed',
             'preferences' => 'array',
         ];
@@ -68,6 +71,17 @@ class User extends Authenticatable
     public function vendorAccount(): HasOne
     {
         return $this->hasOne(VendorAccount::class);
+    }
+
+    public function activeVendorTeamMembership(): HasOne
+    {
+        return $this->hasOne(VendorTeamMember::class)
+            ->where('status', VendorTeamStatus::Active);
+    }
+
+    public function vendorTeamMemberships(): HasMany
+    {
+        return $this->hasMany(VendorTeamMember::class);
     }
 
     public function providerAccount(): HasOne

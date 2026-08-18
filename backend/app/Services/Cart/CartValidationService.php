@@ -8,11 +8,14 @@ use App\Enums\VendorAccountStatus;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Models\User;
+use App\Services\Order\SelfPurchaseGuard;
 
 final class CartValidationService
 {
     public function __construct(
         private readonly CartService $cartService,
+        private readonly SelfPurchaseGuard $selfPurchase,
     ) {}
 
     /**
@@ -27,9 +30,10 @@ final class CartValidationService
         $cart = $this->cartService->loadCart($cart);
         $items = [];
         $allValid = true;
+        $cartUser = $cart->user_id !== null ? User::query()->find($cart->user_id) : null;
 
         foreach ($cart->items as $item) {
-            $result = $this->validateItem($item);
+            $result = $this->validateItem($item, $cartUser);
             if (! $result['valid']) {
                 $allValid = false;
             }
@@ -46,7 +50,7 @@ final class CartValidationService
     /**
      * @return array<string, mixed>
      */
-    private function validateItem(CartItem $item): array
+    private function validateItem(CartItem $item, ?User $cartUser): array
     {
         $product = Product::query()
             ->with(['vendorAccount', 'inventory'])
@@ -71,6 +75,10 @@ final class CartValidationService
 
         if ($product->vendorAccount === null || $product->vendorAccount->status !== VendorAccountStatus::Active) {
             return $this->invalid($base, 'vendor_inactive');
+        }
+
+        if ($cartUser !== null && $this->selfPurchase->userOwnsProduct($cartUser, $product)) {
+            return $this->invalid($base, 'self_purchase');
         }
 
         $currentPrice = (string) $product->sale_price;

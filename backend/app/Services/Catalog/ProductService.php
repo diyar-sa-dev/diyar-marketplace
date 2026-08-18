@@ -11,6 +11,7 @@ use App\Models\ProductImage;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Services\Media\MediaUploadService;
+use App\Services\Vendor\VendorAccessService;
 use App\Support\SlugGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +30,7 @@ final class ProductService
     public function __construct(
         private readonly InventoryService $inventory,
         private readonly MediaUploadService $media,
+        private readonly VendorAccessService $access,
     ) {}
 
     /**
@@ -476,11 +478,6 @@ final class ProductService
 
     private function requireVendorAccount(User $user): VendorAccount
     {
-        $vendorAccount = $user->vendorAccount;
-        if ($vendorAccount === null) {
-            throw new AccessDeniedHttpException(__('diyar.auth.forbidden'));
-        }
-
-        return $vendorAccount;
+        return $this->access->requireVendorAccount($user);
     }
 }

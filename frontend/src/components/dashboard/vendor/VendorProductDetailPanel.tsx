@@ -26,6 +26,8 @@ interface VendorProductDetailPanelProps {
   onBack: () => void;
   onEdit: () => void;
   onArchive: () => void;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 export function VendorProductDetailPanel({
@@ -37,6 +39,8 @@ export function VendorProductDetailPanel({
   onBack,
   onEdit,
   onArchive,
+  canEdit = true,
+  canDelete = true,
 }: VendorProductDetailPanelProps) {
   const { t, dir } = useLocale();
 
@@ -84,7 +88,9 @@ export function VendorProductDetailPanel({
             <p className="text-sm text-gray-400 mt-1 font-sans">{product.category?.name}</p>
           </div>
         </div>
+        {(canEdit || canDelete) ? (
         <div className="flex items-center gap-2 flex-wrap justify-end">
+          {canEdit ? (
           <button
             type="button"
             onClick={onEdit}
@@ -93,6 +99,8 @@ export function VendorProductDetailPanel({
             <Edit size={14} />
             {t('vendor.products.detail.editProduct')}
           </button>
+          ) : null}
+          {canDelete ? (
           <button
             type="button"
             onClick={onArchive}
@@ -101,7 +109,9 @@ export function VendorProductDetailPanel({
             <Trash2 size={14} />
             {t('vendor.products.detail.archiveProduct')}
           </button>
+          ) : null}
         </div>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -209,24 +219,29 @@ export function VendorProductDetailPanel({
                   {t('vendor.products.detail.ordersCount')}
                 </span>
                 <span className="font-bold text-diyar-dark tabular-nums">
-                  0 {t('vendor.products.detail.ordersUnit')}
+                  {product.sales_stats?.orders_count ?? 0} {t('vendor.products.detail.ordersUnit')}
                 </span>
               </div>
               <div className="flex items-center justify-between py-1">
                 <span className="text-gray-500 text-sm">
                   {t('vendor.products.detail.totalRevenue')}
                 </span>
-                <span className="font-bold text-green-600 tabular-nums">0.00 {currency}</span>
+                <span className="font-bold text-green-600 tabular-nums">
+                  {product.sales_stats?.total_revenue ?? '0.00'} {currency}
+                </span>
               </div>
               <div className="flex items-center justify-between py-1">
                 <span className="text-gray-500 text-sm">
                   {t('vendor.products.detail.returnRate')}
                 </span>
-                <span className="font-bold text-diyar-dark tabular-nums">0%</span>
+                <span className="font-bold text-diyar-dark tabular-nums">
+                  {product.sales_stats?.return_rate ?? 0}%
+                </span>
               </div>
             </div>
           </div>
 
+          {canEdit ? (
           <div className="bg-linear-to-br from-amber-50/80 to-orange-50/40 rounded-2xl border border-amber-100 p-6 text-right font-sans space-y-3 shadow-sm">
             <h4 className="font-bold text-diyar-dark text-sm">
               {t('vendor.products.detail.inventoryTitle')}
@@ -242,6 +257,7 @@ export function VendorProductDetailPanel({
               {t('vendor.products.detail.editSpecs')}
             </button>
           </div>
+          ) : null}
         </div>
       </div>
     </div>

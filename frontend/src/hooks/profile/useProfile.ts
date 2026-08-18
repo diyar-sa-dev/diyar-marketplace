@@ -124,3 +124,28 @@ export function useVerifyPhoneChange() {
     },
   });
 }
+
+export function useRequestEmailVerification() {
+  return useMutation({
+    mutationFn: () => profileApi.requestEmailVerification(),
+  });
+}
+
+export function useResendEmailVerification() {
+  return useMutation({
+    mutationFn: () => profileApi.resendEmailVerification(),
+  });
+}
+
+export function useVerifyEmailVerification() {
+  const queryClient = useQueryClient();
+  const { refreshUser } = useAuthContext();
+
+  return useMutation({
+    mutationFn: (code: string) => profileApi.verifyEmailVerification(code),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: profileKeys.all });
+      await refreshUser();
+    },
+  });
+}

@@ -8,6 +8,7 @@ use App\Http\Requests\Returns\RejectReturnRequest;
 use App\Http\Resources\ReturnRequestResource;
 use App\Models\ReturnRequest;
 use App\Services\Returns\ReturnRequestService;
+use App\Services\Vendor\VendorAccessService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,17 +18,14 @@ class VendorReturnController extends Controller
 {
     public function __construct(
         private readonly ReturnRequestService $returns,
+        private readonly VendorAccessService $access,
     ) {}
 
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', ReturnRequest::class);
 
-        $vendorAccount = $request->user()->vendorAccount;
-
-        if ($vendorAccount === null) {
-            return ApiResponse::error(__('diyar.auth.forbidden'), 403);
-        }
+        $vendorAccount = $this->access->assertPermission($request->user(), 'returns');
 
         $perPage = min(max((int) $request->query('per_page', 15), 1), 50);
         $status = (string) $request->query('status', 'all');

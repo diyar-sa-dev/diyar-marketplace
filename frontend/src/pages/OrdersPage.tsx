@@ -30,6 +30,9 @@ import {
 } from '../lib/orderStatusUtils.ts';
 import type { Order, VendorOrder, OrderItem } from '../types/order.ts';
 import { CustomerReturnModal } from '../components/orders/CustomerReturnModal.tsx';
+import { StoreReviewPrompt } from '../components/orders/StoreReviewPrompt.tsx';
+import { useOrderStoreReviewEligibility } from '../hooks/storeReview/useStoreReviews.ts';
+import type { StoreReviewEligibilityItem } from '../api/storeReviews.ts';
 
 function OrderStatusBadge({ status, label }: { status: string; label: string }) {
   const badgeKey = orderStatusBadgeKey(status);
@@ -55,10 +58,22 @@ function VendorShipmentBlock({
   vendorOrder,
   t,
   onReturnRequested,
+  reviewEligibility,
+  orderId,
+  orderNumber,
+  skippedReviewIds,
+  onSkipReview,
+  onReviewSubmitted,
 }: {
   vendorOrder: VendorOrder;
   t: ReturnType<typeof useLocale>['t'];
   onReturnRequested?: () => void;
+  reviewEligibility?: StoreReviewEligibilityItem;
+  orderId?: string;
+  orderNumber?: string | null;
+  skippedReviewIds?: Set<string>;
+  onSkipReview?: (vendorOrderId: string) => void;
+  onReviewSubmitted?: () => void;
 }) {
   const shipmentStatus = vendorOrder.shipment?.status;
   const progress = resolveShipmentProgress(shipmentStatus, vendorOrder.status);
@@ -108,6 +123,19 @@ function VendorShipmentBlock({
           </div>
         ))}
       </div>
+
+      {reviewEligibility &&
+        orderId &&
+        vendorOrder.status === 'delivered' &&
+        !skippedReviewIds?.has(vendorOrder.id) && (
+          <StoreReviewPrompt
+            orderId={orderId}
+            orderNumber={orderNumber}
+            eligibility={reviewEligibility}
+            onSkipped={() => onSkipReview?.(vendorOrder.id)}
+            onSubmitted={onReviewSubmitted}
+          />
+        )}
     </div>
   );
 }
@@ -168,6 +196,14 @@ function OrderCard({
   dir: ReturnType<typeof useLocale>['dir'];
   onReturnRequested?: () => void;
 }) {
+  const hasDeliveredVendor = (order.vendor_orders ?? []).some((vo) => vo.status === 'delivered');
+  const eligibilityQuery = useOrderStoreReviewEligibility(order.id, hasDeliveredVendor);
+  const [skippedReviewIds, setSkippedReviewIds] = useState<Set<string>>(() => new Set());
+
+  const eligibilityByVendorOrderId = new Map(
+    (eligibilityQuery.data ?? []).map((item) => [item.vendor_order_id, item]),
+  );
+
   const effectiveStatus = resolveEffectiveOrderStatus(order);
   const badgeKey = orderStatusBadgeKey(effectiveStatus);
   const statusLabel =
@@ -301,20 +337,16 @@ function OrderCard({
             vendorOrder={vendorOrder}
             t={t}
             onReturnRequested={onReturnRequested}
+            reviewEligibility={eligibilityByVendorOrderId.get(vendorOrder.id)}
+            orderId={order.id}
+            orderNumber={order.order_number}
+            skippedReviewIds={skippedReviewIds}
+            onSkipReview={(vendorOrderId) =>
+              setSkippedReviewIds((prev) => new Set(prev).add(vendorOrderId))
+            }
+            onReviewSubmitted={() => void eligibilityQuery.refetch()}
           />
         ))}
-
-        {order.status === 'completed' && (
-          <div className="flex justify-center pt-2">
-            <button
-              type="button"
-              disabled
-              className="text-sm font-bold text-gray-400 border border-gray-200 rounded-xl px-4 py-2 cursor-not-allowed"
-            >
-              {t('orders.rateOrder')}
-            </button>
-          </div>
-        )}
       </div>
     </article>
   );

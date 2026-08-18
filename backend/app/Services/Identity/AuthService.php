@@ -6,7 +6,9 @@ use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Enums\UserStatus;
 use App\Models\User;
+use App\Support\User\UserNotificationPreferences;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -16,6 +18,8 @@ final class AuthService
 {
     public function __construct(
         private readonly OtpService $otp,
+        private readonly EmailOtpService $emailOtp,
+        private readonly WelcomeEmailService $welcomeEmail,
     ) {}
 
     public function establishSession(User $user, bool $remember = false): User
@@ -26,7 +30,13 @@ final class AuthService
             request()->session()->regenerate();
         }
 
-        return $user->load('roles');
+        $user = $user->load('roles');
+        $this->welcomeEmail->sendIfEligible(
+            $user,
+            UserNotificationPreferences::mailLocale($user, App::getLocale()),
+        );
+
+        return $user;
     }
 
     public function loginWithPhone(string $phoneRaw, string $password, bool $remember = false): User
@@ -44,7 +54,12 @@ final class AuthService
 
     public function loginWithEmail(string $email, string $password, bool $remember = false): User
     {
-        return $this->attempt(['email' => $email, 'password' => $password], 'email', $email, $remember);
+        return $this->attempt(
+            ['email' => strtolower(trim($email)), 'password' => $password],
+            'email',
+            strtolower(trim($email)),
+            $remember,
+        );
     }
 
     public function logout(): void
@@ -95,7 +110,64 @@ final class AuthService
             ]);
         }
 
+        if ($key === 'email' && $this->requiresEmailVerification($user)) {
+            $this->beginEmailVerification($user, $remember);
+        }
+
         return $this->establishSession($user, $remember);
+    }
+
+    private function requiresEmailVerification(User $user): bool
+    {
+        return $user->email !== null
+            && trim($user->email) !== ''
+            && $user->email_verified_at === null;
+    }
+
+    /**
+     * @return never
+     */
+    private function beginEmailVerification(User $user, bool $remember): void
+    {
+        Auth::guard('web')->logout();
+
+        $email = strtolower(trim((string) $user->email));
+        $locale = App::getLocale();
+        $existing = $this->emailOtp->peek($email, OtpPurpose::EmailVerification);
+
+        if ($existing !== null) {
+            try {
+                $this->emailOtp->resend($email, OtpPurpose::EmailVerification, $user->name, $locale);
+            } catch (ValidationException $exception) {
+                $emailErrors = $exception->errors()['email'] ?? [];
+                $ignorable = [
+                    __('diyar.otp.cooldown'),
+                    __('diyar.otp.too_many_resends'),
+                ];
+
+                foreach ($emailErrors as $message) {
+                    if (in_array($message, $ignorable, true)) {
+                        return;
+                    }
+                }
+
+                throw $exception;
+            }
+        } else {
+            $this->emailOtp->issue(
+                email: $email,
+                purpose: OtpPurpose::EmailVerification,
+                userId: $user->id,
+                recipientName: $user->name,
+                locale: $locale,
+                metadata: ['remember' => $remember],
+            );
+        }
+
+        throw ValidationException::withMessages([
+            'email_verification_required' => [__('diyar.auth.email_verification_required')],
+            'verification_email' => [$email],
+        ]);
     }
 
     /**

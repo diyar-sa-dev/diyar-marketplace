@@ -91,13 +91,21 @@ interface ProductShareSheetProps {
   onClose: () => void;
   url: string;
   title: string;
+  context?: 'product' | 'store';
 }
 
-export function ProductShareSheet({ open, onClose, url, title }: ProductShareSheetProps) {
+export function ProductShareSheet({
+  open,
+  onClose,
+  url,
+  title,
+  context = 'product',
+}: ProductShareSheetProps) {
   const { t, dir } = useLocale();
   const { toast } = useToast();
   const targets = buildShareTargets(url, title);
   const canNativeShare = typeof navigator.share === 'function';
+  const prefix = context === 'store' ? 'store' : 'catalog.productDetail';
 
   if (!open) {
     return null;
@@ -106,10 +114,10 @@ export function ProductShareSheet({ open, onClose, url, title }: ProductShareShe
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      toast.success(t('catalog.productDetail.shareCopied'));
+      toast.success(t(`${prefix}.shareCopied`));
       onClose();
     } catch {
-      toast.error(t('catalog.productDetail.shareCopyFailed'));
+      toast.error(t(`${prefix}.shareCopyFailed`));
     }
   };
 
@@ -119,7 +127,7 @@ export function ProductShareSheet({ open, onClose, url, title }: ProductShareShe
       onClose();
     } catch (err) {
       if ((err as DOMException)?.name !== 'AbortError') {
-        toast.error(t('catalog.productDetail.shareCopyFailed'));
+        toast.error(t(`${prefix}.shareCopyFailed`));
       }
     }
   };
@@ -128,9 +136,9 @@ export function ProductShareSheet({ open, onClose, url, title }: ProductShareShe
     if (target.id === 'instagram') {
       try {
         await navigator.clipboard.writeText(`${title}\n${url}`);
-        toast.success(t('catalog.productDetail.shareInstagramHint'));
+        toast.success(t(`${prefix}.shareInstagramHint`));
       } catch {
-        toast.error(t('catalog.productDetail.shareCopyFailed'));
+        toast.error(t(`${prefix}.shareCopyFailed`));
       }
       window.open(target.href, '_blank', 'noopener,noreferrer');
       return;
@@ -155,7 +163,7 @@ export function ProductShareSheet({ open, onClose, url, title }: ProductShareShe
       >
         <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100">
           <h3 className="font-bold text-diyar-dark text-lg">
-            {t('catalog.productDetail.shareTitle')}
+            {t(`${prefix}.shareTitle`)}
           </h3>
           <button
             type="button"
@@ -197,7 +205,7 @@ export function ProductShareSheet({ open, onClose, url, title }: ProductShareShe
               className={`${vendorButtonClass} w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 text-diyar-dark font-bold text-sm hover:bg-gray-50 cursor-pointer`}
             >
               <Link2 size={18} />
-              {t('catalog.productDetail.shareCopy')}
+              {t(`${prefix}.shareCopy`)}
             </button>
 
             {canNativeShare && (
@@ -207,7 +215,7 @@ export function ProductShareSheet({ open, onClose, url, title }: ProductShareShe
                 className={`${vendorButtonClass} w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-diyar-dark text-white font-bold text-sm hover:bg-black cursor-pointer`}
               >
                 <Share2 size={18} />
-                {t('catalog.productDetail.shareMoreApps')}
+                {t(`${prefix}.shareMoreApps`)}
               </button>
             )}
           </div>

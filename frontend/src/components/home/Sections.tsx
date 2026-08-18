@@ -1,7 +1,8 @@
-﻿import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../cards/ProductCard.tsx';
 import { useCategories, useProducts, useVendors } from '../../hooks/catalog/useCatalog.ts';
+import { useLocale } from '../../hooks/useLocale.ts';
 import { isValidStoreSlug, storePath } from '../../lib/storePath.ts';
 import { mapProductCard } from '../../lib/catalogMappers.ts';
 import {
@@ -580,6 +581,7 @@ export function ShopByRoom() {
 }
 
 export function FeaturedStores() {
+  const { t } = useLocale();
   const { data, isLoading } = useVendors({ per_page: 6 });
   const stores = data?.items ?? [];
 
@@ -611,9 +613,9 @@ export function FeaturedStores() {
                   <Link
                     to={storePath(store.slug)!}
                     key={store.id}
-                    className="min-w-35 md:min-w-0 bg-white rounded-xl p-4 md:p-3 border border-gray-100 shadow-sm hover:shadow-md transition group text-center flex flex-col items-center shrink-0 snap-start"
+                    className="min-w-44 sm:min-w-40 md:min-w-0 bg-white rounded-xl p-4 md:p-3 border border-gray-100 shadow-sm hover:shadow-md transition group text-center flex flex-col items-center shrink-0 snap-start"
                   >
-                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gray-100 p-1 mb-3 overflow-hidden border border-gray-200">
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gray-100 p-1 mb-3 overflow-hidden border border-gray-200 shrink-0">
                       <img
                         src={
                           store.logo_url ??
@@ -624,13 +626,16 @@ export function FeaturedStores() {
                         className="w-full h-full rounded-full object-cover"
                       />
                     </div>
-                    <h3 className="text-sm md:text-base font-bold text-diyar-dark mb-1 line-clamp-1">
+                    <h3
+                      className="text-sm md:text-base font-bold text-diyar-dark mb-1 line-clamp-2 w-full leading-snug px-1"
+                      title={store.store_name}
+                    >
                       {store.store_name}
                     </h3>
-                    <span className="text-gray-400 text-[9px] md:text-[10px] font-normal mb-3">
-                      ({store.product_count ?? 0} منتج)
+                    <span className="text-gray-400 text-[10px] md:text-xs font-normal mb-3">
+                      {t('store.productsCount', { count: store.product_count ?? 0 })}
                     </span>
-                    <div className="w-full py-1.5 md:py-2 text-xs md:text-sm auto rounded-lg border border-gray-200 text-diyar-dark font-medium group-hover:bg-diyar-brown group-hover:text-white group-hover:border-diyar-dark transition mt-auto">
+                    <div className="w-full py-1.5 md:py-2 text-xs md:text-sm rounded-lg border border-gray-200 text-diyar-dark font-medium group-hover:bg-diyar-brown group-hover:text-white group-hover:border-diyar-dark transition mt-auto">
                       تصفح المتجر
                     </div>
                   </Link>

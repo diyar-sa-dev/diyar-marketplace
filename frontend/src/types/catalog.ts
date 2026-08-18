@@ -14,6 +14,7 @@ export interface Category {
 }
 
 export interface ProductVendor {
+  id?: string;
   store_name: string;
   slug: string;
 }
@@ -44,6 +45,7 @@ export interface ProductCard {
   category?: ProductCategoryRef & { type?: CategoryType };
   inventory?: ProductInventoryRef;
   user_saved?: boolean;
+  is_own_store?: boolean;
 }
 
 export interface ProductColor {
@@ -97,9 +99,16 @@ export interface ProductDetail {
   likes_count: number;
   user_liked?: boolean;
   user_saved?: boolean;
+  user_preorder_pending?: boolean;
+  is_own_store?: boolean;
   vendor?: ProductVendor & { id: string };
   category?: ProductCategoryRef & { id: string };
   related_products?: ProductCard[];
+  sales_stats?: {
+    orders_count: number;
+    total_revenue: string;
+    return_rate: number;
+  };
 }
 
 export interface VendorPublic {
@@ -108,8 +117,27 @@ export interface VendorPublic {
   slug: string;
   description: string | null;
   location: string | null;
+  support_phone?: string | null;
+  support_email?: string | null;
+  website_url?: string | null;
   logo_url: string | null;
   cover_url: string | null;
+  rating_avg?: number | null;
+  reviews_count?: number;
+  products_count?: number;
+  followers_count?: number;
+  is_following?: boolean;
+  is_own_store?: boolean;
+  working_hours?: Array<{
+    day: string;
+    label: string;
+    is_closed: boolean;
+    opens_at: string | null;
+    closes_at: string | null;
+    closes_next_day?: boolean;
+  }>;
+  return_policy_summary?: string[];
+  shipping_summary?: string[];
 }
 
 export interface VendorCard extends VendorPublic {

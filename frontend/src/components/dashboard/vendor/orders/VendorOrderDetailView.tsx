@@ -21,6 +21,7 @@ export function VendorOrderDetailView({
   onBack,
   onAction,
   isPending,
+  canWriteOrders = true,
 }: {
   order: VendorOrder | null;
   isLoading?: boolean;
@@ -30,6 +31,7 @@ export function VendorOrderDetailView({
     payload?: { tracking_number: string; carrier?: string },
   ) => void;
   isPending: boolean;
+  canWriteOrders?: boolean;
 }) {
   const { t, locale } = useLocale();
   const { toast } = useToast();
@@ -93,7 +95,7 @@ export function VendorOrderDetailView({
             {t('vendorOrders.downloadInvoice')}
           </button>
 
-          {order.status !== 'delivered' && order.status !== 'cancelled' && (
+          {canWriteOrders && order.status !== 'delivered' && order.status !== 'cancelled' && (
             <div className="relative">
               <button
                 type="button"

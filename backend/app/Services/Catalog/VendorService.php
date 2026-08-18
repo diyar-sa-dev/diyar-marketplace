@@ -44,7 +44,20 @@ final class VendorService
             throw new NotFoundHttpException(__('diyar.catalog.vendor_not_found'));
         }
 
-        $vendor = VendorAccount::query()->active()->where('slug', $slug)->first();
+        $vendor = VendorAccount::query()
+            ->active()
+            ->where('slug', $slug)
+            ->with([
+                'workingHours',
+                'returnPolicy',
+                'shippingSettings',
+            ])
+            ->withCount([
+                'products as active_products_count' => fn ($q) => $q
+                    ->where('status', ProductStatus::Active)
+                    ->whereNull('deleted_at'),
+            ])
+            ->first();
 
         if ($vendor === null) {
             throw new NotFoundHttpException(__('diyar.catalog.vendor_not_found'));

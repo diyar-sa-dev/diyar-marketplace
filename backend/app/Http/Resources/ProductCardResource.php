@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\Product;
 use App\Services\Catalog\ProductEngagementService;
 use App\Services\Media\MediaUploadService;
+use App\Support\Vendor\VendorOwnership;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,6 +19,8 @@ class ProductCardResource extends JsonResource
     {
         $media = app(MediaUploadService::class);
         $engagement = app(ProductEngagementService::class);
+        $vendorOwnership = app(VendorOwnership::class);
+        $viewer = $request->user();
         $firstImage = $this->relationLoaded('images') ? $this->images->first() : null;
         $comparePrice = $this->compare_price !== null ? (float) $this->compare_price : null;
         $salePrice = (float) $this->sale_price;
@@ -39,9 +42,14 @@ class ProductCardResource extends JsonResource
                 ? $media->url($firstImage->mediaFile->path)
                 : null,
             'vendor' => $this->when($this->relationLoaded('vendorAccount') && $this->vendorAccount !== null, fn () => [
+                'id' => $this->vendorAccount->id,
                 'store_name' => $this->vendorAccount->business_name,
                 'slug' => $this->vendorAccount->slug,
             ]),
+            'is_own_store' => $viewer !== null
+                && $this->relationLoaded('vendorAccount')
+                && $this->vendorAccount !== null
+                && $vendorOwnership->userOwnsVendorAccount($viewer, $this->vendorAccount->id),
             'category' => $this->when($this->relationLoaded('category') && $this->category !== null, fn () => [
                 'name' => $this->category->name,
                 'slug' => $this->category->slug,

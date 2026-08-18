@@ -4,8 +4,10 @@ import { useLocale } from '../../../hooks/useLocale.ts';
 import {
   useVendorOrder,
   useVendorOrders,
-} from '../../../hooks/dashboard/vendor/useVendorOrders.ts';
-import { useVendorOrderActions } from '../../../hooks/dashboard/vendor/useVendorOrderActions.ts';
+} from '../../../hooks/vendor/useVendorOrders.ts';
+import { useVendorOrderActions } from '../../../hooks/vendor/useVendorOrderActions.ts';
+import { useVendorAccess } from '../../../hooks/vendor/useVendorTeam.ts';
+import { vendorCanWrite } from '../../../api/vendorTeam.ts';
 import { ErrorState } from '../../../components/common/ErrorState.tsx';
 import { DashboardPaginatedTable } from '../../../components/dashboard/common/DashboardPaginatedTable.tsx';
 import { VendorOrdersHeader } from '../../../components/dashboard/vendor/orders/VendorOrdersHeader.tsx';
@@ -40,6 +42,8 @@ export default function VendorOrdersPage() {
   );
 
   const { data, isLoading, isFetching, isError, error, refetch } = useVendorOrders(filters);
+  const { data: vendorAccess } = useVendorAccess();
+  const canWriteOrders = vendorCanWrite(vendorAccess?.permissions.orders);
   const { data: selectedOrder, isLoading: detailLoading } = useVendorOrder(selectedOrderId);
   const actionMutation = useVendorOrderActions((order) => {
     if (selectedOrderId === order.id) {
@@ -78,6 +82,7 @@ export default function VendorOrdersPage() {
         onBack={() => setSelectedOrderId(null)}
         isPending={actionMutation.isPending}
         onAction={(action, payload) => handleAction(selectedOrderId, action, payload)}
+        canWriteOrders={canWriteOrders}
       />
     );
   }
@@ -138,6 +143,7 @@ export default function VendorOrdersPage() {
           onView={(order) => setSelectedOrderId(order.id)}
           onAction={handleAction}
           isPending={actionMutation.isPending}
+          canWriteOrders={canWriteOrders}
         />
       </DashboardPaginatedTable>
     </div>

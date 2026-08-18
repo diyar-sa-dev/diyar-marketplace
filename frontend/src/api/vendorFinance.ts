@@ -159,6 +159,9 @@ export type VendorDashboardOverview = {
   returns: {
     open: number;
   };
+  preorders: {
+    pending: number;
+  };
   products: {
     active: number;
     low_stock: number;
@@ -175,10 +178,24 @@ export type VendorDashboardOverview = {
   low_stock_products: Array<{
     id: string | null;
     name: string | null;
+    image_url?: string | null;
     available_quantity: number;
     stock_quantity: number;
     status: 'out_of_stock' | 'low_stock';
   }>;
+  top_selling_products: Array<{
+    id: string | null;
+    name: string | null;
+    image_url?: string | null;
+    orders_count: number;
+    available_quantity: number;
+    revenue: string;
+  }>;
+  store_reviews: {
+    average_rating: number | null;
+    review_count: number;
+    distribution: Array<{ stars: number; count: number; percentage: number }>;
+  };
 };
 
 export async function fetchVendorDashboardOverview(): Promise<VendorDashboardOverview> {

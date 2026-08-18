@@ -32,11 +32,18 @@ import { useAuth } from './hooks/auth/useAuth.ts';
 import { useToast } from './hooks/useToast.ts';
 import { useLocale } from './hooks/useLocale.ts';
 import { ProtectedRoute } from './components/routes/ProtectedRoute.tsx';
+import { CustomerProfileRoute } from './components/routes/CustomerProfileRoute.tsx';
 import { GuestRoute } from './components/routes/GuestRoute.tsx';
 import { AccountStatusRoute } from './components/routes/AccountStatusRoute.tsx';
 import { AccountStatusGuard } from './components/routes/AccountStatusGuard.tsx';
-import { RoleName, hasDashboardAccess, resolveDashboardEntryPath } from './lib/auth/roles.ts';
-import { isActiveAccount } from './lib/auth/accountStatus.ts';
+import {
+  RoleName,
+  isAccountHubPath,
+  resolveAccountHubPath,
+  resolveDashboardEntryPath,
+  resolveNotificationsHubPath,
+  shouldShowStorefrontDashboardLink,
+} from './lib/auth/roles.ts';
 import HomePage from './pages/HomePage.tsx';
 import CategoryPage from './pages/CategoryPage.tsx';
 import ProductDetailsPage from './pages/ProductDetailsPage.tsx';
@@ -51,6 +58,7 @@ import ProfilePage from './pages/ProfilePage.tsx';
 import ServiceRequestsPage from './pages/ServiceRequestsPage.tsx';
 import WishlistPage from './pages/WishlistPage.tsx';
 import ReviewsPage from './pages/ReviewsPage.tsx';
+import CustomerReviewDetailPage from './pages/CustomerReviewDetailPage.tsx';
 import PersonalInfoPage from './pages/PersonalInfoPage.tsx';
 import AddressesPage from './pages/AddressesPage.tsx';
 
@@ -73,13 +81,16 @@ import ChatPage from './pages/ChatPage.tsx';
 
 import DashboardLayout from './layouts/DashboardLayout.tsx';
 import DashboardIndex from './pages/dashboard/DashboardIndex.tsx';
-import VendorDashboard from './pages/dashboard/VendorDashboard.tsx';
+import VendorDashboardEntry from './pages/dashboard/VendorDashboardEntry.tsx';
 import VendorOrdersPage from './pages/dashboard/vendor/VendorOrdersPage.tsx';
+import VendorPreordersPage from './pages/dashboard/vendor/VendorPreordersPage.tsx';
 import VendorReturnsPage from './pages/dashboard/vendor/VendorReturnsPage.tsx';
 import VendorProducts from './pages/dashboard/VendorProducts.tsx';
 import ServiceClientRequests from './pages/dashboard/ServiceClientRequests.tsx';
 import ServiceClientRequestDetails from './pages/dashboard/ServiceClientRequestDetails.tsx';
 import VendorTeam from './pages/dashboard/VendorTeam.tsx';
+import VendorReviewsInbox from './pages/dashboard/VendorReviewsInbox.tsx';
+import VendorMessages from './pages/dashboard/VendorMessages.tsx';
 import VendorFinance from './pages/dashboard/VendorFinance.tsx';
 import VendorSettings from './pages/dashboard/VendorSettings.tsx';
 import ServiceDashboard from './pages/dashboard/ServiceDashboard.tsx';
@@ -95,6 +106,7 @@ import AffiliatePayouts from './pages/dashboard/AffiliatePayouts.tsx';
 import AffiliateSettings from './pages/dashboard/AffiliateSettings.tsx';
 import ForbiddenPage from './pages/errors/ForbiddenPage.tsx';
 import NotFoundPage from './pages/errors/NotFoundPage.tsx';
+import TeamInvitePage from './pages/TeamInvitePage.tsx';
 import PendingAccountPage from './pages/account/PendingAccountPage.tsx';
 import SuspendedAccountPage from './pages/account/SuspendedAccountPage.tsx';
 import Notifications from './pages/dashboard/Notifications.tsx';
@@ -102,9 +114,13 @@ import Notifications from './pages/dashboard/Notifications.tsx';
 function MobileBottomNav({
   onOpenCart,
   isLoggedIn,
+  accountHubPath,
+  isAccountActive,
 }: {
   onOpenCart: () => void;
   isLoggedIn: boolean;
+  accountHubPath: string;
+  isAccountActive: boolean;
 }) {
   const location = useLocation();
   const { count } = useCart();
@@ -151,8 +167,8 @@ function MobileBottomNav({
         <span className="text-[11px] font-medium">المحفوظات</span>
       </Link>
       <Link
-        to={isLoggedIn ? '/profile' : '/auth'}
-        className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${location.pathname.startsWith('/profile') ? 'text-diyar-dark' : ''}`}
+        to={isLoggedIn ? accountHubPath : '/auth'}
+        className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${isAccountActive ? 'text-diyar-dark' : ''}`}
       >
         <User size={22} className="mb-1" />
         <span className="text-[11px] font-medium">حسابي</span>
@@ -176,8 +192,14 @@ export default function App() {
   const { toast } = useToast();
   const { dir, t } = useLocale();
   const dashboardPath = resolveDashboardEntryPath(user?.roles);
-  const showDashboardLink =
-    isAuthenticated && isActiveAccount(user?.status) && hasDashboardAccess(user?.roles);
+  const accountHubPath = resolveAccountHubPath(user?.roles);
+  const notificationsHubPath = resolveNotificationsHubPath(user?.roles);
+  const isAccountActive = isAccountHubPath(location.pathname, location.search, user?.roles);
+  const showDashboardLink = shouldShowStorefrontDashboardLink(
+    isAuthenticated,
+    user?.status,
+    user?.roles,
+  );
 
   useEffect(() => {
     // reset scroll to top on every navigation (so pages don't open mid-scroll)
@@ -344,7 +366,7 @@ export default function App() {
                       <Search className="w-5 h-5" />
                     </Link>
                     <Link
-                      to={isAuthenticated ? '/profile' : '/auth'}
+                      to={isAuthenticated ? accountHubPath : '/auth'}
                       className="hidden xl:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
                     >
                       <User size={18} />
@@ -361,7 +383,7 @@ export default function App() {
                       )}
                     </div>
                     <Link
-                      to="/profile/notifications"
+                      to={notificationsHubPath}
                       className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
                     >
                       <Bell className="w-5 h-5" />
@@ -397,6 +419,14 @@ export default function App() {
       <AccountStatusGuard>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route
+            path="/team-invite"
+            element={
+              <ProtectedRoute>
+                <TeamInvitePage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/auth"
             element={
@@ -458,9 +488,9 @@ export default function App() {
           <Route
             path="/orders"
             element={
-              <ProtectedRoute>
+              <CustomerProfileRoute>
                 <OrdersPage />
-              </ProtectedRoute>
+              </CustomerProfileRoute>
             }
           />
           <Route path="/loyalty" element={<LoyaltyPage />} />
@@ -469,17 +499,17 @@ export default function App() {
           <Route
             path="/profile"
             element={
-              <ProtectedRoute>
+              <CustomerProfileRoute>
                 <ProfilePage />
-              </ProtectedRoute>
+              </CustomerProfileRoute>
             }
           />
           <Route
             path="/profile/service-requests"
             element={
-              <ProtectedRoute>
+              <CustomerProfileRoute>
                 <ServiceRequestsPage />
-              </ProtectedRoute>
+              </CustomerProfileRoute>
             }
           />
           <Route
@@ -501,57 +531,65 @@ export default function App() {
           <Route
             path="/profile/personal-info"
             element={
-              <ProtectedRoute>
+              <CustomerProfileRoute>
                 <PersonalInfoPage />
-              </ProtectedRoute>
+              </CustomerProfileRoute>
             }
           />
           <Route
             path="/profile/addresses"
             element={
-              <ProtectedRoute>
+              <CustomerProfileRoute>
                 <AddressesPage />
-              </ProtectedRoute>
+              </CustomerProfileRoute>
             }
           />
           <Route
             path="/profile/reviews"
             element={
-              <ProtectedRoute>
+              <CustomerProfileRoute>
                 <ReviewsPage />
-              </ProtectedRoute>
+              </CustomerProfileRoute>
+            }
+          />
+          <Route
+            path="/profile/reviews/:type/:id"
+            element={
+              <CustomerProfileRoute>
+                <CustomerReviewDetailPage />
+              </CustomerProfileRoute>
             }
           />
           <Route
             path="/profile/notifications"
             element={
-              <ProtectedRoute>
+              <CustomerProfileRoute>
                 <NotificationsPage />
-              </ProtectedRoute>
+              </CustomerProfileRoute>
             }
           />
           <Route
             path="/profile/notification-settings"
             element={
-              <ProtectedRoute>
+              <CustomerProfileRoute>
                 <NotificationSettingsPage />
-              </ProtectedRoute>
+              </CustomerProfileRoute>
             }
           />
           <Route
             path="/profile/language"
             element={
-              <ProtectedRoute>
+              <CustomerProfileRoute>
                 <LanguagePage />
-              </ProtectedRoute>
+              </CustomerProfileRoute>
             }
           />
           <Route
             path="/wishlist"
             element={
-              <ProtectedRoute>
+              <CustomerProfileRoute>
                 <WishlistPage />
-              </ProtectedRoute>
+              </CustomerProfileRoute>
             }
           />
 
@@ -567,19 +605,20 @@ export default function App() {
           >
             <Route index element={<DashboardIndex />} />
 
-            <Route
-              path="vendor"
-              element={
-                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
-                  <VendorDashboard />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="vendor" element={<VendorDashboardEntry />} />
             <Route
               path="vendor/orders"
               element={
                 <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
                   <VendorOrdersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="vendor/preorders"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                  <VendorPreordersPage />
                 </ProtectedRoute>
               }
             />
@@ -596,6 +635,22 @@ export default function App() {
               element={
                 <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
                   <VendorProducts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="vendor/reviews"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                  <VendorReviewsInbox />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="vendor/messages"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                  <VendorMessages />
                 </ProtectedRoute>
               }
             />
@@ -763,7 +818,12 @@ export default function App() {
       {!(isAuthPage || isDashboardPage || isStatusPage) && <FloatingContactBar />}
       {!(isAuthPage || isDashboardPage || isStatusPage) && <Footer />}
       {!(isAuthPage || isDashboardPage || isStatusPage) && (
-        <MobileBottomNav onOpenCart={() => setIsCartOpen(true)} isLoggedIn={isAuthenticated} />
+        <MobileBottomNav
+          onOpenCart={() => setIsCartOpen(true)}
+          isLoggedIn={isAuthenticated}
+          accountHubPath={accountHubPath}
+          isAccountActive={isAccountActive}
+        />
       )}
     </div>
   );

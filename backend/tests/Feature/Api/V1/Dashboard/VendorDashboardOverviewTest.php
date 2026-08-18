@@ -51,6 +51,7 @@ class VendorDashboardOverviewTest extends TestCase
                         'sales_chart',
                         'recent_orders',
                         'low_stock_products',
+                        'store_reviews' => ['average_rating', 'review_count', 'distribution'],
                     ],
                 ],
             ])

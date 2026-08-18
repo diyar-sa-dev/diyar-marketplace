@@ -1,5 +1,6 @@
 import { resolveMediaUrl } from './media.ts';
 import type { ProductCard } from '../types/catalog.ts';
+import { LOW_STOCK_THRESHOLD } from './stockStatus.ts';
 
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=60&w=400';
@@ -17,6 +18,7 @@ export interface UiProductCard {
   availabilityMode?: string;
   availableQuantity?: number;
   userSaved?: boolean;
+  isOwnStore?: boolean;
 }
 
 export function mapProductCard(product: ProductCard): UiProductCard {
@@ -41,6 +43,7 @@ export function mapProductCard(product: ProductCard): UiProductCard {
     availabilityMode: product.availability_mode,
     availableQuantity: product.inventory?.available_quantity,
     userSaved: product.user_saved,
+    isOwnStore: product.is_own_store,
   };
 }
 
@@ -67,7 +70,7 @@ export function availabilityTone(mode: string, availableQty = 0): AvailabilityTo
   if (mode === 'out_of_stock' || availableQty === 0) {
     return 'out';
   }
-  if (availableQty <= 5) {
+  if (availableQty <= LOW_STOCK_THRESHOLD) {
     return 'limited';
   }
   return 'in_stock';

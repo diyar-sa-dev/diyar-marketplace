@@ -1,5 +1,8 @@
 import Swal from 'sweetalert2';
 import type { TranslateFn } from './i18n/types.ts';
+import type { Locale } from './i18n/types.ts';
+import { parseApiError, isValidationError } from '../utils/errors.ts';
+import { translate } from './i18n/translate.ts';
 
 const swalCustomClass = {
   popup: 'diyar-swal',
@@ -84,6 +87,29 @@ export async function showErrorAlert(
     ...modalOptions,
     title: t(titleKey),
     text: textKey ? t(textKey) : undefined,
+    icon: 'error',
+    confirmButtonText: t('vendor.dialog.ok'),
+    confirmButtonColor: '#947961',
+  });
+}
+
+export async function showApiErrorAlert(
+  t: TranslateFn,
+  error: unknown,
+  locale: Locale,
+  fallbackTitleKey = 'vendor.dialog.saveError',
+): Promise<void> {
+  const parsed = parseApiError(error, locale);
+  const unexpectedMessage = translate(locale, 'errors.unexpected');
+
+  await Swal.fire({
+    ...modalOptions,
+    title: isValidationError(parsed) ? parsed.message : t(fallbackTitleKey),
+    text: isValidationError(parsed)
+      ? undefined
+      : parsed.message !== unexpectedMessage
+        ? parsed.message
+        : t('vendor.dialog.saveErrorHint'),
     icon: 'error',
     confirmButtonText: t('vendor.dialog.ok'),
     confirmButtonColor: '#947961',

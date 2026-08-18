@@ -18,6 +18,7 @@ use App\Services\Finance\VendorFinanceExportService;
 use App\Services\Finance\VendorFinancePeriodResolver;
 use App\Services\Finance\VendorFinanceReportingService;
 use App\Services\Finance\VendorTransactionQueryFilter;
+use App\Services\Vendor\VendorAccessService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,15 +33,12 @@ class VendorFinanceController extends Controller
         private readonly VendorFinanceExportService $export,
         private readonly VendorTransactionQueryFilter $transactionFilters,
         private readonly PayoutService $payouts,
+        private readonly VendorAccessService $access,
     ) {}
 
     public function summary(Request $request): JsonResponse
     {
-        $vendorAccount = $request->user()->vendorAccount;
-
-        if ($vendorAccount === null) {
-            return ApiResponse::error(__('diyar.auth.forbidden'), 403);
-        }
+        $vendorAccount = $this->access->assertPermission($request->user(), 'finance');
 
         $period = FinancePeriod::tryFromRequest($request->query('period'));
         $report = $this->reporting->periodReport($vendorAccount, $period);
@@ -53,11 +51,7 @@ class VendorFinanceController extends Controller
 
     public function analytics(Request $request): JsonResponse
     {
-        $vendorAccount = $request->user()->vendorAccount;
-
-        if ($vendorAccount === null) {
-            return ApiResponse::error(__('diyar.auth.forbidden'), 403);
-        }
+        $vendorAccount = $this->access->assertPermission($request->user(), 'finance');
 
         $period = FinancePeriod::tryFromRequest($request->query('period'));
         $points = $this->reporting->analytics($vendorAccount, $period);
@@ -75,11 +69,7 @@ class VendorFinanceController extends Controller
 
     public function transactions(Request $request): JsonResponse
     {
-        $vendorAccount = $request->user()->vendorAccount;
-
-        if ($vendorAccount === null) {
-            return ApiResponse::error(__('diyar.auth.forbidden'), 403);
-        }
+        $vendorAccount = $this->access->assertPermission($request->user(), 'finance');
 
         $query = FinancialTransaction::query()->with('order:id,order_number')->latest();
         $this->transactionFilters->applyVendorScope($query, $vendorAccount);
@@ -101,11 +91,7 @@ class VendorFinanceController extends Controller
 
     public function exportReport(Request $request): StreamedResponse|JsonResponse
     {
-        $vendorAccount = $request->user()->vendorAccount;
-
-        if ($vendorAccount === null) {
-            return ApiResponse::error(__('diyar.auth.forbidden'), 403);
-        }
+        $vendorAccount = $this->access->assertPermission($request->user(), 'finance');
 
         $period = FinancePeriod::tryFromRequest($request->query('period'));
         $typeFilter = $request->query('type');
@@ -125,11 +111,7 @@ class VendorFinanceController extends Controller
     {
         $this->authorize('viewAny', VendorPayout::class);
 
-        $vendorAccount = $request->user()->vendorAccount;
-
-        if ($vendorAccount === null) {
-            return ApiResponse::error(__('diyar.auth.forbidden'), 403);
-        }
+        $vendorAccount = $this->access->assertPermission($request->user(), 'finance');
 
         $payouts = VendorPayout::query()
             ->where('vendor_account_id', $vendorAccount->id)
@@ -151,11 +133,7 @@ class VendorFinanceController extends Controller
     {
         $this->authorize('create', VendorPayout::class);
 
-        $vendorAccount = $request->user()->vendorAccount;
-
-        if ($vendorAccount === null) {
-            return ApiResponse::error(__('diyar.auth.forbidden'), 403);
-        }
+        $vendorAccount = $this->access->assertPermission($request->user(), 'finance_withdraw');
 
         try {
             $payout = $this->payouts->request(

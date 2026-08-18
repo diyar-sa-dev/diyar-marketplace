@@ -4,7 +4,7 @@ import { useToast } from '../../../hooks/useToast.ts';
 import {
   useVendorReturnActions,
   useVendorReturns,
-} from '../../../hooks/dashboard/vendor/useVendorReturns.ts';
+} from '../../../hooks/vendor/useVendorReturns.ts';
 import { VendorReturnsSkeleton } from '../../../components/dashboard/vendor/returns/VendorReturnsSkeleton.tsx';
 import { EmptyState } from '../../../components/common/EmptyState.tsx';
 import type { ReturnRequest } from '../../../types/return.ts';

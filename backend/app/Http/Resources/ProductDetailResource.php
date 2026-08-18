@@ -2,9 +2,14 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\AvailabilityMode;
 use App\Models\Product;
 use App\Services\Catalog\ProductEngagementService;
+use App\Services\Catalog\ProductPreorderService;
+use App\Services\Catalog\ProductSalesStatsService;
 use App\Services\Media\MediaUploadService;
+use App\Support\Vendor\VendorAccessResolver;
+use App\Support\Vendor\VendorOwnership;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Collection;
@@ -27,6 +32,16 @@ class ProductDetailResource extends JsonResource
     {
         $media = app(MediaUploadService::class);
         $engagement = app(ProductEngagementService::class);
+        $vendorOwnership = app(VendorOwnership::class);
+        $viewer = $request->user();
+        $isOwnStore = $viewer !== null
+            && $this->relationLoaded('vendorAccount')
+            && $this->vendorAccount !== null
+            && $vendorOwnership->userOwnsVendorAccount($viewer, $this->vendorAccount->id);
+
+        $viewerVendor = $viewer !== null ? VendorAccessResolver::vendorAccount($viewer) : null;
+        $isVendorDashboardView = $viewerVendor !== null
+            && $this->vendor_account_id === $viewerVendor->id;
 
         return [
             'id' => $this->id,
@@ -77,6 +92,11 @@ class ProductDetailResource extends JsonResource
             'likes_count' => $engagement->likesCount($this->resource),
             'user_liked' => $engagement->userLiked($request->user(), $this->resource),
             'user_saved' => $engagement->userSaved($request->user(), $this->resource),
+            'user_preorder_pending' => $viewer !== null
+                && $this->availability_mode === AvailabilityMode::Preorder
+                && app(ProductPreorderService::class)->findPendingForUser($viewer, $this->resource) !== null,
+            'is_own_store' => $isOwnStore,
+            'sales_stats' => $this->when($isVendorDashboardView, fn () => app(ProductSalesStatsService::class)->forProduct($this->resource)),
             'vendor' => $this->when($this->relationLoaded('vendorAccount') && $this->vendorAccount !== null, fn () => [
                 'id' => $this->vendorAccount->id,
                 'store_name' => $this->vendorAccount->business_name,

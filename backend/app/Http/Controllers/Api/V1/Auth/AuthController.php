@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\ResendEmailOtpRequest;
 use App\Http\Requests\Auth\ResendOtpRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\VerifyEmailOtpRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\Identity\AuthService;
+use App\Services\Identity\EmailVerificationService;
 use App\Services\Identity\PasswordResetService;
 use App\Services\Identity\RegistrationService;
 use App\Support\Api\ApiResponse;
@@ -24,6 +27,7 @@ class AuthController extends Controller
         private readonly RegistrationService $registration,
         private readonly AuthService $auth,
         private readonly PasswordResetService $passwordReset,
+        private readonly EmailVerificationService $emailVerification,
     ) {}
 
     public function register(RegisterRequest $request): JsonResponse
@@ -65,6 +69,29 @@ class AuthController extends Controller
         return ApiResponse::success(message: __('diyar.auth.otp_resent'));
     }
 
+    public function verifyEmailOtp(VerifyEmailOtpRequest $request): JsonResponse
+    {
+        $user = $this->emailVerification->verifyForLogin(
+            email: $request->string('email')->toString(),
+            code: $request->string('code')->toString(),
+        );
+
+        return ApiResponse::success(
+            data: ['user' => new UserResource($user)],
+            message: __('diyar.auth.email_verified'),
+        );
+    }
+
+    public function resendEmailOtp(ResendEmailOtpRequest $request): JsonResponse
+    {
+        $this->emailVerification->resendForLogin(
+            email: $request->string('email')->toString(),
+            locale: app()->getLocale(),
+        );
+
+        return ApiResponse::success(message: __('diyar.auth.email_otp_resent'));
+    }
+
     public function login(LoginRequest $request): JsonResponse
     {
         $remember = $request->boolean('remember');
@@ -97,7 +124,7 @@ class AuthController extends Controller
     {
         /** @var User $user */
         $user = $request->user();
-        $user->load('roles');
+        $user->load(['roles', 'vendorAccount']);
 
         return ApiResponse::success(data: ['user' => new UserResource($user)]);
     }

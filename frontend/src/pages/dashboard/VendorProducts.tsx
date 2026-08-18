@@ -7,6 +7,8 @@ import {
   useVendorDashboardProducts,
   useVendorProductMutations,
 } from '../../hooks/vendor/useVendorDashboard.ts';
+import { useVendorAccess } from '../../hooks/vendor/useVendorTeam.ts';
+import { vendorCanWrite } from '../../api/vendorTeam.ts';
 import { VendorProductsToolbar } from '../../components/dashboard/vendor/VendorProductsToolbar.tsx';
 import {
   VendorProductsTable,
@@ -24,12 +26,13 @@ import { ErrorState } from '../../components/common/ErrorState.tsx';
 import {
   confirmArchiveProduct,
   confirmDeleteImage,
+  showApiErrorAlert,
   showErrorAlert,
   showSuccessToast,
 } from '../../lib/confirmDialog.ts';
 
 export default function VendorProducts() {
-  const { t, dir } = useLocale();
+  const { t, dir, locale } = useLocale();
   const [searchInput, setSearchInput] = useState('');
   const debouncedSearch = useDebouncedValue(searchInput, 300);
   const [page, setPage] = useState(1);
@@ -78,6 +81,9 @@ export default function VendorProducts() {
 
   const { create, update, archive, adjustInventory, uploadImages, deleteImage } =
     useVendorProductMutations();
+  const { data: vendorAccess } = useVendorAccess();
+  const canEditProducts = vendorCanWrite(vendorAccess?.permissions.products);
+  const canDeleteProducts = vendorAccess?.permissions.products_delete === true;
 
   const rows = (data?.items ?? []).map(mapToVendorProductRow);
   const pagination = data?.pagination;
@@ -179,10 +185,10 @@ export default function VendorProducts() {
         }
       }
       closeModal();
-    } catch {
+    } catch (error) {
       setUploadProgress(null);
       setUploadComplete(false);
-      await showErrorAlert(t, 'vendor.dialog.saveError', 'vendor.dialog.saveErrorHint');
+      await showApiErrorAlert(t, error, locale);
     }
   };
 
@@ -213,6 +219,8 @@ export default function VendorProducts() {
           onBack={() => setSelectedProductId(null)}
           onEdit={() => openEdit(selectedProductId)}
           onArchive={() => handleArchive(selectedProductId, selectedProduct?.name)}
+          canEdit={canEditProducts}
+          canDelete={canDeleteProducts}
         />
         <VendorProductFormModal {...modalProps} />
       </div>
@@ -232,6 +240,7 @@ export default function VendorProducts() {
         isFilterOpen={isFilterOpen}
         onFilterToggle={() => setIsFilterOpen((open) => !open)}
         onAddProduct={openCreate}
+        canAddProduct={canEditProducts}
         categories={categories ?? []}
         categoryFilter={categoryFilter}
         onCategoryFilterChange={(id) => {
@@ -260,6 +269,8 @@ export default function VendorProducts() {
             const row = rows.find((item) => item.id === id);
             void handleArchive(id, row?.name);
           }}
+          canEdit={canEditProducts}
+          canDelete={canDeleteProducts}
         />
       ) : (
         <VendorProductsGrid
@@ -270,6 +281,8 @@ export default function VendorProducts() {
             const row = rows.find((item) => item.id === id);
             void handleArchive(id, row?.name);
           }}
+          canEdit={canEditProducts}
+          canDelete={canDeleteProducts}
         />
       )}
 

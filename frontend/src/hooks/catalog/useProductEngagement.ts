@@ -8,6 +8,7 @@ import {
   updateProductReview,
 } from '../../api/productEngagement.ts';
 import { wishlistKeys } from '../profile/queryKeys.ts';
+import { customerReviewKeys } from '../reviews/useCustomerReviews.ts';
 import { productKeys } from './queryKeys.ts';
 
 export const reviewKeys = {
@@ -29,6 +30,7 @@ export function useProductEngagementMutations(productId: string | undefined) {
     if (productId) {
       void queryClient.invalidateQueries({ queryKey: productKeys.detail(productId) });
       void queryClient.invalidateQueries({ queryKey: ['product-reviews', productId] });
+      void queryClient.invalidateQueries({ queryKey: customerReviewKeys.all });
     }
   };
 

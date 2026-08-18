@@ -13,9 +13,10 @@ class ReleaseExpiredInventoryReservations extends Command
 
     public function handle(InventoryService $inventory): int
     {
-        $count = $inventory->releaseExpiredReservations();
+        $expired = $inventory->releaseExpiredReservations();
+        $stale = $inventory->releaseStaleOrderReservations();
 
-        $this->info("Released {$count} expired reservation(s).");
+        $this->info("Released {$expired} expired reservation(s) and {$stale} stale order reservation(s).");
 
         return self::SUCCESS;
     }

@@ -12,6 +12,7 @@ export interface VendorProductsToolbarProps {
   isFilterOpen: boolean;
   onFilterToggle: () => void;
   onAddProduct: () => void;
+  canAddProduct?: boolean;
   categories: Category[];
   categoryFilter?: string;
   onCategoryFilterChange: (categoryId?: string) => void;
@@ -27,6 +28,7 @@ export function VendorProductsToolbar({
   isFilterOpen,
   onFilterToggle,
   onAddProduct,
+  canAddProduct = true,
   categories,
   categoryFilter,
   onCategoryFilterChange,
@@ -151,6 +153,7 @@ export function VendorProductsToolbar({
           )}
         </div>
 
+        {canAddProduct ? (
         <button
           type="button"
           onClick={onAddProduct}
@@ -159,6 +162,7 @@ export function VendorProductsToolbar({
           <Plus size={18} />
           {t('vendor.products.addProduct')}
         </button>
+        ) : null}
       </div>
     </div>
   );

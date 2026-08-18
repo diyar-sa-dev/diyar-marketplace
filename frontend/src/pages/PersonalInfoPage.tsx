@@ -1,19 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, User, X } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, ChevronRight, Mail, User, X } from 'lucide-react';
+import { resolveAccountSettingsBackPath } from '../lib/auth/roles.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useOtpCooldown } from '../hooks/auth/useOtpCooldown.ts';
 import { useToast } from '../hooks/useToast.ts';
 import {
   useRequestPhoneChange,
   useResendPhoneChange,
+  useRequestEmailVerification,
+  useResendEmailVerification,
   useUpdateProfile,
   useVerifyPhoneChange,
+  useVerifyEmailVerification,
 } from '../hooks/profile/useProfile.ts';
 import {
   isValidNameClient,
   isValidSaudiPhoneNational,
   maskPhoneForDisplay,
+  maskEmailForDisplay,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
   toSaudiPhoneNationalInput,
@@ -25,9 +30,11 @@ import { useAuthFieldDirection, useLocale } from '../lib/i18n/localeContext.ts';
 import { collectDisplayErrors, isUnexpectedServerError } from '../utils/errors.ts';
 
 type PhoneChangeStep = 'phone' | 'otp';
+type EmailVerifyStep = 'intro' | 'otp';
 
 export default function PersonalInfoPage() {
   const { user } = useAuth();
+  const accountBackPath = resolveAccountSettingsBackPath(user?.roles);
   const { toast } = useToast();
   const { t, locale, dir } = useLocale();
   const BreadcrumbChevron = dir === 'rtl' ? ChevronRight : ChevronLeft;
@@ -36,6 +43,9 @@ export default function PersonalInfoPage() {
   const requestPhoneChange = useRequestPhoneChange();
   const resendPhoneChange = useResendPhoneChange();
   const verifyPhoneChange = useVerifyPhoneChange();
+  const requestEmailVerification = useRequestEmailVerification();
+  const resendEmailVerification = useResendEmailVerification();
+  const verifyEmailVerification = useVerifyEmailVerification();
   const { secondsLeft, isCoolingDown, startCooldown } = useOtpCooldown(60);
 
   const [name, setName] = useState('');
@@ -49,6 +59,16 @@ export default function PersonalInfoPage() {
   const [newPhone, setNewPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [phoneModalError, setPhoneModalError] = useState<string | null>(null);
+
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailVerifyStep, setEmailVerifyStep] = useState<EmailVerifyStep>('intro');
+  const [emailOtpCode, setEmailOtpCode] = useState('');
+  const [emailModalError, setEmailModalError] = useState<string | null>(null);
+
+  const emailNeedsVerification = useMemo(
+    () => Boolean(user?.email && !user.email_verified_at),
+    [user?.email, user?.email_verified_at],
+  );
 
   const nameHint = t('validation.nameHint', { min: NAME_MIN_LENGTH, max: NAME_MAX_LENGTH });
   const saudiPhoneHint = t('validation.saudiPhoneHint');
@@ -176,6 +196,68 @@ export default function PersonalInfoPage() {
   const phoneChangeBusy =
     requestPhoneChange.isPending || resendPhoneChange.isPending || verifyPhoneChange.isPending;
 
+  const emailVerifyBusy =
+    requestEmailVerification.isPending ||
+    resendEmailVerification.isPending ||
+    verifyEmailVerification.isPending;
+
+  const openEmailModal = () => {
+    setEmailVerifyStep('intro');
+    setEmailOtpCode('');
+    setEmailModalError(null);
+    setIsEmailModalOpen(true);
+  };
+
+  const closeEmailModal = () => {
+    if (emailVerifyBusy) {
+      return;
+    }
+    setIsEmailModalOpen(false);
+  };
+
+  const handleRequestEmailVerification = async () => {
+    setEmailModalError(null);
+
+    try {
+      const message = await requestEmailVerification.mutateAsync();
+      startCooldown();
+      setEmailOtpCode('');
+      setEmailVerifyStep('otp');
+      toast.info(message ?? t('auth.toasts.resendSuccess'));
+    } catch (error) {
+      handleApiError(error, setEmailModalError, () => undefined);
+    }
+  };
+
+  const handleResendEmailOtp = async () => {
+    if (isCoolingDown || resendEmailVerification.isPending) {
+      return;
+    }
+
+    setEmailModalError(null);
+
+    try {
+      const message = await resendEmailVerification.mutateAsync();
+      startCooldown();
+      toast.info(message ?? t('auth.toasts.resendSuccess'));
+    } catch (error) {
+      handleApiError(error, setEmailModalError, () => undefined);
+    }
+  };
+
+  const handleVerifyEmail = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setEmailModalError(null);
+
+    try {
+      const result = await verifyEmailVerification.mutateAsync(emailOtpCode);
+      toast.success(result.message ?? t('profile.personalInfo.emailVerified'));
+      setIsEmailModalOpen(false);
+    } catch (error) {
+      handleApiError(error, setEmailModalError, () => undefined);
+    }
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen pb-24 md:pb-12">
       <div className="bg-white border-b border-gray-100">
@@ -185,7 +267,7 @@ export default function PersonalInfoPage() {
               {t('common.home')}
             </Link>
             <BreadcrumbChevron size={16} />
-            <Link to="/profile" className="hover:text-diyar-dark transition cursor-pointer">
+            <Link to={accountBackPath} className="hover:text-diyar-dark transition cursor-pointer">
               {t('common.myAccount')}
             </Link>
             <BreadcrumbChevron size={16} />
@@ -253,6 +335,27 @@ export default function PersonalInfoPage() {
                 autoComplete="email"
                 direction={fieldDirection}
               />
+              {user?.email && user.email_verified_at ? (
+                <p className="mt-2 text-xs font-bold text-green-700">
+                  {t('profile.personalInfo.emailVerifiedBadge')}
+                </p>
+              ) : null}
+              {emailNeedsVerification ? (
+                <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="flex items-start gap-2 text-amber-900 text-sm flex-1">
+                    <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+                    <span>{t('profile.personalInfo.emailNotVerified')}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={openEmailModal}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-diyar-brown text-white text-sm font-bold px-4 py-2 hover:bg-[#856b54] transition cursor-pointer shrink-0"
+                  >
+                    <Mail size={16} />
+                    {t('profile.personalInfo.verifyEmail')}
+                  </button>
+                </div>
+              ) : null}
             </div>
 
             <div>
@@ -386,6 +489,113 @@ export default function PersonalInfoPage() {
                       <span className="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
                       t('profile.personalInfo.verifyPhone')
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEmailModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm cursor-pointer"
+            aria-label={t('profile.addresses.cancel')}
+            onClick={closeEmailModal}
+          />
+          <div className="bg-white rounded-3xl shadow-xl w-full max-w-lg relative z-10 overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100">
+              <h2 className="text-lg font-bold text-diyar-dark">
+                {t('profile.personalInfo.emailVerifyTitle')}
+              </h2>
+              <button
+                type="button"
+                onClick={closeEmailModal}
+                disabled={emailVerifyBusy}
+                className="w-10 h-10 rounded-full bg-gray-50 text-gray-500 flex items-center justify-center hover:bg-gray-100 cursor-pointer disabled:opacity-60"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-5 md:p-6 space-y-4">
+              {emailModalError && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {emailModalError}
+                </div>
+              )}
+
+              {emailVerifyStep === 'intro' ? (
+                <>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {t('profile.personalInfo.emailVerifyHint')}
+                  </p>
+                  <p className="text-sm font-bold text-diyar-dark tabular-nums" dir="ltr">
+                    {maskEmailForDisplay(user?.email)}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void handleRequestEmailVerification()}
+                    disabled={emailVerifyBusy}
+                    className="w-full py-3 rounded-xl font-bold text-white bg-diyar-dark hover:bg-black transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {requestEmailVerification.isPending ? (
+                      <span className="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      t('profile.personalInfo.sendOtp')
+                    )}
+                  </button>
+                </>
+              ) : (
+                <form onSubmit={(event) => void handleVerifyEmail(event)} className="space-y-4">
+                  <p className="text-sm text-gray-600 text-center">
+                    {t('auth.otp.emailDescription')}
+                  </p>
+                  <p className="text-sm font-bold text-diyar-dark text-center tabular-nums" dir="ltr">
+                    {maskEmailForDisplay(user?.email)}
+                  </p>
+                  <AuthFieldLabel required className="text-center">
+                    {t('auth.fields.otpCode')}
+                  </AuthFieldLabel>
+                  <div className="flex justify-center" dir="ltr">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      maxLength={6}
+                      value={emailOtpCode}
+                      onChange={(event) =>
+                        setEmailOtpCode(event.target.value.replace(/\D/g, '').slice(0, 6))
+                      }
+                      className="w-full max-w-xs text-center text-xl font-bold border border-gray-200 rounded-xl py-3 focus:ring-2 focus:ring-diyar-brown focus:border-diyar-brown outline-none tracking-[0.35em]"
+                      placeholder="000000"
+                      required
+                    />
+                  </div>
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => void handleResendEmailOtp()}
+                      disabled={emailVerifyBusy || isCoolingDown}
+                      className="text-sm font-bold text-diyar-brown hover:text-diyar-dark cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isCoolingDown
+                        ? t('auth.otp.resendCooldown', { seconds: secondsLeft })
+                        : t('auth.otp.resend')}
+                    </button>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={emailVerifyBusy || emailOtpCode.length !== 6}
+                    className="w-full py-3 rounded-xl font-bold text-white bg-diyar-dark hover:bg-black transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {verifyEmailVerification.isPending ? (
+                      <span className="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      t('profile.personalInfo.verifyEmail')
                     )}
                   </button>
                 </form>

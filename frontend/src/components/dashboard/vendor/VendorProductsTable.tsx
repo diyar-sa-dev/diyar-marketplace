@@ -3,6 +3,7 @@ import { Tag, Edit, Trash2, Eye } from 'lucide-react';
 import type { ProductCard } from '../../../types/catalog.ts';
 import { resolveMediaUrl } from '../../../lib/media.ts';
 import { useLocale } from '../../../hooks/useLocale.ts';
+import { stockStatus } from '../../../lib/stockStatus.ts';
 import { vendorActionButtonClass } from '../../../lib/vendorProductValidation.ts';
 
 export interface VendorProductRow {
@@ -30,6 +31,8 @@ interface VendorProductsTableProps {
   onView: (id: string) => void;
   onEdit: (id: string) => void;
   onArchive: (id: string) => void;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 export function VendorProductsTable({
@@ -37,6 +40,8 @@ export function VendorProductsTable({
   onView,
   onEdit,
   onArchive,
+  canEdit = true,
+  canDelete = true,
 }: VendorProductsTableProps) {
   const { t } = useLocale();
   const currency = t('vendor.products.table.currency');
@@ -93,15 +98,28 @@ export function VendorProductsTable({
                     {product.price} {currency}
                   </td>
                   <td className="px-6 py-4">
-                    {product.stock > 0 ? (
-                      <span className="bg-green-50 text-green-700 px-2.5 py-1 rounded-full text-xs font-bold border border-green-200">
-                        {t('vendor.products.table.inStock', { count: product.stock })}
-                      </span>
-                    ) : (
-                      <span className="bg-red-50 text-red-700 px-2.5 py-1 rounded-full text-xs font-bold border border-red-200">
-                        {t('vendor.products.table.outOfStock')}
-                      </span>
-                    )}
+                    {(() => {
+                      const status = stockStatus(product.stock);
+                      if (status === 'out_of_stock') {
+                        return (
+                          <span className="bg-red-50 text-red-700 px-2.5 py-1 rounded-full text-xs font-bold border border-red-200">
+                            {t('vendor.products.table.outOfStock')}
+                          </span>
+                        );
+                      }
+                      if (status === 'limited') {
+                        return (
+                          <span className="bg-orange-50 text-orange-700 px-2.5 py-1 rounded-full text-xs font-bold border border-orange-200">
+                            {t('vendor.products.table.limitedStock', { count: product.stock })}
+                          </span>
+                        );
+                      }
+                      return (
+                        <span className="bg-green-50 text-green-700 px-2.5 py-1 rounded-full text-xs font-bold border border-green-200">
+                          {t('vendor.products.table.inStock', { count: product.stock })}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-1.5 justify-end opacity-80 group-hover:opacity-100 transition-opacity">
@@ -113,6 +131,7 @@ export function VendorProductsTable({
                       >
                         <Eye size={16} />
                       </button>
+                      {canEdit ? (
                       <button
                         type="button"
                         onClick={() => onEdit(product.id)}
@@ -121,6 +140,8 @@ export function VendorProductsTable({
                       >
                         <Edit size={16} />
                       </button>
+                      ) : null}
+                      {canDelete ? (
                       <button
                         type="button"
                         onClick={() => onArchive(product.id)}
@@ -129,6 +150,7 @@ export function VendorProductsTable({
                       >
                         <Trash2 size={16} />
                       </button>
+                      ) : null}
                     </div>
                   </td>
                 </tr>

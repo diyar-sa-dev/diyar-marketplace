@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Catalog\StoreProductReviewRequest;
 use App\Http\Resources\ProductReviewResource;
 use App\Services\Catalog\ProductEngagementService;
+use App\Services\Media\MediaUploadService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class ProductEngagementController extends Controller
 {
@@ -19,6 +22,7 @@ class ProductEngagementController extends Controller
     public function reviews(Request $request, string $id): JsonResponse
     {
         $product = $this->engagement->findPublicProduct($id);
+        $product->loadMissing('vendorAccount');
         $paginator = $this->engagement->paginateReviews(
             $product,
             (int) $request->query('page', 1),
@@ -29,6 +33,9 @@ class ProductEngagementController extends Controller
             ? $this->engagement->findUserReview($request->user(), $product)
             : null;
 
+        $media = app(MediaUploadService::class);
+        $vendor = $product->vendorAccount;
+
         return ApiResponse::success(data: [
             'items' => ProductReviewResource::collection($paginator->getCollection())->resolve(),
             'pagination' => [
@@ -38,18 +45,29 @@ class ProductEngagementController extends Controller
                 'total' => $paginator->total(),
             ],
             'my_review' => $myReview ? new ProductReviewResource($myReview) : null,
+            'vendor_store' => $vendor !== null ? [
+                'name' => $vendor->business_name,
+                'logo_url' => $media->url($vendor->logo_path),
+            ] : null,
         ]);
     }
 
     public function storeReview(StoreProductReviewRequest $request, string $id): JsonResponse
     {
         $product = $this->engagement->findPublicProduct($id);
-        $review = $this->engagement->createReview(
-            $request->user(),
-            $product,
-            (int) $request->validated('rating'),
-            $request->validated('comment'),
-        );
+
+        try {
+            $review = $this->engagement->createReview(
+                $request->user(),
+                $product,
+                (int) $request->validated('rating'),
+                $request->validated('comment'),
+            );
+        } catch (InvalidArgumentException $exception) {
+            return ApiResponse::error($exception->getMessage(), 422);
+        } catch (ConflictHttpException $exception) {
+            return ApiResponse::error($exception->getMessage(), 409);
+        }
 
         return ApiResponse::success(
             data: ['review' => new ProductReviewResource($review)],
@@ -68,7 +86,7 @@ class ProductEngagementController extends Controller
                 (int) $request->validated('rating'),
                 $request->validated('comment'),
             );
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
         }
 
@@ -84,7 +102,7 @@ class ProductEngagementController extends Controller
 
         try {
             $this->engagement->deleteReview($request->user(), $product);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
         }
 

@@ -35,6 +35,11 @@ class UserResource extends JsonResource
                 'label' => $role->label,
                 'status' => $role->pivot->status->value,
             ])),
+            'vendor_account' => $this->whenLoaded('vendorAccount', fn () => $this->vendorAccount !== null ? [
+                'id' => $this->vendorAccount->id,
+                'slug' => $this->vendorAccount->slug,
+                'store_name' => $this->vendorAccount->business_name,
+            ] : null),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

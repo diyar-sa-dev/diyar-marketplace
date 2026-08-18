@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../hooks/auth/useAuth.ts';
+import { resolveAccountSettingsBackPath } from '../lib/auth/roles.ts';
 import { useOtpCooldown } from '../hooks/auth/useOtpCooldown.ts';
 import { useToast } from '../hooks/useToast.ts';
 import {
@@ -25,6 +26,7 @@ export default function PasswordResetPage() {
   const passwordHint = t('validation.passwordHint');
   const passwordMismatchHint = t('validation.passwordMismatch');
   const { user, forgotPassword, verifyPasswordResetOtp, resetPassword, clearError } = useAuth();
+  const accountBackPath = resolveAccountSettingsBackPath(user?.roles);
 
   const [step, setStep] = useState<ResetStep>('request');
   const [otpCode, setOtpCode] = useState('');
@@ -172,7 +174,7 @@ export default function PasswordResetPage() {
               {t('common.home')}
             </Link>
             <BreadcrumbChevron size={16} />
-            <Link to="/profile" className="hover:text-diyar-dark transition cursor-pointer">
+            <Link to={accountBackPath} className="hover:text-diyar-dark transition cursor-pointer">
               {t('common.myAccount')}
             </Link>
             <BreadcrumbChevron size={16} />

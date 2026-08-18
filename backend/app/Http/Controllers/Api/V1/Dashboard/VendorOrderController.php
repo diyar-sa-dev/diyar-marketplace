@@ -10,6 +10,7 @@ use App\Models\VendorOrder;
 use App\Services\Order\VendorManualOrderService;
 use App\Services\Order\VendorOrderFulfillmentService;
 use App\Services\Order\VendorOrderQueryFilter;
+use App\Services\Vendor\VendorAccessService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,17 +23,14 @@ class VendorOrderController extends Controller
         private readonly VendorOrderFulfillmentService $fulfillment,
         private readonly VendorManualOrderService $manualOrders,
         private readonly VendorOrderQueryFilter $orderFilters,
+        private readonly VendorAccessService $access,
     ) {}
 
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', VendorOrder::class);
 
-        $vendorAccount = $request->user()->vendorAccount;
-
-        if ($vendorAccount === null) {
-            return ApiResponse::error(__('diyar.auth.forbidden'), 403);
-        }
+        $vendorAccount = $this->access->assertPermission($request->user(), 'orders');
 
         $query = VendorOrder::query()
             ->where('vendor_account_id', $vendorAccount->id)
@@ -77,11 +75,7 @@ class VendorOrderController extends Controller
 
         $this->authorize('create', VendorOrder::class);
 
-        $vendorAccount = $request->user()->vendorAccount;
-
-        if ($vendorAccount === null) {
-            return ApiResponse::error(__('diyar.auth.forbidden'), 403);
-        }
+        $vendorAccount = $this->access->assertWritePermission($request->user(), 'orders');
 
         $vendorOrder = $this->manualOrders->create(
             $request->user(),

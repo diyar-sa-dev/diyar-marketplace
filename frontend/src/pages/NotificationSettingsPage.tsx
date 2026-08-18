@@ -1,19 +1,46 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, Bell, Smartphone, Mail, Package, Tag, Info } from 'lucide-react';
+import { useAuth } from '../hooks/auth/useAuth.ts';
+import { useUpdateProfile } from '../hooks/profile/useProfile.ts';
+import { useToast } from '../hooks/useToast.ts';
+import {
+  mergeNotificationPreferences,
+  readNotificationPreferences,
+  type NotificationChannelSettings,
+} from '../lib/notificationPreferences.ts';
 
 export default function NotificationSettingsPage() {
-  const [settings, setSettings] = useState({
-    push: true,
-    email: true,
-    sms: false,
-    orders: true,
-    promotions: false,
-    system: true,
-  });
+  const { user } = useAuth();
+  const updateProfile = useUpdateProfile();
+  const { toast } = useToast();
+  const [settings, setSettings] = useState<NotificationChannelSettings>(() =>
+    readNotificationPreferences(user?.preferences),
+  );
 
-  const toggleSetting = (key: keyof typeof settings) => {
-    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+  useEffect(() => {
+    setSettings(readNotificationPreferences(user?.preferences));
+  }, [user?.preferences]);
+
+  const persistSettings = async (next: NotificationChannelSettings) => {
+    setSettings(next);
+
+    try {
+      await updateProfile.mutateAsync({
+        preferences: mergeNotificationPreferences(user?.preferences, next),
+      });
+    } catch {
+      setSettings(readNotificationPreferences(user?.preferences));
+      toast.error('تعذّر حفظ إعدادات الإشعارات. حاول مرة أخرى.');
+    }
+  };
+
+  const toggleSetting = (key: keyof NotificationChannelSettings) => {
+    if (key === 'system') {
+      return;
+    }
+
+    void persistSettings({ ...settings, [key]: !settings[key] });
   };
 
   return (
@@ -69,7 +96,11 @@ export default function NotificationSettingsPage() {
                     <p className="text-xs text-gray-500">تلقي التنبيهات المباشرة على جهازك</p>
                   </div>
                 </div>
-                <Toggle isChecked={settings.push} onToggle={() => toggleSetting('push')} />
+                <Toggle
+                  isChecked={settings.push}
+                  onToggle={() => toggleSetting('push')}
+                  disabled={updateProfile.isPending}
+                />
               </div>
 
               {/* Email */}
@@ -83,7 +114,11 @@ export default function NotificationSettingsPage() {
                     <p className="text-xs text-gray-500">تلقي التحديثات عبر البريد الإلكتروني</p>
                   </div>
                 </div>
-                <Toggle isChecked={settings.email} onToggle={() => toggleSetting('email')} />
+                <Toggle
+                  isChecked={settings.email}
+                  onToggle={() => toggleSetting('email')}
+                  disabled={updateProfile.isPending}
+                />
               </div>
 
               {/* SMS */}
@@ -97,7 +132,11 @@ export default function NotificationSettingsPage() {
                     <p className="text-xs text-gray-500">تلقي التحديثات الهامة عبر رسائل الجوال</p>
                   </div>
                 </div>
-                <Toggle isChecked={settings.sms} onToggle={() => toggleSetting('sms')} />
+                <Toggle
+                  isChecked={settings.sms}
+                  onToggle={() => toggleSetting('sms')}
+                  disabled={updateProfile.isPending}
+                />
               </div>
             </div>
           </div>
@@ -123,7 +162,11 @@ export default function NotificationSettingsPage() {
                     </p>
                   </div>
                 </div>
-                <Toggle isChecked={settings.orders} onToggle={() => toggleSetting('orders')} />
+                <Toggle
+                  isChecked={settings.orders}
+                  onToggle={() => toggleSetting('orders')}
+                  disabled={updateProfile.isPending}
+                />
               </div>
 
               {/* Promotions */}
@@ -140,6 +183,7 @@ export default function NotificationSettingsPage() {
                 <Toggle
                   isChecked={settings.promotions}
                   onToggle={() => toggleSetting('promotions')}
+                  disabled={updateProfile.isPending}
                 />
               </div>
 

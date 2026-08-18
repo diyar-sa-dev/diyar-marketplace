@@ -10,6 +10,9 @@ export interface ProductReview {
   author_name?: string;
   author_avatar_url?: string | null;
   is_owner?: boolean;
+  vendor_reply?: string | null;
+  vendor_replied_at?: string | null;
+  vendor_replied_by?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -18,6 +21,10 @@ export interface PaginatedReviews {
   items: ProductReview[];
   pagination: PaginationMeta;
   my_review?: ProductReview | null;
+  vendor_store?: {
+    name: string;
+    logo_url?: string | null;
+  } | null;
 }
 
 export async function fetchProductReviews(

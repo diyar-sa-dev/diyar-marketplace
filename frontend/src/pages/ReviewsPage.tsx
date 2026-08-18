@@ -1,198 +1,256 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, Star, MessageSquare } from 'lucide-react';
+import { ChevronLeft, Star } from 'lucide-react';
+import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
+import { LoadingState } from '../components/common/LoadingState.tsx';
+import { ErrorState } from '../components/common/ErrorState.tsx';
+import { EmptyState } from '../components/common/EmptyState.tsx';
+import { PublishedReviewCard } from '../components/reviews/PublishedReviewCard.tsx';
+import { PendingReviewCard } from '../components/reviews/PendingReviewCard.tsx';
+import { useCustomerReviews, useInvalidateCustomerReviews } from '../hooks/reviews/useCustomerReviews.ts';
+import { resolveAccountSettingsBackPath } from '../lib/auth/roles.ts';
+import { useAuth } from '../hooks/auth/useAuth.ts';
+import { useLocale } from '../hooks/useLocale.ts';
+import type {
+  CustomerReviewFilterType,
+  CustomerReviewStatus,
+  PublishedCustomerReview,
+  PendingCustomerReview,
+} from '../api/customerReviews.ts';
+
+const SKIPPED_STORAGE_KEY = 'diyar:skipped-pending-reviews';
+
+function readSkippedKeys(): Set<string> {
+  try {
+    const raw = sessionStorage.getItem(SKIPPED_STORAGE_KEY);
+    if (!raw) {
+      return new Set();
+    }
+    const parsed = JSON.parse(raw) as string[];
+    return new Set(parsed);
+  } catch {
+    return new Set();
+  }
+}
+
+function persistSkippedKeys(keys: Set<string>) {
+  sessionStorage.setItem(SKIPPED_STORAGE_KEY, JSON.stringify([...keys]));
+}
+
+const TYPE_FILTERS: CustomerReviewFilterType[] = ['all', 'product', 'store', 'service'];
 
 export default function ReviewsPage() {
-  const [activeTab, setActiveTab] = useState<'published' | 'pending'>('published');
+  const { t, locale, dir } = useLocale();
+  const { user } = useAuth();
+  const accountBackPath = resolveAccountSettingsBackPath(user?.roles);
+  const invalidateReviews = useInvalidateCustomerReviews();
+  const [activeTab, setActiveTab] = useState<CustomerReviewStatus>('published');
+  const [typeFilter, setTypeFilter] = useState<CustomerReviewFilterType>('all');
+  const [page, setPage] = useState(1);
+  const [skippedKeys, setSkippedKeys] = useState<Set<string>>(() => readSkippedKeys());
 
-  const publishedReviews = [
-    {
-      id: 1,
-      productName: 'طقم كنب زاوية فاخر',
-      productImage:
-        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=400',
-      rating: 5,
-      date: '10 مايو 2024',
-      comment: 'جودة ممتازة وتصميم رائع، التوصيل كان سريعاً والتركيب احترافي جداً.',
-      likes: 12,
-    },
-    {
-      id: 2,
-      productName: 'طاولة طعام خشب رخام',
-      productImage:
-        'https://images.unsplash.com/photo-1560606177-063fb90494f4?auto=format&fit=crop&q=80&w=400',
-      rating: 4,
-      date: '25 أبريل 2024',
-      comment: 'الطاولة فخمة جداً، لكن كان هناك تأخير بسيط في التسليم.',
-      likes: 3,
-    },
-  ];
+  const { data, isLoading, isError, error, refetch, isFetching } = useCustomerReviews(
+    activeTab,
+    typeFilter,
+    page,
+    10,
+  );
 
-  const pendingReviews = [
-    {
-      id: 3,
-      productName: 'سرير مزدوج مودرن',
-      productImage:
-        'https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&q=80&w=400',
-      orderDate: '05 مايو 2024',
-    },
-    {
-      id: 4,
-      productName: 'خزانة ملابس 6 أبواب',
-      productImage:
-        'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=400',
-      orderDate: '01 مايو 2024',
-    },
-  ];
+  const otherStatus: CustomerReviewStatus = activeTab === 'published' ? 'pending' : 'published';
+  const otherSummaryQuery = useCustomerReviews(otherStatus, 'all', 1, 1);
+
+  const publishedCount =
+    activeTab === 'published'
+      ? (data?.summary.published_count ?? 0)
+      : (otherSummaryQuery.data?.summary.published_count ?? 0);
+  const pendingCount =
+    activeTab === 'pending'
+      ? (data?.summary.pending_count ?? 0)
+      : (otherSummaryQuery.data?.summary.pending_count ?? 0);
+
+  const items = useMemo(() => {
+    const raw = data?.items ?? [];
+    if (activeTab !== 'pending') {
+      return raw;
+    }
+    return raw.filter((item) => {
+      if (!('pending_key' in item)) {
+        return true;
+      }
+      return !skippedKeys.has(item.pending_key);
+    });
+  }, [activeTab, data?.items, skippedKeys]);
+
+  const handleSkip = (pendingKey: string) => {
+    setSkippedKeys((prev) => {
+      const next = new Set(prev);
+      next.add(pendingKey);
+      persistSkippedKeys(next);
+      return next;
+    });
+  };
+
+  const handleSubmitted = () => {
+    invalidateReviews();
+    void refetch();
+    void otherSummaryQuery.refetch();
+  };
+
+  const handleTabChange = (tab: CustomerReviewStatus) => {
+    setActiveTab(tab);
+    setPage(1);
+  };
+
+  const handleTypeChange = (type: CustomerReviewFilterType) => {
+    setTypeFilter(type);
+    setPage(1);
+  };
+
+  const emptyTitle =
+    activeTab === 'published'
+      ? typeFilter === 'product'
+        ? t('customerReviews.emptyPublishedProduct')
+        : typeFilter === 'store'
+          ? t('customerReviews.emptyPublishedStore')
+          : typeFilter === 'service'
+            ? t('customerReviews.emptyService')
+            : t('customerReviews.emptyPublished')
+      : typeFilter === 'product'
+        ? t('customerReviews.emptyPendingProduct')
+        : typeFilter === 'store'
+          ? t('customerReviews.emptyPendingStore')
+          : typeFilter === 'service'
+            ? t('customerReviews.emptyService')
+            : t('customerReviews.emptyPending');
+
+  const emptyDescription =
+    activeTab === 'published'
+      ? t('customerReviews.emptyPublishedHint')
+      : t('customerReviews.emptyPendingHint');
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-24 md:pb-12">
-      {/* Breadcrumb */}
+    <div className="bg-gray-50 min-h-screen pb-24 md:pb-12" dir={dir}>
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <Link to="/" className="hover:text-diyar-dark transition">
-              الرئيسية
+              {t('common.home')}
             </Link>
-            <ChevronLeft size={16} />
-            <Link to="/profile" className="hover:text-diyar-dark transition">
-              حسابي
+            <ChevronLeft size={16} className="rtl:rotate-180" />
+            <Link to={accountBackPath} className="hover:text-diyar-dark transition">
+              {t('common.myAccount')}
             </Link>
-            <ChevronLeft size={16} />
-            <span className="font-bold text-diyar-dark">تقييماتي ومراجعاتي</span>
+            <ChevronLeft size={16} className="rtl:rotate-180" />
+            <span className="font-bold text-diyar-dark">{t('customerReviews.title')}</span>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-xl md:text-2xl font-bold text-diyar-dark mb-1">تقييماتي ومراجعاتي</h1>
-          <p className="text-gray-500 text-sm">سجل تقييماتك للمنتجات والخدمات التي قمت بتجربتها</p>
+          <h1 className="text-xl md:text-2xl font-bold text-diyar-dark mb-1">
+            {t('customerReviews.title')}
+          </h1>
+          <p className="text-gray-500 text-sm">{t('customerReviews.subtitle')}</p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-8 bg-gray-200/50 p-1 rounded-xl w-max">
+        <div className="flex gap-2 mb-4 bg-gray-200/50 p-1 rounded-xl w-full sm:w-max overflow-x-auto">
           <button
-            onClick={() => setActiveTab('published')}
-            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'published' ? 'bg-white text-diyar-dark shadow-sm' : 'text-gray-500 hover:text-diyar-dark'}`}
+            type="button"
+            onClick={() => handleTabChange('published')}
+            className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === 'published'
+                ? 'bg-white text-diyar-dark shadow-sm'
+                : 'text-gray-500 hover:text-diyar-dark'
+            }`}
           >
-            التقييمات المنشورة ({publishedReviews.length})
+            {t('customerReviews.publishedTab', { count: publishedCount })}
           </button>
           <button
-            onClick={() => setActiveTab('pending')}
-            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'pending' ? 'bg-white text-diyar-dark shadow-sm' : 'text-gray-500 hover:text-diyar-dark'}`}
+            type="button"
+            onClick={() => handleTabChange('pending')}
+            className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === 'pending'
+                ? 'bg-white text-diyar-dark shadow-sm'
+                : 'text-gray-500 hover:text-diyar-dark'
+            }`}
           >
-            بانتظار التقييم ({pendingReviews.length})
+            {t('customerReviews.pendingTab', { count: pendingCount })}
           </button>
         </div>
 
-        <div className="space-y-4">
-          {activeTab === 'published' &&
-            (publishedReviews.length > 0 ? (
-              publishedReviews.map((review) => (
-                <div
-                  key={review.id}
-                  className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-5 hover:shadow-md transition-shadow"
-                >
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-xl overflow-hidden border border-gray-100">
-                    <img
-                      src={review.productImage}
-                      alt={review.productName}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-bold text-diyar-dark mb-1">{review.productName}</h3>
-                        <div className="flex items-center gap-1 text-yellow-400 mb-2">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              size={14}
-                              fill={i < review.rating ? 'currentColor' : 'none'}
-                              strokeWidth={i < review.rating ? 0 : 2}
-                              className={i >= review.rating ? 'text-gray-300' : ''}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-md">
-                        {review.date}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4 leading-relaxed bg-gray-50/50 p-3 rounded-xl border border-gray-100/50">
-                      {review.comment}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                        <span className="bg-blue-50 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center">
-                          👍
-                        </span>
-                        <span>{review.likes} مفيد</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button className="text-xs font-bold text-gray-500 hover:text-diyar-dark transition-colors">
-                          تعديل
-                        </button>
-                        <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                        <button className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors">
-                          حذف
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-100">
-                <div className="w-20 h-20 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-300">
-                  <MessageSquare size={32} />
-                </div>
-                <h3 className="text-lg font-bold text-diyar-dark mb-2">لا توجد تقييمات منشورة</h3>
-                <p className="text-gray-500 text-sm">
-                  قم بتقييم المنتجات التي قمت بشرائها لمساعدة الآخرين.
-                </p>
-              </div>
-            ))}
-
-          {activeTab === 'pending' &&
-            (pendingReviews.length > 0 ? (
-              pendingReviews.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-5 items-center justify-between hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center gap-4 w-full sm:w-auto">
-                    <div className="w-16 h-16 shrink-0 rounded-xl overflow-hidden border border-gray-100">
-                      <img
-                        src={item.productImage}
-                        alt={item.productName}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-diyar-dark text-sm mb-1">{item.productName}</h3>
-                      <p className="text-xs text-gray-500">تم الطلب في {item.orderDate}</p>
-                    </div>
-                  </div>
-                  <button className="w-full sm:w-auto bg-white border border-diyar-dark text-diyar-dark px-6 py-2 rounded-xl text-sm font-bold hover:bg-diyar-dark hover:text-white transition-colors shrink-0">
-                    تقييم المنتج
-                  </button>
-                </div>
-              ))
-            ) : (
-              <div className="bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-100">
-                <div className="w-20 h-20 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-300">
-                  <Star size={32} />
-                </div>
-                <h3 className="text-lg font-bold text-diyar-dark mb-2">
-                  لا توجد منتجات بانتظار التقييم
-                </h3>
-                <p className="text-gray-500 text-sm">لقد قمت بتقييم جميع مشترياتك السابقة.</p>
-              </div>
-            ))}
+        <div className="flex flex-wrap gap-2 mb-8">
+          {TYPE_FILTERS.map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => handleTypeChange(type)}
+              disabled={type === 'service'}
+              className={`px-4 py-2 rounded-xl text-sm font-bold border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                typeFilter === type
+                  ? 'bg-diyar-brown text-white border-diyar-brown'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-diyar-brown/40'
+              }`}
+            >
+              {t(`customerReviews.filter.${type}`)}
+            </button>
+          ))}
         </div>
+
+        {isLoading ? (
+          <LoadingState className="min-h-64" />
+        ) : isError ? (
+          <ErrorState
+            message={t('customerReviews.loadError')}
+            error={error as Error}
+            onRetry={() => void refetch()}
+          />
+        ) : typeFilter === 'service' ? (
+          <EmptyState
+            title={t('customerReviews.emptyService')}
+            description={t('customerReviews.serviceComingSoon')}
+          />
+        ) : items.length === 0 ? (
+          <EmptyState title={emptyTitle} description={emptyDescription} />
+        ) : (
+          <div className={`space-y-4 ${isFetching ? 'opacity-70' : ''}`}>
+            {activeTab === 'published'
+              ? (items as PublishedCustomerReview[]).map((review) => (
+                  <PublishedReviewCard
+                    key={`${review.type}-${review.id}`}
+                    review={review}
+                    t={t}
+                    locale={locale}
+                    onUpdated={handleSubmitted}
+                  />
+                ))
+              : (items as PendingCustomerReview[]).map((item) => (
+                  <PendingReviewCard
+                    key={item.pending_key}
+                    item={item}
+                    t={t}
+                    onSkipped={() => handleSkip(item.pending_key)}
+                    onSubmitted={handleSubmitted}
+                  />
+                ))}
+
+            {data?.pagination && (
+              <PaginationBar
+                pagination={data.pagination}
+                page={page}
+                onPageChange={setPage}
+                className="pt-4"
+              />
+            )}
+          </div>
+        )}
+
+        {activeTab === 'pending' && pendingCount > 0 && items.length === 0 && !isLoading && (
+          <div className="mt-6 rounded-2xl border border-gray-100 bg-white p-8 text-center">
+            <Star className="mx-auto text-gray-300 mb-3" size={28} />
+            <p className="text-sm text-gray-500">{t('customerReviews.allPendingSkipped')}</p>
+          </div>
+        )}
       </div>
     </div>
   );

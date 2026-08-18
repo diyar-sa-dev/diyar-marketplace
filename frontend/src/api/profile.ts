@@ -130,3 +130,27 @@ export async function verifyPhoneChange(phone: string, code: string): Promise<Pr
     message: extractMessage(response),
   };
 }
+
+export async function requestEmailVerification(): Promise<string | undefined> {
+  const response = await withCsrf(() =>
+    apiClient.post<MessageResponse>('/profile/email/request-verification'),
+  );
+  return extractMessage(response);
+}
+
+export async function resendEmailVerification(): Promise<string | undefined> {
+  const response = await withCsrf(() =>
+    apiClient.post<MessageResponse>('/profile/email/resend-verification'),
+  );
+  return extractMessage(response);
+}
+
+export async function verifyEmailVerification(code: string): Promise<ProfileActionResult> {
+  const response = await withCsrf(() =>
+    apiClient.post<ProfileResponse>('/profile/email/verify', { code }),
+  );
+  return {
+    profile: response.data.data.profile,
+    message: extractMessage(response),
+  };
+}

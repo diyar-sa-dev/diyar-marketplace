@@ -7,6 +7,7 @@ import type {
   LoginPayload,
   RegisterPayload,
   ResetPasswordPayload,
+  VerifyEmailOtpPayload,
   VerifyOtpPayload,
 } from '../types/auth.ts';
 import type { ApiSuccessResponse } from '../types/api.ts';
@@ -43,6 +44,24 @@ export async function verifyOtp(payload: VerifyOtpPayload): Promise<AuthUserResu
 export async function resendOtp(phone: string): Promise<AuthActionResult> {
   const response = await withCsrf(() =>
     apiClient.post<MessageResponse>('/auth/resend-otp', { phone }),
+  );
+  return { message: extractMessage(response) };
+}
+
+export async function verifyEmailOtp(payload: VerifyEmailOtpPayload): Promise<AuthUserResult> {
+  const response = await withCsrf(() =>
+    apiClient.post<UserResponse>('/auth/verify-email-otp', payload),
+  );
+  resetCsrfCookie();
+  return {
+    user: response.data.data.user,
+    message: extractMessage(response),
+  };
+}
+
+export async function resendEmailOtp(email: string): Promise<AuthActionResult> {
+  const response = await withCsrf(() =>
+    apiClient.post<MessageResponse>('/auth/resend-email-otp', { email }),
   );
   return { message: extractMessage(response) };
 }

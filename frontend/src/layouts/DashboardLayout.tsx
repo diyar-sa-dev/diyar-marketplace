@@ -17,6 +17,9 @@ import {
   Link as LinkIcon,
   BarChart,
   ChevronDown,
+  Clock,
+  MessageSquare,
+  MessagesSquare,
 } from 'lucide-react';
 import { LanguageSwitcher } from '../components/common/LanguageSwitcher.tsx';
 import { UserAvatar } from '../components/profile/UserAvatar.tsx';
@@ -27,8 +30,11 @@ import {
   getAccessibleDashboardPortals,
   getPortalByKey,
   getPortalFromPath,
+  resolveAccountHubPath,
   type DashboardPortalKey,
 } from '../lib/auth/roles.ts';
+import { useVendorAccess } from '../hooks/vendor/useVendorTeam.ts';
+import { VendorPortalGuard } from '../components/dashboard/vendor/VendorPortalGuard.tsx';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -40,6 +46,8 @@ export default function DashboardLayout() {
   const location = useLocation();
 
   const role = getPortalFromPath(location.pathname);
+  const isVendorPortal = role === 'vendor';
+  const { data: vendorAccess } = useVendorAccess(isVendorPortal);
   const accessiblePortals = getAccessibleDashboardPortals(user?.roles);
   const activePortal = role ? getPortalByKey(role) : null;
   const showRoleSwitcher = Boolean(role) && accessiblePortals.length > 1;
@@ -53,16 +61,19 @@ export default function DashboardLayout() {
 
   const NAV_LINKS: Record<
     DashboardPortalKey,
-    Array<{ name: string; path: string; icon: typeof LayoutDashboard }>
+    Array<{ name: string; path: string; icon: typeof LayoutDashboard; permission?: string }>
   > = {
     vendor: [
-      { name: t('vendor.nav.home'), path: '/dashboard/vendor', icon: LayoutDashboard },
-      { name: t('vendor.nav.orders'), path: '/dashboard/vendor/orders', icon: ShoppingCart },
-      { name: t('vendor.nav.returns'), path: '/dashboard/vendor/returns', icon: Package },
-      { name: t('vendor.nav.products'), path: '/dashboard/vendor/products', icon: Package },
-      { name: t('vendor.nav.team'), path: '/dashboard/vendor/team', icon: Users },
-      { name: t('vendor.nav.finance'), path: '/dashboard/vendor/finance', icon: Wallet },
-      { name: t('vendor.nav.settings'), path: '/dashboard/vendor/settings', icon: Settings },
+      { name: t('vendor.nav.home'), path: '/dashboard/vendor', icon: LayoutDashboard, permission: 'dashboard' },
+      { name: t('vendor.nav.orders'), path: '/dashboard/vendor/orders', icon: ShoppingCart, permission: 'orders' },
+      { name: t('vendor.nav.preorders'), path: '/dashboard/vendor/preorders', icon: Clock, permission: 'orders' },
+      { name: t('vendor.nav.returns'), path: '/dashboard/vendor/returns', icon: Package, permission: 'returns' },
+      { name: t('vendor.nav.products'), path: '/dashboard/vendor/products', icon: Package, permission: 'products' },
+      { name: t('vendor.nav.reviews'), path: '/dashboard/vendor/reviews', icon: MessageSquare, permission: 'reviews' },
+      { name: t('vendor.nav.chat'), path: '/dashboard/vendor/messages', icon: MessagesSquare, permission: 'chat' },
+      { name: t('vendor.nav.team'), path: '/dashboard/vendor/team', icon: Users, permission: 'team' },
+      { name: t('vendor.nav.finance'), path: '/dashboard/vendor/finance', icon: Wallet, permission: 'finance' },
+      { name: t('vendor.nav.settings'), path: '/dashboard/vendor/settings', icon: Settings, permission: 'settings' },
     ],
     service: [
       { name: 'الرئيسية', path: '/dashboard/service', icon: LayoutDashboard },
@@ -82,7 +93,14 @@ export default function DashboardLayout() {
     ],
   };
 
-  const links = role ? NAV_LINKS[role] : [];
+  const links = (role ? NAV_LINKS[role] : []).filter((link) => {
+    if (role !== 'vendor' || !link.permission || !vendorAccess?.permissions) {
+      return true;
+    }
+
+    const value = vendorAccess.permissions[link.permission as keyof typeof vendorAccess.permissions];
+    return value !== false && value !== 'none';
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 flex" dir={dir}>
@@ -127,10 +145,10 @@ export default function DashboardLayout() {
                     <Link
                       to={link.path}
                       onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors cursor-pointer ${
+                      className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
                         isActive
-                          ? 'bg-diyar-brown text-white'
-                          : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                          ? 'bg-diyar-brown text-white shadow-md shadow-diyar-brown/20 scale-[1.01]'
+                          : 'text-gray-300 hover:bg-white/8 hover:text-white hover:translate-x-0.5 rtl:hover:-translate-x-0.5'
                       }`}
                       title={link.name}
                     >
@@ -170,7 +188,7 @@ export default function DashboardLayout() {
               <Menu size={20} />
             </button>
             <h1 className="text-lg md:text-xl font-bold text-diyar-dark truncate max-w-37.5 md:max-w-none">
-              {activePortal?.headerTitle ?? t('dashboard.selectPortal')}
+              {role ? t(`dashboard.portals.${role}.headerTitle`) : t('dashboard.selectPortal')}
             </h1>
           </div>
 
@@ -190,11 +208,12 @@ export default function DashboardLayout() {
                       <Link
                         key={portal.key}
                         to={portal.path}
-                        className={`flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-sm ${
+                        className={`flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-sm transition-colors ${
                           role === portal.key ? 'bg-gray-50 font-bold text-diyar-dark' : ''
                         }`}
                       >
-                        <Icon size={16} className={portal.iconTextClass} /> {portal.switchLabel}
+                        <Icon size={16} className={portal.iconTextClass} />{' '}
+                        {t(`dashboard.portals.${portal.key}.switchLabel`)}
                       </Link>
                     );
                   })}
@@ -267,7 +286,7 @@ export default function DashboardLayout() {
             <LanguageSwitcher />
 
             <Link
-              to="/profile"
+              to={resolveAccountHubPath(user?.roles)}
               className="shrink-0 rounded-full transition-all hover:ring-2 hover:ring-diyar-brown/30"
               title={t('common.myAccount')}
             >
@@ -291,7 +310,13 @@ export default function DashboardLayout() {
         </header>
 
         <div className="flex-1 overflow-auto p-6">
-          <Outlet />
+          {isVendorPortal ? (
+            <VendorPortalGuard>
+              <Outlet />
+            </VendorPortalGuard>
+          ) : (
+            <Outlet />
+          )}
         </div>
       </main>
     </div>

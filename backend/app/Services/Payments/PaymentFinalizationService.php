@@ -79,6 +79,16 @@ final class PaymentFinalizationService
             default => PaymentAttemptStatus::Failed,
         });
 
+        $order = Order::query()->with('user')->find($payment->order_id);
+        if ($order !== null) {
+            $this->inventory->releasePendingForOrder(
+                $order,
+                finalStatus: $target === PaymentStatus::Expired
+                    ? ReservationStatus::Expired
+                    : ReservationStatus::Released,
+            );
+        }
+
         return $payment;
     }
 

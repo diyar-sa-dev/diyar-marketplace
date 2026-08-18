@@ -4,6 +4,7 @@ namespace App\Services\Media;
 
 use App\Models\MediaFile;
 use App\Models\User;
+use App\Support\Media\SvgSafetyValidator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -61,6 +62,58 @@ final class MediaUploadService
             '%s/%s/avatar',
             config('diyar_media.avatar_directory', 'users'),
             $user->id,
+        );
+        $filename = Str::uuid()->toString().'.'.$extension;
+        $path = $directory.'/'.$filename;
+
+        $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
+        if ($stored === false) {
+            throw new RuntimeException(__('diyar.media.upload_failed'));
+        }
+
+        return $path;
+    }
+
+    public function storeVendorLogo(string $vendorAccountId, UploadedFile $file): string
+    {
+        $this->validateVendorLogo($file);
+
+        $extension = $this->resolveVendorLogoExtension($file);
+        $directory = sprintf(
+            '%s/%s/logo',
+            config('diyar_media.vendor_directory', 'vendors'),
+            $vendorAccountId,
+        );
+        $filename = Str::uuid()->toString().'.'.$extension;
+        $path = $directory.'/'.$filename;
+
+        if ($extension === 'svg') {
+            $contents = file_get_contents($file->getRealPath() ?: '');
+            if ($contents === false) {
+                throw new InvalidArgumentException(__('diyar.media.invalid_upload'));
+            }
+            SvgSafetyValidator::assertSafe($contents);
+            $stored = Storage::disk($this->diskName())->put($path, $contents);
+        } else {
+            $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
+        }
+
+        if ($stored === false) {
+            throw new RuntimeException(__('diyar.media.upload_failed'));
+        }
+
+        return $path;
+    }
+
+    public function storeVendorCover(string $vendorAccountId, UploadedFile $file): string
+    {
+        $this->validateVendorCover($file);
+
+        $extension = $this->resolveVendorCoverExtension($file);
+        $directory = sprintf(
+            '%s/%s/cover',
+            config('diyar_media.vendor_directory', 'vendors'),
+            $vendorAccountId,
         );
         $filename = Str::uuid()->toString().'.'.$extension;
         $path = $directory.'/'.$filename;
@@ -135,5 +188,69 @@ final class MediaUploadService
             'image/webp' => 'webp',
             default => throw new InvalidArgumentException(__('diyar.media.invalid_type')),
         };
+    }
+
+    public function validateVendorLogo(UploadedFile $file): void
+    {
+        $this->validateUploadedFile(
+            $file,
+            (int) config('diyar_media.vendor_logo_max_kb', 2048) * 1024,
+            config('diyar_media.vendor_logo_mimes', []),
+            config('diyar_media.vendor_logo_extensions', []),
+        );
+    }
+
+    public function validateVendorCover(UploadedFile $file): void
+    {
+        $this->validateUploadedFile(
+            $file,
+            (int) config('diyar_media.vendor_cover_max_kb', 5120) * 1024,
+            config('diyar_media.vendor_cover_mimes', []),
+            config('diyar_media.vendor_cover_extensions', []),
+        );
+    }
+
+    /**
+     * @param  list<string>  $allowedMimes
+     * @param  list<string>  $allowedExtensions
+     */
+    private function validateUploadedFile(
+        UploadedFile $file,
+        int $maxBytes,
+        array $allowedMimes,
+        array $allowedExtensions,
+    ): void {
+        if (! $file->isValid()) {
+            throw new InvalidArgumentException(__('diyar.media.invalid_upload'));
+        }
+
+        if ($file->getSize() > $maxBytes) {
+            throw new InvalidArgumentException(__('diyar.media.file_too_large'));
+        }
+
+        $detectedMime = $file->getMimeType();
+        if (! in_array($detectedMime, $allowedMimes, true)) {
+            throw new InvalidArgumentException(__('diyar.media.invalid_type'));
+        }
+
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        if (! in_array($extension, $allowedExtensions, true)) {
+            throw new InvalidArgumentException(__('diyar.media.invalid_extension'));
+        }
+    }
+
+    private function resolveVendorLogoExtension(UploadedFile $file): string
+    {
+        return match ($file->getMimeType()) {
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/svg+xml' => 'svg',
+            default => throw new InvalidArgumentException(__('diyar.media.invalid_type')),
+        };
+    }
+
+    private function resolveVendorCoverExtension(UploadedFile $file): string
+    {
+        return $this->resolveExtension($file);
     }
 }

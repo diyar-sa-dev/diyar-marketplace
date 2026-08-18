@@ -27,7 +27,12 @@ final class ProfileService
         }
 
         if (array_key_exists('email', $attributes)) {
-            $updates['email'] = $attributes['email'];
+            $newEmail = $attributes['email'];
+            $updates['email'] = $newEmail;
+
+            if ($newEmail !== $user->email) {
+                $updates['email_verified_at'] = null;
+            }
         }
 
         if (array_key_exists('bio', $attributes)) {

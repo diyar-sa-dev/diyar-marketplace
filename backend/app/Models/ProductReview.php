@@ -19,12 +19,16 @@ class ProductReview extends Model
         'product_id',
         'rating',
         'comment',
+        'vendor_reply',
+        'vendor_replied_at',
+        'vendor_replied_by_user_id',
     ];
 
     protected function casts(): array
     {
         return [
             'rating' => 'integer',
+            'vendor_replied_at' => 'datetime',
         ];
     }
 
@@ -36,5 +40,10 @@ class ProductReview extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function vendorRepliedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'vendor_replied_by_user_id');
     }
 }

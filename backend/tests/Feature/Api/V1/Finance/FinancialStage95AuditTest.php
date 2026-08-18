@@ -202,6 +202,8 @@ class FinancialStage95AuditTest extends TestCase
 
         $allocation = PaymentVendorAllocation::query()->where('payment_id', $payment->id)->firstOrFail();
 
+        $this->createVendorBankAccount($vendorA->vendorAccount);
+
         $payoutResponse = $this->postJsonAsUser('/api/v1/dashboard/vendor/finance/payouts', $vendorA, [
             'amount' => (string) $allocation->vendor_payable_amount,
         ])->assertCreated();
@@ -233,6 +235,8 @@ class FinancialStage95AuditTest extends TestCase
         app(VendorOrderStateService::class)->markDelivered($vendorOrder->fresh());
 
         $allocation = PaymentVendorAllocation::query()->where('payment_id', $payment->id)->firstOrFail();
+
+        $this->createVendorBankAccount($vendorUser->vendorAccount);
 
         $payoutResponse = $this->postJsonAsUser('/api/v1/dashboard/vendor/finance/payouts', $vendorUser, [
             'amount' => (string) $allocation->vendor_payable_amount,
@@ -266,6 +270,8 @@ class FinancialStage95AuditTest extends TestCase
         app(VendorOrderStateService::class)->markDelivered($vendorOrder->fresh());
 
         $allocation = PaymentVendorAllocation::query()->where('payment_id', $payment->id)->firstOrFail();
+
+        $this->createVendorBankAccount($vendorUser->vendorAccount);
 
         $payoutResponse = $this->postJsonAsUser('/api/v1/dashboard/vendor/finance/payouts', $vendorUser, [
             'amount' => (string) $allocation->vendor_payable_amount,
@@ -336,6 +342,8 @@ class FinancialStage95AuditTest extends TestCase
             number_format((float) $allocation->vendor_payable_amount, 2, '.', ''),
             $summaryAfterRelease['available_balance'],
         );
+
+        $this->createVendorBankAccount($vendorUser->vendorAccount);
 
         $this->postJsonAsUser('/api/v1/dashboard/vendor/finance/payouts', $vendorUser, [
             'amount' => (string) $allocation->vendor_payable_amount,

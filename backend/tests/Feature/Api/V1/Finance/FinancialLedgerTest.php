@@ -116,6 +116,8 @@ class FinancialLedgerTest extends TestCase
         $allocation = PaymentVendorAllocation::query()->where('payment_id', $payment->id)->firstOrFail();
         $available = (string) $allocation->vendor_payable_amount;
 
+        $this->createVendorBankAccount($vendorUser->vendorAccount);
+
         $this->postJsonAsUser('/api/v1/dashboard/vendor/finance/payouts', $vendorUser, [
             'amount' => $available,
         ])->assertCreated();
@@ -152,6 +154,8 @@ class FinancialLedgerTest extends TestCase
         app(VendorOrderStateService::class)->markDelivered($vendorOrder->fresh());
 
         $allocation = PaymentVendorAllocation::query()->where('payment_id', $payment->id)->firstOrFail();
+
+        $this->createVendorBankAccount($vendorUser->vendorAccount);
 
         $payoutResponse = $this->postJsonAsUser('/api/v1/dashboard/vendor/finance/payouts', $vendorUser, [
             'amount' => (string) $allocation->vendor_payable_amount,

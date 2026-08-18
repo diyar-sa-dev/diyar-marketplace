@@ -22,10 +22,10 @@ function interpolate(template: string, params?: TranslateParams): string {
     return template;
   }
 
-  return Object.entries(params).reduce(
-    (result, [name, value]) => result.replaceAll(`:${name}`, String(value)),
-    template,
-  );
+  return Object.entries(params).reduce((result, [name, value]) => {
+    const stringValue = String(value);
+    return result.replaceAll(`:${name}`, stringValue).replaceAll(`{{${name}}}`, stringValue);
+  }, template);
 }
 
 export function translate(locale: Locale, key: string, params?: TranslateParams): string {

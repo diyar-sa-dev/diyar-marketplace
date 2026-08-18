@@ -1,6 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as financeApi from '../../api/vendorFinance.ts';
 import type { FinancePeriod, TransactionTypeFilter } from '../../api/vendorFinance.ts';
+import { isForbidden, parseApiError } from '../../utils/errors.ts';
+
+function shouldRetryVendorQuery(failureCount: number, error: unknown): boolean {
+  if (isForbidden(parseApiError(error))) {
+    return false;
+  }
+
+  return failureCount < 1;
+}
 
 export const vendorFinanceKeys = {
   all: ['vendor-finance'] as const,
@@ -40,10 +49,13 @@ export function useVendorPayouts(page = 1) {
   });
 }
 
-export function useVendorDashboardOverview() {
+export function useVendorDashboardOverview(enabled = true) {
   return useQuery({
     queryKey: vendorFinanceKeys.overview(),
     queryFn: financeApi.fetchVendorDashboardOverview,
+    enabled,
+    retry: shouldRetryVendorQuery,
+    refetchInterval: (query) => (query.state.fetchFailureCount > 0 ? false : 60_000),
   });
 }
 

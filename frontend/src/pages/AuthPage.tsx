@@ -10,6 +10,7 @@ import {
   isValidNameClient,
   isValidSaudiPhoneNational,
   maskPhoneForDisplay,
+  maskEmailForDisplay,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
   passwordsMatch,
@@ -17,6 +18,7 @@ import {
 import {
   collectDisplayErrors,
   firstFieldError,
+  isEmailVerificationRequired,
   isPhoneVerificationRequired,
   isUnexpectedServerError,
 } from '../utils/errors.ts';
@@ -27,7 +29,7 @@ import { SaudiPhoneInput } from '../components/auth/SaudiPhoneInput.tsx';
 import { useAuthFieldDirection, useLocale } from '../lib/i18n/localeContext.ts';
 
 type AuthView = 'login' | 'register' | 'forgot' | 'otp' | 'reset';
-type OtpContext = 'register' | 'forgot';
+type OtpContext = 'register' | 'forgot' | 'email_verify';
 type LoginMethod = 'phone' | 'email';
 
 export default function AuthPage() {
@@ -44,7 +46,9 @@ export default function AuthPage() {
     login,
     register,
     verifyOtp,
+    verifyEmailOtp,
     resendOtp,
+    resendEmailOtp,
     forgotPassword,
     verifyPasswordResetOtp,
     resetPassword,
@@ -56,6 +60,7 @@ export default function AuthPage() {
   const [previousView, setPreviousView] = useState<AuthView>('login');
   const [otpContext, setOtpContext] = useState<OtpContext>('register');
   const [pendingPhone, setPendingPhone] = useState('');
+  const [pendingEmail, setPendingEmail] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<string[]>([]);
 
@@ -160,9 +165,9 @@ export default function AuthPage() {
       toast.success(result.message ?? t('auth.toasts.loginSuccess'));
       redirectAfterAuth(result.user.roles);
     } catch (err) {
-      const verification = isPhoneVerificationRequired(err);
-      if (verification) {
-        const phone = verification.phone || (loginMethod === 'phone' ? loginPhone.trim() : '');
+      const phoneVerification = isPhoneVerificationRequired(err);
+      if (phoneVerification) {
+        const phone = phoneVerification.phone || (loginMethod === 'phone' ? loginPhone.trim() : '');
         setPendingPhone(phone);
         setOtpContext('register');
         setOtpCode('');
@@ -172,6 +177,22 @@ export default function AuthPage() {
         toast.info(
           firstFieldError(err, 'phone_verification_required') ??
             t('auth.toasts.verificationRequired'),
+        );
+        return;
+      }
+
+      const emailVerification = isEmailVerificationRequired(err);
+      if (emailVerification) {
+        const email = emailVerification.email || (loginMethod === 'email' ? loginEmail.trim() : '');
+        setPendingEmail(email);
+        setOtpContext('email_verify');
+        setOtpCode('');
+        startCooldown();
+        switchView('otp');
+        resetMessages();
+        toast.info(
+          firstFieldError(err, 'email_verification_required') ??
+            t('auth.toasts.emailVerificationRequired'),
         );
         return;
       }
@@ -269,6 +290,13 @@ export default function AuthPage() {
         return;
       }
 
+      if (otpContext === 'email_verify') {
+        const result = await verifyEmailOtp({ email: pendingEmail.trim(), code: otpCode });
+        toast.success(result.message ?? t('auth.toasts.verifySuccess'));
+        redirectAfterAuth(result.user.roles);
+        return;
+      }
+
       const result = await verifyPasswordResetOtp({
         phone: pendingPhone.trim(),
         code: otpCode,
@@ -334,7 +362,9 @@ export default function AuthPage() {
       const result =
         otpContext === 'register'
           ? await resendOtp(pendingPhone.trim())
-          : await forgotPassword(pendingPhone.trim());
+          : otpContext === 'email_verify'
+            ? await resendEmailOtp(pendingEmail.trim())
+            : await forgotPassword(pendingPhone.trim());
       startCooldown();
       toast.info(result.message ?? t('auth.toasts.resendSuccess'));
     } catch (err) {
@@ -709,10 +739,20 @@ export default function AuthPage() {
               </button>
 
               <div className="text-center mb-6 sm:mb-8">
-                <p className="text-gray-600 text-sm">{t('auth.otp.description')}</p>
-                <p className="font-bold text-diyar-dark mt-1 tracking-wide" dir="ltr">
-                  +966 {maskPhoneForDisplay(pendingPhone)}
+                <p className="text-gray-600 text-sm">
+                  {otpContext === 'email_verify'
+                    ? t('auth.otp.emailDescription')
+                    : t('auth.otp.description')}
                 </p>
+                {otpContext === 'email_verify' ? (
+                  <p className="font-bold text-diyar-dark mt-1 tabular-nums" dir="ltr">
+                    {maskEmailForDisplay(pendingEmail)}
+                  </p>
+                ) : (
+                  <p className="font-bold text-diyar-dark mt-1 tracking-wide" dir="ltr">
+                    +966 {maskPhoneForDisplay(pendingPhone)}
+                  </p>
+                )}
               </div>
 
               <form onSubmit={handleVerifyOtp} className="space-y-6">
@@ -756,7 +796,7 @@ export default function AuthPage() {
                 >
                   {isLoading ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : otpContext === 'register' ? (
+                  ) : otpContext === 'register' || otpContext === 'email_verify' ? (
                     t('auth.otp.verifyRegister')
                   ) : (
                     t('common.continue')
