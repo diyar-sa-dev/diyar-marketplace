@@ -36,11 +36,11 @@ import type { ReturnRequest } from '../types/return.ts';
 import { CustomerReturnModal } from '../components/orders/CustomerReturnModal.tsx';
 import { StoreReviewPrompt } from '../components/orders/StoreReviewPrompt.tsx';
 import { useOrderStoreReviewEligibility } from '../hooks/storeReview/useStoreReviews.ts';
-import {
-  customerReturnKeys,
-  useCustomerReturns,
-} from '../hooks/returns/useCustomerReturns.ts';
+import { customerReturnKeys, useCustomerReturns } from '../hooks/returns/useCustomerReturns.ts';
+import { CustomerServiceBookingsPanel } from '../components/customer/CustomerServiceBookingsPanel.tsx';
 import type { StoreReviewEligibilityItem } from '../api/storeReviews.ts';
+
+type OrdersHubTab = 'orders' | 'bookings' | 'returns';
 
 function OrderStatusBadge({ status, label }: { status: string; label: string }) {
   const badgeKey = orderStatusBadgeKey(status);
@@ -407,7 +407,8 @@ export default function OrdersPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = (searchParams.get('tab') as OrdersHubTab) || 'orders';
   const [returnsPage, setReturnsPage] = useState(1);
   const highlightId = searchParams.get('highlight');
   const paymentOutcome = searchParams.get('payment');
@@ -517,6 +518,30 @@ export default function OrdersPage() {
 
   const orders = data?.orders ?? [];
 
+  const setActiveTab = (tab: OrdersHubTab) => {
+    const next = new URLSearchParams(searchParams);
+    if (tab === 'orders') {
+      next.delete('tab');
+    } else {
+      next.set('tab', tab);
+    }
+    setSearchParams(next, { replace: true });
+  };
+
+  const hubTitle =
+    activeTab === 'bookings'
+      ? t('orders.tabs.bookings')
+      : activeTab === 'returns'
+        ? t('orders.tabs.returns')
+        : t('orders.title');
+
+  const hubSubtitle =
+    activeTab === 'bookings'
+      ? t('orders.tabsSubtitle.bookings')
+      : activeTab === 'returns'
+        ? t('orders.tabsSubtitle.returns')
+        : t('orders.subtitle');
+
   useEffect(() => {
     if (!highlightId || highlightRef.current === highlightId) {
       return;
@@ -544,71 +569,90 @@ export default function OrdersPage() {
     <div className="min-h-screen bg-gray-50 pt-20 pb-24" dir={dir}>
       <div className="bg-diyar-dark text-white py-8 mb-8">
         <div className="max-w-4xl mx-auto px-4">
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">{t('orders.title')}</h1>
-          <p className="text-diyar-cream/80 text-sm">{t('orders.subtitle')}</p>
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">{hubTitle}</h1>
+          <p className="text-diyar-cream/80 text-sm mb-6">{hubSubtitle}</p>
+          <div className="flex flex-wrap gap-2">
+            {(['orders', 'bookings', 'returns'] as OrdersHubTab[]).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition cursor-pointer ${
+                  activeTab === tab
+                    ? 'bg-white text-diyar-dark shadow-sm'
+                    : 'bg-white/10 text-white hover:bg-white/20'
+                }`}
+              >
+                {t(`orders.tabs.${tab}`)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 space-y-8">
-        {orders.length === 0 ? (
-          <EmptyState
-            title={t('orders.emptyTitle')}
-            description={t('orders.emptyDescription')}
-            action={
-              <Link to="/" className="text-diyar-brown font-bold hover:text-diyar-dark">
-                {t('orders.shopNow')}
-              </Link>
-            }
-          />
-        ) : (
-          orders.map((order) => (
-            <OrderCard
-              key={order.id}
-              order={order}
-              highlighted={highlightId === order.id}
-              highlightTone={highlightId === order.id ? highlightTone : null}
-              t={t}
-              locale={locale}
-              dir={dir}
-              onReturnRequested={handleReturnSubmitted}
-            />
-          ))
+        {activeTab === 'bookings' && <CustomerServiceBookingsPanel embedded />}
+
+        {activeTab === 'orders' && (
+          <>
+            {orders.length === 0 ? (
+              <EmptyState
+                title={t('orders.emptyTitle')}
+                description={t('orders.emptyDescription')}
+                action={
+                  <Link to="/" className="text-diyar-brown font-bold hover:text-diyar-dark">
+                    {t('orders.shopNow')}
+                  </Link>
+                }
+              />
+            ) : (
+              orders.map((order) => (
+                <OrderCard
+                  key={order.id}
+                  order={order}
+                  highlighted={highlightId === order.id}
+                  highlightTone={highlightId === order.id ? highlightTone : null}
+                  t={t}
+                  locale={locale}
+                  dir={dir}
+                  onReturnRequested={handleReturnSubmitted}
+                />
+              ))
+            )}
+          </>
         )}
 
-        <section className="pt-4 border-t border-gray-200">
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-diyar-dark">{t('orders.myReturnsTitle')}</h2>
-            <p className="text-sm text-gray-500 mt-1">{t('orders.myReturnsSubtitle')}</p>
-          </div>
-
-          {returnsQuery.isLoading ? (
-            <LoadingState className="min-h-32" />
-          ) : returnsQuery.isError ? (
-            <ErrorState
-              title={t('orders.myReturnsError')}
-              error={returnsQuery.error as Error}
-              onRetry={() => void returnsQuery.refetch()}
-            />
-          ) : (returnsQuery.data?.returns ?? []).length === 0 ? (
-            <EmptyState
-              title={t('orders.myReturnsEmpty')}
-              description={t('orders.myReturnsEmptyHint')}
-            />
-          ) : (
-            <div className={`space-y-4 ${returnsQuery.isFetching ? 'opacity-70' : ''}`}>
-              {(returnsQuery.data?.returns ?? []).map((item) => (
-                <CustomerReturnCard key={item.id} item={item} t={t} locale={locale} />
-              ))}
-              {returnsQuery.data?.pagination && (
-                <PaginationBar
-                  pagination={returnsQuery.data.pagination}
-                  page={returnsPage}
-                  onPageChange={setReturnsPage}
-                />
-              )}
-            </div>
-          )}
-        </section>
+        {activeTab === 'returns' && (
+          <section>
+            {returnsQuery.isLoading ? (
+              <LoadingState className="min-h-32" />
+            ) : returnsQuery.isError ? (
+              <ErrorState
+                title={t('orders.myReturnsError')}
+                error={returnsQuery.error as Error}
+                onRetry={() => void returnsQuery.refetch()}
+              />
+            ) : (returnsQuery.data?.returns ?? []).length === 0 ? (
+              <EmptyState
+                title={t('orders.myReturnsEmpty')}
+                description={t('orders.myReturnsEmptyHint')}
+              />
+            ) : (
+              <div className={`space-y-4 ${returnsQuery.isFetching ? 'opacity-70' : ''}`}>
+                {(returnsQuery.data?.returns ?? []).map((item) => (
+                  <CustomerReturnCard key={item.id} item={item} t={t} locale={locale} />
+                ))}
+                {returnsQuery.data?.pagination && (
+                  <PaginationBar
+                    pagination={returnsQuery.data.pagination}
+                    page={returnsPage}
+                    onPageChange={setReturnsPage}
+                  />
+                )}
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </div>
   );

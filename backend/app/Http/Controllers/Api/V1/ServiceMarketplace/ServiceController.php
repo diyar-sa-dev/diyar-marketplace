@@ -19,24 +19,24 @@ class ServiceController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $paginator = $this->services->listPublic($request->query());
+        $paginator = $this->services->listPublic($request->query(), $request->user());
 
         return ApiResponse::success(data: $this->paginatedServices($paginator));
     }
 
-    public function show(string $identifier): JsonResponse
+    public function show(Request $request, string $identifier): JsonResponse
     {
-        $service = $this->services->findPublic($identifier);
+        $service = $this->services->findPublic($identifier, $request->user());
 
         return ApiResponse::success(data: [
             'service' => new ServiceDetailResource($service),
         ]);
     }
 
-    public function related(string $identifier): JsonResponse
+    public function related(Request $request, string $identifier): JsonResponse
     {
-        $service = $this->services->findPublic($identifier);
-        $related = $this->services->relatedServices($service);
+        $service = $this->services->findPublic($identifier, $request->user());
+        $related = $this->services->relatedServices($service, limit: 8, user: $request->user());
 
         return ApiResponse::success(data: [
             'items' => ServiceCardResource::collection($related)->resolve(),

@@ -28,7 +28,11 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
-import { shouldShowStorefrontDashboardLink, resolveAccountHubPath, resolveDashboardEntryPath } from '../../lib/auth/roles.ts';
+import {
+  shouldShowStorefrontDashboardLink,
+  resolveAccountHubPath,
+  resolveDashboardEntryPath,
+} from '../../lib/auth/roles.ts';
 
 const CATEGORIES = {
   bedroom: {
@@ -237,7 +241,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-diyar-dark hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 text-gray-400 hover:text-diyar-dark hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -251,7 +255,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
             <button
               onClick={() => handleNavigate('/')}
-              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75 cursor-pointer"
             >
               <Home
                 size={18}
@@ -265,7 +269,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             {showDashboardLink && (
               <button
                 onClick={() => handleNavigate(dashboardPath)}
-                className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+                className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75 cursor-pointer"
               >
                 <LayoutDashboard
                   size={18}
@@ -280,7 +284,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             {isAuthenticated && (
               <button
                 onClick={() => handleNavigate(accountHubPath)}
-                className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+                className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75 cursor-pointer"
               >
                 <User
                   size={18}
@@ -294,7 +298,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
             <button
               onClick={() => handleNavigate('/services')}
-              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75 cursor-pointer"
             >
               <Wrench
                 size={18}
@@ -307,7 +311,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
             <button
               onClick={() => handleNavigate('/b2b')}
-              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75 cursor-pointer"
             >
               <Layers
                 size={18}
@@ -320,7 +324,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
             <button
               onClick={() => handleNavigate('/ai-designer')}
-              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75 cursor-pointer"
             >
               <Sparkles
                 size={18}
@@ -339,7 +343,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             {/* المنتجات */}
             <button
               onClick={() => handleNavigate('/category/all')}
-              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75 cursor-pointer"
             >
               <Grid
                 size={18}
@@ -353,7 +357,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             {/* المشاريع */}
             <button
               onClick={() => setIsProjectsOpen(true)}
-              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75 cursor-pointer"
             >
               <FolderGit2
                 size={18}
@@ -367,7 +371,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             {/* 5. AI Studio */}
             <button
               onClick={() => setIsAiStudioOpen(true)}
-              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75 cursor-pointer"
             >
               <Sparkles
                 size={18}
@@ -381,7 +385,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             {/* 6. من نحن */}
             <button
               onClick={() => setIsAboutOpen(true)}
-              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75 cursor-pointer"
             >
               <Info
                 size={18}
@@ -395,7 +399,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             {/* 7. تواصل معنا */}
             <button
               onClick={() => setIsContactOpen(true)}
-              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75"
+              className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75 cursor-pointer"
             >
               <Phone
                 size={18}
@@ -410,7 +414,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           <div className="border-t border-gray-100 pt-5">
             <button
               onClick={() => setShowCategoriesSection(!showCategoriesSection)}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-gray-500 hover:bg-gray-50 transition-all"
+              className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-gray-500 hover:bg-gray-50 transition-all cursor-pointer"
             >
               <span>تصفح الأثاث حسب الفئات</span>
               <ChevronDown
@@ -425,7 +429,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   <div key={key}>
                     <button
                       onClick={() => setOpenCategory(openCategory === key ? null : key)}
-                      className="w-full flex items-center justify-between p-2.5 rounded-lg hover:bg-white transition-all text-xs font-bold text-diyar-dark"
+                      className="w-full flex items-center justify-between p-2.5 rounded-lg hover:bg-white transition-all text-xs font-bold text-diyar-dark cursor-pointer"
                     >
                       <span className={openCategory === key ? 'text-diyar-brown' : ''}>
                         {cat.name}
@@ -440,7 +444,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                       <div className="px-3 py-1 space-y-1 bg-white mx-1 my-1 rounded-xl border border-gray-100 animate-in fade-in duration-150">
                         <button
                           onClick={() => handleNavigate(`/category/${key}`)}
-                          className="text-right w-full text-[11px] text-diyar-brown font-bold py-1.5 flex items-center gap-1"
+                          className="text-right w-full text-[11px] text-diyar-brown font-bold py-1.5 flex items-center gap-1 cursor-pointer"
                         >
                           الكل في {cat.name}
                           <ChevronLeft size={12} />
@@ -448,8 +452,10 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                         {cat.subcategories.map((sub) => (
                           <button
                             key={sub}
-                            onClick={() => handleNavigate(`/category/${key}`)}
-                            className="text-right w-full text-[11px] text-gray-500 py-1.5 hover:text-diyar-brown transition-all pr-1"
+                            onClick={() =>
+                              handleNavigate(`/category/${key}?q=${encodeURIComponent(sub)}`)
+                            }
+                            className="text-right w-full text-[11px] text-gray-500 py-1.5 hover:text-diyar-brown transition-all pr-1 cursor-pointer"
                           >
                             • {sub}
                           </button>

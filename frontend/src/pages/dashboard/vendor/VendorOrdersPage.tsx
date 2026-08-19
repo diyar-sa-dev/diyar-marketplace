@@ -2,10 +2,7 @@ import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue.ts';
 import { useLocale } from '../../../hooks/useLocale.ts';
-import {
-  useVendorOrder,
-  useVendorOrders,
-} from '../../../hooks/vendor/useVendorOrders.ts';
+import { useVendorOrder, useVendorOrders } from '../../../hooks/vendor/useVendorOrders.ts';
 import { useVendorOrderActions } from '../../../hooks/vendor/useVendorOrderActions.ts';
 import { useVendorAccess } from '../../../hooks/vendor/useVendorTeam.ts';
 import { vendorCanWrite } from '../../../api/vendorTeam.ts';

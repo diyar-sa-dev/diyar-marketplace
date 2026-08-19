@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ProviderAccount extends Model
 {
@@ -69,6 +70,26 @@ class ProviderAccount extends Model
     public function followers(): HasMany
     {
         return $this->hasMany(ProviderFollow::class);
+    }
+
+    public function bankAccounts(): HasMany
+    {
+        return $this->hasMany(ProviderBankAccount::class);
+    }
+
+    public function activeBankAccounts(): HasMany
+    {
+        return $this->hasMany(ProviderBankAccount::class)->where('is_active', true);
+    }
+
+    public function payouts(): HasMany
+    {
+        return $this->hasMany(ProviderPayout::class);
+    }
+
+    public function workPolicy(): HasOne
+    {
+        return $this->hasOne(ProviderWorkPolicy::class);
     }
 
     /**

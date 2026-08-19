@@ -554,7 +554,10 @@ export default function PersonalInfoPage() {
                   <p className="text-sm text-gray-600 text-center">
                     {t('auth.otp.emailDescription')}
                   </p>
-                  <p className="text-sm font-bold text-diyar-dark text-center tabular-nums" dir="ltr">
+                  <p
+                    className="text-sm font-bold text-diyar-dark text-center tabular-nums"
+                    dir="ltr"
+                  >
                     {maskEmailForDisplay(user?.email)}
                   </p>
                   <AuthFieldLabel required className="text-center">

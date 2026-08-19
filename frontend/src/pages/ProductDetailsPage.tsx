@@ -215,10 +215,7 @@ export default function ProductDetailsPage() {
       ? t('catalog.product.limitedStock')
       : availability;
   const isPreorderProduct = product.availability_mode === 'preorder';
-  const canPurchase =
-    !isOwnStore &&
-    product.availability_mode === 'in_stock' &&
-    availableQty > 0;
+  const canPurchase = !isOwnStore && product.availability_mode === 'in_stock' && availableQty > 0;
   const canPreorder = !isOwnStore && isPreorderProduct;
   const hasPendingPreorder = Boolean(product.user_preorder_pending) || preorderSubmitted;
   const maxQuantity = Math.max(availableQty, 1);
@@ -494,17 +491,17 @@ export default function ProductDetailsPage() {
               </div>
 
               {!isOwnStore ? (
-              <div className="flex items-end gap-3 mb-6">
-                <span className="text-3xl md:text-4xl font-bold text-diyar-dark tabular-nums">
-                  {salePrice}
-                </span>
-                <span className="text-xl font-bold text-diyar-dark mb-1">{currency}</span>
-                {oldPrice && (
-                  <span className="text-lg text-gray-400 line-through mb-1 tabular-nums">
-                    {oldPrice} {currency}
+                <div className="flex items-end gap-3 mb-6">
+                  <span className="text-3xl md:text-4xl font-bold text-diyar-dark tabular-nums">
+                    {salePrice}
                   </span>
-                )}
-              </div>
+                  <span className="text-xl font-bold text-diyar-dark mb-1">{currency}</span>
+                  {oldPrice && (
+                    <span className="text-lg text-gray-400 line-through mb-1 tabular-nums">
+                      {oldPrice} {currency}
+                    </span>
+                  )}
+                </div>
               ) : null}
 
               {vendorStorePath ? (
@@ -655,52 +652,52 @@ export default function ProductDetailsPage() {
                 </button>
               ) : (
                 <>
-              <div
-                className={`flex items-center gap-4 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 h-13 ${
-                  !canPurchase ? 'opacity-50 pointer-events-none select-none' : ''
-                }`}
-              >
-                <button
-                  type="button"
-                  disabled={!canPurchase}
-                  onClick={() => setQuantitySafe(quantity - 1)}
-                  className={`${vendorButtonClass} text-gray-500 hover:text-diyar-brown text-xl w-6 disabled:cursor-not-allowed`}
-                >
-                  -
-                </button>
-                <span className="font-bold text-diyar-dark w-8 text-center tabular-nums">
-                  {quantity}
-                </span>
-                <button
-                  type="button"
-                  disabled={!canPurchase || quantity >= maxQuantity}
-                  onClick={() => setQuantitySafe(quantity + 1)}
-                  className={`${vendorButtonClass} text-gray-500 hover:text-diyar-brown text-xl w-6 disabled:cursor-not-allowed`}
-                >
-                  +
-                </button>
-              </div>
-              <button
-                type="button"
-                disabled={!canPurchase}
-                onClick={handleAddToCart}
-                className={`${vendorButtonClass} flex-1 font-bold h-13 rounded-xl gap-2 shadow-lg shadow-black/10 ${
-                  canPurchase
-                    ? cartAddedFlash
-                      ? 'bg-green-700 text-white cursor-pointer'
-                      : 'bg-diyar-dark text-white hover:bg-black cursor-pointer'
-                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                {cartAddedFlash ? <CheckCircle size={20} /> : <ShoppingCart size={20} />}
-                {isOwnStore
-                  ? t('catalog.productDetail.selfPurchaseBlocked')
-                  : canPurchase
-                    ? cartAddedFlash
-                      ? t('cart.added')
-                      : `${t('catalog.productDetail.addToCart')} • ${salePrice * quantity} ${currency}`
-                    : t('catalog.productDetail.unavailable')}
-              </button>
+                  <div
+                    className={`flex items-center gap-4 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 h-13 ${
+                      !canPurchase ? 'opacity-50 pointer-events-none select-none' : ''
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      disabled={!canPurchase}
+                      onClick={() => setQuantitySafe(quantity - 1)}
+                      className={`${vendorButtonClass} text-gray-500 hover:text-diyar-brown text-xl w-6 disabled:cursor-not-allowed`}
+                    >
+                      -
+                    </button>
+                    <span className="font-bold text-diyar-dark w-8 text-center tabular-nums">
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={!canPurchase || quantity >= maxQuantity}
+                      onClick={() => setQuantitySafe(quantity + 1)}
+                      className={`${vendorButtonClass} text-gray-500 hover:text-diyar-brown text-xl w-6 disabled:cursor-not-allowed`}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={!canPurchase}
+                    onClick={handleAddToCart}
+                    className={`${vendorButtonClass} flex-1 font-bold h-13 rounded-xl gap-2 shadow-lg shadow-black/10 ${
+                      canPurchase
+                        ? cartAddedFlash
+                          ? 'bg-green-700 text-white cursor-pointer'
+                          : 'bg-diyar-dark text-white hover:bg-black cursor-pointer'
+                        : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
+                    {cartAddedFlash ? <CheckCircle size={20} /> : <ShoppingCart size={20} />}
+                    {isOwnStore
+                      ? t('catalog.productDetail.selfPurchaseBlocked')
+                      : canPurchase
+                        ? cartAddedFlash
+                          ? t('cart.added')
+                          : `${t('catalog.productDetail.addToCart')} • ${salePrice * quantity} ${currency}`
+                        : t('catalog.productDetail.unavailable')}
+                  </button>
                 </>
               )}
             </div>

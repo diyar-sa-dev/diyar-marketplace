@@ -1,7 +1,11 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useQueries } from '@tanstack/react-query';
 import ProductCard from '../cards/ProductCard.tsx';
+import ServiceCard from '../cards/ServiceCard.tsx';
 import { useCategories, useProducts, useVendors } from '../../hooks/catalog/useCatalog.ts';
+import { serviceKeys } from '../../hooks/services/queryKeys.ts';
+import { fetchServices } from '../../api/services.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { isValidStoreSlug, storePath } from '../../lib/storePath.ts';
 import { mapProductCard } from '../../lib/catalogMappers.ts';
@@ -1250,6 +1254,14 @@ export function BrandsStrip() {
 
 export function ServicesSection() {
   const { data: serviceCategories, isLoading } = useCategories('service');
+  const featuredCategories = (serviceCategories ?? []).slice(0, 6);
+  const categoryServiceQueries = useQueries({
+    queries: featuredCategories.map((category) => ({
+      queryKey: serviceKeys.list({ category: category.slug, per_page: 3, sort: 'latest' }),
+      queryFn: () => fetchServices({ category: category.slug, per_page: 3, sort: 'latest' }),
+      enabled: Boolean(category.slug),
+    })),
+  });
   const STATIC_IMG: Record<string, string> = {
     'interior-design': '/categories/تصميم داخلي.png',
     maintenance: '/categories/تركيب وصيانة.png',
@@ -1261,6 +1273,8 @@ export function ServicesSection() {
     cleaning: '/categories/تنظيف وتلميع.png',
     electrical: '/categories/إضاءة وكهرباء.png',
     'curtains-install': '/categories/تركيب الستائر.png',
+    'floor-plan': '/categories/مخططات معمارية.png',
+    other: '/logo_diyar.svg',
   };
 
   return (
@@ -1278,7 +1292,7 @@ export function ServicesSection() {
           </div>
           <Link
             to="/services"
-            className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition"
+            className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition cursor-pointer"
           >
             عرض كل الخدمات <ArrowLeft size={18} />
           </Link>
@@ -1292,7 +1306,7 @@ export function ServicesSection() {
                 <Link
                   to={`/category/${category.slug}`}
                   key={category.id}
-                  className="min-w-56 md:min-w-0 bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all snap-start group"
+                  className="min-w-56 md:min-w-0 bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all snap-start group cursor-pointer"
                 >
                   <div className="h-36 relative overflow-hidden bg-diyar-brown/10">
                     <img
@@ -1308,6 +1322,32 @@ export function ServicesSection() {
                 </Link>
               ))}
         </div>
+
+        {featuredCategories.map((category, index) => {
+          const items = categoryServiceQueries[index]?.data?.items ?? [];
+          if (items.length === 0) {
+            return null;
+          }
+
+          return (
+            <div key={category.id} className="mt-8">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold text-diyar-dark">{category.name}</h3>
+                <Link
+                  to={`/category/${category.slug}`}
+                  className="text-diyar-brown text-sm font-bold hover:text-diyar-dark transition cursor-pointer"
+                >
+                  عرض الكل <ArrowLeft size={16} className="inline ms-1" />
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {items.map((service) => (
+                  <ServiceCard key={service.id} service={service} />
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

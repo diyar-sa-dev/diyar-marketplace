@@ -7,7 +7,10 @@ import { ErrorState } from '../components/common/ErrorState.tsx';
 import { EmptyState } from '../components/common/EmptyState.tsx';
 import { PublishedReviewCard } from '../components/reviews/PublishedReviewCard.tsx';
 import { PendingReviewCard } from '../components/reviews/PendingReviewCard.tsx';
-import { useCustomerReviews, useInvalidateCustomerReviews } from '../hooks/reviews/useCustomerReviews.ts';
+import {
+  useCustomerReviews,
+  useInvalidateCustomerReviews,
+} from '../hooks/reviews/useCustomerReviews.ts';
 import { useOrders } from '../hooks/checkout/useCheckout.ts';
 import { orderPaymentPaid as checkOrderPaymentPaid } from '../lib/orderStatusUtils.ts';
 import { resolveAccountSettingsBackPath } from '../lib/auth/roles.ts';
@@ -96,8 +99,7 @@ export default function ReviewsPage() {
       (order) =>
         checkOrderPaymentPaid(order) &&
         (order.vendor_orders ?? []).some(
-          (vendorOrder) =>
-            vendorOrder.status !== 'delivered' && vendorOrder.status !== 'cancelled',
+          (vendorOrder) => vendorOrder.status !== 'delivered' && vendorOrder.status !== 'cancelled',
         ),
     );
   }, [activeTab, pendingCount, ordersQuery.data?.orders]);

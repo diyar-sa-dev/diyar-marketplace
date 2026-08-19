@@ -36,6 +36,10 @@ class StoreOrderRequest extends CheckoutPreviewRequest
                 ->sortBy('vendor_account_id')
                 ->values()
                 ->all(),
+            'vendor_coupons' => collect($this->input('vendor_coupons', []))
+                ->sortBy('vendor_account_id')
+                ->values()
+                ->all(),
         ];
 
         return hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR));

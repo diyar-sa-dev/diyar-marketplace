@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { RequestServiceModal } from '../components/modals/RequestServiceModal.tsx';
 import { ServiceRequestListCard } from '../components/services/ServiceRequestListCard.tsx';
+import { ServiceTypeBadge } from '../components/services/ServiceTypeBadge.tsx';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useDebouncedValue } from '../hooks/useDebouncedValue.ts';
 import { useServiceRequests } from '../hooks/services/useServiceRequests.ts';
@@ -21,10 +22,13 @@ import { useLocale } from '../hooks/useLocale.ts';
 import { useServiceCategories, useServices } from '../hooks/services/useServices.ts';
 import type { ServiceListFilters } from '../types/services.ts';
 import { serviceCategoryIcon, SERVICE_IMAGE_FALLBACK } from '../lib/services/serviceUi.ts';
+import { resolveServiceTypeLabel } from '../lib/serviceBookingDisplay.ts';
 
 export default function ServicesPage() {
   const navigate = useNavigate();
-  const { locale } = useLocale();
+  const { t, dir, locale } = useLocale();
+  const PrevIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
+  const NextIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
   const { isAuthenticated } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -60,16 +64,15 @@ export default function ServicesPage() {
   const categoryLabel = (nameAr: string, nameEn: string) => (locale === 'ar' ? nameAr : nameEn);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 pt-6" dir="rtl">
+    <div className="min-h-screen bg-gray-50 pb-20 pt-6" dir={dir}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-diyar-dark mb-3">
-              الخدمات المتخصصة
+              {t('serviceMarketplace.catalog.title')}
             </h1>
             <p className="text-gray-600 max-w-2xl text-sm md:text-base">
-              اكتشف مجموعة واسعة من الخدمات التي يقدمها أفضل الخبراء والمختصين. من التصميم الداخلي
-              إلى التركيب والصيانة، كل ما تحتاجه لتجهيز مساحتك بكل سهولة وموثوقية.
+              {t('serviceMarketplace.catalog.subtitle')}
             </p>
           </div>
           <button
@@ -77,19 +80,21 @@ export default function ServicesPage() {
             className="shrink-0 bg-diyar-brown text-white px-6 py-3 rounded-xl font-bold hover:bg-[#8A6D46] transition-colors shadow-lg shadow-diyar-brown/20 flex items-center justify-center gap-2 cursor-pointer"
           >
             <Plus size={20} />
-            طلب تنفيذ مخصص
+            {t('serviceMarketplace.catalog.customRequest')}
           </button>
         </div>
 
         {isAuthenticated && (
           <div className="mb-8">
             <div className="flex items-center justify-between gap-4 mb-4">
-              <h2 className="text-lg font-bold text-diyar-dark">طلباتك الأخيرة</h2>
+              <h2 className="text-lg font-bold text-diyar-dark">
+                {t('serviceMarketplace.catalog.yourRequests')}
+              </h2>
               <Link
                 to="/profile/service-requests"
                 className="text-sm font-bold text-diyar-brown hover:text-diyar-dark transition-colors cursor-pointer"
               >
-                عرض الكل
+                {t('serviceMarketplace.catalog.viewAll')}
               </Link>
             </div>
             {myRequestsLoading ? (
@@ -98,14 +103,16 @@ export default function ServicesPage() {
               </div>
             ) : myRequests.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-center">
-                <p className="text-gray-500 text-sm mb-3">لم تقدّم أي طلب تنفيذ بعد.</p>
+                <p className="text-gray-500 text-sm mb-3">
+                  {t('serviceMarketplace.catalog.noRequests')}
+                </p>
                 <button
                   type="button"
                   onClick={() => setIsRequestModalOpen(true)}
                   className="inline-flex items-center gap-2 bg-diyar-brown text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-[#8A6D46] transition-colors cursor-pointer"
                 >
                   <Plus size={16} />
-                  ابدأ طلباً مخصصاً
+                  {t('serviceMarketplace.catalog.startRequest')}
                 </button>
               </div>
             ) : (
@@ -141,7 +148,9 @@ export default function ServicesPage() {
             <LayoutDashboard
               className={`w-8 h-8 mb-3 ${selectedCategory === null ? 'text-white' : 'text-diyar-brown'}`}
             />
-            <span className="font-bold text-sm">الكل</span>
+            <span className="font-bold text-sm">
+              {t('serviceMarketplace.catalog.allCategories')}
+            </span>
           </button>
 
           {categoriesLoading &&
@@ -182,16 +191,16 @@ export default function ServicesPage() {
 
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="ابحث عن خدمة أو مقدم خدمة..."
+              placeholder={t('serviceMarketplace.catalog.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
                 setPage(1);
               }}
-              className="w-full bg-gray-50 border-none rounded-xl pl-4 pr-10 py-3 text-sm focus:ring-2 focus:ring-diyar-brown outline-none"
+              className="w-full bg-gray-50 border-none rounded-xl pe-4 ps-10 py-3 text-sm focus:ring-2 focus:ring-diyar-brown outline-none"
             />
           </div>
           <div className="relative md:w-52 shrink-0">
@@ -203,15 +212,17 @@ export default function ServicesPage() {
               }}
               className="w-full appearance-none bg-gray-50 border border-transparent rounded-xl px-4 py-3 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-diyar-brown outline-none cursor-pointer"
             >
-              <option value="latest">الأحدث</option>
-              <option value="rating">الأعلى تقييماً</option>
-              <option value="most_requested">الأكثر طلباً</option>
-              <option value="price_asc">السعر: من الأقل</option>
-              <option value="price_desc">السعر: من الأعلى</option>
+              <option value="latest">{t('serviceMarketplace.catalog.sort.latest')}</option>
+              <option value="rating">{t('serviceMarketplace.catalog.sort.rating')}</option>
+              <option value="most_requested">
+                {t('serviceMarketplace.catalog.sort.mostRequested')}
+              </option>
+              <option value="price_asc">{t('serviceMarketplace.catalog.sort.priceAsc')}</option>
+              <option value="price_desc">{t('serviceMarketplace.catalog.sort.priceDesc')}</option>
             </select>
             <Filter
               size={18}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
             />
           </div>
         </div>
@@ -224,7 +235,7 @@ export default function ServicesPage() {
 
         {isError && !isLoading && (
           <div className="text-center py-20">
-            <p className="text-red-500 font-medium">تعذر تحميل الخدمات. يرجى المحاولة لاحقاً.</p>
+            <p className="text-red-500 font-medium">{t('serviceMarketplace.catalog.loadError')}</p>
           </div>
         )}
 
@@ -247,10 +258,8 @@ export default function ServicesPage() {
                         (e.target as HTMLImageElement).src = SERVICE_IMAGE_FALLBACK;
                       }}
                     />
-                    {service.delivery_type_label && (
-                      <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-bold text-diyar-dark shadow-sm">
-                        {service.delivery_type_label}
-                      </div>
+                    {resolveServiceTypeLabel(service) && (
+                      <ServiceTypeBadge label={resolveServiceTypeLabel(service)!} overlay />
                     )}
                   </div>
 
@@ -270,7 +279,9 @@ export default function ServicesPage() {
 
                     <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
                       <div>
-                        <span className="text-xs text-gray-400 block mb-0.5">السعر التقريبي</span>
+                        <span className="text-xs text-gray-400 block mb-0.5">
+                          {t('serviceMarketplace.catalog.startingPrice')}
+                        </span>
                         <div className="font-bold text-lg text-diyar-dark">
                           {service.pricing_label ||
                             (service.starting_price != null
@@ -293,7 +304,7 @@ export default function ServicesPage() {
             {services.length === 0 && (
               <div className="text-center py-20">
                 <Wrench size={48} className="mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-500 font-medium">لم يتم العثور على خدمات تطابق بحثك</p>
+                <p className="text-gray-500 font-medium">{t('serviceMarketplace.catalog.empty')}</p>
               </div>
             )}
 
@@ -305,10 +316,13 @@ export default function ServicesPage() {
                   onClick={() => setPage((current) => Math.max(1, current - 1))}
                   className="p-2 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-white cursor-pointer disabled:cursor-not-allowed"
                 >
-                  <ChevronRight size={18} />
+                  <PrevIcon size={18} />
                 </button>
                 <span className="text-sm text-gray-600">
-                  صفحة {pagination.current_page} من {pagination.last_page}
+                  {t('serviceMarketplace.catalog.page', {
+                    current: pagination.current_page,
+                    total: pagination.last_page,
+                  })}
                 </span>
                 <button
                   type="button"
@@ -316,7 +330,7 @@ export default function ServicesPage() {
                   onClick={() => setPage((current) => current + 1)}
                   className="p-2 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-white cursor-pointer disabled:cursor-not-allowed"
                 >
-                  <ChevronLeft size={18} />
+                  <NextIcon size={18} />
                 </button>
               </div>
             )}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
+  ArrowLeft,
   ArrowRight,
   MapPin,
   DollarSign,
@@ -8,10 +9,13 @@ import {
   Paperclip,
   Send,
   CheckCircle2,
-  Upload,
+  Calendar,
 } from 'lucide-react';
 import { ErrorState } from '../../components/common/ErrorState.tsx';
 import { LoadingState } from '../../components/common/LoadingState.tsx';
+import { FieldError } from '../../components/dashboard/vendor/FieldError.tsx';
+import { RequiredLabel } from '../../components/dashboard/vendor/RequiredLabel.tsx';
+import { ProviderQuotationUpload } from '../../components/provider/ProviderQuotationUpload.tsx';
 import {
   useProviderServiceRequest,
   useSubmitProviderServiceOffer,
@@ -23,25 +27,64 @@ import {
   formatProviderRequestDate,
   providerCategoryLabel,
 } from '../../lib/providerDashboardUi.ts';
+import {
+  validateProviderOfferForm,
+  type ProviderOfferFormErrors,
+} from '../../lib/providerOfferValidation.ts';
+import {
+  clampTimeToMin,
+  defaultBookingTimeForDate,
+  localIsoDate,
+  maxBookingIsoDate,
+  minTimeForDate,
+} from '../../lib/directBookingSchedule.ts';
+import type { ServiceOffer } from '../../types/serviceRequests.ts';
 import { parseApiError } from '../../utils/errors.ts';
+
+const INPUT_CLASS =
+  'w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-diyar-brown focus:bg-white outline-none transition-all placeholder:text-gray-400';
 
 export default function ServiceClientRequestDetails() {
   const { id } = useParams();
-  const { locale } = useLocale();
+  const { t, dir, locale } = useLocale();
+  const BackIcon = dir === 'rtl' ? ArrowRight : ArrowLeft;
   const { data: request, isLoading, isError, error, refetch } = useProviderServiceRequest(id);
   const submitOffer = useSubmitProviderServiceOffer();
 
   const [offerPrice, setOfferPrice] = useState('');
   const [offerMessage, setOfferMessage] = useState('');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
   const [quotationFile, setQuotationFile] = useState<File | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<ProviderOfferFormErrors>({});
 
   useEffect(() => {
     if (request?.provider_has_offer) {
       setIsSubmitted(true);
     }
   }, [request?.provider_has_offer]);
+
+  useEffect(() => {
+    if (isSubmitted) {
+      return;
+    }
+    const today = localIsoDate();
+    setScheduledDate(today);
+    setScheduledTime(defaultBookingTimeForDate(today));
+  }, [id, isSubmitted]);
+
+  const submittedOffer: ServiceOffer | undefined = request?.offers?.[0];
+  const minScheduleTime = scheduledDate ? minTimeForDate(scheduledDate) : undefined;
+
+  const handlePriceChange = (value: string) => {
+    const digitsOnly = value.replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1');
+    setOfferPrice(digitsOnly);
+    if (fieldErrors.offerPrice) {
+      setFieldErrors((prev) => ({ ...prev, offerPrice: undefined }));
+    }
+  };
 
   const handleOfferSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,17 +93,43 @@ export default function ServiceClientRequestDetails() {
     }
 
     setSubmitError(null);
+    const errors = validateProviderOfferForm({
+      offerPrice,
+      offerMessage,
+      scheduledDate,
+      scheduledTime,
+      quotationFile,
+      budgetMin: request?.budget_min,
+      budgetMax: request?.budget_max,
+      t,
+    });
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+
+    setFieldErrors({});
+
+    const normalizedTime =
+      scheduledDate && scheduledTime ? clampTimeToMin(scheduledDate, scheduledTime) : scheduledTime;
+    if (normalizedTime !== scheduledTime) {
+      setScheduledTime(normalizedTime);
+    }
 
     try {
       await submitOffer.mutateAsync({
         requestId: id,
         payload: {
           proposed_price: Number(offerPrice),
-          message: offerMessage,
+          message: offerMessage.trim(),
+          proposed_scheduled_date: scheduledDate || undefined,
+          proposed_scheduled_time: normalizedTime || undefined,
           quotation: quotationFile ?? undefined,
         },
       });
       setIsSubmitted(true);
+      void refetch();
     } catch (mutationError) {
       setSubmitError(parseApiError(mutationError, locale).message);
     }
@@ -70,7 +139,7 @@ export default function ServiceClientRequestDetails() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6" dir="rtl">
+      <div className="space-y-6" dir={dir}>
         <LoadingState className="min-h-96" />
       </div>
     );
@@ -78,9 +147,9 @@ export default function ServiceClientRequestDetails() {
 
   if (isError || !request) {
     return (
-      <div className="space-y-6" dir="rtl">
+      <div className="space-y-6" dir={dir}>
         <ErrorState
-          message="تعذر تحميل تفاصيل الطلب"
+          message={t('providerDashboard.clientRequestDetails.loadError')}
           error={error as Error}
           onRetry={() => void refetch()}
         />
@@ -89,17 +158,21 @@ export default function ServiceClientRequestDetails() {
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={dir}>
       <div className="flex items-center gap-4">
         <Link
           to="/dashboard/service/client-requests"
-          className="w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
+          className="w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
         >
-          <ArrowRight size={20} />
+          <BackIcon size={20} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-diyar-dark">تفاصيل الطلب: {displayReference}</h1>
-          <p className="text-gray-500 text-sm mt-1">تصفح تفاصيل الطلب بدقة قبل تقديم عرضك.</p>
+          <h1 className="text-2xl font-bold text-diyar-dark">
+            {t('providerDashboard.clientRequestDetails.title', { reference: displayReference })}
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            {t('providerDashboard.clientRequestDetails.subtitle')}
+          </p>
         </div>
       </div>
 
@@ -116,7 +189,10 @@ export default function ServiceClientRequestDetails() {
             </div>
 
             <h2 className="text-xl font-bold text-diyar-dark mb-4">
-              {request.title || `طلب ${request.customer?.name ?? 'عميل'}`}
+              {request.title ||
+                t('providerDashboard.clientRequestDetails.requestFrom', {
+                  name: request.customer?.name ?? t('providerDashboard.common.client'),
+                })}
             </h2>
             <p className="text-gray-700 leading-relaxed whitespace-pre-wrap mb-8">
               {request.description}
@@ -128,7 +204,9 @@ export default function ServiceClientRequestDetails() {
                   <MapPin size={20} />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 font-medium">الموقع</p>
+                  <p className="text-xs text-gray-500 font-medium">
+                    {t('providerDashboard.common.location')}
+                  </p>
                   <p className="font-bold text-gray-800">{request.location ?? '—'}</p>
                 </div>
               </div>
@@ -137,7 +215,9 @@ export default function ServiceClientRequestDetails() {
                   <DollarSign size={20} />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 font-medium">الميزانية المقترحة</p>
+                  <p className="text-xs text-gray-500 font-medium">
+                    {t('providerDashboard.clientRequestDetails.suggestedBudget')}
+                  </p>
                   <p className="font-bold text-gray-800" dir="ltr">
                     {formatProviderBudget(request.budget_min, request.budget_max, locale)}
                   </p>
@@ -149,7 +229,9 @@ export default function ServiceClientRequestDetails() {
               <div>
                 <h3 className="text-lg font-bold text-diyar-dark mb-4 flex items-center gap-2">
                   <Paperclip size={20} className="text-gray-400" />
-                  المرفقات ({request.attachments?.length ?? 0})
+                  {t('providerDashboard.clientRequestDetails.attachmentsCount', {
+                    count: request.attachments?.length ?? 0,
+                  })}
                 </h3>
                 <div className="flex flex-wrap gap-3">
                   {request.attachments?.map((file) => (
@@ -165,7 +247,9 @@ export default function ServiceClientRequestDetails() {
                       </div>
                       <div>
                         <p className="text-sm font-bold text-gray-700">{file.original_name}</p>
-                        <p className="text-xs text-gray-500">{formatAttachmentSize(file.size_bytes)}</p>
+                        <p className="text-xs text-gray-500">
+                          {formatAttachmentSize(file.size_bytes)}
+                        </p>
                       </div>
                     </a>
                   ))}
@@ -177,79 +261,179 @@ export default function ServiceClientRequestDetails() {
 
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 h-full flex flex-col">
-            <h3 className="text-xl font-bold text-diyar-dark mb-6">تقديم عرض سعر</h3>
+            <h3 className="text-xl font-bold text-diyar-dark mb-6">
+              {t('providerDashboard.clientRequestDetails.submitOffer')}
+            </h3>
 
             {isSubmitted ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 size={32} className="text-green-500" />
+              <div className="space-y-5">
+                <div className="text-center py-4">
+                  <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 size={32} className="text-green-500" />
+                  </div>
+                  <h4 className="text-lg font-bold text-gray-800 mb-2">
+                    {t('providerDashboard.clientRequestDetails.offerSubmittedTitle')}
+                  </h4>
+                  <p className="text-gray-500 text-sm">
+                    {t('providerDashboard.clientRequestDetails.offerSubmittedDescription')}
+                  </p>
                 </div>
-                <h4 className="text-lg font-bold text-gray-800 mb-2">تم تقديم العرض بنجاح!</h4>
-                <p className="text-gray-500 text-sm">
-                  سيقوم العميل بمراجعة عرضك والتواصل معك عند الموافقة.
-                </p>
-                {!request.provider_has_offer && (
-                  <button
-                    onClick={() => setIsSubmitted(false)}
-                    className="mt-6 text-diyar-brown font-bold text-sm hover:underline"
-                  >
-                    تقديم عرض جديد
-                  </button>
-                )}
+
+                {submittedOffer ? (
+                  <div className="rounded-2xl border border-gray-100 bg-gray-50/80 p-4 space-y-4 text-sm">
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">
+                        {t('providerDashboard.clientRequestDetails.offerPrice')}
+                      </p>
+                      <p className="font-bold text-diyar-dark text-lg" dir="ltr">
+                        {submittedOffer.proposed_price} {submittedOffer.currency}
+                      </p>
+                    </div>
+                    {(submittedOffer.proposed_scheduled_date ||
+                      submittedOffer.proposed_scheduled_time) && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">
+                          {t('providerDashboard.clientRequestDetails.scheduledDate')}
+                        </p>
+                        <p className="font-bold text-diyar-dark" dir="ltr">
+                          {[
+                            submittedOffer.proposed_scheduled_date,
+                            submittedOffer.proposed_scheduled_time,
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </p>
+                      </div>
+                    )}
+                    {submittedOffer.message?.trim() && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">
+                          {t('providerDashboard.clientRequestDetails.offerMessage')}
+                        </p>
+                        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                          {submittedOffer.message}
+                        </p>
+                      </div>
+                    )}
+                    {submittedOffer.duration_days != null && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">
+                          {t('serviceMarketplace.requests.executionDuration')}
+                        </p>
+                        <p className="font-bold text-diyar-dark">
+                          {t('serviceMarketplace.requests.durationDays', {
+                            count: submittedOffer.duration_days,
+                          })}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : null}
               </div>
             ) : (
               <form onSubmit={handleOfferSubmit} className="space-y-5 flex-1 flex flex-col">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    السعر المقترح (ر.س) *
-                  </label>
+                  <RequiredLabel required className="text-sm font-bold text-gray-700 mb-2">
+                    {t('providerDashboard.clientRequestDetails.offerPrice')}
+                  </RequiredLabel>
                   <input
-                    type="number"
-                    required
-                    min={1}
+                    type="text"
+                    inputMode="decimal"
                     value={offerPrice}
-                    onChange={(e) => setOfferPrice(e.target.value)}
-                    placeholder="مثال: 1200"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-diyar-brown focus:bg-white outline-none transition-all"
+                    onChange={(e) => handlePriceChange(e.target.value)}
+                    placeholder={t('providerDashboard.clientRequestDetails.priceExample')}
+                    className={`${INPUT_CLASS} ${fieldErrors.offerPrice ? 'border-red-300 ring-red-100' : ''}`}
+                    dir="ltr"
+                    aria-invalid={Boolean(fieldErrors.offerPrice)}
                   />
+                  <FieldError message={fieldErrors.offerPrice} />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      {t('providerDashboard.clientRequestDetails.scheduledDate')}
+                    </label>
+                    <div className="relative">
+                      <Calendar
+                        size={16}
+                        className="absolute inset-s-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                      />
+                      <input
+                        type="date"
+                        value={scheduledDate}
+                        min={localIsoDate()}
+                        max={maxBookingIsoDate()}
+                        onChange={(e) => {
+                          const nextDate = e.target.value;
+                          setScheduledDate(nextDate);
+                          if (nextDate && scheduledTime) {
+                            setScheduledTime(clampTimeToMin(nextDate, scheduledTime));
+                          } else if (nextDate) {
+                            setScheduledTime(defaultBookingTimeForDate(nextDate));
+                          }
+                          setFieldErrors((prev) => ({
+                            ...prev,
+                            scheduledDate: undefined,
+                            scheduledTime: undefined,
+                          }));
+                        }}
+                        className={`${INPUT_CLASS} ps-9 ${fieldErrors.scheduledDate ? 'border-red-300' : ''}`}
+                        dir="ltr"
+                      />
+                    </div>
+                    <FieldError message={fieldErrors.scheduledDate} />
+                    <p className="mt-1 text-xs text-gray-400">{t('directBooking.scheduleHint')}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      {t('providerDashboard.clientRequestDetails.scheduledTime')}
+                    </label>
+                    <input
+                      type="time"
+                      value={scheduledTime}
+                      min={minScheduleTime}
+                      onChange={(e) => {
+                        const nextTime = scheduledDate
+                          ? clampTimeToMin(scheduledDate, e.target.value)
+                          : e.target.value;
+                        setScheduledTime(nextTime);
+                        setFieldErrors((prev) => ({ ...prev, scheduledTime: undefined }));
+                      }}
+                      className={`${INPUT_CLASS} ${fieldErrors.scheduledTime ? 'border-red-300' : ''}`}
+                      dir="ltr"
+                    />
+                    <FieldError message={fieldErrors.scheduledTime} />
+                  </div>
                 </div>
 
                 <div className="flex-1 flex flex-col">
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    رسالة للعميل *
-                  </label>
+                  <RequiredLabel required className="text-sm font-bold text-gray-700 mb-2">
+                    {t('providerDashboard.clientRequestDetails.offerMessage')}
+                  </RequiredLabel>
                   <textarea
-                    required
                     value={offerMessage}
-                    onChange={(e) => setOfferMessage(e.target.value)}
-                    placeholder="اشرح خطتك للعمل، متى يمكنك البدء، ولماذا يجب أن يختارك العميل..."
-                    className="w-full h-full min-h-30 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-diyar-brown focus:bg-white outline-none transition-all resize-none"
-                  ></textarea>
+                    onChange={(e) => {
+                      setOfferMessage(e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, offerMessage: undefined }));
+                    }}
+                    placeholder={t(
+                      'providerDashboard.clientRequestDetails.offerMessagePlaceholder',
+                    )}
+                    className={`w-full h-full min-h-30 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-diyar-brown focus:bg-white outline-none transition-all resize-none placeholder:text-gray-400 ${fieldErrors.offerMessage ? 'border-red-300' : ''}`}
+                  />
+                  <FieldError message={fieldErrors.offerMessage} />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    ملف عرض السعر (اختياري)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="file"
-                      className="hidden"
-                      id="offer-file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => setQuotationFile(e.target.files?.[0] ?? null)}
-                    />
-                    <label
-                      htmlFor="offer-file"
-                      className="flex items-center justify-center gap-2 w-full bg-gray-50 border border-dashed border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-600 hover:bg-gray-100 hover:border-diyar-brown transition-colors cursor-pointer"
-                    >
-                      <Upload size={16} className="text-gray-400" />
-                      <span>
-                        {quotationFile ? quotationFile.name : 'إرفاق ملف (PDF, JPG, PNG)'}
-                      </span>
-                    </label>
-                  </div>
-                </div>
+                <ProviderQuotationUpload
+                  file={quotationFile}
+                  onChange={(file) => {
+                    setQuotationFile(file);
+                    setFieldErrors((prev) => ({ ...prev, quotation: undefined }));
+                  }}
+                  error={fieldErrors.quotation}
+                  disabled={submitOffer.isPending}
+                />
 
                 {submitError && (
                   <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
@@ -260,14 +444,14 @@ export default function ServiceClientRequestDetails() {
                 <button
                   type="submit"
                   disabled={submitOffer.isPending}
-                  className="w-full bg-diyar-brown text-white py-3.5 rounded-xl font-bold hover:bg-[#8A6D46] transition-colors shadow-lg shadow-diyar-brown/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-auto"
+                  className="w-full bg-diyar-brown text-white py-3.5 rounded-xl font-bold hover:bg-[#8A6D46] transition-colors shadow-lg shadow-diyar-brown/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-auto cursor-pointer"
                 >
                   {submitOffer.isPending ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent flex items-center justify-center rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent flex items-center justify-center rounded-full animate-spin" />
                   ) : (
                     <>
                       <Send size={18} />
-                      تأكيد تقديم العرض
+                      {t('providerDashboard.clientRequestDetails.confirmSubmit')}
                     </>
                   )}
                 </button>

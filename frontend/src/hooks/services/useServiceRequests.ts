@@ -68,6 +68,17 @@ export function useAcceptServiceOffer() {
   });
 }
 
+export function useRejectServiceOffer() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (offerId: string) => serviceRequestsApi.rejectServiceOffer(offerId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: serviceRequestKeys.all });
+    },
+  });
+}
+
 export function useSimulateServiceBookingPayment() {
   const queryClient = useQueryClient();
 

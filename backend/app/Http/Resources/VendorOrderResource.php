@@ -32,6 +32,8 @@ class VendorOrderResource extends JsonResource
             'free_shipping_applied' => (bool) $this->free_shipping_applied,
             'assembly_cost' => number_format((float) $this->assembly_cost, 2, '.', ''),
             'discount_amount' => number_format((float) $this->discount_amount, 2, '.', ''),
+            'coupon_code' => $this->coupon_code,
+            'coupon_percent' => $this->coupon_percent_snapshot,
             'vat_amount' => number_format((float) $this->vat_amount, 2, '.', ''),
             'vendor_total' => number_format((float) $this->vendor_total, 2, '.', ''),
             'items' => OrderItemResource::collection($this->whenLoaded('items')),

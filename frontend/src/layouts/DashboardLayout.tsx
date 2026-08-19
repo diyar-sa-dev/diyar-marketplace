@@ -19,6 +19,7 @@ import {
   ChevronDown,
   MessageSquare,
   MessagesSquare,
+  Tag,
 } from 'lucide-react';
 import { LanguageSwitcher } from '../components/common/LanguageSwitcher.tsx';
 import { UserAvatar } from '../components/profile/UserAvatar.tsx';
@@ -33,6 +34,7 @@ import {
   type DashboardPortalKey,
 } from '../lib/auth/roles.ts';
 import { useVendorAccess } from '../hooks/vendor/useVendorTeam.ts';
+import { useProviderSettings } from '../hooks/provider/useProviderDashboard.ts';
 import { VendorPortalGuard } from '../components/dashboard/vendor/VendorPortalGuard.tsx';
 
 export default function DashboardLayout() {
@@ -46,7 +48,17 @@ export default function DashboardLayout() {
 
   const role = getPortalFromPath(location.pathname);
   const isVendorPortal = role === 'vendor';
+  const isServicePortal = role === 'service';
   const { data: vendorAccess } = useVendorAccess(isVendorPortal);
+  const { data: providerSettings } = useProviderSettings(isServicePortal);
+  const headerAvatarUrl =
+    isServicePortal && providerSettings?.profile.avatar_url
+      ? providerSettings.profile.avatar_url
+      : user?.avatar_url;
+  const headerAvatarName =
+    isServicePortal && providerSettings?.profile.specialty
+      ? providerSettings.profile.specialty
+      : user?.name;
   const accessiblePortals = getAccessibleDashboardPortals(user?.roles);
   const activePortal = role ? getPortalByKey(role) : null;
   const showRoleSwitcher = Boolean(role) && accessiblePortals.length > 1;
@@ -63,23 +75,99 @@ export default function DashboardLayout() {
     Array<{ name: string; path: string; icon: typeof LayoutDashboard; permission?: string }>
   > = {
     vendor: [
-      { name: t('vendor.nav.home'), path: '/dashboard/vendor', icon: LayoutDashboard, permission: 'dashboard' },
-      { name: t('vendor.nav.orders'), path: '/dashboard/vendor/orders', icon: ShoppingCart, permission: 'orders' },
-      { name: t('vendor.nav.returns'), path: '/dashboard/vendor/returns', icon: Package, permission: 'returns' },
-      { name: t('vendor.nav.products'), path: '/dashboard/vendor/products', icon: Package, permission: 'products' },
-      { name: t('vendor.nav.reviews'), path: '/dashboard/vendor/reviews', icon: MessageSquare, permission: 'reviews' },
-      { name: t('vendor.nav.chat'), path: '/dashboard/vendor/messages', icon: MessagesSquare, permission: 'chat' },
-      { name: t('vendor.nav.team'), path: '/dashboard/vendor/team', icon: Users, permission: 'team' },
-      { name: t('vendor.nav.finance'), path: '/dashboard/vendor/finance', icon: Wallet, permission: 'finance' },
-      { name: t('vendor.nav.settings'), path: '/dashboard/vendor/settings', icon: Settings, permission: 'settings' },
+      {
+        name: t('vendor.nav.home'),
+        path: '/dashboard/vendor',
+        icon: LayoutDashboard,
+        permission: 'dashboard',
+      },
+      {
+        name: t('vendor.nav.orders'),
+        path: '/dashboard/vendor/orders',
+        icon: ShoppingCart,
+        permission: 'orders',
+      },
+      {
+        name: t('vendor.nav.returns'),
+        path: '/dashboard/vendor/returns',
+        icon: Package,
+        permission: 'returns',
+      },
+      {
+        name: t('vendor.nav.products'),
+        path: '/dashboard/vendor/products',
+        icon: Package,
+        permission: 'products',
+      },
+      {
+        name: t('vendor.nav.coupons'),
+        path: '/dashboard/vendor/coupons',
+        icon: Tag,
+        permission: 'products',
+      },
+      {
+        name: t('vendor.nav.reviews'),
+        path: '/dashboard/vendor/reviews',
+        icon: MessageSquare,
+        permission: 'reviews',
+      },
+      {
+        name: t('vendor.nav.chat'),
+        path: '/dashboard/vendor/messages',
+        icon: MessagesSquare,
+        permission: 'chat',
+      },
+      {
+        name: t('vendor.nav.team'),
+        path: '/dashboard/vendor/team',
+        icon: Users,
+        permission: 'team',
+      },
+      {
+        name: t('vendor.nav.finance'),
+        path: '/dashboard/vendor/finance',
+        icon: Wallet,
+        permission: 'finance',
+      },
+      {
+        name: t('vendor.nav.settings'),
+        path: '/dashboard/vendor/settings',
+        icon: Settings,
+        permission: 'settings',
+      },
     ],
     service: [
-      { name: 'الرئيسية', path: '/dashboard/service', icon: LayoutDashboard },
-      { name: 'طلبات العملاء', path: '/dashboard/service/client-requests', icon: Users },
-      { name: 'الحجوزات', path: '/dashboard/service/bookings', icon: Calendar },
-      { name: 'خدماتي', path: '/dashboard/service/services', icon: Wrench },
-      { name: 'المالية', path: '/dashboard/service/finance', icon: Wallet },
-      { name: 'الإعدادات', path: '/dashboard/service/settings', icon: Settings },
+      { name: t('providerDashboard.nav.home'), path: '/dashboard/service', icon: LayoutDashboard },
+      {
+        name: t('providerDashboard.nav.clientRequests'),
+        path: '/dashboard/service/client-requests',
+        icon: Users,
+      },
+      {
+        name: t('providerDashboard.nav.bookings'),
+        path: '/dashboard/service/bookings',
+        icon: Calendar,
+      },
+      {
+        name: t('providerDashboard.nav.reviews'),
+        path: '/dashboard/service/reviews',
+        icon: MessageSquare,
+      },
+      {
+        name: t('providerDashboard.nav.myServices'),
+        path: '/dashboard/service/services',
+        icon: Wrench,
+      },
+      {
+        name: t('providerDashboard.nav.finance'),
+        path: '/dashboard/service/finance',
+        icon: Wallet,
+      },
+      {
+        name: t('providerDashboard.nav.settings'),
+        path: '/dashboard/service/settings',
+        icon: Settings,
+      },
     ],
     affiliate: [
       { name: 'الرئيسية', path: '/dashboard/affiliate', icon: LayoutDashboard },
@@ -96,7 +184,8 @@ export default function DashboardLayout() {
       return true;
     }
 
-    const value = vendorAccess.permissions[link.permission as keyof typeof vendorAccess.permissions];
+    const value =
+      vendorAccess.permissions[link.permission as keyof typeof vendorAccess.permissions];
     return value !== false && value !== 'none';
   });
 
@@ -288,7 +377,7 @@ export default function DashboardLayout() {
               className="shrink-0 rounded-full transition-all hover:ring-2 hover:ring-diyar-brown/30"
               title={t('common.myAccount')}
             >
-              <UserAvatar name={user?.name} avatarUrl={user?.avatar_url} size="sm" />
+              <UserAvatar name={headerAvatarName} avatarUrl={headerAvatarUrl} size="sm" />
             </Link>
 
             <button

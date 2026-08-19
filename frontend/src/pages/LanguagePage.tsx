@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, Globe, Check } from 'lucide-react';
 import { useLocale } from '../hooks/useLocale.ts';
+import { useAuth } from '../hooks/auth/useAuth.ts';
+import { resolveAccountHubPath } from '../lib/auth/roles.ts';
 import { useToast } from '../hooks/useToast.ts';
 import type { Locale } from '../lib/i18n/types.ts';
 
 export default function LanguagePage() {
   const { locale, setLocale, t } = useLocale();
+  const { user } = useAuth();
+  const accountHubPath = resolveAccountHubPath(user?.roles);
   const { toast } = useToast();
   const [selectedLang, setSelectedLang] = useState<Locale>(locale);
 
@@ -29,7 +33,7 @@ export default function LanguagePage() {
               {t('common.home')}
             </Link>
             <ChevronLeft size={16} />
-            <Link to="/profile" className="hover:text-diyar-dark transition">
+            <Link to={accountHubPath} className="hover:text-diyar-dark transition">
               {t('common.myAccount')}
             </Link>
             <ChevronLeft size={16} />

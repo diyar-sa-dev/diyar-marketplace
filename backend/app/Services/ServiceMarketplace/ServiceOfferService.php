@@ -34,10 +34,18 @@ final class ServiceOfferService
     public function __construct(
         private readonly MediaUploadService $media,
         private readonly ServiceBookingService $bookings,
+        private readonly ProviderAvailabilityService $availability,
     ) {}
 
-    public function listForProvider(User $user, string $status, int $page, int $perPage): LengthAwarePaginator
-    {
+    public function listForProvider(
+        User $user,
+        string $status,
+        int $page,
+        int $perPage,
+        ?string $search = null,
+        ?string $category = null,
+        ?string $sort = null,
+    ): LengthAwarePaginator {
         $provider = $this->resolveProviderAccount($user);
 
         $query = ServiceRequest::query()
@@ -45,14 +53,14 @@ final class ServiceOfferService
                 ServiceRequestStatus::Pending,
                 ServiceRequestStatus::OffersReceived,
             ])
+            ->where('user_id', '!=', $user->id)
             ->whereHas('categories', function (Builder $categoryQuery) use ($provider) {
                 $categoryQuery->whereIn('service_categories.id', $this->providerCategoryIds($provider));
             })
             ->with(['categories', 'user:id,name'])
             ->withCount('attachments')
             ->withExists(['offers as provider_has_offer' => fn (Builder $q) => $q
-                ->where('provider_account_id', $provider->id)])
-            ->latest();
+                ->where('provider_account_id', $provider->id)]);
 
         if ($status === 'submitted') {
             $query->whereHas('offers', fn (Builder $q) => $q
@@ -62,6 +70,29 @@ final class ServiceOfferService
                 ->where('provider_account_id', $provider->id));
         }
 
+        if ($category !== null && trim($category) !== '') {
+            $categorySlug = trim($category);
+            $query->whereHas('categories', fn (Builder $q) => $q->where('slug', $categorySlug));
+        }
+
+        if ($search !== null && trim($search) !== '') {
+            $term = '%'.trim($search).'%';
+            $query->where(function (Builder $q) use ($term) {
+                $q->where('reference', 'like', $term)
+                    ->orWhere('title', 'like', $term)
+                    ->orWhere('description', 'like', $term)
+                    ->orWhere('location', 'like', $term)
+                    ->orWhereHas('user', fn (Builder $userQuery) => $userQuery->where('name', 'like', $term));
+            });
+        }
+
+        match ($sort) {
+            'oldest' => $query->oldest(),
+            'budget_asc' => $query->orderBy('budget_min')->orderBy('budget_max'),
+            'budget_desc' => $query->orderByDesc('budget_max')->orderByDesc('budget_min'),
+            default => $query->latest(),
+        };
+
         return $query->paginate(perPage: $perPage, page: $page);
     }
 
@@ -70,7 +101,16 @@ final class ServiceOfferService
         $provider = $this->resolveProviderAccount($user);
 
         $request = ServiceRequest::query()
-            ->with(['categories', 'attachments', 'user:id,name'])
+            ->with([
+                'categories',
+                'attachments',
+                'user:id,name',
+                'offers' => function ($query) use ($provider) {
+                    $query
+                        ->where('provider_account_id', $provider->id)
+                        ->with('providerAccount');
+                },
+            ])
             ->withCount('attachments')
             ->withExists(['offers as provider_has_offer' => fn (Builder $q) => $q
                 ->where('provider_account_id', $provider->id)])
@@ -85,6 +125,10 @@ final class ServiceOfferService
             ->where('service_request_id', $request->id)
             ->where('provider_account_id', $provider->id)
             ->exists();
+
+        if ($request->user_id === $user->id && ! $hasOffer) {
+            throw new NotFoundHttpException(__('diyar.services.requests.not_found'));
+        }
 
         if (! $hasOffer && ! $this->requestMatchesProviderCategories($request, $provider)) {
             throw new AccessDeniedHttpException(__('diyar.auth.forbidden'));
@@ -136,6 +180,21 @@ final class ServiceOfferService
             throw new InvalidArgumentException(__('diyar.services.offers.price_required'));
         }
 
+        $proposedDate = isset($payload['proposed_scheduled_date'])
+            ? trim((string) $payload['proposed_scheduled_date'])
+            : '';
+        $proposedTime = isset($payload['proposed_scheduled_time'])
+            ? substr(trim((string) $payload['proposed_scheduled_time']), 0, 5)
+            : '';
+
+        if ($proposedDate !== '' xor $proposedTime !== '') {
+            throw new InvalidArgumentException(__('diyar.services.bookings.schedule_required'));
+        }
+
+        if ($proposedDate !== '' && $proposedTime !== '') {
+            $this->availability->assertMinimumLeadTime($proposedDate, $proposedTime);
+        }
+
         return DB::transaction(function () use ($request, $provider, $payload, $quotation, $price) {
             $quotationMeta = $quotation !== null
                 ? $this->storeQuotation($request, $quotation)
@@ -147,6 +206,8 @@ final class ServiceOfferService
                 'proposed_price' => $price,
                 'currency' => $payload['currency'] ?? 'SAR',
                 'duration_days' => $payload['duration_days'] ?? null,
+                'proposed_scheduled_date' => $payload['proposed_scheduled_date'] ?? null,
+                'proposed_scheduled_time' => $payload['proposed_scheduled_time'] ?? null,
                 'message' => isset($payload['message']) ? trim((string) $payload['message']) : null,
                 'quotation_disk' => $quotationMeta['disk'] ?? null,
                 'quotation_path' => $quotationMeta['path'] ?? null,
@@ -196,10 +257,37 @@ final class ServiceOfferService
                 'accepted_offer_id' => $offer->id,
             ]);
 
-            $this->bookings->createFromAcceptedOffer($user, $offer, $payload);
+            $this->bookings->createFromAcceptedOffer($user, $offer, array_merge([
+                'scheduled_date' => $offer->proposed_scheduled_date?->format('Y-m-d'),
+                'scheduled_time' => $offer->proposed_scheduled_time,
+            ], $payload));
 
             return $offer->fresh(['providerAccount', 'booking']);
         });
+    }
+
+    public function reject(User $user, ServiceOffer $offer): ServiceOffer
+    {
+        $request = $offer->serviceRequest()->firstOrFail();
+
+        if ($request->user_id !== $user->id) {
+            throw new AccessDeniedHttpException(__('diyar.auth.forbidden'));
+        }
+
+        if ($offer->status !== ServiceOfferStatus::Pending) {
+            throw new InvalidArgumentException(__('diyar.services.offers.not_rejectable'));
+        }
+
+        if (! in_array($request->status, [
+            ServiceRequestStatus::Pending,
+            ServiceRequestStatus::OffersReceived,
+        ], true)) {
+            throw new InvalidArgumentException(__('diyar.services.offers.request_closed'));
+        }
+
+        $offer->update(['status' => ServiceOfferStatus::Rejected]);
+
+        return $offer->fresh(['providerAccount']);
     }
 
     /**

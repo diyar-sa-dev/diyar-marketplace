@@ -19,14 +19,18 @@ export function useCategory(slug: string) {
   });
 }
 
-export function useCategoryProducts(slug: string, filters: ProductListFilters = {}) {
+export function useCategoryProducts(
+  slug: string,
+  filters: ProductListFilters = {},
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: categoryKeys.items(slug, filters),
     queryFn: () =>
       slug === 'all'
         ? catalogApi.fetchProducts(filters)
         : catalogApi.fetchCategoryProducts(slug, filters),
-    enabled: Boolean(slug),
+    enabled: options?.enabled !== false && Boolean(slug),
   });
 }
 

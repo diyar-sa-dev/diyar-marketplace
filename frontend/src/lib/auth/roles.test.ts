@@ -10,7 +10,9 @@ import {
   resolveAccountHubPath,
   resolveDashboardEntryPath,
   resolvePostAuthPath,
+  resolveProfileAddressesPath,
   resolveSafeReturnPath,
+  requiresCustomerRoleForProfilePath,
   RoleName,
   VENDOR_SETTINGS_ACCOUNT_PATH,
 } from './roles.ts';
@@ -101,6 +103,12 @@ describe('auth roles', () => {
     expect(isVendorOnlyAccount([{ name: 'vendor', status: 'active' }])).toBe(true);
   });
 
+  it('routes provider-only accounts to provider settings account tab', () => {
+    expect(resolveAccountHubPath([{ name: 'provider', status: 'active' }])).toBe(
+      '/dashboard/service/settings?tab=account',
+    );
+  });
+
   it('routes dual-role vendor+customer users to customer profile', () => {
     const roles = [
       { name: 'vendor', status: 'active' },
@@ -109,6 +117,22 @@ describe('auth roles', () => {
     expect(resolveAccountHubPath(roles)).toBe('/profile');
     expect(hasCustomerRole(roles)).toBe(true);
     expect(isVendorOnlyAccount(roles)).toBe(false);
+  });
+
+  it('routes pending customer role to profile hub', () => {
+    expect(
+      resolveAccountHubPath([
+        { name: 'vendor', status: 'active' },
+        { name: 'customer', status: 'pending' },
+      ]),
+    ).toBe('/profile');
+  });
+
+  it('allows delivery addresses page for all authenticated roles', () => {
+    expect(requiresCustomerRoleForProfilePath('/profile/addresses')).toBe(false);
+    expect(resolveProfileAddressesPath([{ name: 'vendor', status: 'active' }])).toBe(
+      '/profile/addresses',
+    );
   });
 });
 

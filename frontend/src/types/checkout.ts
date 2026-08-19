@@ -5,9 +5,15 @@ export type VendorDeliverySelection = {
   method: ShippingMethod;
 };
 
+export type VendorCouponSelection = {
+  vendor_account_id: string;
+  code: string;
+};
+
 export type CheckoutPreviewPayload = {
   shipping_address_id: string;
   vendor_delivery_selections: VendorDeliverySelection[];
+  vendor_coupons?: VendorCouponSelection[];
 };
 
 export type CheckoutPreviewVendorGroup = {
@@ -33,6 +39,13 @@ export type CheckoutPreviewVendorGroup = {
   };
   assembly: string;
   discount: string;
+  coupon: {
+    id: string;
+    code: string;
+    type: string;
+    value: number;
+    maximum_discount: string | null;
+  } | null;
   vat: string;
   vendor_total: string;
 };

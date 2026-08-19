@@ -104,22 +104,46 @@ export function hasCustomerRole(roles: UserRoleLike[] | undefined): boolean {
   return hasActiveRole(roles, RoleName.Customer);
 }
 
+/** Any customer role on the account (any status) — used for storefront account hub links. */
+export function hasCustomerRoleAssignment(roles: UserRoleLike[] | undefined): boolean {
+  return hasAnyRole(roles, [RoleName.Customer]);
+}
+
 export function isVendorOnlyAccount(roles: UserRoleLike[] | undefined): boolean {
   return hasActiveRole(roles, RoleName.Vendor) && !hasCustomerRole(roles);
+}
+
+export function isProviderOnlyAccount(roles: UserRoleLike[] | undefined): boolean {
+  return hasActiveRole(roles, RoleName.Provider) && !hasCustomerRole(roles);
 }
 
 export const VENDOR_SETTINGS_ACCOUNT_PATH = '/dashboard/vendor/settings?tab=account';
 
 export const VENDOR_SETTINGS_NOTIFICATIONS_PATH = '/dashboard/vendor/settings?tab=notifications';
 
+export const PROVIDER_SETTINGS_ACCOUNT_PATH = '/dashboard/service/settings?tab=account';
+
+export const PROVIDER_SETTINGS_NOTIFICATIONS_PATH = '/dashboard/service/settings?tab=notifications';
+
+export const PROFILE_ADDRESSES_PATH = '/profile/addresses';
+
+/** Delivery addresses — shared by customers and partner roles at checkout. */
+export function resolveProfileAddressesPath(_roles?: UserRoleLike[]): string {
+  return PROFILE_ADDRESSES_PATH;
+}
+
 /** Primary "my account" destination in storefront chrome (header, bottom nav, dashboard avatar). */
 export function resolveAccountHubPath(roles: UserRoleLike[] | undefined): string {
-  if (hasCustomerRole(roles)) {
+  if (hasCustomerRoleAssignment(roles)) {
     return '/profile';
   }
 
   if (hasActiveRole(roles, RoleName.Vendor)) {
     return VENDOR_SETTINGS_ACCOUNT_PATH;
+  }
+
+  if (hasActiveRole(roles, RoleName.Provider)) {
+    return PROVIDER_SETTINGS_ACCOUNT_PATH;
   }
 
   return '/profile';
@@ -130,12 +154,16 @@ export function resolveAccountSettingsBackPath(roles: UserRoleLike[] | undefined
 }
 
 export function resolveNotificationsHubPath(roles: UserRoleLike[] | undefined): string {
-  if (hasCustomerRole(roles)) {
+  if (hasCustomerRoleAssignment(roles)) {
     return '/profile/notifications';
   }
 
   if (hasActiveRole(roles, RoleName.Vendor)) {
     return VENDOR_SETTINGS_NOTIFICATIONS_PATH;
+  }
+
+  if (hasActiveRole(roles, RoleName.Provider)) {
+    return PROVIDER_SETTINGS_NOTIFICATIONS_PATH;
   }
 
   return '/profile/notifications';
@@ -146,13 +174,24 @@ export function isAccountHubPath(
   search: string,
   roles: UserRoleLike[] | undefined,
 ): boolean {
-  if (hasCustomerRole(roles)) {
+  if (hasCustomerRoleAssignment(roles)) {
     return pathname.startsWith('/profile');
   }
 
   if (isVendorOnlyAccount(roles)) {
     if (!pathname.startsWith('/dashboard/vendor/settings')) {
       return pathname.startsWith('/profile/security');
+    }
+
+    const tab = new URLSearchParams(search).get('tab');
+    return tab === null || tab === 'account' || tab === 'notifications';
+  }
+
+  if (isProviderOnlyAccount(roles)) {
+    if (!pathname.startsWith('/dashboard/service/settings')) {
+      return (
+        pathname.startsWith('/profile/security') || pathname.startsWith('/profile/personal-info')
+      );
     }
 
     const tab = new URLSearchParams(search).get('tab');
@@ -167,7 +206,13 @@ export function requiresCustomerRoleForProfilePath(pathname: string): boolean {
     return false;
   }
 
-  return !pathname.startsWith('/profile/security');
+  if (pathname.startsWith('/profile/addresses')) {
+    return false;
+  }
+
+  return (
+    !pathname.startsWith('/profile/security') && !pathname.startsWith('/profile/personal-info')
+  );
 }
 
 function isActiveDashboardRole(role: UserRoleLike): boolean {

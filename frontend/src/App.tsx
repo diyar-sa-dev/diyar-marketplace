@@ -27,6 +27,7 @@ import { RequestServiceModal } from './components/modals/RequestServiceModal.tsx
 import { SidebarMenu } from './components/layout/SidebarMenu.tsx';
 import { AnnouncementBar } from './components/layout/AnnouncementBar.tsx';
 import { FloatingContactBar } from './components/layout/FloatingContactBar.tsx';
+import { UserAvatar } from './components/profile/UserAvatar.tsx';
 import { useCart } from './hooks/cart/useCart.ts';
 import { useAuth } from './hooks/auth/useAuth.ts';
 import { useToast } from './hooks/useToast.ts';
@@ -56,6 +57,7 @@ import SearchPage from './pages/SearchPage.tsx';
 import BlogArticlePage from './pages/BlogArticlePage.tsx';
 import ProfilePage from './pages/ProfilePage.tsx';
 import ServiceRequestsPage from './pages/ServiceRequestsPage.tsx';
+import ServiceBookingsPage from './pages/ServiceBookingsPage.tsx';
 import WishlistPage from './pages/WishlistPage.tsx';
 import ReviewsPage from './pages/ReviewsPage.tsx';
 import CustomerReviewDetailPage from './pages/CustomerReviewDetailPage.tsx';
@@ -92,9 +94,11 @@ import VendorTeam from './pages/dashboard/VendorTeam.tsx';
 import VendorReviewsInbox from './pages/dashboard/VendorReviewsInbox.tsx';
 import VendorMessages from './pages/dashboard/VendorMessages.tsx';
 import VendorFinance from './pages/dashboard/VendorFinance.tsx';
+import VendorCoupons from './pages/dashboard/VendorCoupons.tsx';
 import VendorSettings from './pages/dashboard/VendorSettings.tsx';
 import ServiceDashboard from './pages/dashboard/ServiceDashboard.tsx';
 import ServiceBookings from './pages/dashboard/ServiceBookings.tsx';
+import ServiceReviewsInbox from './pages/dashboard/ServiceReviewsInbox.tsx';
 import ServiceServices from './pages/dashboard/ServiceServices.tsx';
 import ServiceFinance from './pages/dashboard/ServiceFinance.tsx';
 import ServiceSettings from './pages/dashboard/ServiceSettings.tsx';
@@ -365,12 +369,23 @@ export default function App() {
                     >
                       <Search className="w-5 h-5" />
                     </Link>
-                    <Link
-                      to={isAuthenticated ? accountHubPath : '/auth'}
-                      className="hidden xl:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
-                    >
-                      <User size={18} />
-                    </Link>
+                    {isAuthenticated ? (
+                      <Link
+                        to={accountHubPath}
+                        className="hidden md:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center overflow-hidden hover:ring-2 hover:ring-diyar-brown/30 transition-all"
+                        title={t('common.myAccount')}
+                      >
+                        <UserAvatar name={user?.name} avatarUrl={user?.avatar_url} size="sm" />
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/auth"
+                        className="hidden md:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
+                        title={t('common.myAccount')}
+                      >
+                        <User size={18} />
+                      </Link>
+                    )}
                     <div
                       className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
                       onClick={() => setIsCartOpen(true)}
@@ -501,6 +516,14 @@ export default function App() {
             element={
               <CustomerProfileRoute>
                 <ProfilePage />
+              </CustomerProfileRoute>
+            }
+          />
+          <Route
+            path="/profile/service-bookings"
+            element={
+              <CustomerProfileRoute>
+                <ServiceBookingsPage />
               </CustomerProfileRoute>
             }
           />
@@ -639,6 +662,14 @@ export default function App() {
               }
             />
             <Route
+              path="vendor/coupons"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                  <VendorCoupons />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="vendor/reviews"
               element={
                 <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
@@ -732,6 +763,14 @@ export default function App() {
               element={
                 <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
                   <ServiceFinance />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="service/reviews"
+              element={
+                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                  <ServiceReviewsInbox />
                 </ProtectedRoute>
               }
             />

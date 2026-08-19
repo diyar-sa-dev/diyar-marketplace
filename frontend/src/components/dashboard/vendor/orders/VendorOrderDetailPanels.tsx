@@ -58,10 +58,55 @@ export function VendorOrderProductsPanel({ order }: { order: VendorOrder }) {
         ))}
       </div>
 
-      <div className="border-t border-gray-100 bg-gray-50/50 p-6 text-end">
-        <div className="mb-1 text-sm text-gray-500">{t('vendorOrders.productsSubtotal')}</div>
-        <div className="text-2xl font-bold text-diyar-dark tabular-nums">
-          {order.subtotal} {t('common.currency')}
+      <div className="border-t border-gray-100 bg-gray-50/50 p-6 space-y-3">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500">{t('vendorOrders.productsSubtotal')}</span>
+          <span className="font-bold text-diyar-dark tabular-nums">
+            {order.subtotal} {t('common.currency')}
+          </span>
+        </div>
+        {Number(order.shipping_cost) > 0 && (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-500">{t('vendorOrders.shippingCost')}</span>
+            <span className="font-bold text-diyar-dark tabular-nums">
+              {order.shipping_cost} {t('common.currency')}
+            </span>
+          </div>
+        )}
+        {Number(order.discount_amount) > 0 && (
+          <div className="rounded-xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 space-y-1">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-semibold text-emerald-800">
+                {t('vendorOrders.couponDiscount')}
+                {order.coupon_code ? (
+                  <span className="ms-1 font-mono text-xs text-emerald-700">{order.coupon_code}</span>
+                ) : null}
+              </span>
+              <span className="font-bold text-emerald-700 tabular-nums">
+                -{order.discount_amount} {t('common.currency')}
+              </span>
+            </div>
+            {order.coupon_percent != null && order.coupon_code ? (
+              <p className="text-xs text-emerald-700">
+                {t('vendorOrders.couponApplied', {
+                  code: order.coupon_code,
+                  percent: order.coupon_percent,
+                })}
+              </p>
+            ) : null}
+          </div>
+        )}
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500">{t('vendorOrders.vatAmount')}</span>
+          <span className="font-bold text-diyar-dark tabular-nums">
+            {order.vat_amount} {t('common.currency')}
+          </span>
+        </div>
+        <div className="flex items-center justify-between border-t border-gray-200 pt-3">
+          <span className="font-bold text-diyar-dark">{t('vendorOrders.orderTotal')}</span>
+          <span className="text-2xl font-bold text-diyar-dark tabular-nums">
+            {order.vendor_total} {t('common.currency')}
+          </span>
         </div>
       </div>
     </div>

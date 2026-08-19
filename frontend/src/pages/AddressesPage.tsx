@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Briefcase,
   CheckCircle2,
@@ -27,6 +27,8 @@ import {
   toSaudiPhoneNationalInput,
 } from '../lib/auth/validation.ts';
 import { useLocale } from '../lib/i18n/localeContext.ts';
+import { resolveAccountHubPath } from '../lib/auth/roles.ts';
+import { useAuthContext } from '../context/AuthContext.tsx';
 import type { AddressType, StoreAddressPayload, UserAddress } from '../types/profile.ts';
 import { collectDisplayErrors, isUnexpectedServerError } from '../utils/errors.ts';
 
@@ -94,7 +96,15 @@ function buildPayload(formData: AddressFormState): StoreAddressPayload {
 export default function AddressesPage() {
   const { toast } = useToast();
   const { t, locale, dir } = useLocale();
+  const { user } = useAuthContext();
+  const location = useLocation();
   const BreadcrumbChevron = dir === 'rtl' ? ChevronRight : ChevronLeft;
+  const accountHubPath = resolveAccountHubPath(user?.roles);
+  const returnToCheckout =
+    typeof location.state === 'object' &&
+    location.state !== null &&
+    'from' in location.state &&
+    location.state.from === '/checkout';
 
   const addressesQuery = useAddresses();
   const createAddress = useCreateAddress();
@@ -245,7 +255,7 @@ export default function AddressesPage() {
               {t('common.home')}
             </Link>
             <BreadcrumbChevron size={16} />
-            <Link to="/profile" className="hover:text-diyar-dark transition cursor-pointer">
+            <Link to={accountHubPath} className="hover:text-diyar-dark transition cursor-pointer">
               {t('common.myAccount')}
             </Link>
             <BreadcrumbChevron size={16} />
@@ -255,6 +265,15 @@ export default function AddressesPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
+        {returnToCheckout && (
+          <Link
+            to="/checkout"
+            className="inline-flex items-center gap-2 mb-4 text-sm font-bold text-diyar-brown hover:text-diyar-dark transition"
+          >
+            <BreadcrumbChevron size={16} />
+            {t('checkout.backToCheckout')}
+          </Link>
+        )}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-xl md:text-2xl font-bold text-diyar-dark mb-1">

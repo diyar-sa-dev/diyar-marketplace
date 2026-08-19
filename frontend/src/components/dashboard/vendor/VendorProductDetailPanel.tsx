@@ -88,29 +88,29 @@ export function VendorProductDetailPanel({
             <p className="text-sm text-gray-400 mt-1 font-sans">{product.category?.name}</p>
           </div>
         </div>
-        {(canEdit || canDelete) ? (
-        <div className="flex items-center gap-2 flex-wrap justify-end">
-          {canEdit ? (
-          <button
-            type="button"
-            onClick={onEdit}
-            className={`${vendorButtonClass} px-4 py-2.5 text-xs text-diyar-brown bg-amber-50 hover:bg-amber-100 border border-amber-200 hover:border-amber-300 shadow-sm hover:shadow`}
-          >
-            <Edit size={14} />
-            {t('vendor.products.detail.editProduct')}
-          </button>
-          ) : null}
-          {canDelete ? (
-          <button
-            type="button"
-            onClick={onArchive}
-            className={`${vendorButtonClass} px-4 py-2.5 text-xs text-white bg-red-500 hover:bg-red-600 border border-red-500 hover:border-red-600 shadow-sm hover:shadow`}
-          >
-            <Trash2 size={14} />
-            {t('vendor.products.detail.archiveProduct')}
-          </button>
-          ) : null}
-        </div>
+        {canEdit || canDelete ? (
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            {canEdit ? (
+              <button
+                type="button"
+                onClick={onEdit}
+                className={`${vendorButtonClass} px-4 py-2.5 text-xs text-diyar-brown bg-amber-50 hover:bg-amber-100 border border-amber-200 hover:border-amber-300 shadow-sm hover:shadow`}
+              >
+                <Edit size={14} />
+                {t('vendor.products.detail.editProduct')}
+              </button>
+            ) : null}
+            {canDelete ? (
+              <button
+                type="button"
+                onClick={onArchive}
+                className={`${vendorButtonClass} px-4 py-2.5 text-xs text-white bg-red-500 hover:bg-red-600 border border-red-500 hover:border-red-600 shadow-sm hover:shadow`}
+              >
+                <Trash2 size={14} />
+                {t('vendor.products.detail.archiveProduct')}
+              </button>
+            ) : null}
+          </div>
         ) : null}
       </div>
 
@@ -242,21 +242,21 @@ export function VendorProductDetailPanel({
           </div>
 
           {canEdit ? (
-          <div className="bg-linear-to-br from-amber-50/80 to-orange-50/40 rounded-2xl border border-amber-100 p-6 text-right font-sans space-y-3 shadow-sm">
-            <h4 className="font-bold text-diyar-dark text-sm">
-              {t('vendor.products.detail.inventoryTitle')}
-            </h4>
-            <p className="text-xs text-gray-500 leading-relaxed font-sans">
-              {t('vendor.products.detail.inventoryHint')}
-            </p>
-            <button
-              type="button"
-              onClick={onEdit}
-              className={`${vendorButtonClass} w-full bg-diyar-brown text-white hover:bg-[#A67B5B]/90 py-2.5 text-xs shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99]`}
-            >
-              {t('vendor.products.detail.editSpecs')}
-            </button>
-          </div>
+            <div className="bg-linear-to-br from-amber-50/80 to-orange-50/40 rounded-2xl border border-amber-100 p-6 text-right font-sans space-y-3 shadow-sm">
+              <h4 className="font-bold text-diyar-dark text-sm">
+                {t('vendor.products.detail.inventoryTitle')}
+              </h4>
+              <p className="text-xs text-gray-500 leading-relaxed font-sans">
+                {t('vendor.products.detail.inventoryHint')}
+              </p>
+              <button
+                type="button"
+                onClick={onEdit}
+                className={`${vendorButtonClass} w-full bg-diyar-brown text-white hover:bg-[#A67B5B]/90 py-2.5 text-xs shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99]`}
+              >
+                {t('vendor.products.detail.editSpecs')}
+              </button>
+            </div>
           ) : null}
         </div>
       </div>

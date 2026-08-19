@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Models\User;
 use App\Services\Cart\CartService;
 use App\Services\Cart\CartValidationService;
+use App\Services\Coupon\CheckoutCouponService;
 use App\Services\Profile\AddressService;
 use App\Services\Shipping\ShippingQuoteService;
 use App\Services\Shipping\VendorShippingSettingsService;
@@ -24,14 +25,20 @@ final class CheckoutPreviewService
         private readonly ShippingQuoteService $shippingQuotes,
         private readonly VatCalculator $vat,
         private readonly AssemblyCalculator $assembly,
+        private readonly CheckoutCouponService $coupons,
     ) {}
 
     /**
      * @param  list<array{vendor_account_id: string, method: string}>  $deliverySelections
+     * @param  list<array{vendor_account_id: string, code: string}>  $vendorCoupons
      * @return array<string, mixed>
      */
-    public function preview(User $user, string $shippingAddressId, array $deliverySelections): array
-    {
+    public function preview(
+        User $user,
+        string $shippingAddressId,
+        array $deliverySelections,
+        array $vendorCoupons = [],
+    ): array {
         $address = $this->addresses->findOwnedAddress($user, $shippingAddressId);
         $cart = $this->cartService->loadCart($this->cartService->resolveForUser($user));
 
@@ -48,6 +55,14 @@ final class CheckoutPreviewService
         $selectionMap = $this->normalizeSelections($deliverySelections);
         $groups = $this->vendorGroups->groupCartItems($cart);
         $this->assertCompleteSelections($groups->keys()->all(), $selectionMap);
+
+        $vendorSubtotals = [];
+        foreach ($groups as $vendorAccountId => $items) {
+            $vendorSubtotals[(string) $vendorAccountId] = $this->vendorGroups->vendorSubtotal($items);
+        }
+
+        $couponMap = $this->normalizeCoupons($vendorCoupons);
+        $appliedCoupons = $this->coupons->resolveForVendorGroups($couponMap, $vendorSubtotals);
 
         $vendorGroupResults = [];
         $orderSubtotal = '0.00';
@@ -72,10 +87,14 @@ final class CheckoutPreviewService
 
             $quote = $this->shippingQuotes->quoteVendorGroup($settings, $method, $subtotal);
             $assemblyCost = $this->assembly->calculate($subtotal, $items->count());
-            $discount = '0.00';
-            $vatAmount = $this->vat->calculateForVendor($subtotal, $quote->shippingCost);
+            $couponData = $appliedCoupons[$vendorAccountId] ?? null;
+            $discount = $couponData['discount'] ?? '0.00';
+            $coupon = $couponData['coupon'] ?? null;
+            $vatAmount = $this->vat->calculateForVendor($subtotal, $quote->shippingCost, $discount);
             $vendorTotal = bcadd(bcadd(bcadd($subtotal, $quote->shippingCost, 2), $assemblyCost, 2), $vatAmount, 2);
             $vendorTotal = bcsub($vendorTotal, $discount, 2);
+
+            $orderDiscount = bcadd($orderDiscount, $discount, 2);
 
             $vendorVatAmounts[] = $vatAmount;
             $orderSubtotal = bcadd($orderSubtotal, $subtotal, 2);
@@ -108,6 +127,15 @@ final class CheckoutPreviewService
                 ],
                 'assembly' => $assemblyCost,
                 'discount' => $discount,
+                'coupon' => $coupon !== null ? [
+                    'id' => $coupon->id,
+                    'code' => $coupon->code,
+                    'type' => $coupon->type->value,
+                    'value' => $coupon->value,
+                    'maximum_discount' => $coupon->maximum_discount !== null
+                        ? (string) $coupon->maximum_discount
+                        : null,
+                ] : null,
                 'vat' => $vatAmount,
                 'vendor_total' => $vendorTotal,
             ];
@@ -151,6 +179,32 @@ final class CheckoutPreviewService
                 throw new UnprocessableEntityHttpException(__('diyar.checkout.incomplete_delivery_selections'));
             }
             $map[$vendorId] = (string) $selection['method'];
+        }
+
+        return $map;
+    }
+
+    /**
+     * @param  list<array{vendor_account_id: string, code?: string|null}>  $vendorCoupons
+     * @return array<string, string>
+     */
+    private function normalizeCoupons(array $vendorCoupons): array
+    {
+        $map = [];
+
+        foreach ($vendorCoupons as $entry) {
+            $vendorId = (string) ($entry['vendor_account_id'] ?? '');
+            $code = trim((string) ($entry['code'] ?? ''));
+
+            if ($vendorId === '' || $code === '') {
+                continue;
+            }
+
+            if (isset($map[$vendorId])) {
+                throw new UnprocessableEntityHttpException(__('diyar.coupons.duplicate_vendor_entry'));
+            }
+
+            $map[$vendorId] = $code;
         }
 
         return $map;

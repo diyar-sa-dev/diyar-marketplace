@@ -176,9 +176,9 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
                 ? 'bg-gray-700 text-white'
                 : stockTone === 'limited'
                   ? 'bg-orange-500 text-white'
-                : mode === 'preorder'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-red-500 text-white'
+                  : mode === 'preorder'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-red-500 text-white'
             }`}
           >
             {badge}
@@ -205,32 +205,32 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
             item.isOwnStore
               ? 'text-orange-500 font-medium'
               : stockTone === 'out'
-              ? 'text-red-500 font-medium'
-              : stockTone === 'limited'
-                ? 'text-orange-500 font-medium'
-                : stockTone === 'preorder'
-                  ? 'text-purple-600 font-medium'
-                  : 'text-green-600 font-medium'
+                ? 'text-red-500 font-medium'
+                : stockTone === 'limited'
+                  ? 'text-orange-500 font-medium'
+                  : stockTone === 'preorder'
+                    ? 'text-purple-600 font-medium'
+                    : 'text-green-600 font-medium'
           }`}
         >
           {availabilityDetail}
         </p>
         {!item.isOwnStore ? (
-        <div className={`flex items-baseline gap-2 ${layout === 'list' ? 'mb-1' : 'mb-3'}`}>
-          <span
-            className={`font-bold text-diyar-dark tabular-nums ${layout === 'list' ? 'text-sm sm:text-lg' : 'text-lg'}`}
-          >
-            {item.price}{' '}
-            <span className="text-xs font-medium text-gray-400">
-              {t('vendor.products.table.currency')}
+          <div className={`flex items-baseline gap-2 ${layout === 'list' ? 'mb-1' : 'mb-3'}`}>
+            <span
+              className={`font-bold text-diyar-dark tabular-nums ${layout === 'list' ? 'text-sm sm:text-lg' : 'text-lg'}`}
+            >
+              {item.price}{' '}
+              <span className="text-xs font-medium text-gray-400">
+                {t('vendor.products.table.currency')}
+              </span>
             </span>
-          </span>
-          {item.oldPrice && (
-            <span className="text-gray-400 line-through text-[10px] tabular-nums">
-              {item.oldPrice} {t('vendor.products.table.currency')}
-            </span>
-          )}
-        </div>
+            {item.oldPrice && (
+              <span className="text-gray-400 line-through text-[10px] tabular-nums">
+                {item.oldPrice} {t('vendor.products.table.currency')}
+              </span>
+            )}
+          </div>
         ) : (
           <div className={layout === 'list' ? 'mb-1' : 'mb-3'} />
         )}
@@ -241,8 +241,8 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
             isPreorder
               ? 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-700 hover:text-white hover:border-purple-700'
               : canPurchase
-              ? 'bg-gray-50 text-diyar-dark border-gray-200 hover:bg-diyar-brown hover:text-white hover:border-diyar-dark'
-              : 'bg-gray-100 text-gray-400 border-gray-100 cursor-not-allowed'
+                ? 'bg-gray-50 text-diyar-dark border-gray-200 hover:bg-diyar-brown hover:text-white hover:border-diyar-dark'
+                : 'bg-gray-100 text-gray-400 border-gray-100 cursor-not-allowed'
           }`}
           onClick={isPreorder ? undefined : addToCart}
         >

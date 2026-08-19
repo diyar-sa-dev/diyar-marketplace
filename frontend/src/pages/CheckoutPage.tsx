@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -17,8 +17,12 @@ import { useAddresses } from '../hooks/profile/useProfile.ts';
 import { useCheckoutPreview, useCreateOrder } from '../hooks/checkout/useCheckout.ts';
 import { useLocale } from '../hooks/useLocale.ts';
 import { useToast } from '../hooks/useToast.ts';
+import { useAuthContext } from '../context/AuthContext.tsx';
+import { resolveProfileAddressesPath } from '../lib/auth/roles.ts';
+import { isCheckoutCouponError } from '../lib/checkoutCouponErrors.ts';
 import { LoadingState } from '../components/common/LoadingState.tsx';
-import { CartLineItemCard, cartItemToLineProps } from '../components/checkout/CartLineItemCard.tsx';
+import { CartLineItemCard } from '../components/checkout/CartLineItemCard.tsx';
+import { cartItemToLineProps } from '../lib/cartLineItem.ts';
 import { CheckoutVendorCoupon } from '../components/checkout/CheckoutVendorCoupon.tsx';
 import { CheckoutPaymentMethods } from '../components/checkout/CheckoutPaymentMethods.tsx';
 import { parseApiError } from '../utils/errors.ts';
@@ -29,12 +33,21 @@ import {
 } from '../lib/paymentMethods.ts';
 import type { Locale } from '../lib/i18n/types.ts';
 import type {
+  CheckoutPreview,
   CheckoutPreviewPayload,
   CheckoutPreviewVendorGroup,
   VendorDeliverySelection,
 } from '../types/checkout.ts';
 import type { CartItem } from '../types/cart.ts';
 import type { ShippingMethod } from '../types/shipping.ts';
+
+function hasPositiveAmount(value: string | null | undefined): boolean {
+  if (value == null || value === '') {
+    return false;
+  }
+
+  return Number.parseFloat(value) > 0;
+}
 
 function newIdempotencyKey(): string {
   return crypto.randomUUID();
@@ -108,16 +121,22 @@ function formatAddressLine(
 
 export default function CheckoutPage() {
   const { t, dir, locale } = useLocale();
+  const { user } = useAuthContext();
   const navigate = useNavigate();
   const { toast } = useToast();
   const currency = t('common.currency');
   const isRtl = dir === 'rtl';
   const ContinueIcon = isRtl ? ChevronRight : ChevronLeft;
+  const profileAddressesPath = resolveProfileAddressesPath(user?.roles);
   const { data: addresses = [], isLoading: addressesLoading } = useAddresses();
   const { data: cart, isLoading: cartLoading } = useCartQuery();
 
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const [methodByVendor, setMethodByVendor] = useState<Record<string, ShippingMethod>>({});
+  const [couponsByVendor, setCouponsByVendor] = useState<Record<string, string>>({});
+  const [couponErrorsByVendor, setCouponErrorsByVendor] = useState<Record<string, string>>({});
+  const [couponDraftByVendor, setCouponDraftByVendor] = useState<Record<string, string>>({});
+  const lastValidPreviewRef = useRef<CheckoutPreview | null>(null);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [cartFlushed, setCartFlushed] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<CheckoutPaymentMethodId>(
@@ -166,8 +185,16 @@ export default function CheckoutPage() {
       methodByVendor,
     ).map(([vendor_account_id, method]) => ({ vendor_account_id, method }));
 
-    return { shipping_address_id: selectedAddressId, vendor_delivery_selections };
-  }, [methodByVendor, selectedAddressId]);
+    const vendor_coupons = Object.entries(couponsByVendor)
+      .filter(([, code]) => code.trim() !== '')
+      .map(([vendor_account_id, code]) => ({ vendor_account_id, code: code.trim() }));
+
+    return {
+      shipping_address_id: selectedAddressId,
+      vendor_delivery_selections,
+      ...(vendor_coupons.length > 0 ? { vendor_coupons } : {}),
+    };
+  }, [couponsByVendor, methodByVendor, selectedAddressId]);
 
   const hasAddress = addresses.length > 0 && selectedAddressId !== '';
   const previewQuery = useCheckoutPreview(
@@ -177,7 +204,124 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     setPreviewEnabled(hasAddress);
-  }, [hasAddress, methodByVendor]);
+  }, [hasAddress, methodByVendor, couponsByVendor]);
+
+  useEffect(() => {
+    if (!previewQuery.data?.valid) {
+      return;
+    }
+
+    lastValidPreviewRef.current = previewQuery.data;
+
+    setCouponErrorsByVendor((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const group of previewQuery.data.vendor_groups) {
+        if (group.coupon && next[group.vendor_account_id]) {
+          delete next[group.vendor_account_id];
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+
+    setCouponDraftByVendor((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const group of previewQuery.data.vendor_groups) {
+        if (group.coupon && next[group.vendor_account_id]) {
+          delete next[group.vendor_account_id];
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [previewQuery.data]);
+
+  useEffect(() => {
+    if (!previewQuery.isError) {
+      return;
+    }
+
+    const message = parseApiError(previewQuery.error, locale).message;
+    if (!isCheckoutCouponError(message)) {
+      return;
+    }
+
+    const failed: Record<string, string> = {};
+    for (const [vendorId, code] of Object.entries(couponsByVendor)) {
+      if (code.trim()) {
+        failed[vendorId] = message;
+      }
+    }
+
+    if (Object.keys(failed).length === 0) {
+      return;
+    }
+
+    setCouponErrorsByVendor((prev) => ({ ...prev, ...failed }));
+    setCouponDraftByVendor((prev) => ({
+      ...prev,
+      ...Object.fromEntries(
+        Object.entries(couponsByVendor)
+          .filter(([, code]) => code.trim() !== '')
+          .map(([vendorId, code]) => [vendorId, code.trim()]),
+      ),
+    }));
+    setCouponsByVendor({});
+  }, [previewQuery.isError, previewQuery.error, couponsByVendor, locale]);
+
+  const handleApplyCoupon = (vendorAccountId: string, code: string) => {
+    const trimmed = code.trim();
+    setCouponErrorsByVendor((prev) => {
+      const next = { ...prev };
+      delete next[vendorAccountId];
+      return next;
+    });
+    setCouponDraftByVendor((prev) => ({ ...prev, [vendorAccountId]: trimmed }));
+    setCouponsByVendor((prev) => ({ ...prev, [vendorAccountId]: trimmed }));
+  };
+
+  const handleCouponDraftChange = (vendorAccountId: string, code: string) => {
+    setCouponDraftByVendor((prev) => ({ ...prev, [vendorAccountId]: code }));
+  };
+
+  const handleRemoveCoupon = (vendorAccountId: string) => {
+    setCouponErrorsByVendor((prev) => {
+      const next = { ...prev };
+      delete next[vendorAccountId];
+      return next;
+    });
+    setCouponDraftByVendor((prev) => {
+      const next = { ...prev };
+      delete next[vendorAccountId];
+      return next;
+    });
+    setCouponsByVendor((prev) => {
+      const next = { ...prev };
+      delete next[vendorAccountId];
+      return next;
+    });
+  };
+
+  const handleClearCouponError = (vendorAccountId: string) => {
+    setCouponErrorsByVendor((prev) => {
+      if (!prev[vendorAccountId]) {
+        return prev;
+      }
+      const next = { ...prev };
+      delete next[vendorAccountId];
+      return next;
+    });
+    setCouponDraftByVendor((prev) => {
+      if (!prev[vendorAccountId]) {
+        return prev;
+      }
+      const next = { ...prev };
+      delete next[vendorAccountId];
+      return next;
+    });
+  };
 
   const createOrder = useCreateOrder();
 
@@ -213,14 +357,27 @@ export default function CheckoutPage() {
   };
 
   const handlePlaceOrder = async () => {
-    if (!previewPayload || !previewQuery.data?.valid) {
+    const activePreview = previewQuery.data?.valid
+      ? previewQuery.data
+      : lastValidPreviewRef.current;
+
+    if (!previewPayload || !activePreview?.valid) {
       return;
     }
+
+    const vendor_coupons = Object.entries(couponsByVendor)
+      .filter(([vendorId, code]) => code.trim() && !couponErrorsByVendor[vendorId])
+      .map(([vendor_account_id, code]) => ({ vendor_account_id, code: code.trim() }));
+
+    const orderPayload: CheckoutPreviewPayload = {
+      ...previewPayload,
+      ...(vendor_coupons.length > 0 ? { vendor_coupons } : {}),
+    };
 
     try {
       storePaymentMethod(selectedPaymentMethod);
       const order = await createOrder.mutateAsync({
-        payload: previewPayload,
+        payload: orderPayload,
         idempotencyKey: newIdempotencyKey(),
       });
       toast.success(t('checkout.orderPlaced'));
@@ -238,10 +395,13 @@ export default function CheckoutPage() {
     return <LoadingState message={t('checkout.loading')} />;
   }
 
-  const preview = previewQuery.data;
+  const preview = previewQuery.data?.valid ? previewQuery.data : lastValidPreviewRef.current;
   const previewErrorMessage = previewQuery.isError
-    ? parseApiError(previewQuery.error).message
+    ? parseApiError(previewQuery.error, locale).message
     : null;
+  const isCouponPreviewError = Boolean(
+    previewErrorMessage && isCheckoutCouponError(previewErrorMessage),
+  );
   const vendorShippingBlocked = previewErrorMessage
     ? isVendorShippingError(previewErrorMessage)
     : false;
@@ -269,7 +429,8 @@ export default function CheckoutPage() {
                   {t('checkout.deliveryAddress')}
                 </h2>
                 <Link
-                  to="/profile/addresses"
+                  to={profileAddressesPath}
+                  state={{ from: '/checkout' }}
                   className="inline-flex items-center gap-1 text-sm font-bold text-diyar-brown hover:text-diyar-dark cursor-pointer"
                 >
                   <Plus size={16} />
@@ -281,7 +442,8 @@ export default function CheckoutPage() {
                 <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/80 p-6 text-center space-y-4">
                   <p className="text-sm text-gray-600">{t('checkout.noAddressHint')}</p>
                   <Link
-                    to="/profile/addresses"
+                    to={profileAddressesPath}
+                    state={{ from: '/checkout' }}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-diyar-brown px-5 py-2.5 text-sm font-bold text-white hover:bg-diyar-dark transition"
                   >
                     <Plus size={16} />
@@ -334,11 +496,17 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {hasAddress && previewQuery.isLoading && (
+            {hasAddress && previewQuery.isLoading && !preview && (
               <LoadingState message={t('checkout.previewLoading')} />
             )}
 
-            {hasAddress && previewQuery.isError && (
+            {hasAddress && previewQuery.isFetching && preview && (
+              <p className="text-xs font-medium text-diyar-brown/80 px-1">
+                {t('checkout.previewRefreshing')}
+              </p>
+            )}
+
+            {hasAddress && previewQuery.isError && !isCouponPreviewError && (
               <div
                 className={`rounded-xl border px-4 py-3 text-sm flex items-start gap-2 ${
                   vendorShippingBlocked
@@ -378,13 +546,14 @@ export default function CheckoutPage() {
                 const vendorName =
                   entry.type === 'preview' ? entry.group.vendor_name : entry.group.vendorName;
                 const previewGroup = entry.type === 'preview' ? entry.group : null;
-                const sectionDisabled = !hasAddress || !preview?.valid;
+                const shippingDisabled = !hasAddress || !preview?.valid;
+                const vendorIdKey = vendorId;
 
                 return (
                   <div
                     key={vendorId}
                     className={`bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-5 ${
-                      sectionDisabled ? 'opacity-80' : ''
+                      shippingDisabled ? 'opacity-80' : ''
                     }`}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
@@ -462,7 +631,7 @@ export default function CheckoutPage() {
                               <button
                                 key={method}
                                 type="button"
-                                disabled={sectionDisabled}
+                                disabled={shippingDisabled}
                                 onClick={() => handleMethodChange(vendorId, method)}
                                 className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
                                   methodByVendor[vendorId] === method
@@ -482,7 +651,18 @@ export default function CheckoutPage() {
                               </p>
                             )}
                         </div>
-                        <CheckoutVendorCoupon vendorName={vendorName} />
+                        <CheckoutVendorCoupon
+                          vendorAccountId={vendorIdKey}
+                          vendorName={vendorName}
+                          appliedCoupon={previewGroup.coupon}
+                          draftCode={couponDraftByVendor[vendorIdKey]}
+                          errorMessage={couponErrorsByVendor[vendorIdKey]}
+                          disabled={!hasAddress}
+                          onApply={handleApplyCoupon}
+                          onRemove={handleRemoveCoupon}
+                          onDraftChange={handleCouponDraftChange}
+                          onClearError={handleClearCouponError}
+                        />
                       </>
                     ) : (
                       <>
@@ -493,7 +673,18 @@ export default function CheckoutPage() {
                               ? t('checkout.vendorShippingNotConfigured')
                               : t('checkout.summaryPending')}
                         </div>
-                        <CheckoutVendorCoupon vendorName={vendorName} />
+                        <CheckoutVendorCoupon
+                          vendorAccountId={vendorIdKey}
+                          vendorName={vendorName}
+                          appliedCoupon={null}
+                          draftCode={couponDraftByVendor[vendorIdKey]}
+                          errorMessage={couponErrorsByVendor[vendorIdKey]}
+                          disabled={!hasAddress}
+                          onApply={handleApplyCoupon}
+                          onRemove={handleRemoveCoupon}
+                          onDraftChange={handleCouponDraftChange}
+                          onClearError={handleClearCouponError}
+                        />
                       </>
                     )}
                   </div>
@@ -547,6 +738,17 @@ export default function CheckoutPage() {
                       <span className="text-sm font-bold text-diyar-brown">{currency}</span>
                     </span>
                   </div>
+                  {hasPositiveAmount(preview.totals.discount) && (
+                    <div className="flex items-center justify-between gap-4 py-2.5 border-b border-gray-100/80 last:border-0">
+                      <span className="text-sm font-semibold text-emerald-700">
+                        {t('checkout.discount')}
+                      </span>
+                      <span className="text-base font-bold text-emerald-700 tabular-nums whitespace-nowrap">
+                        -{preview.totals.discount}{' '}
+                        <span className="text-sm font-bold text-emerald-600">{currency}</span>
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between gap-4 py-2.5">
                     <span className="text-sm font-semibold text-gray-500">{t('checkout.vat')}</span>
                     <span className="text-base font-bold text-diyar-dark tabular-nums whitespace-nowrap">
@@ -556,10 +758,20 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50/80 px-4 py-6 text-center">
+                <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50/80 px-4 py-6 text-center space-y-4">
                   <p className="text-sm font-semibold text-gray-500 leading-relaxed">
                     {!hasAddress ? t('checkout.noAddressHint') : t('checkout.summaryPending')}
                   </p>
+                  {!hasAddress && (
+                    <Link
+                      to={profileAddressesPath}
+                      state={{ from: '/checkout' }}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-diyar-brown px-5 py-2.5 text-sm font-bold text-white hover:bg-diyar-dark transition"
+                    >
+                      <Plus size={16} />
+                      {t('checkout.addNewAddress')}
+                    </Link>
+                  )}
                 </div>
               )}
 

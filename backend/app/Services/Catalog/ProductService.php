@@ -36,10 +36,12 @@ final class ProductService
     /**
      * @param  array<string, mixed>  $filters
      */
-    public function listPublic(array $filters = []): LengthAwarePaginator
+    public function listPublic(array $filters = [], ?User $user = null): LengthAwarePaginator
     {
         $query = $this->publicQuery()
             ->with(['vendorAccount', 'category', 'images.mediaFile', 'inventory']);
+
+        $query->withUserSaved($user);
 
         $this->applyFilters($query, $filters);
 
@@ -51,19 +53,22 @@ final class ProductService
     /**
      * @param  array<string, mixed>  $filters
      */
-    public function searchPublic(array $filters = []): LengthAwarePaginator
+    public function searchPublic(array $filters = [], ?User $user = null): LengthAwarePaginator
     {
-        return $this->listPublic($filters);
+        return $this->listPublic($filters, $user);
     }
 
-    public function findPublic(string $id): Product
+    public function findPublic(string $id, ?User $user = null): Product
     {
-        $product = $this->publicQuery()
+        $query = $this->publicQuery()
             ->with(['vendorAccount', 'category', 'colors', 'images.mediaFile', 'inventory'])
             ->withCount(['likes', 'reviews'])
             ->withAvg('reviews', 'rating')
-            ->whereKey($id)
-            ->first();
+            ->whereKey($id);
+
+        $query->withUserSaved($user);
+
+        $product = $query->first();
 
         if ($product === null) {
             throw new NotFoundHttpException(__('diyar.catalog.product_not_found'));
@@ -75,15 +80,18 @@ final class ProductService
     /**
      * @return Collection<int, Product>
      */
-    public function relatedProducts(Product $product, int $limit = 8): Collection
+    public function relatedProducts(Product $product, int $limit = 8, ?User $user = null): Collection
     {
-        return $this->publicQuery()
+        $query = $this->publicQuery()
             ->with(['vendorAccount', 'category', 'images.mediaFile', 'inventory'])
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->latest()
-            ->limit($limit)
-            ->get();
+            ->limit($limit);
+
+        $query->withUserSaved($user);
+
+        return $query->get();
     }
 
     /**
@@ -265,11 +273,13 @@ final class ProductService
         return $product->fresh(['images.mediaFile']);
     }
 
-    public function listForCategory(Category $category, array $filters = []): LengthAwarePaginator
+    public function listForCategory(Category $category, array $filters = [], ?User $user = null): LengthAwarePaginator
     {
         $query = $this->publicQuery()
             ->where('category_id', $category->id)
             ->with(['vendorAccount', 'category', 'images.mediaFile', 'inventory']);
+
+        $query->withUserSaved($user);
 
         $this->applyFilters($query, $filters);
 
@@ -289,11 +299,13 @@ final class ProductService
     /**
      * @param  array<string, mixed>  $filters
      */
-    public function listForVendorPublic(VendorAccount $vendor, array $filters = []): LengthAwarePaginator
+    public function listForVendorPublic(VendorAccount $vendor, array $filters = [], ?User $user = null): LengthAwarePaginator
     {
         $query = $this->publicQuery()
             ->where('vendor_account_id', $vendor->id)
             ->with(['vendorAccount', 'category', 'images.mediaFile', 'inventory']);
+
+        $query->withUserSaved($user);
 
         $this->applyFilters($query, $filters);
 

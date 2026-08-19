@@ -17,7 +17,7 @@ class SearchController extends Controller
 
     public function __invoke(Request $request): JsonResponse
     {
-        $paginator = $this->products->searchPublic($request->query());
+        $paginator = $this->products->searchPublic($request->query(), $request->user());
 
         return ApiResponse::success(data: [
             'items' => ProductCardResource::collection($paginator->getCollection())->resolve(),

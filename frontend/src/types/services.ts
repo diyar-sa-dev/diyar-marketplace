@@ -1,7 +1,10 @@
 import type { ApiSuccessResponse } from './api.ts';
+import type { ServiceBookingStatus } from './serviceRequests.ts';
 
 export type ServicePricingMode =
   'fixed' | 'starting_from' | 'hourly' | 'per_sqm' | 'per_project' | 'custom_quote';
+
+export type ServiceBookingMode = 'request' | 'direct';
 
 export interface ServiceCategory {
   id: string;
@@ -28,20 +31,27 @@ export interface ServiceCard {
   slug: string;
   image_url?: string | null;
   pricing_mode: ServicePricingMode;
+  booking_mode?: ServiceBookingMode;
   starting_price?: number | null;
   currency: string;
   pricing_label?: string | null;
   delivery_type_label?: string | null;
+  service_type_label?: string | null;
+  duration_label?: string | null;
+  duration_minutes?: number | null;
   rating_average: number;
   reviews_count: number;
   remote_available?: boolean;
   location?: string | null;
+  is_active?: boolean;
+  description?: string | null;
   category?: {
     id?: string;
     slug: string;
     name: string;
   };
   provider?: ServiceProviderRef;
+  user_saved?: boolean;
 }
 
 export interface ServicePortfolioItem {
@@ -50,6 +60,15 @@ export interface ServicePortfolioItem {
   description?: string | null;
   media_url?: string | null;
   sort_order: number;
+}
+
+export interface ProviderWorkingHour {
+  day: string;
+  label?: string;
+  is_closed: boolean;
+  opens_at: string | null;
+  closes_at: string | null;
+  closes_next_day?: boolean;
 }
 
 export interface ProviderFollowSummary {
@@ -68,13 +87,15 @@ export interface ProviderPublic {
   remote_available: boolean;
   verified: boolean;
   badges: string[];
-  working_hours: Record<string, unknown>[];
+  working_hours: ProviderWorkingHour[];
   completed_projects_count: number;
   active_services_count?: number;
   rating_average: number;
   reviews_count: number;
   joined_at?: string | null;
   follow: ProviderFollowSummary;
+  is_own_provider?: boolean;
+  work_policy_summary?: string[];
 }
 
 export interface ServiceDetail extends ServiceCard {
@@ -83,6 +104,17 @@ export interface ServiceDetail extends ServiceCard {
   requests_count: number;
   provider?: ProviderPublic;
   portfolio?: ServicePortfolioItem[];
+  user_active_booking?: ServiceUserActiveBooking | null;
+}
+
+export interface ServiceUserActiveBooking {
+  id: string;
+  reference: string;
+  status: ServiceBookingStatus;
+  scheduled_date?: string | null;
+  scheduled_time?: string | null;
+  price: string | number;
+  currency: string;
 }
 
 export interface PaginationMeta {

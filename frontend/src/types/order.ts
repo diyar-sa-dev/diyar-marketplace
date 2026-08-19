@@ -36,6 +36,8 @@ export type VendorOrder = {
   free_shipping_applied: boolean;
   assembly_cost: string;
   discount_amount: string;
+  coupon_code?: string | null;
+  coupon_percent?: number | null;
   vat_amount: string;
   vendor_total: string;
   items?: OrderItem[];

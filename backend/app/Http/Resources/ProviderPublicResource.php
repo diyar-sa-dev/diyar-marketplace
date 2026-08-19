@@ -30,13 +30,17 @@ class ProviderPublicResource extends JsonResource
             'remote_available' => $this->remote_available,
             'verified' => $this->verified,
             'badges' => $this->badges ?? [],
-            'working_hours' => $this->working_hours ?? [],
+            'working_hours' => $presenter->formatWorkingHours($this->working_hours),
+            'work_policy_summary' => $presenter->workPolicySummary(
+                $this->relationLoaded('workPolicy') ? $this->workPolicy : null,
+            ),
             'completed_projects_count' => $this->completed_projects_count,
             'active_services_count' => $this->when(isset($this->active_services_count), (int) $this->active_services_count),
             'rating_average' => (float) $this->rating_average,
             'reviews_count' => $this->reviews_count,
             'joined_at' => $this->joined_at?->toIso8601String(),
             'follow' => $follow,
+            'is_own_provider' => $request->user()?->providerAccount?->id === $this->id,
         ];
     }
 }

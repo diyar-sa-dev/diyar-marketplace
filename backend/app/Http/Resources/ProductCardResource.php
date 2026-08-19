@@ -18,7 +18,6 @@ class ProductCardResource extends JsonResource
     public function toArray(Request $request): array
     {
         $media = app(MediaUploadService::class);
-        $engagement = app(ProductEngagementService::class);
         $vendorOwnership = app(VendorOwnership::class);
         $viewer = $request->user();
         $firstImage = $this->relationLoaded('images') ? $this->images->first() : null;
@@ -60,7 +59,16 @@ class ProductCardResource extends JsonResource
                 'reserved_quantity' => $this->inventory->reserved_quantity,
                 'available_quantity' => $this->inventory->available_quantity,
             ]),
-            'user_saved' => $engagement->userSaved($request->user(), $this->resource),
+            'user_saved' => $this->resolveUserSaved($request),
         ];
+    }
+
+    private function resolveUserSaved(Request $request): bool
+    {
+        if (array_key_exists('user_saved', $this->resource->getAttributes())) {
+            return (bool) $this->user_saved;
+        }
+
+        return app(ProductEngagementService::class)->userSaved($request->user(), $this->resource);
     }
 }

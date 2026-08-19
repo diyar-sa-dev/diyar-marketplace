@@ -138,4 +138,21 @@ class ProductEngagementTest extends TestCase
         $this->getJson('/api/v1/profile/wishlist')->assertUnauthorized();
         $this->deleteJson('/api/v1/profile/wishlist')->assertUnauthorized();
     }
+
+    public function test_product_catalog_includes_user_saved_without_per_card_queries(): void
+    {
+        $user = $this->createUserWithRole(RoleName::Customer);
+        $product = Product::factory()->create();
+
+        $this->actingAs($user)->postJson('/api/v1/products/'.$product->id.'/wishlist')->assertOk();
+
+        $response = $this->actingAs($user)->getJson('/api/v1/products?per_page=10');
+        $response->assertOk();
+
+        $savedItem = collect($response->json('data.items'))
+            ->firstWhere('id', $product->id);
+
+        $this->assertNotNull($savedItem);
+        $this->assertTrue($savedItem['user_saved'] ?? false);
+    }
 }

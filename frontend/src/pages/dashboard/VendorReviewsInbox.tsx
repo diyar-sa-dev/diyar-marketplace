@@ -7,7 +7,10 @@ import { EmptyState } from '../../components/common/EmptyState.tsx';
 import { StarRating } from '../../components/product/StarRating.tsx';
 import { UserAvatar } from '../../components/profile/UserAvatar.tsx';
 import { VendorReplyBlock } from '../../components/reviews/VendorReplyBlock.tsx';
-import { useReplyVendorReview, useVendorReviewInbox } from '../../hooks/vendor/useVendorReviewInbox.ts';
+import {
+  useReplyVendorReview,
+  useVendorReviewInbox,
+} from '../../hooks/vendor/useVendorReviewInbox.ts';
 import { useVendorSettings } from '../../hooks/vendor/useVendorSettings.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
@@ -56,7 +59,10 @@ export default function VendorReviewsInbox() {
 
   if (inboxQuery.isError) {
     return (
-      <ErrorState message={t('vendor.reviewsInbox.loadError')} onRetry={() => void inboxQuery.refetch()} />
+      <ErrorState
+        message={t('vendor.reviewsInbox.loadError')}
+        onRetry={() => void inboxQuery.refetch()}
+      />
     );
   }
 
@@ -150,7 +156,9 @@ export default function VendorReviewsInbox() {
                   {review.comment}
                 </p>
               ) : (
-                <p className="text-sm text-gray-400 italic">{t('vendor.reviewsInbox.ratingOnly')}</p>
+                <p className="text-sm text-gray-400 italic">
+                  {t('vendor.reviewsInbox.ratingOnly')}
+                </p>
               )}
 
               {review.vendor_reply ? (
@@ -209,7 +217,9 @@ export default function VendorReviewsInbox() {
             dir={dir}
           >
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-bold text-xl text-diyar-dark">{t('vendor.reviewsInbox.replyTitle')}</h3>
+              <h3 className="font-bold text-xl text-diyar-dark">
+                {t('vendor.reviewsInbox.replyTitle')}
+              </h3>
               <button
                 type="button"
                 onClick={() => setReplyTarget(null)}

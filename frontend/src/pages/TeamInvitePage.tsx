@@ -90,10 +90,17 @@ export default function TeamInvitePage() {
   const busy = acceptMutation.isPending || rejectMutation.isPending;
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-amber-50/80 via-gray-50 to-orange-50/40 flex items-center justify-center p-4" dir={dir}>
+    <div
+      className="min-h-screen bg-linear-to-br from-amber-50/80 via-gray-50 to-orange-50/40 flex items-center justify-center p-4"
+      dir={dir}
+    >
       <div className="w-full max-w-lg bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
         <div className="bg-linear-to-br from-diyar-dark to-[#4a382f] px-6 py-8 text-center text-white">
-          <img src="/logo_diyar.svg" alt="Diyar" className="h-10 mx-auto mb-4 brightness-0 invert" />
+          <img
+            src="/logo_diyar.svg"
+            alt="Diyar"
+            className="h-10 mx-auto mb-4 brightness-0 invert"
+          />
           <h1 className="text-xl font-bold">{t('vendor.teamInvite.title')}</h1>
           <p className="text-sm text-white/75 mt-2">{t('vendor.teamInvite.subtitle')}</p>
         </div>

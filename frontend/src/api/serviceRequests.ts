@@ -82,6 +82,14 @@ export async function acceptServiceOffer(
   return data.data.offer;
 }
 
+export async function rejectServiceOffer(offerId: string): Promise<ServiceOffer> {
+  await ensureCsrfCookie();
+  const { data } = await apiClient.post<ApiSuccessResponse<{ offer: ServiceOffer }>>(
+    `/service-offers/${offerId}/reject`,
+  );
+  return data.data.offer;
+}
+
 export async function simulateServiceBookingPayment(
   bookingId: string,
   outcome: 'paid' | 'failed',

@@ -18,15 +18,15 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <LocaleProvider>
-        <ErrorBoundary>
-          <ToastProvider>
-            <BrowserRouter>
+        <BrowserRouter>
+          <ErrorBoundary>
+            <ToastProvider>
               <AuthProvider>
                 <App />
               </AuthProvider>
-            </BrowserRouter>
-          </ToastProvider>
-        </ErrorBoundary>
+            </ToastProvider>
+          </ErrorBoundary>
+        </BrowserRouter>
       </LocaleProvider>
     </QueryClientProvider>
   </StrictMode>,

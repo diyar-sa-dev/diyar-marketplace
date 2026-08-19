@@ -41,7 +41,7 @@ class CategoryController extends Controller
     public function items(Request $request, string $slug): JsonResponse
     {
         $category = $this->categories->findActiveBySlug($slug);
-        $paginator = $this->products->listForCategory($category, $request->query());
+        $paginator = $this->products->listForCategory($category, $request->query(), $request->user());
 
         return ApiResponse::success(data: $this->paginatedProducts($paginator));
     }

@@ -19,15 +19,15 @@ class ProductController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $paginator = $this->products->listPublic($request->query());
+        $paginator = $this->products->listPublic($request->query(), $request->user());
 
         return ApiResponse::success(data: $this->paginatedProducts($paginator));
     }
 
-    public function show(string $id): JsonResponse
+    public function show(Request $request, string $id): JsonResponse
     {
-        $product = $this->products->findPublic($id);
-        $related = $this->products->relatedProducts($product);
+        $product = $this->products->findPublic($id, $request->user());
+        $related = $this->products->relatedProducts($product, user: $request->user());
 
         return ApiResponse::success(data: [
             'product' => new ProductDetailResource($product, $related),

@@ -17,10 +17,12 @@ class StoreServiceOfferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'proposed_price' => ['required', 'numeric', 'min:1'],
+            'proposed_price' => ['required', 'numeric', 'min:10'],
             'currency' => ['nullable', 'string', 'size:3'],
             'duration_days' => ['nullable', 'integer', 'min:1', 'max:365'],
-            'message' => ['nullable', 'string', 'max:5000'],
+            'proposed_scheduled_date' => ['nullable', 'date', 'after_or_equal:today'],
+            'proposed_scheduled_time' => ['nullable', 'date_format:H:i'],
+            'message' => ['required', 'string', 'min:10', 'max:5000'],
             'expires_at' => ['nullable', 'date', 'after:now'],
             'quotation' => ['nullable', 'file', 'max:10240', 'mimes:jpg,jpeg,png,webp,pdf'],
         ];

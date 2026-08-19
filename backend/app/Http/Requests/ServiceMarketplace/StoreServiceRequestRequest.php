@@ -3,6 +3,7 @@
 namespace App\Http\Requests\ServiceMarketplace;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreServiceRequestRequest extends FormRequest
 {
@@ -24,7 +25,12 @@ class StoreServiceRequestRequest extends FormRequest
             'service_id' => ['nullable', 'uuid'],
             'provider_account_id' => ['nullable', 'uuid'],
             'budget_min' => ['nullable', 'numeric', 'min:0'],
-            'budget_max' => ['nullable', 'numeric', 'gte:budget_min'],
+            'budget_max' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                Rule::when(fn () => $this->filled('budget_min'), 'gte:budget_min'),
+            ],
             'location' => ['nullable', 'string', 'max:255'],
             'reference_links' => ['nullable', 'array', 'max:10'],
             'reference_links.*' => ['nullable', 'url', 'max:2048'],

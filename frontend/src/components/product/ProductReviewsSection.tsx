@@ -203,7 +203,10 @@ function ReviewForm({
   );
 }
 
-export function ProductReviewsSection({ productId, isOwnStore = false }: ProductReviewsSectionProps) {
+export function ProductReviewsSection({
+  productId,
+  isOwnStore = false,
+}: ProductReviewsSectionProps) {
   const { t, dir, locale } = useLocale();
   const { isAuthenticated } = useAuth();
   const [page, setPage] = useState(1);

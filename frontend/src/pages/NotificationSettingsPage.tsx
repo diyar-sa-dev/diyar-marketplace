@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, Bell, Smartphone, Mail, Package, Tag, Info } from 'lucide-react';
 import { useAuth } from '../hooks/auth/useAuth.ts';
+import { resolveAccountHubPath, resolveNotificationsHubPath } from '../lib/auth/roles.ts';
 import { useUpdateProfile } from '../hooks/profile/useProfile.ts';
 import { useToast } from '../hooks/useToast.ts';
 import {
@@ -12,6 +13,8 @@ import {
 
 export default function NotificationSettingsPage() {
   const { user } = useAuth();
+  const accountHubPath = resolveAccountHubPath(user?.roles);
+  const notificationsHubPath = resolveNotificationsHubPath(user?.roles);
   const updateProfile = useUpdateProfile();
   const { toast } = useToast();
   const [settings, setSettings] = useState<NotificationChannelSettings>(() =>
@@ -53,11 +56,11 @@ export default function NotificationSettingsPage() {
               الرئيسية
             </Link>
             <ChevronLeft size={16} />
-            <Link to="/profile" className="hover:text-diyar-dark transition">
+            <Link to={accountHubPath} className="hover:text-diyar-dark transition">
               حسابي
             </Link>
             <ChevronLeft size={16} />
-            <Link to="/profile/notifications" className="hover:text-diyar-dark transition">
+            <Link to={notificationsHubPath} className="hover:text-diyar-dark transition">
               الإشعارات
             </Link>
             <ChevronLeft size={16} />

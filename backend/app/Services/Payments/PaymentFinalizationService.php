@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentAttempt;
 use App\Services\Catalog\InventoryService;
+use App\Services\Coupon\VendorCouponUsageService;
 use App\Services\Finance\FinancialPostingService;
 use App\Services\Order\OrderStateService;
 use App\Services\Order\PaymentStateService;
@@ -24,6 +25,7 @@ final class PaymentFinalizationService
         private readonly InventoryService $inventory,
         private readonly PaymentAllocationSnapshotService $allocations,
         private readonly FinancialPostingService $financialPosting,
+        private readonly VendorCouponUsageService $couponUsages,
     ) {}
 
     public function finalizePaid(Payment $payment, ?string $gatewayPaymentId, ?string $gatewayInvoiceId): Payment
@@ -52,6 +54,8 @@ final class PaymentFinalizationService
             $this->finalizeInventory($order);
 
             $this->financialPosting->postPaidPayment($payment->fresh(['vendorAllocations']));
+
+            $this->couponUsages->recordForPaidOrder($order->fresh(['vendorOrders']));
 
             return $payment->fresh();
         });

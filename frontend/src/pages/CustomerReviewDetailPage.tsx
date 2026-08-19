@@ -22,10 +22,13 @@ export default function CustomerReviewDetailPage() {
   const accountBackPath = resolveAccountSettingsBackPath(user?.roles);
 
   const reviewType = type === 'store' ? 'store' : 'product';
-  const { data: review, isLoading, isError, error, refetch } = useCustomerReviewDetail(
-    reviewType,
-    id,
-  );
+  const {
+    data: review,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useCustomerReviewDetail(reviewType, id);
 
   if (isLoading) {
     return <LoadingState className="min-h-screen" />;
@@ -62,7 +65,10 @@ export default function CustomerReviewDetailPage() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
-            <Link to="/profile/reviews" className="hover:text-diyar-dark transition font-bold text-diyar-brown">
+            <Link
+              to="/profile/reviews"
+              className="hover:text-diyar-dark transition font-bold text-diyar-brown"
+            >
               ← {t('customerReviews.title')}
             </Link>
           </div>
@@ -73,7 +79,9 @@ export default function CustomerReviewDetailPage() {
         <div className="flex items-center gap-2 text-diyar-dark">
           <MessageSquare size={20} className="text-diyar-brown" />
           <h1 className="font-bold text-lg">
-            {isProduct ? t('customerReviews.productReviewTitle') : t('customerReviews.storeReviewTitle')}
+            {isProduct
+              ? t('customerReviews.productReviewTitle')
+              : t('customerReviews.storeReviewTitle')}
           </h1>
         </div>
 
@@ -83,10 +91,16 @@ export default function CustomerReviewDetailPage() {
             className="flex items-center gap-3 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm hover:border-diyar-brown/30 transition"
           >
             {subjectImage && (
-              <img src={subjectImage} alt="" className="w-14 h-14 rounded-xl object-cover border border-gray-100" />
+              <img
+                src={subjectImage}
+                alt=""
+                className="w-14 h-14 rounded-xl object-cover border border-gray-100"
+              />
             )}
             <div>
-              <p className="text-xs text-gray-500">{isProduct ? t('customerReviews.typeProduct') : t('customerReviews.typeStore')}</p>
+              <p className="text-xs text-gray-500">
+                {isProduct ? t('customerReviews.typeProduct') : t('customerReviews.typeStore')}
+              </p>
               <p className="font-bold text-diyar-dark">{title}</p>
             </div>
             <ChevronLeft size={18} className="ms-auto rtl:rotate-180 text-gray-400" />
@@ -99,7 +113,9 @@ export default function CustomerReviewDetailPage() {
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <span className="font-bold text-diyar-dark block">{user?.name ?? t('profile.memberFallback')}</span>
+                  <span className="font-bold text-diyar-dark block">
+                    {user?.name ?? t('profile.memberFallback')}
+                  </span>
                   <ReviewTypeBadge type={review.type} t={t} />
                 </div>
                 <StarRating value={review.rating} readOnly size={18} />
@@ -125,7 +141,9 @@ export default function CustomerReviewDetailPage() {
         {review.vendor_reply ? (
           <VendorReplyBlock
             reply={review.vendor_reply}
-            repliedBy={review.vendor_replied_by ?? (isProduct ? review.store?.name : review.store?.name)}
+            repliedBy={
+              review.vendor_replied_by ?? (isProduct ? review.store?.name : review.store?.name)
+            }
             repliedAt={review.vendor_replied_at}
             avatarUrl={storeLogo ?? subjectImage}
             locale={locale}

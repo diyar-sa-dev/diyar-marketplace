@@ -126,6 +126,40 @@ final class MediaUploadService
         return $path;
     }
 
+    public function storeProviderAvatar(string $providerAccountId, UploadedFile $file): string
+    {
+        $this->validateImage($file);
+
+        $extension = $this->resolveExtension($file);
+        $directory = sprintf('providers/%s/avatar', $providerAccountId);
+        $filename = Str::uuid()->toString().'.'.$extension;
+        $path = $directory.'/'.$filename;
+
+        $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
+        if ($stored === false) {
+            throw new RuntimeException(__('diyar.media.upload_failed'));
+        }
+
+        return $path;
+    }
+
+    public function storeServiceCover(string $serviceId, UploadedFile $file): string
+    {
+        $this->validateImage($file);
+
+        $extension = $this->resolveExtension($file);
+        $directory = sprintf('services/%s/cover', $serviceId);
+        $filename = Str::uuid()->toString().'.'.$extension;
+        $path = $directory.'/'.$filename;
+
+        $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
+        if ($stored === false) {
+            throw new RuntimeException(__('diyar.media.upload_failed'));
+        }
+
+        return $path;
+    }
+
     public function storeProductImage(User $user, string $productId, UploadedFile $file): MediaFile
     {
         $this->validateImage($file);

@@ -1,7 +1,7 @@
 # Phase 13.4 — Booking
 
-> **Status:** **COMPLETE (backend)** · **Provider Portal UI — PENDING**  
-> **Scope:** Booking creation on offer accept, status lifecycle, provider start/complete.
+> **Status:** **COMPLETE**  
+> **Scope:** Booking creation on offer accept, status lifecycle, provider start/complete, **provider bookings UI**.
 
 ---
 
@@ -70,13 +70,14 @@ On complete: request status → `completed`.
 | Area | Status |
 |------|--------|
 | Customer sees booking on request detail after accept | ✅ |
-| `ServiceBookings` provider page | ⏳ **Mock at HEAD** |
+| `ServiceBookings` provider page | ✅ Wired — tabs, actions, schedule timeline, WhatsApp |
 
-**Planned UI mapping:**
+**UI mapping (implemented):**
 
 | API status | Dashboard tab |
 |------------|---------------|
-| `pending_payment` | pending (accept/reject buttons disabled — awaiting customer payment) |
+| `pending_provider_confirmation` | pending confirmation |
+| `pending_payment` | awaiting payment |
 | `confirmed` / `in_progress` | upcoming |
 | `completed` | completed |
 | `cancelled` | cancelled |
@@ -95,7 +96,7 @@ On complete: request status → `completed`.
 - [x] Booking created transactionally on offer accept
 - [x] Provider start/complete with ownership checks
 - [x] Request status sync on lifecycle events
-- [ ] Provider bookings UI wired to API (**PENDING**)
+- [x] Provider bookings UI wired to API
 
 ---
 

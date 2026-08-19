@@ -10,5 +10,7 @@ export const addressKeys = {
 
 export const wishlistKeys = {
   all: ['wishlist'] as const,
-  list: (page: number, perPage: number) => [...wishlistKeys.all, 'list', page, perPage] as const,
+  summary: () => [...wishlistKeys.all, 'summary'] as const,
+  list: (kind: 'products' | 'services', page: number, perPage: number) =>
+    [...wishlistKeys.all, 'list', kind, page, perPage] as const,
 };

@@ -77,7 +77,10 @@ export default function VendorTeam() {
     }
   };
 
-  const handleRoleChange = async (member: VendorTeamMember, role: Exclude<VendorTeamRole, 'owner'>) => {
+  const handleRoleChange = async (
+    member: VendorTeamMember,
+    role: Exclude<VendorTeamRole, 'owner'>,
+  ) => {
     try {
       await updateMember.mutateAsync({ id: member.id, role });
       toast.success(t('vendor.team.updateSuccess'));
@@ -90,7 +93,9 @@ export default function VendorTeam() {
     try {
       await removeMember.mutateAsync(member.id);
       toast.success(
-        member.status === 'invited' ? t('vendor.team.cancelSuccess') : t('vendor.team.removeSuccess'),
+        member.status === 'invited'
+          ? t('vendor.team.cancelSuccess')
+          : t('vendor.team.removeSuccess'),
       );
     } catch (error) {
       toast.error(parseApiError(error, locale).message);
@@ -102,7 +107,9 @@ export default function VendorTeam() {
   }
 
   if (teamQuery.isError) {
-    return <ErrorState message={t('vendor.team.loadError')} onRetry={() => void teamQuery.refetch()} />;
+    return (
+      <ErrorState message={t('vendor.team.loadError')} onRetry={() => void teamQuery.refetch()} />
+    );
   }
 
   return (
@@ -133,7 +140,9 @@ export default function VendorTeam() {
               setPage(1);
             }}
             className={`px-4 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer ${
-              tab === value ? 'bg-gray-100 text-diyar-dark font-bold' : 'text-gray-500 hover:text-diyar-dark'
+              tab === value
+                ? 'bg-gray-100 text-diyar-dark font-bold'
+                : 'text-gray-500 hover:text-diyar-dark'
             }`}
           >
             {t(`vendor.team.tabs.${value}`)}
@@ -150,7 +159,10 @@ export default function VendorTeam() {
               key={member.id}
               className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
-              <div className={`flex items-center gap-4 min-w-0 ${dir === 'rtl' ? 'text-right' : 'text-left'}`} dir={dir}>
+              <div
+                className={`flex items-center gap-4 min-w-0 ${dir === 'rtl' ? 'text-right' : 'text-left'}`}
+                dir={dir}
+              >
                 <UserAvatar name={displayName} avatarUrl={member.avatar_url} size="md" />
                 <div className="min-w-0 flex-1">
                   <h3 className="font-bold text-diyar-dark text-lg flex flex-wrap items-center gap-2">
@@ -174,7 +186,10 @@ export default function VendorTeam() {
                     <select
                       value={member.role}
                       onChange={(event) =>
-                        void handleRoleChange(member, event.target.value as Exclude<VendorTeamRole, 'owner'>)
+                        void handleRoleChange(
+                          member,
+                          event.target.value as Exclude<VendorTeamRole, 'owner'>,
+                        )
                       }
                       disabled={updateMember.isPending}
                       className="text-sm border border-gray-200 rounded-lg px-2 py-1 bg-white"
@@ -198,7 +213,9 @@ export default function VendorTeam() {
                       disabled={removeMember.isPending}
                       className="p-2 text-gray-400 hover:text-red-500 transition bg-gray-50 rounded-lg hover:bg-red-50 cursor-pointer disabled:opacity-60"
                       title={
-                        member.status === 'invited' ? t('vendor.team.cancelInvite') : t('vendor.team.remove')
+                        member.status === 'invited'
+                          ? t('vendor.team.cancelInvite')
+                          : t('vendor.team.remove')
                       }
                     >
                       <Trash2 size={18} />

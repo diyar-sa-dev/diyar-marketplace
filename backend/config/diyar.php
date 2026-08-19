@@ -39,6 +39,10 @@ return [
         'login_decay_minutes' => (int) env('DIYAR_LOGIN_DECAY_MINUTES', 15),
     ],
 
+    'rate_limits' => [
+        'wishlist_toggle_per_minute' => (int) env('DIYAR_WISHLIST_TOGGLE_RATE_LIMIT', 60),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Inventory Configuration
@@ -82,6 +86,11 @@ return [
         })(),
     ],
 
+    'coupons' => [
+        'percentage_min' => 5,
+        'percentage_max' => 90,
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Finance (Stage 9)
@@ -96,6 +105,17 @@ return [
             'min_days' => (int) env('DIYAR_PAYOUT_MIN_DAYS', 1),
             'max_days' => (int) env('DIYAR_PAYOUT_MAX_DAYS', 3),
         ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Service marketplace (Stage 13)
+    |--------------------------------------------------------------------------
+    */
+
+    'services' => [
+        'platform_commission_rate' => env('DIYAR_SERVICE_COMMISSION_RATE', '0.10'),
+        'default_booking_duration_minutes' => (int) env('DIYAR_DEFAULT_BOOKING_DURATION_MINUTES', 60),
     ],
 
     /*

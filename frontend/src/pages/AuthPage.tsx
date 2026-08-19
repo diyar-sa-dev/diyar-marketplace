@@ -137,9 +137,7 @@ export default function AuthPage() {
     }
 
     setSelectedRoles((prev) => {
-      const next = prev.includes(roleId)
-        ? prev.filter((id) => id !== roleId)
-        : [...prev, roleId];
+      const next = prev.includes(roleId) ? prev.filter((id) => id !== roleId) : [...prev, roleId];
       return next.includes('customer') ? next : ['customer', ...next];
     });
   };

@@ -24,7 +24,13 @@ function formatReviewDate(iso: string | undefined, locale: Locale): string {
   }).format(new Date(iso));
 }
 
-function RatingOverview({ summary, t }: { summary: StoreReviewSummary; t: (key: string, vars?: Record<string, string | number>) => string }) {
+function RatingOverview({
+  summary,
+  t,
+}: {
+  summary: StoreReviewSummary;
+  t: (key: string, vars?: Record<string, string | number>) => string;
+}) {
   const hasReviews = summary.review_count > 0;
 
   return (

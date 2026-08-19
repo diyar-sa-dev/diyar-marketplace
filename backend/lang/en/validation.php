@@ -8,6 +8,9 @@ return [
     ],
     'confirmed' => 'The :attribute confirmation does not match.',
     'digits' => 'The :attribute must be :digits digits.',
+    'date' => 'The :attribute must be a valid date.',
+    'date_format' => 'The :attribute format is invalid.',
+    'after_or_equal' => 'The :attribute must be a date after or equal to today.',
 
     'attributes' => [
         'name' => 'name',
@@ -19,5 +22,10 @@ return [
         'roles' => 'roles',
         'identifier' => 'credentials',
         'credentials' => 'credentials',
+        'proposed_scheduled_date' => 'proposed scheduled date',
+        'proposed_scheduled_time' => 'proposed scheduled time',
+        'provider_notes' => 'provider notes',
+        'scheduled_date' => 'scheduled date',
+        'scheduled_time' => 'scheduled time',
     ],
 ];

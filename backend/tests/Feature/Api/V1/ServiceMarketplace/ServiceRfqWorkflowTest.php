@@ -54,6 +54,23 @@ class ServiceRfqWorkflowTest extends TestCase
     }
 
     #[Test]
+    public function customer_can_create_request_with_single_budget_amount(): void
+    {
+        $customer = $this->createUserWithRole(RoleName::Customer);
+        $category = ServiceCategory::query()->where('slug', 'interior-design')->firstOrFail();
+
+        Sanctum::actingAs($customer);
+
+        $this->postJson('/api/v1/service-requests', [
+            'description' => 'أحتاج تصميم داخلي لغرفة معيشة بمساحة متوسطة مع أثاث عصري ومريح.',
+            'category_ids' => [$category->id],
+            'budget_max' => 6500,
+        ])->assertCreated()
+            ->assertJsonPath('data.service_request.budget_max', '6500.00')
+            ->assertJsonPath('data.service_request.budget_min', null);
+    }
+
+    #[Test]
     public function provider_can_submit_offer_and_customer_can_accept_it(): void
     {
         $customer = $this->createUserWithRole(RoleName::Customer);
@@ -88,7 +105,7 @@ class ServiceRfqWorkflowTest extends TestCase
         ])->assertOk();
 
         $accept->assertJsonPath('data.offer.status', 'accepted')
-            ->assertJsonPath('data.offer.booking.status', ServiceBookingStatus::PendingPayment->value);
+            ->assertJsonPath('data.offer.booking.status', ServiceBookingStatus::PendingProviderConfirmation->value);
     }
 
     #[Test]
@@ -107,18 +124,31 @@ class ServiceRfqWorkflowTest extends TestCase
         Sanctum::actingAs($providerUser);
         $offerId = $this->postJson("/api/v1/service-requests/{$requestId}/offers", [
             'proposed_price' => 1800,
+            'message' => 'يشمل التصميم والمتابعة.',
         ])->json('data.offer.id');
 
         Sanctum::actingAs($customer);
         $bookingId = $this->postJson("/api/v1/service-offers/{$offerId}/accept")
             ->json('data.offer.booking.id');
 
+        Sanctum::actingAs($providerUser);
+        $this->postJson("/api/v1/dashboard/provider/bookings/{$bookingId}/confirm")
+            ->assertOk()
+            ->assertJsonPath('data.booking.status', ServiceBookingStatus::PendingPayment->value);
+
+        Sanctum::actingAs($customer);
         $this->postJson("/api/v1/service-bookings/{$bookingId}/payment/simulate", [
             'outcome' => 'paid',
         ])
             ->assertOk()
             ->assertJsonPath('data.booking.status', ServiceBookingStatus::Confirmed->value)
             ->assertJsonPath('data.booking.payment_status', 'paid');
+
+        $this->postJson("/api/v1/service-bookings/{$bookingId}/payment/simulate", [
+            'outcome' => 'paid',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.booking.status', ServiceBookingStatus::Confirmed->value);
     }
 
     #[Test]
@@ -137,11 +167,17 @@ class ServiceRfqWorkflowTest extends TestCase
         Sanctum::actingAs($providerUser);
         $offerId = $this->postJson("/api/v1/service-requests/{$requestId}/offers", [
             'proposed_price' => 3200,
+            'message' => 'يشمل التركيب والتشطيب.',
         ])->json('data.offer.id');
 
         Sanctum::actingAs($customer);
         $bookingId = $this->postJson("/api/v1/service-offers/{$offerId}/accept")
             ->json('data.offer.booking.id');
+
+        Sanctum::actingAs($providerUser);
+        $this->postJson("/api/v1/dashboard/provider/bookings/{$bookingId}/confirm")->assertOk();
+
+        Sanctum::actingAs($customer);
         $this->postJson("/api/v1/service-bookings/{$bookingId}/payment/simulate", ['outcome' => 'paid']);
 
         Sanctum::actingAs($providerUser);
@@ -195,6 +231,7 @@ class ServiceRfqWorkflowTest extends TestCase
 
         $this->postJson("/api/v1/service-requests/{$requestId}/offers", [
             'proposed_price' => 2300,
+            'message' => 'عرض محدث يشمل التعديلات.',
         ])
             ->assertStatus(422)
             ->assertJsonPath('message', __('diyar.services.offers.already_submitted'));
@@ -216,6 +253,7 @@ class ServiceRfqWorkflowTest extends TestCase
         Sanctum::actingAs($providerUser);
         $offerId = $this->postJson("/api/v1/service-requests/{$requestId}/offers", [
             'proposed_price' => 1900,
+            'message' => 'يشمل المعاينة والتركيب.',
         ])->json('data.offer.id');
 
         Sanctum::actingAs($customer);
@@ -263,11 +301,17 @@ class ServiceRfqWorkflowTest extends TestCase
         Sanctum::actingAs($ownerProvider);
         $offerId = $this->postJson("/api/v1/service-requests/{$requestId}/offers", [
             'proposed_price' => 2100,
+            'message' => 'يشمل التصميم والتنفيذ.',
         ])->json('data.offer.id');
 
         Sanctum::actingAs($customer);
         $bookingId = $this->postJson("/api/v1/service-offers/{$offerId}/accept")
             ->json('data.offer.booking.id');
+
+        Sanctum::actingAs($ownerProvider);
+        $this->postJson("/api/v1/dashboard/provider/bookings/{$bookingId}/confirm")->assertOk();
+
+        Sanctum::actingAs($customer);
         $this->postJson("/api/v1/service-bookings/{$bookingId}/payment/simulate", ['outcome' => 'paid']);
 
         Sanctum::actingAs($otherProvider);

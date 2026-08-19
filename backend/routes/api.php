@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\Catalog\StoreReviewController;
 use App\Http\Controllers\Api\V1\Catalog\VendorController;
 use App\Http\Controllers\Api\V1\Catalog\VendorFollowController;
 use App\Http\Controllers\Api\V1\Checkout\CheckoutController;
+use App\Http\Controllers\Api\V1\Dashboard\VendorCouponController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorDashboardController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorFinanceController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorInventoryController;
@@ -37,12 +38,18 @@ use App\Http\Controllers\Api\V1\Profile\CustomerReviewController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\Profile\WishlistController;
 use App\Http\Controllers\Api\V1\Return\ReturnController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\DirectServiceBookingController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderController as ServiceProviderController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderFinanceController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderFollowController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderReviewController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderSettingsController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderWorkPolicyController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceBookingController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceBookingPaymentController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceCategoryController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceEngagementController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceOfferController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceRequestController;
 use Illuminate\Support\Facades\Route;
@@ -79,6 +86,7 @@ Route::get('/services/{identifier}/related', [ServiceController::class, 'related
 Route::get('/providers/{slug}', [ServiceProviderController::class, 'show']);
 Route::get('/providers/{slug}/services', [ServiceProviderController::class, 'services']);
 Route::get('/providers/{slug}/portfolio', [ServiceProviderController::class, 'portfolio']);
+Route::get('/providers/{slug}/reviews', [ProviderReviewController::class, 'index']);
 
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'show']);
@@ -147,10 +155,20 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
     Route::post('/service-requests/{serviceRequest}/attachments', [ServiceRequestController::class, 'storeAttachment']);
     Route::post('/service-requests/{serviceRequest}/offers', [ServiceOfferController::class, 'store']);
     Route::post('/service-offers/{serviceOffer}/accept', [ServiceOfferController::class, 'accept']);
+    Route::post('/service-offers/{serviceOffer}/reject', [ServiceOfferController::class, 'reject']);
     Route::get('/service-bookings', [ServiceBookingController::class, 'index']);
     Route::get('/service-bookings/{serviceBooking}', [ServiceBookingController::class, 'show']);
     Route::get('/service-bookings/{serviceBooking}/payment', [ServiceBookingPaymentController::class, 'show']);
     Route::post('/service-bookings/{serviceBooking}/payment/simulate', [ServiceBookingPaymentController::class, 'simulate']);
+    Route::post('/service-bookings/{serviceBooking}/accept-schedule', [ServiceBookingController::class, 'acceptSchedule']);
+    Route::post('/service-bookings/{serviceBooking}/decline-schedule', [ServiceBookingController::class, 'declineSchedule']);
+    Route::post('/service-bookings/{serviceBooking}/cancel', [ServiceBookingController::class, 'cancelAsCustomer']);
+    Route::post('/service-bookings/{serviceBooking}/review', [ProviderReviewController::class, 'store'])->middleware('throttle:30,1');
+    Route::patch('/provider-reviews/{review}', [ProviderReviewController::class, 'update'])->middleware('throttle:30,1');
+    Route::delete('/provider-reviews/{review}', [ProviderReviewController::class, 'destroy'])->middleware('throttle:30,1');
+    Route::post('/provider-reviews/{review}/response', [ProviderReviewController::class, 'respond'])->middleware('throttle:30,1');
+    Route::post('/services/{identifier}/booking-preview', [DirectServiceBookingController::class, 'preview'])->middleware('throttle:30,1');
+    Route::post('/services/{identifier}/direct-booking', [DirectServiceBookingController::class, 'store'])->middleware('throttle:20,1');
 
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'show']);
@@ -180,6 +198,7 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
         Route::post('/addresses/{address}/default', [AddressController::class, 'setDefault']);
 
+        Route::get('/wishlist/summary', [WishlistController::class, 'summary']);
         Route::get('/wishlist', [WishlistController::class, 'index']);
         Route::delete('/wishlist', [WishlistController::class, 'clear']);
         Route::get('/reviews', [CustomerReviewController::class, 'index']);
@@ -191,7 +210,10 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
     Route::patch('/products/{id}/reviews', [ProductEngagementController::class, 'updateReview']);
     Route::delete('/products/{id}/reviews', [ProductEngagementController::class, 'destroyReview']);
     Route::post('/products/{id}/like', [ProductEngagementController::class, 'toggleLike']);
-    Route::post('/products/{id}/wishlist', [ProductEngagementController::class, 'toggleWishlist']);
+    Route::post('/products/{id}/wishlist', [ProductEngagementController::class, 'toggleWishlist'])
+        ->middleware('throttle:wishlist-toggle');
+    Route::post('/services/{identifier}/wishlist', [ServiceEngagementController::class, 'toggleWishlist'])
+        ->middleware('throttle:wishlist-toggle');
     Route::post('/products/{id}/preorder', [ProductPreorderController::class, 'store']);
     Route::get('/products/{id}/preorder', [ProductPreorderController::class, 'status']);
 
@@ -250,6 +272,12 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::post('/products/{product}/images', [VendorProductController::class, 'addImages']);
         Route::delete('/products/{product}/images/{image}', [VendorProductController::class, 'deleteImage']);
         Route::patch('/inventory/{product}', [VendorInventoryController::class, 'adjust']);
+        Route::get('/coupons', [VendorCouponController::class, 'index']);
+        Route::post('/coupons', [VendorCouponController::class, 'store']);
+        Route::get('/coupons/{vendorCoupon}', [VendorCouponController::class, 'show']);
+        Route::patch('/coupons/{vendorCoupon}', [VendorCouponController::class, 'update']);
+        Route::post('/coupons/{vendorCoupon}/activate', [VendorCouponController::class, 'activate']);
+        Route::post('/coupons/{vendorCoupon}/deactivate', [VendorCouponController::class, 'deactivate']);
         Route::get('/finance/summary', [VendorFinanceController::class, 'summary']);
         Route::get('/finance/analytics', [VendorFinanceController::class, 'analytics']);
         Route::get('/finance/report', [VendorFinanceController::class, 'exportReport']);
@@ -262,9 +290,33 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
     Route::middleware('role:provider,admin')->prefix('dashboard/provider')->group(function () {
         Route::get('/service-requests', [ServiceOfferController::class, 'providerInbox']);
         Route::get('/service-requests/{serviceRequest}', [ServiceOfferController::class, 'providerShow']);
+        Route::get('/services', [ServiceProviderController::class, 'ownServices']);
+        Route::post('/services', [ServiceProviderController::class, 'storeService']);
+        Route::patch('/services/{service}', [ServiceProviderController::class, 'updateService']);
+        Route::delete('/services/{service}', [ServiceProviderController::class, 'destroyService']);
         Route::get('/bookings', [ServiceBookingController::class, 'providerIndex']);
         Route::post('/bookings/{serviceBooking}/start', [ServiceBookingController::class, 'start']);
         Route::post('/bookings/{serviceBooking}/complete', [ServiceBookingController::class, 'complete']);
+        Route::post('/bookings/{serviceBooking}/confirm', [ServiceBookingController::class, 'confirm']);
+        Route::post('/bookings/{serviceBooking}/propose-schedule', [ServiceBookingController::class, 'proposeSchedule']);
+        Route::post('/bookings/{serviceBooking}/cancel', [ServiceBookingController::class, 'cancel']);
+        Route::get('/finance/transactions', [ProviderFinanceController::class, 'transactions']);
+        Route::get('/finance/summary', [ProviderFinanceController::class, 'summary']);
+        Route::get('/finance/analytics', [ProviderFinanceController::class, 'analytics']);
+        Route::get('/finance/export', [ProviderFinanceController::class, 'exportReport']);
+        Route::post('/finance/payouts', [ProviderFinanceController::class, 'requestPayout']);
+        Route::get('/settings', [ProviderSettingsController::class, 'show']);
+        Route::patch('/settings/profile', [ProviderSettingsController::class, 'updateProfile']);
+        Route::put('/settings/working-hours', [ProviderSettingsController::class, 'updateWorkingHours']);
+        Route::patch('/settings/account', [ProviderSettingsController::class, 'updateAccount']);
+        Route::patch('/settings/password', [ProviderSettingsController::class, 'updatePassword']);
+        Route::patch('/settings/notifications', [ProviderSettingsController::class, 'updateNotifications']);
+        Route::patch('/settings/bank-account', [ProviderSettingsController::class, 'updateBankAccount']);
+        Route::post('/settings/avatar', [ProviderSettingsController::class, 'uploadAvatar']);
+        Route::delete('/settings/avatar', [ProviderSettingsController::class, 'deleteAvatar']);
+        Route::get('/settings/work-policy', [ProviderWorkPolicyController::class, 'show']);
+        Route::put('/settings/work-policy', [ProviderWorkPolicyController::class, 'update']);
+        Route::get('/reviews', [ProviderReviewController::class, 'providerInbox']);
     });
 
     Route::middleware('role:admin')->prefix('admin')->group(function () {

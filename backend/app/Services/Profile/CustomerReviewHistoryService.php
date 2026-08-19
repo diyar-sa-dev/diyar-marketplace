@@ -2,9 +2,16 @@
 
 namespace App\Services\Profile;
 
+use App\Enums\ProviderReviewStatus;
+use App\Enums\ServiceBookingPaymentStatus;
+use App\Enums\ServiceBookingStatus;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductReview;
+use App\Models\ProviderAccount;
+use App\Models\ProviderReview;
+use App\Models\Service;
+use App\Models\ServiceBooking;
 use App\Models\StoreReview;
 use App\Models\User;
 use App\Models\VendorAccount;
@@ -83,6 +90,19 @@ final class CustomerReviewHistoryService
                 : null;
         }
 
+        if ($type === 'service') {
+            $review = ProviderReview::query()
+                ->where('user_id', $user->id)
+                ->where('status', ProviderReviewStatus::Published)
+                ->whereKey($id)
+                ->with(['service', 'providerAccount', 'serviceBooking:id,reference'])
+                ->first();
+
+            return $review !== null
+                ? $this->hydratePublishedServiceReviews(collect([$review]))->first()
+                : null;
+        }
+
         return null;
     }
 
@@ -93,21 +113,26 @@ final class CustomerReviewHistoryService
     {
         $publishedProduct = ProductReview::query()->where('user_id', $user->id)->count();
         $publishedStore = StoreReview::query()->where('user_id', $user->id)->count();
+        $publishedService = ProviderReview::query()
+            ->where('user_id', $user->id)
+            ->where('status', ProviderReviewStatus::Published)
+            ->count();
         $pendingProduct = $this->pendingProductOpportunities($user)->count();
         $pendingStore = $this->pendingStoreOpportunities($user)->count();
+        $pendingService = $this->pendingServiceOpportunities($user)->count();
 
         return [
-            'published_count' => $publishedProduct + $publishedStore,
-            'pending_count' => $pendingProduct + $pendingStore,
+            'published_count' => $publishedProduct + $publishedStore + $publishedService,
+            'pending_count' => $pendingProduct + $pendingStore + $pendingService,
             'published_by_type' => [
                 'product' => $publishedProduct,
                 'store' => $publishedStore,
-                'service' => 0,
+                'service' => $publishedService,
             ],
             'pending_by_type' => [
                 'product' => $pendingProduct,
                 'store' => $pendingStore,
-                'service' => 0,
+                'service' => $pendingService,
             ],
         ];
     }
@@ -119,7 +144,18 @@ final class CustomerReviewHistoryService
     private function paginatePublished(User $user, string $type, int $page, int $perPage, array $summary): array
     {
         if ($type === 'service') {
-            return $this->emptyPage($summary, $page, $perPage);
+            $paginator = ProviderReview::query()
+                ->where('user_id', $user->id)
+                ->where('status', ProviderReviewStatus::Published)
+                ->with(['service', 'providerAccount', 'serviceBooking:id,reference'])
+                ->latest()
+                ->paginate(perPage: $perPage, page: $page);
+
+            return $this->formatPublishedPage(
+                $summary,
+                $this->hydratePublishedServiceReviews($paginator->getCollection()),
+                $paginator,
+            );
         }
 
         if ($type === 'product') {
@@ -161,6 +197,12 @@ final class CustomerReviewHistoryService
                     StoreReview::query()
                         ->selectRaw("id, 'store' as review_type, created_at")
                         ->where('user_id', $user->id),
+                )
+                ->unionAll(
+                    ProviderReview::query()
+                        ->selectRaw("id, 'service' as review_type, created_at")
+                        ->where('user_id', $user->id)
+                        ->where('status', ProviderReviewStatus::Published->value),
                 ),
             'customer_reviews',
         );
@@ -173,17 +215,23 @@ final class CustomerReviewHistoryService
 
         $productIds = $rows->where('review_type', 'product')->pluck('id')->all();
         $storeIds = $rows->where('review_type', 'store')->pluck('id')->all();
+        $serviceIds = $rows->where('review_type', 'service')->pluck('id')->all();
 
         $productsById = $this->loadPublishedProductReviews($productIds)->keyBy('id');
         $storesById = $this->loadPublishedStoreReviews($storeIds)->keyBy('id');
+        $servicesById = $this->loadPublishedServiceReviews($serviceIds)->keyBy('id');
 
         $items = $rows
-            ->map(function ($row) use ($productsById, $storesById) {
+            ->map(function ($row) use ($productsById, $storesById, $servicesById) {
                 if ($row->review_type === 'product') {
                     return $productsById->get($row->id);
                 }
 
-                return $storesById->get($row->id);
+                if ($row->review_type === 'store') {
+                    return $storesById->get($row->id);
+                }
+
+                return $servicesById->get($row->id);
             })
             ->filter()
             ->values()
@@ -200,15 +248,13 @@ final class CustomerReviewHistoryService
      */
     private function paginatePending(User $user, string $type, int $page, int $perPage, array $summary): array
     {
-        if ($type === 'service') {
-            return $this->emptyPage($summary, $page, $perPage);
-        }
-
         $items = match ($type) {
             'product' => $this->pendingProductOpportunities($user),
             'store' => $this->pendingStoreOpportunities($user),
+            'service' => $this->pendingServiceOpportunities($user),
             default => $this->pendingProductOpportunities($user)
                 ->concat($this->pendingStoreOpportunities($user))
+                ->concat($this->pendingServiceOpportunities($user))
                 ->sortByDesc('sort_at')
                 ->values(),
         };
@@ -331,6 +377,45 @@ final class CustomerReviewHistoryService
     }
 
     /**
+     * @param  list<string>  $ids
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function loadPublishedServiceReviews(array $ids): Collection
+    {
+        if ($ids === []) {
+            return collect();
+        }
+
+        return $this->hydratePublishedServiceReviews(
+            ProviderReview::query()
+                ->whereIn('id', $ids)
+                ->where('status', ProviderReviewStatus::Published)
+                ->with(['service', 'providerAccount', 'serviceBooking:id,reference'])
+                ->get(),
+        );
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function pendingServiceOpportunities(User $user): Collection
+    {
+        return ServiceBooking::query()
+            ->where('user_id', $user->id)
+            ->where('status', ServiceBookingStatus::Completed)
+            ->where('payment_status', ServiceBookingPaymentStatus::Paid)
+            ->whereDoesntHave('providerReview')
+            ->with(['service', 'providerAccount'])
+            ->latest('updated_at')
+            ->get()
+            ->filter(function (ServiceBooking $booking) use ($user) {
+                return $booking->providerAccount?->user_id !== $user->id;
+            })
+            ->map(fn (ServiceBooking $booking) => $this->mapPendingServiceItem($booking))
+            ->values();
+    }
+
+    /**
      * @return Collection<int, array<string, mixed>>
      */
     private function hydratePublishedProductReviews(Collection $reviews): Collection
@@ -378,6 +463,31 @@ final class CustomerReviewHistoryService
     }
 
     /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function hydratePublishedServiceReviews(Collection $reviews): Collection
+    {
+        return $reviews->map(fn (ProviderReview $review) => [
+            'type' => 'service',
+            'id' => $review->id,
+            'rating' => $review->rating,
+            'title' => $review->title,
+            'comment' => $review->comment,
+            'created_at' => $review->created_at?->toIso8601String(),
+            'updated_at' => $review->updated_at?->toIso8601String(),
+            'provider_response' => $review->provider_response,
+            'provider_responded_at' => $review->provider_responded_at?->toIso8601String(),
+            'provider_responded_by' => $review->provider_response !== null
+                ? $review->providerAccount?->business_name
+                : null,
+            'service' => $this->mapServiceSubject($review->service),
+            'provider' => $this->mapProviderSubject($review->providerAccount),
+            'booking_id' => $review->service_booking_id,
+            'booking_reference' => $review->serviceBooking?->reference,
+        ]);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function mapPendingProductItem(OrderItem $item): array
@@ -415,6 +525,22 @@ final class CustomerReviewHistoryService
             'order_number' => $order?->order_number,
             'vendor_order_id' => $vendorOrder->id,
             'store' => $this->mapStoreSubject($vendorOrder->vendorAccount),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mapPendingServiceItem(ServiceBooking $booking): array
+    {
+        return [
+            'type' => 'service',
+            'pending_key' => 'service:'.$booking->id,
+            'sort_at' => $booking->updated_at?->toIso8601String() ?? $booking->created_at?->toIso8601String(),
+            'booking_id' => $booking->id,
+            'booking_reference' => $booking->reference,
+            'service' => $this->mapServiceSubject($booking->service),
+            'provider' => $this->mapProviderSubject($booking->providerAccount),
         ];
     }
 
@@ -458,6 +584,39 @@ final class CustomerReviewHistoryService
             'name' => $vendor->business_name,
             'slug' => $vendor->slug,
             'logo_url' => $this->media->url($vendor->logo_path),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function mapProviderSubject(?ProviderAccount $provider): ?array
+    {
+        if ($provider === null) {
+            return null;
+        }
+
+        return [
+            'id' => $provider->id,
+            'name' => $provider->business_name,
+            'slug' => $provider->slug,
+            'logo_url' => $this->media->url($provider->avatar_path),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function mapServiceSubject(?Service $service): ?array
+    {
+        if ($service === null) {
+            return null;
+        }
+
+        return [
+            'id' => $service->id,
+            'title' => $service->title,
+            'slug' => $service->slug,
         ];
     }
 

@@ -15,7 +15,8 @@ import { useCart } from '../../hooks/cart/useCart.ts';
 import { cartKeys } from '../../hooks/cart/queryKeys.ts';
 import { cartSync } from '../../hooks/cart/cartSync.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
-import { CartLineItemCard, cartItemToLineProps } from '../checkout/CartLineItemCard.tsx';
+import { CartLineItemCard } from '../checkout/CartLineItemCard.tsx';
+import { cartItemToLineProps } from '../../lib/cartLineItem.ts';
 
 interface CartSidebarProps {
   isOpen: boolean;

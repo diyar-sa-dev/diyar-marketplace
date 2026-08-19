@@ -2,12 +2,7 @@ import type { VendorOrder } from '../../../../types/order.ts';
 import type { Locale } from '../../../../lib/i18n/types.ts';
 
 export type VendorOrderTab =
-  | 'all'
-  | 'pending'
-  | 'processing'
-  | 'shipped'
-  | 'delivered'
-  | 'preorders';
+  'all' | 'pending' | 'processing' | 'shipped' | 'delivered' | 'preorders';
 
 const VENDOR_ORDER_TABS: VendorOrderTab[] = [
   'all',

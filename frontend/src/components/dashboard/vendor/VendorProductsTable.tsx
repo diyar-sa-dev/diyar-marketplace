@@ -132,24 +132,24 @@ export function VendorProductsTable({
                         <Eye size={16} />
                       </button>
                       {canEdit ? (
-                      <button
-                        type="button"
-                        onClick={() => onEdit(product.id)}
-                        className={vendorActionButtonClass('edit')}
-                        title={t('vendor.products.table.edit')}
-                      >
-                        <Edit size={16} />
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => onEdit(product.id)}
+                          className={vendorActionButtonClass('edit')}
+                          title={t('vendor.products.table.edit')}
+                        >
+                          <Edit size={16} />
+                        </button>
                       ) : null}
                       {canDelete ? (
-                      <button
-                        type="button"
-                        onClick={() => onArchive(product.id)}
-                        className={vendorActionButtonClass('delete')}
-                        title={t('vendor.products.table.archive')}
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => onArchive(product.id)}
+                          className={vendorActionButtonClass('delete')}
+                          title={t('vendor.products.table.archive')}
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       ) : null}
                     </div>
                   </td>

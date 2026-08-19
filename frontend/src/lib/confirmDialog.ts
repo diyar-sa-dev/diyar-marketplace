@@ -73,8 +73,6 @@ export async function showSuccessToast(t: TranslateFn, titleKey: string): Promis
     timerProgressBar: true,
     showConfirmButton: false,
     showCloseButton: true,
-    backdrop: false,
-    heightAuto: false,
   });
 }
 

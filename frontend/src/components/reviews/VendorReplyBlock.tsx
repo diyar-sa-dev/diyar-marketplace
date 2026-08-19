@@ -11,6 +11,7 @@ interface VendorReplyBlockProps {
   locale: Locale;
   t: (key: string) => string;
   compact?: boolean;
+  variant?: 'vendor' | 'provider';
 }
 
 export function VendorReplyBlock({
@@ -21,8 +22,17 @@ export function VendorReplyBlock({
   locale,
   t,
   compact = false,
+  variant = 'vendor',
 }: VendorReplyBlockProps) {
-  const displayName = repliedBy ?? t('customerReviews.vendorReplyDefaultAuthor');
+  const isProvider = variant === 'provider';
+  const displayName =
+    repliedBy ??
+    (isProvider
+      ? t('providerReviews.providerReplyDefaultAuthor')
+      : t('customerReviews.vendorReplyDefaultAuthor'));
+  const replyLabel = isProvider
+    ? t('providerReviews.providerReplyTitle')
+    : t('customerReviews.vendorReplyTitle');
 
   return (
     <article
@@ -31,7 +41,7 @@ export function VendorReplyBlock({
       } shadow-sm`}
     >
       <div className="flex items-start gap-3 mb-3">
-        {avatarUrl ? (
+        {isProvider || avatarUrl ? (
           <UserAvatar name={displayName} avatarUrl={avatarUrl} size="sm" />
         ) : (
           <div
@@ -45,11 +55,13 @@ export function VendorReplyBlock({
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <span className={`font-bold text-diyar-dark block ${compact ? 'text-xs' : 'text-sm'}`}>
+              <span
+                className={`font-bold text-diyar-dark block ${compact ? 'text-xs' : 'text-sm'}`}
+              >
                 {displayName}
               </span>
               <span className="text-[10px] uppercase tracking-wide text-amber-700/80 font-bold">
-                {t('customerReviews.vendorReplyTitle')}
+                {replyLabel}
               </span>
             </div>
             {repliedAt && (

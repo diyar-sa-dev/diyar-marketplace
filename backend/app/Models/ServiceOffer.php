@@ -22,6 +22,8 @@ class ServiceOffer extends Model
         'proposed_price',
         'currency',
         'duration_days',
+        'proposed_scheduled_date',
+        'proposed_scheduled_time',
         'message',
         'quotation_disk',
         'quotation_path',
@@ -35,6 +37,7 @@ class ServiceOffer extends Model
         return [
             'status' => ServiceOfferStatus::class,
             'proposed_price' => 'decimal:2',
+            'proposed_scheduled_date' => 'date',
             'expires_at' => 'datetime',
         ];
     }

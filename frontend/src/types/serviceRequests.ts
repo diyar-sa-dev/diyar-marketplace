@@ -7,7 +7,13 @@ export type ServiceRequestStatus =
 export type ServiceOfferStatus = 'pending' | 'accepted' | 'rejected' | 'withdrawn' | 'expired';
 
 export type ServiceBookingStatus =
-  'pending_payment' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+  | 'pending_provider_confirmation'
+  | 'pending_customer_acceptance'
+  | 'pending_payment'
+  | 'confirmed'
+  | 'in_progress'
+  | 'completed'
+  | 'cancelled';
 
 export type ServiceRequestAttachment = {
   id: string;
@@ -24,6 +30,8 @@ export type ServiceOffer = {
   currency: string;
   duration_days?: number | null;
   message?: string | null;
+  proposed_scheduled_date?: string | null;
+  proposed_scheduled_time?: string | null;
   status: ServiceOfferStatus;
   expires_at?: string | null;
   quotation?: { original_name?: string; url?: string | null } | null;
@@ -52,8 +60,9 @@ export type ServiceBookingPayment = {
 export type ServiceBooking = {
   id: string;
   reference: string;
-  service_request_id: string;
-  service_offer_id: string;
+  booking_source?: 'rfq' | 'direct';
+  service_request_id?: string | null;
+  service_offer_id?: string | null;
   status: ServiceBookingStatus;
   payment_status: string;
   payment_strategy: string;
@@ -61,10 +70,57 @@ export type ServiceBooking = {
   currency: string;
   scheduled_date?: string | null;
   scheduled_time?: string | null;
+  requested_scheduled_date?: string | null;
+  requested_scheduled_time?: string | null;
+  proposed_scheduled_date?: string | null;
+  proposed_scheduled_time?: string | null;
+  last_proposed_scheduled_date?: string | null;
+  last_proposed_scheduled_time?: string | null;
+  schedule_proposed_at?: string | null;
+  duration_minutes?: number | null;
   location?: string | null;
   customer_notes?: string | null;
+  provider_notes?: string | null;
+  service_title?: string | null;
   provider?: { id: string; name: string; slug: string };
+  service?: {
+    id: string;
+    title: string;
+    slug: string;
+    description?: string | null;
+    duration_label?: string | null;
+    service_type_label?: string | null;
+    pricing_label?: string | null;
+    image_url?: string | null;
+    category?: { slug: string; name: string } | null;
+  } | null;
+  service_request?: {
+    id: string;
+    reference?: string | null;
+    title: string;
+    description?: string | null;
+    location?: string | null;
+    budget_min?: number | null;
+    budget_max?: number | null;
+  } | null;
+  service_offer?: {
+    proposed_scheduled_date?: string | null;
+    proposed_scheduled_time?: string | null;
+    proposed_price?: string;
+    currency?: string;
+  } | null;
   payment?: ServiceBookingPayment | null;
+  can_review?: boolean;
+  can_pay?: boolean;
+  can_accept_schedule?: boolean;
+  can_decline_schedule?: boolean;
+  can_cancel?: boolean;
+  review?: {
+    id: string;
+    rating: number;
+    comment?: string | null;
+    created_at?: string;
+  } | null;
   completed_at?: string | null;
   created_at?: string;
 };

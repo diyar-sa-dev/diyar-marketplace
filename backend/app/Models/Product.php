@@ -6,6 +6,7 @@ use App\Enums\AvailabilityMode;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
 use Database\Factories\ProductFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Schema;
 
 class Product extends Model
 {
@@ -128,5 +130,20 @@ class Product extends Model
         return $query
             ->where('status', ProductStatus::Active)
             ->whereHas('vendorAccount', fn ($q) => $q->where('status', 'active'));
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     */
+    public function scopeWithUserSaved(Builder $query, ?User $user): void
+    {
+        if ($user === null || ! Schema::hasTable('wishlist_items')) {
+            return;
+        }
+
+        $query->withExists([
+            'wishlistItems as user_saved' => fn (Builder $wishlistQuery) => $wishlistQuery
+                ->where('user_id', $user->id),
+        ]);
     }
 }

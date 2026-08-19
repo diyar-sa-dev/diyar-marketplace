@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Search,
   Filter,
@@ -7,115 +7,290 @@ import {
   Clock,
   MapPin,
   CheckCircle2,
+  X,
+  ChevronDown,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PaginationBar } from '../../components/catalog/PaginationBar.tsx';
 import { ErrorState } from '../../components/common/ErrorState.tsx';
-import { LoadingState } from '../../components/common/LoadingState.tsx';
+import { ProviderRequestCardSkeleton } from '../../components/provider/ProviderRequestCardSkeleton.tsx';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue.ts';
 import { useProviderServiceRequests } from '../../hooks/provider/useProviderDashboard.ts';
+import { useServiceCategories } from '../../hooks/services/useServices.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import {
   formatProviderBudget,
   formatProviderRequestDate,
   providerCategoryLabel,
 } from '../../lib/providerDashboardUi.ts';
+import type { ProviderInboxFilters } from '../../types/providerDashboard.ts';
+
+const PER_PAGE = 9;
+
+type SortOption = NonNullable<ProviderInboxFilters['sort']>;
 
 export default function ServiceClientRequests() {
-  const { locale } = useLocale();
+  const { t, dir, locale } = useLocale();
   const [activeTab, setActiveTab] = useState<'open' | 'offered'>('open');
   const [searchInput, setSearchInput] = useState('');
+  const [page, setPage] = useState(1);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [sortFilter, setSortFilter] = useState<SortOption>('newest');
+  const filterRef = useRef<HTMLDivElement>(null);
   const debouncedSearch = useDebouncedValue(searchInput, 300);
 
-  const { data, isLoading, isError, error, refetch } = useProviderServiceRequests({
+  const { data: categories = [] } = useServiceCategories();
+
+  const filters: ProviderInboxFilters = {
     status: activeTab === 'open' ? 'open' : 'submitted',
-    per_page: 30,
-  });
+    page,
+    per_page: PER_PAGE,
+    q: debouncedSearch.trim() || undefined,
+    category: categoryFilter || undefined,
+    sort: sortFilter,
+  };
 
-  const filteredRequests = useMemo(() => {
-    const items = data?.items ?? [];
-    const query = debouncedSearch.trim().toLowerCase();
-    if (!query) {
-      return items;
+  const { data, isLoading, isError, error, refetch } = useProviderServiceRequests(filters);
+
+  const requests = data?.items ?? [];
+  const activeFilterCount = (categoryFilter ? 1 : 0) + (sortFilter !== 'newest' ? 1 : 0);
+
+  const sortOptions = useMemo(
+    () => [
+      { value: 'newest' as const, label: t('providerDashboard.clientRequests.filters.sortNewest') },
+      { value: 'oldest' as const, label: t('providerDashboard.clientRequests.filters.sortOldest') },
+      {
+        value: 'budget_asc' as const,
+        label: t('providerDashboard.clientRequests.filters.sortBudgetAsc'),
+      },
+      {
+        value: 'budget_desc' as const,
+        label: t('providerDashboard.clientRequests.filters.sortBudgetDesc'),
+      },
+    ],
+    [t],
+  );
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setFiltersOpen(false);
+      }
+    };
+    if (filtersOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
     }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [filtersOpen]);
 
-    return items.filter((request) => {
-      const haystack = [
-        request.reference,
-        request.title,
-        request.description,
-        request.customer?.name,
-        providerCategoryLabel(request, locale),
-        request.location,
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
+  const handleTabChange = (tab: 'open' | 'offered') => {
+    setActiveTab(tab);
+    setPage(1);
+  };
 
-      return haystack.includes(query);
-    });
-  }, [data?.items, debouncedSearch, locale]);
+  const clearFilters = () => {
+    setCategoryFilter('');
+    setSortFilter('newest');
+    setPage(1);
+  };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={dir}>
       <div>
-        <h1 className="text-2xl font-bold text-diyar-dark mb-2">طلبات العملاء</h1>
-        <p className="text-gray-500">
-          تصفح الطلبات الخاصة التي قدمها العملاء وقدم عروض أسعارك ليتم اختيارك.
-        </p>
+        <h1 className="text-2xl font-bold text-diyar-dark mb-2">
+          {t('providerDashboard.clientRequests.title')}
+        </h1>
+        <p className="text-gray-500">{t('providerDashboard.clientRequests.subtitle')}</p>
       </div>
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
         <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar">
           <button
-            onClick={() => setActiveTab('open')}
+            type="button"
+            onClick={() => handleTabChange('open')}
             className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === 'open' ? 'bg-diyar-brown text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
           >
-            الطلبات المتاحة
+            {t('providerDashboard.clientRequests.tabs.open')}
           </button>
           <button
-            onClick={() => setActiveTab('offered')}
+            type="button"
+            onClick={() => handleTabChange('offered')}
             className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === 'offered' ? 'bg-diyar-brown text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
           >
-            عروضي المقدمة
+            {t('providerDashboard.clientRequests.tabs.offered')}
           </button>
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
-              placeholder="ابحث في الطلبات..."
+              placeholder={t('providerDashboard.clientRequests.searchPlaceholder')}
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-100 rounded-lg pl-3 pr-9 py-2 text-sm focus:ring-2 focus:ring-diyar-brown outline-none"
+              onChange={(e) => {
+                setSearchInput(e.target.value);
+                setPage(1);
+              }}
+              className="w-full bg-gray-50 border border-gray-100 rounded-lg pe-3 ps-9 py-2 text-sm focus:ring-2 focus:ring-diyar-brown outline-none"
             />
           </div>
-          <button
-            type="button"
-            className="p-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-          >
-            <Filter size={18} />
-          </button>
+
+          <div className="relative" ref={filterRef}>
+            <button
+              type="button"
+              onClick={() => setFiltersOpen((open) => !open)}
+              className={`relative p-2 border rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${
+                filtersOpen || activeFilterCount > 0
+                  ? 'border-diyar-brown bg-diyar-cream/40 text-diyar-brown'
+                  : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+              }`}
+              aria-expanded={filtersOpen}
+              aria-label={t('providerDashboard.clientRequests.filters.title')}
+            >
+              <Filter size={18} />
+              <ChevronDown
+                size={14}
+                className={`hidden sm:block transition-transform ${filtersOpen ? 'rotate-180' : ''}`}
+              />
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1.5 -end-1.5 min-w-4 h-4 px-1 rounded-full bg-diyar-brown text-white text-[10px] font-bold flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+
+            {filtersOpen && (
+              <div className="absolute end-0 top-full mt-2 w-72 bg-white rounded-2xl border border-gray-100 shadow-xl z-50 p-4 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-sm text-diyar-dark">
+                    {t('providerDashboard.clientRequests.filters.title')}
+                  </h3>
+                  {activeFilterCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={clearFilters}
+                      className="text-xs font-bold text-diyar-brown hover:underline cursor-pointer"
+                    >
+                      {t('providerDashboard.clientRequests.filters.clear')}
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                    {t('providerDashboard.clientRequests.filters.category')}
+                  </label>
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => {
+                      setCategoryFilter(e.target.value);
+                      setPage(1);
+                    }}
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown outline-none cursor-pointer"
+                  >
+                    <option value="">
+                      {t('providerDashboard.clientRequests.filters.allCategories')}
+                    </option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.slug}>
+                        {locale === 'ar' ? category.name_ar : category.name_en}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                    {t('providerDashboard.clientRequests.filters.sort')}
+                  </label>
+                  <select
+                    value={sortFilter}
+                    onChange={(e) => {
+                      setSortFilter(e.target.value as SortOption);
+                      setPage(1);
+                    }}
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown outline-none cursor-pointer"
+                  >
+                    {sortOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setFiltersOpen(false)}
+                  className="w-full py-2.5 rounded-xl bg-diyar-dark text-white text-sm font-bold hover:bg-black transition cursor-pointer"
+                >
+                  {t('providerDashboard.clientRequests.filters.apply')}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {isLoading ? (
-        <LoadingState className="min-h-64" />
-      ) : isError ? (
+      {activeFilterCount > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          {categoryFilter && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-diyar-cream/50 text-diyar-dark text-xs font-bold border border-diyar-brown/20">
+              {categories.find((c) => c.slug === categoryFilter)?.[
+                locale === 'ar' ? 'name_ar' : 'name_en'
+              ] ?? categoryFilter}
+              <button
+                type="button"
+                onClick={() => {
+                  setCategoryFilter('');
+                  setPage(1);
+                }}
+                className="cursor-pointer hover:text-red-600"
+              >
+                <X size={12} />
+              </button>
+            </span>
+          )}
+          {sortFilter !== 'newest' && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-bold">
+              {sortOptions.find((o) => o.value === sortFilter)?.label}
+              <button
+                type="button"
+                onClick={() => {
+                  setSortFilter('newest');
+                  setPage(1);
+                }}
+                className="cursor-pointer hover:text-red-600"
+              >
+                <X size={12} />
+              </button>
+            </span>
+          )}
+        </div>
+      )}
+
+      {isError ? (
         <ErrorState
-          message="تعذر تحميل طلبات العملاء"
+          message={t('providerDashboard.clientRequests.loadError')}
           error={error as Error}
           onRetry={() => void refetch()}
         />
+      ) : isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: PER_PAGE }).map((_, index) => (
+            <ProviderRequestCardSkeleton key={index} />
+          ))}
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRequests.map((request) => (
+            {requests.map((request) => (
               <Link
                 to={`/dashboard/service/client-requests/${request.id}`}
                 key={request.id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col p-5 group focus:outline-none focus:ring-2 focus:ring-diyar-brown focus:border-transparent"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col p-5 group focus:outline-none focus:ring-2 focus:ring-diyar-brown focus:border-transparent cursor-pointer"
               >
                 <div className="flex justify-between items-start mb-4">
                   <span className="inline-block px-3 py-1 bg-diyar-cream/30 text-diyar-brown text-xs font-bold rounded-lg truncate max-w-37.5">
@@ -127,10 +302,14 @@ export default function ServiceClientRequests() {
                 </div>
 
                 <h3 className="font-bold text-gray-800 mb-2 truncate group-hover:text-diyar-brown transition-colors">
-                  طلب {request.customer?.name ?? 'عميل'}
+                  {t('providerDashboard.clientRequests.requestFrom', {
+                    name: request.customer?.name ?? t('providerDashboard.common.client'),
+                  })}
                 </h3>
 
-                <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-1">{request.description}</p>
+                <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-1">
+                  {request.description}
+                </p>
 
                 <div className="space-y-2 mb-5">
                   <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -140,7 +319,7 @@ export default function ServiceClientRequests() {
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <DollarSign size={14} className="text-gray-400" />
                     <span className="font-medium text-gray-700">
-                      الميزانية:{' '}
+                      {t('providerDashboard.common.budgetLabel')}{' '}
                       <span dir="ltr">
                         {formatProviderBudget(request.budget_min, request.budget_max, locale)}
                       </span>
@@ -152,25 +331,37 @@ export default function ServiceClientRequests() {
 
                 {activeTab === 'open' ? (
                   <div className="w-full bg-diyar-brown text-white py-2 rounded-xl text-sm font-bold text-center group-hover:bg-[#8A6D46] transition-colors">
-                    عرض التفاصيل
+                    {t('providerDashboard.clientRequests.viewDetails')}
                   </div>
                 ) : (
                   <div className="w-full bg-green-50 text-green-700 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
-                    <CheckCircle2 size={16} /> تم تقديم العرض
+                    <CheckCircle2 size={16} />{' '}
+                    {t('providerDashboard.clientRequests.offerSubmitted')}
                   </div>
                 )}
               </Link>
             ))}
           </div>
 
-          {filteredRequests.length === 0 && (
+          {requests.length === 0 && (
             <div className="bg-white rounded-2xl border border-gray-100 p-10 flex flex-col items-center justify-center text-center">
               <MessageSquare size={48} className="text-gray-200 mb-4" />
-              <h3 className="text-lg font-bold text-gray-700 mb-2">لا توجد طلبات هنا حالياً</h3>
+              <h3 className="text-lg font-bold text-gray-700 mb-2">
+                {t('providerDashboard.clientRequests.emptyTitle')}
+              </h3>
               <p className="text-gray-500 text-sm max-w-sm">
-                قم بالتحقق مجدداً في وقت لاحق لرؤية الطلبات الجديدة المقدمة من قبل العملاء.
+                {t('providerDashboard.clientRequests.emptyDescription')}
               </p>
             </div>
+          )}
+
+          {data?.pagination && (
+            <PaginationBar
+              pagination={data.pagination}
+              page={page}
+              onPageChange={setPage}
+              className="mt-4"
+            />
           )}
         </>
       )}

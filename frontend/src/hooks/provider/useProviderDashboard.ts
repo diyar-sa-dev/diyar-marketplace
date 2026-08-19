@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as providerDashboardApi from '../../api/providerDashboard.ts';
+import type { ProviderBookingFilters } from '../../api/providerDashboard.ts';
 import type { ProviderInboxFilters } from '../../types/providerDashboard.ts';
 
 export const providerDashboardKeys = {
@@ -7,8 +8,15 @@ export const providerDashboardKeys = {
   inbox: (filters: ProviderInboxFilters) =>
     [...providerDashboardKeys.all, 'inbox', filters] as const,
   request: (id: string) => [...providerDashboardKeys.all, 'request', id] as const,
-  bookings: (page: number, perPage: number) =>
-    [...providerDashboardKeys.all, 'bookings', page, perPage] as const,
+  bookings: (filters: ProviderBookingFilters) =>
+    [...providerDashboardKeys.all, 'bookings', filters] as const,
+  ownServices: (page: number, perPage: number, q?: string) =>
+    [...providerDashboardKeys.all, 'own-services', page, perPage, q ?? ''] as const,
+  financeSummary: () => [...providerDashboardKeys.all, 'finance-summary'] as const,
+  financeAnalytics: () => [...providerDashboardKeys.all, 'finance-analytics'] as const,
+  financeTransactions: (page: number, type?: string) =>
+    [...providerDashboardKeys.all, 'finance-transactions', page, type ?? 'all'] as const,
+  settings: () => [...providerDashboardKeys.all, 'settings'] as const,
 };
 
 export function useProviderServiceRequests(filters: ProviderInboxFilters = {}) {
@@ -39,6 +47,8 @@ export function useSubmitProviderServiceOffer() {
         proposed_price: number;
         duration_days?: number;
         message: string;
+        proposed_scheduled_date?: string;
+        proposed_scheduled_time?: string;
         quotation?: File;
       };
     }) => providerDashboardApi.submitProviderServiceOffer(requestId, payload),
@@ -48,10 +58,14 @@ export function useSubmitProviderServiceOffer() {
   });
 }
 
-export function useProviderBookings(page = 1, perPage = 20) {
+export function useProviderBookings(
+  filters: ProviderBookingFilters = {},
+  options?: { refetchOnMount?: boolean | 'always' },
+) {
   return useQuery({
-    queryKey: providerDashboardKeys.bookings(page, perPage),
-    queryFn: () => providerDashboardApi.fetchProviderBookings(page, perPage),
+    queryKey: providerDashboardKeys.bookings(filters),
+    queryFn: () => providerDashboardApi.fetchProviderBookings(filters),
+    refetchOnMount: options?.refetchOnMount ?? true,
   });
 }
 
@@ -72,5 +86,203 @@ export function useProviderBookingActions() {
     },
   });
 
-  return { start, complete };
+  const cancel = useMutation({
+    mutationFn: (bookingId: string) => providerDashboardApi.cancelProviderBooking(bookingId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: providerDashboardKeys.all });
+    },
+  });
+
+  const confirm = useMutation({
+    mutationFn: (bookingId: string) => providerDashboardApi.confirmProviderBooking(bookingId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: providerDashboardKeys.all });
+    },
+  });
+
+  const proposeSchedule = useMutation({
+    mutationFn: ({
+      bookingId,
+      payload,
+    }: {
+      bookingId: string;
+      payload: {
+        proposed_scheduled_date: string;
+        proposed_scheduled_time: string;
+        provider_notes?: string;
+      };
+    }) => providerDashboardApi.proposeProviderBookingSchedule(bookingId, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: providerDashboardKeys.all });
+    },
+  });
+
+  return { start, complete, cancel, confirm, proposeSchedule };
+}
+
+export function useProviderOwnServices(page = 1, perPage = 50, q?: string) {
+  return useQuery({
+    queryKey: providerDashboardKeys.ownServices(page, perPage, q),
+    queryFn: () => providerDashboardApi.fetchProviderOwnServices(page, perPage, q),
+  });
+}
+
+export function useProviderFinanceSummary() {
+  return useQuery({
+    queryKey: providerDashboardKeys.financeSummary(),
+    queryFn: providerDashboardApi.fetchProviderFinanceSummary,
+    refetchOnMount: 'always',
+  });
+}
+
+export function useProviderFinanceAnalytics() {
+  return useQuery({
+    queryKey: providerDashboardKeys.financeAnalytics(),
+    queryFn: providerDashboardApi.fetchProviderFinanceAnalytics,
+    refetchOnMount: 'always',
+  });
+}
+
+export function useProviderFinanceTransactions(page = 1, type?: string) {
+  return useQuery({
+    queryKey: providerDashboardKeys.financeTransactions(page, type),
+    queryFn: () => providerDashboardApi.fetchProviderFinanceTransactions(page, 20, type),
+    refetchOnMount: 'always',
+  });
+}
+
+export function useRequestProviderPayout() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: providerDashboardApi.requestProviderPayout,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: providerDashboardKeys.all });
+    },
+  });
+}
+
+export function useDownloadProviderFinanceReport() {
+  return useMutation({
+    mutationFn: providerDashboardApi.downloadProviderFinanceReport,
+  });
+}
+
+export function useProviderSettings(enabled = true) {
+  return useQuery({
+    queryKey: providerDashboardKeys.settings(),
+    queryFn: providerDashboardApi.fetchProviderSettings,
+    enabled,
+  });
+}
+
+export function useUpdateProviderProfileSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: providerDashboardApi.updateProviderProfileSettings,
+    onSuccess: (settings) => {
+      queryClient.setQueryData(providerDashboardKeys.settings(), settings);
+    },
+  });
+}
+
+export function useUpdateProviderWorkingHours() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: providerDashboardApi.updateProviderWorkingHours,
+    onSuccess: (settings) => {
+      queryClient.setQueryData(providerDashboardKeys.settings(), settings);
+    },
+  });
+}
+
+export function useUpdateProviderAccountSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: providerDashboardApi.updateProviderAccountSettings,
+    onSuccess: (settings) => {
+      queryClient.setQueryData(providerDashboardKeys.settings(), settings);
+    },
+  });
+}
+
+export function useUpdateProviderPasswordSettings() {
+  return useMutation({
+    mutationFn: providerDashboardApi.updateProviderPasswordSettings,
+  });
+}
+
+export function useUpdateProviderNotificationSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: providerDashboardApi.updateProviderNotificationSettings,
+    onSuccess: (settings) => {
+      queryClient.setQueryData(providerDashboardKeys.settings(), settings);
+    },
+  });
+}
+
+export function useUploadProviderAvatar() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: providerDashboardApi.uploadProviderAvatar,
+    onSuccess: (settings) => {
+      queryClient.setQueryData(providerDashboardKeys.settings(), settings);
+    },
+  });
+}
+
+export function useDeleteProviderAvatar() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: providerDashboardApi.deleteProviderAvatar,
+    onSuccess: (settings) => {
+      queryClient.setQueryData(providerDashboardKeys.settings(), settings);
+    },
+  });
+}
+
+export function useUpdateProviderBankAccount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: providerDashboardApi.updateProviderBankAccount,
+    onSuccess: (settings) => {
+      queryClient.setQueryData(providerDashboardKeys.settings(), settings);
+    },
+  });
+}
+
+export function useCreateProviderService() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: providerDashboardApi.createProviderService,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: providerDashboardKeys.all });
+    },
+  });
+}
+
+export function useUpdateProviderService() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      serviceId,
+      payload,
+    }: {
+      serviceId: string;
+      payload: Parameters<typeof providerDashboardApi.updateProviderService>[1];
+    }) => providerDashboardApi.updateProviderService(serviceId, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: providerDashboardKeys.all });
+    },
+  });
+}
+
+export function useDeleteProviderService() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: providerDashboardApi.deleteProviderService,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: providerDashboardKeys.all });
+    },
+  });
 }

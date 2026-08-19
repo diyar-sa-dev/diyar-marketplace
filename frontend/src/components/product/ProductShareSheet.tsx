@@ -91,7 +91,7 @@ interface ProductShareSheetProps {
   onClose: () => void;
   url: string;
   title: string;
-  context?: 'product' | 'store';
+  context?: 'product' | 'store' | 'service' | 'provider';
 }
 
 export function ProductShareSheet({
@@ -105,7 +105,14 @@ export function ProductShareSheet({
   const { toast } = useToast();
   const targets = buildShareTargets(url, title);
   const canNativeShare = typeof navigator.share === 'function';
-  const prefix = context === 'store' ? 'store' : 'catalog.productDetail';
+  const prefix =
+    context === 'store'
+      ? 'store'
+      : context === 'service'
+        ? 'serviceMarketplace.detail'
+        : context === 'provider'
+          ? 'serviceMarketplace.providerPage'
+          : 'catalog.productDetail';
 
   if (!open) {
     return null;
@@ -162,9 +169,7 @@ export function ProductShareSheet({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100">
-          <h3 className="font-bold text-diyar-dark text-lg">
-            {t(`${prefix}.shareTitle`)}
-          </h3>
+          <h3 className="font-bold text-diyar-dark text-lg">{t(`${prefix}.shareTitle`)}</h3>
           <button
             type="button"
             onClick={onClose}

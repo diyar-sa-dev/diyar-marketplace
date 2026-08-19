@@ -107,6 +107,14 @@ const STATIC_IMG_BY_SLUG = Object.fromEntries(
   PRODUCTS.filter((cat) => cat.img).map((cat) => [cat.id, cat.img]),
 ) as Record<string, string>;
 
+const SERVICE_ICON_BY_SLUG = Object.fromEntries(
+  SERVICES.map((cat) => [cat.id, cat.icon]),
+) as Record<string, Cat['icon']>;
+
+const SERVICE_STATIC_IMG_BY_SLUG = Object.fromEntries(
+  SERVICES.filter((cat) => cat.img).map((cat) => [cat.id, cat.img]),
+) as Record<string, string>;
+
 function CategoryRow({
   title,
   items,
@@ -134,14 +142,14 @@ function CategoryRow({
           <button
             onClick={() => scroll(1)}
             aria-label="السابق"
-            className="w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:text-diyar-dark hover:border-diyar-brown transition-colors"
+            className="w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:text-diyar-dark hover:border-diyar-brown transition-colors cursor-pointer"
           >
             <ChevronRight size={18} />
           </button>
           <button
             onClick={() => scroll(-1)}
             aria-label="التالي"
-            className="w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:text-diyar-dark hover:border-diyar-brown transition-colors"
+            className="w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:text-diyar-dark hover:border-diyar-brown transition-colors cursor-pointer"
           >
             <ChevronLeft size={18} />
           </button>
@@ -207,8 +215,8 @@ export default function CategoriesStrip() {
       : serviceCategories.map((cat) => ({
           id: cat.slug,
           name: cat.name,
-          icon: STATIC_ICON_BY_SLUG[cat.slug] ?? Paintbrush,
-          img: STATIC_IMG_BY_SLUG[cat.slug] ?? `/categories/${cat.name}.png`,
+          icon: SERVICE_ICON_BY_SLUG[cat.slug] ?? Paintbrush,
+          img: SERVICE_STATIC_IMG_BY_SLUG[cat.slug] ?? STATIC_IMG_BY_SLUG[cat.slug],
         }));
 
   return (

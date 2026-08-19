@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, Bell, Package, Tag, Info, CheckCircle2, Settings } from 'lucide-react';
+import { useAuth } from '../hooks/auth/useAuth.ts';
+import { resolveAccountHubPath } from '../lib/auth/roles.ts';
 
 const MOCK_NOTIFICATIONS = [
   {
@@ -50,6 +52,8 @@ const MOCK_NOTIFICATIONS = [
 ];
 
 export default function NotificationsPage() {
+  const { user } = useAuth();
+  const accountHubPath = resolveAccountHubPath(user?.roles);
   const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
 
   const markAllAsRead = () => {
@@ -72,7 +76,7 @@ export default function NotificationsPage() {
               الرئيسية
             </Link>
             <ChevronLeft size={16} />
-            <Link to="/profile" className="hover:text-diyar-dark transition">
+            <Link to={accountHubPath} className="hover:text-diyar-dark transition">
               حسابي
             </Link>
             <ChevronLeft size={16} />

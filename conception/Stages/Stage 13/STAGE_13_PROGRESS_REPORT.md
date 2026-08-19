@@ -1,4 +1,11 @@
-# Stage 13 — Progress Report
+# Stage 13 — Progress Report (Superseded)
+
+> **⚠️ Superseded by [STAGE_13_COMPLETION_REPORT.md](./STAGE_13_COMPLETION_REPORT.md) (2026-08-19)**  
+> This file retained for historical audit trail only. Provider portal is **COMPLETE**, not pending.
+
+---
+
+# Stage 13 — Progress Report (Historical)
 
 > **Date:** 2026-08-18  
 > **Baseline commit:** `d14203e` (Stage 6–12 commerce foundation)  

@@ -30,6 +30,9 @@ class VendorOrder extends Model
         'discount_amount',
         'vat_amount',
         'vendor_total',
+        'vendor_coupon_id',
+        'coupon_code',
+        'coupon_percent_snapshot',
     ];
 
     protected function casts(): array

@@ -113,7 +113,9 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
             {imageUrl ? (
               <img src={imageUrl} alt={title ?? ''} className="w-full h-full object-cover" />
             ) : (
-              <span className="text-2xl font-bold text-diyar-brown/40">{title?.charAt(0) ?? '?'}</span>
+              <span className="text-2xl font-bold text-diyar-brown/40">
+                {title?.charAt(0) ?? '?'}
+              </span>
             )}
           </Link>
         ) : (
@@ -121,7 +123,9 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
             {imageUrl ? (
               <img src={imageUrl} alt={title ?? ''} className="w-full h-full object-cover" />
             ) : (
-              <span className="text-2xl font-bold text-diyar-brown/40">{title?.charAt(0) ?? '?'}</span>
+              <span className="text-2xl font-bold text-diyar-brown/40">
+                {title?.charAt(0) ?? '?'}
+              </span>
             )}
           </div>
         )}
@@ -131,7 +135,10 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-1">
                 {linkTarget ? (
-                  <Link to={linkTarget} className="font-bold text-diyar-dark wrap-break-word hover:text-diyar-brown">
+                  <Link
+                    to={linkTarget}
+                    className="font-bold text-diyar-dark wrap-break-word hover:text-diyar-brown"
+                  >
                     {title ?? '—'}
                   </Link>
                 ) : (
@@ -176,23 +183,23 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
           <div className="flex flex-wrap gap-2 mt-4 items-center justify-between">
             {canEdit && (
               <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={openEdit}
-                className={`${vendorButtonClass} inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border border-gray-200 text-gray-700 hover:bg-gray-50 cursor-pointer`}
-              >
-                <Pencil size={14} />
-                {t('customerReviews.editReview')}
-              </button>
-              <button
-                type="button"
-                onClick={() => void handleDelete()}
-                disabled={deleting}
-                className={`${vendorButtonClass} inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border border-red-200 text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-60`}
-              >
-                <Trash2 size={14} />
-                {deleting ? '…' : t('customerReviews.deleteReview')}
-              </button>
+                <button
+                  type="button"
+                  onClick={openEdit}
+                  className={`${vendorButtonClass} inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border border-gray-200 text-gray-700 hover:bg-gray-50 cursor-pointer`}
+                >
+                  <Pencil size={14} />
+                  {t('customerReviews.editReview')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleDelete()}
+                  disabled={deleting}
+                  className={`${vendorButtonClass} inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border border-red-200 text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-60`}
+                >
+                  <Trash2 size={14} />
+                  {deleting ? '…' : t('customerReviews.deleteReview')}
+                </button>
               </div>
             )}
             <Link

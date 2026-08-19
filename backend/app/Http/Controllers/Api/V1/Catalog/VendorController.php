@@ -47,7 +47,7 @@ class VendorController extends Controller
     public function products(Request $request, string $slug): JsonResponse
     {
         $vendor = $this->vendors->findActiveBySlug($slug);
-        $paginator = $this->products->listForVendorPublic($vendor, $request->query());
+        $paginator = $this->products->listForVendorPublic($vendor, $request->query(), $request->user());
 
         return ApiResponse::success(data: $this->paginatedProducts($paginator));
     }

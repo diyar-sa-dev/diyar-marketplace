@@ -2,33 +2,55 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bookmark, ChevronLeft, ChevronRight, FolderHeart, ShoppingBag } from 'lucide-react';
 import ProductCard from '../components/cards/ProductCard.tsx';
+import ServiceCard from '../components/cards/ServiceCard.tsx';
 import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { LoadingState } from '../components/common/LoadingState.tsx';
-import { useClearWishlist, useWishlist } from '../hooks/profile/useWishlist.ts';
+import { useClearWishlist, useWishlist, useWishlistSummary } from '../hooks/profile/useWishlist.ts';
+import { useAuth } from '../hooks/auth/useAuth.ts';
+import { resolveAccountHubPath } from '../lib/auth/roles.ts';
 import { useLocale } from '../lib/i18n/localeContext.ts';
 import { mapProductCard } from '../lib/catalogMappers.ts';
 import { confirmClearWishlist, showSuccessToast } from '../lib/confirmDialog.ts';
+import type { ProductCard as ProductCardType } from '../types/catalog.ts';
+import type { ServiceCard as ServiceCardType } from '../types/services.ts';
 
 const PER_PAGE = 12;
 
 export default function WishlistPage() {
   const { t, dir } = useLocale();
+  const { user } = useAuth();
+  const accountHubPath = resolveAccountHubPath(user?.roles);
   const [filterTab, setFilterTab] = useState<'all' | 'products' | 'services'>('all');
-  const [page, setPage] = useState(1);
+  const [productsPage, setProductsPage] = useState(1);
+  const [servicesPage, setServicesPage] = useState(1);
 
-  const { data, isLoading, isError, error, refetch } = useWishlist(page, PER_PAGE);
+  const summaryQuery = useWishlistSummary();
+  const productsQuery = useWishlist(productsPage, PER_PAGE, 'products');
+  const servicesQuery = useWishlist(servicesPage, PER_PAGE, 'services');
   const clearWishlist = useClearWishlist();
 
   const BreadcrumbChevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   const savedProducts = useMemo(
-    () => (data?.items ?? []).map((item) => mapProductCard(item)),
-    [data?.items],
+    () => (productsQuery.data?.items ?? []).map((item) => mapProductCard(item as ProductCardType)),
+    [productsQuery.data?.items],
   );
-  const savedServicesCount = 0;
-  const productCount = data?.pagination.total ?? 0;
-  const totalCount = productCount + savedServicesCount;
+  const savedServices = (servicesQuery.data?.items ?? []) as ServiceCardType[];
+  const productCount = summaryQuery.data?.products ?? productsQuery.data?.pagination.total ?? 0;
+  const savedServicesCount =
+    summaryQuery.data?.services ?? servicesQuery.data?.pagination.total ?? 0;
+  const totalCount = summaryQuery.data?.total ?? productCount + savedServicesCount;
+
+  const isLoading =
+    summaryQuery.isLoading ||
+    ((filterTab === 'all' || filterTab === 'products') && productsQuery.isLoading) ||
+    ((filterTab === 'all' || filterTab === 'services') && servicesQuery.isLoading);
+
+  const isError =
+    summaryQuery.isError ||
+    ((filterTab === 'all' || filterTab === 'products') && productsQuery.isError) ||
+    ((filterTab === 'all' || filterTab === 'services') && servicesQuery.isError);
 
   const handleClearAll = async () => {
     const confirmed = await confirmClearWishlist(t);
@@ -37,7 +59,8 @@ export default function WishlistPage() {
     }
 
     await clearWishlist.mutateAsync();
-    setPage(1);
+    setProductsPage(1);
+    setServicesPage(1);
     await showSuccessToast(t, 'profile.wishlistPage.clearSuccess');
   };
 
@@ -60,7 +83,7 @@ export default function WishlistPage() {
               {t('common.home')}
             </Link>
             <BreadcrumbChevron size={16} />
-            <Link to="/profile" className="hover:text-diyar-dark transition-colors cursor-pointer">
+            <Link to={accountHubPath} className="hover:text-diyar-dark transition-colors cursor-pointer">
               {t('common.myAccount')}
             </Link>
             <BreadcrumbChevron size={16} />
@@ -97,10 +120,7 @@ export default function WishlistPage() {
         <div className="flex bg-white p-1.5 rounded-2xl border border-gray-100 shadow-sm max-w-md mb-8">
           <button
             type="button"
-            onClick={() => {
-              setFilterTab('all');
-              setPage(1);
-            }}
+            onClick={() => setFilterTab('all')}
             className={tabClass(filterTab === 'all')}
           >
             {t('profile.wishlistPage.tabAll')} ({totalCount})
@@ -109,7 +129,7 @@ export default function WishlistPage() {
             type="button"
             onClick={() => {
               setFilterTab('products');
-              setPage(1);
+              setProductsPage(1);
             }}
             className={tabClass(filterTab === 'products')}
           >
@@ -117,7 +137,10 @@ export default function WishlistPage() {
           </button>
           <button
             type="button"
-            onClick={() => setFilterTab('services')}
+            onClick={() => {
+              setFilterTab('services');
+              setServicesPage(1);
+            }}
             className={tabClass(filterTab === 'services')}
           >
             {t('profile.wishlistPage.tabServices')} ({savedServicesCount})
@@ -128,9 +151,13 @@ export default function WishlistPage() {
           <LoadingState className="min-h-60" />
         ) : isError ? (
           <ErrorState
-            error={error}
+            error={(productsQuery.error ?? servicesQuery.error ?? summaryQuery.error) as Error}
             title={t('profile.wishlistPage.loadError')}
-            onRetry={() => void refetch()}
+            onRetry={() => {
+              void summaryQuery.refetch();
+              void productsQuery.refetch();
+              void servicesQuery.refetch();
+            }}
           />
         ) : totalCount === 0 ? (
           <div className="bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-100 flex flex-col items-center animate-in fade-in zoom-in-95 duration-300">
@@ -149,10 +176,10 @@ export default function WishlistPage() {
                 {t('profile.wishlistPage.browseProducts')}
               </Link>
               <Link
-                to="/"
-                className="bg-gray-100 text-diyar-dark px-8 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all duration-200 cursor-pointer active:scale-[0.98]"
+                to="/services"
+                className="bg-diyar-brown text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-700 transition-all duration-200 cursor-pointer active:scale-[0.98]"
               >
-                {t('common.home')}
+                {t('profile.wishlistPage.exploreServices')}
               </Link>
             </div>
           </div>
@@ -198,11 +225,11 @@ export default function WishlistPage() {
                         </div>
                       ))}
                     </div>
-                    {data?.pagination && (
+                    {productsQuery.data?.pagination && filterTab !== 'all' && (
                       <PaginationBar
-                        pagination={data.pagination}
-                        page={page}
-                        onPageChange={setPage}
+                        pagination={productsQuery.data.pagination}
+                        page={productsPage}
+                        onPageChange={setProductsPage}
                         className="mt-10"
                       />
                     )}
@@ -213,34 +240,48 @@ export default function WishlistPage() {
 
             {showServicesSection && (
               <div>
-                {filterTab === 'all' && savedServicesCount > 0 && (
+                {filterTab === 'all' && savedServices.length > 0 && (
                   <h2 className="text-lg font-bold text-diyar-dark mb-4 flex items-center gap-2">
                     <span className="w-1.5 h-6 bg-diyar-brown rounded-full" />
                     {t('profile.wishlistPage.savedServices')} ({savedServicesCount})
                   </h2>
                 )}
 
-                {filterTab === 'services' || (filterTab === 'all' && savedServicesCount === 0) ? (
-                  filterTab === 'services' ? (
-                    <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 flex flex-col items-center animate-in fade-in duration-300">
-                      <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-300">
-                        <FolderHeart size={28} />
-                      </div>
-                      <h3 className="text-lg font-bold text-diyar-dark mb-1">
-                        {t('profile.wishlistPage.noServicesTitle')}
-                      </h3>
-                      <p className="text-gray-500 text-sm max-w-sm mb-4">
-                        {t('profile.wishlistPage.noServicesBody')}
-                      </p>
-                      <Link
-                        to="/"
-                        className="bg-diyar-brown text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-orange-700 transition-all duration-200 cursor-pointer active:scale-[0.98]"
-                      >
-                        {t('profile.wishlistPage.exploreServices')}
-                      </Link>
+                {filterTab === 'services' && savedServices.length === 0 ? (
+                  <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 flex flex-col items-center animate-in fade-in duration-300">
+                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-300">
+                      <FolderHeart size={28} />
                     </div>
-                  ) : null
-                ) : null}
+                    <h3 className="text-lg font-bold text-diyar-dark mb-1">
+                      {t('profile.wishlistPage.noServicesTitle')}
+                    </h3>
+                    <p className="text-gray-500 text-sm max-w-sm mb-4">
+                      {t('profile.wishlistPage.noServicesBody')}
+                    </p>
+                    <Link
+                      to="/services"
+                      className="bg-diyar-brown text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-orange-700 transition-all duration-200 cursor-pointer active:scale-[0.98]"
+                    >
+                      {t('profile.wishlistPage.exploreServices')}
+                    </Link>
+                  </div>
+                ) : savedServices.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {savedServices.map((service) => (
+                        <ServiceCard key={service.id} service={service} />
+                      ))}
+                    </div>
+                    {servicesQuery.data?.pagination && filterTab !== 'all' && (
+                      <PaginationBar
+                        pagination={servicesQuery.data.pagination}
+                        page={servicesPage}
+                        onPageChange={setServicesPage}
+                        className="mt-10"
+                      />
+                    )}
+                  </>
+                ) : filterTab === 'all' && savedServicesCount === 0 ? null : null}
               </div>
             )}
           </div>

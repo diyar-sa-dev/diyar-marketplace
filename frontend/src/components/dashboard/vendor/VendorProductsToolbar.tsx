@@ -154,14 +154,14 @@ export function VendorProductsToolbar({
         </div>
 
         {canAddProduct ? (
-        <button
-          type="button"
-          onClick={onAddProduct}
-          className={`${vendorButtonClass} bg-diyar-brown text-white px-5 py-2.5 text-sm hover:bg-[#A67B5B]/90 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]`}
-        >
-          <Plus size={18} />
-          {t('vendor.products.addProduct')}
-        </button>
+          <button
+            type="button"
+            onClick={onAddProduct}
+            className={`${vendorButtonClass} bg-diyar-brown text-white px-5 py-2.5 text-sm hover:bg-[#A67B5B]/90 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]`}
+          >
+            <Plus size={18} />
+            {t('vendor.products.addProduct')}
+          </button>
         ) : null}
       </div>
     </div>

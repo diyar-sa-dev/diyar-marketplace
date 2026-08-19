@@ -5,9 +5,11 @@ namespace Database\Seeders;
 use App\Enums\ProviderAccountStatus;
 use App\Enums\RoleName;
 use App\Enums\RoleStatus;
+use App\Enums\ServiceBookingMode;
 use App\Enums\ServicePricingMode;
 use App\Enums\UserStatus;
 use App\Models\ProviderAccount;
+use App\Models\ProviderWorkPolicy;
 use App\Models\Role;
 use App\Models\Service;
 use App\Models\ServiceCategory;
@@ -204,6 +206,21 @@ class ServiceMarketplaceSeeder extends Seeder
                     'rating_average' => $providerData['rating'],
                     'reviews_count' => $providerData['reviews'],
                     'joined_at' => now()->subYears(4),
+                    'working_hours' => $this->defaultWorkingHours(),
+                ],
+            );
+        }
+
+        foreach ($providerMap as $provider) {
+            ProviderWorkPolicy::query()->updateOrCreate(
+                ['provider_account_id' => $provider->id],
+                [
+                    'policy_enabled' => true,
+                    'initial_delivery_days' => 7,
+                    'free_revisions_included' => 2,
+                    'timeline_by_project_scope' => true,
+                    'cancellation_notice_hours' => 24,
+                    'custom_terms' => [],
                 ],
             );
         }
@@ -235,6 +252,10 @@ class ServiceMarketplaceSeeder extends Seeder
                     'title' => $serviceData['title'],
                     'description' => $provider->bio,
                     'pricing_mode' => $serviceData['mode'],
+                    'booking_mode' => $serviceData['mode'] === ServicePricingMode::Fixed
+                        ? ServiceBookingMode::Direct
+                        : ServiceBookingMode::Request,
+                    'duration_minutes' => $serviceData['mode'] === ServicePricingMode::Fixed ? 60 : null,
                     'starting_price' => $serviceData['price'],
                     'currency' => 'SAR',
                     'delivery_type_label' => $serviceData['type'],
@@ -276,5 +297,25 @@ class ServiceMarketplaceSeeder extends Seeder
                 ],
             );
         }
+    }
+
+    /**
+     * @return list<array{day: string, is_closed: bool, opens_at: string|null, closes_at: string|null, closes_next_day: bool}>
+     */
+    private function defaultWorkingHours(): array
+    {
+        $days = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+
+        return array_map(function (string $day) {
+            $isFriday = $day === 'friday';
+
+            return [
+                'day' => $day,
+                'is_closed' => $isFriday,
+                'opens_at' => $isFriday ? null : '09:00',
+                'closes_at' => $isFriday ? null : '18:00',
+                'closes_next_day' => false,
+            ];
+        }, $days);
     }
 }

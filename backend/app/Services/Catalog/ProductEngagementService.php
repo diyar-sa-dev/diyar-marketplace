@@ -60,25 +60,34 @@ class ProductEngagementService
      */
     public function toggleWishlist(User $user, Product $product): array
     {
-        return DB::transaction(function () use ($user, $product) {
-            $existing = WishlistItem::query()
-                ->where('user_id', $user->id)
-                ->where('product_id', $product->id)
-                ->first();
+        try {
+            return DB::transaction(function () use ($user, $product) {
+                $existing = WishlistItem::query()
+                    ->where('user_id', $user->id)
+                    ->where('product_id', $product->id)
+                    ->lockForUpdate()
+                    ->first();
 
-            if ($existing) {
-                $existing->delete();
-                $saved = false;
-            } else {
+                if ($existing) {
+                    $existing->delete();
+
+                    return ['saved' => false];
+                }
+
                 WishlistItem::query()->create([
                     'user_id' => $user->id,
                     'product_id' => $product->id,
                 ]);
-                $saved = true;
+
+                return ['saved' => true];
+            });
+        } catch (QueryException $exception) {
+            if ($this->isUniqueConstraintViolation($exception)) {
+                return ['saved' => true];
             }
 
-            return ['saved' => $saved];
-        });
+            throw $exception;
+        }
     }
 
     public function paginateReviews(Product $product, int $page = 1, int $perPage = 5): LengthAwarePaginator
@@ -254,6 +263,18 @@ class ProductEngagementService
         }
 
         return WishlistItem::query()->where('user_id', $user->id)->delete();
+    }
+
+    public function countForUser(User $user): int
+    {
+        if (! $this->engagementTablesExist()) {
+            return 0;
+        }
+
+        return WishlistItem::query()
+            ->where('user_id', $user->id)
+            ->whereHas('product', fn (Builder $query) => $query->publiclyVisible())
+            ->count();
     }
 
     private function engagementTablesExist(): bool

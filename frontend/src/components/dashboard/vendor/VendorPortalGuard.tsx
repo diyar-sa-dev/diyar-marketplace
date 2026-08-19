@@ -5,7 +5,11 @@ import { RoleName, hasCustomerRole } from '../../../lib/auth/roles.ts';
 import { useAuthContext } from '../../../context/AuthContext.tsx';
 import { useLocale } from '../../../hooks/useLocale.ts';
 import { useToast } from '../../../hooks/useToast.ts';
-import { useVendorAccess, vendorAccessKeys, vendorTeamKeys } from '../../../hooks/vendor/useVendorTeam.ts';
+import {
+  useVendorAccess,
+  vendorAccessKeys,
+  vendorTeamKeys,
+} from '../../../hooks/vendor/useVendorTeam.ts';
 import { vendorFinanceKeys } from '../../../hooks/vendor/useVendorFinance.ts';
 import { isForbidden, parseApiError } from '../../../utils/errors.ts';
 import type { AuthUser } from '../../../types/auth.ts';
@@ -77,15 +81,7 @@ export function VendorPortalGuard({ children }: VendorPortalGuardProps) {
 
       window.location.replace(resolveAccessLostPath(user));
     })();
-  }, [
-    accessQuery.isError,
-    accessQuery.error,
-    queryClient,
-    refreshUser,
-    updateUser,
-    t,
-    toast,
-  ]);
+  }, [accessQuery.isError, accessQuery.error, queryClient, refreshUser, updateUser, t, toast]);
 
   if (accessQuery.isLoading) {
     return <LoadingState className="min-h-[40vh]" message={t('common.verifyingSession')} />;

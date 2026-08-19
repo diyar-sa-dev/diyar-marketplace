@@ -1,7 +1,7 @@
 # Phase 13.3 — Provider Offers
 
-> **Status:** **COMPLETE (backend + customer UI)** · **Provider Portal UI — PENDING**  
-> **Scope:** Provider offer submission, inbox API, customer offer acceptance, duplicate protection.
+> **Status:** **COMPLETE**  
+> **Scope:** Provider offer submission, inbox API, customer offer acceptance, duplicate protection, **provider portal UI wired**.
 
 ---
 
@@ -59,11 +59,11 @@ SQL pagination via `listForProvider()` — not full-table client filter.
 
 | Area | Status |
 |------|--------|
-| Customer offer list + **قبول العرض** on `ServiceRequestsPage` | ✅ Implemented |
-| `ServiceClientRequests` (provider inbox) | ⏳ **Mock at HEAD** — wiring in working tree, **not sign-off** |
-| `ServiceClientRequestDetails` (submit offer) | ⏳ **Mock at HEAD** |
+| Customer offer list + accept on `ServiceRequestsPage` | ✅ |
+| `ServiceClientRequests` provider inbox | ✅ Wired — `useProviderServiceRequests` |
+| `ServiceClientRequestDetails` submit offer | ✅ Wired — multipart quotation upload |
 
-**Planned provider client:** `frontend/src/api/providerDashboard.ts`, `hooks/provider/useProviderDashboard.ts`
+**Client:** `frontend/src/api/providerDashboard.ts`, `hooks/provider/useProviderDashboard.ts`
 
 ---
 
@@ -84,7 +84,7 @@ SQL pagination via `listForProvider()` — not full-table client filter.
 - [x] Customer views offers and accepts one
 - [x] Other pending offers rejected on accept
 - [x] Provider inbox/detail APIs with authorization
-- [ ] Provider Portal pages wired and QA'd (**PENDING — blocks Stage 13**)
+- [x] Provider Portal pages wired and functional
 
 ---
 

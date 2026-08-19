@@ -41,10 +41,7 @@ import type { Locale } from '../../lib/i18n/types.ts';
 import { PLACEHOLDER_STORE_COVER, PLACEHOLDER_STORE_LOGO } from '../../lib/storeMediaDefaults.ts';
 import { hasCustomerRole } from '../../lib/auth/roles.ts';
 import { SaudiPhoneInput } from '../../components/auth/SaudiPhoneInput.tsx';
-import {
-  isValidSaudiPhoneNational,
-  toSaudiPhoneNationalInput,
-} from '../../lib/auth/validation.ts';
+import { isValidSaudiPhoneNational, toSaudiPhoneNationalInput } from '../../lib/auth/validation.ts';
 import { digitsOnly, isValidOptionalUrl } from '../../lib/vendorFormValidation.ts';
 import {
   mergeNotificationPreferences,
@@ -284,7 +281,12 @@ export default function VendorSettings() {
     }
 
     for (const entry of workingHours) {
-      if (!entry.is_closed && entry.opens_at && entry.closes_at && entry.opens_at >= entry.closes_at) {
+      if (
+        !entry.is_closed &&
+        entry.opens_at &&
+        entry.closes_at &&
+        entry.opens_at >= entry.closes_at
+      ) {
         toast.warning(
           t('vendor.settings.store.invalidWorkingHours', {
             day: t(`vendor.settings.weekdays.${entry.day}`),
@@ -510,7 +512,9 @@ export default function VendorSettings() {
         {activeTab === 'store' && (
           <div className="space-y-8 animate-in fade-in duration-300">
             <div>
-              <h3 className="font-bold text-diyar-dark mb-4">{t('vendor.settings.store.logoTitle')}</h3>
+              <h3 className="font-bold text-diyar-dark mb-4">
+                {t('vendor.settings.store.logoTitle')}
+              </h3>
               <div className="flex items-center gap-6">
                 <button
                   type="button"
@@ -537,7 +541,9 @@ export default function VendorSettings() {
                   }}
                 />
                 <div>
-                  <p className="text-sm text-gray-500 mb-2">{t('vendor.settings.store.logoFormats')}</p>
+                  <p className="text-sm text-gray-500 mb-2">
+                    {t('vendor.settings.store.logoFormats')}
+                  </p>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
@@ -617,7 +623,9 @@ export default function VendorSettings() {
                   placeholder={t('vendor.settings.store.placeholders.description')}
                   className={INPUT_CLASS}
                 />
-                <p className="text-xs text-gray-500">{t('vendor.settings.store.descriptionHint')}</p>
+                <p className="text-xs text-gray-500">
+                  {t('vendor.settings.store.descriptionHint')}
+                </p>
                 <FieldError message={fieldErrors.description} />
               </div>
 
@@ -639,7 +647,9 @@ export default function VendorSettings() {
                 <RequiredLabel className="text-sm font-bold text-gray-700">
                   {t('vendor.settings.store.storeWebsiteUrl')}
                 </RequiredLabel>
-                <p className="text-xs text-gray-500">{t('vendor.settings.store.externalWebsiteHint')}</p>
+                <p className="text-xs text-gray-500">
+                  {t('vendor.settings.store.externalWebsiteHint')}
+                </p>
                 <div className="relative mt-1">
                   <Globe
                     size={16}
@@ -680,7 +690,9 @@ export default function VendorSettings() {
             <hr className="border-gray-100" />
 
             <div>
-              <h3 className="font-bold text-diyar-dark mb-4">{t('vendor.settings.store.contactTitle')}</h3>
+              <h3 className="font-bold text-diyar-dark mb-4">
+                {t('vendor.settings.store.contactTitle')}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <RequiredLabel required className="text-sm font-bold text-gray-700">
@@ -856,8 +868,12 @@ export default function VendorSettings() {
                   event.target.value = '';
                 }}
               />
-              <p className="text-sm text-gray-500 mt-2">{t('vendor.settings.appearance.coverHint')}</p>
-              <p className="text-xs text-gray-400 mt-1">{t('vendor.settings.appearance.coverFormats')}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                {t('vendor.settings.appearance.coverHint')}
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                {t('vendor.settings.appearance.coverFormats')}
+              </p>
               {coverUrl && (
                 <button
                   type="button"
@@ -984,7 +1000,9 @@ export default function VendorSettings() {
                     <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50/80 p-3.5">
                       <Wallet size={18} className="text-gray-400 shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-gray-500 mb-1">{t('vendor.settings.business.ibanCurrent')}</p>
+                        <p className="text-xs text-gray-500 mb-1">
+                          {t('vendor.settings.business.ibanCurrent')}
+                        </p>
                         <p className="font-mono text-sm text-diyar-dark tracking-wide" dir="ltr">
                           {ibanMasked}
                         </p>
@@ -1036,7 +1054,9 @@ export default function VendorSettings() {
                       )}
                     </div>
                   )}
-                  <p className="text-xs text-gray-500">{t('vendor.settings.business.ibanFormatHint')}</p>
+                  <p className="text-xs text-gray-500">
+                    {t('vendor.settings.business.ibanFormatHint')}
+                  </p>
                   <FieldError message={fieldErrors.iban} />
                 </div>
               </div>
@@ -1050,7 +1070,9 @@ export default function VendorSettings() {
                 className="bg-diyar-brown text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-[#A67B5B]/90 transition shadow-sm cursor-pointer disabled:opacity-60"
               >
                 <Save size={18} />
-                {isSavingBusiness ? t('vendor.settings.saving') : t('vendor.settings.business.save')}
+                {isSavingBusiness
+                  ? t('vendor.settings.saving')
+                  : t('vendor.settings.business.save')}
               </button>
             </div>
           </div>
@@ -1086,14 +1108,24 @@ export default function VendorSettings() {
                       isUploading={uploadAvatar.isPending}
                       isDeleting={deleteAvatar.isPending}
                       onUpload={(file) => {
-                        void uploadAvatar.mutateAsync(file).then((result) => {
-                          toast.success(result.message ?? t('vendor.settings.account.saveSuccess'));
-                        }).catch(handleMutationError);
+                        void uploadAvatar
+                          .mutateAsync(file)
+                          .then((result) => {
+                            toast.success(
+                              result.message ?? t('vendor.settings.account.saveSuccess'),
+                            );
+                          })
+                          .catch(handleMutationError);
                       }}
                       onDelete={() => {
-                        void deleteAvatar.mutateAsync().then((result) => {
-                          toast.success(result.message ?? t('vendor.settings.account.saveSuccess'));
-                        }).catch(handleMutationError);
+                        void deleteAvatar
+                          .mutateAsync()
+                          .then((result) => {
+                            toast.success(
+                              result.message ?? t('vendor.settings.account.saveSuccess'),
+                            );
+                          })
+                          .catch(handleMutationError);
                       }}
                     />
                     <div className="flex-1">
@@ -1161,14 +1193,7 @@ export default function VendorSettings() {
                   </label>
                 </div>
 
-                {(
-                  [
-                    'newOrders',
-                    'stock',
-                    'messages',
-                    'reports',
-                  ] as const
-                ).map((key, index) => (
+                {(['newOrders', 'stock', 'messages', 'reports'] as const).map((key, index) => (
                   <div
                     key={key}
                     className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:border-gray-200 transition-colors"

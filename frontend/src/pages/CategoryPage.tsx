@@ -11,6 +11,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import ProductCard from '../components/cards/ProductCard.tsx';
+import ServiceCard from '../components/cards/ServiceCard.tsx';
 import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
 import {
   useCategories,
@@ -19,7 +20,13 @@ import {
   useProducts,
   useVendors,
 } from '../hooks/catalog/useCatalog.ts';
+import { useServices } from '../hooks/services/useServices.ts';
 import { mapProductCard } from '../lib/catalogMappers.ts';
+import {
+  KNOWN_SERVICE_CATEGORY_SLUGS,
+  mapCatalogSortToServiceSort,
+  resolveServiceCategorySlug,
+} from '../lib/serviceCategoryTypes.ts';
 import { resolveMediaUrl } from '../lib/media.ts';
 import { isValidStoreSlug, storePath } from '../lib/storePath.ts';
 import { LoadingState } from '../components/common/LoadingState.tsx';
@@ -357,9 +364,59 @@ function CatalogFilterPanel({
 }) {
   if (isServiceCategory) {
     return (
-      <p className="text-sm text-gray-500">
-        لا توجد منتجات خدمة في هذا القسم حالياً. التصنيفات متاحة للتصفح فقط.
-      </p>
+      <>
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+          <h3 className="font-bold text-lg text-diyar-dark flex items-center gap-2">
+            <SlidersHorizontal size={20} className="text-diyar-brown" />
+            تصفية الخدمات
+          </h3>
+          <button
+            type="button"
+            onClick={onReset}
+            className="text-xs text-diyar-brown font-medium hover:underline cursor-pointer"
+          >
+            مسح الكل
+          </button>
+        </div>
+
+        <Accordion title="نطاق السعر">
+          <div className="px-1 space-y-4">
+            <input
+              type="range"
+              min="0"
+              max={String(MAX_PRICE)}
+              step="100"
+              value={maxPrice}
+              onChange={(e) => onPatch({ max_price: e.target.value })}
+              className="w-full accent-diyar-brown cursor-pointer"
+            />
+            <div className="flex items-center justify-between gap-4">
+              <label className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
+                <span className="text-xs text-gray-500 block mb-1">من</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={maxPrice}
+                  value={minPrice}
+                  onChange={(e) => onPatch({ min_price: e.target.value || undefined })}
+                  className="w-full bg-transparent text-center font-bold text-sm outline-none"
+                />
+              </label>
+              <label className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
+                <span className="text-xs text-gray-500 block mb-1">إلى</span>
+                <input
+                  type="number"
+                  min={minPrice}
+                  max={MAX_PRICE}
+                  value={maxPrice}
+                  onChange={(e) => onPatch({ max_price: e.target.value || undefined })}
+                  className="w-full bg-transparent text-center font-bold text-sm outline-none"
+                />
+              </label>
+            </div>
+          </div>
+        </Accordion>
+      </>
     );
   }
 
@@ -472,10 +529,11 @@ export default function CategoryPage() {
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [activeSubcategory, setActiveSubcategory] = useState('الكل');
 
   const page = Math.max(1, Number(searchParams.get('page') || '1'));
   const sort = searchParams.get('sort') || '-created_at';
+  const serviceQ = searchParams.get('q') || undefined;
+  const activeSubcategory = serviceQ ?? 'الكل';
   const vendorId = searchParams.get('vendor_id') || undefined;
   const availabilityMode = searchParams.get('availability_mode') || undefined;
   const minPrice = Number(searchParams.get('min_price') || '0');
@@ -517,27 +575,59 @@ export default function CategoryPage() {
   );
 
   const { data: apiCategory } = useCategory(slug);
+  const isServiceCategory =
+    apiCategory?.type === 'service' || KNOWN_SERVICE_CATEGORY_SLUGS.has(slug);
+
+  const serviceFilters = useMemo(
+    () => ({
+      category: resolveServiceCategorySlug(slug),
+      q: serviceQ,
+      min_price: minPrice > 0 ? minPrice : undefined,
+      max_price: maxPrice < MAX_PRICE ? maxPrice : undefined,
+      sort: mapCatalogSortToServiceSort(sort),
+      page,
+      per_page: 12,
+    }),
+    [slug, serviceQ, minPrice, maxPrice, sort, page],
+  );
+
   const { data: vendorsData } = useVendors({ per_page: 50 });
   const {
     data: productsData,
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useCategoryProducts(slug, filters);
+    isLoading: productsLoading,
+    isError: productsError,
+    error: productsErr,
+    refetch: refetchProducts,
+  } = useCategoryProducts(slug, filters, { enabled: !isServiceCategory });
 
+  const {
+    data: servicesData,
+    isLoading: servicesLoading,
+    isError: servicesError,
+    error: servicesErr,
+    refetch: refetchServices,
+  } = useServices(serviceFilters, isServiceCategory);
+
+  const isLoading = isServiceCategory ? servicesLoading : productsLoading;
+  const isError = isServiceCategory ? servicesError : productsError;
+  const error = isServiceCategory ? servicesErr : productsErr;
+  const refetch = isServiceCategory ? refetchServices : refetchProducts;
   const categoryName = apiCategory?.name ?? staticMeta?.name ?? slug;
   const categoryImg = CATEGORY_ICONS[slug] ?? staticMeta?.img ?? PLACEHOLDER_CATEGORY_IMG;
   const subcategories = staticMeta && 'subcategories' in staticMeta ? staticMeta.subcategories : [];
-  const isServiceCategory = apiCategory?.type === 'service';
   const products = productsData?.items.map(mapProductCard) ?? [];
-  const totalResults = productsData?.pagination.total ?? products.length;
+  const services = servicesData?.items ?? [];
+  const totalResults = isServiceCategory
+    ? (servicesData?.pagination.total ?? services.length)
+    : (productsData?.pagination.total ?? products.length);
+  const listPagination = isServiceCategory ? servicesData?.pagination : productsData?.pagination;
   const vendors = vendorsData?.items ?? [];
   const hasActiveFilters =
     minPrice > 0 ||
     maxPrice < MAX_PRICE ||
     Boolean(vendorId) ||
     Boolean(availabilityMode) ||
+    Boolean(serviceQ) ||
     sort !== '-created_at';
 
   if (slug === 'all') {
@@ -564,7 +654,9 @@ export default function CategoryPage() {
               {categoryName}
             </h1>
             <p className="text-gray-500 max-w-2xl text-xs md:text-base leading-relaxed line-clamp-2 md:line-clamp-none">
-              تصفح أحدث وأرقى المنتجات في قسم {categoryName}. نقدم لك تشكيلة واسعة من أعرق المتاجر.
+              {isServiceCategory
+                ? `تصفّح خدمات ${categoryName} من مزودين معتمدين على منصة ديار.`
+                : `تصفح أحدث وأرقى المنتجات في قسم ${categoryName}. نقدم لك تشكيلة واسعة من أعرق المتاجر.`}
             </p>
           </div>
         </div>
@@ -574,16 +666,11 @@ export default function CategoryPage() {
       {subcategories.length > 0 && (
         <div className="bg-white border-b border-gray-100 shadow-sm relative z-10 w-full mb-6">
           <div className="max-w-7xl mx-auto px-4 py-3 md:py-4">
-            <p className="text-[11px] text-gray-400 mb-2 px-1">
-              معاينة بصرية فقط — الفلاتر الفرعية لا تؤثر على نتائج البحث حالياً
-            </p>
             <div className="flex items-center gap-3 md:gap-4 overflow-x-auto pb-1 scrollbar-hide">
               <button
                 type="button"
-                aria-disabled="true"
-                title="معاينة بصرية — لا يفلتر النتائج"
-                onClick={() => setActiveSubcategory('الكل')}
-                className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold shadow-sm shrink-0 transition-colors cursor-default ${
+                onClick={() => patchParams({ q: undefined })}
+                className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold shadow-sm shrink-0 transition-colors cursor-pointer ${
                   activeSubcategory === 'الكل'
                     ? 'bg-diyar-dark text-white'
                     : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 hover:border-gray-300'
@@ -595,10 +682,8 @@ export default function CategoryPage() {
                 <button
                   key={index}
                   type="button"
-                  aria-disabled="true"
-                  title="معاينة بصرية — لا يفلتر النتائج"
-                  onClick={() => setActiveSubcategory(sub)}
-                  className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium border transition-colors shrink-0 cursor-default ${
+                  onClick={() => patchParams({ q: sub })}
+                  className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium border transition-colors shrink-0 cursor-pointer ${
                     activeSubcategory === sub
                       ? 'bg-diyar-dark text-white border-diyar-dark font-bold'
                       : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
@@ -643,7 +728,8 @@ export default function CategoryPage() {
 
             <div className="flex items-center gap-4 text-sm text-gray-600">
               <span className="hidden md:inline font-medium">
-                إظهار {products.length} من أصل {totalResults} نتيجة
+                إظهار {isServiceCategory ? services.length : products.length} من أصل {totalResults}{' '}
+                {isServiceCategory ? 'خدمة' : 'نتيجة'}
               </span>
               <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-1.5 bg-gray-50">
                 <span className="text-gray-500">ترتيب حسب:</span>
@@ -691,6 +777,18 @@ export default function CategoryPage() {
                   </button>
                 </span>
               )}
+              {serviceQ && isServiceCategory && (
+                <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
+                  {serviceQ}
+                  <button
+                    type="button"
+                    aria-label="إزالة فلتر النوع"
+                    onClick={() => patchParams({ q: undefined })}
+                  >
+                    <X size={14} className="cursor-pointer hover:text-gray-300" />
+                  </button>
+                </span>
+              )}
               {vendorId && (
                 <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
                   {vendors.find((v) => v.id === vendorId)?.store_name ?? 'متجر'}
@@ -730,8 +828,29 @@ export default function CategoryPage() {
             <LoadingState className="min-h-60" />
           ) : isError ? (
             <ErrorState error={error as Error} onRetry={() => refetch()} />
+          ) : isServiceCategory && services.length === 0 ? (
+            <EmptyState
+              title="لا توجد خدمات"
+              description="لا توجد خدمات مطابقة في هذا القسم حالياً. جرّب قسماً آخر أو تصفّح كل الخدمات."
+              action={
+                <Link
+                  to="/services"
+                  className="inline-flex mt-4 bg-diyar-brown text-white px-6 py-2.5 rounded-xl font-bold hover:bg-orange-700 cursor-pointer"
+                >
+                  عرض كل الخدمات
+                </Link>
+              }
+            />
           ) : isServiceCategory ? (
-            <EmptyState title="لا توجد خدمات" description="سيتم إضافة خدمات هذا القسم قريباً." />
+            <div
+              className={`grid gap-4 md:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}
+            >
+              {services.map((item) => (
+                <div key={item.id} className="h-full">
+                  <ServiceCard service={item} layout={viewMode} />
+                </div>
+              ))}
+            </div>
           ) : products.length === 0 ? (
             <EmptyState
               title="لا توجد منتجات"
@@ -749,9 +868,9 @@ export default function CategoryPage() {
             </div>
           )}
 
-          {productsData?.pagination && (
+          {listPagination && (
             <PaginationBar
-              pagination={productsData.pagination}
+              pagination={listPagination}
               page={page}
               onPageChange={(nextPage) => patchParams({ page: String(nextPage) }, false)}
               className="mt-12"

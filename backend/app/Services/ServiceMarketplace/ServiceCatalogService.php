@@ -4,6 +4,7 @@ namespace App\Services\ServiceMarketplace;
 
 use App\Enums\ProviderAccountStatus;
 use App\Models\Service;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -14,10 +15,12 @@ final class ServiceCatalogService
     /**
      * @param  array<string, mixed>  $filters
      */
-    public function listPublic(array $filters = []): LengthAwarePaginator
+    public function listPublic(array $filters = [], ?User $user = null): LengthAwarePaginator
     {
         $query = $this->publicQuery()
             ->with(['providerAccount', 'category']);
+
+        $query->withUserSaved($user);
 
         $this->applyFilters($query, $filters);
         $this->applySort($query, (string) ($filters['sort'] ?? 'latest'));
@@ -27,9 +30,9 @@ final class ServiceCatalogService
         return $query->paginate($perPage);
     }
 
-    public function findPublic(string $identifier): Service
+    public function findPublic(string $identifier, ?User $user = null): Service
     {
-        $service = $this->publicQuery()
+        $query = $this->publicQuery()
             ->with([
                 'providerAccount',
                 'category',
@@ -40,8 +43,11 @@ final class ServiceCatalogService
                 if (preg_match('/^[0-9a-f-]{36}$/i', $identifier) === 1) {
                     $query->orWhere('id', $identifier);
                 }
-            })
-            ->first();
+            });
+
+        $query->withUserSaved($user);
+
+        $service = $query->first();
 
         if ($service === null) {
             throw new NotFoundHttpException(__('diyar.services.not_found'));
@@ -53,15 +59,18 @@ final class ServiceCatalogService
     /**
      * @return Collection<int, Service>
      */
-    public function relatedServices(Service $service, int $limit = 8): Collection
+    public function relatedServices(Service $service, int $limit = 8, ?User $user = null): Collection
     {
-        return $this->publicQuery()
+        $query = $this->publicQuery()
             ->with(['providerAccount', 'category'])
             ->where('service_category_id', $service->service_category_id)
             ->where('id', '!=', $service->id)
             ->orderByDesc('rating_average')
-            ->limit($limit)
-            ->get();
+            ->limit($limit);
+
+        $query->withUserSaved($user);
+
+        return $query->get();
     }
 
     /**

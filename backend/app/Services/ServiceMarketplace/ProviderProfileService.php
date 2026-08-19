@@ -4,6 +4,7 @@ namespace App\Services\ServiceMarketplace;
 
 use App\Models\ProviderAccount;
 use App\Models\Service;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -19,6 +20,7 @@ final class ProviderProfileService
         $provider = ProviderAccount::query()
             ->active()
             ->where('slug', $slug)
+            ->with('workPolicy')
             ->withCount([
                 'services as active_services_count' => fn (Builder $q) => $q->where('is_active', true),
             ])
@@ -34,12 +36,14 @@ final class ProviderProfileService
     /**
      * @param  array<string, mixed>  $filters
      */
-    public function listServices(ProviderAccount $provider, array $filters = []): LengthAwarePaginator
+    public function listServices(ProviderAccount $provider, array $filters = [], ?User $user = null): LengthAwarePaginator
     {
         $query = Service::query()
             ->active()
             ->where('provider_account_id', $provider->id)
             ->with(['category', 'providerAccount']);
+
+        $query->withUserSaved($user);
 
         $sort = (string) ($filters['sort'] ?? 'latest');
         match ($sort) {
@@ -50,6 +54,28 @@ final class ProviderProfileService
         };
 
         $perPage = min((int) ($filters['per_page'] ?? 20), 100);
+
+        return $query->paginate($perPage);
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    public function listOwnServices(User $user, array $filters = []): LengthAwarePaginator
+    {
+        $provider = ProviderAccountResolver::forUser($user);
+
+        $query = Service::query()
+            ->where('provider_account_id', $provider->id)
+            ->with(['category', 'providerAccount'])
+            ->orderByDesc('created_at');
+
+        if (($filters['q'] ?? '') !== '') {
+            $term = '%'.addcslashes((string) $filters['q'], '%_\\').'%';
+            $query->where('title', 'like', $term);
+        }
+
+        $perPage = min(max((int) ($filters['per_page'] ?? 20), 1), 100);
 
         return $query->paginate($perPage);
     }

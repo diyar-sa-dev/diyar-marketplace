@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext.tsx';
 import {
-  hasCustomerRole,
+  hasCustomerRoleAssignment,
   requiresCustomerRoleForProfilePath,
   resolveAccountHubPath,
 } from '../../lib/auth/roles.ts';
@@ -15,7 +15,10 @@ function CustomerProfileGuard({ children }: CustomerProfileRouteProps) {
   const { user } = useAuthContext();
   const location = useLocation();
 
-  if (requiresCustomerRoleForProfilePath(location.pathname) && !hasCustomerRole(user?.roles)) {
+  if (
+    requiresCustomerRoleForProfilePath(location.pathname) &&
+    !hasCustomerRoleAssignment(user?.roles)
+  ) {
     return <Navigate to={resolveAccountHubPath(user?.roles)} replace />;
   }
 

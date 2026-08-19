@@ -428,7 +428,9 @@ export default function StorePage() {
                           dir="ltr"
                         >
                           <Phone size={18} className="text-diyar-brown shrink-0" />
-                          <span className="font-medium text-diyar-dark">{vendor.support_phone}</span>
+                          <span className="font-medium text-diyar-dark">
+                            {vendor.support_phone}
+                          </span>
                         </a>
                       )}
                       {vendor.support_email && (
@@ -438,7 +440,9 @@ export default function StorePage() {
                           dir="ltr"
                         >
                           <Mail size={18} className="text-diyar-brown shrink-0" />
-                          <span className="font-medium text-diyar-dark truncate">{vendor.support_email}</span>
+                          <span className="font-medium text-diyar-dark truncate">
+                            {vendor.support_email}
+                          </span>
                         </a>
                       )}
                       {vendor.website_url && (
@@ -450,7 +454,9 @@ export default function StorePage() {
                           dir="ltr"
                         >
                           <Globe size={18} className="text-diyar-brown shrink-0" />
-                          <span className="font-medium text-diyar-brown truncate">{vendor.website_url}</span>
+                          <span className="font-medium text-diyar-brown truncate">
+                            {vendor.website_url}
+                          </span>
                         </a>
                       )}
                     </div>
@@ -459,7 +465,9 @@ export default function StorePage() {
 
                 {(vendor.working_hours?.length ?? 0) > 0 && (
                   <>
-                    <h3 className="font-bold text-lg text-diyar-dark mb-4">{t('store.workingHours')}</h3>
+                    <h3 className="font-bold text-lg text-diyar-dark mb-4">
+                      {t('store.workingHours')}
+                    </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mb-8">
                       {vendor.working_hours?.map((hour) => (
                         <div

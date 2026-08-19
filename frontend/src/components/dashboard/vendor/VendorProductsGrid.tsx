@@ -101,24 +101,24 @@ export function VendorProductsGrid({
                   <Eye size={18} />
                 </button>
                 {canEdit ? (
-                <button
-                  type="button"
-                  onClick={() => onEdit(product.id)}
-                  className={vendorActionButtonClass('edit')}
-                  title={t('vendor.products.table.edit')}
-                >
-                  <Edit size={18} />
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => onEdit(product.id)}
+                    className={vendorActionButtonClass('edit')}
+                    title={t('vendor.products.table.edit')}
+                  >
+                    <Edit size={18} />
+                  </button>
                 ) : null}
                 {canDelete ? (
-                <button
-                  type="button"
-                  onClick={() => onArchive(product.id)}
-                  className={vendorActionButtonClass('delete')}
-                  title={t('vendor.products.table.archive')}
-                >
-                  <Trash2 size={18} />
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => onArchive(product.id)}
+                    className={vendorActionButtonClass('delete')}
+                    title={t('vendor.products.table.archive')}
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 ) : null}
               </div>
             </div>

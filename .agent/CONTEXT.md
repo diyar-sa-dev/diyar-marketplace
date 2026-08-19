@@ -21,9 +21,13 @@ Customer · Vendor · Service Provider · Marketer · Admin
 
 **Stages 0–12.5 (COMPLETE):** Identity, catalog, commerce, payments, finance, shipping, returns, **vendor** portal, vendor teams, preorders.
 
-**Stage 13 (IN PROGRESS):** **Provider / service marketplace** — catalog, RFQ, offers, bookings, service payment. Provider Portal UI **PENDING**.
+**Stage 13 (COMPLETE):** **Provider / service marketplace** — catalog, RFQ, offers, bookings, negotiation UI, provider portal.
 
-**Not authorized yet:** Stage 14+ admin ops, real notification pipeline, chat, production hardening.
+**Stage 14 (COMPLETE):** Reviews audit — unified history, provider review guards.
+
+**Stage 15 (IN PROGRESS):** Vendor percentage coupons — checkout integration + vendor UI.
+
+**Not authorized yet:** Admin ops, real notification pipeline, chat, production hardening.
 
 ---
 

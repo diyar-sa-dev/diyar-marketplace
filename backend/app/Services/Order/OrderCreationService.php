@@ -37,6 +37,7 @@ final class OrderCreationService
 
     /**
      * @param  list<array{vendor_account_id: string, method: string}>  $deliverySelections
+     * @param  list<array{vendor_account_id: string, code: string}>  $vendorCoupons
      * @return array{order: Order, created: bool}
      */
     public function create(
@@ -45,6 +46,7 @@ final class OrderCreationService
         array $deliverySelections,
         string $idempotencyKey,
         string $payloadHash,
+        array $vendorCoupons = [],
     ): array {
         $existing = $this->findExistingIdempotentOrder($user, $idempotencyKey);
 
@@ -53,7 +55,7 @@ final class OrderCreationService
         }
 
         try {
-            return DB::transaction(function () use ($user, $shippingAddressId, $deliverySelections, $idempotencyKey, $payloadHash) {
+            return DB::transaction(function () use ($user, $shippingAddressId, $deliverySelections, $idempotencyKey, $payloadHash, $vendorCoupons) {
                 $existing = Order::query()
                     ->where('user_id', $user->id)
                     ->where('idempotency_key', $idempotencyKey)
@@ -70,6 +72,7 @@ final class OrderCreationService
                     $deliverySelections,
                     $idempotencyKey,
                     $payloadHash,
+                    $vendorCoupons,
                 );
 
                 return ['order' => $order, 'created' => true];
@@ -98,6 +101,7 @@ final class OrderCreationService
         array $deliverySelections,
         string $idempotencyKey,
         string $payloadHash,
+        array $vendorCoupons = [],
     ): Order {
         $cart = Cart::query()
             ->where('user_id', $user->id)
@@ -112,7 +116,7 @@ final class OrderCreationService
         $cart->loadMissing('items.product');
         $this->selfPurchase->assertCartItemsNotSelfPurchase($user, $cart->items);
 
-        $preview = $this->checkoutPreview->preview($user, $shippingAddressId, $deliverySelections);
+        $preview = $this->checkoutPreview->preview($user, $shippingAddressId, $deliverySelections, $vendorCoupons);
 
         if (! $preview['valid']) {
             throw new UnprocessableEntityHttpException(__('diyar.checkout.checkout_invalid'));
@@ -144,9 +148,13 @@ final class OrderCreationService
         ]);
 
         foreach ($preview['vendor_groups'] as $group) {
+            $coupon = $group['coupon'] ?? null;
             $vendorOrder = VendorOrder::query()->create([
                 'order_id' => $order->id,
                 'vendor_account_id' => $group['vendor_account_id'],
+                'vendor_coupon_id' => $coupon['id'] ?? null,
+                'coupon_code' => $coupon['code'] ?? null,
+                'coupon_percent_snapshot' => $coupon['value'] ?? null,
                 'status' => VendorOrderStatus::Pending,
                 'subtotal' => $group['subtotal'],
                 'shipping_method' => $group['shipping']['method'],

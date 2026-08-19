@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ServiceBookingPaymentStatus;
+use App\Enums\ServiceBookingSource;
 use App\Enums\ServiceBookingStatus;
 use App\Enums\ServicePaymentStrategy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -24,9 +25,20 @@ class ServiceBooking extends Model
         'user_id',
         'provider_account_id',
         'service_id',
+        'booking_source',
+        'idempotency_key',
+        'service_title_snapshot',
         'reference',
         'scheduled_date',
         'scheduled_time',
+        'requested_scheduled_date',
+        'requested_scheduled_time',
+        'proposed_scheduled_date',
+        'proposed_scheduled_time',
+        'schedule_proposed_at',
+        'last_proposed_scheduled_date',
+        'last_proposed_scheduled_time',
+        'duration_minutes',
         'location',
         'customer_notes',
         'provider_notes',
@@ -43,10 +55,15 @@ class ServiceBooking extends Model
     {
         return [
             'status' => ServiceBookingStatus::class,
+            'booking_source' => ServiceBookingSource::class,
             'payment_status' => ServiceBookingPaymentStatus::class,
             'payment_strategy' => ServicePaymentStrategy::class,
             'price' => 'decimal:2',
             'scheduled_date' => 'date',
+            'requested_scheduled_date' => 'date',
+            'proposed_scheduled_date' => 'date',
+            'last_proposed_scheduled_date' => 'date',
+            'schedule_proposed_at' => 'datetime',
             'completed_at' => 'datetime',
             'cancelled_at' => 'datetime',
         ];
@@ -80,5 +97,10 @@ class ServiceBooking extends Model
     public function payment(): HasOne
     {
         return $this->hasOne(ServiceBookingPayment::class);
+    }
+
+    public function providerReview(): HasOne
+    {
+        return $this->hasOne(ProviderReview::class);
     }
 }

@@ -1,8 +1,9 @@
 # DIYAR — Master Software Development Plan
 
 > **Status:** REFERENCE — SUPERSEDED  
-> **Use instead:** [MASTER_DEVELOPMENT_PLAN.md](./MASTER_DEVELOPMENT_PLAN.md) (v2.0, updated 2026-08-18)  
-> **Current stage:** **Stage 13 — IN PROGRESS** — [Stages/Stage 13/README.md](./Stages/Stage%2013/README.md)  
+> **Use instead:** [MASTER_DEVELOPMENT_PLAN.md](./MASTER_DEVELOPMENT_PLAN.md) (v2.0, updated 2026-08-19)  
+> **Current stage:** **Stage 15 — Vendor coupons** (working tree) · **Stage 13 — COMPLETE** · **Stage 14 — Review audit COMPLETE**  
+> **Stage 13 docs:** [Stages/Stage 13/README.md](./Stages/Stage%2013/README.md)  
 > **Previous:** Stage 12.5 — COMPLETE — [Stages/Stage 12.5/README.md](./Stages/Stage%2012.5/README.md)  
 > **Tech baseline:** Laravel 13, MySQL, React 19
 
@@ -1799,7 +1800,7 @@ The existing specification similarly recommends a single-server-capable V1 archi
 * [Coupons]
 * [Services]
 * [Bookings]
-* [Chat
+* [Chat]
 * [Notifications]
 
 ### Technical

@@ -91,7 +91,7 @@ class ProductDetailResource extends JsonResource
             'reviews_count' => $engagement->reviewsCount($this->resource),
             'likes_count' => $engagement->likesCount($this->resource),
             'user_liked' => $engagement->userLiked($request->user(), $this->resource),
-            'user_saved' => $engagement->userSaved($request->user(), $this->resource),
+            'user_saved' => $this->resolveUserSaved($request),
             'user_preorder_pending' => $viewer !== null
                 && $this->availability_mode === AvailabilityMode::Preorder
                 && app(ProductPreorderService::class)->findPendingForUser($viewer, $this->resource) !== null,
@@ -114,6 +114,15 @@ class ProductDetailResource extends JsonResource
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];
+    }
+
+    private function resolveUserSaved(Request $request): bool
+    {
+        if (array_key_exists('user_saved', $this->resource->getAttributes())) {
+            return (bool) $this->user_saved;
+        }
+
+        return app(ProductEngagementService::class)->userSaved($request->user(), $this->resource);
     }
 
     /**

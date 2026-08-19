@@ -23,6 +23,9 @@ class CheckoutPreviewRequest extends FormRequest
             'vendor_delivery_selections' => ['required', 'array', 'min:1'],
             'vendor_delivery_selections.*.vendor_account_id' => ['required', 'uuid', 'exists:vendor_accounts,id'],
             'vendor_delivery_selections.*.method' => ['required', Rule::enum(ShippingMethod::class)],
+            'vendor_coupons' => ['sometimes', 'array'],
+            'vendor_coupons.*.vendor_account_id' => ['required_with:vendor_coupons', 'uuid', 'exists:vendor_accounts,id'],
+            'vendor_coupons.*.code' => ['required_with:vendor_coupons', 'string', 'max:64'],
         ];
     }
 }

@@ -1,19 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import {
-  ArrowRight,
-  FileText,
-  Plus,
-  Star,
-} from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, ArrowRight, Plus, Star, Calendar, Loader2 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
 import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { EmptyState } from '../components/common/EmptyState.tsx';
+import { ServiceRequestDetailSection } from '../components/services/ServiceRequestDetailSection.tsx';
 import { ServiceRequestListCard } from '../components/services/ServiceRequestListCard.tsx';
 import { ServiceRequestStatusBadge } from '../components/services/ServiceRequestStatusBadge.tsx';
 import {
   useAcceptServiceOffer,
+  useRejectServiceOffer,
   useServiceRequest,
   useServiceRequests,
   useSimulateServiceBookingPayment,
@@ -21,55 +18,86 @@ import {
 import { useLocale } from '../hooks/useLocale.ts';
 import { useToast } from '../hooks/useToast.ts';
 import { formatOrderDate } from '../lib/formatOrderDate.ts';
-import {
-  formatRelativeOfferDay,
-  formatServiceRequestReference,
-} from '../lib/formatRelativeDay.ts';
+import { formatRelativeOfferDay, formatServiceRequestReference } from '../lib/formatRelativeDay.ts';
+
+const OFFERS_PER_PAGE = 3;
 
 export default function ServiceRequestsPage() {
-  const { locale, dir } = useLocale();
+  const { t, locale, dir } = useLocale();
+  const BackIcon = dir === 'rtl' ? ArrowRight : ArrowLeft;
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('all');
   const [page, setPage] = useState(1);
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
-    searchParams.get('id'),
-  );
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(searchParams.get('id'));
+
+  const [offersPage, setOffersPage] = useState(1);
+  const [rejectingOfferId, setRejectingOfferId] = useState<string | null>(null);
 
   useEffect(() => {
     const id = searchParams.get('id');
     setSelectedRequestId(id);
+    setOffersPage(1);
   }, [searchParams]);
 
   const listQuery = useServiceRequests(page, activeTab);
   const detailQuery = useServiceRequest(selectedRequestId ?? undefined);
   const acceptOffer = useAcceptServiceOffer();
+  const rejectOffer = useRejectServiceOffer();
   const simulatePayment = useSimulateServiceBookingPayment();
 
   const requests = listQuery.data?.items ?? [];
   const request = detailQuery.data;
 
-  const pendingOffers =
-    request?.offers?.filter((offer) => offer.status === 'pending') ?? [];
+  const pendingOffers = request?.offers?.filter((offer) => offer.status === 'pending') ?? [];
+
+  const paginatedOffers = useMemo(() => {
+    const start = (offersPage - 1) * OFFERS_PER_PAGE;
+    return pendingOffers.slice(start, start + OFFERS_PER_PAGE);
+  }, [pendingOffers, offersPage]);
+
+  const offersPagination = useMemo(
+    () => ({
+      current_page: offersPage,
+      last_page: Math.max(1, Math.ceil(pendingOffers.length / OFFERS_PER_PAGE)),
+      per_page: OFFERS_PER_PAGE,
+      total: pendingOffers.length,
+    }),
+    [offersPage, pendingOffers.length],
+  );
+
+  const handleRejectOffer = async (offerId: string) => {
+    setRejectingOfferId(offerId);
+    try {
+      await rejectOffer.mutateAsync(offerId);
+      toast.success(t('serviceMarketplace.requests.rejectSuccess'));
+      void detailQuery.refetch();
+      void listQuery.refetch();
+    } catch {
+      toast.error(t('serviceMarketplace.requests.rejectError'));
+    } finally {
+      setRejectingOfferId(null);
+    }
+  };
 
   const handleAcceptOffer = async (offerId: string) => {
     try {
       await acceptOffer.mutateAsync({ offerId });
-      toast.success('تم قبول العرض. أكمل الدفع لتأكيد الحجز.');
+      toast.success(t('serviceMarketplace.requests.acceptSuccess'));
       void detailQuery.refetch();
       void listQuery.refetch();
     } catch {
-      toast.error('تعذر قبول العرض.');
+      toast.error(t('serviceMarketplace.requests.acceptError'));
     }
   };
 
   const handlePayBooking = async (bookingId: string) => {
     try {
       await simulatePayment.mutateAsync({ bookingId, outcome: 'paid' });
-      toast.success('تم الدفع بنجاح.');
+      toast.success(t('serviceMarketplace.requests.paySuccess'));
       void detailQuery.refetch();
     } catch {
-      toast.error('تعذر إتمام الدفع.');
+      toast.error(t('serviceMarketplace.requests.payError'));
     }
   };
 
@@ -101,14 +129,14 @@ export default function ServiceRequestsPage() {
           }}
           className="flex items-center gap-2 text-gray-600 hover:text-diyar-brown mb-6 transition-colors cursor-pointer font-bold"
         >
-          <ArrowRight size={20} />
-          <span>العودة للطلبات</span>
+          <BackIcon size={20} />
+          <span>{t('serviceMarketplace.requests.backToList')}</span>
         </button>
 
         <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 mb-8 overflow-hidden relative">
           <div className="absolute inset-0 bg-linear-to-br from-diyar-cream/30 via-white to-white pointer-events-none" />
           <div className="relative">
-            <div className="flex flex-wrap gap-4 items-start justify-between mb-6">
+            <div className="flex flex-wrap gap-4 items-start justify-between mb-2">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-3 mb-3 flex-wrap">
                   <span className="text-sm font-mono font-bold text-diyar-brown bg-diyar-brown/10 px-3 py-1 rounded-lg">
@@ -123,30 +151,36 @@ export default function ServiceRequestsPage() {
                   {request.created_at ? formatOrderDate(request.created_at, locale) : '—'}
                 </p>
               </div>
-              {categoryLabel && (
-                <div className="bg-white/90 backdrop-blur px-4 py-3 rounded-2xl border border-gray-100 shadow-sm">
-                  <span className="text-gray-500 text-xs block mb-1">نوع الخدمة</span>
-                  <span className="font-bold text-diyar-dark text-sm">{categoryLabel}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="bg-gray-50/90 p-5 rounded-2xl border border-gray-100">
-              <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <FileText size={18} className="text-diyar-brown" /> تفاصيل الطلب
-              </h3>
-              <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
-                {request.description}
-              </p>
             </div>
           </div>
         </div>
 
+        <div className="mb-8">
+          <ServiceRequestDetailSection
+            request={request}
+            booking={booking}
+            t={t}
+            locale={locale}
+            categoryLabel={categoryLabel}
+          />
+        </div>
+
+        {booking?.status === 'pending_provider_confirmation' && (
+          <div className="mb-8 rounded-2xl border border-sky-200 bg-sky-50 p-5 shadow-sm">
+            <p className="font-bold text-sky-900 mb-1">
+              {t('serviceMarketplace.requests.awaitingProviderConfirmation')}
+            </p>
+            <p className="text-sm text-sky-800">{t('serviceBookings.awaitingProvider')}</p>
+          </div>
+        )}
+
         {booking?.status === 'pending_payment' && (
           <div className="mb-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
-            <p className="font-bold text-amber-900 mb-2">الحجز بانتظار الدفع</p>
-            <p className="text-sm text-amber-800 mb-4">
-              المبلغ: {booking.price} {booking.currency}
+            <p className="font-bold text-amber-900 mb-2">
+              {t('serviceMarketplace.requests.pendingPaymentTitle')}
+            </p>
+            <p className="text-sm text-amber-800 mb-4" dir="ltr">
+              {t('serviceMarketplace.requests.amountLabel')} {booking.price} {booking.currency}
             </p>
             <button
               type="button"
@@ -154,94 +188,160 @@ export default function ServiceRequestsPage() {
               disabled={simulatePayment.isPending}
               className="bg-diyar-dark text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-diyar-brown transition-colors cursor-pointer disabled:opacity-60"
             >
-              {simulatePayment.isPending ? 'جاري الدفع...' : 'إتمام الدفع'}
+              {simulatePayment.isPending
+                ? t('serviceMarketplace.requests.paying')
+                : t('serviceMarketplace.requests.completePayment')}
             </button>
           </div>
         )}
 
+        {detailQuery.isFetching && !detailQuery.isLoading ? (
+          <div className="mb-8 space-y-4 animate-pulse">
+            <div className="h-40 rounded-3xl bg-gray-100" />
+            <div className="h-24 rounded-2xl bg-gray-100" />
+          </div>
+        ) : null}
+
         {pendingOffers.length > 0 && (
-          <div>
+          <div className="mt-10 pt-8 border-t border-gray-100">
             <h2 className="text-xl font-bold text-diyar-dark mb-6 flex items-center gap-2">
-              عروض الأسعار المتاحة
+              {t('serviceMarketplace.requests.availableOffers')}
               <span className="bg-diyar-dark text-white text-xs px-2.5 py-1 rounded-full min-w-7 text-center">
                 {pendingOffers.length}
               </span>
             </h2>
 
-            <div className="space-y-4">
-              {pendingOffers.map((offer) => (
+            <div className="space-y-5">
+              {paginatedOffers.map((offer) => (
                 <div
                   key={offer.id}
-                  className="bg-white border text-right border-gray-100 rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-diyar-brown/30 transition-all"
+                  className="bg-white border text-start border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg hover:border-diyar-brown/20 transition-all"
                 >
-                  <div className="flex flex-col md:flex-row gap-6 justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap justify-between items-start gap-3 mb-2">
-                        <h3 className="font-bold text-lg text-diyar-dark">
-                          {offer.provider?.name ?? 'مزود الخدمة'}
-                        </h3>
-                        {offer.created_at && (
-                          <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-full">
-                            {formatRelativeOfferDay(offer.created_at, locale)}
-                          </span>
-                        )}
-                      </div>
-
-                      {offer.provider?.rating_average != null && (
-                        <div className="flex items-center gap-1.5 mb-4 bg-amber-50 w-fit px-2.5 py-1 rounded-lg text-xs font-bold text-amber-700 border border-amber-100">
-                          <Star size={12} className="fill-amber-400 text-amber-400" />
-                          <span>{offer.provider.rating_average.toFixed(1)}</span>
-                          <span className="text-amber-600/70 font-normal">
-                            ({offer.provider.reviews_count ?? 0} تقييم)
-                          </span>
+                  <div className="h-1 bg-linear-to-r from-diyar-brown via-diyar-cream to-diyar-brown" />
+                  <div className="p-6 md:p-7">
+                    <div className="flex flex-col lg:flex-row gap-6 justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap justify-between items-start gap-3 mb-3">
+                          <h3 className="font-bold text-xl text-diyar-dark">
+                            {offer.provider?.name ??
+                              t('serviceMarketplace.requests.providerFallback')}
+                          </h3>
+                          {offer.created_at && (
+                            <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-full">
+                              {formatRelativeOfferDay(offer.created_at, locale)}
+                            </span>
+                          )}
                         </div>
-                      )}
 
-                      {offer.message && (
-                        <p className="text-gray-600 text-sm leading-relaxed mb-6">{offer.message}</p>
-                      )}
-
-                      <div className="flex flex-wrap gap-3">
-                        <button
-                          type="button"
-                          onClick={() => void handleAcceptOffer(offer.id)}
-                          disabled={acceptOffer.isPending}
-                          className="bg-diyar-dark text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-diyar-brown transition-colors cursor-pointer disabled:opacity-60"
-                        >
-                          قبول العرض
-                        </button>
-                        <Link
-                          to="/chat"
-                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
-                        >
-                          محادثة
-                        </Link>
-                      </div>
-                    </div>
-
-                    <div className="md:w-52 shrink-0 bg-linear-to-br from-gray-50 to-white rounded-2xl p-5 flex flex-col justify-center items-center border border-gray-100 gap-4 shadow-inner">
-                      <div className="text-center">
-                        <span className="block text-xs text-gray-500 mb-1">السعر المقترح</span>
-                        <span className="block text-2xl font-bold text-diyar-dark tabular-nums">
-                          {offer.proposed_price} {offer.currency}
-                        </span>
-                      </div>
-                      {offer.duration_days != null && (
-                        <>
-                          <div className="h-px w-full bg-gray-200" />
-                          <div className="text-center">
-                            <span className="block text-xs text-gray-500 mb-1">مدة التنفيذ</span>
-                            <span className="block font-bold text-gray-800">
-                              {offer.duration_days} يوم
+                        {offer.provider?.rating_average != null && (
+                          <div className="flex items-center gap-1.5 mb-4 bg-amber-50 w-fit px-2.5 py-1 rounded-lg text-xs font-bold text-amber-700 border border-amber-100">
+                            <Star size={12} className="fill-amber-400 text-amber-400" />
+                            <span>{offer.provider.rating_average.toFixed(1)}</span>
+                            <span className="text-amber-600/70 font-normal">
+                              {t('serviceMarketplace.requests.reviewsCount', {
+                                count: offer.provider.reviews_count ?? 0,
+                              })}
                             </span>
                           </div>
-                        </>
-                      )}
+                        )}
+
+                        {offer.message && (
+                          <p className="text-gray-600 text-sm leading-relaxed mb-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
+                            {offer.message}
+                          </p>
+                        )}
+
+                        {(offer.proposed_scheduled_date || offer.proposed_scheduled_time) && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mb-5">
+                            <Calendar size={16} className="text-diyar-brown" />
+                            <span className="font-medium">
+                              {t('serviceMarketplace.requests.proposedSchedule')}:
+                            </span>
+                            <span dir="ltr" className="font-bold text-diyar-dark">
+                              {[offer.proposed_scheduled_date, offer.proposed_scheduled_time]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex flex-wrap gap-3">
+                          <button
+                            type="button"
+                            onClick={() => void handleAcceptOffer(offer.id)}
+                            disabled={acceptOffer.isPending}
+                            className="bg-diyar-dark text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-diyar-brown transition-colors cursor-pointer disabled:opacity-60"
+                          >
+                            {acceptOffer.isPending ? (
+                              <Loader2 size={16} className="animate-spin inline" />
+                            ) : (
+                              t('serviceMarketplace.requests.acceptOffer')
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void handleRejectOffer(offer.id)}
+                            disabled={rejectingOfferId === offer.id || rejectOffer.isPending}
+                            className="px-6 py-2.5 rounded-xl text-sm font-bold border border-red-200 text-red-600 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-2"
+                          >
+                            {rejectingOfferId === offer.id ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                              t('serviceMarketplace.requests.rejectOffer')
+                            )}
+                          </button>
+                          <span
+                            aria-disabled="true"
+                            title={t('serviceMarketplace.requests.chatDisabled')}
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold border border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed opacity-70"
+                          >
+                            {t('serviceMarketplace.requests.chat')}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="lg:w-56 shrink-0 bg-linear-to-br from-diyar-cream/30 to-white rounded-2xl p-5 flex flex-col justify-center items-center border border-diyar-cream gap-4">
+                        <div className="text-center">
+                          <span className="block text-xs text-gray-500 mb-1">
+                            {t('serviceMarketplace.requests.proposedPrice')}
+                          </span>
+                          <span
+                            className="block text-3xl font-bold text-diyar-dark tabular-nums"
+                            dir="ltr"
+                          >
+                            {offer.proposed_price} {offer.currency}
+                          </span>
+                        </div>
+                        {offer.duration_days != null && (
+                          <>
+                            <div className="h-px w-full bg-gray-200" />
+                            <div className="text-center">
+                              <span className="block text-xs text-gray-500 mb-1">
+                                {t('serviceMarketplace.requests.executionDuration')}
+                              </span>
+                              <span className="block font-bold text-gray-800">
+                                {t('serviceMarketplace.requests.durationDays', {
+                                  count: offer.duration_days,
+                                })}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
+
+            {offersPagination.last_page > 1 && (
+              <PaginationBar
+                pagination={offersPagination}
+                page={offersPage}
+                onPageChange={setOffersPage}
+                className="mt-8"
+              />
+            )}
           </div>
         )}
       </div>
@@ -253,42 +353,34 @@ export default function ServiceRequestsPage() {
       <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark mb-2">
-            طلبات الخدمات والصيانة
+            {t('serviceMarketplace.requests.pageTitle')}
           </h1>
-          <p className="text-gray-500">
-            تابع طلباتك الخاصة، واطلع على عروض مزودي الخدمة الجاهزة للتنفيذ.
-          </p>
+          <p className="text-gray-500">{t('serviceMarketplace.requests.pageSubtitle')}</p>
         </div>
         <Link
           to="/services"
           className="bg-diyar-brown text-white px-6 py-3 rounded-full font-bold hover:bg-diyar-dark transition-colors flex items-center justify-center gap-2 w-full md:w-auto shrink-0 shadow-sm hover:shadow-md cursor-pointer"
         >
-          <Plus size={20} /> طلب تنفيذ
+          <Plus size={20} /> {t('serviceMarketplace.requests.newRequest')}
         </Link>
       </div>
 
       <div className="flex overflow-x-auto gap-2 pb-2 mb-6 scrollbar-hide">
-        {[
-          { key: 'all', label: 'الكل' },
-          { key: 'pending', label: 'بانتظار العروض' },
-          { key: 'offers_received', label: 'عروض واردة' },
-          { key: 'in_progress', label: 'قيد التنفيذ' },
-          { key: 'completed', label: 'مكتملة' },
-        ].map((tab) => (
+        {(['all', 'pending', 'offers_received', 'in_progress', 'completed'] as const).map((tab) => (
           <button
-            key={tab.key}
+            key={tab}
             type="button"
             onClick={() => {
-              setActiveTab(tab.key);
+              setActiveTab(tab);
               setPage(1);
             }}
             className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === tab.key
+              activeTab === tab
                 ? 'bg-diyar-dark text-white shadow-sm'
                 : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
             }`}
           >
-            {tab.label}
+            {t(`serviceMarketplace.requests.tabs.${tab}`)}
           </button>
         ))}
       </div>
@@ -297,18 +389,18 @@ export default function ServiceRequestsPage() {
         <LoadingState className="min-h-64" />
       ) : listQuery.isError ? (
         <ErrorState
-          message="تعذر تحميل الطلبات"
+          message={t('serviceMarketplace.requests.loadError')}
           error={listQuery.error as Error}
           onRetry={() => void listQuery.refetch()}
         />
       ) : requests.length === 0 ? (
         <EmptyState
-          title="لا توجد طلبات بعد"
-          description="قدّم طلب تنفيذ مخصص من صفحة الخدمات."
+          title={t('serviceMarketplace.requests.emptyTitle')}
+          description={t('serviceMarketplace.requests.emptyDescription')}
         />
       ) : (
         <>
-          <div className="space-y-4 text-right">
+          <div className="space-y-4">
             {requests.map((item) => (
               <ServiceRequestListCard
                 key={item.id}

@@ -1,14 +1,14 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-08-18  
+> **Last updated:** 2026-08-19  
 > **Maintained by:** AI development agents after each phase completion  
-> **Canonical stage doc:** [conception/Stages/Stage 13/README.md](../conception/Stages/Stage%2013/README.md)
+> **Canonical plans:** [conception/MASTER_DEVELOPMENT_PLAN.md](../conception/MASTER_DEVELOPMENT_PLAN.md) · [conception/Stages/Stage 13/README.md](../conception/Stages/Stage%2013/README.md)
 
 ---
 
 ## Project
 
-**DIYAR Marketplace** — Arabic RTL multi-vendor marketplace + **service marketplace (provider)** — Saudi Arabia · SAR · 15% VAT
+**DIYAR Marketplace** — Arabic RTL multi-vendor commerce + **service marketplace (provider portal)** — Saudi Arabia · SAR · 15% VAT
 
 ---
 
@@ -16,22 +16,10 @@
 
 | Stage | Status |
 |-------|--------|
-| Stage 0 — Discovery & Architecture | **COMPLETE** |
-| Stage 1 — Engineering Foundation | **COMPLETE** |
-| Stage 2 — Identity & Access | **COMPLETE** |
-| Stage 3 — User Profile & Media | **COMPLETE** |
-| Stage 4 — Catalog & Products | **COMPLETE** |
-| Stage 5 — Inventory | **COMPLETE** |
-| Stage 5.5 — Storefront Integration | **COMPLETE** |
-| Stage 6 — Cart & Checkout | **COMPLETE** |
-| Stage 7 — Order Engine | **COMPLETE** |
-| Stage 8 — Payments & Webhooks | **COMPLETE** |
-| Stage 9 — Financial Ledger | **COMPLETE** |
-| Stage 10 — Shipping | **COMPLETE** |
-| Stage 11 — Returns & Refunds | **COMPLETE** |
-| Stage 12 — Vendor Portal | **COMPLETE** |
-| Stage 12.5 — Vendor Team & Engagement | **COMPLETE** (`6a2ceba`) |
-| **Stage 13 — Service Marketplace (Provider)** | **IN PROGRESS** |
+| Stages 0–12.5 | **COMPLETE** |
+| **Stage 13 — Service Marketplace (Provider)** | **COMPLETE** (docs + provider UI wired) |
+| **Stage 14 — Reviews audit** | **COMPLETE** (gap fixes, no rebuild) |
+| **Stage 15 — Vendor percentage coupons** | **IN PROGRESS** (domain + checkout + vendor UI; polish in working tree) |
 
 ---
 
@@ -39,73 +27,85 @@
 
 | Field | Value |
 |-------|--------|
-| **Current Stage** | **Stage 13 — Service Marketplace** |
-| **Stage 13 status** | **IN PROGRESS** — Provider Portal integration **PENDING** (blocks sign-off) |
 | **Branch** | `dev` |
-| **HEAD** | `6a2ceba` — Stage 12 / 12.5 committed |
-| **Working tree** | Stage 13 backend + customer UI **uncommitted** |
+| **Last commit** | `d197702` — feat(stage): Stage 13 Provider Portal |
+| **Working tree** | Stage 14/15 + schedule negotiation UI + coupon UX (**uncommitted**) |
 
 ---
 
-## Stage 13 — Completion Matrix
+## Domain Split
 
-| Phase | Name | Status |
-|-------|------|--------|
-| 13.1 | Service Catalog | **COMPLETE** |
-| 13.2 | Customer RFQ | **COMPLETE** |
-| 13.3 | Provider Offers | **COMPLETE** (API + customer accept); provider UI **PENDING** |
-| 13.4 | Booking | **COMPLETE** (API); provider UI **PENDING** |
-| 13.5 | Service Payment | **COMPLETE** (dev simulate) |
-| — | **Provider Portal** | **PENDING** — wire `ServiceClientRequests`, `ServiceClientRequestDetails`, `ServiceBookings` to `/dashboard/provider/*` |
-
-**Do not mark Stage 13 COMPLETE until Provider Portal passes acceptance.**
+| Portal | API prefix | UI route |
+|--------|------------|----------|
+| **Vendor** (commerce) | `/api/v1/dashboard/vendor/*` | `/dashboard/vendor/*` |
+| **Provider** (services) | `/api/v1/dashboard/provider/*` | `/dashboard/service/*` |
+| **Customer** | `/api/v1/*` | `/`, `/services`, `/service-requests`, etc. |
 
 ---
 
-## Stage 13 Flow (implemented in working tree)
+## Implemented (working tree since `d197702`)
 
-```text
-Catalog → RFQ → Provider offers → Customer accept → Payment (simulate) → Booking start/complete
+### Service marketplace
+- Provider dashboard: bookings, RFQ inbox, offers, finance, settings, services CRUD
+- Schedule negotiation timeline + booking detail sections
+- RFQ flow: accept offer → **provider confirmation** → payment (negotiation before pay)
+- Direct booking + provider reviews
+- Customer: service catalog, RFQ, bookings, wishlist
+
+### Vendor coupons (Stage 15)
+- `vendor_coupons` table, CRUD API, checkout apply/remove, usage on payment
+- Vendor UI: `/dashboard/vendor/coupons` with share card + form modal
+- Tests: `VendorCouponTest` (8/8)
+
+### Reviews (Stage 14 audit)
+- Unified customer review history (product + store + provider)
+- Provider self-review guard test
+
+---
+
+## Key Backend Modules
+
+```
+backend/app/Services/Coupon/*          — vendor coupon validation, checkout, usage
+backend/app/Services/ServiceMarketplace/* — RFQ, bookings, direct booking, reviews, finance
+backend/app/Http/Controllers/Api/V1/ServiceMarketplace/*
+backend/app/Http/Controllers/Api/V1/Dashboard/VendorCouponController.php
 ```
 
-**Docs:** `conception/Stages/Stage 13/` (phases 13.1–13.5, acceptance matrix, test results)
+## Key Frontend Areas
+
+```
+frontend/src/pages/dashboard/Service*     — provider portal
+frontend/src/pages/dashboard/VendorCoupons.tsx
+frontend/src/components/services/BookingScheduleSection.tsx
+frontend/src/components/coupon/*
+frontend/src/pages/ServiceRequestsPage.tsx
+```
 
 ---
 
-## Last Validation (2026-08-18)
+## Last Validation (2026-08-19, local)
 
 | Check | Result |
 |-------|--------|
-| `vendor/bin/pint --test` | **PASS** |
-| `php artisan test` | **345 / 345 PASS** |
+| `vendor/bin/pint --test` | Run after `pint` fix on dirty files |
+| `php artisan test --filter=ServiceRfqWorkflowTest` | **10/10 PASS** |
+| `php artisan test --filter=VendorCouponTest` | **8/8 PASS** |
 | `npm run typecheck` | **PASS** |
-| `npm run lint` | **PASS** |
-| `npm run format:check` | **PASS** |
-| `npm test` | **82 / 82 PASS** |
 | `npm run build` | **PASS** |
-
-**CI fix:** `DIYAR_MAIL_ENABLED=false` in `backend/phpunit.xml` for deterministic email OTP tests.
-
----
-
-## Domain Split (important)
-
-| Stage | Domain |
-|-------|--------|
-| **Stage 12 / 12.5** | **Vendor** — commerce, storefront, teams, preorders |
-| **Stage 13** | **Provider / Service** — catalog, RFQ, offers, bookings, service payment |
 
 ---
 
 ## CI/CD
 
-Workflow: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — frontend typecheck, lint, prettier, vitest, build · backend pint, phpunit.
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml):
+- **Frontend:** typecheck, eslint (full `src/**`), prettier, vitest, build
+- **Backend:** composer install, pint, phpunit
 
 ---
 
 ## Next Actions
 
-1. Wire Provider Portal dashboard pages to existing `/dashboard/provider/*` APIs (preserve UI)
-2. QA full provider flow end-to-end
-3. Commit Stage 13 scope (see `STAGE_13_PROGRESS_REPORT.md` for recommended commit split)
-4. Sign off Stage 13 → authorize Stage 14
+1. Commit working tree (recommended split: Stage 14/15 backend, provider UI polish, coupon UX)
+2. Full regression: `php artisan test` + `npm test`
+3. Sign off Stage 15 → update MASTER_DEVELOPMENT_PLAN

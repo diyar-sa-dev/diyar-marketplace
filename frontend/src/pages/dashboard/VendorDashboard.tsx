@@ -1,5 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { ShoppingCart, DollarSign, Package, RotateCcw, Wallet, TrendingUp, Star, Clock } from 'lucide-react';
+import {
+  ShoppingCart,
+  DollarSign,
+  Package,
+  RotateCcw,
+  Wallet,
+  TrendingUp,
+  Star,
+  Clock,
+} from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { ChartContainer } from '../../components/common/ChartContainer.tsx';
 import { Link } from 'react-router-dom';
@@ -173,7 +182,10 @@ export default function VendorDashboard() {
           icon={<Clock size={20} />}
           iconClass="bg-purple-50 text-purple-600"
           value={
-            <Link to="/dashboard/vendor/orders?tab=preorders" className="text-2xl sm:text-3xl font-bold text-diyar-dark tabular-nums hover:text-diyar-brown transition-colors">
+            <Link
+              to="/dashboard/vendor/orders?tab=preorders"
+              className="text-2xl sm:text-3xl font-bold text-diyar-dark tabular-nums hover:text-diyar-brown transition-colors"
+            >
               {overview.preorders?.pending ?? 0}
             </Link>
           }
@@ -266,7 +278,9 @@ export default function VendorDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         <div className="lg:col-span-2 bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm min-w-0 flex flex-col min-h-80 sm:min-h-96 lg:min-h-112 xl:min-h-128">
-          <h3 className="font-bold text-diyar-dark mb-4 shrink-0">{t('vendor.dashboard.salesChart')}</h3>
+          <h3 className="font-bold text-diyar-dark mb-4 shrink-0">
+            {t('vendor.dashboard.salesChart')}
+          </h3>
           <div className="flex-1 min-h-72 sm:min-h-80 lg:min-h-0 w-full">
             {chartData.length === 0 ? (
               <div className="flex h-full min-h-72 items-center justify-center text-gray-500 text-sm">
@@ -338,13 +352,21 @@ export default function VendorDashboard() {
                       <h4 className="font-bold text-sm text-diyar-dark leading-snug truncate">
                         {order.product_name ?? '—'}
                       </h4>
-                      <p className="mt-1 text-xs font-semibold text-diyar-brown/85 tabular-nums" dir="ltr">
+                      <p
+                        className="mt-1 text-xs font-semibold text-diyar-brown/85 tabular-nums"
+                        dir="ltr"
+                      >
                         {order.order_number ?? order.id.slice(0, 8).toUpperCase()}
                       </p>
-                      <p className="mt-1.5 text-xs text-gray-400">{formatOrderTime(order.created_at)}</p>
+                      <p className="mt-1.5 text-xs text-gray-400">
+                        {formatOrderTime(order.created_at)}
+                      </p>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-2">
-                      <span className="text-sm font-bold text-diyar-dark tabular-nums whitespace-nowrap" dir="ltr">
+                      <span
+                        className="text-sm font-bold text-diyar-dark tabular-nums whitespace-nowrap"
+                        dir="ltr"
+                      >
                         {order.vendor_total} {currency}
                       </span>
                       <VendorOrderStatusBadge status={order.status} />
@@ -398,7 +420,9 @@ export default function VendorDashboard() {
             </div>
           </div>
           {filteredLowStockProducts.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-8">{t('vendor.dashboard.emptyLowStock')}</p>
+            <p className="text-sm text-gray-500 text-center py-8">
+              {t('vendor.dashboard.emptyLowStock')}
+            </p>
           ) : (
             <div className="space-y-3">
               {filteredLowStockProducts.map((product) => (

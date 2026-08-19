@@ -1,12 +1,11 @@
-import { ArrowLeft, FileText, Star } from 'lucide-react';
+import { ArrowLeft, ArrowRight, FileText, Star } from 'lucide-react';
 import type { ServiceRequestCard } from '../../types/serviceRequests.ts';
 import type { Locale } from '../../lib/i18n/types.ts';
+import { useLocale } from '../../hooks/useLocale.ts';
 import { formatOrderDate } from '../../lib/formatOrderDate.ts';
 import { formatServiceRequestReference } from '../../lib/formatRelativeDay.ts';
-import {
-  ServiceRequestStatusBadge,
-  serviceRequestAccentClass,
-} from './ServiceRequestStatusBadge.tsx';
+import { ServiceRequestStatusBadge } from './ServiceRequestStatusBadge.tsx';
+import { serviceRequestAccentClass } from '../../lib/serviceRequestStatus.ts';
 
 type ServiceRequestListCardProps = {
   item: ServiceRequestCard;
@@ -21,6 +20,9 @@ export function ServiceRequestListCard({
   onClick,
   compact = false,
 }: ServiceRequestListCardProps) {
+  const { t, dir } = useLocale();
+  const NavIcon = dir === 'rtl' ? ArrowLeft : ArrowRight;
+
   const showOffersHint =
     item.offers_count > 0 && (item.status === 'offers_received' || item.status === 'pending');
   const showProvider =
@@ -58,32 +60,41 @@ export function ServiceRequestListCard({
             {formatServiceRequestReference(item.reference)}
           </span>
           {item.created_at && (
-            <span>تم الطلب في {formatOrderDate(item.created_at, locale)}</span>
+            <span>
+              {t('serviceMarketplace.requests.requestedOn', {
+                date: formatOrderDate(item.created_at, locale),
+              })}
+            </span>
           )}
         </p>
 
         {!compact && item.description && (
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3 leading-relaxed">{item.description}</p>
+          <p className="text-sm text-gray-600 line-clamp-2 mb-3 leading-relaxed">
+            {item.description}
+          </p>
         )}
 
         {showOffersHint && (
           <div className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-100 px-3 py-1.5 rounded-xl text-xs font-bold">
             <Star size={14} className="fill-amber-400 text-amber-400" />
-            <span>تلقيت {item.offers_count} عروض أسعار</span>
+            <span>
+              {t('serviceMarketplace.requests.offersReceived', { count: item.offers_count })}
+            </span>
           </div>
         )}
 
         {showProvider && (
           <div className="flex flex-wrap items-center gap-4 text-sm mt-2">
             <span className="text-gray-500">
-              مقدم الخدمة:{' '}
+              {t('serviceMarketplace.requests.providerLabel')}{' '}
               <strong className="text-gray-800">{item.accepted_provider?.name}</strong>
             </span>
             {item.accepted_price && (
               <span className="text-gray-500">
-                التكلفة:{' '}
-                <strong className="text-diyar-dark tabular-nums">
-                  {item.accepted_price} {item.accepted_currency ?? 'ر.س'}
+                {t('serviceMarketplace.requests.costLabel')}{' '}
+                <strong className="text-diyar-dark tabular-nums" dir="ltr">
+                  {item.accepted_price}{' '}
+                  {item.accepted_currency ?? t('providerDashboard.common.currency')}
                 </strong>
               </span>
             )}
@@ -93,7 +104,7 @@ export function ServiceRequestListCard({
 
       {!compact && (
         <div className="hidden md:flex w-10 h-10 rounded-full bg-gray-50 items-center justify-center text-gray-400 group-hover:bg-diyar-dark group-hover:text-white transition-colors shrink-0">
-          <ArrowLeft
+          <NavIcon
             size={18}
             className="translate-x-0 group-hover:-translate-x-1 transition-transform"
           />

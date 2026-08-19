@@ -72,7 +72,9 @@ export function PendingReviewCard({ item, t, onSkipped, onSubmitted }: PendingRe
             {imageUrl ? (
               <img src={imageUrl} alt={title ?? ''} className="w-full h-full object-cover" />
             ) : (
-              <span className="text-lg font-bold text-diyar-brown/40">{title?.charAt(0) ?? '?'}</span>
+              <span className="text-lg font-bold text-diyar-brown/40">
+                {title?.charAt(0) ?? '?'}
+              </span>
             )}
           </div>
           <div className="min-w-0">

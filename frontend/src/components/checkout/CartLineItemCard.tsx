@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { formatCompactProductSize } from '../../lib/catalogMappers.ts';
-import type { CartItem, CartProductSnapshot } from '../../types/cart.ts';
+import type { CartProductSnapshot } from '../../types/cart.ts';
 
 type CartLineItemCardProps = {
   name: string;
@@ -12,7 +12,6 @@ type CartLineItemCardProps = {
   unitPrice: string;
   quantity: number;
   currency: string;
-  productFallbackLabel: string;
   colorLabel: string;
   sizeLabel: string;
   quantityLabel: string;
@@ -28,7 +27,6 @@ export function CartLineItemCard({
   unitPrice,
   quantity,
   currency,
-  productFallbackLabel,
   colorLabel,
   sizeLabel,
   quantityLabel,
@@ -96,32 +94,4 @@ export function CartLineItemCard({
       </div>
     </div>
   );
-}
-
-export function cartItemToLineProps(
-  item: CartItem,
-  labels: {
-    productFallback: string;
-    colorLabel: string;
-    sizeLabel: string;
-    quantityLabel: string;
-    currency: string;
-  },
-) {
-  const product = item.product;
-
-  return {
-    name: product?.name ?? labels.productFallback,
-    imageUrl: product?.image_url,
-    vendorName: product?.vendor?.store_name ?? null,
-    color: item.color,
-    product,
-    unitPrice: item.unit_price_snapshot,
-    quantity: item.quantity,
-    currency: labels.currency,
-    productFallbackLabel: labels.productFallback,
-    colorLabel: labels.colorLabel,
-    sizeLabel: labels.sizeLabel,
-    quantityLabel: labels.quantityLabel,
-  };
 }

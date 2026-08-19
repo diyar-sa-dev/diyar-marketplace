@@ -67,5 +67,12 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute((int) env('DIYAR_OTP_RATE_LIMIT', 10))
                 ->by($phone.'|'.$request->ip());
         });
+
+        RateLimiter::for('wishlist-toggle', function (Request $request) {
+            $limit = (int) config('diyar.rate_limits.wishlist_toggle_per_minute', 60);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

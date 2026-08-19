@@ -10,10 +10,11 @@ export function useServiceCategories() {
   });
 }
 
-export function useServices(filters: ServiceListFilters = {}) {
+export function useServices(filters: ServiceListFilters = {}, enabled = true) {
   return useQuery({
     queryKey: serviceKeys.list(filters),
     queryFn: () => servicesApi.fetchServices(filters),
+    enabled,
   });
 }
 

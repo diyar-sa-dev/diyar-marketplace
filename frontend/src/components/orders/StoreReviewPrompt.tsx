@@ -45,7 +45,12 @@ export function StoreReviewPrompt({
     return (
       <div className="rounded-xl border border-green-100 bg-green-50/60 p-4 md:p-5 mt-4">
         <p className="text-sm font-bold text-green-800 mb-2">{t('storeReviews.alreadyReviewed')}</p>
-        <StarRating value={eligibility.review?.rating ?? rating} readOnly size={20} className="mb-2" />
+        <StarRating
+          value={eligibility.review?.rating ?? rating}
+          readOnly
+          size={20}
+          className="mb-2"
+        />
         {eligibility.review?.comment && (
           <p className="text-sm text-green-900/80 leading-relaxed">{eligibility.review.comment}</p>
         )}

@@ -31,6 +31,7 @@ import {
   validateReferenceLinksInput,
   validateServiceRequestFile,
 } from '../../lib/serviceRequestValidation.ts';
+import { parseApiError } from '../../utils/errors.ts';
 
 export type RequestServiceModalContext = {
   serviceId?: string;
@@ -71,7 +72,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { locale, dir } = useLocale();
+  const { locale, dir, t } = useLocale();
   const { data: categories = [], isLoading: categoriesLoading } = useServiceCategories();
   const createRequest = useCreateServiceRequest();
 
@@ -92,9 +93,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
     () => categories.find((category) => category.slug === 'other'),
     [categories],
   );
-  const isOtherSelected = Boolean(
-    otherCategory && selectedCategoryIds.includes(otherCategory.id),
-  );
+  const isOtherSelected = Boolean(otherCategory && selectedCategoryIds.includes(otherCategory.id));
 
   useEffect(() => {
     if (!isOpen) {
@@ -139,7 +138,9 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
     if (remaining <= 0) {
       setErrors((prev) => ({
         ...prev,
-        attachments: `الحد الأقصى ${MAX_SERVICE_REQUEST_ATTACHMENTS} ملفات.`,
+        attachments: t('serviceMarketplace.requestModal.errors.maxAttachments', {
+          max: MAX_SERVICE_REQUEST_ATTACHMENTS,
+        }),
       }));
       return;
     }
@@ -213,15 +214,15 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
     const nextErrors: FormErrors = {};
 
     if (description.trim().length < 20) {
-      nextErrors.description = 'اكتب وصفاً لا يقل عن 20 حرفاً.';
+      nextErrors.description = t('serviceMarketplace.requestModal.errors.description');
     }
 
     if (selectedCategoryIds.length === 0) {
-      nextErrors.categories = 'اختر تصنيفاً واحداً على الأقل.';
+      nextErrors.categories = t('serviceMarketplace.requestModal.errors.categories');
     }
 
     if (isOtherSelected && customCategoryText.trim().length < 2) {
-      nextErrors.customCategory = 'حدّد التصنيف المخصص عند اختيار «أخرى».';
+      nextErrors.customCategory = t('serviceMarketplace.requestModal.errors.customCategory');
     }
 
     const budgetError = validateBudget(budget);
@@ -241,7 +242,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
     e.preventDefault();
 
     if (!user) {
-      toast.error('يرجى تسجيل الدخول لتقديم طلب خدمة.');
+      toast.error(t('serviceMarketplace.requestModal.loginRequired'));
       navigate('/login');
       return;
     }
@@ -258,7 +259,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
       const trimmedDescription = description.trim();
       const finalDescription =
         isOtherSelected && customCategoryText.trim()
-          ? `[تصنيف: ${customCategoryText.trim()}]\n\n${trimmedDescription}`
+          ? `${t('serviceMarketplace.requestModal.categoryPrefix', { name: customCategoryText.trim() })}\n\n${trimmedDescription}`
           : trimmedDescription;
 
       const created = await createRequest.mutateAsync({
@@ -297,7 +298,11 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
           setPendingAttachments((current) =>
             current.map((item) =>
               item.id === attachment.id
-                ? { ...item, status: 'error', error: 'تعذر رفع الملف.' }
+                ? {
+                    ...item,
+                    status: 'error',
+                    error: t('serviceMarketplace.requestModal.uploadFailed'),
+                  }
                 : item,
             ),
           );
@@ -313,9 +318,11 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
       }, 2000);
     } catch (error) {
       if (error instanceof Error && error.message === 'attachment_upload_failed') {
-        toast.error('تم إنشاء الطلب لكن فشل رفع بعض المرفقات. حاول مرة أخرى من تفاصيل الطلب.');
+        toast.error(t('serviceMarketplace.requestModal.partialUploadError'));
       } else {
-        toast.error('تعذر إرسال الطلب. حاول مرة أخرى.');
+        toast.error(
+          parseApiError(error, locale).message || t('serviceMarketplace.requestModal.submitError'),
+        );
       }
     } finally {
       setSubmitting(false);
@@ -349,10 +356,10 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                 id="request-service-title"
                 className="text-xl md:text-2xl font-bold text-diyar-dark leading-snug"
               >
-                طلب تنفيذ مخصص
+                {t('serviceMarketplace.requestModal.title')}
               </h2>
               <p className="text-gray-500 text-sm mt-2 leading-relaxed">
-                صف ما تريد تنفيذه وسنوصلك بأفضل المختصين
+                {t('serviceMarketplace.requestModal.subtitle')}
               </p>
             </div>
           </div>
@@ -372,15 +379,19 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
               <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle2 size={40} className="text-green-500" />
               </div>
-              <h3 className="text-2xl font-bold text-diyar-dark mb-2">تم استلام طلبك بنجاح!</h3>
-              <p className="text-gray-500">سيتم إشعارك عند وصول عروض من المزودين.</p>
+              <h3 className="text-2xl font-bold text-diyar-dark mb-2">
+                {t('serviceMarketplace.requestModal.successTitle')}
+              </h3>
+              <p className="text-gray-500">
+                {t('serviceMarketplace.requestModal.successDescription')}
+              </p>
             </div>
           ) : (
             <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
               <div>
                 <label className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
                   <FileText size={16} className="text-diyar-brown" />
-                  تفاصيل الخدمة المطلوبة <RequiredMark />
+                  {t('serviceMarketplace.requestModal.descriptionLabel')} <RequiredMark />
                 </label>
                 <textarea
                   required
@@ -390,7 +401,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                     setDescription(e.target.value);
                     setErrors((prev) => ({ ...prev, description: undefined }));
                   }}
-                  placeholder="اشرح بالتفصيل ما الذي تحتاجه (مثال: أحتاج مصمم داخلي لتصميم صالة جلوس بمساحة 20 متر مربع...)"
+                  placeholder={t('serviceMarketplace.requestModal.descriptionPlaceholder')}
                   className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all resize-none ${
                     errors.description ? 'border-red-300 bg-red-50/40' : 'border-gray-200'
                   }`}
@@ -403,11 +414,13 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
               <div>
                 <label className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2 flex-wrap">
                   <Tags size={16} className="text-diyar-brown" />
-                  تصنيف الخدمة <RequiredMark />
+                  {t('serviceMarketplace.requestModal.categoryLabel')} <RequiredMark />
                   <span className="text-gray-400 font-medium text-xs">
                     {selectedCategoryIds.length > 0
-                      ? `(${selectedCategoryIds.length} مختار)`
-                      : '(يمكنك اختيار أكثر من تصنيف)'}
+                      ? t('serviceMarketplace.requestModal.categorySelected', {
+                          count: selectedCategoryIds.length,
+                        })
+                      : t('serviceMarketplace.requestModal.categoryMultiHint')}
                   </span>
                 </label>
                 {categoriesLoading ? (
@@ -436,7 +449,8 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                     {isOtherSelected && (
                       <div className="mt-3">
                         <label className="text-xs font-bold text-gray-600 mb-1.5 block">
-                          حدّد التصنيف <RequiredMark />
+                          {t('serviceMarketplace.requestModal.customCategoryLabel')}{' '}
+                          <RequiredMark />
                         </label>
                         <input
                           type="text"
@@ -445,9 +459,13 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                             setCustomCategoryText(e.target.value);
                             setErrors((prev) => ({ ...prev, customCategory: undefined }));
                           }}
-                          placeholder="مثال: تركيب مطابخ ألمنيوم، صيانة مكيفات..."
+                          placeholder={t(
+                            'serviceMarketplace.requestModal.customCategoryPlaceholder',
+                          )}
                           className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all ${
-                            errors.customCategory ? 'border-red-300 bg-red-50/40' : 'border-gray-200'
+                            errors.customCategory
+                              ? 'border-red-300 bg-red-50/40'
+                              : 'border-gray-200'
                           }`}
                         />
                         {errors.customCategory && (
@@ -467,7 +485,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
               <div>
                 <label className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
                   <DollarSign size={16} className="text-diyar-brown" />
-                  الميزانية المقترحة (اختياري)
+                  {t('serviceMarketplace.requestModal.budgetLabel')}
                 </label>
                 <div className="relative">
                   <input
@@ -478,17 +496,17 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                       setBudget(sanitizeBudgetInput(e.target.value));
                       setErrors((prev) => ({ ...prev, budget: undefined }));
                     }}
-                    placeholder="مثال: 500 أو 100-5000 أو 5000+"
-                    className={`w-full bg-gray-50 border rounded-xl pl-12 pr-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all ${
+                    placeholder={t('serviceMarketplace.requestModal.budgetPlaceholder')}
+                    className={`w-full bg-gray-50 border rounded-xl ps-12 pe-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all ${
                       errors.budget ? 'border-red-300 bg-red-50/40' : 'border-gray-200'
                     }`}
                   />
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">
-                    ر.س
+                  <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">
+                    {t('providerDashboard.common.currency')}
                   </span>
                 </div>
                 <p className="mt-1.5 text-xs text-gray-400">
-                  رقم واحد، نطاق (100-5000)، أو حد أدنى (5000+)
+                  {t('serviceMarketplace.requestModal.budgetHint')}
                 </p>
                 {errors.budget && (
                   <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.budget}</p>
@@ -496,7 +514,9 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
               </div>
 
               <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                <h4 className="text-sm font-bold text-gray-700 mb-4">المرفقات (اختياري)</h4>
+                <h4 className="text-sm font-bold text-gray-700 mb-4">
+                  {t('serviceMarketplace.requestModal.attachmentsTitle')}
+                </h4>
                 <div className="space-y-4">
                   {pendingAttachments.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -529,7 +549,9 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                                 />
                               </div>
                               <p className="text-[10px] text-white mt-1 text-center">
-                                {item.status === 'done' ? 'تم الرفع' : `${item.progress ?? 0}%`}
+                                {item.status === 'done'
+                                  ? t('serviceMarketplace.requestModal.uploadDone')
+                                  : `${item.progress ?? 0}%`}
                               </p>
                             </div>
                           )}
@@ -540,8 +562,8 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                                 type="button"
                                 disabled={submitting}
                                 onClick={() => removeAttachment(item.id)}
-                                className="absolute top-1.5 left-1.5 cursor-pointer w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center opacity-90 hover:opacity-100 disabled:opacity-50"
-                                aria-label="حذف الملف"
+                                className="absolute top-1.5 start-1.5 cursor-pointer w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center opacity-90 hover:opacity-100 disabled:opacity-50"
+                                aria-label={t('serviceMarketplace.requestModal.deleteFile')}
                               >
                                 <X size={14} />
                               </button>
@@ -554,12 +576,12 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                                 }}
                                 className="absolute bottom-1.5 inset-x-1.5 cursor-pointer rounded-lg bg-black/55 text-white text-[10px] font-bold py-1 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-40"
                               >
-                                استبدال
+                                {t('serviceMarketplace.requestModal.replace')}
                               </button>
                             </>
                           )}
 
-                          <span className="absolute top-1.5 right-1.5 text-[9px] bg-black/55 text-white px-1.5 py-0.5 rounded flex items-center gap-1">
+                          <span className="absolute top-1.5 end-1.5 text-[9px] bg-black/55 text-white px-1.5 py-0.5 rounded flex items-center gap-1">
                             <File size={10} />
                             {formatFileSize(item.file.size)}
                           </span>
@@ -605,27 +627,34 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                         <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3 group-hover:text-diyar-brown">
                           <Upload size={20} />
                         </div>
-                        <span className="font-medium text-sm">اضغط لرفع صور أو ملفات</span>
+                        <span className="font-medium text-sm">
+                          {t('serviceMarketplace.requestModal.uploadPrompt')}
+                        </span>
                         <span className="text-xs text-gray-400 mt-1">
-                          PDF, JPEG, JPG, PNG, WEBP — حتى 10MB — {pendingAttachments.length}/
-                          {MAX_SERVICE_REQUEST_ATTACHMENTS}
+                          {t('serviceMarketplace.requestModal.uploadFormats', {
+                            current: pendingAttachments.length,
+                            max: MAX_SERVICE_REQUEST_ATTACHMENTS,
+                          })}
                         </span>
                       </button>
                     ) : (
                       <p className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
-                        تم الوصول للحد الأقصى ({MAX_SERVICE_REQUEST_ATTACHMENTS} ملفات). احذف ملفاً
-                        لإضافة آخر.
+                        {t('serviceMarketplace.requestModal.maxAttachments', {
+                          max: MAX_SERVICE_REQUEST_ATTACHMENTS,
+                        })}
                       </p>
                     )}
                     {errors.attachments && (
-                      <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.attachments}</p>
+                      <p className="mt-1.5 text-xs text-red-600 font-medium">
+                        {errors.attachments}
+                      </p>
                     )}
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-gray-500 mb-2 flex items-center gap-1.5">
                       <LinkIcon size={14} />
-                      روابط مرجعية
+                      {t('serviceMarketplace.requestModal.referenceLinks')}
                     </label>
                     <textarea
                       rows={2}
@@ -634,7 +663,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                         setLinks(e.target.value);
                         setErrors((prev) => ({ ...prev, links: undefined }));
                       }}
-                      placeholder="https://example.com/reference (افصل بين الروابط بفاصلة أو سطر جديد)"
+                      placeholder={t('serviceMarketplace.requestModal.referenceLinksPlaceholder')}
                       className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all resize-none ${
                         errors.links ? 'border-red-300 bg-red-50/40' : 'border-gray-200'
                       }`}
@@ -657,7 +686,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                   ) : (
                     <>
                       <Send size={18} />
-                      إرسال الطلب
+                      {t('serviceMarketplace.requestModal.submit')}
                     </>
                   )}
                 </button>
@@ -667,7 +696,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                   disabled={submitting}
                   className="px-6 bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-colors cursor-pointer disabled:opacity-60"
                 >
-                  إلغاء
+                  {t('providerDashboard.common.cancel')}
                 </button>
               </div>
             </form>

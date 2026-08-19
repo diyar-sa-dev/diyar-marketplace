@@ -8,6 +8,7 @@ use App\Http\Resources\CheckoutPreviewResource;
 use App\Services\Checkout\CheckoutPreviewService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
+use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class CheckoutController extends Controller
@@ -23,8 +24,9 @@ class CheckoutController extends Controller
                 user: $request->user(),
                 shippingAddressId: $request->validated('shipping_address_id'),
                 deliverySelections: $request->validated('vendor_delivery_selections'),
+                vendorCoupons: $request->validated('vendor_coupons') ?? [],
             );
-        } catch (UnprocessableEntityHttpException $exception) {
+        } catch (UnprocessableEntityHttpException|InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
         }
 

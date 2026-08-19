@@ -9,6 +9,7 @@ use App\Models\ServiceBooking;
 use App\Models\ServiceBookingPayment;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -49,41 +50,77 @@ final class ServiceBookingPaymentService
             throw new AccessDeniedHttpException(__('diyar.auth.forbidden'));
         }
 
-        if ($booking->status !== ServiceBookingStatus::PendingPayment) {
-            throw new InvalidArgumentException(__('diyar.services.payments.not_payable'));
-        }
+        return DB::transaction(function () use ($user, $booking, $outcome) {
+            $lockedBooking = ServiceBooking::query()
+                ->whereKey($booking->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        $payment = $booking->payment;
-        if ($payment === null) {
-            throw new InvalidArgumentException(__('diyar.services.payments.not_initialized'));
-        }
+            if ($lockedBooking->user_id !== $user->id) {
+                throw new AccessDeniedHttpException(__('diyar.auth.forbidden'));
+            }
 
-        return DB::transaction(function () use ($booking, $payment, $outcome) {
+            $payment = ServiceBookingPayment::query()
+                ->where('service_booking_id', $lockedBooking->id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($payment === null) {
+                throw new InvalidArgumentException(__('diyar.services.payments.not_initialized'));
+            }
+
             if ($outcome === 'paid') {
+                if ($lockedBooking->status === ServiceBookingStatus::Confirmed
+                    && $payment->status === ServiceBookingPaymentStatus::Paid) {
+                    return $lockedBooking->fresh(['payment', 'providerAccount', 'serviceRequest']);
+                }
+
+                if ($lockedBooking->status !== ServiceBookingStatus::PendingPayment) {
+                    throw new InvalidArgumentException(__('diyar.services.payments.not_payable'));
+                }
+
                 $payment->update([
                     'status' => ServiceBookingPaymentStatus::Paid,
                     'payment_method' => 'local_simulator',
-                    'payment_reference' => $booking->reference,
+                    'payment_reference' => $lockedBooking->reference,
                     'paid_at' => now(),
                     'failed_at' => null,
                     'failure_reason' => null,
                 ]);
 
-                $booking->update([
+                $lockedBooking->update([
                     'payment_status' => ServiceBookingPaymentStatus::Paid,
                     'status' => ServiceBookingStatus::Confirmed,
                 ]);
 
-                $booking->serviceRequest?->update(['status' => ServiceRequestStatus::InProgress]);
-            } else {
-                $payment->update([
-                    'status' => ServiceBookingPaymentStatus::Failed,
-                    'failed_at' => now(),
-                    'failure_reason' => __('diyar.services.payments.simulation_failed'),
+                $lockedBooking->serviceRequest?->update(['status' => ServiceRequestStatus::InProgress]);
+
+                Log::info('service_booking.payment.simulated_paid', [
+                    'booking_id' => $lockedBooking->id,
+                    'payment_id' => $payment->id,
+                    'user_id' => $user->id,
                 ]);
+
+                return $lockedBooking->fresh(['payment', 'providerAccount', 'serviceRequest']);
             }
 
-            return $booking->fresh(['payment', 'providerAccount', 'serviceRequest']);
+            if ($lockedBooking->status !== ServiceBookingStatus::PendingPayment) {
+                throw new InvalidArgumentException(__('diyar.services.payments.not_payable'));
+            }
+
+            $payment->update([
+                'status' => ServiceBookingPaymentStatus::Failed,
+                'failed_at' => now(),
+                'failure_reason' => __('diyar.services.payments.simulation_failed'),
+            ]);
+
+            Log::info('service_booking.payment.simulated_failed', [
+                'booking_id' => $lockedBooking->id,
+                'payment_id' => $payment->id,
+                'user_id' => $user->id,
+            ]);
+
+            return $lockedBooking->fresh(['payment', 'providerAccount', 'serviceRequest']);
         });
     }
 }

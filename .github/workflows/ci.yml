@@ -83,6 +83,9 @@ jobs:
           echo "Composer install failed after 5 attempts."
           exit 1
 
+      - name: Validate composer.json
+        run: composer validate --strict --no-check-publish
+
       - name: Prepare environment
         run: |
           cp .env.example .env

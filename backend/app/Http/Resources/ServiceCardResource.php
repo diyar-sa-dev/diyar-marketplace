@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Service;
+use App\Services\ServiceMarketplace\ServiceEngagementService;
 use App\Support\ServiceMarketplace\ServiceMarketplacePresenter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -27,6 +28,7 @@ class ServiceCardResource extends JsonResource
             'slug' => $this->slug,
             'image_url' => $presenter->mediaUrl($this->cover_path),
             'pricing_mode' => $this->pricing_mode->value,
+            'booking_mode' => $this->booking_mode->value,
             'starting_price' => $this->starting_price !== null ? (float) $this->starting_price : null,
             'currency' => $this->currency,
             'pricing_label' => $presenter->pricingLabel(
@@ -35,6 +37,9 @@ class ServiceCardResource extends JsonResource
                 $this->currency,
             ),
             'delivery_type_label' => $this->delivery_type_label,
+            'service_type_label' => $this->delivery_type_label,
+            'duration_label' => $this->duration_label,
+            'duration_minutes' => $this->duration_minutes,
             'rating_average' => (float) $this->rating_average,
             'reviews_count' => $this->reviews_count,
             'remote_available' => $this->remote_available,
@@ -54,6 +59,18 @@ class ServiceCardResource extends JsonResource
                     'verified' => $this->providerAccount->verified,
                 ],
             ),
+            'is_active' => (bool) $this->is_active,
+            'description' => $this->description,
+            'user_saved' => $this->resolveUserSaved($request),
         ];
+    }
+
+    private function resolveUserSaved(Request $request): bool
+    {
+        if (array_key_exists('user_saved', $this->resource->getAttributes())) {
+            return (bool) $this->user_saved;
+        }
+
+        return app(ServiceEngagementService::class)->userSaved($request->user(), $this->resource);
     }
 }

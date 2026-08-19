@@ -23,6 +23,8 @@ class ServiceOfferResource extends JsonResource
             'proposed_price' => $this->proposed_price,
             'currency' => $this->currency,
             'duration_days' => $this->duration_days,
+            'proposed_scheduled_date' => $this->proposed_scheduled_date?->format('Y-m-d'),
+            'proposed_scheduled_time' => $this->proposed_scheduled_time,
             'message' => $this->message,
             'status' => $this->status->value,
             'expires_at' => $this->expires_at?->toIso8601String(),

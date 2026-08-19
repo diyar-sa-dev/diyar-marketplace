@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Twitter, Instagram, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
-import { shouldShowStorefrontDashboardLink, resolveDashboardEntryPath } from '../../lib/auth/roles.ts';
+import {
+  shouldShowStorefrontDashboardLink,
+  resolveDashboardEntryPath,
+} from '../../lib/auth/roles.ts';
 
 export function Footer() {
   const { isAuthenticated, user } = useAuth();

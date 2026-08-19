@@ -94,12 +94,12 @@ export function RouteStatusPage({
       </div>
 
       <div className="relative mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-lg flex-col items-center justify-center">
-        <Link
-          to="/"
+        <a
+          href="/"
           className="mb-8 flex items-center justify-center transition-opacity hover:opacity-80"
         >
           <img src="/logo_diyar.svg" alt="DIYAR" className="h-10 sm:h-11" />
-        </Link>
+        </a>
 
         <div
           className={`relative w-full overflow-hidden rounded-4xl border border-white/80 bg-white/95 p-8 text-center shadow-[0_24px_64px_rgba(19,38,36,0.08)] ring-1 backdrop-blur-sm sm:p-10 ${meta.ringClass}`}

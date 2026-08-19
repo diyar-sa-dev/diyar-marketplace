@@ -57,6 +57,7 @@ class OrderController extends Controller
                 deliverySelections: $request->validated('vendor_delivery_selections'),
                 idempotencyKey: $request->idempotencyKey(),
                 payloadHash: $request->payloadHash(),
+                vendorCoupons: $request->validated('vendor_coupons') ?? [],
             );
         } catch (ConflictHttpException $exception) {
             return ApiResponse::error($exception->getMessage(), 409);

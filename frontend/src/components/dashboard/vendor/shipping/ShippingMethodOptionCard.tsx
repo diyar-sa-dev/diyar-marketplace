@@ -40,9 +40,9 @@ export function ShippingMethodOptionCard({
           : (event) => {
               const target = event.target as HTMLElement;
               if (
-                target.tagName === 'INPUT'
-                || target.tagName === 'TEXTAREA'
-                || target.tagName === 'SELECT'
+                target.tagName === 'INPUT' ||
+                target.tagName === 'TEXTAREA' ||
+                target.tagName === 'SELECT'
               ) {
                 return;
               }

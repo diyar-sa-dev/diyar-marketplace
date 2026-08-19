@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
-import { Bookmark, Star, Store, CalendarClock } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Bookmark, Star, Store } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { useAuth } from '../../hooks/auth/useAuth.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import type { ServiceCard as ServiceCardType } from '../../types/services.ts';
 import { SERVICE_IMAGE_FALLBACK } from '../../lib/services/serviceUi.ts';
+import { ServiceTypeBadge } from '../services/ServiceTypeBadge.tsx';
+import { resolveServiceTypeLabel } from '../../lib/serviceBookingDisplay.ts';
+import { useServiceWishlistMutation } from '../../hooks/services/useServiceEngagement.ts';
 
 type LegacyServiceShape = {
   id?: string | number;
@@ -22,10 +26,17 @@ type LegacyServiceShape = {
   rating?: number;
   rating_average?: number;
   type?: string;
+  service_type_label?: string | null;
   delivery_type_label?: string | null;
+  booking_mode?: 'request' | 'direct';
+  user_saved?: boolean;
 };
 
-function normalizeServiceCard(service: ServiceCardType | LegacyServiceShape) {
+function normalizeServiceCard(
+  service: ServiceCardType | LegacyServiceShape,
+  scheduleFallback: string,
+  currencyLabel: string,
+) {
   const title = ('title' in service && service.title) || ('name' in service && service.name) || '';
   const slug = service.slug || String(('id' in service && service.id) ?? '');
   const imageUrl =
@@ -41,34 +52,91 @@ function normalizeServiceCard(service: ServiceCardType | LegacyServiceShape) {
     ('rating' in service && service.rating) ||
     0;
   const typeLabel =
-    ('delivery_type_label' in service && service.delivery_type_label) ||
+    resolveServiceTypeLabel(service as ServiceCardType) ||
     ('type' in service && service.type) ||
-    'تحديد موعد';
+    scheduleFallback;
   const priceLabel =
     ('pricing_label' in service && service.pricing_label) ||
     ('starting_price' in service && service.starting_price != null
-      ? `${service.starting_price} ${('currency' in service && service.currency) || 'ر.س'}`
+      ? `${service.starting_price} ${('currency' in service && service.currency) || currencyLabel}`
       : 'price' in service && service.price != null
         ? String(service.price)
         : '—');
 
-  return { title, slug, imageUrl, vendorName, rating, typeLabel, priceLabel };
+  return {
+    title,
+    slug,
+    imageUrl,
+    vendorName,
+    rating,
+    typeLabel,
+    priceLabel,
+    bookingMode: (('booking_mode' in service && service.booking_mode) || 'request') as
+      'request' | 'direct',
+  };
 }
 
-const ServiceCard: React.FC<{ service: ServiceCardType | LegacyServiceShape; layout?: 'grid' | 'list' }> = ({
-  service,
-  layout = 'grid',
-}) => {
-  const [isSaved, setIsSaved] = useState(false);
+const ServiceCard: React.FC<{
+  service: ServiceCardType | LegacyServiceShape;
+  layout?: 'grid' | 'list';
+}> = ({ service, layout = 'grid' }) => {
   const { t } = useLocale();
+  const { user } = useAuth();
   const { toast } = useToast();
-  const { title, slug, imageUrl, vendorName, rating, typeLabel, priceLabel } =
-    normalizeServiceCard(service);
+  const navigate = useNavigate();
+  const { title, slug, imageUrl, vendorName, rating, typeLabel, priceLabel, bookingMode } =
+    normalizeServiceCard(
+      service,
+      t('serviceMarketplace.catalog.scheduleAppointment'),
+      t('providerDashboard.common.currency'),
+    );
+  const wishlist = useServiceWishlistMutation(slug);
+  const [isSaved, setIsSaved] = useState(
+    () => ('user_saved' in service && service.user_saved) || false,
+  );
 
-  const notifyServicesUnavailable = (e: React.MouseEvent) => {
+  useEffect(() => {
+    setIsSaved(('user_saved' in service && service.user_saved) || false);
+  }, [service]);
+
+  const handleToggleSave = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    toast.info(t('cart.servicesUnavailable'));
+    if (!user) {
+      toast.error(t('serviceMarketplace.detail.loginRequired'));
+      return;
+    }
+    void wishlist
+      .mutateAsync()
+      .then((result) => {
+        setIsSaved(result.saved);
+        toast.success(
+          result.saved
+            ? t('serviceMarketplace.detail.saved')
+            : t('serviceMarketplace.detail.unsaved'),
+        );
+      })
+      .catch(() => {
+        toast.error(t('serviceMarketplace.detail.loadError'));
+      });
+  };
+
+  const isDirectBooking = bookingMode === 'direct';
+  const actionLabel = isDirectBooking
+    ? t('serviceMarketplace.detail.bookNow')
+    : t('serviceMarketplace.detail.requestService');
+  const actionHint = isDirectBooking
+    ? t('serviceMarketplace.detail.bookNowHint')
+    : t('serviceMarketplace.detail.requestServiceHint');
+
+  const handleServiceAction = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      toast.error(t('serviceMarketplace.detail.loginRequired'));
+      return;
+    }
+    navigate(`/service/${slug}?${isDirectBooking ? 'book=1' : 'request=1'}`);
   };
 
   if (layout === 'list') {
@@ -85,13 +153,12 @@ const ServiceCard: React.FC<{ service: ServiceCardType | LegacyServiceShape; lay
                 (e.target as HTMLImageElement).src = SERVICE_IMAGE_FALLBACK;
               }}
             />
+            {typeLabel && typeLabel !== t('serviceMarketplace.catalog.scheduleAppointment') && (
+              <ServiceTypeBadge label={typeLabel} overlay />
+            )}
             <Bookmark
-              className={`absolute top-2 right-2 cursor-pointer bg-white/80 backdrop-blur-md p-1.5 rounded-full w-7 h-7 shadow-sm transition-all z-10 ${isSaved ? 'text-diyar-brown fill-diyar-brown' : 'text-gray-500 hover:text-diyar-brown hover:scale-110'}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsSaved(!isSaved);
-              }}
+              className={`absolute top-2 inset-s-2 cursor-pointer bg-white/80 backdrop-blur-md p-1.5 rounded-full w-7 h-7 shadow-sm transition-all z-10 ${isSaved ? 'text-diyar-brown fill-diyar-brown' : 'text-gray-500 hover:text-diyar-brown hover:scale-110'}`}
+              onClick={handleToggleSave}
             />
           </div>
 
@@ -119,23 +186,24 @@ const ServiceCard: React.FC<{ service: ServiceCardType | LegacyServiceShape; lay
               </h3>
 
               <div className="flex items-center gap-2 mb-1 text-[9px] sm:text-xs text-gray-500">
-                <div className="flex items-center gap-1 bg-gray-50 px-2 py-0.5 rounded border border-gray-100 font-medium">
-                  <CalendarClock size={10} /> {typeLabel}
-                </div>
+                {typeLabel && <ServiceTypeBadge label={typeLabel} />}
               </div>
             </div>
 
             <div className="flex justify-start items-center gap-1 mb-1">
-              <span className="text-[10px] sm:text-xs text-gray-400">السعر التقريبى:</span>
+              <span className="text-[10px] sm:text-xs text-gray-400">
+                {t('serviceMarketplace.catalog.startingPrice')}:
+              </span>
               <span className="font-bold text-sm sm:text-lg text-diyar-dark">{priceLabel}</span>
             </div>
 
             <div className="flex justify-end">
               <button
                 className="bg-diyar-brown text-white rounded-lg sm:rounded-lg py-1 px-3 sm:py-1.5 sm:px-5 font-bold text-[10px] sm:text-xs transition-all hover:bg-orange-700 flex items-center justify-center gap-1 z-10 relative cursor-pointer"
-                onClick={notifyServicesUnavailable}
+                title={actionHint}
+                onClick={handleServiceAction}
               >
-                طلب تنفيذ
+                {actionLabel}
               </button>
             </div>
           </div>
@@ -157,13 +225,12 @@ const ServiceCard: React.FC<{ service: ServiceCardType | LegacyServiceShape; lay
               (e.target as HTMLImageElement).src = SERVICE_IMAGE_FALLBACK;
             }}
           />
+          {typeLabel && typeLabel !== t('serviceMarketplace.catalog.scheduleAppointment') && (
+            <ServiceTypeBadge label={typeLabel} overlay />
+          )}
           <Bookmark
-            className={`absolute top-2 right-2 cursor-pointer bg-white/80 backdrop-blur-md p-1.5 rounded-full w-7 h-7 shadow-sm transition-all z-10 ${isSaved ? 'text-diyar-brown fill-diyar-brown' : 'text-gray-500 hover:text-diyar-brown hover:scale-110'}`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsSaved(!isSaved);
-            }}
+            className={`absolute top-2 inset-s-2 cursor-pointer bg-white/80 backdrop-blur-md p-1.5 rounded-full w-7 h-7 shadow-sm transition-all z-10 ${isSaved ? 'text-diyar-brown fill-diyar-brown' : 'text-gray-500 hover:text-diyar-brown hover:scale-110'}`}
+            onClick={handleToggleSave}
           />
         </div>
 
@@ -190,20 +257,21 @@ const ServiceCard: React.FC<{ service: ServiceCardType | LegacyServiceShape; lay
           </h3>
 
           <div className="flex items-center gap-2 mb-2 mt-auto text-[10px] text-gray-500">
-            <div className="flex items-center gap-1 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
-              <CalendarClock size={10} /> {typeLabel}
-            </div>
+            {typeLabel && <ServiceTypeBadge label={typeLabel} />}
           </div>
 
           <div className="flex justify-start items-center gap-1 mb-3 mt-1">
-            <span className="text-xs text-gray-500 ml-1">السعر التقريبي:</span>
+            <span className="text-xs text-gray-500 ms-1">
+              {t('serviceMarketplace.catalog.startingPrice')}:
+            </span>
             <span className="font-bold text-base text-diyar-dark">{priceLabel}</span>
           </div>
           <button
             className="w-full bg-diyar-brown text-white rounded-lg py-1.5 font-bold text-xs transition-colors hover:bg-orange-700 flex items-center justify-center gap-1.5 mt-auto z-10 relative cursor-pointer"
-            onClick={notifyServicesUnavailable}
+            title={actionHint}
+            onClick={handleServiceAction}
           >
-            طلب تنفيذ
+            {actionLabel}
           </button>
         </div>
       </div>
