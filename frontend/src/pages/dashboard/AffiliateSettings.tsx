@@ -11,11 +11,7 @@ import {
   useAffiliateSettings,
   useUpdateAffiliateSettings,
 } from '../../hooks/affiliate/useAffiliate.ts';
-import {
-  useDeleteAvatar,
-  useProfile,
-  useUploadAvatar,
-} from '../../hooks/profile/useProfile.ts';
+import { useDeleteAvatar, useProfile, useUploadAvatar } from '../../hooks/profile/useProfile.ts';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
@@ -136,8 +132,7 @@ export default function AffiliateSettings() {
         errors.payout_iban = ibanError;
       }
     } else if (!savedIbanMasked) {
-      errors.payout_iban =
-        locale === 'ar' ? 'رقم الآيبان مطلوب.' : 'IBAN is required.';
+      errors.payout_iban = locale === 'ar' ? 'رقم الآيبان مطلوب.' : 'IBAN is required.';
     }
 
     setFieldErrors(errors);
@@ -417,7 +412,9 @@ export default function AffiliateSettings() {
                     )}
                   </div>
                 )}
-                <p className="text-xs text-gray-500">{t('affiliate.settings.bank.ibanFormatHint')}</p>
+                <p className="text-xs text-gray-500">
+                  {t('affiliate.settings.bank.ibanFormatHint')}
+                </p>
                 <FieldError message={fieldErrors.payout_iban} />
               </div>
             </div>

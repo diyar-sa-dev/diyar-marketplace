@@ -6,7 +6,6 @@ use App\Enums\AffiliateCommissionStatus;
 use App\Models\AffiliateLink;
 use App\Models\AffiliateProfile;
 use App\Models\Product;
-use App\Models\User;
 use App\Support\Vendor\VendorOwnership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use InvalidArgumentException;

@@ -32,15 +32,7 @@ import type { AffiliateReportLinkRow, AffiliateReportPeriod } from '../../types/
 
 const FALLBACK_IMAGE = '/placeholder-product.png';
 
-const PERIOD_OPTIONS: AffiliateReportPeriod[] = [
-  'day',
-  'week',
-  'month',
-  '3m',
-  '6m',
-  '12m',
-  'year',
-];
+const PERIOD_OPTIONS: AffiliateReportPeriod[] = ['day', 'week', 'month', '3m', '6m', '12m', 'year'];
 
 type LinkFilter = 'all' | 'active';
 
@@ -60,14 +52,8 @@ export default function AffiliateReports() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
 
-  const {
-    page,
-    perPage,
-    perPageOptions,
-    onPageChange,
-    onPerPageChange,
-    resetPage,
-  } = usePaginationState({ initialPerPage: 10 });
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState({ initialPerPage: 10 });
 
   const reportsQuery = useAffiliateReports(period);
 
@@ -108,10 +94,7 @@ export default function AffiliateReports() {
   );
 
   const topLinks = useMemo(
-    () =>
-      [...byLink]
-        .sort((a, b) => b.clicks - a.clicks)
-        .slice(0, 5),
+    () => [...byLink].sort((a, b) => b.clicks - a.clicks).slice(0, 5),
     [byLink],
   );
 
@@ -507,7 +490,9 @@ export default function AffiliateReports() {
                   <th className="px-6 py-4 text-start">{t('affiliate.reports.tableLink')}</th>
                   <th className="px-6 py-4 text-start">{t('affiliate.reports.tableProduct')}</th>
                   <th className="px-6 py-4 text-start">{t('affiliate.reports.tableClicks')}</th>
-                  <th className="px-6 py-4 text-start">{t('affiliate.reports.tableConversions')}</th>
+                  <th className="px-6 py-4 text-start">
+                    {t('affiliate.reports.tableConversions')}
+                  </th>
                   <th className="px-6 py-4 text-start">{t('affiliate.reports.tableEarnings')}</th>
                   <th className="px-6 py-4 text-start">{t('affiliate.reports.tableStatus')}</th>
                 </tr>
@@ -516,9 +501,7 @@ export default function AffiliateReports() {
                 {paginatedLinks.map((row) => (
                   <tr key={row.link_id} className="hover:bg-gray-50/50 transition">
                     <td className="px-6 py-4 font-bold text-gray-700">{row.name}</td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {row.product?.name ?? noDataLabel}
-                    </td>
+                    <td className="px-6 py-4 text-gray-600">{row.product?.name ?? noDataLabel}</td>
                     <td className="px-6 py-4 text-gray-700 tabular-nums">
                       {row.clicks.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}
                     </td>

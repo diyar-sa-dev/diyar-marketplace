@@ -8,6 +8,7 @@ use App\Enums\AffiliateProfileStatus;
 use App\Enums\BalanceBucket;
 use App\Enums\FinancialTransactionType;
 use App\Enums\RoleName;
+use App\Enums\RoleStatus;
 use App\Events\Domain\OrderDelivered;
 use App\Events\Domain\PaymentSucceeded;
 use App\Models\AffiliateClick;
@@ -19,6 +20,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductAffiliateSetting;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\Affiliate\AffiliateAttributionService;
 use App\Services\Affiliate\AffiliateCommissionService;
@@ -73,10 +75,10 @@ class AffiliateCommerceTest extends TestCase
     public function vendor_cannot_create_affiliate_link_for_own_product(): void
     {
         $vendor = $this->createUserWithRole(RoleName::Vendor);
-        $marketerRole = \App\Models\Role::query()->where('name', RoleName::Marketer->value)->firstOrFail();
+        $marketerRole = Role::query()->where('name', RoleName::Marketer->value)->firstOrFail();
         $vendor->roles()->attach($marketerRole->id, [
             'id' => (string) str()->uuid(),
-            'status' => \App\Enums\RoleStatus::Active->value,
+            'status' => RoleStatus::Active->value,
         ]);
         $vendor = $vendor->fresh('roles');
 

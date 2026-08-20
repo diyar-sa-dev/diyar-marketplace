@@ -19,6 +19,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -65,7 +66,7 @@ final class ProductService
             ->withCount(['likes', 'reviews'])
             ->withAvg('reviews', 'rating');
 
-        if (\Illuminate\Support\Str::isUuid($id)) {
+        if (Str::isUuid($id)) {
             $query->whereKey($id);
         } else {
             $query->where('slug', $id);
