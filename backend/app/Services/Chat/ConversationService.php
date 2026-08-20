@@ -349,6 +349,16 @@ final class ConversationService
             ->whereNull('last_message_at')
             ->where('created_by', $creator->id);
 
+        $contextType = $attributes['context_type'] ?? null;
+        $contextId = $attributes['context_id'] ?? null;
+
+        if ($contextType === null && $contextId === null) {
+            $query->whereNull('context_type')->whereNull('context_id');
+        } else {
+            $query->where('context_type', $contextType)
+                ->where('context_id', $contextId);
+        }
+
         if ($type === ConversationType::CustomerVendor) {
             $vendorAccountId = (string) ($attributes['vendor_account_id'] ?? '');
             if ($vendorAccountId === '') {
