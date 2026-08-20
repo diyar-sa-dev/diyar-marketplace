@@ -23,6 +23,7 @@ import {
   useDirectBookingPayment,
 } from '../../hooks/services/useServiceBookings.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import type { Locale } from '../../lib/i18n/types.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { bookingStatusBadgeClass, resolveBookingTitle } from '../../lib/serviceBookingDisplay.ts';
@@ -289,10 +290,10 @@ function ServiceBookingCard({
 
 export function CustomerServiceBookingsPanel({ embedded = false }: { embedded?: boolean }) {
   const { t, dir, locale } = useLocale();
-  const [page, setPage] = useState(1);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange } = usePaginationState();
   const [reviewBooking, setReviewBooking] = useState<ServiceBooking | null>(null);
 
-  const { data, isLoading, isError, error, refetch } = useCustomerServiceBookings(page, 10);
+  const { data, isLoading, isError, error, refetch } = useCustomerServiceBookings(page, perPage);
   const bookings = data?.items ?? [];
   const pagination = data?.pagination;
 
@@ -339,11 +340,15 @@ export function CustomerServiceBookingsPanel({ embedded = false }: { embedded?: 
         </div>
       )}
 
-      {pagination && pagination.last_page > 1 && (
+      {pagination && (
         <PaginationBar
           pagination={pagination}
           page={page}
-          onPageChange={setPage}
+          perPage={perPage}
+          perPageOptions={[...perPageOptions]}
+          onPageChange={onPageChange}
+          onPerPageChange={onPerPageChange}
+          alwaysShow={pagination.total > 0}
           className="mt-8"
         />
       )}

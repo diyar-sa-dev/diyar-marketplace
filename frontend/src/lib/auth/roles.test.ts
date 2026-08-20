@@ -8,6 +8,7 @@ import {
   isVendorOnlyAccount,
   primaryDashboardPath,
   resolveAccountHubPath,
+  resolveChatHubPath,
   resolveDashboardEntryPath,
   resolvePostAuthPath,
   resolveProfileAddressesPath,
@@ -132,6 +133,33 @@ describe('auth roles', () => {
     expect(requiresCustomerRoleForProfilePath('/profile/addresses')).toBe(false);
     expect(resolveProfileAddressesPath([{ name: 'vendor', status: 'active' }])).toBe(
       '/profile/addresses',
+    );
+  });
+
+  it('routes storefront chat to unified inbox for all roles', () => {
+    expect(resolveChatHubPath([{ name: 'customer', status: 'active' }])).toBe('/chat');
+    expect(
+      resolveChatHubPath([
+        { name: 'vendor', status: 'active' },
+        { name: 'customer', status: 'active' },
+      ]),
+    ).toBe('/chat');
+  });
+
+  it('routes dashboard chat by active portal for multi-role users', () => {
+    const roles = [
+      { name: 'vendor', status: 'active' },
+      { name: 'customer', status: 'active' },
+    ];
+
+    expect(resolveChatHubPath(roles, 'vendor')).toBe('/dashboard/vendor/messages');
+    expect(resolveChatHubPath(roles, 'service')).toBe('/chat');
+    expect(resolveChatHubPath(roles)).toBe('/chat');
+  });
+
+  it('routes provider dashboard chat to service messages', () => {
+    expect(resolveChatHubPath([{ name: 'provider', status: 'active' }], 'service')).toBe(
+      '/dashboard/service/messages',
     );
   });
 });

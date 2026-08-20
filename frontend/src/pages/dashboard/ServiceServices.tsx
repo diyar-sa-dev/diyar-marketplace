@@ -30,6 +30,7 @@ import {
 } from '../../lib/providerDashboardUi.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import { parseApiError } from '../../utils/errors.ts';
 import { getServiceTypeOptionsForCategory } from '../../lib/serviceCategoryTypes.ts';
 import type { ServiceCard } from '../../types/services.ts';
@@ -93,7 +94,8 @@ export default function ServiceServices() {
   const { toast } = useToast();
   const coverInputRef = useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(1);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState({ initialPerPage: PER_PAGE });
   const [statusFilter, setStatusFilter] = useState<ServiceFilter>('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<ServiceCard | null>(null);
@@ -104,7 +106,7 @@ export default function ServiceServices() {
 
   const { data, isLoading, isError, error, refetch } = useProviderOwnServices(
     page,
-    PER_PAGE,
+    perPage,
     debouncedSearch.trim() || undefined,
   );
   const createService = useCreateProviderService();
@@ -236,7 +238,7 @@ export default function ServiceServices() {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                setPage(1);
+                resetPage();
               }}
               className="ps-10 pe-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-diyar-brown/20 focus:border-diyar-brown text-sm w-full md:w-64 bg-white"
             />
@@ -269,7 +271,7 @@ export default function ServiceServices() {
             type="button"
             onClick={() => {
               setStatusFilter(filter.id);
-              setPage(1);
+              resetPage();
             }}
             className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 ${
               statusFilter === filter.id
@@ -291,7 +293,7 @@ export default function ServiceServices() {
         />
       ) : isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {Array.from({ length: PER_PAGE }).map((_, index) => (
+          {Array.from({ length: perPage }).map((_, index) => (
             <ProviderServiceCardSkeleton key={index} />
           ))}
         </div>
@@ -406,7 +408,11 @@ export default function ServiceServices() {
             <PaginationBar
               pagination={data.pagination}
               page={page}
-              onPageChange={setPage}
+              perPage={perPage}
+              perPageOptions={[...perPageOptions]}
+              onPageChange={onPageChange}
+              onPerPageChange={onPerPageChange}
+              alwaysShow={data.pagination.total > 0}
               className="mt-4"
             />
           )}

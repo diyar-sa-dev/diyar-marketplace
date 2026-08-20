@@ -24,6 +24,11 @@ class OrderItem extends Model
         'line_subtotal',
         'color_name',
         'color_hex',
+        'affiliate_profile_id',
+        'affiliate_link_id',
+        'affiliate_commission_rate',
+        'affiliate_commission_base',
+        'affiliate_commission_amount',
     ];
 
     protected function casts(): array
@@ -31,6 +36,9 @@ class OrderItem extends Model
         return [
             'unit_price' => 'decimal:2',
             'line_subtotal' => 'decimal:2',
+            'affiliate_commission_rate' => 'decimal:2',
+            'affiliate_commission_base' => 'decimal:2',
+            'affiliate_commission_amount' => 'decimal:2',
         ];
     }
 

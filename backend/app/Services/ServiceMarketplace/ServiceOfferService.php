@@ -5,6 +5,8 @@ namespace App\Services\ServiceMarketplace;
 use App\Enums\ProviderAccountStatus;
 use App\Enums\ServiceOfferStatus;
 use App\Enums\ServiceRequestStatus;
+use App\Events\Domain\ServiceOfferAccepted;
+use App\Events\Domain\ServiceOfferReceived;
 use App\Models\ProviderAccount;
 use App\Models\ServiceOffer;
 use App\Models\ServiceRequest;
@@ -220,7 +222,10 @@ final class ServiceOfferService
                 $request->update(['status' => ServiceRequestStatus::OffersReceived]);
             }
 
-            return $offer->fresh(['providerAccount']);
+            $fresh = $offer->fresh(['providerAccount', 'serviceRequest']);
+            DB::afterCommit(fn () => event(new ServiceOfferReceived($fresh)));
+
+            return $fresh;
         });
     }
 
@@ -262,7 +267,10 @@ final class ServiceOfferService
                 'scheduled_time' => $offer->proposed_scheduled_time,
             ], $payload));
 
-            return $offer->fresh(['providerAccount', 'booking']);
+            $fresh = $offer->fresh(['providerAccount', 'booking']);
+            DB::afterCommit(fn () => event(new ServiceOfferAccepted($fresh)));
+
+            return $fresh;
         });
     }
 

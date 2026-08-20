@@ -137,17 +137,18 @@ function CategoryAllProductsBrowse({
   setSearchParams: ReturnType<typeof useSearchParams>[1];
 }) {
   const page = Math.max(1, Number(searchParams.get('page') || '1'));
+  const perPage = Math.max(10, Number(searchParams.get('per_page') || '12'));
   const sort = searchParams.get('sort') || '-created_at';
   const discounted = searchParams.get('discounted') === '1';
 
   const filters = useMemo(
     () => ({
-      per_page: 12,
+      per_page: perPage,
       page,
       sort,
       discounted: discounted || undefined,
     }),
-    [page, sort, discounted],
+    [page, perPage, sort, discounted],
   );
 
   const { data, isLoading, isError, error, refetch } = useProducts(filters);
@@ -212,11 +213,20 @@ function CategoryAllProductsBrowse({
               <PaginationBar
                 pagination={pagination}
                 page={page}
+                perPage={perPage}
+                perPageOptions={[10, 12, 15, 20, 24, 50]}
                 onPageChange={(nextPage) => {
                   const next = new URLSearchParams(searchParams);
                   next.set('page', String(nextPage));
                   setSearchParams(next, { replace: true });
                 }}
+                onPerPageChange={(nextPerPage) => {
+                  const next = new URLSearchParams(searchParams);
+                  next.set('per_page', String(nextPerPage));
+                  next.delete('page');
+                  setSearchParams(next, { replace: true });
+                }}
+                alwaysShow={pagination.total > 0}
                 className="mt-8"
               />
             )}
@@ -531,6 +541,7 @@ export default function CategoryPage() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const page = Math.max(1, Number(searchParams.get('page') || '1'));
+  const perPage = Math.max(10, Number(searchParams.get('per_page') || '12'));
   const sort = searchParams.get('sort') || '-created_at';
   const serviceQ = searchParams.get('q') || undefined;
   const activeSubcategory = serviceQ ?? 'الكل';
@@ -567,11 +578,11 @@ export default function CategoryPage() {
       max_price: maxPrice < MAX_PRICE ? maxPrice : undefined,
       vendor_id: vendorId,
       availability_mode: availabilityMode as 'in_stock' | 'out_of_stock' | 'preorder' | undefined,
-      per_page: 12,
+      per_page: perPage,
       page,
       sort,
     }),
-    [minPrice, maxPrice, vendorId, availabilityMode, page, sort],
+    [minPrice, maxPrice, vendorId, availabilityMode, page, perPage, sort],
   );
 
   const { data: apiCategory } = useCategory(slug);
@@ -586,9 +597,9 @@ export default function CategoryPage() {
       max_price: maxPrice < MAX_PRICE ? maxPrice : undefined,
       sort: mapCatalogSortToServiceSort(sort),
       page,
-      per_page: 12,
+      per_page: perPage,
     }),
-    [slug, serviceQ, minPrice, maxPrice, sort, page],
+    [slug, serviceQ, minPrice, maxPrice, sort, page, perPage],
   );
 
   const { data: vendorsData } = useVendors({ per_page: 50 });
@@ -872,7 +883,13 @@ export default function CategoryPage() {
             <PaginationBar
               pagination={listPagination}
               page={page}
+              perPage={perPage}
+              perPageOptions={[10, 12, 15, 20, 24, 50]}
               onPageChange={(nextPage) => patchParams({ page: String(nextPage) }, false)}
+              onPerPageChange={(nextPerPage) =>
+                patchParams({ per_page: String(nextPerPage), page: '1' })
+              }
+              alwaysShow={listPagination.total > 0}
               className="mt-12"
             />
           )}

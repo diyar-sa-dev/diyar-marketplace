@@ -95,6 +95,32 @@ export default function AuthPage() {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const role = params.get('role');
+
+    if (!role) {
+      return;
+    }
+
+    const roleMap: Record<string, string> = {
+      vendor: 'merchant',
+      merchant: 'merchant',
+      marketer: 'marketer',
+      provider: 'service_provider',
+      service_provider: 'service_provider',
+    };
+
+    const mappedRole = roleMap[role];
+    if (!mappedRole) {
+      return;
+    }
+
+    setSelectedRoles(['customer', mappedRole]);
+    setPreviousView('login');
+    setView('register');
+  }, [location.search]);
+
   const roles = [
     { id: 'customer', icon: <User size={20} /> },
     { id: 'merchant', icon: <Store size={20} /> },

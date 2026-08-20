@@ -16,6 +16,7 @@ import { orderPaymentPaid as checkOrderPaymentPaid } from '../lib/orderStatusUti
 import { resolveAccountSettingsBackPath } from '../lib/auth/roles.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { usePaginationState } from '../hooks/usePaginationState.ts';
 import type {
   CustomerReviewFilterType,
   CustomerReviewStatus,
@@ -51,14 +52,15 @@ export default function ReviewsPage() {
   const invalidateReviews = useInvalidateCustomerReviews();
   const [activeTab, setActiveTab] = useState<CustomerReviewStatus>('published');
   const [typeFilter, setTypeFilter] = useState<CustomerReviewFilterType>('all');
-  const [page, setPage] = useState(1);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState();
   const [skippedKeys, setSkippedKeys] = useState<Set<string>>(() => readSkippedKeys());
 
   const { data, isLoading, isError, error, refetch, isFetching } = useCustomerReviews(
     activeTab,
     typeFilter,
     page,
-    10,
+    perPage,
   );
   const ordersQuery = useOrders();
 
@@ -121,12 +123,12 @@ export default function ReviewsPage() {
 
   const handleTabChange = (tab: CustomerReviewStatus) => {
     setActiveTab(tab);
-    setPage(1);
+    resetPage();
   };
 
   const handleTypeChange = (type: CustomerReviewFilterType) => {
     setTypeFilter(type);
-    setPage(1);
+    resetPage();
   };
 
   const emptyTitle =
@@ -270,7 +272,12 @@ export default function ReviewsPage() {
               <PaginationBar
                 pagination={data.pagination}
                 page={page}
-                onPageChange={setPage}
+                perPage={perPage}
+                perPageOptions={[...perPageOptions]}
+                onPageChange={onPageChange}
+                onPerPageChange={onPerPageChange}
+                alwaysShow={data.pagination.total > 0}
+                isLoading={isFetching && !isLoading}
                 className="pt-4"
               />
             )}

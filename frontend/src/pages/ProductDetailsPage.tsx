@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import {
   Bookmark,
   Share2,
@@ -49,12 +49,17 @@ import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { EmptyState } from '../components/common/EmptyState.tsx';
 import { isApiErrorDetail, isNotFound, parseApiError } from '../utils/errors.ts';
+import { trackAffiliateClick } from '../api/affiliate.ts';
+import { getOrCreateAffiliateSessionFingerprint } from '../lib/affiliateSession.ts';
 
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800';
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get('ref')?.trim() || undefined;
+  const trackedReferralRef = useRef<string | null>(null);
   const { t, dir, locale } = useLocale();
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
@@ -108,6 +113,28 @@ export default function ProductDetailsPage() {
       void refetch();
     }
   }, [isAuthenticated, id, refetch]);
+
+  useEffect(() => {
+    if (!product?.id || !referralCode) {
+      return;
+    }
+
+    const trackingKey = `${product.id}:${referralCode}`;
+    if (trackedReferralRef.current === trackingKey) {
+      return;
+    }
+
+    trackedReferralRef.current = trackingKey;
+    const sessionFingerprint = getOrCreateAffiliateSessionFingerprint();
+
+    void trackAffiliateClick({
+      ref: referralCode,
+      product_id: product.id,
+      session_fingerprint: sessionFingerprint,
+    }).catch(() => {
+      trackedReferralRef.current = null;
+    });
+  }, [product?.id, referralCode]);
 
   const requireAuth = useCallback(
     (action: () => void) => {

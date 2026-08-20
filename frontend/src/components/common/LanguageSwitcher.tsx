@@ -1,4 +1,6 @@
 import { useLocale } from '../../hooks/useLocale.ts';
+import { useAuth } from '../../hooks/auth/useAuth.ts';
+import { useUpdateProfile } from '../../hooks/profile/useProfile.ts';
 import type { Locale } from '../../lib/i18n/types.ts';
 
 const options: Array<{ id: Locale; label: string }> = [
@@ -8,6 +10,26 @@ const options: Array<{ id: Locale; label: string }> = [
 
 export function LanguageSwitcher() {
   const { locale, setLocale } = useLocale();
+  const { isAuthenticated, user } = useAuth();
+  const updateProfile = useUpdateProfile();
+
+  const handleLocaleChange = (next: Locale) => {
+    setLocale(next);
+
+    if (!isAuthenticated || !user) {
+      return;
+    }
+
+    const currentPreferences =
+      user.preferences && typeof user.preferences === 'object' ? user.preferences : {};
+
+    void updateProfile.mutate({
+      preferences: {
+        ...currentPreferences,
+        locale: next,
+      },
+    });
+  };
 
   return (
     <div
@@ -23,7 +45,7 @@ export function LanguageSwitcher() {
           <button
             key={option.id}
             type="button"
-            onClick={() => setLocale(option.id)}
+            onClick={() => handleLocaleChange(option.id)}
             aria-pressed={isActive}
             className={`min-w-9 rounded-md px-2 py-1 text-xs font-bold transition-colors cursor-pointer ${
               isActive

@@ -27,6 +27,8 @@ import { RequestServiceModal } from './components/modals/RequestServiceModal.tsx
 import { SidebarMenu } from './components/layout/SidebarMenu.tsx';
 import { AnnouncementBar } from './components/layout/AnnouncementBar.tsx';
 import { FloatingContactBar } from './components/layout/FloatingContactBar.tsx';
+import { NotificationBellDropdown } from './components/notifications/NotificationBellDropdown.tsx';
+import { ChatMessagesLink } from './components/chat/ChatMessagesLink.tsx';
 import { UserAvatar } from './components/profile/UserAvatar.tsx';
 import { useCart } from './hooks/cart/useCart.ts';
 import { useAuth } from './hooks/auth/useAuth.ts';
@@ -41,6 +43,7 @@ import {
   RoleName,
   isAccountHubPath,
   resolveAccountHubPath,
+  resolveChatHubPath,
   resolveDashboardEntryPath,
   resolveNotificationsHubPath,
   shouldShowStorefrontDashboardLink,
@@ -102,6 +105,7 @@ import ServiceReviewsInbox from './pages/dashboard/ServiceReviewsInbox.tsx';
 import ServiceServices from './pages/dashboard/ServiceServices.tsx';
 import ServiceFinance from './pages/dashboard/ServiceFinance.tsx';
 import ServiceSettings from './pages/dashboard/ServiceSettings.tsx';
+import ProviderMessages from './pages/dashboard/ProviderMessages.tsx';
 import AffiliateDashboard from './pages/dashboard/AffiliateDashboard.tsx';
 import AffiliateProducts from './pages/dashboard/AffiliateProducts.tsx';
 import AffiliateLinks from './pages/dashboard/AffiliateLinks.tsx';
@@ -128,6 +132,7 @@ function MobileBottomNav({
 }) {
   const location = useLocation();
   const { count } = useCart();
+  const { t } = useLocale();
   const isHome = location.pathname === '/';
   const isCategory = location.pathname.startsWith('/category');
 
@@ -140,14 +145,14 @@ function MobileBottomNav({
         className={`flex flex-col items-center justify-center flex-1 h-full cursor-pointer transition ${isHome ? 'text-diyar-dark' : 'text-gray-400 hover:text-diyar-dark'}`}
       >
         <HomeIcon size={22} className="mb-1" />
-        <span className="text-[11px] font-bold">الرئيسية</span>
+        <span className="text-[11px] font-bold">{t('layout.nav.home')}</span>
       </Link>
       <Link
         to="/category/all"
         className={`flex flex-col items-center justify-center flex-1 h-full cursor-pointer transition ${isCategory ? 'text-diyar-dark' : 'text-gray-400 hover:text-diyar-dark'}`}
       >
         <Grid size={22} className="mb-1" />
-        <span className="text-[11px] font-medium">التصنيفات</span>
+        <span className="text-[11px] font-medium">{t('layout.nav.categories')}</span>
       </Link>
       <div
         className="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition"
@@ -161,21 +166,21 @@ function MobileBottomNav({
             </span>
           )}
         </div>
-        <span className="text-[11px] font-medium">السلة</span>
+        <span className="text-[11px] font-medium">{t('layout.nav.cart')}</span>
       </div>
       <Link
         to="/wishlist"
         className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${location.pathname === '/wishlist' ? 'text-diyar-dark' : ''}`}
       >
         <Bookmark size={22} className="mb-1" />
-        <span className="text-[11px] font-medium">المحفوظات</span>
+        <span className="text-[11px] font-medium">{t('layout.nav.wishlist')}</span>
       </Link>
       <Link
         to={isLoggedIn ? accountHubPath : '/auth'}
         className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${isAccountActive ? 'text-diyar-dark' : ''}`}
       >
         <User size={22} className="mb-1" />
-        <span className="text-[11px] font-medium">حسابي</span>
+        <span className="text-[11px] font-medium">{t('layout.nav.myAccount')}</span>
       </Link>
     </div>
   );
@@ -188,6 +193,7 @@ export default function App() {
   const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
   const [isRequestServiceOpen, setIsRequestServiceOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -199,6 +205,7 @@ export default function App() {
   const accountHubPath = resolveAccountHubPath(user?.roles);
   const notificationsHubPath = resolveNotificationsHubPath(user?.roles);
   const isAccountActive = isAccountHubPath(location.pathname, location.search, user?.roles);
+  const chatHubPath = resolveChatHubPath(user?.roles);
   const showDashboardLink = shouldShowStorefrontDashboardLink(
     isAuthenticated,
     user?.status,
@@ -277,11 +284,11 @@ export default function App() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setIsSidebarOpen(true)}
-                      className="text-diyar-dark bg-gray-50 hover:bg-gray-100 border border-gray-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors"
+                      className="text-diyar-dark bg-gray-50 hover:bg-gray-100 border border-gray-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors cursor-pointer"
                     >
                       <Menu size={20} />
                     </button>
-                    <Link to="/">
+                    <Link to="/" className="cursor-pointer">
                       <img src="/logo_diyar.svg" alt="DIYAR" className="h-7 md:h-8 mr-2 lg:mr-0" />
                     </Link>
                   </div>
@@ -290,37 +297,37 @@ export default function App() {
                   <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-[13px] font-medium">
                     <Link
                       to="/"
-                      className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap"
+                      className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap cursor-pointer"
                     >
-                      الرئيسية
+                      {t('layout.nav.home')}
                     </Link>
                     {showDashboardLink && (
                       <Link
                         to={dashboardPath}
-                        className={`text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap ${
+                        className={`text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap cursor-pointer ${
                           isDashboardPage ? 'text-diyar-dark font-bold' : ''
                         }`}
                       >
-                        لوحة التحكم
+                        {t('layout.nav.dashboard')}
                       </Link>
                     )}
                     <Link
                       to="/services"
-                      className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap"
+                      className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap cursor-pointer"
                     >
-                      خدمات
+                      {t('layout.nav.services')}
                     </Link>
                     <Link
                       to="/b2b"
-                      className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap"
+                      className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap cursor-pointer"
                     >
-                      B2B
+                      {t('layout.nav.b2b')}
                     </Link>
                     <Link
                       to="/ai-designer"
-                      className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors flex items-center gap-1.5 whitespace-nowrap"
+                      className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
                     >
-                      المساعد الشخصي
+                      {t('layout.nav.personalAssistant')}
                     </Link>
                   </nav>
                 </div>
@@ -332,13 +339,13 @@ export default function App() {
                 >
                   <button
                     type="submit"
-                    className="text-diyar-dark hover:text-diyar-dark/80 transition shrink-0"
+                    className="text-diyar-dark hover:text-diyar-dark/80 transition shrink-0 cursor-pointer"
                   >
                     <Search className="w-5 h-5 shrink-0" />
                   </button>
                   <input
                     type="text"
-                    placeholder="ابحث عن منتجات، متاجر، خدمات..."
+                    placeholder={t('layout.nav.searchPlaceholder')}
                     className="bg-transparent border-none outline-none w-full text-diyar-dark placeholder:text-gray-400 text-sm h-7"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -346,7 +353,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setIsImageSearchOpen(true)}
-                    className="text-gray-400 hover:text-diyar-dark transition shrink-0 ml-1"
+                    className="text-gray-400 hover:text-diyar-dark transition shrink-0 ml-1 cursor-pointer"
                   >
                     <Camera className="w-5 h-5" />
                   </button>
@@ -355,7 +362,7 @@ export default function App() {
                     onClick={() => setIsFilterOpen(true)}
                   >
                     <SlidersHorizontal className="w-4 h-4 md:w-5 md:h-5" />
-                    <span className="text-sm font-medium hidden sm:block">فلاتر</span>
+                    <span className="text-sm font-medium hidden sm:block">{t('layout.nav.filters')}</span>
                   </div>
                 </form>
 
@@ -365,14 +372,14 @@ export default function App() {
                   <div className="flex items-center gap-1.5 lg:gap-2">
                     <Link
                       to="/search"
-                      className="md:hidden w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
+                      className="md:hidden w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors cursor-pointer"
                     >
                       <Search className="w-5 h-5" />
                     </Link>
                     {isAuthenticated ? (
                       <Link
                         to={accountHubPath}
-                        className="hidden md:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center overflow-hidden hover:ring-2 hover:ring-diyar-brown/30 transition-all"
+                        className="hidden md:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center overflow-hidden hover:ring-2 hover:ring-diyar-brown/30 transition-all cursor-pointer"
                         title={t('common.myAccount')}
                       >
                         <UserAvatar name={user?.name} avatarUrl={user?.avatar_url} size="sm" />
@@ -380,7 +387,7 @@ export default function App() {
                     ) : (
                       <Link
                         to="/auth"
-                        className="hidden md:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
+                        className="hidden md:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors cursor-pointer"
                         title={t('common.myAccount')}
                       >
                         <User size={18} />
@@ -397,15 +404,24 @@ export default function App() {
                         </span>
                       )}
                     </div>
-                    <Link
-                      to={notificationsHubPath}
-                      className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
-                    >
-                      <Bell className="w-5 h-5" />
-                      <span className="absolute -top-1 -right-1 bg-diyar-dark text-diyar-cream text-[10px] items-center justify-center border border-white font-bold rounded-full w-4 h-4 flex">
-                        3
-                      </span>
-                    </Link>
+                    {isAuthenticated && <ChatMessagesLink to={chatHubPath} variant="header" />}
+                    {isAuthenticated ? (
+                      <NotificationBellDropdown
+                        viewAllPath={notificationsHubPath}
+                        open={isNotificationsOpen}
+                        onToggle={() => setIsNotificationsOpen((open) => !open)}
+                        onClose={() => setIsNotificationsOpen(false)}
+                        variant="header"
+                      />
+                    ) : (
+                      <Link
+                        to="/auth"
+                        className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
+                        title={t('common.notifications')}
+                      >
+                        <Bell className="w-5 h-5" />
+                      </Link>
+                    )}
                   </div>
 
                   {/* CTA Button */}
@@ -413,7 +429,7 @@ export default function App() {
                     onClick={() => setIsRequestServiceOpen(true)}
                     className="hidden md:flex text-sm font-bold bg-diyar-dark text-diyar-cream px-5 py-2.5 rounded-2xl hover:bg-diyar-dark/90 transition-colors items-center gap-2 shrink-0 cursor-pointer"
                   >
-                    طلب تنفيذ
+                    {t('layout.nav.requestService')}
                   </button>
                 </div>
               </div>
@@ -771,6 +787,14 @@ export default function App() {
               element={
                 <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
                   <ServiceReviewsInbox />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="service/messages"
+              element={
+                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                  <ProviderMessages />
                 </ProtectedRoute>
               }
             />

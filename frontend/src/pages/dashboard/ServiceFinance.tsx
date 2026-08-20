@@ -31,6 +31,7 @@ import {
 import { formatFinanceDateTime } from '../../lib/formatFinanceDateTime.ts';
 import type { ProviderFinanceTransaction } from '../../types/providerDashboard.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import {
   formatFinanceAnalyticsLabel,
@@ -80,7 +81,14 @@ export default function ServiceFinance() {
   const { toast } = useToast();
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
   const [payoutAmount, setPayoutAmount] = useState('');
-  const [transactionPage, setTransactionPage] = useState(1);
+  const {
+    page: transactionPage,
+    perPage: transactionPerPage,
+    perPageOptions: transactionPerPageOptions,
+    onPageChange: onTransactionPageChange,
+    onPerPageChange: onTransactionPerPageChange,
+    resetPage: resetTransactionPage,
+  } = usePaginationState({ initialPerPage: 20 });
   const [typeFilter, setTypeFilter] = useState<TransactionTypeFilter>('all');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -101,6 +109,7 @@ export default function ServiceFinance() {
   const transactionsQuery = useProviderFinanceTransactions(
     transactionPage,
     typeFilter === 'all' ? undefined : typeFilter,
+    transactionPerPage,
   );
   const requestPayout = useRequestProviderPayout();
   const downloadReport = useDownloadProviderFinanceReport();
@@ -289,7 +298,7 @@ export default function ServiceFinance() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-diyar-dark text-white p-6 rounded-2xl shadow-sm relative overflow-hidden md:col-span-1">
-          <div className="absolute top-0 end-0 w-32 h-32 bg-white/5 rounded-full translate-x-16 -translate-y-16" />
+          <div className="absolute top-0 inset-e-0 w-32 h-32 bg-white/5 rounded-full translate-x-16 -translate-y-16" />
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div>
               <h3 className="text-white/70 font-medium mb-1 flex items-center gap-2">
@@ -463,7 +472,7 @@ export default function ServiceFinance() {
                     type="button"
                     onClick={() => {
                       setTypeFilter(filter);
-                      setTransactionPage(1);
+                      resetTransactionPage();
                       setFiltersOpen(false);
                     }}
                     className={`w-full text-start px-3 py-2 rounded-lg text-sm font-bold cursor-pointer ${
@@ -519,8 +528,11 @@ export default function ServiceFinance() {
             <PaginationBar
               pagination={pagination}
               page={transactionPage}
-              onPageChange={setTransactionPage}
-              alwaysShow
+              perPage={transactionPerPage}
+              perPageOptions={[...transactionPerPageOptions]}
+              onPageChange={onTransactionPageChange}
+              onPerPageChange={onTransactionPerPageChange}
+              alwaysShow={pagination.total > 0}
             />
           </div>
         )}

@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   Share2,
   Mail,
+  MessagesSquare,
   LayoutGrid,
   Info,
   Loader2,
@@ -25,6 +26,7 @@ import { formatTimeRange } from '../lib/formatTimeRange.ts';
 import { ProviderReviewsTab } from '../components/provider/ProviderReviewsTab.tsx';
 import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
 import { SERVICE_IMAGE_FALLBACK } from '../lib/services/serviceUi.ts';
+import { useStartChat } from '../hooks/chat/useStartChat.ts';
 
 export default function ProviderPage() {
   const { id: slug } = useParams();
@@ -41,6 +43,7 @@ export default function ProviderPage() {
   const { data: provider, isLoading, isError } = useProvider(slug);
   const { data: servicesData, isLoading: servicesLoading } = useProviderServices(slug, { sort });
   const { followMutation, unfollowMutation } = useProviderFollow(slug);
+  const { startProviderChat, isStarting: isStartingChat } = useStartChat();
   const services = servicesData?.items ?? [];
 
   const joinedYear = provider?.joined_at
@@ -67,6 +70,23 @@ export default function ProviderPage() {
     } catch {
       toast.error(t('store.followError'));
     }
+  };
+
+  const handleContactProvider = async () => {
+    if (!user) {
+      toast.error(t('serviceMarketplace.providerPage.followLoginRequired'));
+      return;
+    }
+
+    if (!provider || isOwnProvider) {
+      toast.warning(t('chat.selfChatNotAllowed'));
+      return;
+    }
+
+    await startProviderChat(provider.id, {
+      subject: provider.display_name,
+      returnPath: `/provider/${provider.slug}`,
+    });
   };
 
   if (isLoading) {
@@ -182,11 +202,15 @@ export default function ProviderPage() {
                 </button>
                 <button
                   type="button"
-                  disabled
-                  title={t('serviceMarketplace.providerPage.contactSoon')}
-                  className="flex-1 md:flex-none bg-gray-100 text-gray-400 font-bold py-2.5 px-6 rounded-xl border border-gray-200 flex items-center justify-center gap-2 cursor-not-allowed"
+                  onClick={() => void handleContactProvider()}
+                  disabled={isStartingChat}
+                  className="flex-1 md:flex-none bg-white text-diyar-dark font-bold py-2.5 px-6 rounded-xl border border-gray-200 flex items-center justify-center gap-2 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors cursor-pointer disabled:opacity-60"
                 >
-                  <Mail size={18} />
+                  {isStartingChat ? (
+                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <MessagesSquare size={18} />
+                  )}
                   {t('serviceMarketplace.providerPage.contact')}
                 </button>
               </div>

@@ -116,7 +116,7 @@ export default function VendorDashboard() {
   const overviewQuery = useVendorDashboardOverview();
 
   const filteredLowStockProducts = useMemo(() => {
-    const products = overviewQuery.data?.low_stock_products ?? [];
+    const products = (overviewQuery.data?.low_stock_products ?? []).slice(0, 5);
     if (stockFilter === 'all') {
       return products;
     }
@@ -126,6 +126,11 @@ export default function VendorDashboard() {
         : product.status === 'low_stock',
     );
   }, [overviewQuery.data?.low_stock_products, stockFilter]);
+
+  const topSellingProducts = useMemo(
+    () => (overviewQuery.data?.top_selling_products ?? []).slice(0, 5),
+    [overviewQuery.data?.top_selling_products],
+  );
 
   if (overviewQuery.isLoading) {
     return <PageLoadingOverlay />;
@@ -382,11 +387,11 @@ export default function VendorDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
           <h3 className="font-bold text-diyar-dark mb-4">{t('vendor.dashboard.topSelling')}</h3>
-          {(overview.top_selling_products?.length ?? 0) === 0 ? (
+          {(topSellingProducts.length ?? 0) === 0 ? (
             <p className="text-sm text-gray-500">{t('vendor.dashboard.emptyRecentOrders')}</p>
           ) : (
             <div className="space-y-3">
-              {overview.top_selling_products.map((product) => (
+              {topSellingProducts.map((product) => (
                 <ProductInsightRow
                   key={product.id ?? product.name}
                   product={product}

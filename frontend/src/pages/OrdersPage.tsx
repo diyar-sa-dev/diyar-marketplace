@@ -6,6 +6,7 @@ import { useOrders } from '../hooks/checkout/useCheckout.ts';
 import { useOrderPayment } from '../hooks/payment/usePayment.ts';
 import { fetchPaymentCallback } from '../api/payment.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { usePaginationState } from '../hooks/usePaginationState.ts';
 import { useToast } from '../hooks/useToast.ts';
 import {
   paymentOutcomeToHighlightTone,
@@ -409,15 +410,28 @@ export default function OrdersPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get('tab') as OrdersHubTab) || 'orders';
-  const [returnsPage, setReturnsPage] = useState(1);
+  const {
+    page: ordersPage,
+    perPage: ordersPerPage,
+    perPageOptions: ordersPerPageOptions,
+    onPageChange: onOrdersPageChange,
+    onPerPageChange: onOrdersPerPageChange,
+  } = usePaginationState();
+  const {
+    page: returnsPage,
+    perPage: returnsPerPage,
+    perPageOptions: returnsPerPageOptions,
+    onPageChange: onReturnsPageChange,
+    onPerPageChange: onReturnsPerPageChange,
+  } = usePaginationState();
   const highlightId = searchParams.get('highlight');
   const paymentOutcome = searchParams.get('payment');
   const paymentCallback = paymentOutcome === 'callback';
   const highlightRef = useRef<string | null>(null);
   const callbackHandledRef = useRef(false);
   const [highlightTone, setHighlightTone] = useState<'success' | 'failed' | 'expired' | null>(null);
-  const { data, isLoading, isError, error, refetch } = useOrders();
-  const returnsQuery = useCustomerReturns(returnsPage);
+  const { data, isLoading, isError, error, refetch } = useOrders(ordersPage, ordersPerPage);
+  const returnsQuery = useCustomerReturns(returnsPage, returnsPerPage);
   const paymentPoll = useOrderPayment(highlightId ?? '', paymentCallback && Boolean(highlightId));
 
   const handleReturnSubmitted = () => {
@@ -606,18 +620,32 @@ export default function OrdersPage() {
                 }
               />
             ) : (
-              orders.map((order) => (
-                <OrderCard
-                  key={order.id}
-                  order={order}
-                  highlighted={highlightId === order.id}
-                  highlightTone={highlightId === order.id ? highlightTone : null}
-                  t={t}
-                  locale={locale}
-                  dir={dir}
-                  onReturnRequested={handleReturnSubmitted}
-                />
-              ))
+              <>
+                {orders.map((order) => (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    highlighted={highlightId === order.id}
+                    highlightTone={highlightId === order.id ? highlightTone : null}
+                    t={t}
+                    locale={locale}
+                    dir={dir}
+                    onReturnRequested={handleReturnSubmitted}
+                  />
+                ))}
+                {data?.pagination && (
+                  <PaginationBar
+                    pagination={data.pagination}
+                    page={ordersPage}
+                    perPage={ordersPerPage}
+                    perPageOptions={[...ordersPerPageOptions]}
+                    onPageChange={onOrdersPageChange}
+                    onPerPageChange={onOrdersPerPageChange}
+                    alwaysShow={data.pagination.total > 0}
+                    className="pt-4"
+                  />
+                )}
+              </>
             )}
           </>
         )}
@@ -646,7 +674,11 @@ export default function OrdersPage() {
                   <PaginationBar
                     pagination={returnsQuery.data.pagination}
                     page={returnsPage}
-                    onPageChange={setReturnsPage}
+                    perPage={returnsPerPage}
+                    perPageOptions={[...returnsPerPageOptions]}
+                    onPageChange={onReturnsPageChange}
+                    onPerPageChange={onReturnsPerPageChange}
+                    alwaysShow={returnsQuery.data.pagination.total > 0}
                   />
                 )}
               </div>

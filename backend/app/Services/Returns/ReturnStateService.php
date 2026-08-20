@@ -3,7 +3,9 @@
 namespace App\Services\Returns;
 
 use App\Enums\ReturnRequestStatus;
+use App\Events\Domain\ReturnUpdated;
 use App\Models\ReturnRequest;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 final class ReturnStateService
@@ -47,6 +49,9 @@ final class ReturnStateService
 
         $returnRequest->update($updates);
 
-        return $returnRequest->fresh();
+        $fresh = $returnRequest->fresh();
+        DB::afterCommit(fn () => event(new ReturnUpdated($fresh)));
+
+        return $fresh;
     }
 }

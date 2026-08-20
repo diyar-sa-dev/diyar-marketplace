@@ -6,6 +6,7 @@ import type { VendorProductPayload } from '../../../api/vendorDashboard.ts';
 import type { ReturnReason } from '../../../types/return.ts';
 import { resolveMediaUrl } from '../../../lib/media.ts';
 import { LoadingState } from '../../common/LoadingState.tsx';
+import { VendorProductAffiliateSection } from './VendorProductAffiliateSection.tsx';
 import { FieldError } from './FieldError.tsx';
 import { RequiredLabel } from './RequiredLabel.tsx';
 import { useLocale } from '../../../hooks/useLocale.ts';
@@ -901,6 +902,8 @@ export function VendorProductFormModal({
                     </div>
                   </div>
                 </div>
+
+                {editingId && <VendorProductAffiliateSection productId={editingId} />}
 
                 {editingId && (
                   <div className="p-5 bg-amber-50/50 rounded-2xl border border-amber-100 space-y-4 text-right">

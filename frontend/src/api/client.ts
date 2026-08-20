@@ -1,4 +1,5 @@
 import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
+import { getAffiliateSessionFingerprint } from '../lib/affiliateSession.ts';
 import { ensureCsrfCookie, readXsrfToken } from '../lib/csrf.ts';
 import { readStoredLocale } from '../lib/i18n/storage.ts';
 import { env } from '../lib/env.ts';
@@ -22,6 +23,17 @@ export const apiClient: AxiosInstance = axios.create({
 
 function attachLocaleHeader(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
   config.headers.set('Accept-Language', readStoredLocale());
+  return config;
+}
+
+function attachAffiliateSessionHeader(
+  config: InternalAxiosRequestConfig,
+): InternalAxiosRequestConfig {
+  const session = getAffiliateSessionFingerprint();
+  if (session) {
+    config.headers.set('X-Affiliate-Session', session);
+  }
+
   return config;
 }
 
@@ -55,7 +67,9 @@ function shouldNotifyUnauthorized(url: string | undefined): boolean {
   return !ignored.some((segment) => url.includes(segment));
 }
 
-apiClient.interceptors.request.use((config) => attachCsrfHeader(attachLocaleHeader(config)));
+apiClient.interceptors.request.use((config) =>
+  attachCsrfHeader(attachAffiliateSessionHeader(attachLocaleHeader(config))),
+);
 
 apiClient.interceptors.response.use(
   (response) => response,

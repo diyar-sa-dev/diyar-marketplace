@@ -1,9 +1,11 @@
-﻿import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import ProductCard from '../components/cards/ProductCard.tsx';
+import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
 import { ChevronLeft, Camera } from 'lucide-react';
 import { useSearchProducts, useVendors } from '../hooks/catalog/useCatalog.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { usePaginationState } from '../hooks/usePaginationState.ts';
 import { mapProductCard } from '../lib/catalogMappers.ts';
 import { resolveMediaUrl } from '../lib/media.ts';
 import { isValidStoreSlug, storePath } from '../lib/storePath.ts';
@@ -20,6 +22,8 @@ export default function SearchPage() {
   const query = useSearchParamsHelper();
   const searchQuery = query.get('q') || '';
   const [activeTab, setActiveTab] = useState<'all' | 'products' | 'stores' | 'services'>('all');
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState({ initialPerPage: 24, perPageOptions: [12, 24, 36, 48] });
 
   const {
     data: searchData,
@@ -27,7 +31,7 @@ export default function SearchPage() {
     isError,
     error,
     refetch,
-  } = useSearchProducts({ q: searchQuery, per_page: 24 });
+  } = useSearchProducts({ q: searchQuery, per_page: perPage, page });
 
   const {
     data: vendorsData,
@@ -48,6 +52,10 @@ export default function SearchPage() {
     (activeTab === 'all' || activeTab === 'products') && !isVisualSearch && Boolean(searchQuery);
   const showStoresTab = activeTab === 'stores' && !isVisualSearch;
   const showServicesTab = activeTab === 'services' && !isVisualSearch;
+
+  useEffect(() => {
+    resetPage();
+  }, [searchQuery, activeTab, resetPage]);
 
   return (
     <div className="bg-gray-50 min-h-screen pb-12" dir={dir}>
@@ -256,6 +264,18 @@ export default function SearchPage() {
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
+                {searchData?.pagination && (
+                  <PaginationBar
+                    pagination={searchData.pagination}
+                    page={page}
+                    perPage={perPage}
+                    perPageOptions={[...perPageOptions]}
+                    onPageChange={onPageChange}
+                    onPerPageChange={onPerPageChange}
+                    alwaysShow={searchData.pagination.total > 0}
+                    className="mt-8"
+                  />
+                )}
               </div>
             </div>
           )

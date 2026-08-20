@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   X,
   ChevronLeft,
@@ -28,11 +28,22 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
+import { useCategories } from '../../hooks/catalog/useCatalog.ts';
+import { useLocale } from '../../hooks/useLocale.ts';
+import {
+  getPlatformSupportEmail,
+  getPlatformSupportMailHref,
+  getPlatformSupportPhoneDisplay,
+  getPlatformSupportTelHref,
+} from '../../lib/platformContact.ts';
 import {
   shouldShowStorefrontDashboardLink,
   resolveAccountHubPath,
   resolveDashboardEntryPath,
 } from '../../lib/auth/roles.ts';
+import { validateConsultationForm } from '../../lib/platformForms.ts';
+import { saveConsultationRequest } from '../../lib/consultationStorage.ts';
+import { SaudiPhoneInput } from '../auth/SaudiPhoneInput.tsx';
 
 const CATEGORIES = {
   bedroom: {
@@ -53,7 +64,7 @@ const CATEGORIES = {
   },
   decor: {
     name: 'ديكورات',
-    subcategories: ['إضاءة', 'سجاد', 'لوحات جدارية', 'mraia', 'نباتات زينة'],
+    subcategories: ['إضاءة', 'سجاد', 'لوحات جدارية', 'مرايا', 'نباتات زينة'],
   },
   'interior-design': {
     name: 'تصميم داخلي',
@@ -138,10 +149,12 @@ const STICKERS = [
 ];
 
 export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { t, locale } = useLocale();
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [showCategoriesSection, setShowCategoriesSection] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const { data: categoriesData, isLoading: categoriesLoading } = useCategories('product');
   const dashboardPath = resolveDashboardEntryPath(user?.roles);
   const accountHubPath = resolveAccountHubPath(user?.roles);
   const showDashboardLink = shouldShowStorefrontDashboardLink(
@@ -159,6 +172,9 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   // Contacts Form state
   const [contactForm, setContactForm] = useState({ name: '', phone: '', email: '', message: '' });
   const [contactSuccess, setContactSuccess] = useState(false);
+  const [contactSubmitting, setContactSubmitting] = useState(false);
+  const [contactError, setContactError] = useState<string | null>(null);
+  const [contactFieldErrors, setContactFieldErrors] = useState<Record<string, string>>({});
 
   // AI Design Simulator states
   const [selectedBg, setSelectedBg] = useState(ROOM_BACKGROUNDS[0]);
@@ -176,6 +192,27 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   >([]);
   const [selectedStickerIndex, setSelectedStickerIndex] = useState<number | null>(null);
 
+  const browseCategories = useMemo(() => {
+    const apiCategories = categoriesData ?? [];
+    const roots = apiCategories.filter((category) => !category.parent_id);
+    if (roots.length > 0) {
+      return roots.map((category) => ({
+        slug: category.slug,
+        name: category.name,
+        subcategories: (category.children ?? []).map((child) => ({
+          name: child.name,
+          slug: child.slug,
+        })),
+      }));
+    }
+
+    return Object.entries(CATEGORIES).map(([slug, category]) => ({
+      slug,
+      name: category.name,
+      subcategories: category.subcategories.map((name) => ({ name, slug: null as string | null })),
+    }));
+  }, [categoriesData]);
+
   if (!isOpen) return null;
 
   const handleNavigate = (path: string) => {
@@ -183,13 +220,41 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     onClose();
   };
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setContactSuccess(true);
-    setTimeout(() => {
-      setContactSuccess(false);
+    setContactError(null);
+
+    const fieldErrors = validateConsultationForm(contactForm, t);
+    setContactFieldErrors(fieldErrors);
+    if (Object.keys(fieldErrors).length > 0) {
+      return;
+    }
+
+    setContactSubmitting(true);
+
+    try {
+      saveConsultationRequest(
+        {
+          name: contactForm.name.trim(),
+          phone: contactForm.phone.trim(),
+          email: contactForm.email.trim(),
+          message: contactForm.message.trim(),
+          submittedAt: new Date().toISOString(),
+        },
+        user?.id,
+      );
+
+      setContactSuccess(true);
       setContactForm({ name: '', phone: '', email: '', message: '' });
-    }, 4000);
+      setContactFieldErrors({});
+      setTimeout(() => {
+        setContactSuccess(false);
+      }, 4000);
+    } catch {
+      setContactError(t('layout.consultation.submitError'));
+    } finally {
+      setContactSubmitting(false);
+    }
   };
 
   const addStickerToRoom = (sticker: (typeof STICKERS)[0]) => {
@@ -233,9 +298,11 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           <div className="flex items-center gap-3">
             <img src="/logo_diyar.svg" alt="DIYAR" className="h-9" />
             <div>
-              <h2 className="font-bold text-base text-diyar-dark leading-snug">ديار للضيافة</h2>
+              <h2 className="font-bold text-base text-diyar-dark leading-snug">
+                {t('layout.sidebar.brandTitle')}
+              </h2>
               <p className="text-[10px] text-gray-500 font-semibold">
-                أناقة وأصالة الضيافة العربية
+                {t('layout.sidebar.brandTagline')}
               </p>
             </div>
           </div>
@@ -251,7 +318,9 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         <div className="flex-1 overflow-y-auto px-4 py-5 scrollbar-hide space-y-6">
           {/* Main navigation (mirrors the top navbar — for mobile access) */}
           <div className="space-y-1">
-            <h3 className="font-bold text-gray-400 mb-2 px-3 text-[11px]">التصفح</h3>
+            <h3 className="font-bold text-gray-400 mb-2 px-3 text-[11px]">
+              {t('layout.sidebar.browseSection')}
+            </h3>
 
             <button
               onClick={() => handleNavigate('/')}
@@ -262,7 +331,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
               />
               <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
-                الرئيسية
+                {t('layout.sidebar.home')}
               </span>
             </button>
 
@@ -276,7 +345,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
                 />
                 <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
-                  لوحة التحكم
+                  {t('layout.sidebar.dashboard')}
                 </span>
               </button>
             )}
@@ -291,7 +360,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
                 />
                 <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
-                  حسابي
+                  {t('layout.sidebar.myAccount')}
                 </span>
               </button>
             )}
@@ -305,7 +374,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
               />
               <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
-                خدمات
+                {t('layout.sidebar.services')}
               </span>
             </button>
 
@@ -318,7 +387,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
               />
               <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
-                B2B
+                {t('layout.sidebar.b2b')}
               </span>
             </button>
 
@@ -331,14 +400,16 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
               />
               <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
-                المساعد الشخصي
+                {t('layout.sidebar.personalAssistant')}
               </span>
             </button>
           </div>
 
           {/* Quick access utilities */}
           <div className="space-y-1">
-            <h3 className="font-bold text-gray-400 mb-2 px-3 text-[11px]">الوصول السريع</h3>
+            <h3 className="font-bold text-gray-400 mb-2 px-3 text-[11px]">
+              {t('layout.sidebar.quickAccess')}
+            </h3>
 
             {/* المنتجات */}
             <button
@@ -350,7 +421,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
               />
               <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
-                المنتجات
+                {t('layout.sidebar.products')}
               </span>
             </button>
 
@@ -364,7 +435,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
               />
               <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
-                المشاريع
+                {t('layout.sidebar.projects')}
               </span>
             </button>
 
@@ -378,7 +449,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
               />
               <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
-                استوديو التصميم
+                {t('layout.sidebar.designStudio')}
               </span>
             </button>
 
@@ -392,7 +463,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
               />
               <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
-                من نحن
+                {t('layout.sidebar.about')}
               </span>
             </button>
 
@@ -406,7 +477,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
               />
               <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
-                تواصل معنا
+                {t('layout.sidebar.contact')}
               </span>
             </button>
           </div>
@@ -416,7 +487,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
               onClick={() => setShowCategoriesSection(!showCategoriesSection)}
               className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-gray-500 hover:bg-gray-50 transition-all cursor-pointer"
             >
-              <span>تصفح الأثاث حسب الفئات</span>
+              <span>{t('layout.sidebar.browseByCategory')}</span>
               <ChevronDown
                 size={14}
                 className={`transition-transform duration-300 ${showCategoriesSection ? 'rotate-180 text-diyar-brown' : ''}`}
@@ -425,45 +496,57 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
             {showCategoriesSection && (
               <div className="mt-3 space-y-1 pl-1 pr-1 bg-gray-50/50 rounded-2xl p-1.5 border border-gray-100/70 animate-in fade-in duration-200">
-                {Object.entries(CATEGORIES).map(([key, cat]) => (
-                  <div key={key}>
-                    <button
-                      onClick={() => setOpenCategory(openCategory === key ? null : key)}
-                      className="w-full flex items-center justify-between p-2.5 rounded-lg hover:bg-white transition-all text-xs font-bold text-diyar-dark cursor-pointer"
-                    >
-                      <span className={openCategory === key ? 'text-diyar-brown' : ''}>
-                        {cat.name}
-                      </span>
-                      <ChevronDown
-                        size={12}
-                        className={`opacity-60 transition-transform ${openCategory === key ? 'rotate-180' : ''}`}
-                      />
-                    </button>
+                {categoriesLoading ? (
+                  <p className="text-xs text-gray-500 px-3 py-2">{t('layout.sidebar.loadingCategories')}</p>
+                ) : browseCategories.length === 0 ? (
+                  <p className="text-xs text-gray-500 px-3 py-2">{t('layout.sidebar.noCategories')}</p>
+                ) : (
+                  browseCategories.map((category) => (
+                    <div key={category.slug}>
+                      <button
+                        onClick={() =>
+                          setOpenCategory(openCategory === category.slug ? null : category.slug)
+                        }
+                        className="w-full flex items-center justify-between p-2.5 rounded-lg hover:bg-white transition-all text-xs font-bold text-diyar-dark cursor-pointer"
+                      >
+                        <span className={openCategory === category.slug ? 'text-diyar-brown' : ''}>
+                          {category.name}
+                        </span>
+                        <ChevronDown
+                          size={12}
+                          className={`opacity-60 transition-transform ${openCategory === category.slug ? 'rotate-180' : ''}`}
+                        />
+                      </button>
 
-                    {openCategory === key && (
-                      <div className="px-3 py-1 space-y-1 bg-white mx-1 my-1 rounded-xl border border-gray-100 animate-in fade-in duration-150">
-                        <button
-                          onClick={() => handleNavigate(`/category/${key}`)}
-                          className="text-right w-full text-[11px] text-diyar-brown font-bold py-1.5 flex items-center gap-1 cursor-pointer"
-                        >
-                          الكل في {cat.name}
-                          <ChevronLeft size={12} />
-                        </button>
-                        {cat.subcategories.map((sub) => (
+                      {openCategory === category.slug && (
+                        <div className="px-3 py-1 space-y-1 bg-white mx-1 my-1 rounded-xl border border-gray-100 animate-in fade-in duration-150">
                           <button
-                            key={sub}
-                            onClick={() =>
-                              handleNavigate(`/category/${key}?q=${encodeURIComponent(sub)}`)
-                            }
-                            className="text-right w-full text-[11px] text-gray-500 py-1.5 hover:text-diyar-brown transition-all pr-1 cursor-pointer"
+                            onClick={() => handleNavigate(`/category/${category.slug}`)}
+                            className="text-right w-full text-[11px] text-diyar-brown font-bold py-1.5 flex items-center gap-1 cursor-pointer"
                           >
-                            • {sub}
+                            {t('layout.sidebar.allInCategory', { name: category.name })}
+                            <ChevronLeft size={12} />
                           </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                          {category.subcategories.map((sub) => (
+                            <button
+                              key={`${category.slug}-${sub.slug ?? sub.name}`}
+                              onClick={() =>
+                                handleNavigate(
+                                  sub.slug
+                                    ? `/category/${sub.slug}`
+                                    : `/category/${category.slug}?q=${encodeURIComponent(sub.name)}`,
+                                )
+                              }
+                              className="text-right w-full text-[11px] text-gray-500 py-1.5 hover:text-diyar-brown transition-all pr-1 cursor-pointer"
+                            >
+                              • {sub.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -471,7 +554,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
         {/* Footer info */}
         <div className="p-4 border-t border-gray-100 bg-gray-50/30 text-center">
-          <p className="text-[10px] text-gray-400 font-medium">كل ركن يروي قصة أصالة • ديار 2026</p>
+          <p className="text-[10px] text-gray-400 font-medium">{t('layout.sidebar.footer')}</p>
         </div>
       </div>
 
@@ -827,8 +910,9 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           <div className="bg-[#fdfbf7] text-diyar-dark rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl relative max-h-[85vh] flex flex-col border border-diyar-brown/10">
             <button
               onClick={() => setIsAboutOpen(false)}
-              className="absolute top-4 right-4 bg-white hover:bg-gray-100 text-gray-500 hover:text-black p-2 rounded-full shadow-md z-10 transition-colors border border-gray-200"
-              title="إغلاق"
+              className="absolute top-4 right-4 bg-white hover:bg-gray-100 text-gray-500 hover:text-black p-2 rounded-full shadow-md z-10 transition-colors border border-gray-200 cursor-pointer"
+              title={t('layout.aboutModal.close')}
+              aria-label={t('layout.aboutModal.close')}
             >
               <X size={18} />
             </button>
@@ -837,57 +921,47 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             <div className="p-8 bg-[#132624] text-white shrink-0 text-center relative overflow-hidden">
               <div className="absolute -bottom-10 -left-10 w-44 h-44 bg-white/2 rounded-full" />
               <h3 className="text-xl md:text-2xl font-bold mb-2 text-diyar-cream">
-                عرين الكرم والضيافة والعزة
+                {t('layout.aboutModal.headline')}
               </h3>
               <p className="text-xs text-diyar-brown font-bold leading-6">
-                عن منصة ديار لأثاث وتجهيزات الضيافة
+                {t('layout.aboutModal.subtitle')}
               </p>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 leading-relaxed text-sm scrollbar-hide">
-              {/* Brand Story */}
               <div>
                 <h4 className="text-[#132624] font-bold text-base mb-2 border-r-4 border-diyar-brown pr-3">
-                  حكايتنا وأصالتنا
+                  {t('layout.aboutModal.storyTitle')}
                 </h4>
                 <p className="text-gray-600 font-normal text-xs md:text-sm">
-                  تأسست منصة **ديار** بدافع إحياء الفنون الزخرفية والتراثية للبيوت ومجالس الضيافة في
-                  شبه الجزيرة العربية، ودمجها برؤية حديثة لترقى إلى أعلى درجات الفخامة العالمية.
-                  نختار أفخر أنواع الأخشاب الطبيعية، والأقمشة التي تجمع روعة الألوان وتماسك النسيج
-                  لنحاكي الفترات الذهبية للفن المعمري النجدي والأندلسي والحجازي.
+                  {t('layout.aboutModal.storyBody')}
                 </p>
               </div>
 
-              {/* Vision, Mission, Values */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
                   <h5 className="font-bold text-diyar-dark mb-1.5 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#132624]"></span>
-                    رؤيتنا
+                    {t('layout.aboutModal.visionTitle')}
                   </h5>
                   <p className="text-xs text-gray-500 font-normal">
-                    أن نكون المقصد الأول في دول الخليج لتغطية الاحتياجات الهندسية للمجالس ومفروشات
-                    السكن الفخم، وربط كبار الملاك والصناع محلياً.
+                    {t('layout.aboutModal.visionBody')}
                   </p>
                 </div>
                 <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
                   <h5 className="font-bold text-diyar-dark mb-1.5 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-diyar-brown"></span>
-                    الجودة والضمان
+                    {t('layout.aboutModal.qualityTitle')}
                   </h5>
                   <p className="text-xs text-gray-500 font-normal">
-                    جميع أعمال ديار الخشبية والتنجيدية مصحوبة بضمانات حقيقية تصل إلى 10 سنوات
-                    لمكافحة عيوب الهيكل وضمان جودة الكرم والمسؤولية.
+                    {t('layout.aboutModal.qualityBody')}
                   </p>
                 </div>
               </div>
 
               <div className="border-t border-gray-100 pt-5 text-center">
-                <div
-                  id="experience-stat"
-                  className="inline-block bg-[#132624]/5 text-diyar-dark text-xs font-bold px-4 py-2 rounded-full"
-                >
-                  تجهيز 2,400+ مجلس فخم في المملكة منذ انطلاقنا
+                <div className="inline-block bg-[#132624]/5 text-diyar-dark text-xs font-bold px-4 py-2 rounded-full">
+                  {t('layout.aboutModal.stat')}
                 </div>
               </div>
             </div>
@@ -901,22 +975,21 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           <div className="bg-white text-diyar-dark rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
             <button
               onClick={() => setIsContactOpen(false)}
-              className="absolute top-4 right-4 bg-white hover:bg-gray-100 text-gray-500 hover:text-black p-2 rounded-full shadow-md z-10 transition-colors border border-gray-200"
-              title="إغلاق"
+              className="absolute top-4 right-4 bg-white hover:bg-gray-100 text-gray-500 hover:text-black p-2 rounded-full shadow-md z-10 transition-colors border border-gray-200 cursor-pointer"
+              title={t('layout.consultation.close')}
+              aria-label={t('layout.consultation.close')}
             >
               <X size={18} />
             </button>
 
             {/* Left/Right Visual layout for contact options */}
             <div className="flex-1 overflow-y-auto flex flex-col md:flex-row">
-              {/* Contact details Sidebar (dark) */}
               <div className="bg-[#132624] text-white p-6 md:p-8 md:w-2/5 flex flex-col justify-between shrink-0">
                 <div>
                   <PhoneCall className="w-10 h-10 text-diyar-brown mb-4" />
-                  <h4 className="text-lg font-bold mb-2 text-diyar-cream">سررنا بخدمتك</h4>
+                  <h4 className="text-lg font-bold mb-2 text-diyar-cream">{t('layout.consultation.title')}</h4>
                   <p className="text-xs text-diyar-cream opacity-80 leading-relaxed mb-6 font-normal">
-                    تواصل مع فريق المبيعات وتخطيط الديكور لطلب معاينات مجانية لمشروعك السكني أو
-                    التجاري.
+                    {t('layout.consultation.subtitle')}
                   </p>
                 </div>
 
@@ -924,17 +997,33 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   <div className="flex items-start gap-2.5 text-xs">
                     <MapPin size={16} className="text-diyar-brown shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-bold">المقر الرئيسي</p>
-                      <p className="opacity-70">طريق الملك عبدالعزيز، حي الياسمين، الرياض</p>
+                      <p className="font-bold">{t('layout.consultation.headquarters')}</p>
+                      <p className="opacity-70">{t('layout.consultation.headquartersAddress')}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2.5 text-xs">
                     <Phone size={16} className="text-diyar-brown shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-bold">قسم المبيعات</p>
-                      <p className="opacity-70" dir="ltr">
-                        +966 50 123 4567
-                      </p>
+                      <p className="font-bold">{t('layout.contactBar.phoneLabel')}</p>
+                      <a
+                        href={getPlatformSupportTelHref()}
+                        className="opacity-70 hover:opacity-100 hover:text-diyar-brown transition-colors cursor-pointer"
+                        dir="ltr"
+                      >
+                        {getPlatformSupportPhoneDisplay()}
+                      </a>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-xs">
+                    <Send size={16} className="text-diyar-brown shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold">{t('layout.contactBar.emailLabel')}</p>
+                      <a
+                        href={getPlatformSupportMailHref()}
+                        className="opacity-70 hover:opacity-100 hover:text-diyar-brown transition-colors cursor-pointer"
+                      >
+                        {getPlatformSupportEmail()}
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -942,7 +1031,9 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
               {/* Forms main layout */}
               <div className="p-6 md:p-8 flex-1 bg-white">
-                <h4 className="font-bold text-base text-diyar-dark mb-4 pr-1">أرسل لنا استشارتك</h4>
+                <h4 className="font-bold text-base text-diyar-dark mb-4 pr-1">
+                  {t('layout.consultation.formTitle')}
+                </h4>
 
                 {contactSuccess ? (
                   <div className="h-full flex flex-col items-center justify-center text-center py-12 animate-in zoom-in-95 duration-200">
@@ -950,80 +1041,99 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                       <CheckCircle size={28} />
                     </div>
                     <h5 className="font-bold text-sm text-diyar-dark mb-1">
-                      تم إرسال استشارتك بنجاح!
+                      {t('layout.consultation.successTitle')}
                     </h5>
                     <p className="text-xs text-gray-500 font-normal">
-                      سيتصل بك مهندس الديكور المختص من ديار خلال 24 ساعة كحد أقصى.
+                      {t('layout.consultation.successBody')}
                     </p>
                   </div>
                 ) : (
-                  <form onSubmit={handleContactSubmit} className="space-y-3.5">
+                  <form onSubmit={(e) => void handleContactSubmit(e)} className="space-y-3.5">
+                    {contactError && (
+                      <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
+                        {contactError}
+                      </p>
+                    )}
                     <div>
                       <label className="block text-[11px] font-bold text-gray-500 mb-1">
-                        الاسم الكامل
+                        {t('layout.consultation.fullName')}
                       </label>
                       <input
                         type="text"
-                        required
-                        className="w-full bg-gray-50 outline-none border border-gray-100 focus:border-diyar-brown focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark"
-                        placeholder="مثال: فيصل بن سلمان"
+                        className={`w-full bg-gray-50 outline-none border focus:border-diyar-brown focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark ${
+                          contactFieldErrors.name ? 'border-red-300' : 'border-gray-100'
+                        }`}
+                        placeholder={t('layout.consultation.fullNamePlaceholder')}
                         value={contactForm.name}
                         onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
                       />
+                      {contactFieldErrors.name && (
+                        <p className="text-[10px] text-red-600 mt-1">{contactFieldErrors.name}</p>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[11px] font-bold text-gray-500 mb-1">
-                          رقم الجوال
+                          {t('layout.consultation.phone')}
                         </label>
-                        <input
-                          type="tel"
-                          required
-                          className="w-full bg-gray-50 outline-none border border-gray-100 focus:border-diyar-brown focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark text-right"
-                          placeholder="050XXXXXXXX"
+                        <SaudiPhoneInput
                           value={contactForm.phone}
-                          onChange={(e) =>
-                            setContactForm({ ...contactForm, phone: e.target.value })
-                          }
+                          onChange={(phone) => setContactForm({ ...contactForm, phone })}
                         />
+                        {contactFieldErrors.phone && (
+                          <p className="text-[10px] text-red-600 mt-1">{contactFieldErrors.phone}</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-[11px] font-bold text-gray-500 mb-1">
-                          البريد الإلكتروني
+                          {t('layout.consultation.email')}
                         </label>
                         <input
                           type="email"
-                          className="w-full bg-gray-50 outline-none border border-gray-100 focus:border-diyar-brown focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark"
-                          placeholder="faisal@example.com"
+                          className={`w-full bg-gray-50 outline-none border focus:border-diyar-brown focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark ${
+                            contactFieldErrors.email ? 'border-red-300' : 'border-gray-100'
+                          }`}
+                          placeholder={t('layout.consultation.emailPlaceholder')}
                           value={contactForm.email}
                           onChange={(e) =>
                             setContactForm({ ...contactForm, email: e.target.value })
                           }
                         />
+                        {contactFieldErrors.email && (
+                          <p className="text-[10px] text-red-600 mt-1">{contactFieldErrors.email}</p>
+                        )}
                       </div>
                     </div>
 
                     <div>
                       <label className="block text-[11px] font-bold text-gray-500 mb-1">
-                        تفاصيل استشارتك أو طلبك
+                        {t('layout.consultation.message')}
                       </label>
                       <textarea
-                        className="w-full bg-gray-50 outline-none border border-gray-100 focus:border-diyar-brown focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark h-24 resize-none"
-                        placeholder="اكتب هنا تفاصيل مشروعك ومساحة المجالس المطلوبة..."
-                        required
+                        className={`w-full bg-gray-50 outline-none border focus:border-diyar-brown focus:bg-white rounded-xl px-3 py-2 text-xs text-diyar-dark h-24 resize-none ${
+                          contactFieldErrors.message ? 'border-red-300' : 'border-gray-100'
+                        }`}
+                        placeholder={t('layout.consultation.messagePlaceholder')}
                         value={contactForm.message}
                         onChange={(e) =>
                           setContactForm({ ...contactForm, message: e.target.value })
                         }
                       />
+                      {contactFieldErrors.message && (
+                        <p className="text-[10px] text-red-600 mt-1">{contactFieldErrors.message}</p>
+                      )}
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full bg-[#132624] text-white hover:bg-black font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-2 mt-4 shadow-lg shadow-black/5 cursor-pointer"
+                      disabled={contactSubmitting}
+                      className="w-full bg-[#132624] text-white hover:bg-black font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-2 mt-4 shadow-lg shadow-black/5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      <Send size={14} /> إرسال الاستشارة
+                      <Send size={14} />
+                      {contactSubmitting
+                        ? t('layout.consultation.submitting')
+                        : t('layout.consultation.submit')}
                     </button>
                   </form>
                 )}

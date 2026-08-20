@@ -13,6 +13,7 @@ import {
 } from '../../hooks/provider/useProviderReviews.ts';
 import { useProviderSettings } from '../../hooks/provider/useProviderDashboard.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { formatRelativeReviewDate } from '../../lib/formatRelativeReviewDate.ts';
 import { resolveMediaUrl } from '../../lib/media.ts';
@@ -22,11 +23,11 @@ import type { ProviderReview } from '../../api/providerReviews.ts';
 export default function ServiceReviewsInbox() {
   const { t, locale, dir } = useLocale();
   const { toast } = useToast();
-  const [page, setPage] = useState(1);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange } = usePaginationState();
   const [replyTarget, setReplyTarget] = useState<ProviderReview | null>(null);
   const [replyText, setReplyText] = useState('');
 
-  const inboxQuery = useProviderReviewInbox(page, 10);
+  const inboxQuery = useProviderReviewInbox(page, perPage);
   const { data: settings } = useProviderSettings();
   const replyReview = useRespondToProviderReview();
 
@@ -157,9 +158,17 @@ export default function ServiceReviewsInbox() {
         </div>
       )}
 
-      {pagination && pagination.last_page > 1 && (
-        <PaginationBar pagination={pagination} page={page} onPageChange={setPage} />
-      )}
+      {pagination ? (
+        <PaginationBar
+          pagination={pagination}
+          page={page}
+          perPage={perPage}
+          perPageOptions={[...perPageOptions]}
+          onPageChange={onPageChange}
+          onPerPageChange={onPerPageChange}
+          alwaysShow={pagination.total > 0}
+        />
+      ) : null}
 
       {replyTarget && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">

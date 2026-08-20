@@ -146,6 +146,38 @@ export async function confirmDeleteReview(t: TranslateFn): Promise<boolean> {
   return result.isConfirmed;
 }
 
+export async function confirmDeleteAllNotifications(t: TranslateFn): Promise<boolean> {
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('notifications.deleteAllTitle'),
+    text: t('notifications.deleteAllConfirm'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('notifications.deleteAllConfirmButton'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
+export async function confirmRemoveConversation(t: TranslateFn): Promise<boolean> {
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('chat.removeConversationTitle'),
+    text: t('chat.removeConversationConfirm'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('chat.removeConversationAction'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
 export async function showShareLinkDialog(t: TranslateFn, url: string): Promise<boolean> {
   const result = await Swal.fire({
     ...modalOptions,

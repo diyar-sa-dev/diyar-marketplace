@@ -15,6 +15,7 @@ import {
 } from '../../hooks/vendor/useVendorCoupons.ts';
 import { useVendorSettings } from '../../hooks/vendor/useVendorSettings.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { generateUniqueCouponCode } from '../../lib/couponCode.ts';
 import { resolveMediaUrl } from '../../lib/media.ts';
@@ -36,13 +37,13 @@ export default function VendorCoupons() {
   const { t, locale, dir } = useLocale();
   const { toast } = useToast();
   const currency = t('common.currency');
-  const [page, setPage] = useState(1);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange } = usePaginationState();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<VendorCoupon | null>(null);
   const [form, setForm] = useState<VendorCouponPayload>(EMPTY_FORM);
   const [shareCoupon, setShareCoupon] = useState<VendorCoupon | null>(null);
 
-  const couponsQuery = useVendorCoupons(page);
+  const couponsQuery = useVendorCoupons(page, perPage);
   const { data: settings } = useVendorSettings();
   const createCoupon = useCreateVendorCoupon();
   const updateCoupon = useUpdateVendorCoupon();
@@ -243,9 +244,12 @@ export default function VendorCoupons() {
             <PaginationBar
               pagination={pagination}
               page={page}
-              onPageChange={setPage}
+              perPage={perPage}
+              perPageOptions={[...perPageOptions]}
+              onPageChange={onPageChange}
+              onPerPageChange={onPerPageChange}
               className="pt-2"
-              alwaysShow={pagination.total > pagination.per_page}
+              alwaysShow={pagination.total > 0}
             />
           )}
         </>

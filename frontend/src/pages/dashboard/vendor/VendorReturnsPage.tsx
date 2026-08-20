@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocale } from '../../../hooks/useLocale.ts';
+import { usePaginationState } from '../../../hooks/usePaginationState.ts';
 import { useToast } from '../../../hooks/useToast.ts';
 import {
   useVendorReturnActions,
@@ -178,13 +179,14 @@ export default function VendorReturnsPage() {
   const { t } = useLocale();
   const { toast } = useToast();
   const [status, setStatus] = useState('all');
-  const [page, setPage] = useState(1);
-  const { data, isLoading, isFetching } = useVendorReturns(status, page);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState();
+  const { data, isLoading, isFetching } = useVendorReturns(status, page, perPage);
   const actions = useVendorReturnActions();
 
   const handleStatusChange = (nextStatus: string) => {
     setStatus(nextStatus);
-    setPage(1);
+    resetPage();
   };
 
   const handleAction = async (
@@ -258,7 +260,11 @@ export default function VendorReturnsPage() {
             <PaginationBar
               pagination={data.pagination}
               page={page}
-              onPageChange={setPage}
+              perPage={perPage}
+              perPageOptions={[...perPageOptions]}
+              onPageChange={onPageChange}
+              onPerPageChange={onPerPageChange}
+              alwaysShow={data.pagination.total > 0}
               className="pt-2"
             />
           )}

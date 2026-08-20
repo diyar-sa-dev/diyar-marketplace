@@ -98,17 +98,18 @@ export async function fetchVendorFinanceAnalytics(period: FinancePeriod = 'month
 export async function fetchVendorTransactions(
   page = 1,
   type: TransactionTypeFilter = 'all',
+  perPage = 20,
 ): Promise<{
   transactions: FinancialTransaction[];
-  pagination: { current_page: number; last_page: number; total: number };
+  pagination: { current_page: number; last_page: number; per_page: number; total: number };
 }> {
   const { data } = await apiClient.get<
     ApiSuccessResponse<{
       transactions: FinancialTransaction[];
-      pagination: { current_page: number; last_page: number; total: number };
+      pagination: { current_page: number; last_page: number; per_page: number; total: number };
     }>
   >('/dashboard/vendor/finance/transactions', {
-    params: { page, type: type === 'all' ? undefined : type },
+    params: { page, per_page: perPage, type: type === 'all' ? undefined : type },
   });
   return data.data;
 }

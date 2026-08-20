@@ -2,7 +2,10 @@
 
 > **Status:** REFERENCE — SUPERSEDED  
 > **Use instead:** [MASTER_DEVELOPMENT_PLAN.md](./MASTER_DEVELOPMENT_PLAN.md) (v2.0, updated 2026-08-19)  
-> **Current stage:** **Stage 15 — Vendor coupons** (working tree) · **Stage 13 — COMPLETE** · **Stage 14 — Review audit COMPLETE**  
+> **Current stage:** **Stage 17.6 — Affiliate Commerce** (COMPLETE) · **Stage 17 — Realtime Chat** (COMPLETE) · **Stage 16 — Notifications** (COMPLETE) · **Stages 13–15 COMPLETE**  
+> **Stage 17.6 docs:** [Stages/Stage 17/17.6 Affiliate/STAGE_17.6_COMPLETION_REPORT.md](./Stages/Stage%2017/17.6%20Affiliate/STAGE_17.6_COMPLETION_REPORT.md)  
+> **Stage 17 docs:** [Stages/Stage 17/README.md](./Stages/Stage%2017/README.md) (if present) · [STAGE_17_COMPLETION_REPORT.md](./Stages/Stage%2017/STAGE_17_COMPLETION_REPORT.md)  
+> **Stage 16 docs:** [Stages/Stage 16/STAGE_16_COMPLETION_REPORT.md](./Stages/Stage%2016/STAGE_16_COMPLETION_REPORT.md)  
 > **Stage 13 docs:** [Stages/Stage 13/README.md](./Stages/Stage%2013/README.md)  
 > **Previous:** Stage 12.5 — COMPLETE — [Stages/Stage 12.5/README.md](./Stages/Stage%2012.5/README.md)  
 > **Tech baseline:** Laravel 13, MySQL, React 19
@@ -1404,15 +1407,13 @@ Use queued jobs where appropriate.
 
 ---
 
-# STAGE 17 — CHAT
+# STAGE 17 — REALTIME CHAT
 
-V1:
+> **Implemented on Stage 16/16.5 infrastructure** — Laravel Reverb, Echo, Redis cache, and Stage 16 notification dispatcher. Simple polling is obsolete.
 
-> **Simple polling**
+See `conception/Stages/Stage 17/` for architecture, API, security, Redis, queues, testing, and deployment notes.
 
-Not WebSockets yet.
-
-## Phase 17.1
+## Phase 17.1 — Domain
 
 Entities:
 
@@ -1423,23 +1424,82 @@ messages
 message_attachments
 ```
 
-## Phase 17.2
+## Phase 17.2 — Conversation types
 
-Support:
+* Customer ↔ Vendor (`customer_vendor`)
+* Customer ↔ Provider (`customer_provider`)
+* Customer ↔ Admin (`customer_admin`)
 
-* Customer ↔ Vendor
-* Customer ↔ Provider
-* Customer ↔ Admin
+## Phase 17.3 — Realtime + notifications
 
-Future:
+* Private channel: `private-conversations.{conversationId}`
+* `MessageCreated` → Reverb broadcast (after DB commit)
+* `MessageCreated` → Stage 16 notification infrastructure (sender excluded, preferences respected)
+
+## Phase 17.5 — Hardening (see `conception/Stages/Stage 17/`)
+
+* Message retention + verified archive batches (`chat_archive_batches`)
+* Conversation lifecycle states
+* Optimistic send, load-older UI, reconnect reconciliation
+* Attachment authorization, typing debounce, Redis locks
+* Structured observability (`ChatMetrics`)
+* **Certification:** production-grade foundation — load/archive staging validation pending
+
+---
+
+# STAGE 17.6 — AFFILIATE COMMERCE
+
+> **Status:** COMPLETE (2026-08-20) — see [STAGE_17.6_COMPLETION_REPORT.md](./Stages/Stage%2017/17.6%20Affiliate/STAGE_17.6_COMPLETION_REPORT.md)
+
+Affiliate referral commerce: attribution, commission lifecycle, marketer dashboard, vendor product affiliate settings, financial ledger integration, and abuse protection.
+
+## Phase 17.6.1 — Domain
+
+Entities:
 
 ```text
-Polling
-   ↓
-Laravel Reverb/WebSockets
+affiliate_profiles
+product_affiliate_settings
+affiliate_links
+affiliate_clicks
+affiliate_attributions
+affiliate_commissions
+affiliate_payouts
 ```
 
-without changing the domain model.
+## Phase 17.6.2 — Attribution flow
+
+```text
+Product ?ref=CODE
+   ↓
+POST /affiliate/referrals/click (deduped + rate limited)
+   ↓
+Checkout X-Affiliate-Session header
+   ↓
+Order item snapshot (rate, base, amount frozen)
+```
+
+## Phase 17.6.3 — Commission lifecycle
+
+```text
+PaymentSucceeded → pending commission + ledger credit (affiliate_payable)
+OrderDelivered   → available commission + ledger release
+Return/refund    → reversed commission + ledger reversal
+Payout request   → reserve available commissions
+Admin mark-paid  → paid + ledger payout debit
+```
+
+## Phase 17.6.4 — Marketer dashboard
+
+Real API-backed KPIs, 5-month chart, top links, products/search, reports summary, payouts, settings — existing RTL UI preserved.
+
+## Phase 17.6.5 — Hardening
+
+* Financial ledger via `financial_transactions` (AffiliatePayable / AffiliateAvailable buckets)
+* Click dedupe (cache + DB window) and resolve/click rate limiters
+* Admin payout backend hooks (`/api/v1/admin/affiliate/payouts/*`) — UI deferred to Stage 18
+* Gross/net link metrics from commission ledger (no historical erasure on reversal)
+* Multi-vendor order commission per eligible line verified
 
 ---
 
@@ -1956,6 +2016,48 @@ docs/
 │
 └── runbooks/
     ├── LOCAL_SETUP.md
-    ├── STAGING.md
-    └── PRODUCTION.md
 ```
+
+---
+
+## Development Log
+
+### Day 5 (Stages 13–15)
+
+**Stage 13 / 13.5 — Provider Portal:** Completed full provider portal wired to real APIs, confirm-before-pay schedule negotiation, 2-hour lead time, and post-payment cancellation lock.
+
+**Stage 14 — Reviews Audit:** Unified customer review history across products, stores, and providers, with self-review guards and audit documentation.
+
+**Stage 15 — Vendor Coupons:** Implemented vendor coupon CRUD, checkout per-vendor apply/remove, usage tracking, and vendor dashboard coupon management UI.
+
+**Tax Engine Fix:** Corrected VAT calculation to compute 15% Saudi VAT on post-discount subtotal (subtotal − discount + shipping).
+
+**Checkout Polish:** Fixed null-coupon crash fallback, role-aware address navigation, and friendly inline error handling for invalid codes.
+
+**Account Routing:** Implemented customer-first account hub navigation routing users dynamically based on role (`/profile`, vendor, or provider settings).
+
+**Catalog & Engagement:** Integrated wishlist APIs for products and services along with view/like engagement counters.
+
+**Testing & Quality:** Passed 376 backend and 93 frontend tests; verified full suite with Friday provider availability and confirm-before-pay test fixes.
+
+**CI & Standards:** Executed Laravel Pint, Prettier, strict Composer validation, and expanded linting across all touched modules.
+
+**Current Status:** Stage 13, 14 & 15 COMPLETE. Next stage: Stage 16.
+
+---
+
+### Day 17 (Stages 16–17.6)
+
+**Stage 16 — Notifications:** Built notification dispatcher (in-app, email, push), preference resolver, device registry, Reverb realtime broadcasts, and frontend NotificationProvider with dedupe and cross-tab sync.
+
+**Stage 17 — Realtime Chat:** Conversations, messages, attachments, typing, optimistic send, archive batches, Redis locks, unread reconciliation, and ChatPage + dashboard messaging wired to Reverb/Echo.
+
+**Stage 17.6 — Affiliate Commerce:** Full referral attribution (`?ref=` → click → checkout snapshot), commission lifecycle (pending → available → reversed), marketer dashboard wired to real APIs (KPIs, chart, top links, reports, payouts), vendor product affiliate settings, financial ledger posting, click dedupe + rate limits, admin payout backend hooks, gross/net link metrics, multi-vendor commission tests.
+
+**Platform & Homepage:** Consultation/feedback localStorage forms, newsletter auth flow, partner banner role routing, auth `?role=` pre-select, dashboard tutorial skip flag.
+
+**Testing & Quality:** AffiliateCommerceTest 12 passed; notification and chat feature tests added; frontend build verified.
+
+**CI & Standards:** Laravel Pint, Prettier, Composer strict validation, Tailwind canonical class cleanup.
+
+**Current Status:** Stages 16, 17 & 17.6 COMPLETE. Next stage: Stage 18 — Admin / Operations.

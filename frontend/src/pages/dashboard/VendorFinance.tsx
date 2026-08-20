@@ -23,6 +23,7 @@ import { EmptyState } from '../../components/common/EmptyState.tsx';
 import { formatFinanceDateTime } from '../../lib/formatFinanceDateTime.ts';
 import { formatOrderDate } from '../../lib/formatOrderDate.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import {
   useDownloadVendorFinanceReport,
   useRequestVendorPayout,
@@ -115,7 +116,14 @@ export default function VendorFinance() {
   const { t, locale, dir } = useLocale();
   const { toast } = useToast();
   const [period, setPeriod] = useState<FinancePeriod>('month');
-  const [transactionPage, setTransactionPage] = useState(1);
+  const {
+    page: transactionPage,
+    perPage: transactionPerPage,
+    perPageOptions: transactionPerPageOptions,
+    onPageChange: onTransactionPageChange,
+    onPerPageChange: onTransactionPerPageChange,
+    resetPage: resetTransactionPage,
+  } = usePaginationState({ initialPerPage: 20 });
   const [typeFilter, setTypeFilter] = useState<TransactionTypeFilter>('all');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
@@ -123,7 +131,7 @@ export default function VendorFinance() {
 
   const reportQuery = useVendorFinanceReport(period);
   const analyticsQuery = useVendorFinanceAnalytics(period);
-  const transactionsQuery = useVendorTransactions(transactionPage, typeFilter);
+  const transactionsQuery = useVendorTransactions(transactionPage, typeFilter, transactionPerPage);
   const downloadReport = useDownloadVendorFinanceReport();
   const requestPayout = useRequestVendorPayout();
   const settingsQuery = useVendorSettings();
@@ -219,12 +227,12 @@ export default function VendorFinance() {
 
   const handlePeriodChange = (next: FinancePeriod) => {
     setPeriod(next);
-    setTransactionPage(1);
+    resetTransactionPage();
   };
 
   const handleFilterChange = (next: TransactionTypeFilter) => {
     setTypeFilter(next);
-    setTransactionPage(1);
+    resetTransactionPage();
     setFiltersOpen(false);
   };
 
@@ -665,20 +673,20 @@ export default function VendorFinance() {
         )}
 
         {pagination && transactions.length > 0 ? (
-          <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
-            <p className="text-xs text-gray-500">
-              {t('vendor.finance.paginationTotal', { total: pagination.total })}
-            </p>
+          <div className="p-4 border-t border-gray-100 bg-gray-50/50">
             <PaginationBar
               pagination={{
                 current_page: pagination.current_page,
                 last_page: pagination.last_page,
-                per_page: 20,
+                per_page: pagination.per_page ?? transactionPerPage,
                 total: pagination.total,
               }}
               page={transactionPage}
-              onPageChange={setTransactionPage}
-              alwaysShow
+              perPage={transactionPerPage}
+              perPageOptions={[...transactionPerPageOptions]}
+              onPageChange={onTransactionPageChange}
+              onPerPageChange={onTransactionPerPageChange}
+              alwaysShow={pagination.total > 0}
             />
           </div>
         ) : null}

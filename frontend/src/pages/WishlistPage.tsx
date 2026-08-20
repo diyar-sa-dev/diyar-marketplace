@@ -15,7 +15,7 @@ import { confirmClearWishlist, showSuccessToast } from '../lib/confirmDialog.ts'
 import type { ProductCard as ProductCardType } from '../types/catalog.ts';
 import type { ServiceCard as ServiceCardType } from '../types/services.ts';
 
-const PER_PAGE = 12;
+const PER_PAGE_DEFAULT = 12;
 
 export default function WishlistPage() {
   const { t, dir } = useLocale();
@@ -24,10 +24,22 @@ export default function WishlistPage() {
   const [filterTab, setFilterTab] = useState<'all' | 'products' | 'services'>('all');
   const [productsPage, setProductsPage] = useState(1);
   const [servicesPage, setServicesPage] = useState(1);
+  const [perPage, setPerPage] = useState(PER_PAGE_DEFAULT);
+  const perPageOptions = [10, 12, 15, 20, 24, 50] as const;
+
+  const resetWishlistPages = () => {
+    setProductsPage(1);
+    setServicesPage(1);
+  };
+
+  const handlePerPageChange = (nextPerPage: number) => {
+    setPerPage(nextPerPage);
+    resetWishlistPages();
+  };
 
   const summaryQuery = useWishlistSummary();
-  const productsQuery = useWishlist(productsPage, PER_PAGE, 'products');
-  const servicesQuery = useWishlist(servicesPage, PER_PAGE, 'services');
+  const productsQuery = useWishlist(productsPage, perPage, 'products');
+  const servicesQuery = useWishlist(servicesPage, perPage, 'services');
   const clearWishlist = useClearWishlist();
 
   const BreadcrumbChevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
@@ -59,8 +71,7 @@ export default function WishlistPage() {
     }
 
     await clearWishlist.mutateAsync();
-    setProductsPage(1);
-    setServicesPage(1);
+    resetWishlistPages();
     await showSuccessToast(t, 'profile.wishlistPage.clearSuccess');
   };
 
@@ -129,7 +140,7 @@ export default function WishlistPage() {
             type="button"
             onClick={() => {
               setFilterTab('products');
-              setProductsPage(1);
+              resetWishlistPages();
             }}
             className={tabClass(filterTab === 'products')}
           >
@@ -139,7 +150,7 @@ export default function WishlistPage() {
             type="button"
             onClick={() => {
               setFilterTab('services');
-              setServicesPage(1);
+              resetWishlistPages();
             }}
             className={tabClass(filterTab === 'services')}
           >
@@ -229,7 +240,11 @@ export default function WishlistPage() {
                       <PaginationBar
                         pagination={productsQuery.data.pagination}
                         page={productsPage}
+                        perPage={perPage}
+                        perPageOptions={[...perPageOptions]}
                         onPageChange={setProductsPage}
+                        onPerPageChange={handlePerPageChange}
+                        alwaysShow={productsQuery.data.pagination.total > 0}
                         className="mt-10"
                       />
                     )}
@@ -276,7 +291,11 @@ export default function WishlistPage() {
                       <PaginationBar
                         pagination={servicesQuery.data.pagination}
                         page={servicesPage}
+                        perPage={perPage}
+                        perPageOptions={[...perPageOptions]}
                         onPageChange={setServicesPage}
+                        onPerPageChange={handlePerPageChange}
+                        alwaysShow={servicesQuery.data.pagination.total > 0}
                         className="mt-10"
                       />
                     )}

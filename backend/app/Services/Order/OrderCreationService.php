@@ -7,6 +7,8 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ShipmentStatus;
 use App\Enums\VendorOrderStatus;
+use App\Events\Domain\OrderCreated;
+use App\Events\Domain\VendorOrderReceived;
 use App\Models\Address;
 use App\Models\Cart;
 use App\Models\Order;
@@ -16,6 +18,7 @@ use App\Models\Product;
 use App\Models\Shipment;
 use App\Models\User;
 use App\Models\VendorOrder;
+use App\Services\Affiliate\AffiliateAttributionService;
 use App\Services\Cart\CartService;
 use App\Services\Catalog\InventoryService;
 use App\Services\Checkout\CheckoutPreviewService;
@@ -33,6 +36,7 @@ final class OrderCreationService
         private readonly OrderTotalsReconciliationService $reconciliation,
         private readonly InventoryService $inventory,
         private readonly SelfPurchaseGuard $selfPurchase,
+        private readonly AffiliateAttributionService $affiliateAttribution,
     ) {}
 
     /**
@@ -47,6 +51,7 @@ final class OrderCreationService
         string $idempotencyKey,
         string $payloadHash,
         array $vendorCoupons = [],
+        ?string $sessionFingerprint = null,
     ): array {
         $existing = $this->findExistingIdempotentOrder($user, $idempotencyKey);
 
@@ -55,7 +60,7 @@ final class OrderCreationService
         }
 
         try {
-            return DB::transaction(function () use ($user, $shippingAddressId, $deliverySelections, $idempotencyKey, $payloadHash, $vendorCoupons) {
+            return DB::transaction(function () use ($user, $shippingAddressId, $deliverySelections, $idempotencyKey, $payloadHash, $vendorCoupons, $sessionFingerprint) {
                 $existing = Order::query()
                     ->where('user_id', $user->id)
                     ->where('idempotency_key', $idempotencyKey)
@@ -73,6 +78,7 @@ final class OrderCreationService
                     $idempotencyKey,
                     $payloadHash,
                     $vendorCoupons,
+                    $sessionFingerprint,
                 );
 
                 return ['order' => $order, 'created' => true];
@@ -102,6 +108,7 @@ final class OrderCreationService
         string $idempotencyKey,
         string $payloadHash,
         array $vendorCoupons = [],
+        ?string $sessionFingerprint = null,
     ): Order {
         $cart = Cart::query()
             ->where('user_id', $user->id)
@@ -168,6 +175,14 @@ final class OrderCreationService
             ]);
 
             foreach ($group['items'] as $line) {
+                $attribution = $this->affiliateAttribution->resolveAttributionForProduct(
+                    user: $user,
+                    sessionFingerprint: $sessionFingerprint,
+                    productId: $line['product_id'],
+                );
+
+                $affiliateSnapshot = $this->buildAffiliateSnapshot($attribution, $line['line_subtotal']);
+
                 OrderItem::query()->create([
                     'vendor_order_id' => $vendorOrder->id,
                     'product_id' => $line['product_id'],
@@ -178,6 +193,7 @@ final class OrderCreationService
                     'line_subtotal' => $line['line_subtotal'],
                     'color_name' => $line['color']['name'],
                     'color_hex' => $line['color']['hex_code'],
+                    ...$affiliateSnapshot,
                 ]);
 
                 $product = Product::query()->findOrFail($line['product_id']);
@@ -217,6 +233,14 @@ final class OrderCreationService
 
         $this->reconciliation->assertOrderInvariants($order);
 
+        DB::afterCommit(function () use ($order): void {
+            event(new OrderCreated($order));
+
+            foreach ($order->vendorOrders as $vendorOrder) {
+                event(new VendorOrderReceived($vendorOrder));
+            }
+        });
+
         return $order;
     }
 
@@ -255,5 +279,28 @@ final class OrderCreationService
 
         return str_contains($message, 'unique')
             && (str_contains($message, 'idempotency') || str_contains($message, 'user_id'));
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $attribution
+     * @return array<string, mixed>
+     */
+    private function buildAffiliateSnapshot(?array $attribution, string|float $lineSubtotal): array
+    {
+        if ($attribution === null) {
+            return [];
+        }
+
+        $base = number_format((float) $lineSubtotal, 2, '.', '');
+        $rate = number_format((float) $attribution['commission_rate_percent'], 2, '.', '');
+        $amount = number_format((float) bcmul($base, bcdiv($rate, '100', 6), 4), 2, '.', '');
+
+        return [
+            'affiliate_profile_id' => $attribution['affiliate_profile_id'],
+            'affiliate_link_id' => $attribution['affiliate_link_id'],
+            'affiliate_commission_rate' => $rate,
+            'affiliate_commission_base' => $base,
+            'affiliate_commission_amount' => $amount,
+        ];
     }
 }

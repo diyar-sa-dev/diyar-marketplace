@@ -212,4 +212,268 @@ return [
         ),
         'from_name' => env('DIYAR_MAIL_FROM_NAME', env('MAIL_FROM_NAME', 'Diyar')),
     ],
+
+    'notifications' => [
+        'circuit_breaker' => [
+            'failure_threshold' => (int) env('DIYAR_NOTIFICATIONS_CB_FAILURES', 5),
+            'cooldown_seconds' => (int) env('DIYAR_NOTIFICATIONS_CB_COOLDOWN', 120),
+        ],
+        'realtime_enabled' => filter_var(env('DIYAR_NOTIFICATIONS_REALTIME', true), FILTER_VALIDATE_BOOL),
+        'reconciliation_poll_seconds' => (int) env('DIYAR_NOTIFICATIONS_RECONCILE_SECONDS', 120),
+        'poll_interval_seconds' => (int) env('DIYAR_NOTIFICATIONS_POLL_SECONDS', 120),
+        'queues' => [
+            'high' => env('DIYAR_NOTIFICATIONS_QUEUE_HIGH', 'notifications-high'),
+            'normal' => env('DIYAR_NOTIFICATIONS_QUEUE', 'notifications'),
+            'low' => env('DIYAR_NOTIFICATIONS_QUEUE_LOW', 'notifications-low'),
+        ],
+        'worker' => [
+            'tries' => (int) env('DIYAR_NOTIFICATIONS_WORKER_TRIES', 5),
+            'timeout' => (int) env('DIYAR_NOTIFICATIONS_WORKER_TIMEOUT', 120),
+            'backoff' => [30, 60, 120, 300, 600],
+            'max_jobs' => (int) env('DIYAR_NOTIFICATIONS_WORKER_MAX_JOBS', 1000),
+            'max_time' => (int) env('DIYAR_NOTIFICATIONS_WORKER_MAX_TIME', 3600),
+            'memory' => (int) env('DIYAR_NOTIFICATIONS_WORKER_MEMORY', 128),
+            'sleep' => (int) env('DIYAR_NOTIFICATIONS_WORKER_SLEEP', 3),
+        ],
+        'push' => [
+            'driver' => env('DIYAR_PUSH_DRIVER', 'log'),
+            'fcm' => [
+                'project_id' => env('DIYAR_FCM_PROJECT_ID'),
+                'credentials' => env('DIYAR_FCM_CREDENTIALS'),
+            ],
+            'apns' => [
+                'key_id' => env('DIYAR_APNS_KEY_ID'),
+                'team_id' => env('DIYAR_APNS_TEAM_ID'),
+                'bundle_id' => env('DIYAR_APNS_BUNDLE_ID'),
+                'private_key' => env('DIYAR_APNS_PRIVATE_KEY'),
+                'environment' => env('DIYAR_APNS_ENVIRONMENT', 'sandbox'),
+            ],
+        ],
+        'categories' => [
+            'orders' => [
+                'label' => 'diyar.notifications.categories.orders',
+                'policy' => 'optional',
+                'roles' => ['customer', 'vendor'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'payments' => [
+                'label' => 'diyar.notifications.categories.payments',
+                'policy' => 'optional',
+                'roles' => ['customer', 'vendor', 'provider'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'bookings' => [
+                'label' => 'diyar.notifications.categories.bookings',
+                'policy' => 'optional',
+                'roles' => ['customer', 'provider'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'offers' => [
+                'label' => 'diyar.notifications.categories.offers',
+                'policy' => 'optional',
+                'roles' => ['customer', 'provider'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'reviews' => [
+                'label' => 'diyar.notifications.categories.reviews',
+                'policy' => 'optional',
+                'roles' => ['customer', 'vendor', 'provider'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'follows' => [
+                'label' => 'diyar.notifications.categories.follows',
+                'policy' => 'optional',
+                'roles' => ['customer', 'vendor'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'products' => [
+                'label' => 'diyar.notifications.categories.products',
+                'policy' => 'optional',
+                'roles' => ['vendor'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'services' => [
+                'label' => 'diyar.notifications.categories.services',
+                'policy' => 'optional',
+                'roles' => ['provider'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'vendor' => [
+                'label' => 'diyar.notifications.categories.vendor',
+                'policy' => 'optional',
+                'roles' => ['vendor'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'payouts' => [
+                'label' => 'diyar.notifications.categories.payouts',
+                'policy' => 'optional',
+                'roles' => ['vendor', 'provider', 'marketer'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'stock' => [
+                'label' => 'diyar.notifications.categories.stock',
+                'policy' => 'optional',
+                'roles' => ['vendor'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'team' => [
+                'label' => 'diyar.notifications.categories.team',
+                'policy' => 'optional',
+                'roles' => ['vendor'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'coupons' => [
+                'label' => 'diyar.notifications.categories.coupons',
+                'policy' => 'optional',
+                'roles' => ['vendor'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'promotions' => [
+                'label' => 'diyar.notifications.categories.promotions',
+                'policy' => 'optional',
+                'roles' => ['customer'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'system' => [
+                'label' => 'diyar.notifications.categories.system',
+                'policy' => 'required_in_app',
+                'roles' => ['customer', 'vendor', 'provider', 'marketer', 'admin'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+            'auth' => [
+                'label' => 'diyar.notifications.categories.auth',
+                'policy' => 'required_in_app',
+                'roles' => ['customer', 'vendor', 'provider', 'marketer', 'admin'],
+                'channels' => ['in_app', 'email'],
+            ],
+            'chat' => [
+                'label' => 'diyar.notifications.categories.chat',
+                'policy' => 'optional',
+                'roles' => ['customer', 'vendor', 'provider', 'admin'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
+        ],
+        'type_category_map' => [
+            'auth.registration' => 'auth',
+            'auth.otp' => 'auth',
+            'order.created' => 'orders',
+            'order.vendor_received' => 'orders',
+            'order.confirmed' => 'orders',
+            'order.shipped' => 'orders',
+            'order.delivered' => 'orders',
+            'order.cancelled' => 'orders',
+            'return.updated' => 'orders',
+            'payment.success' => 'payments',
+            'payment.failed' => 'payments',
+            'payment.refunded' => 'payments',
+            'offer.received' => 'offers',
+            'offer.accepted' => 'offers',
+            'offer.rejected' => 'offers',
+            'booking.created' => 'bookings',
+            'booking.confirmed' => 'bookings',
+            'booking.completed' => 'bookings',
+            'booking.cancelled' => 'bookings',
+            'booking.updated' => 'bookings',
+            'review.created' => 'reviews',
+            'review.reply' => 'reviews',
+            'product.stock_low' => 'stock',
+            'product.out_of_stock' => 'stock',
+            'team.invitation' => 'team',
+            'team.member_added' => 'team',
+            'coupon.activated' => 'coupons',
+            'coupon.deactivated' => 'coupons',
+            'coupon.expired' => 'coupons',
+            'system.alert' => 'system',
+            'system.promotion' => 'promotions',
+            'chat.message_received' => 'chat',
+            'affiliate.commission_available' => 'payouts',
+            'affiliate.payout_requested' => 'payouts',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Chat (Stage 17)
+    |--------------------------------------------------------------------------
+    */
+
+    'chat' => [
+        'realtime_enabled' => filter_var(env('DIYAR_CHAT_REALTIME', true), FILTER_VALIDATE_BOOL),
+        'cache' => [
+            'prefix' => env('DIYAR_CHAT_CACHE_PREFIX', 'diyar:chat:'),
+            'unread_ttl' => (int) env('DIYAR_CHAT_UNREAD_CACHE_TTL', 300),
+            'summary_ttl' => (int) env('DIYAR_CHAT_SUMMARY_CACHE_TTL', 120),
+        ],
+        'typing' => [
+            'ttl_seconds' => (int) env('DIYAR_CHAT_TYPING_TTL', 5),
+            'debounce_ms' => (int) env('DIYAR_CHAT_TYPING_DEBOUNCE_MS', 1500),
+        ],
+        'presence' => [
+            'ttl_seconds' => (int) env('DIYAR_CHAT_PRESENCE_TTL', 120),
+            'suppress_notifications_when_active' => filter_var(
+                env('DIYAR_CHAT_SUPPRESS_NOTIFICATIONS_WHEN_ACTIVE', env('DIYAR_CHAT_SUPPRESS_EMAIL_WHEN_ACTIVE', true)),
+                FILTER_VALIDATE_BOOL,
+            ),
+        ],
+        'rate_limits' => [
+            'messages_per_minute' => (int) env('DIYAR_CHAT_MESSAGES_PER_MINUTE', 30),
+            'conversations_per_minute' => (int) env('DIYAR_CHAT_CONVERSATIONS_PER_MINUTE', 10),
+            'typing_per_minute' => (int) env('DIYAR_CHAT_TYPING_PER_MINUTE', 60),
+            'attachments_per_minute' => (int) env('DIYAR_CHAT_ATTACHMENTS_PER_MINUTE', 10),
+        ],
+        'retention' => [
+            'active_message_days' => (int) env('CHAT_ACTIVE_MESSAGE_DAYS', 90),
+            'archive_after_days' => (int) env('CHAT_ARCHIVE_AFTER_DAYS', 5),
+            'archive_enabled' => filter_var(env('CHAT_ARCHIVE_ENABLED', false), FILTER_VALIDATE_BOOL),
+            'purge_after_archive' => filter_var(env('CHAT_PURGE_AFTER_ARCHIVE', false), FILTER_VALIDATE_BOOL),
+            'purge_requires_safe_to_purge' => filter_var(env('CHAT_PURGE_REQUIRES_SAFE_TO_PURGE', true), FILTER_VALIDATE_BOOL),
+            'auto_mark_safe_to_purge' => filter_var(env('CHAT_AUTO_MARK_SAFE_TO_PURGE', false), FILTER_VALIDATE_BOOL),
+            'batch_size' => (int) env('CHAT_ARCHIVE_BATCH_SIZE', 200),
+            'archive_disk' => env('CHAT_ARCHIVE_DISK', 'local'),
+            'protected_context_types' => ['order', 'booking', 'return', 'dispute', 'payment'],
+        ],
+        'queues' => [
+            'archive' => env('DIYAR_CHAT_ARCHIVE_QUEUE', 'chat-low'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Platform Support & AI Assistant
+    |--------------------------------------------------------------------------
+    */
+
+    'platform' => [
+        'support_phone' => env('DIYAR_SUPPORT_PHONE', '+966500000000'),
+        'support_email' => env('DIYAR_SUPPORT_EMAIL', 'support@diyar.com'),
+        'support_hours' => env('DIYAR_SUPPORT_HOURS', '9:00 - 18:00'),
+    ],
+
+    'assistant' => [
+        'enabled' => (bool) env('DIYAR_ASSISTANT_ENABLED', true),
+        'model' => env('DIYAR_OPENAI_MODEL', 'gpt-4o-mini'),
+        'api_key' => env('OPENAI_API_KEY'),
+        'max_tokens' => (int) env('DIYAR_ASSISTANT_MAX_TOKENS', 700),
+        'verify_ssl' => filter_var(env('DIYAR_ASSISTANT_VERIFY_SSL', true), FILTER_VALIDATE_BOOL),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Affiliate / Referral Commerce
+    |--------------------------------------------------------------------------
+    */
+
+    'affiliate' => [
+        'platform_min_commission_percent' => (float) env('DIYAR_AFFILIATE_MIN_COMMISSION_PERCENT', 1),
+        'platform_max_commission_percent' => (float) env('DIYAR_AFFILIATE_MAX_COMMISSION_PERCENT', 30),
+        'attribution_window_days' => (int) env('DIYAR_AFFILIATE_ATTRIBUTION_DAYS', 30),
+        'payout_minimum' => env('DIYAR_AFFILIATE_PAYOUT_MINIMUM', '100.00'),
+        'currency' => env('DIYAR_AFFILIATE_CURRENCY', 'SAR'),
+        'click_rate_limit_per_minute' => (int) env('DIYAR_AFFILIATE_CLICK_RATE_LIMIT', 30),
+        'resolve_rate_limit_per_minute' => (int) env('DIYAR_AFFILIATE_RESOLVE_RATE_LIMIT', 30),
+        'click_dedupe_window_minutes' => (int) env('DIYAR_AFFILIATE_CLICK_DEDUPE_MINUTES', 60),
+        'link_rate_limit_per_minute' => (int) env('DIYAR_AFFILIATE_LINK_RATE_LIMIT', 20),
+        'commission_available_on' => env('DIYAR_AFFILIATE_COMMISSION_AVAILABLE_ON', 'vendor_order_delivered'),
+        'cache_dashboard_seconds' => (int) env('DIYAR_AFFILIATE_DASHBOARD_CACHE_SECONDS', 120),
+    ],
 ];

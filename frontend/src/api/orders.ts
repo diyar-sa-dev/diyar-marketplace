@@ -22,9 +22,9 @@ export async function createOrder(
   return data.data.order;
 }
 
-export async function fetchOrders(page = 1): Promise<OrderListResponse> {
+export async function fetchOrders(page = 1, perPage = 10): Promise<OrderListResponse> {
   const { data } = await apiClient.get<ApiSuccessResponse<OrderListResponse>>('/orders', {
-    params: { page },
+    params: { page, per_page: perPage },
   });
   return data.data;
 }

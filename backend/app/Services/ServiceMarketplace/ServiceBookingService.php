@@ -7,6 +7,8 @@ use App\Enums\ServiceBookingSource;
 use App\Enums\ServiceBookingStatus;
 use App\Enums\ServicePaymentStrategy;
 use App\Enums\ServiceRequestStatus;
+use App\Events\Domain\BookingCompleted;
+use App\Events\Domain\BookingCreated;
 use App\Models\Service;
 use App\Models\ServiceBooking;
 use App\Models\ServiceBookingPayment;
@@ -86,7 +88,10 @@ final class ServiceBookingService
                 'status' => ServiceBookingStatus::PendingProviderConfirmation,
             ]);
 
-            return $booking->fresh(['payment', 'providerAccount', 'serviceOffer']);
+            $fresh = $booking->fresh(['payment', 'providerAccount', 'serviceOffer', 'user']);
+            DB::afterCommit(fn () => event(new BookingCreated($fresh)));
+
+            return $fresh;
         });
     }
 
@@ -187,7 +192,10 @@ final class ServiceBookingService
 
         $booking->serviceRequest?->update(['status' => ServiceRequestStatus::Completed]);
 
-        return $booking->fresh(['payment', 'providerAccount']);
+        $fresh = $booking->fresh(['payment', 'providerAccount', 'user']);
+        DB::afterCommit(fn () => event(new BookingCompleted($fresh)));
+
+        return $fresh;
     }
 
     public function confirmByProvider(User $user, ServiceBooking $booking): ServiceBooking

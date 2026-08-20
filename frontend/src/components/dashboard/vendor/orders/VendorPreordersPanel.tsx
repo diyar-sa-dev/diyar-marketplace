@@ -1,6 +1,5 @@
 import { Clock, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
 import { PaginationBar } from '../../../catalog/PaginationBar.tsx';
 import { EmptyState } from '../../../common/EmptyState.tsx';
 import { ErrorState } from '../../../common/ErrorState.tsx';
@@ -11,6 +10,7 @@ import {
   useVendorPreorders,
 } from '../../../../hooks/catalog/useProductPreorder.ts';
 import { useLocale } from '../../../../hooks/useLocale.ts';
+import { usePaginationState } from '../../../../hooks/usePaginationState.ts';
 import { useToast } from '../../../../hooks/useToast.ts';
 import { formatFinanceDateTime } from '../../../../lib/formatFinanceDateTime.ts';
 import { resolveMediaUrl } from '../../../../lib/media.ts';
@@ -19,8 +19,10 @@ import { vendorButtonClass } from '../../../../lib/vendorProductValidation.ts';
 export function VendorPreordersPanel() {
   const { t, locale } = useLocale();
   const { toast } = useToast();
-  const [page, setPage] = useState(1);
-  const { data, isLoading, isError, error, refetch } = useVendorPreorders(page, 'pending');
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange } = usePaginationState({
+    initialPerPage: 15,
+  });
+  const { data, isLoading, isError, error, refetch } = useVendorPreorders(page, 'pending', perPage);
   const cancelPreorder = useCancelVendorPreorder();
 
   if (isLoading) {
@@ -139,7 +141,15 @@ export function VendorPreordersPanel() {
       ))}
 
       {pagination && pagination.last_page > 1 && (
-        <PaginationBar pagination={pagination} page={page} onPageChange={setPage} />
+        <PaginationBar
+          pagination={pagination}
+          page={page}
+          perPage={perPage}
+          perPageOptions={[...perPageOptions]}
+          onPageChange={onPageChange}
+          onPerPageChange={onPerPageChange}
+          alwaysShow={pagination.total > 0}
+        />
       )}
     </div>
   );

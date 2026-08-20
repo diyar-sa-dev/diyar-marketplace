@@ -11,7 +11,7 @@ export const checkoutKeys = {
 
 export const orderKeys = {
   all: ['orders'] as const,
-  list: (page = 1) => [...orderKeys.all, 'list', page] as const,
+  list: (page = 1, perPage = 10) => [...orderKeys.all, 'list', page, perPage] as const,
   detail: (id: string) => [...orderKeys.all, 'detail', id] as const,
 };
 
@@ -39,9 +39,9 @@ export function useCreateOrder() {
   });
 }
 
-export function useOrders(page = 1) {
+export function useOrders(page = 1, perPage = 10) {
   return useQuery({
-    queryKey: orderKeys.list(page),
-    queryFn: () => ordersApi.fetchOrders(page),
+    queryKey: orderKeys.list(page, perPage),
+    queryFn: () => ordersApi.fetchOrders(page, perPage),
   });
 }

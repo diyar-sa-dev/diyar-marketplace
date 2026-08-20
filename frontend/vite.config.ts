@@ -25,6 +25,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/broadcasting': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
       '/storage': {
         target: 'http://localhost:8000',
         changeOrigin: true,
@@ -50,6 +55,11 @@ export default defineConfig({
         secure: false,
       },
       '/sanctum': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/broadcasting': {
         target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,

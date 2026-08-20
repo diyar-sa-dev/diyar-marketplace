@@ -3,15 +3,17 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, Globe, Check } from 'lucide-react';
 import { useLocale } from '../hooks/useLocale.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
+import { useUpdateProfile } from '../hooks/profile/useProfile.ts';
 import { resolveAccountHubPath } from '../lib/auth/roles.ts';
 import { useToast } from '../hooks/useToast.ts';
 import type { Locale } from '../lib/i18n/types.ts';
 
 export default function LanguagePage() {
   const { locale, setLocale, t } = useLocale();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const accountHubPath = resolveAccountHubPath(user?.roles);
   const { toast } = useToast();
+  const updateProfile = useUpdateProfile();
   const [selectedLang, setSelectedLang] = useState<Locale>(locale);
 
   const languages: Array<{ id: Locale; labelKey: string; flag: string }> = [
@@ -21,6 +23,21 @@ export default function LanguagePage() {
 
   const handleSave = () => {
     setLocale(selectedLang);
+
+    if (isAuthenticated && user) {
+      const currentPreferences =
+        user.preferences && typeof user.preferences === 'object' ? user.preferences : {};
+
+      void updateProfile
+        .mutateAsync({
+          preferences: {
+            ...currentPreferences,
+            locale: selectedLang,
+          },
+        })
+        .catch(() => undefined);
+    }
+
     toast.success(t('language.saved'));
   };
 

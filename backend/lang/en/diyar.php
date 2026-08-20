@@ -67,6 +67,7 @@ return [
         'address_default_set' => 'Default address updated.',
         'building_prefix' => 'Building :value',
         'apartment_prefix' => 'Apt :value',
+        'notifications_saved' => 'Notification settings saved successfully.',
     ],
 
     'media' => [
@@ -380,6 +381,11 @@ return [
         'refund_vendor_debit' => 'Vendor balance debit from refund.',
         'refund_commission_debit' => 'Platform commission reversal from refund.',
         'refund_sale_debit' => 'Platform sale reversal from refund.',
+        'affiliate_commission_pending' => 'Affiliate commission reserved (pending delivery).',
+        'affiliate_commission_release_debit' => 'Affiliate payable debit on commission release.',
+        'affiliate_commission_release_credit' => 'Affiliate available credit on commission release.',
+        'affiliate_commission_reversal' => 'Affiliate commission reversal.',
+        'affiliate_payout_debit' => 'Affiliate payout debit.',
         'upcoming_escrow_note' => 'Funds held in escrow until orders are delivered.',
         'no_upcoming_payout' => 'No scheduled payout is available yet.',
         'bank_account_required' => 'Add an active bank account before requesting a payout.',
@@ -522,5 +528,193 @@ return [
             'carrier_flat_rate' => 'Standard shipping rate: :amount SAR.',
             'pickup_available' => 'Store pickup available at :location.',
         ],
+    ],
+
+    'notifications' => [
+        'deleted' => 'Notification deleted.',
+        'categories' => [
+            'orders' => 'Orders',
+            'payments' => 'Payments',
+            'bookings' => 'Bookings',
+            'offers' => 'Offers',
+            'reviews' => 'Reviews',
+            'follows' => 'Follows',
+            'products' => 'Products',
+            'services' => 'Services',
+            'vendor' => 'Vendor / Store',
+            'payouts' => 'Payouts',
+            'stock' => 'Stock',
+            'team' => 'Team',
+            'coupons' => 'Coupons',
+            'promotions' => 'Offers & promotions',
+            'system' => 'System',
+            'auth' => 'Account & Security',
+            'chat' => 'Chat',
+        ],
+        'channels' => [
+            'in_app' => 'In-App',
+            'email' => 'Email',
+            'push' => 'Push',
+        ],
+        'order_created' => [
+            'title' => 'Order placed',
+            'body' => 'Your order :order_number is confirmed. Total: :total SAR.:products_line',
+        ],
+        'order_vendor_received' => [
+            'title' => 'New store order',
+            'body' => 'You received order :order_number from :customer_name at :store_name. Total: :total SAR.:products_line',
+        ],
+        'order_shipped' => [
+            'title' => 'Order shipped',
+            'body' => 'Your order :order_number from :vendor_name is on the way.',
+        ],
+        'order_delivered' => [
+            'title' => 'Order delivered',
+            'body' => 'Your order :order_number from :vendor_name was delivered.',
+        ],
+        'payment_success' => [
+            'title' => 'Payment successful',
+            'body' => 'Payment of :amount SAR for order :order_number was successful.',
+        ],
+        'payment_failed' => [
+            'title' => 'Payment failed',
+            'body' => 'Payment for order :order_number could not be completed.',
+        ],
+        'return_updated' => [
+            'title' => 'Return update',
+            'body' => 'Your return request status is now :status.',
+        ],
+        'offer_received' => [
+            'title' => 'New service offer',
+            'body' => ':provider_name sent an offer for :price SAR.',
+        ],
+        'offer_accepted' => [
+            'title' => 'Offer accepted',
+            'body' => 'Your offer for request :request_reference was accepted.',
+        ],
+        'booking_created' => [
+            'title' => 'Booking created',
+            'body' => 'Booking :reference for :service_title with :provider_name.',
+        ],
+        'booking_completed' => [
+            'title' => 'Booking completed',
+            'body' => 'Booking :reference for :service_title is completed.',
+        ],
+        'review_created' => [
+            'title' => 'New review',
+            'body' => ':reviewer_name rated :product_name (:rating/5) at :store_name.',
+        ],
+        'review_reply' => [
+            'title' => 'Review reply',
+            'body' => 'There is a new reply on your review.',
+        ],
+        'product_stock_low' => [
+            'title' => 'Low stock',
+            'body' => ':product_name is down to :quantity units.',
+        ],
+        'product_out_of_stock' => [
+            'title' => 'Out of stock',
+            'body' => ':product_name is out of stock.',
+        ],
+        'team_invitation' => [
+            'title' => 'Team invitation',
+            'body' => 'You were invited to join :store_name as :role.',
+        ],
+        'team_member_added' => [
+            'title' => 'Added to store team',
+            'body' => 'You were added to :store_name.',
+        ],
+        'coupon_activated' => [
+            'title' => 'Coupon activated',
+            'body' => 'Coupon :coupon_code is now active.',
+        ],
+        'coupon_deactivated' => [
+            'title' => 'Coupon deactivated',
+            'body' => 'Coupon :coupon_code was deactivated.',
+        ],
+        'coupon_expired' => [
+            'title' => 'Coupon expired',
+            'body' => 'Coupon :coupon_code has expired.',
+        ],
+        'system_alert' => [
+            'title' => 'System alert',
+            'body' => ':message',
+        ],
+        'system_promotion' => [
+            'title' => 'New promotion',
+            'body' => ':message',
+        ],
+        'auth_registration' => [
+            'title' => 'Welcome to Diyar',
+            'body' => 'Your account is ready. Explore products and services.',
+        ],
+        'chat_message_received' => [
+            'title' => '💬 New message',
+            'body' => 'You have a new message from :sender_name.',
+        ],
+        'affiliate_commission_available' => [
+            'title' => 'Commission available',
+            'body' => ':amount :currency commission for :product_name is now available in your balance.',
+        ],
+        'affiliate_payout_requested' => [
+            'title' => 'Payout request submitted',
+            'body' => 'Your payout request for :amount :currency was received. Reference: :reference.',
+        ],
+    ],
+
+    'chat' => [
+        'not_participant' => 'You cannot access this conversation.',
+        'cannot_create' => 'You cannot create this conversation.',
+        'self_chat_not_allowed' => 'You cannot start a conversation with yourself.',
+        'vendor_required' => 'A vendor is required.',
+        'provider_required' => 'A provider is required.',
+        'customer_required' => 'A customer is required.',
+        'admin_unavailable' => 'No admin is available right now.',
+        'message_required' => 'Please write a message or attach a file.',
+        'invalid_cursor' => 'Invalid message cursor.',
+        'marked_read' => 'Conversation marked as read.',
+        'removed_from_inbox' => 'Conversation removed from your inbox.',
+        'message_not_found' => 'Message not found.',
+        'cannot_edit_message' => 'You cannot edit this message.',
+        'cannot_delete_message' => 'You cannot delete this message.',
+        'message_deleted' => 'This message was deleted.',
+    ],
+
+    'assistant' => [
+        'unavailable' => 'The assistant is unavailable right now.',
+        'failed' => 'Could not get a response from the assistant.',
+    ],
+
+    'platform' => [
+        'invalid_phone' => 'Invalid phone number. Use a Saudi mobile number starting with 05.',
+        'consultation_sent' => 'Your consultation request was sent. The Diyar team will contact you soon.',
+        'newsletter_subscribed' => 'Newsletter updates have been enabled in your notification settings.',
+        'newsletter_auth_required' => 'Sign in to activate newsletter subscription.',
+        'newsletter_email_mismatch' => 'The email must match your account email.',
+        'contact_failed' => 'We could not send your request right now. Please try again later.',
+    ],
+
+    'affiliate' => [
+        'invalid_referral_code' => 'This referral link is invalid or inactive.',
+        'profile_suspended' => 'Your affiliate account is suspended. Contact support for help.',
+        'profile_not_active' => 'This affiliate account is not active.',
+        'product_not_enabled' => 'Affiliate promotion is not enabled for this product.',
+        'commission_outside_platform_limits' => 'Commission range must stay within platform limits (:min% – :max%).',
+        'commission_min_exceeds_max' => 'Minimum commission cannot exceed maximum commission.',
+        'commission_rate_out_of_range' => 'Commission rate must be between :min% and :max%.',
+        'self_referral_blocked' => 'Self-referrals are not eligible for commission.',
+        'cannot_promote_own_product' => 'You cannot create affiliate links for your own products.',
+        'link_not_owned' => 'You do not have access to this affiliate link.',
+        'link_created' => 'Affiliate link created successfully.',
+        'link_deactivated' => 'Affiliate link deactivated.',
+        'settings_updated' => 'Affiliate settings updated successfully.',
+        'product_settings_updated' => 'Product affiliate settings updated successfully.',
+        'payout_below_minimum' => 'Payout amount must be at least :minimum SAR.',
+        'payout_account_required' => 'Add payout bank details before requesting a withdrawal.',
+        'insufficient_balance' => 'Insufficient available affiliate balance.',
+        'pending_payout_exists' => 'An affiliate payout request is already pending.',
+        'invalid_payout_transition' => 'Invalid affiliate payout status transition.',
+        'payout_requested' => 'Affiliate payout request submitted.',
+        'payout_marked_paid' => 'Affiliate payout marked as paid.',
     ],
 ];

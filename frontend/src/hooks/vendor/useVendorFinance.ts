@@ -15,8 +15,8 @@ export const vendorFinanceKeys = {
   all: ['vendor-finance'] as const,
   report: (period: FinancePeriod) => [...vendorFinanceKeys.all, 'report', period] as const,
   analytics: (period: FinancePeriod) => [...vendorFinanceKeys.all, 'analytics', period] as const,
-  transactions: (page: number, type: TransactionTypeFilter) =>
-    [...vendorFinanceKeys.all, 'transactions', page, type] as const,
+  transactions: (page: number, type: TransactionTypeFilter, perPage: number) =>
+    [...vendorFinanceKeys.all, 'transactions', page, type, perPage] as const,
   payouts: (page: number) => [...vendorFinanceKeys.all, 'payouts', page] as const,
   overview: () => ['vendor-dashboard-overview'] as const,
 };
@@ -35,10 +35,10 @@ export function useVendorFinanceAnalytics(period: FinancePeriod = 'month') {
   });
 }
 
-export function useVendorTransactions(page = 1, type: TransactionTypeFilter = 'all') {
+export function useVendorTransactions(page = 1, type: TransactionTypeFilter = 'all', perPage = 20) {
   return useQuery({
-    queryKey: vendorFinanceKeys.transactions(page, type),
-    queryFn: () => financeApi.fetchVendorTransactions(page, type),
+    queryKey: vendorFinanceKeys.transactions(page, type, perPage),
+    queryFn: () => financeApi.fetchVendorTransactions(page, type, perPage),
   });
 }
 

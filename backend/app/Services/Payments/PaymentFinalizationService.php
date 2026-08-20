@@ -6,6 +6,8 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentAttemptStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ReservationStatus;
+use App\Events\Domain\PaymentFailed;
+use App\Events\Domain\PaymentSucceeded;
 use App\Models\InventoryReservation;
 use App\Models\Order;
 use App\Models\Payment;
@@ -57,7 +59,10 @@ final class PaymentFinalizationService
 
             $this->couponUsages->recordForPaidOrder($order->fresh(['vendorOrders']));
 
-            return $payment->fresh();
+            $payment = $payment->fresh();
+            DB::afterCommit(fn () => event(new PaymentSucceeded($payment)));
+
+            return $payment;
         });
     }
 
@@ -92,6 +97,9 @@ final class PaymentFinalizationService
                     : ReservationStatus::Released,
             );
         }
+
+        $payment = $payment->fresh();
+        DB::afterCommit(fn () => event(new PaymentFailed($payment, $reason)));
 
         return $payment;
     }

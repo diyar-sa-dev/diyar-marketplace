@@ -2,6 +2,7 @@
 
 namespace App\Services\Catalog;
 
+use App\Events\Domain\ReviewCreated;
 use App\Models\Product;
 use App\Models\ProductLike;
 use App\Models\ProductReview;
@@ -124,12 +125,16 @@ class ProductEngagementService
         $normalizedComment = $this->reviewEligibility->normalizeComment($comment);
 
         try {
-            return ProductReview::query()->create([
+            $review = ProductReview::query()->create([
                 'user_id' => $user->id,
                 'product_id' => $product->id,
                 'rating' => $rating,
                 'comment' => $normalizedComment,
             ])->load('user:id,name,avatar_path');
+
+            DB::afterCommit(fn () => event(new ReviewCreated($review)));
+
+            return $review;
         } catch (QueryException $exception) {
             if ($this->reviewEligibility->isUniqueConstraintViolation($exception)) {
                 throw $this->reviewEligibility->duplicateReviewException();

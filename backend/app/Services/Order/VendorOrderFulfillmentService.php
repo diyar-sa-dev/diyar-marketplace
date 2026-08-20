@@ -3,6 +3,8 @@
 namespace App\Services\Order;
 
 use App\Enums\ShippingMethod;
+use App\Events\Domain\OrderDelivered;
+use App\Events\Domain\OrderShipped;
 use App\Models\Shipment;
 use App\Models\VendorOrder;
 use Illuminate\Support\Facades\DB;
@@ -53,7 +55,10 @@ final class VendorOrderFulfillmentService
                 $carrier,
             );
 
-            return $updated->fresh(['items', 'order', 'shipment']);
+            $fresh = $updated->fresh(['items', 'order', 'shipment', 'vendorAccount']);
+            DB::afterCommit(fn () => event(new OrderShipped($fresh)));
+
+            return $fresh;
         });
     }
 
@@ -64,7 +69,10 @@ final class VendorOrderFulfillmentService
             $updated = $this->vendorOrderState->markDelivered($locked);
             $this->shipmentState->markDelivered($this->requireShipment($updated));
 
-            return $updated->fresh(['items', 'order', 'shipment']);
+            $fresh = $updated->fresh(['items', 'order', 'shipment', 'vendorAccount']);
+            DB::afterCommit(fn () => event(new OrderDelivered($fresh)));
+
+            return $fresh;
         });
     }
 

@@ -2,10 +2,13 @@
 
 namespace App\Services\Finance;
 
+use App\Enums\AffiliateCommissionStatus;
 use App\Enums\BalanceBucket;
 use App\Enums\FinancialDirection;
 use App\Enums\FinancialTransactionType;
 use App\Enums\PaymentStatus;
+use App\Models\AffiliateCommission;
+use App\Models\AffiliatePayout;
 use App\Models\FinancialTransaction;
 use App\Models\Payment;
 use App\Models\PaymentVendorAllocation;
@@ -97,6 +100,140 @@ final class FinancialPostingService
             description: __('diyar.finance.payout_debit'),
             metadata: ['payout_reference' => $payout->reference],
             vendorPayoutId: $payout->id,
+        );
+    }
+
+    public function postAffiliateCommissionPending(AffiliateCommission $commission): void
+    {
+        $amount = number_format((float) $commission->commission_amount, 2, '.', '');
+
+        if (bccomp($amount, '0.00', 2) <= 0) {
+            return;
+        }
+
+        $this->createIfNotExists(
+            type: FinancialTransactionType::AffiliateCommission,
+            sourceType: 'affiliate_commission',
+            sourceId: $commission->id,
+            bucket: BalanceBucket::AffiliatePayable,
+            direction: FinancialDirection::Credit,
+            amount: $amount,
+            currency: $commission->currency,
+            vendorAccountId: null,
+            payment: null,
+            allocation: null,
+            description: __('diyar.finance.affiliate_commission_pending'),
+            metadata: [
+                'affiliate_profile_id' => $commission->affiliate_profile_id,
+                'affiliate_link_id' => $commission->affiliate_link_id,
+                'order_item_id' => $commission->order_item_id,
+            ],
+            orderId: $commission->order_id,
+        );
+    }
+
+    public function postAffiliateCommissionAvailable(AffiliateCommission $commission): void
+    {
+        $amount = number_format((float) $commission->commission_amount, 2, '.', '');
+
+        if (bccomp($amount, '0.00', 2) <= 0) {
+            return;
+        }
+
+        $metadata = [
+            'affiliate_profile_id' => $commission->affiliate_profile_id,
+            'affiliate_link_id' => $commission->affiliate_link_id,
+            'order_item_id' => $commission->order_item_id,
+        ];
+
+        $this->createIfNotExists(
+            type: FinancialTransactionType::AffiliateCommission,
+            sourceType: 'affiliate_commission_release',
+            sourceId: $commission->id,
+            bucket: BalanceBucket::AffiliatePayable,
+            direction: FinancialDirection::Debit,
+            amount: $amount,
+            currency: $commission->currency,
+            vendorAccountId: null,
+            payment: null,
+            allocation: null,
+            description: __('diyar.finance.affiliate_commission_release_debit'),
+            metadata: $metadata,
+            orderId: $commission->order_id,
+        );
+
+        $this->createIfNotExists(
+            type: FinancialTransactionType::AffiliateCommission,
+            sourceType: 'affiliate_commission_release',
+            sourceId: $commission->id,
+            bucket: BalanceBucket::AffiliateAvailable,
+            direction: FinancialDirection::Credit,
+            amount: $amount,
+            currency: $commission->currency,
+            vendorAccountId: null,
+            payment: null,
+            allocation: null,
+            description: __('diyar.finance.affiliate_commission_release_credit'),
+            metadata: $metadata,
+            orderId: $commission->order_id,
+        );
+    }
+
+    public function postAffiliateCommissionReversal(AffiliateCommission $commission, AffiliateCommissionStatus $previousStatus): void
+    {
+        $amount = number_format((float) $commission->commission_amount, 2, '.', '');
+
+        if (bccomp($amount, '0.00', 2) <= 0) {
+            return;
+        }
+
+        $metadata = [
+            'affiliate_profile_id' => $commission->affiliate_profile_id,
+            'affiliate_link_id' => $commission->affiliate_link_id,
+            'order_item_id' => $commission->order_item_id,
+            'previous_status' => $previousStatus->value,
+        ];
+
+        $bucket = in_array($previousStatus, [AffiliateCommissionStatus::Available, AffiliateCommissionStatus::Approved], true)
+            ? BalanceBucket::AffiliateAvailable
+            : BalanceBucket::AffiliatePayable;
+
+        $this->createIfNotExists(
+            type: FinancialTransactionType::AffiliateCommission,
+            sourceType: 'affiliate_commission_reversal',
+            sourceId: $commission->id,
+            bucket: $bucket,
+            direction: FinancialDirection::Debit,
+            amount: $amount,
+            currency: $commission->currency,
+            vendorAccountId: null,
+            payment: null,
+            allocation: null,
+            description: __('diyar.finance.affiliate_commission_reversal'),
+            metadata: $metadata,
+            orderId: $commission->order_id,
+        );
+    }
+
+    public function postAffiliatePayoutDebit(AffiliatePayout $payout): FinancialTransaction
+    {
+        return $this->createIfNotExists(
+            type: FinancialTransactionType::Payout,
+            sourceType: 'affiliate_payout',
+            sourceId: $payout->id,
+            bucket: BalanceBucket::AffiliateAvailable,
+            direction: FinancialDirection::Debit,
+            amount: number_format((float) $payout->amount, 2, '.', ''),
+            currency: $payout->currency,
+            vendorAccountId: null,
+            payment: null,
+            allocation: null,
+            description: __('diyar.finance.affiliate_payout_debit'),
+            metadata: [
+                'affiliate_profile_id' => $payout->affiliate_profile_id,
+                'payout_reference' => $payout->reference,
+                'payment_reference' => $payout->payment_reference,
+            ],
         );
     }
 
@@ -298,6 +435,7 @@ final class FinancialPostingService
         array $metadata = [],
         ?string $createdBy = null,
         ?string $vendorPayoutId = null,
+        ?string $orderId = null,
     ): FinancialTransaction {
         $existing = FinancialTransaction::query()
             ->where('source_type', $sourceType)
@@ -318,7 +456,7 @@ final class FinancialPostingService
                 'source_type' => $sourceType,
                 'source_id' => $sourceId,
                 'vendor_account_id' => $vendorAccountId,
-                'order_id' => $payment?->order_id ?? $allocation?->vendorOrder?->order_id,
+                'order_id' => $orderId ?? $payment?->order_id ?? $allocation?->vendorOrder?->order_id,
                 'payment_id' => $payment?->id,
                 'payment_vendor_allocation_id' => $allocation?->id,
                 'vendor_payout_id' => $vendorPayoutId,

@@ -13,6 +13,7 @@ use App\Services\Payments\Gateways\LocalPaymentGateway;
 use App\Services\Payments\Gateways\MyFatoorah\MyFatoorahGateway;
 use App\Services\Payments\PaymentGatewayManager;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Foundation\DevCommands;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -74,5 +75,82 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute($limit)
                 ->by($request->user()?->id ?: $request->ip());
         });
+
+        RateLimiter::for('notification-devices', function (Request $request) {
+            return Limit::perMinute(20)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('notification-preferences', function (Request $request) {
+            return Limit::perMinute(30)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('chat-messages', function (Request $request) {
+            $limit = (int) config('diyar.chat.rate_limits.messages_per_minute', 30);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('chat-conversations', function (Request $request) {
+            $limit = (int) config('diyar.chat.rate_limits.conversations_per_minute', 10);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('chat-typing', function (Request $request) {
+            $limit = (int) config('diyar.chat.rate_limits.typing_per_minute', 60);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('chat-attachments', function (Request $request) {
+            $limit = (int) config('diyar.chat.rate_limits.attachments_per_minute', 10);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('affiliate-click', function (Request $request) {
+            $limit = (int) config('diyar.affiliate.click_rate_limit_per_minute', 30);
+
+            return Limit::perMinute($limit)
+                ->by($request->ip());
+        });
+
+        RateLimiter::for('affiliate-resolve', function (Request $request) {
+            $limit = (int) config('diyar.affiliate.resolve_rate_limit_per_minute', 30);
+
+            return Limit::perMinute($limit)
+                ->by($request->ip());
+        });
+
+        RateLimiter::for('affiliate-link', function (Request $request) {
+            $limit = (int) config('diyar.affiliate.link_rate_limit_per_minute', 20);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        if ($this->app->runningInConsole()) {
+            $this->configureDevCommands();
+        }
+    }
+
+    private function configureDevCommands(): void
+    {
+        DevCommands::except('vite');
+
+        DevCommands::artisan('reverb:start', 'reverb');
+
+        DevCommands::artisan(
+            'queue:listen --queue=notifications-high,notifications,notifications-low,chat-low,default --tries=1 --timeout=0',
+            'queue',
+        );
+
+        DevCommands::artisan('diyar:dev-frontend', 'frontend');
     }
 }

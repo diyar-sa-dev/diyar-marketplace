@@ -12,4 +12,14 @@ export const env = {
   backendUrl: import.meta.env.VITE_BACKEND_URL ?? '',
   appName: import.meta.env.VITE_APP_NAME ?? 'DIYAR',
   isDev: import.meta.env.DEV,
+  reverb: {
+    key: import.meta.env.VITE_REVERB_APP_KEY ?? '',
+    host: import.meta.env.VITE_REVERB_HOST ?? 'localhost',
+    port: Number(import.meta.env.VITE_REVERB_PORT ?? 8080),
+    scheme: import.meta.env.VITE_REVERB_SCHEME ?? 'http',
+  },
 } as const;
+
+export function isRealtimeEnabled(): boolean {
+  return env.reverb.key !== '';
+}

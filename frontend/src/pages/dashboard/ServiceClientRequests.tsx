@@ -18,6 +18,7 @@ import { useDebouncedValue } from '../../hooks/useDebouncedValue.ts';
 import { useProviderServiceRequests } from '../../hooks/provider/useProviderDashboard.ts';
 import { useServiceCategories } from '../../hooks/services/useServices.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import {
   formatProviderBudget,
   formatProviderRequestDate,
@@ -25,7 +26,7 @@ import {
 } from '../../lib/providerDashboardUi.ts';
 import type { ProviderInboxFilters } from '../../types/providerDashboard.ts';
 
-const PER_PAGE = 9;
+const PER_PAGE_DEFAULT = 9;
 
 type SortOption = NonNullable<ProviderInboxFilters['sort']>;
 
@@ -33,7 +34,8 @@ export default function ServiceClientRequests() {
   const { t, dir, locale } = useLocale();
   const [activeTab, setActiveTab] = useState<'open' | 'offered'>('open');
   const [searchInput, setSearchInput] = useState('');
-  const [page, setPage] = useState(1);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState({ initialPerPage: PER_PAGE_DEFAULT });
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [sortFilter, setSortFilter] = useState<SortOption>('newest');
@@ -45,7 +47,7 @@ export default function ServiceClientRequests() {
   const filters: ProviderInboxFilters = {
     status: activeTab === 'open' ? 'open' : 'submitted',
     page,
-    per_page: PER_PAGE,
+    per_page: perPage,
     q: debouncedSearch.trim() || undefined,
     category: categoryFilter || undefined,
     sort: sortFilter,
@@ -86,13 +88,13 @@ export default function ServiceClientRequests() {
 
   const handleTabChange = (tab: 'open' | 'offered') => {
     setActiveTab(tab);
-    setPage(1);
+    resetPage();
   };
 
   const clearFilters = () => {
     setCategoryFilter('');
     setSortFilter('newest');
-    setPage(1);
+    resetPage();
   };
 
   return (
@@ -124,14 +126,14 @@ export default function ServiceClientRequests() {
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
-            <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute inset-s-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
               placeholder={t('providerDashboard.clientRequests.searchPlaceholder')}
               value={searchInput}
               onChange={(e) => {
                 setSearchInput(e.target.value);
-                setPage(1);
+                resetPage();
               }}
               className="w-full bg-gray-50 border border-gray-100 rounded-lg pe-3 ps-9 py-2 text-sm focus:ring-2 focus:ring-diyar-brown outline-none"
             />
@@ -155,14 +157,14 @@ export default function ServiceClientRequests() {
                 className={`hidden sm:block transition-transform ${filtersOpen ? 'rotate-180' : ''}`}
               />
               {activeFilterCount > 0 && (
-                <span className="absolute -top-1.5 -end-1.5 min-w-4 h-4 px-1 rounded-full bg-diyar-brown text-white text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute -top-1.5 -inset-e-1.5 min-w-4 h-4 px-1 rounded-full bg-diyar-brown text-white text-[10px] font-bold flex items-center justify-center">
                   {activeFilterCount}
                 </span>
               )}
             </button>
 
             {filtersOpen && (
-              <div className="absolute end-0 top-full mt-2 w-72 bg-white rounded-2xl border border-gray-100 shadow-xl z-50 p-4 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+              <div className="absolute inset-e-0 top-full mt-2 w-72 bg-white rounded-2xl border border-gray-100 shadow-xl z-50 p-4 space-y-4 animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-sm text-diyar-dark">
                     {t('providerDashboard.clientRequests.filters.title')}
@@ -186,7 +188,7 @@ export default function ServiceClientRequests() {
                     value={categoryFilter}
                     onChange={(e) => {
                       setCategoryFilter(e.target.value);
-                      setPage(1);
+                      resetPage();
                     }}
                     className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown outline-none cursor-pointer"
                   >
@@ -209,7 +211,7 @@ export default function ServiceClientRequests() {
                     value={sortFilter}
                     onChange={(e) => {
                       setSortFilter(e.target.value as SortOption);
-                      setPage(1);
+                      resetPage();
                     }}
                     className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown outline-none cursor-pointer"
                   >
@@ -245,7 +247,7 @@ export default function ServiceClientRequests() {
                 type="button"
                 onClick={() => {
                   setCategoryFilter('');
-                  setPage(1);
+                  resetPage();
                 }}
                 className="cursor-pointer hover:text-red-600"
               >
@@ -260,7 +262,7 @@ export default function ServiceClientRequests() {
                 type="button"
                 onClick={() => {
                   setSortFilter('newest');
-                  setPage(1);
+                  resetPage();
                 }}
                 className="cursor-pointer hover:text-red-600"
               >
@@ -279,7 +281,7 @@ export default function ServiceClientRequests() {
         />
       ) : isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: PER_PAGE }).map((_, index) => (
+          {Array.from({ length: perPage }).map((_, index) => (
             <ProviderRequestCardSkeleton key={index} />
           ))}
         </div>
@@ -359,7 +361,11 @@ export default function ServiceClientRequests() {
             <PaginationBar
               pagination={data.pagination}
               page={page}
-              onPageChange={setPage}
+              perPage={perPage}
+              perPageOptions={[...perPageOptions]}
+              onPageChange={onPageChange}
+              onPerPageChange={onPerPageChange}
+              alwaysShow={data.pagination.total > 0}
               className="mt-4"
             />
           )}

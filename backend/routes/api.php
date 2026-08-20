@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\AdminAffiliatePayoutController;
 use App\Http\Controllers\Api\V1\Admin\AdminPayoutController;
 use App\Http\Controllers\Api\V1\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Api\V1\Affiliate\AffiliateReferralController;
+use App\Http\Controllers\Api\V1\Assistant\AssistantChatController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Cart\CartController;
 use App\Http\Controllers\Api\V1\Catalog\CategoryController;
@@ -12,13 +15,23 @@ use App\Http\Controllers\Api\V1\Catalog\SearchController;
 use App\Http\Controllers\Api\V1\Catalog\StoreReviewController;
 use App\Http\Controllers\Api\V1\Catalog\VendorController;
 use App\Http\Controllers\Api\V1\Catalog\VendorFollowController;
+use App\Http\Controllers\Api\V1\Chat\AttachmentController;
+use App\Http\Controllers\Api\V1\Chat\ConversationController;
+use App\Http\Controllers\Api\V1\Chat\MessageController;
 use App\Http\Controllers\Api\V1\Checkout\CheckoutController;
+use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateDashboardController;
+use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateLinkController;
+use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliatePayoutController;
+use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateProductController;
+use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateReportController;
+use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateSettingsController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorCouponController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorDashboardController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorFinanceController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorInventoryController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorOrderController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorPreorderController;
+use App\Http\Controllers\Api\V1\Dashboard\VendorProductAffiliateController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorProductController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorReturnController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorReturnPolicyController;
@@ -31,10 +44,12 @@ use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Identity\OwnershipController;
 use App\Http\Controllers\Api\V1\Order\OrderController;
 use App\Http\Controllers\Api\V1\Order\OrderStoreReviewController;
-use App\Http\Controllers\Api\V1\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\Payment\PaymentWebhookController;
+use App\Http\Controllers\Api\V1\Platform\PlatformContactController;
 use App\Http\Controllers\Api\V1\Profile\AddressController;
 use App\Http\Controllers\Api\V1\Profile\CustomerReviewController;
+use App\Http\Controllers\Api\V1\Profile\NotificationController;
+use App\Http\Controllers\Api\V1\Profile\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\Profile\WishlistController;
 use App\Http\Controllers\Api\V1\Return\ReturnController;
@@ -65,6 +80,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class)->name('api.v1.health');
 
+Route::post('/assistant/chat', AssistantChatController::class)
+    ->middleware('throttle:30,1')
+    ->name('api.v1.assistant.chat');
+
+Route::post('/platform/consultation', [PlatformContactController::class, 'consultation'])
+    ->middleware('throttle:6,1')
+    ->name('api.v1.platform.consultation');
+
 Route::post('/webhooks/payments/myfatoorah', [PaymentWebhookController::class, 'myfatoorah'])
     ->name('api.v1.webhooks.payments.myfatoorah');
 
@@ -87,6 +110,14 @@ Route::get('/providers/{slug}', [ServiceProviderController::class, 'show']);
 Route::get('/providers/{slug}/services', [ServiceProviderController::class, 'services']);
 Route::get('/providers/{slug}/portfolio', [ServiceProviderController::class, 'portfolio']);
 Route::get('/providers/{slug}/reviews', [ProviderReviewController::class, 'index']);
+
+Route::post('/affiliate/referrals/click', [AffiliateReferralController::class, 'trackClick'])
+    ->middleware('throttle:affiliate-click')
+    ->name('api.v1.affiliate.referrals.click');
+
+Route::get('/affiliate/referrals/resolve', [AffiliateReferralController::class, 'resolve'])
+    ->middleware('throttle:affiliate-resolve')
+    ->name('api.v1.affiliate.referrals.resolve');
 
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'show']);
@@ -170,6 +201,9 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
     Route::post('/services/{identifier}/booking-preview', [DirectServiceBookingController::class, 'preview'])->middleware('throttle:30,1');
     Route::post('/services/{identifier}/direct-booking', [DirectServiceBookingController::class, 'store'])->middleware('throttle:20,1');
 
+    Route::post('/platform/newsletter', [PlatformContactController::class, 'newsletter'])
+        ->middleware('throttle:10,1');
+
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'show']);
         Route::patch('/', [ProfileController::class, 'update']);
@@ -204,6 +238,36 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::get('/reviews', [CustomerReviewController::class, 'index']);
         Route::get('/reviews/{type}/{id}', [CustomerReviewController::class, 'show'])
             ->whereIn('type', ['product', 'store']);
+
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+        Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+        Route::delete('/notifications', [NotificationController::class, 'destroyAll']);
+        Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
+        Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
+        Route::post('/notifications/devices', [NotificationController::class, 'registerDevice'])
+            ->middleware('throttle:notification-devices');
+        Route::get('/notification-preferences', [NotificationPreferenceController::class, 'show']);
+        Route::patch('/notification-preferences', [NotificationPreferenceController::class, 'update'])
+            ->middleware('throttle:notification-preferences');
+
+        Route::get('/conversations/unread-count', [ConversationController::class, 'unreadCount']);
+        Route::get('/conversations', [ConversationController::class, 'index']);
+        Route::post('/conversations', [ConversationController::class, 'store'])
+            ->middleware('throttle:chat-conversations');
+        Route::get('/conversations/{id}', [ConversationController::class, 'show']);
+        Route::patch('/conversations/{id}/read', [ConversationController::class, 'markRead']);
+        Route::delete('/conversations/{id}', [ConversationController::class, 'destroy']);
+        Route::post('/conversations/{id}/typing', [ConversationController::class, 'typing'])
+            ->middleware('throttle:chat-typing');
+        Route::get('/conversations/{id}/messages', [MessageController::class, 'index']);
+        Route::post('/conversations/{id}/messages', [MessageController::class, 'store'])
+            ->middleware('throttle:chat-messages');
+        Route::patch('/conversations/{conversationId}/messages/{messageId}', [MessageController::class, 'update'])
+            ->middleware('throttle:chat-messages');
+        Route::delete('/conversations/{conversationId}/messages/{messageId}', [MessageController::class, 'destroy'])
+            ->middleware('throttle:chat-messages');
+        Route::get('/conversations/{conversationId}/attachments/{attachmentId}', [AttachmentController::class, 'show']);
     });
 
     Route::post('/products/{id}/reviews', [ProductEngagementController::class, 'storeReview']);
@@ -268,6 +332,8 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::post('/products', [VendorProductController::class, 'store']);
         Route::get('/products/{product}', [VendorProductController::class, 'show']);
         Route::patch('/products/{product}', [VendorProductController::class, 'update']);
+        Route::get('/products/{product}/affiliate', [VendorProductAffiliateController::class, 'show']);
+        Route::patch('/products/{product}/affiliate', [VendorProductAffiliateController::class, 'update']);
         Route::delete('/products/{product}', [VendorProductController::class, 'destroy']);
         Route::post('/products/{product}/images', [VendorProductController::class, 'addImages']);
         Route::delete('/products/{product}/images/{image}', [VendorProductController::class, 'deleteImage']);
@@ -285,6 +351,20 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::get('/finance/payouts', [VendorFinanceController::class, 'payouts']);
         Route::post('/finance/payouts', [VendorFinanceController::class, 'requestPayout']);
         Route::post('/finance/payouts/{payout}/cancel', [VendorFinanceController::class, 'cancelPayout']);
+    });
+
+    Route::middleware('role:marketer,admin')->prefix('dashboard/affiliate')->group(function () {
+        Route::get('/', [AffiliateDashboardController::class, 'overview']);
+        Route::get('/products', [AffiliateProductController::class, 'index']);
+        Route::get('/links', [AffiliateLinkController::class, 'index']);
+        Route::post('/links', [AffiliateLinkController::class, 'store'])
+            ->middleware('throttle:affiliate-link');
+        Route::post('/links/{link}/deactivate', [AffiliateLinkController::class, 'deactivate']);
+        Route::get('/reports', [AffiliateReportController::class, 'index']);
+        Route::get('/payouts', [AffiliatePayoutController::class, 'index']);
+        Route::post('/payouts', [AffiliatePayoutController::class, 'store']);
+        Route::get('/settings', [AffiliateSettingsController::class, 'show']);
+        Route::patch('/settings', [AffiliateSettingsController::class, 'update']);
     });
 
     Route::middleware('role:provider,admin')->prefix('dashboard/provider')->group(function () {
@@ -329,5 +409,10 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::post('/payouts/{payout}/approve', [AdminPayoutController::class, 'approve']);
         Route::post('/payouts/{payout}/reject', [AdminPayoutController::class, 'reject']);
         Route::post('/payouts/{payout}/mark-paid', [AdminPayoutController::class, 'markPaid']);
+        Route::get('/affiliate/payouts', [AdminAffiliatePayoutController::class, 'index']);
+        Route::post('/affiliate/payouts/{affiliatePayout}/approve', [AdminAffiliatePayoutController::class, 'approve']);
+        Route::post('/affiliate/payouts/{affiliatePayout}/processing', [AdminAffiliatePayoutController::class, 'markProcessing']);
+        Route::post('/affiliate/payouts/{affiliatePayout}/reject', [AdminAffiliatePayoutController::class, 'reject']);
+        Route::post('/affiliate/payouts/{affiliatePayout}/mark-paid', [AdminAffiliatePayoutController::class, 'markPaid']);
     });
 });

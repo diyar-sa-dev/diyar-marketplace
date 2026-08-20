@@ -67,6 +67,7 @@ return [
         'address_default_set' => 'تم تعيين العنوان الافتراضي.',
         'building_prefix' => 'مبنى :value',
         'apartment_prefix' => 'شقة :value',
+        'notifications_saved' => 'تم حفظ إعدادات الإشعارات بنجاح.',
     ],
 
     'media' => [
@@ -380,6 +381,11 @@ return [
         'refund_vendor_debit' => 'خصم رصيد البائع بسبب الاسترداد.',
         'refund_commission_debit' => 'عكس عمولة المنصة بسبب الاسترداد.',
         'refund_sale_debit' => 'عكس مبيعات المنصة بسبب الاسترداد.',
+        'affiliate_commission_pending' => 'حجز عمولة المسوق (قيد الانتظار حتى التسليم).',
+        'affiliate_commission_release_debit' => 'خصم مستحقات المسوق عند إتاحة العمولة.',
+        'affiliate_commission_release_credit' => 'إيداع الرصيد المتاح للمسوق عند إتاحة العمولة.',
+        'affiliate_commission_reversal' => 'عكس عمولة المسوق.',
+        'affiliate_payout_debit' => 'خصم سحب المسوق.',
         'upcoming_escrow_note' => 'أموال محجوزة في الضمان حتى تسليم الطلبات.',
         'no_upcoming_payout' => 'لا توجد دفعة مجدولة متاحة بعد.',
         'bank_account_required' => 'أضف حساباً بنكياً نشطاً قبل طلب السحب.',
@@ -522,5 +528,193 @@ return [
             'carrier_flat_rate' => 'سعر الشحن القياسي: :amount ر.س.',
             'pickup_available' => 'الاستلام من المتجر متاح في :location.',
         ],
+    ],
+
+    'notifications' => [
+        'deleted' => 'تم حذف الإشعار.',
+        'categories' => [
+            'orders' => 'الطلبات',
+            'payments' => 'المدفوعات',
+            'bookings' => 'الحجوزات',
+            'offers' => 'العروض',
+            'reviews' => 'التقييمات',
+            'follows' => 'المتابعات',
+            'products' => 'المنتجات',
+            'services' => 'الخدمات',
+            'vendor' => 'المتجر',
+            'payouts' => 'المدفوعات الصادرة',
+            'stock' => 'المخزون',
+            'team' => 'الفريق',
+            'coupons' => 'الكوبونات',
+            'promotions' => 'العروض والخصومات',
+            'system' => 'النظام',
+            'auth' => 'الحساب والأمان',
+            'chat' => 'المحادثات',
+        ],
+        'channels' => [
+            'in_app' => 'داخل التطبيق',
+            'email' => 'البريد الإلكتروني',
+            'push' => 'الإشعارات الفورية',
+        ],
+        'order_created' => [
+            'title' => 'تم استلام الطلب',
+            'body' => 'تم تأكيد طلبك :order_number. الإجمالي: :total ر.س.:products_line',
+        ],
+        'order_vendor_received' => [
+            'title' => 'طلب جديد في متجرك',
+            'body' => 'استلمت الطلب :order_number من :customer_name في :store_name. الإجمالي: :total ر.س.:products_line',
+        ],
+        'order_shipped' => [
+            'title' => 'تم شحن الطلب',
+            'body' => 'طلبك :order_number من :vendor_name في الطريق إليك.',
+        ],
+        'order_delivered' => [
+            'title' => 'تم تسليم الطلب',
+            'body' => 'تم تسليم طلبك :order_number من :vendor_name.',
+        ],
+        'payment_success' => [
+            'title' => 'تم الدفع بنجاح',
+            'body' => 'تم دفع :amount ر.س للطلب :order_number بنجاح.',
+        ],
+        'payment_failed' => [
+            'title' => 'فشل الدفع',
+            'body' => 'تعذّر إتمام الدفع للطلب :order_number.',
+        ],
+        'return_updated' => [
+            'title' => 'تحديث الإرجاع',
+            'body' => 'حالة طلب الإرجاع أصبحت :status.',
+        ],
+        'offer_received' => [
+            'title' => 'عرض خدمة جديد',
+            'body' => 'أرسل :provider_name عرضاً بقيمة :price ر.س.',
+        ],
+        'offer_accepted' => [
+            'title' => 'تم قبول العرض',
+            'body' => 'تم قبول عرضك للطلب :request_reference.',
+        ],
+        'booking_created' => [
+            'title' => 'تم إنشاء حجز',
+            'body' => 'تم إنشاء الحجز :reference لخدمة :service_title مع مزود الخدمة :provider_name.',
+        ],
+        'booking_completed' => [
+            'title' => 'اكتمل الحجز',
+            'body' => 'اكتمل الحجز :reference لخدمة :service_title.',
+        ],
+        'review_created' => [
+            'title' => 'تقييم جديد',
+            'body' => 'قام :reviewer_name بتقييم منتج :product_name (:rating/5) في متجر :store_name.',
+        ],
+        'review_reply' => [
+            'title' => 'رد جديد على تقييمك',
+            'body' => 'يوجد رد جديد على تقييمك.',
+        ],
+        'product_stock_low' => [
+            'title' => 'انخفاض المخزون',
+            'body' => 'المنتج :product_name وصل إلى :quantity وحدة.',
+        ],
+        'product_out_of_stock' => [
+            'title' => 'نفاد المخزون',
+            'body' => 'المنتج :product_name نفد من المخزون.',
+        ],
+        'team_invitation' => [
+            'title' => 'دعوة للانضمام للفريق',
+            'body' => 'تمت دعوتك للانضمام إلى :store_name بدور :role.',
+        ],
+        'team_member_added' => [
+            'title' => 'تمت إضافتك إلى فريق المتجر',
+            'body' => 'تمت إضافتك إلى :store_name.',
+        ],
+        'coupon_activated' => [
+            'title' => 'تم تفعيل الكوبون',
+            'body' => 'تم تفعيل الكوبون :coupon_code.',
+        ],
+        'coupon_deactivated' => [
+            'title' => 'تم إيقاف الكوبون',
+            'body' => 'تم إيقاف الكوبون :coupon_code.',
+        ],
+        'coupon_expired' => [
+            'title' => 'انتهت صلاحية الكوبون',
+            'body' => 'انتهت صلاحية الكوبون :coupon_code.',
+        ],
+        'system_alert' => [
+            'title' => 'تنبيه النظام',
+            'body' => ':message',
+        ],
+        'system_promotion' => [
+            'title' => 'عرض جديد',
+            'body' => ':message',
+        ],
+        'auth_registration' => [
+            'title' => 'مرحباً بك في ديار',
+            'body' => 'حسابك جاهز. استكشف المنتجات والخدمات.',
+        ],
+        'chat_message_received' => [
+            'title' => '💬 رسالة جديدة',
+            'body' => 'لديك رسالة جديدة من :sender_name.',
+        ],
+        'affiliate_commission_available' => [
+            'title' => 'عمولة متاحة للسحب',
+            'body' => 'أصبحت عمولة :amount :currency للمنتج :product_name متاحة في رصيدك.',
+        ],
+        'affiliate_payout_requested' => [
+            'title' => 'تم تقديم طلب سحب',
+            'body' => 'تم استلام طلب سحب بقيمة :amount :currency. المرجع: :reference.',
+        ],
+    ],
+
+    'chat' => [
+        'not_participant' => 'غير مسموح لك بالوصول إلى هذه المحادثة.',
+        'cannot_create' => 'غير مسموح لك بإنشاء هذه المحادثة.',
+        'self_chat_not_allowed' => 'لا يمكنك بدء محادثة مع نفسك.',
+        'vendor_required' => 'يجب تحديد المتجر.',
+        'provider_required' => 'يجب تحديد مقدم الخدمة.',
+        'customer_required' => 'يجب تحديد العميل.',
+        'admin_unavailable' => 'لا يوجد مسؤول متاح حالياً.',
+        'message_required' => 'يرجى كتابة رسالة أو إرفاق ملف.',
+        'invalid_cursor' => 'مؤشر الرسائل غير صالح.',
+        'marked_read' => 'تم تحديد المحادثة كمقروءة.',
+        'removed_from_inbox' => 'تمت إزالة المحادثة من صندوق الوارد.',
+        'message_not_found' => 'الرسالة غير موجودة.',
+        'cannot_edit_message' => 'لا يمكنك تعديل هذه الرسالة.',
+        'cannot_delete_message' => 'لا يمكنك حذف هذه الرسالة.',
+        'message_deleted' => 'تم حذف هذه الرسالة.',
+    ],
+
+    'assistant' => [
+        'unavailable' => 'المساعد غير متاح حالياً.',
+        'failed' => 'تعذر الحصول على رد من المساعد.',
+    ],
+
+    'platform' => [
+        'invalid_phone' => 'رقم الجوال غير صالح. استخدم رقماً سعودياً يبدأ بـ 05.',
+        'consultation_sent' => 'تم إرسال استشارتك بنجاح. سيتواصل معك فريق ديار قريباً.',
+        'newsletter_subscribed' => 'تم تفعيل تحديثات النشرة البريدية في إعدادات الإشعارات.',
+        'newsletter_auth_required' => 'يجب تسجيل الدخول لتفعيل اشتراك النشرة البريدية.',
+        'newsletter_email_mismatch' => 'يجب أن يطابق البريد الإلكتروني بريد حسابك.',
+        'contact_failed' => 'تعذر إرسال طلبك حالياً. يرجى المحاولة لاحقاً.',
+    ],
+
+    'affiliate' => [
+        'invalid_referral_code' => 'رابط الإحالة غير صالح أو غير نشط.',
+        'profile_suspended' => 'تم تعليق حساب المسوق. تواصل مع الدعم للمساعدة.',
+        'profile_not_active' => 'حساب المسوق غير نشط.',
+        'product_not_enabled' => 'الترويج بالعمولة غير مفعّل لهذا المنتج.',
+        'commission_outside_platform_limits' => 'يجب أن يبقى نطاق العمولة ضمن حدود المنصة (:min% – :max%).',
+        'commission_min_exceeds_max' => 'لا يمكن أن يتجاوز الحد الأدنى للعمولة الحد الأقصى.',
+        'commission_rate_out_of_range' => 'يجب أن تكون نسبة العمولة بين :min% و :max%.',
+        'self_referral_blocked' => 'لا يمكن احتساب عمولة على الشراء الذاتي.',
+        'cannot_promote_own_product' => 'لا يمكنك إنشاء روابط تسويق لمنتجاتك الخاصة.',
+        'link_not_owned' => 'ليس لديك صلاحية الوصول إلى رابط الإحالة هذا.',
+        'link_created' => 'تم إنشاء رابط الإحالة بنجاح.',
+        'link_deactivated' => 'تم إلغاء تفعيل رابط الإحالة.',
+        'settings_updated' => 'تم تحديث إعدادات المسوق بنجاح.',
+        'product_settings_updated' => 'تم تحديث إعدادات عمولة المنتج بنجاح.',
+        'payout_below_minimum' => 'يجب أن يكون مبلغ السحب :minimum ر.س على الأقل.',
+        'payout_account_required' => 'أضف بيانات الحساب البنكي قبل طلب السحب.',
+        'insufficient_balance' => 'رصيد العمولات المتاح غير كافٍ.',
+        'pending_payout_exists' => 'يوجد طلب سحب عمولات قيد المعالجة بالفعل.',
+        'invalid_payout_transition' => 'انتقال حالة سحب العمولات غير صالح.',
+        'payout_requested' => 'تم تقديم طلب سحب العمولات.',
+        'payout_marked_paid' => 'تم تحديد سحب العمولات كمدفوع.',
     ],
 ];

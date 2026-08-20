@@ -37,7 +37,7 @@ class ProviderReviewAndDirectBookingTest extends TestCase
         Sanctum::actingAs($customer);
 
         $this->postJson("/api/v1/services/{$service->slug}/direct-booking", [
-            'scheduled_date' => now()->addDay()->toDateString(),
+            'scheduled_date' => now()->addDays(3)->toDateString(),
             'scheduled_time' => '10:00',
             'customer_notes' => 'Please call before arrival.',
             'idempotency_key' => 'direct-booking-test-1',
@@ -114,7 +114,7 @@ class ProviderReviewAndDirectBookingTest extends TestCase
         Sanctum::actingAs($customer);
 
         $this->postJson("/api/v1/services/{$service->slug}/direct-booking", [
-            'scheduled_date' => now()->addDay()->toDateString(),
+            'scheduled_date' => now()->addDays(3)->toDateString(),
             'scheduled_time' => '10:00',
             'idempotency_key' => 'duplicate-booking-block-1',
         ])->assertOk();

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { StarRating } from '../product/StarRating.tsx';
 import { UserAvatar } from '../profile/UserAvatar.tsx';
 import { PaginationBar } from '../catalog/PaginationBar.tsx';
@@ -7,6 +6,7 @@ import { LoadingState } from '../common/LoadingState.tsx';
 import { ErrorState } from '../common/ErrorState.tsx';
 import { VendorReplyBlock } from '../reviews/VendorReplyBlock.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import { useProviderReviews } from '../../hooks/provider/useProviderReviews.ts';
 import type { ProviderReview, ProviderReviewSummary } from '../../api/providerReviews.ts';
 import type { Locale } from '../../lib/i18n/types.ts';
@@ -143,8 +143,9 @@ export function ProviderReviewsTab({
   providerAvatarUrl,
 }: ProviderReviewsTabProps) {
   const { t, locale } = useLocale();
-  const [page, setPage] = useState(1);
-  const perPage = 5;
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange } = usePaginationState({
+    initialPerPage: 5,
+  });
   const { data, isLoading, isError, error, refetch } = useProviderReviews(slug, page, perPage);
 
   if (isLoading) {
@@ -190,14 +191,18 @@ export function ProviderReviewsTab({
           </div>
         )}
 
-        {pagination && pagination.last_page > 1 && (
+        {pagination ? (
           <PaginationBar
             pagination={pagination}
             page={page}
-            onPageChange={setPage}
+            perPage={perPage}
+            perPageOptions={[...perPageOptions]}
+            onPageChange={onPageChange}
+            onPerPageChange={onPerPageChange}
+            alwaysShow={pagination.total > 0}
             className="mt-6"
           />
-        )}
+        ) : null}
       </div>
     </div>
   );

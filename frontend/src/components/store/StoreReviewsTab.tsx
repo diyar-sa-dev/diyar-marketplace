@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { StarRating } from '../product/StarRating.tsx';
 import { UserAvatar } from '../profile/UserAvatar.tsx';
@@ -8,6 +7,7 @@ import { LoadingState } from '../common/LoadingState.tsx';
 import { ErrorState } from '../common/ErrorState.tsx';
 import { VendorReplyBlock } from '../reviews/VendorReplyBlock.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import { useStoreReviews } from '../../hooks/storeReview/useStoreReviews.ts';
 import type { StoreReview, StoreReviewSummary } from '../../api/storeReviews.ts';
 import type { Locale } from '../../lib/i18n/types.ts';
@@ -136,8 +136,9 @@ interface StoreReviewsTabProps {
 
 export function StoreReviewsTab({ slug, storeName, storeLogoUrl }: StoreReviewsTabProps) {
   const { t, locale } = useLocale();
-  const [page, setPage] = useState(1);
-  const perPage = 5;
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange } = usePaginationState({
+    initialPerPage: 5,
+  });
   const { data, isLoading, isError, error, refetch } = useStoreReviews(slug, page, perPage);
 
   if (isLoading) {
@@ -183,14 +184,18 @@ export function StoreReviewsTab({ slug, storeName, storeLogoUrl }: StoreReviewsT
           </div>
         )}
 
-        {pagination && pagination.last_page > 1 && (
+        {pagination ? (
           <PaginationBar
             pagination={pagination}
             page={page}
-            onPageChange={setPage}
+            perPage={perPage}
+            perPageOptions={[...perPageOptions]}
+            onPageChange={onPageChange}
+            onPerPageChange={onPerPageChange}
+            alwaysShow={pagination.total > 0}
             className="mt-6"
           />
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ use App\Enums\InventoryMovementType;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ReservationStatus;
+use App\Events\Domain\ProductStockLow;
 use App\Models\InventoryReservation;
 use App\Models\Order;
 use App\Models\Product;
@@ -109,6 +110,7 @@ final class InventoryService
             );
 
             $this->syncAvailabilityMode($product->fresh(), $inventory->fresh());
+            $this->notifyIfStockLow($product->fresh(), $inventory->fresh());
 
             return $inventory->fresh();
         });
@@ -231,6 +233,7 @@ final class InventoryService
                 );
 
                 $this->syncAvailabilityMode($product->fresh(), $inventory->fresh());
+                $this->notifyIfStockLow($product->fresh(), $inventory->fresh());
             }
 
             $reservation->update([
@@ -422,6 +425,18 @@ final class InventoryService
         if ($product->availability_mode !== $mode) {
             $product->forceFill(['availability_mode' => $mode])->save();
         }
+    }
+
+    private function notifyIfStockLow(Product $product, ProductInventory $inventory): void
+    {
+        $threshold = (int) config('diyar.vendor.low_stock_threshold', 5);
+        $available = $inventory->computeAvailableQuantity();
+
+        if ($available <= 0 || $available > $threshold) {
+            return;
+        }
+
+        DB::afterCommit(fn () => event(new ProductStockLow($product, $available)));
     }
 
     private function recordMovement(

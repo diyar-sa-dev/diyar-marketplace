@@ -5,6 +5,7 @@ import {
   Star,
   Share2,
   Mail,
+  MessagesSquare,
   Info,
   Clock,
   CheckCircle,
@@ -35,6 +36,7 @@ import {
 import type { ServiceBookingStatus } from '../types/serviceRequests.ts';
 import type { ServiceUserActiveBooking } from '../types/services.ts';
 import { useServiceWishlistMutation } from '../hooks/services/useServiceEngagement.ts';
+import { useStartChat } from '../hooks/chat/useStartChat.ts';
 
 function resolveActiveBookingHint(
   booking: ServiceUserActiveBooking,
@@ -80,6 +82,7 @@ export default function ServicePage() {
   const { data: service, isLoading, isError } = useService(id);
   const { data: relatedServices = [] } = useRelatedServices(id);
   const wishlist = useServiceWishlistMutation(id);
+  const { startProviderChat, isStarting: isStartingChat } = useStartChat();
 
   const provider = service?.provider;
   const providerSlug = provider?.slug ?? '';
@@ -157,6 +160,26 @@ export default function ServicePage() {
   const isDirectBooking = service.booking_mode === 'direct';
   const isOwnProvider = Boolean(service.provider?.is_own_provider);
   const activeBooking = service.user_active_booking ?? null;
+
+  const handleSendMessage = async () => {
+    if (!user) {
+      toast.error(t('serviceMarketplace.detail.loginRequired'));
+      return;
+    }
+
+    if (!provider || isOwnProvider) {
+      toast.warning(t('chat.selfChatNotAllowed'));
+      return;
+    }
+
+    await startProviderChat(provider.id, {
+      subject: service.title,
+      context_type: 'service',
+      context_id: service.id,
+      returnPath: `/service/${service.slug ?? service.id}`,
+    });
+  };
+
   const typeLabel = resolveServiceTypeLabel(service);
   const shareUrl =
     typeof window !== 'undefined' ? `${window.location.origin}/service/${service.slug}` : '';
@@ -436,6 +459,7 @@ export default function ServicePage() {
           </div>
 
           <div className="md:col-span-1 space-y-6">
+            {!isOwnProvider ? (
             <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-5 shadow-sm">
               <h3 className="font-bold text-lg text-diyar-dark mb-4">
                 {t('serviceMarketplace.detail.contactProvider')}
@@ -450,13 +474,20 @@ export default function ServicePage() {
                 </button>
                 <button
                   type="button"
-                  disabled
-                  className="w-full bg-gray-50 text-gray-400 border border-gray-200 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed"
+                  onClick={() => void handleSendMessage()}
+                  disabled={isStartingChat}
+                  className="w-full bg-diyar-dark text-diyar-cream border border-diyar-dark font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-diyar-dark/90 transition-colors cursor-pointer disabled:opacity-60"
                 >
-                  <Mail size={18} /> {t('serviceMarketplace.detail.sendMessage')}
+                  {isStartingChat ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <MessagesSquare size={18} />
+                  )}
+                  {t('serviceMarketplace.detail.sendMessage')}
                 </button>
               </div>
             </div>
+            ) : null}
 
             {provider && (
               <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-5 shadow-sm">

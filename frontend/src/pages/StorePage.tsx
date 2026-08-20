@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   Share2,
   Mail,
+  MessagesSquare,
   Phone,
   Globe,
   LayoutGrid,
@@ -31,8 +32,10 @@ import { StoreReviewsTab } from '../components/store/StoreReviewsTab.tsx';
 import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
 import { StarRating } from '../components/product/StarRating.tsx';
 import { useLocale } from '../hooks/useLocale.ts';
+import { usePaginationState } from '../hooks/usePaginationState.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useStoreFollow } from '../hooks/store/useStoreFollow.ts';
+import { useStartChat } from '../hooks/chat/useStartChat.ts';
 import { useToast } from '../hooks/useToast.ts';
 
 import { PLACEHOLDER_STORE_COVER, PLACEHOLDER_STORE_LOGO } from '../lib/storeMediaDefaults.ts';
@@ -44,10 +47,15 @@ export default function StorePage() {
   const { id } = useParams();
   const slug = isValidStoreSlug(id) ? id : undefined;
   const { follow, unfollow } = useStoreFollow(slug);
+  const { startVendorChat, isStarting: isStartingChat } = useStartChat();
   const [activeTab, setActiveTab] = useState('products');
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const [page, setPage] = useState(1);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState({
+      initialPerPage: 12,
+      perPageOptions: [10, 12, 15, 20, 24, 50],
+    });
   const [sort, setSort] = useState('-created_at');
 
   const {
@@ -63,7 +71,7 @@ export default function StorePage() {
     isError: productsError,
     error: productsErr,
     refetch: refetchProducts,
-  } = useVendorProducts(slug, { per_page: 12, page, sort });
+  } = useVendorProducts(slug, { per_page: perPage, page, sort });
 
   if (!isValidStoreSlug(id)) {
     return (
@@ -144,6 +152,23 @@ export default function StorePage() {
         toast.error(t('store.followError'));
       }
     }
+  };
+
+  const handleContactStore = async () => {
+    if (!user) {
+      toast.error(t('store.followLoginRequired'));
+      return;
+    }
+
+    if (isOwnStore) {
+      toast.warning(t('chat.selfChatNotAllowed'));
+      return;
+    }
+
+    await startVendorChat(vendor.id, {
+      subject: vendor.store_name,
+      returnPath: `/store/${storeSlug}`,
+    });
   };
 
   return (
@@ -247,15 +272,21 @@ export default function StorePage() {
                   {vendor.is_following ? t('store.following') : t('store.follow')}
                 </button>
               ) : null}
-              <button
-                type="button"
-                disabled
-                title={t('store.contactSoon')}
-                className="flex-1 md:flex-none bg-gray-100 text-gray-400 font-bold py-2.5 px-6 rounded-xl border border-gray-200 flex items-center justify-center gap-2 cursor-not-allowed"
-              >
-                <Mail size={18} />
-                {t('store.contact')}
-              </button>
+              {!isOwnStore ? (
+                <button
+                  type="button"
+                  onClick={() => void handleContactStore()}
+                  disabled={isStartingChat}
+                  className="flex-1 md:flex-none bg-white text-diyar-dark font-bold py-2.5 px-6 rounded-xl border border-gray-200 flex items-center justify-center gap-2 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors cursor-pointer disabled:opacity-60"
+                >
+                  {isStartingChat ? (
+                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <MessagesSquare size={18} />
+                  )}
+                  {t('store.contact')}
+                </button>
+              ) : null}
             </div>
           </div>
         </div>
@@ -278,9 +309,13 @@ export default function StorePage() {
                     {t('store.followersCount', { count: vendor.followers_count ?? 0 })}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">{t('store.statsLocation')}</span>
-                  <span className="font-bold text-diyar-dark">{vendor.location ?? '—'}</span>
+                <div className="flex justify-between items-center gap-3">
+                  <span className="text-gray-500 text-sm shrink-0">{t('store.statsLocation')}</span>
+                  <span
+                    className={`font-bold text-diyar-dark min-w-0 max-w-[70%] ${dir === 'ltr' ? 'text-end' : 'text-start'}`}
+                  >
+                    <bdi dir="auto">{vendor.location ?? '—'}</bdi>
+                  </span>
                 </div>
               </div>
             </div>
@@ -367,7 +402,7 @@ export default function StorePage() {
                     value={sort}
                     onChange={(e) => {
                       setSort(e.target.value);
-                      setPage(1);
+                      resetPage();
                     }}
                     className="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg py-2 px-4 outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown"
                   >
@@ -393,7 +428,11 @@ export default function StorePage() {
                       <PaginationBar
                         pagination={productsData.pagination}
                         page={page}
-                        onPageChange={setPage}
+                        perPage={perPage}
+                        perPageOptions={[...perPageOptions]}
+                        onPageChange={onPageChange}
+                        onPerPageChange={onPerPageChange}
+                        alwaysShow={productsData.pagination.total > 0}
                         className="mt-10"
                       />
                     )}

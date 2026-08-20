@@ -43,10 +43,13 @@ export type VendorCouponListResponse = {
   };
 };
 
-export async function fetchVendorCoupons(page = 1): Promise<VendorCouponListResponse> {
+export async function fetchVendorCoupons(
+  page = 1,
+  perPage = 10,
+): Promise<VendorCouponListResponse> {
   const { data } = await apiClient.get<ApiSuccessResponse<VendorCouponListResponse>>(
     '/dashboard/vendor/coupons',
-    { params: { page } },
+    { params: { page, per_page: perPage } },
   );
   return data.data;
 }

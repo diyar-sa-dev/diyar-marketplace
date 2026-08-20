@@ -1,108 +1,123 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Truck, Gift, ChevronLeft, ChevronRight, X } from 'lucide-react';
-
-const ANNOUNCEMENTS = [
-  {
-    icon: <Gift className="w-4 h-4 text-diyar-cream shrink-0" />,
-    text: 'خصومات حصرية تصل إلى 40% على تجهيزات الضيافة الفاخرة والمجالس',
-    cta: 'تسوق العروض',
-    link: '/category/deals',
-  },
-  {
-    icon: <Sparkles className="w-4 h-4 text-yellow-400 shrink-0 animate-pulse" />,
-    text: 'جرّب المساعد الشخصي التفاعلي للغرف',
-    cta: 'جرّب الآن',
-    link: '/search', // leads to search/AI trial
-  },
-  {
-    icon: <Truck className="w-4 h-4 text-diyar-cream shrink-0" />,
-    text: 'توصيل آمن وتركيب احترافي مجاني لجميع مدن ومناطق المملكة',
-    cta: 'احسب التوصيل',
-    link: '/profile/addresses',
-  },
-];
+import { useLocale } from '../../hooks/useLocale.ts';
 
 export function AnnouncementBar() {
+  const { t } = useLocale();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+
+  const announcements = useMemo(
+    () => [
+      {
+        icon: <Gift className="w-4 h-4 text-diyar-cream shrink-0" />,
+        text: t('home.announcements.item1Text'),
+        cta: t('home.announcements.item1Cta'),
+        link: '/category/all?discounted=1&sort=-discount',
+      },
+      {
+        icon: <Sparkles className="w-4 h-4 text-yellow-400 shrink-0 animate-pulse" />,
+        text: t('home.announcements.item2Text'),
+        cta: t('home.announcements.item2Cta'),
+        link: null,
+      },
+      {
+        icon: <Truck className="w-4 h-4 text-diyar-cream shrink-0" />,
+        text: t('home.announcements.item3Text'),
+        cta: t('home.announcements.item3Cta'),
+        link: '/profile/addresses',
+      },
+    ],
+    [t],
+  );
 
   useEffect(() => {
     if (!isVisible) return;
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length);
-    }, 6000); // Luxury slow pace: 6 seconds
+      setCurrentIndex((prev) => (prev + 1) % announcements.length);
+    }, 6000);
 
     return () => clearInterval(interval);
-  }, [isVisible]);
+  }, [isVisible, announcements.length]);
 
   if (!isVisible) return null;
 
-  const current = ANNOUNCEMENTS[currentIndex];
+  const current = announcements[currentIndex] ?? announcements[0];
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length);
+    setCurrentIndex((prev) => (prev + 1) % announcements.length);
   };
 
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev - 1 + ANNOUNCEMENTS.length) % ANNOUNCEMENTS.length);
+    setCurrentIndex((prev) => (prev - 1 + announcements.length) % announcements.length);
   };
 
   return (
     <div
       id="top-announcement-bar"
-      className="w-full bg-[#132624] text-[#f3ecdb] border-b border-[#213f3a] text-xs font-medium py-2.5 relative overflow-hidden transition-all duration-300"
+      className="w-full bg-linear-to-r from-[#132624] via-[#1a3330] to-[#132624] text-diyar-cream border-b border-[#2a4a44] text-xs font-medium py-2.5 relative overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
-        {/* Navigation arrows (Desktop only) */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff06_1px,transparent_1px),linear-gradient(to_bottom,#ffffff06_1px,transparent_1px)] bg-size-[24px_24px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between relative z-10">
         <button
           onClick={handlePrev}
-          className="hidden md:flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer w-6 h-6 hover:bg-white/5 rounded-full"
-          title="السابق"
+          className="hidden md:flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer w-7 h-7 hover:bg-white/10 rounded-full"
+          title={t('home.announcements.prev')}
+          aria-label={t('home.announcements.prev')}
           id="btn-announcement-prev"
         >
           <ChevronRight size={14} />
         </button>
 
-        {/* Dynamic content */}
-        <div className="flex-1 flex justify-center items-center overflow-hidden min-h-[20px]">
+        <div className="flex-1 flex justify-center items-center overflow-hidden min-h-5.5">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentIndex}
-              initial={{ y: 20, opacity: 0 }}
+              initial={{ y: 16, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -20, opacity: 0 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-center justify-center gap-2 md:gap-3 text-center px-4"
+              exit={{ y: -16, opacity: 0 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              className="flex items-center justify-center gap-2 md:gap-3 text-center px-2 md:px-4"
             >
               {current.icon}
-              <span className="text-[11px] sm:text-xs">{current.text}</span>
-              <span className="hidden sm:inline-block bg-[#947961] text-white text-[10px] font-bold px-2 py-0.5 rounded-full hover:bg-opacity-95 transition-all text-xs mr-2">
-                {current.cta}
-              </span>
+              <span className="text-[11px] sm:text-xs leading-relaxed">{current.text}</span>
+              {current.link ? (
+                <Link
+                  to={current.link}
+                  className="hidden sm:inline-flex bg-diyar-brown hover:bg-[#a6886f] text-white text-[10px] font-bold px-2.5 py-1 rounded-full transition-colors cursor-pointer ms-1"
+                >
+                  {current.cta}
+                </Link>
+              ) : (
+                <span className="hidden sm:inline-flex bg-white/10 text-diyar-cream/90 text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/10 ms-1">
+                  {current.cta}
+                </span>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Navigation & dismiss */}
-        <div className="flex items-center gap-2">
-          {/* Navigation arrow (Desktop copy, for Right side) */}
+        <div className="flex items-center gap-1.5">
           <button
             onClick={handleNext}
-            className="hidden md:flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer w-6 h-6 hover:bg-white/5 rounded-full"
-            title="التالي"
+            className="hidden md:flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer w-7 h-7 hover:bg-white/10 rounded-full"
+            title={t('home.announcements.next')}
+            aria-label={t('home.announcements.next')}
             id="btn-announcement-next"
           >
             <ChevronLeft size={14} />
           </button>
 
-          {/* Dismiss button */}
           <button
             onClick={() => setIsVisible(false)}
-            className="text-white/40 hover:text-[#f3ecdb] hover:bg-white/10 p-1 rounded-full transition-all cursor-pointer mr-2 shrink-0"
-            title="إغلاق التنبيه"
+            className="text-white/50 hover:text-diyar-cream hover:bg-white/10 p-1.5 rounded-full transition-all cursor-pointer shrink-0"
+            title={t('home.announcements.close')}
+            aria-label={t('home.announcements.close')}
             id="btn-announcement-close"
           >
             <X size={14} />

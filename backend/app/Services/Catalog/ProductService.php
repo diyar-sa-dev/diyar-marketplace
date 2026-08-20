@@ -63,8 +63,13 @@ final class ProductService
         $query = $this->publicQuery()
             ->with(['vendorAccount', 'category', 'colors', 'images.mediaFile', 'inventory'])
             ->withCount(['likes', 'reviews'])
-            ->withAvg('reviews', 'rating')
-            ->whereKey($id);
+            ->withAvg('reviews', 'rating');
+
+        if (\Illuminate\Support\Str::isUuid($id)) {
+            $query->whereKey($id);
+        } else {
+            $query->where('slug', $id);
+        }
 
         $query->withUserSaved($user);
 

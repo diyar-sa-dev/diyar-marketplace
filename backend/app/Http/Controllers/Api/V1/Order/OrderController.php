@@ -58,6 +58,7 @@ class OrderController extends Controller
                 idempotencyKey: $request->idempotencyKey(),
                 payloadHash: $request->payloadHash(),
                 vendorCoupons: $request->validated('vendor_coupons') ?? [],
+                sessionFingerprint: $request->header('X-Affiliate-Session'),
             );
         } catch (ConflictHttpException $exception) {
             return ApiResponse::error($exception->getMessage(), 409);

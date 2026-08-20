@@ -4,13 +4,14 @@ import type { VendorCouponPayload } from '../../api/vendorCoupons.ts';
 
 export const vendorCouponKeys = {
   all: ['vendor-coupons'] as const,
-  list: (page: number) => [...vendorCouponKeys.all, 'list', page] as const,
+  list: (page: number, perPage: number) =>
+    [...vendorCouponKeys.all, 'list', page, perPage] as const,
 };
 
-export function useVendorCoupons(page = 1) {
+export function useVendorCoupons(page = 1, perPage = 10) {
   return useQuery({
-    queryKey: vendorCouponKeys.list(page),
-    queryFn: () => vendorCouponsApi.fetchVendorCoupons(page),
+    queryKey: vendorCouponKeys.list(page, perPage),
+    queryFn: () => vendorCouponsApi.fetchVendorCoupons(page, perPage),
   });
 }
 

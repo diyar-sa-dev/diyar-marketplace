@@ -22,7 +22,9 @@ function interpolate(template: string, params?: TranslateParams): string {
     return template;
   }
 
-  return Object.entries(params).reduce((result, [name, value]) => {
+  const entries = Object.entries(params).sort(([a], [b]) => b.length - a.length);
+
+  return entries.reduce((result, [name, value]) => {
     const stringValue = String(value);
     return result.replaceAll(`:${name}`, stringValue).replaceAll(`{{${name}}}`, stringValue);
   }, template);

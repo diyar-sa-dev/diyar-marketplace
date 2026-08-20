@@ -19,7 +19,10 @@ export async function fetchReturnEligibility(
   return data.data;
 }
 
-export async function fetchCustomerReturns(page = 1): Promise<{
+export async function fetchCustomerReturns(
+  page = 1,
+  perPage = 10,
+): Promise<{
   returns: ReturnRequest[];
   pagination: { current_page: number; last_page: number; per_page: number; total: number };
 }> {
@@ -28,7 +31,7 @@ export async function fetchCustomerReturns(page = 1): Promise<{
       returns: ReturnRequest[];
       pagination: { current_page: number; last_page: number; per_page: number; total: number };
     }>
-  >('/returns', { params: { page } });
+  >('/returns', { params: { page, per_page: perPage } });
   return data.data;
 }
 
@@ -53,6 +56,7 @@ export async function uploadReturnEvidence(returnId: string, file: File): Promis
 export async function fetchVendorReturns(
   page = 1,
   status = 'all',
+  perPage = 10,
 ): Promise<{
   returns: ReturnRequest[];
   pagination: { current_page: number; last_page: number; per_page: number; total: number };
@@ -62,7 +66,7 @@ export async function fetchVendorReturns(
       returns: ReturnRequest[];
       pagination: { current_page: number; last_page: number; per_page: number; total: number };
     }>
-  >('/dashboard/vendor/returns', { params: { page, status } });
+  >('/dashboard/vendor/returns', { params: { page, status, per_page: perPage } });
   return data.data;
 }
 

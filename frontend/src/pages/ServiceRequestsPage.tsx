@@ -16,6 +16,7 @@ import {
   useSimulateServiceBookingPayment,
 } from '../hooks/services/useServiceRequests.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { usePaginationState } from '../hooks/usePaginationState.ts';
 import { useToast } from '../hooks/useToast.ts';
 import { formatOrderDate } from '../lib/formatOrderDate.ts';
 import { formatRelativeOfferDay, formatServiceRequestReference } from '../lib/formatRelativeDay.ts';
@@ -28,19 +29,27 @@ export default function ServiceRequestsPage() {
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('all');
-  const [page, setPage] = useState(1);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState();
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(searchParams.get('id'));
 
-  const [offersPage, setOffersPage] = useState(1);
+  const {
+    page: offersPage,
+    perPage: offersPerPage,
+    perPageOptions: offersPerPageOptions,
+    onPageChange: onOffersPageChange,
+    onPerPageChange: onOffersPerPageChange,
+    resetPage: resetOffersPage,
+  } = usePaginationState({ initialPerPage: OFFERS_PER_PAGE, perPageOptions: [3, 5, 10, 15] });
   const [rejectingOfferId, setRejectingOfferId] = useState<string | null>(null);
 
   useEffect(() => {
     const id = searchParams.get('id');
     setSelectedRequestId(id);
-    setOffersPage(1);
-  }, [searchParams]);
+    resetOffersPage();
+  }, [searchParams, resetOffersPage]);
 
-  const listQuery = useServiceRequests(page, activeTab);
+  const listQuery = useServiceRequests(page, activeTab, perPage);
   const detailQuery = useServiceRequest(selectedRequestId ?? undefined);
   const acceptOffer = useAcceptServiceOffer();
   const rejectOffer = useRejectServiceOffer();
@@ -52,18 +61,18 @@ export default function ServiceRequestsPage() {
   const pendingOffers = request?.offers?.filter((offer) => offer.status === 'pending') ?? [];
 
   const paginatedOffers = useMemo(() => {
-    const start = (offersPage - 1) * OFFERS_PER_PAGE;
-    return pendingOffers.slice(start, start + OFFERS_PER_PAGE);
-  }, [pendingOffers, offersPage]);
+    const start = (offersPage - 1) * offersPerPage;
+    return pendingOffers.slice(start, start + offersPerPage);
+  }, [pendingOffers, offersPage, offersPerPage]);
 
   const offersPagination = useMemo(
     () => ({
       current_page: offersPage,
-      last_page: Math.max(1, Math.ceil(pendingOffers.length / OFFERS_PER_PAGE)),
-      per_page: OFFERS_PER_PAGE,
+      last_page: Math.max(1, Math.ceil(pendingOffers.length / offersPerPage)),
+      per_page: offersPerPage,
       total: pendingOffers.length,
     }),
-    [offersPage, pendingOffers.length],
+    [offersPage, offersPerPage, pendingOffers.length],
   );
 
   const handleRejectOffer = async (offerId: string) => {
@@ -334,11 +343,15 @@ export default function ServiceRequestsPage() {
               ))}
             </div>
 
-            {offersPagination.last_page > 1 && (
+            {offersPagination.total > 0 && (
               <PaginationBar
                 pagination={offersPagination}
                 page={offersPage}
-                onPageChange={setOffersPage}
+                perPage={offersPerPage}
+                perPageOptions={[...offersPerPageOptions]}
+                onPageChange={onOffersPageChange}
+                onPerPageChange={onOffersPerPageChange}
+                alwaysShow={offersPagination.total > 0}
                 className="mt-8"
               />
             )}
@@ -372,7 +385,7 @@ export default function ServiceRequestsPage() {
             type="button"
             onClick={() => {
               setActiveTab(tab);
-              setPage(1);
+              resetPage();
             }}
             className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-colors cursor-pointer ${
               activeTab === tab
@@ -418,7 +431,11 @@ export default function ServiceRequestsPage() {
             <PaginationBar
               pagination={listQuery.data.pagination}
               page={page}
-              onPageChange={setPage}
+              perPage={perPage}
+              perPageOptions={[...perPageOptions]}
+              onPageChange={onPageChange}
+              onPerPageChange={onPerPageChange}
+              alwaysShow={listQuery.data.pagination.total > 0}
               className="mt-8"
             />
           )}

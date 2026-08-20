@@ -14,8 +14,8 @@ export const providerDashboardKeys = {
     [...providerDashboardKeys.all, 'own-services', page, perPage, q ?? ''] as const,
   financeSummary: () => [...providerDashboardKeys.all, 'finance-summary'] as const,
   financeAnalytics: () => [...providerDashboardKeys.all, 'finance-analytics'] as const,
-  financeTransactions: (page: number, type?: string) =>
-    [...providerDashboardKeys.all, 'finance-transactions', page, type ?? 'all'] as const,
+  financeTransactions: (page: number, perPage: number, type?: string) =>
+    [...providerDashboardKeys.all, 'finance-transactions', page, perPage, type ?? 'all'] as const,
   settings: () => [...providerDashboardKeys.all, 'settings'] as const,
 };
 
@@ -143,10 +143,10 @@ export function useProviderFinanceAnalytics() {
   });
 }
 
-export function useProviderFinanceTransactions(page = 1, type?: string) {
+export function useProviderFinanceTransactions(page = 1, type?: string, perPage = 20) {
   return useQuery({
-    queryKey: providerDashboardKeys.financeTransactions(page, type),
-    queryFn: () => providerDashboardApi.fetchProviderFinanceTransactions(page, 20, type),
+    queryKey: providerDashboardKeys.financeTransactions(page, perPage, type),
+    queryFn: () => providerDashboardApi.fetchProviderFinanceTransactions(page, perPage, type),
     refetchOnMount: 'always',
   });
 }

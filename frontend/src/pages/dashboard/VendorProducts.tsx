@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useCategories } from '../../hooks/catalog/useCatalog.ts';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import {
   useVendorDashboardProduct,
   useVendorDashboardProducts,
@@ -35,7 +36,8 @@ export default function VendorProducts() {
   const { t, dir, locale } = useLocale();
   const [searchInput, setSearchInput] = useState('');
   const debouncedSearch = useDebouncedValue(searchInput, 300);
-  const [page, setPage] = useState(1);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState();
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
@@ -61,9 +63,9 @@ export default function VendorProducts() {
             ? ('in_stock' as const)
             : ('out_of_stock' as const),
       page,
-      per_page: 10,
+      per_page: perPage,
     }),
-    [debouncedSearch, categoryFilter, stockFilter, page],
+    [debouncedSearch, categoryFilter, stockFilter, page, perPage],
   );
 
   const { data, isLoading, isError, error, refetch } = useVendorDashboardProducts(filters);
@@ -233,7 +235,7 @@ export default function VendorProducts() {
         searchTerm={searchInput}
         onSearchChange={(value) => {
           setSearchInput(value);
-          setPage(1);
+          resetPage();
         }}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
@@ -245,13 +247,13 @@ export default function VendorProducts() {
         categoryFilter={categoryFilter}
         onCategoryFilterChange={(id) => {
           setCategoryFilter(id);
-          setPage(1);
+          resetPage();
           setIsFilterOpen(false);
         }}
         stockFilter={stockFilter}
         onStockFilterChange={(value) => {
           setStockFilter(value);
-          setPage(1);
+          resetPage();
           setIsFilterOpen(false);
         }}
       />
@@ -290,7 +292,11 @@ export default function VendorProducts() {
         <PaginationBar
           pagination={pagination}
           page={page}
-          onPageChange={setPage}
+          perPage={perPage}
+          perPageOptions={[...perPageOptions]}
+          onPageChange={onPageChange}
+          onPerPageChange={onPerPageChange}
+          alwaysShow={pagination.total > 0}
           className="mt-4"
         />
       )}

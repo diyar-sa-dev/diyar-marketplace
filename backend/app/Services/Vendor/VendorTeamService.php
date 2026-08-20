@@ -4,6 +4,8 @@ namespace App\Services\Vendor;
 
 use App\Enums\VendorTeamRole;
 use App\Enums\VendorTeamStatus;
+use App\Events\Domain\TeamInvitationReceived;
+use App\Events\Domain\TeamMemberAdded;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorTeamMember;
@@ -117,7 +119,12 @@ final class VendorTeamService
 
             $this->sendInviteEmail($member, $vendorAccount, $locale, $matchedUser === null);
 
-            return $member->fresh('user');
+            $freshMember = $member->fresh('user');
+            if ($matchedUser !== null) {
+                DB::afterCommit(fn () => event(new TeamInvitationReceived($freshMember)));
+            }
+
+            return $freshMember;
         });
     }
 
@@ -146,7 +153,12 @@ final class VendorTeamService
 
             $this->sendInviteEmail($member->fresh(), $vendorAccount, $locale, $matchedUser === null);
 
-            return $member->fresh('user');
+            $freshMember = $member->fresh('user');
+            if ($matchedUser !== null) {
+                DB::afterCommit(fn () => event(new TeamInvitationReceived($freshMember)));
+            }
+
+            return $freshMember;
         });
     }
 
@@ -279,7 +291,10 @@ final class VendorTeamService
                 'invite_token' => null,
             ]);
 
-            return $this->memberPayload($member->fresh('user'));
+            $freshMember = $member->fresh('user');
+            DB::afterCommit(fn () => event(new TeamMemberAdded($freshMember, $user)));
+
+            return $this->memberPayload($freshMember);
         });
     }
 

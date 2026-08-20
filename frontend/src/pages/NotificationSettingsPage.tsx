@@ -1,248 +1,177 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, Bell, Smartphone, Mail, Package, Tag, Info } from 'lucide-react';
+import { Bell, ChevronLeft, Mail, Smartphone } from 'lucide-react';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { resolveAccountHubPath, resolveNotificationsHubPath } from '../lib/auth/roles.ts';
-import { useUpdateProfile } from '../hooks/profile/useProfile.ts';
-import { useToast } from '../hooks/useToast.ts';
+import { useLocale } from '../hooks/useLocale.ts';
 import {
-  mergeNotificationPreferences,
-  readNotificationPreferences,
-  type NotificationChannelSettings,
-} from '../lib/notificationPreferences.ts';
+  useNotificationPreferences,
+  useUpdateNotificationPreferences,
+} from '../hooks/profile/useNotificationPreferences.ts';
+import { useToast } from '../hooks/useToast.ts';
+import { LoadingState } from '../components/common/LoadingState.tsx';
+import { ErrorState } from '../components/common/ErrorState.tsx';
+import { NotificationCategorySettingsGrid } from '../components/notifications/NotificationCategorySettingsGrid.tsx';
+import { NotificationToggle } from '../components/notifications/NotificationToggle.tsx';
 
 export default function NotificationSettingsPage() {
   const { user } = useAuth();
+  const { t } = useLocale();
   const accountHubPath = resolveAccountHubPath(user?.roles);
   const notificationsHubPath = resolveNotificationsHubPath(user?.roles);
-  const updateProfile = useUpdateProfile();
+  const settingsQuery = useNotificationPreferences();
+  const updateSettings = useUpdateNotificationPreferences();
   const { toast } = useToast();
-  const [settings, setSettings] = useState<NotificationChannelSettings>(() =>
-    readNotificationPreferences(user?.preferences),
-  );
 
-  useEffect(() => {
-    setSettings(readNotificationPreferences(user?.preferences));
-  }, [user?.preferences]);
-
-  const persistSettings = async (next: NotificationChannelSettings) => {
-    setSettings(next);
-
+  const handleGlobalChannelToggle = async (channel: 'email' | 'push', nextValue: boolean) => {
     try {
-      await updateProfile.mutateAsync({
-        preferences: mergeNotificationPreferences(user?.preferences, next),
-      });
+      await updateSettings.mutateAsync({ channels: { [channel]: nextValue } });
+      toast.success(t('notifications.settingsSaved'));
     } catch {
-      setSettings(readNotificationPreferences(user?.preferences));
-      toast.error('تعذّر حفظ إعدادات الإشعارات. حاول مرة أخرى.');
+      toast.error(t('notifications.settingsSaveError'));
     }
   };
 
-  const toggleSetting = (key: keyof NotificationChannelSettings) => {
-    if (key === 'system') {
-      return;
+  const handleCategoryToggle = async (categoryKey: string, nextValue: boolean) => {
+    try {
+      await updateSettings.mutateAsync({
+        category_enabled: { [categoryKey]: nextValue },
+      });
+      toast.success(t('notifications.settingsSaved'));
+    } catch {
+      toast.error(t('notifications.settingsSaveError'));
     }
-
-    void persistSettings({ ...settings, [key]: !settings[key] });
   };
+
+  const settings = settingsQuery.data;
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24 md:pb-12">
-      {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Link to="/" className="hover:text-diyar-dark transition">
-              الرئيسية
+            <Link to="/" className="hover:text-diyar-dark transition cursor-pointer">
+              {t('common.home')}
             </Link>
             <ChevronLeft size={16} />
-            <Link to={accountHubPath} className="hover:text-diyar-dark transition">
-              حسابي
+            <Link to={accountHubPath} className="hover:text-diyar-dark transition cursor-pointer">
+              {t('common.myAccount')}
             </Link>
             <ChevronLeft size={16} />
-            <Link to={notificationsHubPath} className="hover:text-diyar-dark transition">
-              الإشعارات
+            <Link to={notificationsHubPath} className="hover:text-diyar-dark transition cursor-pointer">
+              {t('common.notifications')}
             </Link>
             <ChevronLeft size={16} />
-            <span className="font-bold text-diyar-dark">إعدادات الإشعارات</span>
+            <span className="font-bold text-diyar-dark">{t('notifications.settingsTitle')}</span>
           </div>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h1 className="text-xl md:text-2xl font-bold text-diyar-dark mb-2">إعدادات الإشعارات</h1>
-          <p className="text-gray-500 text-sm">تحكم في كيفية تلقيك للتنبيهات والرسائل</p>
+        <div className="mb-8">
+          <h1 className="text-xl md:text-2xl font-bold text-diyar-dark mb-2 flex items-center gap-2">
+            <Bell size={24} className="text-diyar-brown" />
+            {t('notifications.settingsTitle')}
+          </h1>
+          <p className="text-gray-500 text-sm">{t('notifications.settingsSubtitle')}</p>
         </div>
 
-        <div className="space-y-6">
-          {/* Channels */}
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-5 md:p-6 border-b border-gray-100 bg-gray-50/50">
-              <h2 className="font-bold text-lg text-diyar-dark">قنوات التواصل</h2>
-              <p className="text-xs text-gray-500 mt-1">
-                اختر الطرق التي تفضل أن نتواصل معك من خلالها
-              </p>
-            </div>
-
-            <div className="divide-y divide-gray-50">
-              {/* Push Notes */}
-              <div className="p-5 md:p-6 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                    <Bell size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-gray-800 mb-1">
-                      إشعارات التطبيق / المتصفح
-                    </h3>
-                    <p className="text-xs text-gray-500">تلقي التنبيهات المباشرة على جهازك</p>
-                  </div>
-                </div>
-                <Toggle
-                  isChecked={settings.push}
-                  onToggle={() => toggleSetting('push')}
-                  disabled={updateProfile.isPending}
-                />
+        {settingsQuery.isLoading ? (
+          <LoadingState message={t('notifications.settingsLoading')} />
+        ) : settingsQuery.isError || !settings ? (
+          <ErrorState
+            message={t('notifications.settingsLoadError')}
+            onRetry={() => void settingsQuery.refetch()}
+          />
+        ) : (
+          <div className="space-y-6">
+            <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-5 md:p-6 border-b border-gray-100 bg-linear-to-r from-gray-50/80 to-white">
+                <h2 className="font-bold text-lg text-diyar-dark">{t('notifications.channelsTitle')}</h2>
+                <p className="text-xs text-gray-500 mt-1">{t('notifications.channelsSubtitle')}</p>
               </div>
 
-              {/* Email */}
-              <div className="p-5 md:p-6 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                    <Mail size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-gray-800 mb-1">البريد الإلكتروني</h3>
-                    <p className="text-xs text-gray-500">تلقي التحديثات عبر البريد الإلكتروني</p>
-                  </div>
-                </div>
-                <Toggle
-                  isChecked={settings.email}
-                  onToggle={() => toggleSetting('email')}
-                  disabled={updateProfile.isPending}
+              <div className="divide-y divide-gray-50">
+                <ChannelSettingRow
+                  icon={<Bell size={18} />}
+                  title={t('notifications.channelPushTitle')}
+                  description={t('notifications.channelPushDescription')}
+                  checked={settings.channels.push}
+                  onToggle={() => void handleGlobalChannelToggle('push', !settings.channels.push)}
                 />
-              </div>
-
-              {/* SMS */}
-              <div className="p-5 md:p-6 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shrink-0">
-                    <Smartphone size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-gray-800 mb-1">الرسائل النصية (SMS)</h3>
-                    <p className="text-xs text-gray-500">تلقي التحديثات الهامة عبر رسائل الجوال</p>
-                  </div>
-                </div>
-                <Toggle
-                  isChecked={settings.sms}
-                  onToggle={() => toggleSetting('sms')}
-                  disabled={updateProfile.isPending}
+                <ChannelSettingRow
+                  icon={<Mail size={18} />}
+                  title={t('notifications.channelEmailTitle')}
+                  description={t('notifications.channelEmailDescription')}
+                  checked={settings.channels.email}
+                  onToggle={() => void handleGlobalChannelToggle('email', !settings.channels.email)}
                 />
-              </div>
-            </div>
-          </div>
-
-          {/* Types */}
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-5 md:p-6 border-b border-gray-100 bg-gray-50/50">
-              <h2 className="font-bold text-lg text-diyar-dark">أنواع الإشعارات</h2>
-              <p className="text-xs text-gray-500 mt-1">اختر أنواع التنبيهات التي تود استلامها</p>
-            </div>
-
-            <div className="divide-y divide-gray-50">
-              {/* Orders */}
-              <div className="p-5 md:p-6 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-diyar-brown/10 text-diyar-brown flex items-center justify-center shrink-0">
-                    <Package size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-gray-800 mb-1">تحديثات الطلبات</h3>
-                    <p className="text-xs text-gray-500">
-                      تنبيهات حول حالة الطلب، الشحن، ومواعيد التركيب
-                    </p>
-                  </div>
-                </div>
-                <Toggle
-                  isChecked={settings.orders}
-                  onToggle={() => toggleSetting('orders')}
-                  disabled={updateProfile.isPending}
-                />
-              </div>
-
-              {/* Promotions */}
-              <div className="p-5 md:p-6 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-                    <Tag size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-gray-800 mb-1">العروض والخصومات</h3>
-                    <p className="text-xs text-gray-500">أحدث العروض الحصرية وإشعارات التخفيضات</p>
-                  </div>
-                </div>
-                <Toggle
-                  isChecked={settings.promotions}
-                  onToggle={() => toggleSetting('promotions')}
-                  disabled={updateProfile.isPending}
-                />
-              </div>
-
-              {/* System */}
-              <div className="p-5 md:p-6 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
-                    <Info size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-gray-800 mb-1">تحديثات الحساب</h3>
-                    <p className="text-xs text-gray-500">تنبيهات الأمان وتغييرات ملفك الشخصي</p>
-                  </div>
-                </div>
-                <Toggle
-                  isChecked={settings.system}
-                  onToggle={() => toggleSetting('system')}
+                <ChannelSettingRow
+                  icon={<Smartphone size={18} />}
+                  title={t('notifications.channelSmsTitle')}
+                  description={t('notifications.channelSmsDescription')}
+                  checked={false}
                   disabled
+                  unavailableLabel={t('notifications.channelSmsUnavailable')}
                 />
               </div>
-            </div>
+            </section>
+
+            <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-5 md:p-6 border-b border-gray-100 bg-linear-to-r from-amber-50/40 to-white">
+                <h2 className="font-bold text-lg text-diyar-dark">{t('notifications.typesTitle')}</h2>
+                <p className="text-xs text-gray-500 mt-1">{t('notifications.typesSubtitle')}</p>
+              </div>
+
+              <NotificationCategorySettingsGrid
+                t={t}
+                categories={settings.categories}
+                categoryEnabled={settings.category_enabled}
+                onToggle={(key, next) => void handleCategoryToggle(key, next)}
+              />
+            </section>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
 
-// Toggle Component
-function Toggle({
-  isChecked,
+function ChannelSettingRow({
+  icon,
+  title,
+  description,
+  checked,
   onToggle,
   disabled = false,
+  unavailableLabel,
 }: {
-  isChecked: boolean;
-  onToggle: () => void;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  checked: boolean;
+  onToggle?: () => void;
   disabled?: boolean;
+  unavailableLabel?: string;
 }) {
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={isChecked}
-      disabled={disabled}
-      onClick={onToggle}
-      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-diyar-dark focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
-        isChecked ? 'bg-diyar-dark' : 'bg-gray-200'
-      } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-    >
-      <span className="sr-only">Toggle setting</span>
-      <span
-        aria-hidden="true"
-        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out rtl:translate-x-0 ${
-          isChecked ? '-translate-x-5' : 'translate-x-0'
-        }`}
-      />
-    </button>
+    <div className="p-5 md:p-6 flex items-center justify-between gap-4 hover:bg-gray-50/60 transition-colors">
+      <div className="flex items-start gap-3 min-w-0">
+        <div className="w-10 h-10 rounded-2xl bg-diyar-brown/10 text-diyar-brown flex items-center justify-center shrink-0">
+          {icon}
+        </div>
+        <div className="min-w-0">
+          <h3 className="font-bold text-sm text-gray-800 mb-1">{title}</h3>
+          <p className="text-xs text-gray-500 leading-relaxed">{description}</p>
+        </div>
+      </div>
+      {unavailableLabel ? (
+        <span className="text-xs text-amber-700 font-bold shrink-0 bg-amber-50 px-2.5 py-1 rounded-full">
+          {unavailableLabel}
+        </span>
+      ) : (
+        <NotificationToggle checked={checked} label={title} onChange={() => onToggle?.()} disabled={disabled} />
+      )}
+    </div>
   );
 }

@@ -169,6 +169,31 @@ export function resolveNotificationsHubPath(roles: UserRoleLike[] | undefined): 
   return '/profile/notifications';
 }
 
+/** Messages inbox — storefront uses unified chat; dashboards use portal-specific routes. */
+export function resolveChatHubPath(
+  roles: UserRoleLike[] | undefined,
+  portal?: DashboardPortalKey | null,
+): string {
+  if (portal === 'vendor' && hasActiveRole(roles, RoleName.Vendor)) {
+    return '/dashboard/vendor/messages';
+  }
+
+  if (portal === 'service' && hasActiveRole(roles, RoleName.Provider)) {
+    return '/dashboard/service/messages';
+  }
+
+  return '/chat';
+}
+
+export function resolveChatConversationPath(
+  roles: UserRoleLike[] | undefined,
+  conversationId: string,
+  portal?: DashboardPortalKey | null,
+): string {
+  const hub = resolveChatHubPath(roles, portal);
+  return `${hub}?conversation=${encodeURIComponent(conversationId)}`;
+}
+
 export function isAccountHubPath(
   pathname: string,
   search: string,

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQueries } from '@tanstack/react-query';
 import ProductCard from '../cards/ProductCard.tsx';
 import ServiceCard from '../cards/ServiceCard.tsx';
@@ -7,6 +7,11 @@ import { useCategories, useProducts, useVendors } from '../../hooks/catalog/useC
 import { serviceKeys } from '../../hooks/services/queryKeys.ts';
 import { fetchServices } from '../../api/services.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { validateNewsletterEmail } from '../../lib/platformForms.ts';
+import { parseApiError } from '../../utils/errors.ts';
+import { subscribeNewsletter } from '../../api/platform.ts';
+import { useAuth } from '../../hooks/auth/useAuth.ts';
+import { skipDashboardTutorial } from '../../lib/dashboardTutorialStorage.ts';
 import { isValidStoreSlug, storePath } from '../../lib/storePath.ts';
 import { mapProductCard } from '../../lib/catalogMappers.ts';
 import {
@@ -242,74 +247,137 @@ export function Reviews() {
 }
 
 export function Newsletter() {
+  const { t, locale } = useLocale();
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (user?.email) {
+      setEmail(user.email);
+    }
+  }, [user?.email]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!isAuthenticated) {
+      navigate('/auth', { state: { from: '/', authView: 'login' } });
+      return;
+    }
+
+    const validationError = validateNewsletterEmail(email, t);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      await subscribeNewsletter(email.trim(), locale);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 4000);
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setError(parsed.message || t('home.newsletter.submitError'));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="bg-white py-6 md:py-8">
       <div className="max-w-3xl mx-auto px-4 text-center">
         <h2 className="text-2xl md:text-4xl font-sans font-bold mb-4 text-diyar-dark">
-          اشترك في نشرتنا البريدية
+          {t('home.newsletter.title')}
         </h2>
-        <p className="text-lg text-gray-500 mb-8">
-          احصل على أحدث العروض، ونصائح الديكور، والمنتجات الجديدة مباشرة في صندوق الوارد الخاص بك.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
-          <input
-            type="email"
-            placeholder="أدخل بريدك الإلكتروني"
-            className="flex-1 bg-diyar-cream/50 border border-gray-200 rounded-lg px-6 py-4 outline-none focus:border-diyar-brown transition"
-          />
-          <button className="bg-diyar-brown text-white px-8 py-4 rounded-lg hover:bg-diyar-brown transition flex items-center justify-center gap-2">
-            <span>اشتراك</span>
-            <Send className="w-5 h-5 rtl:-scale-x-100" />
-          </button>
-        </div>
+        <p className="text-lg text-gray-500 mb-8">{t('home.newsletter.subtitle')}</p>
+        {success ? (
+          <p className="text-sm font-bold text-green-700 bg-green-50 border border-green-100 rounded-xl px-4 py-3 inline-block">
+            {t('home.newsletter.success')}
+          </p>
+        ) : (
+          <form
+            onSubmit={(e) => void handleSubmit(e)}
+            className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto"
+          >
+            <div className="flex-1 text-start">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t('home.newsletter.placeholder')}
+                className={`w-full bg-diyar-cream/50 border rounded-lg px-6 py-4 outline-none focus:border-diyar-brown transition ${
+                  error ? 'border-red-300' : 'border-gray-200'
+                }`}
+              />
+              {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
+            </div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="bg-diyar-brown text-white px-8 py-4 rounded-lg hover:bg-diyar-dark transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
+            >
+              <span>{submitting ? t('home.newsletter.submitting') : t('home.newsletter.submit')}</span>
+              <Send className="w-5 h-5 rtl:-scale-x-100" />
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
 }
 
 export function StyleFilter() {
+  const { t } = useLocale();
   const styles = [
     {
-      name: 'كلاسيكي',
-      desc: 'أناقة خالدة وتفاصيل فاخرة',
+      nameKey: 'home.styleFilter.classic',
+      descKey: 'home.styleFilter.classicDesc',
       img: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=800',
     },
     {
-      name: 'مودرن',
-      desc: 'خطوط نظيفة وتصميم عملي',
+      nameKey: 'home.styleFilter.modern',
+      descKey: 'home.styleFilter.modernDesc',
       img: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=600',
     },
     {
-      name: 'نيو كلاسيك',
-      desc: 'مزيج بين الفخامة والعملية',
+      nameKey: 'home.styleFilter.neoClassic',
+      descKey: 'home.styleFilter.neoClassicDesc',
       img: 'https://images.unsplash.com/photo-1595428774223-ef52624120ec?auto=format&fit=crop&q=80&w=600',
     },
     {
-      name: 'بساطة (Minimal)',
-      desc: 'هدوء وتصميم خالي من التعقيد',
+      nameKey: 'home.styleFilter.minimal',
+      descKey: 'home.styleFilter.minimalDesc',
       img: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=600',
     },
     {
-      name: 'خشبي طبيعي',
-      desc: 'دفء الطبيعة في منزلك',
+      nameKey: 'home.styleFilter.naturalWood',
+      descKey: 'home.styleFilter.naturalWoodDesc',
       img: 'https://images.unsplash.com/photo-1449247709967-d4461a6a6103?auto=format&fit=crop&q=80&w=600',
     },
-  ];
+  ] as const;
+
   return (
-    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
+    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4 relative">
       <div className="text-center mb-6 md:mb-10">
         <span className="text-diyar-brown text-sm md:text-base font-bold mb-3 block">
-          تنوع الأذواق
+          {t('home.styleFilter.badge')}
         </span>
         <h2 className="text-2xl md:text-5xl font-sans font-bold text-diyar-dark">
-          تسوق حسب الأسلوب
+          {t('home.styleFilter.title')}
         </h2>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:gap-5 md:h-150">
+      <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:gap-5 md:h-150 opacity-70 pointer-events-none select-none">
         {styles.map((s, i) => (
           <div
-            key={i}
-            className={`rounded-xl overflow-hidden relative group cursor-pointer flex flex-col justify-end ${
+            key={s.nameKey}
+            className={`rounded-xl overflow-hidden relative flex flex-col justify-end ${
               i === 0
                 ? 'md:col-span-2 md:row-span-2 h-80 md:h-full'
                 : 'md:col-span-1 md:row-span-1 h-56 md:h-full'
@@ -317,98 +385,108 @@ export function StyleFilter() {
           >
             <img
               src={s.img}
-              alt={s.name}
+              alt={t(s.nameKey)}
               referrerPolicy="no-referrer"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+              className="absolute inset-0 w-full h-full object-cover grayscale-20"
               onError={(e) => {
                 (e.target as HTMLImageElement).src =
                   'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=60&w=800';
               }}
             />
             <div className="absolute inset-0 bg-linear-to-t from-diyar-dark/90 via-diyar-dark/20 to-transparent"></div>
-            <div className="relative z-10 p-6 md:p-8 transform transition-transform duration-500 md:translate-y-4 group-hover:translate-y-0">
+            <div className="relative z-10 p-6 md:p-8">
               <span className="block font-sans font-bold text-xl md:text-3xl text-white mb-2">
-                {s.name}
+                {t(s.nameKey)}
               </span>
-              <span className="block text-white/80 text-sm md:text-base opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                {s.desc}
-              </span>
+              <span className="block text-white/80 text-sm md:text-base">{t(s.descKey)}</span>
             </div>
           </div>
         ))}
+      </div>
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <span className="bg-white/95 backdrop-blur-sm text-diyar-dark text-sm font-bold px-5 py-2.5 rounded-full border border-gray-200 shadow-lg">
+          {t('home.styleFilter.comingSoon')}
+        </span>
       </div>
     </div>
   );
 }
 
 export function AIBanner() {
+  const { t } = useLocale();
+
   return (
     <div className="bg-[#132624] text-white py-8 md:py-12 my-8 md:my-10 mx-4 md:mx-auto relative overflow-hidden rounded-3xl max-w-7xl shadow-md">
-      {/* Decorative background elements */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-size-[4rem_4rem]"></div>
       <div className="absolute top-0 right-0 w-160 h-160 bg-diyar-brown/20 rounded-full blur-[130px] -translate-y-1/2 translate-x-1/3"></div>
       <div className="absolute bottom-0 left-0 w-120 h-120 bg-[#1a4a42]/30 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3"></div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-8 lg:gap-12 relative z-10">
         <div className="w-full md:w-1/2 text-center md:text-right order-2 md:order-1">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 backdrop-blur-md shadow-md text-[#d2b694] font-bold rounded-full mb-6 md:mb-8 text-sm">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 backdrop-blur-md shadow-md text-[#d2b694] font-bold rounded-full mb-3 text-sm">
             <Sparkles size={16} className="animate-pulse" />
-            <span>تقنية المساعد الشخصي من ديار</span>
+            <span>{t('home.aiBanner.badge')}</span>
           </div>
+          <span className="inline-flex mb-4 text-[11px] font-bold uppercase tracking-wide bg-amber-500/15 text-amber-200 border border-amber-400/20 px-3 py-1 rounded-full">
+            {t('home.aiBanner.earlyAccess')}
+          </span>
           <h2 className="text-3xl md:text-5xl font-sans font-bold mb-6 text-diyar-cream leading-[1.4]">
-            المستقبل هنا. <br className="hidden md:block" />
+            {t('home.aiBanner.titleLine1')} <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-linear-to-l from-[#d2b694] to-white">
-              صمم غرفتك بلمسة خيال!
+              {t('home.aiBanner.titleLine2')}
             </span>
           </h2>
           <p className="mb-8 md:mb-10 text-gray-300 text-base md:text-lg leading-relaxed max-w-xl mx-auto md:mx-0 font-light">
-            لا داعي للتخيل بعد الآن. صور مساحتك، وسيقوم المساعد الشخصي المتقدم بتحليل الأبعاد
-            والنمط، ليدمج قطع الأثاث المثالية بواقعية مذهلة، لترى غرفتك قبل التنفيذ.
+            {t('home.aiBanner.body')}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
-            <button className="flex items-center justify-center gap-3 bg-diyar-brown text-white px-8 py-4 rounded-lg hover:bg-[#7a6450] hover:scale-105 transition-all duration-300 text-lg shadow-md font-bold group border border-diyar-brown/50 w-full sm:w-auto">
-              <UploadCloud className="group-hover:-translate-y-1 transition-transform" />
-              <span>جرب غرفتك الآن</span>
+            <button
+              type="button"
+              disabled
+              className="flex items-center justify-center gap-3 bg-diyar-brown/60 text-white/80 px-8 py-4 rounded-lg text-lg shadow-md font-bold border border-diyar-brown/30 w-full sm:w-auto cursor-not-allowed opacity-70"
+            >
+              <UploadCloud />
+              <span>{t('home.aiBanner.tryNow')}</span>
             </button>
-            <button className="flex items-center justify-center gap-2 bg-transparent text-white border border-white/20 px-8 py-4 rounded-lg hover:bg-white/5 transition-colors text-lg font-bold w-full sm:w-auto">
-              شاهد التفاصيل
+            <button
+              type="button"
+              disabled
+              className="flex items-center justify-center gap-2 bg-transparent text-white/60 border border-white/15 px-8 py-4 rounded-lg text-lg font-bold w-full sm:w-auto cursor-not-allowed opacity-70"
+            >
+              {t('home.aiBanner.viewDetails')}
             </button>
           </div>
         </div>
 
         <div className="w-full md:w-1/2 order-1 md:order-2 flex justify-center">
           <div className="relative w-full max-w-lg aspect-4/3 bg-[#1a3330] rounded-xl overflow-hidden shadow-md border border-white/10 ring-1 ring-white/5 mx-auto">
-            {/* Before Image */}
             <img
               src="/before.png"
-              alt="Empty Room Before"
+              alt={t('home.aiBanner.originalSpace')}
               className="absolute inset-0 w-full h-full object-cover filter grayscale-20 opacity-90"
             />
 
-            {/* After Image and Clip */}
             <div className="absolute inset-0 animate-[sweep_4s_ease-in-out_infinite]">
               <img
                 src="/after.png"
-                alt="Room After AI Placement"
+                alt={t('home.aiBanner.assistantLayout')}
                 className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
 
-            {/* Animated scanning line synced with clip path */}
             <div className="absolute top-0 bottom-0 w-1 bg-[#d2b694] shadow-md animate-[scan-x_4s_ease-in-out_infinite] -ml-0.5 z-10 flex flex-col items-center justify-center">
               <div className="w-8 h-8 md:w-10 md:h-10 bg-[#132624] border-2 border-[#d2b694] rounded-full shadow-md flex items-center justify-center -translate-x-3.5 md:-translate-x-4.5">
                 <Sparkles size={16} className="text-[#d2b694]" />
               </div>
             </div>
 
-            {/* Labels */}
             <div className="absolute top-4 right-4 md:top-6 md:right-6 bg-black/50 border border-white/10 backdrop-blur-md px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-xs font-bold text-gray-300 shadow-md z-0">
-              المساحة الأصلية
+              {t('home.aiBanner.originalSpace')}
             </div>
             <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 bg-linear-to-r from-diyar-brown to-[#7a6450] px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-bold text-white shadow-md z-20 flex items-center gap-2 border border-white/20">
               <Sparkles size={16} className="text-yellow-200" />
-              ترتيب المساعد الشخصي
+              {t('home.aiBanner.assistantLayout')}
             </div>
           </div>
         </div>
@@ -418,6 +496,22 @@ export function AIBanner() {
 }
 
 export function PartnerBanner() {
+  const navigate = useNavigate();
+  const cardsRef = useRef<HTMLDivElement>(null);
+
+  const goToRegister = (role: 'merchant' | 'marketer' | 'service_provider') => {
+    navigate(`/auth?role=${role}`);
+  };
+
+  const openDashboardDemo = () => {
+    skipDashboardTutorial();
+    navigate('/dashboard/vendor?skipTutorial=1');
+  };
+
+  const scrollToCards = () => {
+    cardsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 my-8 md:my-12">
       <div className="bg-linear-to-br from-[#1A1A1A] to-[#2A2A2A] rounded-xl p-8 md:p-12 lg:p-16 relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8 shadow-md">
@@ -445,14 +539,22 @@ export function PartnerBanner() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-            <button className="flex items-center justify-center gap-2 bg-diyar-cream text-diyar-dark px-8 py-4 rounded-xl font-bold hover:bg-white hover:-translate-y-1 transition-all duration-300 shadow-md group">
+            <button
+              type="button"
+              onClick={() => goToRegister('merchant')}
+              className="flex items-center justify-center gap-2 bg-diyar-cream text-diyar-dark px-8 py-4 rounded-xl font-bold hover:bg-white hover:-translate-y-1 transition-all duration-300 shadow-md group cursor-pointer"
+            >
               <Store
                 className="group-hover:scale-110 transition-transform text-diyar-brown"
                 size={20}
               />
               <span>سجل كتاجر</span>
             </button>
-            <button className="flex items-center justify-center gap-2 bg-white/10 border border-white/20 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/20 hover:-translate-y-1 transition-all duration-300 group">
+            <button
+              type="button"
+              onClick={scrollToCards}
+              className="flex items-center justify-center gap-2 bg-white/10 border border-white/20 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/20 hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+            >
               <Sparkles
                 className="group-hover:scale-110 transition-transform text-yellow-500"
                 size={20}
@@ -463,9 +565,13 @@ export function PartnerBanner() {
         </div>
 
         {/* Bento Grid layout for cards */}
-        <div className="w-full lg:w-1/2 relative z-10 flex flex-col gap-4">
+        <div ref={cardsRef} className="w-full lg:w-1/2 relative z-10 flex flex-col gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl hover:bg-white/10 transition-all duration-300 group cursor-pointer relative overflow-hidden backdrop-blur-sm flex flex-col">
+            <button
+              type="button"
+              onClick={() => goToRegister('marketer')}
+              className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl hover:bg-white/10 transition-all duration-300 group cursor-pointer relative overflow-hidden backdrop-blur-sm flex flex-col text-start"
+            >
               <div className="absolute top-0 right-0 w-32 h-32 bg-diyar-brown/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
               <div className="w-14 h-14 bg-diyar-brown/20 border border-diyar-brown/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner">
                 <Briefcase className="text-diyar-cream" size={28} />
@@ -478,9 +584,13 @@ export function PartnerBanner() {
                 <span>انضم كمسوق</span>
                 <ArrowLeft size={16} />
               </div>
-            </div>
+            </button>
 
-            <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl hover:bg-white/10 transition-all duration-300 group cursor-pointer relative overflow-hidden backdrop-blur-sm flex flex-col">
+            <button
+              type="button"
+              onClick={() => goToRegister('service_provider')}
+              className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl hover:bg-white/10 transition-all duration-300 group cursor-pointer relative overflow-hidden backdrop-blur-sm flex flex-col text-start"
+            >
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-diyar-cream/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
               <div className="w-14 h-14 bg-diyar-cream/20 border border-diyar-cream/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner">
                 <Paintbrush className="text-diyar-cream" size={28} />
@@ -493,19 +603,23 @@ export function PartnerBanner() {
                 <span>سجل مهنتك</span>
                 <ArrowLeft size={16} />
               </div>
-            </div>
+            </button>
           </div>
 
-          <div className="bg-diyar-brown/10 border border-diyar-brown/20 p-6 md:p-8 rounded-3xl hover:bg-diyar-brown/20 transition-all duration-300 group cursor-pointer flex flex-col sm:flex-row items-center gap-6 justify-between relative overflow-hidden backdrop-blur-sm">
+          <div className="bg-diyar-brown/10 border border-diyar-brown/20 p-6 md:p-8 rounded-3xl hover:bg-diyar-brown/20 transition-all duration-300 group flex flex-col sm:flex-row items-center gap-6 justify-between relative overflow-hidden backdrop-blur-sm">
             <div className="relative z-10 text-center sm:text-right w-full sm:w-[60%] flex flex-col items-center sm:items-start">
               <h3 className="text-xl md:text-2xl font-bold text-white mb-3">لوحة تحكم متكاملة</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-6">
                 أدوات احترافية لإدارة مبيعاتك، متابعة طلباتك، والتواصل مع عملائك بسهولة.
               </p>
-              <div className="inline-flex items-center gap-2 text-white bg-white/10 px-4 py-2 rounded-lg text-sm font-bold hover:bg-white/20 transition-colors">
+              <button
+                type="button"
+                onClick={openDashboardDemo}
+                className="inline-flex items-center gap-2 text-white bg-white/10 px-4 py-2 rounded-lg text-sm font-bold hover:bg-white/20 transition-colors cursor-pointer"
+              >
                 <Store size={16} />
                 <span>شاهد العرض التجريبي</span>
-              </div>
+              </button>
             </div>
             <div className="w-full sm:w-[40%] flex justify-center opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
               <img
@@ -784,67 +898,78 @@ export function WhyChooseDiyar() {
 }
 
 export function DesignBlog() {
+  const { t } = useLocale();
   const posts = [
     {
-      title: 'الدليل الشامل لاختيار ألوان غرفة المعيشة في 2024',
-      category: 'نصائح ديكور',
-      date: '١٥ مايو',
+      titleKey: 'home.blog.post1Title',
+      categoryKey: 'home.blog.post1Category',
+      dateKey: 'home.blog.post1Date',
       img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=600',
     },
     {
-      title: 'كيف تدمج النمط الكلاسيكي مع العصري بدون أخطاء؟',
-      category: 'أفكار تصميمية',
-      date: '١٠ مايو',
+      titleKey: 'home.blog.post2Title',
+      categoryKey: 'home.blog.post2Category',
+      dateKey: 'home.blog.post2Date',
       img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=600',
     },
     {
-      title: '٥ قطع أساسية لا غنى عنها في منزلك الجديد',
-      category: 'أساسيات المنزل',
-      date: '٠٢ مايو',
+      titleKey: 'home.blog.post3Title',
+      categoryKey: 'home.blog.post3Category',
+      dateKey: 'home.blog.post3Date',
       img: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=600',
     },
-  ];
+  ] as const;
+
   return (
-    <div className="py-8 md:py-12 max-w-7xl mx-auto px-4">
+    <div className="py-8 md:py-12 max-w-7xl mx-auto px-4 relative">
       <div className="flex justify-between items-end mb-6 md:mb-10">
         <div>
-          <span className="text-diyar-brown text-sm font-bold mb-2 block">مدونة ديار</span>
+          <span className="text-diyar-brown text-sm font-bold mb-2 block">{t('home.blog.badge')}</span>
           <h2 className="text-2xl md:text-4xl font-sans font-bold text-diyar-dark">
-            أفكار وإلهام لمنزلك
+            {t('home.blog.title')}
           </h2>
         </div>
-        <button className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition">
-          كل المقالات <ArrowLeft size={18} />
+        <button
+          type="button"
+          disabled
+          className="hidden md:flex text-gray-400 font-bold items-center gap-2 cursor-not-allowed opacity-70"
+        >
+          {t('home.blog.allArticles')} <ArrowLeft size={18} />
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-        {posts.map((post, i) => (
-          <Link to={`/blog/${i + 1}`} key={i} className="group cursor-pointer block">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 opacity-80 pointer-events-none select-none">
+        {posts.map((post) => (
+          <article key={post.titleKey} className="block">
             <div className="w-full h-60 rounded-xl overflow-hidden mb-6 relative">
               <img
                 src={post.img}
-                alt={post.title}
+                alt={t(post.titleKey)}
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src =
                     'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=60&w=600';
                 }}
               />
               <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-diyar-brown">
-                {post.category}
+                {t(post.categoryKey)}
               </div>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-400 mb-3">
-              <span>{post.date}</span>
+              <span>{t(post.dateKey)}</span>
               <span className="w-1.5 h-1.5 bg-gray-300 rounded-full"></span>
-              <span>يستغرق ٣ دقائق قراءة</span>
+              <span>{t('home.blog.readTime')}</span>
             </div>
-            <h3 className="text-xl md:text-2xl font-bold font-sans text-diyar-dark leading-snug group-hover:text-diyar-brown transition">
-              {post.title}
+            <h3 className="text-xl md:text-2xl font-bold font-sans text-diyar-dark leading-snug">
+              {t(post.titleKey)}
             </h3>
-          </Link>
+          </article>
         ))}
+      </div>
+      <div className="absolute inset-x-0 bottom-8 flex justify-center pointer-events-none">
+        <span className="bg-white/95 backdrop-blur-sm text-diyar-dark text-sm font-bold px-5 py-2.5 rounded-full border border-gray-200 shadow-lg">
+          {t('home.blog.comingSoon')}
+        </span>
       </div>
     </div>
   );

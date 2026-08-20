@@ -23,8 +23,12 @@ final class UserNotificationPreferences
     public static function mailLocale(User $user, ?string $fallback = null): string
     {
         $preferences = is_array($user->preferences) ? $user->preferences : [];
-        $locale = $preferences['locale'] ?? $fallback ?? app()->getLocale();
+        $locale = $preferences['locale'] ?? $fallback;
 
-        return in_array($locale, ['ar', 'en'], true) ? $locale : 'ar';
+        if (is_string($locale) && in_array($locale, ['ar', 'en'], true)) {
+            return $locale;
+        }
+
+        return 'ar';
     }
 }

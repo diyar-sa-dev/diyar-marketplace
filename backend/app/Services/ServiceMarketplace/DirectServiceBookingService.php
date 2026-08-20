@@ -8,6 +8,7 @@ use App\Enums\ServiceBookingPaymentStatus;
 use App\Enums\ServiceBookingSource;
 use App\Enums\ServiceBookingStatus;
 use App\Enums\ServicePaymentStrategy;
+use App\Events\Domain\BookingCreated;
 use App\Models\Service;
 use App\Models\ServiceBooking;
 use App\Models\User;
@@ -137,7 +138,10 @@ final class DirectServiceBookingService
                     'status' => ServiceBookingStatus::PendingProviderConfirmation,
                 ]);
 
-                return $booking->fresh(['payment', 'providerAccount', 'service']);
+                $fresh = $booking->fresh(['payment', 'providerAccount', 'service', 'user']);
+                DB::afterCommit(fn () => event(new BookingCreated($fresh)));
+
+                return $fresh;
             });
         } catch (QueryException $exception) {
             if ($this->isUniqueConstraintViolation($exception) && $idempotencyKey !== null) {

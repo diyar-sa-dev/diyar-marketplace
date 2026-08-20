@@ -36,6 +36,7 @@ import {
 import type { ProviderBooking } from '../../types/providerDashboard.ts';
 import { parseApiError, collectDisplayErrors } from '../../utils/errors.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import { BookingScheduleSection } from '../../components/services/BookingScheduleSection.tsx';
 import { canProviderCancelBooking } from '../../lib/providerBookingRules.ts';
 import { hasScheduleNegotiation } from '../../lib/scheduleNegotiation.ts';
@@ -47,7 +48,6 @@ type BookingView = ProviderBooking & { uiStatus: BookingUiStatus };
 
 type ModalAction = 'cancel' | 'complete' | null;
 
-const PER_PAGE = 9;
 const todayIso = new Date().toISOString().slice(0, 10);
 
 function formatBookingListDate(booking: ProviderBooking): string {
@@ -144,7 +144,8 @@ export default function ServiceBookings() {
   const BackIcon = dir === 'rtl' ? ArrowRight : ArrowLeft;
   const [activeTab, setActiveTab] = useState('upcoming');
   const [searchInput, setSearchInput] = useState('');
-  const [page, setPage] = useState(1);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState({ initialPerPage: 9 });
   const [selectedBooking, setSelectedBooking] = useState<BookingView | null>(null);
   const [bookingForModal, setBookingForModal] = useState<BookingView | null>(null);
   const [modalAction, setModalAction] = useState<ModalAction>(null);
@@ -163,7 +164,7 @@ export default function ServiceBookings() {
 
   const { data, isLoading, isError, error, refetch } = useProviderBookings({
     page,
-    per_page: PER_PAGE,
+    per_page: perPage,
     status: statusFilter,
     q: debouncedSearch.trim() || undefined,
   });
@@ -747,7 +748,7 @@ export default function ServiceBookings() {
             value={searchInput}
             onChange={(e) => {
               setSearchInput(e.target.value);
-              setPage(1);
+              resetPage();
             }}
             className="ps-10 pe-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm w-full md:w-64"
           />
@@ -768,7 +769,7 @@ export default function ServiceBookings() {
             type="button"
             onClick={() => {
               setActiveTab(tab.id);
-              setPage(1);
+              resetPage();
             }}
             className={`px-4 py-2 rounded-t-lg font-medium text-sm whitespace-nowrap transition-colors border-b-2 cursor-pointer ${
               activeTab === tab.id
@@ -789,7 +790,7 @@ export default function ServiceBookings() {
         />
       ) : isLoading ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {Array.from({ length: PER_PAGE }).map((_, index) => (
+          {Array.from({ length: perPage }).map((_, index) => (
             <ProviderBookingCardSkeleton key={index} />
           ))}
         </div>
@@ -899,7 +900,11 @@ export default function ServiceBookings() {
             <PaginationBar
               pagination={data.pagination}
               page={page}
-              onPageChange={setPage}
+              perPage={perPage}
+              perPageOptions={[...perPageOptions]}
+              onPageChange={onPageChange}
+              onPerPageChange={onPerPageChange}
+              alwaysShow={data.pagination.total > 0}
               className="mt-4"
             />
           )}

@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Events\Domain;
+
+use App\Contracts\Notifications\TriggersNotification;
+use App\Enums\NotificationType;
+use App\Models\Payment;
+use App\Services\Notifications\NotificationIntent;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+
+final class PaymentFailed implements TriggersNotification
+{
+    use Dispatchable;
+    use SerializesModels;
+
+    public function __construct(
+        public readonly Payment $payment,
+        public readonly ?string $reason = null,
+    ) {}
+
+    public function toNotificationIntent(): NotificationIntent
+    {
+        $this->payment->loadMissing('order.user');
+
+        return new NotificationIntent(
+            type: NotificationType::PaymentFailed,
+            recipients: array_filter([$this->payment->order?->user]),
+            payload: [
+                'order_number' => $this->payment->order?->order_number,
+                'amount' => (string) $this->payment->amount,
+                'reason' => $this->reason,
+                'action_url' => rtrim((string) config('diyar.frontend_url'), '/').'/orders/'.$this->payment->order_id,
+            ],
+            entityType: 'payment',
+            entityId: $this->payment->id,
+            dedupeKey: "payment.failed:{$this->payment->id}",
+        );
+    }
+}

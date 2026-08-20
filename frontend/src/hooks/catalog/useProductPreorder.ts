@@ -19,10 +19,10 @@ export function useSubmitProductPreorder(productId: string | undefined) {
   });
 }
 
-export function useVendorPreorders(page = 1, status = 'pending') {
+export function useVendorPreorders(page = 1, status = 'pending', perPage = 15) {
   return useQuery({
-    queryKey: ['vendor-preorders', page, status],
-    queryFn: () => productPreorderApi.fetchVendorPreorders(page, 15, status),
+    queryKey: ['vendor-preorders', page, status, perPage],
+    queryFn: () => productPreorderApi.fetchVendorPreorders(page, perPage, status),
   });
 }
 

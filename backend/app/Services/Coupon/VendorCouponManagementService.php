@@ -3,11 +3,14 @@
 namespace App\Services\Coupon;
 
 use App\Enums\VendorCouponType;
+use App\Events\Domain\CouponActivated;
+use App\Events\Domain\CouponDeactivated;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorCoupon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -124,6 +127,8 @@ final class VendorCouponManagementService
         }
 
         if ($updates !== []) {
+            $previousActive = $coupon->is_active;
+
             try {
                 $coupon->update($updates);
             } catch (QueryException $exception) {
@@ -132,6 +137,15 @@ final class VendorCouponManagementService
                 }
 
                 throw $exception;
+            }
+
+            if (array_key_exists('is_active', $updates) && (bool) $updates['is_active'] !== (bool) $previousActive) {
+                $fresh = $coupon->fresh();
+                DB::afterCommit(fn () => event(
+                    (bool) $updates['is_active']
+                        ? new CouponActivated($fresh)
+                        : new CouponDeactivated($fresh),
+                ));
             }
         }
 
@@ -142,8 +156,11 @@ final class VendorCouponManagementService
     {
         $this->findOwned($user, $coupon->id);
         $coupon->update(['is_active' => $active]);
+        $fresh = $coupon->fresh();
 
-        return $coupon->fresh();
+        DB::afterCommit(fn () => event($active ? new CouponActivated($fresh) : new CouponDeactivated($fresh)));
+
+        return $fresh;
     }
 
     private function requireVendorAccount(User $user): VendorAccount

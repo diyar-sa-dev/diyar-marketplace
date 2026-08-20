@@ -13,6 +13,7 @@ import {
   useVendorTeam,
 } from '../../hooks/vendor/useVendorTeam.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { parseApiError, getFieldErrors } from '../../utils/errors.ts';
 import type { VendorTeamMember, VendorTeamRole } from '../../api/vendorTeam.ts';
@@ -23,13 +24,14 @@ export default function VendorTeam() {
   const { t, locale, dir } = useLocale();
   const { toast } = useToast();
   const [tab, setTab] = useState<'active' | 'invited'>('active');
-  const [page, setPage] = useState(1);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<Exclude<VendorTeamRole, 'owner'>>('manager');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const teamQuery = useVendorTeam(page, 10, tab);
+  const teamQuery = useVendorTeam(page, perPage, tab);
   const inviteMember = useInviteVendorTeamMember();
   const updateMember = useUpdateVendorTeamMember();
   const removeMember = useRemoveVendorTeamMember();
@@ -69,7 +71,7 @@ export default function VendorTeam() {
       setInviteEmail('');
       setInviteRole('manager');
       setTab('invited');
-      setPage(1);
+      resetPage();
     } catch (error) {
       const fields = getFieldErrors(error);
       setFieldErrors(Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, v[0] ?? ''])));
@@ -137,7 +139,7 @@ export default function VendorTeam() {
             type="button"
             onClick={() => {
               setTab(value);
-              setPage(1);
+              resetPage();
             }}
             className={`px-4 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer ${
               tab === value
@@ -234,7 +236,7 @@ export default function VendorTeam() {
         </p>
       ) : null}
 
-      {pagination && pagination.last_page > 1 ? (
+      {pagination ? (
         <PaginationBar
           pagination={{
             current_page: pagination.current_page,
@@ -243,7 +245,11 @@ export default function VendorTeam() {
             total: pagination.total,
           }}
           page={page}
-          onPageChange={setPage}
+          perPage={perPage}
+          perPageOptions={[...perPageOptions]}
+          onPageChange={onPageChange}
+          onPerPageChange={onPerPageChange}
+          alwaysShow={pagination.total > 0}
         />
       ) : null}
 

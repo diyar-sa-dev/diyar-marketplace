@@ -16,6 +16,9 @@ type DashboardPaginatedTableProps = {
   pagination?: PaginationMeta;
   page: number;
   onPageChange: (page: number) => void;
+  perPage?: number;
+  onPerPageChange?: (perPage: number) => void;
+  perPageOptions?: number[];
 };
 
 export function DashboardPaginatedTable({
@@ -30,6 +33,9 @@ export function DashboardPaginatedTable({
   pagination,
   page,
   onPageChange,
+  perPage,
+  onPerPageChange,
+  perPageOptions,
 }: DashboardPaginatedTableProps) {
   if (isLoading) {
     return <TableSkeleton rows={skeletonRows} columns={skeletonColumns} />;
@@ -48,7 +54,11 @@ export function DashboardPaginatedTable({
           pagination={pagination}
           page={page}
           onPageChange={onPageChange}
+          perPage={perPage}
+          onPerPageChange={onPerPageChange}
+          perPageOptions={perPageOptions}
           className="pt-2"
+          alwaysShow={Boolean(onPerPageChange && pagination.total > 0)}
         />
       ) : null}
     </div>

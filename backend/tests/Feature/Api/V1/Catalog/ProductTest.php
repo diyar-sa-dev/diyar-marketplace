@@ -43,6 +43,15 @@ class ProductTest extends TestCase
             ->assertJsonPath('data.product.likes_count', 0);
     }
 
+    public function test_public_can_show_product_by_slug(): void
+    {
+        $product = Product::factory()->create(['slug' => 'affiliate-slug-test']);
+
+        $this->getJson('/api/v1/products/'.$product->slug)
+            ->assertOk()
+            ->assertJsonPath('data.product.id', $product->id);
+    }
+
     public function test_archived_product_is_hidden_from_public_show(): void
     {
         $product = Product::factory()->archived()->create();

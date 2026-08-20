@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue.ts';
 import { useLocale } from '../../../hooks/useLocale.ts';
+import { usePaginationState } from '../../../hooks/usePaginationState.ts';
 import { useVendorOrder, useVendorOrders } from '../../../hooks/vendor/useVendorOrders.ts';
 import { useVendorOrderActions } from '../../../hooks/vendor/useVendorOrderActions.ts';
 import { useVendorAccess } from '../../../hooks/vendor/useVendorTeam.ts';
@@ -28,7 +29,9 @@ export default function VendorOrdersPage() {
   const debouncedSearch = useDebouncedValue(searchInput, 300);
   const [paymentFilter, setPaymentFilter] = useState<PaymentFilter>('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [page, setPage] = useState(1);
+  const { page, perPage, onPageChange, onPerPageChange, resetPage } = usePaginationState({
+    initialPerPage: 15,
+  });
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const isPreordersTab = activeTab === 'preorders';
@@ -36,12 +39,12 @@ export default function VendorOrdersPage() {
   const filters = useMemo(
     () => ({
       page,
-      per_page: 15,
+      per_page: perPage,
       q: debouncedSearch.trim() || undefined,
       status: isPreordersTab ? undefined : activeTab,
       payment_status: paymentFilter,
     }),
-    [activeTab, debouncedSearch, isPreordersTab, page, paymentFilter],
+    [activeTab, debouncedSearch, isPreordersTab, page, perPage, paymentFilter],
   );
 
   const { data, isLoading, isFetching, isError, error, refetch } = useVendorOrders(filters, {
@@ -77,7 +80,7 @@ export default function VendorOrdersPage() {
   };
 
   const handleTabChange = (tab: VendorOrderTab) => {
-    setPage(1);
+    resetPage();
     if (tab === 'all') {
       searchParams.delete('tab');
       setSearchParams(searchParams, { replace: true });
@@ -124,12 +127,12 @@ export default function VendorOrdersPage() {
         searchTerm={searchInput}
         onSearchChange={(value) => {
           setSearchInput(value);
-          setPage(1);
+          resetPage();
         }}
         paymentFilter={paymentFilter}
         onPaymentFilterChange={(value) => {
           setPaymentFilter(value);
-          setPage(1);
+          resetPage();
           setIsFilterOpen(false);
         }}
         isFilterOpen={isFilterOpen}
@@ -153,7 +156,9 @@ export default function VendorOrdersPage() {
           skeletonColumns={8}
           pagination={pagination}
           page={page}
-          onPageChange={setPage}
+          perPage={perPage}
+          onPageChange={onPageChange}
+          onPerPageChange={onPerPageChange}
         >
           <VendorOrdersRowList
             orders={orders}

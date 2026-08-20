@@ -9,14 +9,15 @@ import type { VendorReturnPolicyPayload } from '../../types/return.ts';
 
 export const vendorReturnKeys = {
   all: ['vendor-returns'] as const,
-  list: (status: string, page = 1) => [...vendorReturnKeys.all, 'list', status, page] as const,
+  list: (status: string, page = 1, perPage = 10) =>
+    [...vendorReturnKeys.all, 'list', status, page, perPage] as const,
   policy: ['vendor-return-policy'] as const,
 };
 
-export function useVendorReturns(status = 'all', page = 1) {
+export function useVendorReturns(status = 'all', page = 1, perPage = 10) {
   return useQuery({
-    queryKey: vendorReturnKeys.list(status, page),
-    queryFn: () => fetchVendorReturns(page, status),
+    queryKey: vendorReturnKeys.list(status, page, perPage),
+    queryFn: () => fetchVendorReturns(page, status, perPage),
   });
 }
 

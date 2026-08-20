@@ -13,6 +13,7 @@ import {
 } from '../../hooks/vendor/useVendorReviewInbox.ts';
 import { useVendorSettings } from '../../hooks/vendor/useVendorSettings.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { formatRelativeReviewDate } from '../../lib/formatRelativeReviewDate.ts';
 import { resolveMediaUrl } from '../../lib/media.ts';
@@ -22,12 +23,13 @@ import type { VendorInboxReview } from '../../api/vendorReviewInbox.ts';
 export default function VendorReviewsInbox() {
   const { t, locale, dir } = useLocale();
   const { toast } = useToast();
-  const [page, setPage] = useState(1);
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState();
   const [typeFilter, setTypeFilter] = useState<'all' | 'product' | 'store'>('all');
   const [replyTarget, setReplyTarget] = useState<VendorInboxReview | null>(null);
   const [replyText, setReplyText] = useState('');
   const type = typeFilter === 'all' ? undefined : typeFilter;
-  const inboxQuery = useVendorReviewInbox(page, 10, type);
+  const inboxQuery = useVendorReviewInbox(page, perPage, type);
   const { data: settings } = useVendorSettings();
   const replyReview = useReplyVendorReview();
 
@@ -84,7 +86,7 @@ export default function VendorReviewsInbox() {
               type="button"
               onClick={() => {
                 setTypeFilter(filter);
-                setPage(1);
+                resetPage();
               }}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer ${
                 typeFilter === filter
@@ -191,7 +193,7 @@ export default function VendorReviewsInbox() {
         </div>
       )}
 
-      {pagination && pagination.last_page > 1 ? (
+      {pagination ? (
         <PaginationBar
           pagination={{
             current_page: pagination.current_page,
@@ -200,7 +202,11 @@ export default function VendorReviewsInbox() {
             total: pagination.total,
           }}
           page={page}
-          onPageChange={setPage}
+          perPage={perPage}
+          perPageOptions={[...perPageOptions]}
+          onPageChange={onPageChange}
+          onPerPageChange={onPerPageChange}
+          alwaysShow={pagination.total > 0}
         />
       ) : null}
 

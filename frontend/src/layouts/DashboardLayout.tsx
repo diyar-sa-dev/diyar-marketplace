@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Store,
@@ -21,6 +21,8 @@ import {
   MessagesSquare,
   Tag,
 } from 'lucide-react';
+import { NotificationBellDropdown } from '../components/notifications/NotificationBellDropdown.tsx';
+import { ChatMessagesLink } from '../components/chat/ChatMessagesLink.tsx';
 import { LanguageSwitcher } from '../components/common/LanguageSwitcher.tsx';
 import { UserAvatar } from '../components/profile/UserAvatar.tsx';
 import { useAuth } from '../hooks/auth/useAuth.ts';
@@ -31,11 +33,13 @@ import {
   getPortalByKey,
   getPortalFromPath,
   resolveAccountHubPath,
+  resolveChatHubPath,
   type DashboardPortalKey,
 } from '../lib/auth/roles.ts';
 import { useVendorAccess } from '../hooks/vendor/useVendorTeam.ts';
 import { useProviderSettings } from '../hooks/provider/useProviderDashboard.ts';
 import { VendorPortalGuard } from '../components/dashboard/vendor/VendorPortalGuard.tsx';
+import { skipDashboardTutorial } from '../lib/dashboardTutorialStorage.ts';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -45,6 +49,13 @@ export default function DashboardLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('skipTutorial') === '1') {
+      skipDashboardTutorial();
+    }
+  }, [location.search]);
 
   const role = getPortalFromPath(location.pathname);
   const isVendorPortal = role === 'vendor';
@@ -152,6 +163,11 @@ export default function DashboardLayout() {
         name: t('providerDashboard.nav.reviews'),
         path: '/dashboard/service/reviews',
         icon: MessageSquare,
+      },
+      {
+        name: t('providerDashboard.nav.chat'),
+        path: '/dashboard/service/messages',
+        icon: MessagesSquare,
       },
       {
         name: t('providerDashboard.nav.myServices'),
@@ -308,67 +324,19 @@ export default function DashboardLayout() {
               </div>
             )}
 
-            <div className="relative">
-              <button
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                className="relative p-2 text-gray-500 hover:text-diyar-dark transition-colors"
-                aria-label={t('common.notifications')}
-              >
-                <Bell size={20} />
-                <span className="absolute top-1 inset-e-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-              </button>
+            {(role === 'vendor' || role === 'service') && (
+              <ChatMessagesLink
+                to={resolveChatHubPath(user?.roles, role)}
+                variant="header"
+              />
+            )}
 
-              {isNotificationsOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setIsNotificationsOpen(false)}
-                  />
-                  <div className="absolute top-full inset-e-0 mt-2 w-80 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                      <h3 className="font-bold text-diyar-dark">{t('common.notifications')}</h3>
-                      <button className="text-xs text-diyar-brown hover:underline font-medium">
-                        {t('dashboard.markAllRead')}
-                      </button>
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      {[1, 2, 3].map((i) => (
-                        <div
-                          key={i}
-                          className={`p-4 border-b border-gray-50 hover:bg-gray-50 transition cursor-pointer flex gap-3 ${i === 1 ? 'bg-amber-50/30' : ''}`}
-                        >
-                          <div
-                            className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center ${i === 1 ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-500'}`}
-                          >
-                            {i === 1 ? <ShoppingCart size={18} /> : <Megaphone size={18} />}
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-bold text-diyar-dark mb-1">
-                              {i === 1 ? 'طلب جديد #1024' : 'إشعار تحديث من النظام'}
-                            </h4>
-                            <p className="text-xs text-gray-500 line-clamp-2 mb-2">
-                              {i === 1
-                                ? 'تم استلام طلب جديد بقيمة 1,250 ر.س. يرجى تجهيز الطلب بأسرع وقت.'
-                                : 'تم تحديث سياسات التسعير، يرجى مراجعة الشروط والأحكام الجديدة.'}
-                            </p>
-                            <span className="text-[10px] text-gray-400">منذ ساعتين</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="p-3 border-t border-gray-100 bg-gray-50">
-                      <Link
-                        to={`/dashboard/${role}/notifications`}
-                        onClick={() => setIsNotificationsOpen(false)}
-                        className="block w-full text-center py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-diyar-dark hover:bg-gray-50 hover:border-diyar-brown transition"
-                      >
-                        {t('dashboard.viewAllNotifications')}
-                      </Link>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+            <NotificationBellDropdown
+              viewAllPath={`/dashboard/${role}/notifications`}
+              open={isNotificationsOpen}
+              onToggle={() => setIsNotificationsOpen((value) => !value)}
+              onClose={() => setIsNotificationsOpen(false)}
+            />
 
             <LanguageSwitcher />
 
