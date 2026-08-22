@@ -22,12 +22,17 @@ STAGE
 
 | Stage | Name | Scope |
 |-------|------|-------|
-| 0 | Discovery & Architecture | **FINALIZED** |
+| 0 | Discovery & Architecture | **COMPLETE** |
 | 1 | Engineering Foundation | Laravel + React foundation, CI, security infra |
-| 2 | Identity & Access | **FINALIZED** — Sanctum, OTP, roles, frontend auth |
-| 3 | User Profile & Media | **COMPLETE / FINALIZED** |
-| 4 | Catalog & Products | **COMPLETE / FINALIZED** |
-| 5+ | Cart, Checkout, Orders, etc. | Per MASTER_DEVELOPMENT_PLAN — **NOT AUTHORIZED** |
+| 2 | Identity & Access | Sanctum, OTP, roles, frontend auth |
+| 3–12.5 | Commerce, finance, vendor portal | Per MASTER_DEVELOPMENT_PLAN — **COMPLETE** |
+| 13 | Service Marketplace | Provider portal, RFQ, bookings — **COMPLETE** |
+| 14 | Reviews audit | **COMPLETE** |
+| 15 | Vendor coupons | **COMPLETE** |
+| 16 | Notifications | **COMPLETE** |
+| 17 | Realtime chat | **COMPLETE** |
+| 17.6 | Affiliate commerce | **COMPLETE** |
+| **18** | **Admin / Operations** | React admin SPA, RBAC, audit, settings — **COMPLETE / VERIFIED (automated)** |
 
 ---
 

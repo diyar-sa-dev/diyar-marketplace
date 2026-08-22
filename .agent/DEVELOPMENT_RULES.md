@@ -51,13 +51,12 @@ Preserve uncommitted product-owner work. Use focused commits. Do not commit unle
 
 ## Scope Boundaries
 
-| Stage | Allowed | Forbidden |
-|-------|---------|-----------|
-| Stage 1 | Foundation, config, CI, tests scaffold | Business domains |
-| Stage 2 | Identity, auth, roles, frontend session integration | Catalog, cart, checkout, payments |
-| Stage 3+ | **NOT AUTHORIZED** until explicit request | All business domains |
+| Stage | Status |
+|-------|--------|
+| Stages 0–18 | **COMPLETE** (Stage 18: automated gate; manual auth-isolation QA documented) |
+| V1 production deploy | **NOT AUTHORIZED** until explicit request |
 
-Frontend mock UI may remain until API integration in later stages.
+Implement only work authorized in `.agent/CURRENT_STATE.md` and the latest stage completion report.
 
 ---
 

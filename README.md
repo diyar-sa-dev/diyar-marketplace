@@ -6,26 +6,25 @@ Arabic RTL multi-vendor marketplace for furniture products and home services —
 
 | Stage | Status |
 |-------|--------|
-| Stage 0 — Discovery & Architecture | **COMPLETE** |
-| Stage 1 — Engineering Foundation | **COMPLETE / FINALIZED** |
-| Stage 2 — Identity & Access | **COMPLETE / FINALIZED** *(committed)* |
-| Stage 3 — User Profile & Media | **COMPLETE / FINALIZED** *(committed)* |
-| Stage 4 — Catalog & Products | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** *(uncommitted on `dev`)* |
-| Stage 5 — Inventory | **IMPLEMENTED / VERIFIED — WAITING FOR PO REVIEW** *(uncommitted)* |
-| Stage 5.5 — Storefront Integration | **COMPLETE** *(uncommitted on `dev`)* |
-| **Stage 6 — Cart** | **COMPLETE / VERIFIED** *(uncommitted)* |
-| **Stage 7 — Checkout & Order Engine** | **COMPLETE / PASS WITH BLOCKERS** *(uncommitted)* |
+| Stages 0–12.5 | **COMPLETE** |
+| Stage 13 — Service Marketplace | **COMPLETE** |
+| Stage 14 — Reviews | **COMPLETE** |
+| Stage 15 — Vendor Coupons | **COMPLETE** |
+| Stage 16 — Notifications | **COMPLETE** |
+| Stage 17 — Realtime Chat | **COMPLETE** |
+| Stage 17.6 — Affiliate Commerce | **COMPLETE** |
+| **Stage 18 — Admin / Operations** | **COMPLETE / VERIFIED (automated)** |
 
 | Component | Status |
 |-----------|--------|
-| Frontend UI | React 19 SPA — auth, profile, catalog, cart, **checkout/orders wired to real API (Stage 7)**; payment UI shows pending only |
-| Backend API | Laravel 13 — health, auth, profile, catalog, inventory, cart, **checkout preview, orders, vendor shipping** |
+| Frontend UI | React 19 SPA — marketplace, vendor/provider/marketer dashboards, **admin ops SPA** (`/admin`) |
+| Backend API | Laravel 13 — `/api/v1` marketplace + `/api/v1/admin` operations |
 | CI | GitHub Actions — lint, test, build (frontend + backend) |
 
-**Last validation (2026-08-17):** PHPUnit **178/178**, Vitest **71/71**, typecheck, Pint, **`migrate:fresh --seed`** — all pass.
+**Last validation (2026-08-22):** PHPUnit **504/504**, Vitest **101/101**, typecheck, ESLint, Pint, Prettier, production build — all pass.
 
 Live project state: [.agent/CURRENT_STATE.md](.agent/CURRENT_STATE.md)  
-Reconciliation audit: [conception/STAGE_2_5.5_RECONCILIATION_AUDIT.md](conception/STAGE_2_5.5_RECONCILIATION_AUDIT.md)
+Stage 18 docs: [conception/Stages/Stage 18/README.md](conception/Stages/Stage%2018/README.md)
 
 ## Repository Structure
 
@@ -79,11 +78,10 @@ cd backend && vendor/bin/pint --test && php artisan test
 
 | Document | Purpose |
 |----------|---------|
-| [MASTER_DEVELOPMENT_PLAN.md](conception/MASTER_DEVELOPMENT_PLAN.md) | Roadmap & stage map |
+| [MASTER_DEVELOPMENT_PLAN.md](conception/MASTER_DEVELOPMENT_PLAN.md) | Roadmap & stage map (current: **Stage 18**) |
+| [Stage 18 README](conception/Stages/Stage%2018/README.md) | Admin / Operations — current stage |
 | [REQUIREMENTS_BASELINE.md](conception/REQUIREMENTS_BASELINE.md) | Authoritative business + tech rules |
 | [conception/API/README.md](conception/API/README.md) | API conventions, health endpoint, Postman |
-| [Stage 1 completion report](conception/Stages/Stage%201/STAGE_1_COMPLETION_REPORT.md) | Engineering foundation summary |
-| [Stage 2 completion report](conception/Stages/Stage%202/STAGE_2_COMPLETION_REPORT.md) | Identity & access summary |
 | [LOCAL_SETUP.md](conception/runbooks/LOCAL_SETUP.md) | Toolchain & environment |
 
 **Postman:** import [DIYAR API v1 collection](conception/API/postman/DIYAR-API-v1.postman_collection.json) and [local environment](conception/API/postman/DIYAR-API-Local.postman_environment.json).

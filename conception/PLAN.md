@@ -1,13 +1,13 @@
 # DIYAR — Master Software Development Plan
 
 > **Status:** REFERENCE — SUPERSEDED  
-> **Use instead:** [MASTER_DEVELOPMENT_PLAN.md](./MASTER_DEVELOPMENT_PLAN.md) (v2.0, updated 2026-08-19)  
-> **Current stage:** **Stage 17.6 — Affiliate Commerce** (COMPLETE) · **Stage 17 — Realtime Chat** (COMPLETE) · **Stage 16 — Notifications** (COMPLETE) · **Stages 13–15 COMPLETE**  
-> **Stage 17.6 docs:** [Stages/Stage 17/17.6 Affiliate/STAGE_17.6_COMPLETION_REPORT.md](./Stages/Stage%2017/17.6%20Affiliate/STAGE_17.6_COMPLETION_REPORT.md)  
-> **Stage 17 docs:** [Stages/Stage 17/README.md](./Stages/Stage%2017/README.md) (if present) · [STAGE_17_COMPLETION_REPORT.md](./Stages/Stage%2017/STAGE_17_COMPLETION_REPORT.md)  
+> **Use instead:** [MASTER_DEVELOPMENT_PLAN.md](./MASTER_DEVELOPMENT_PLAN.md) (v2.3, updated 2026-08-22)  
+> **Current stage:** **Stage 18 — Admin / Operations** (COMPLETE / VERIFIED — automated) · **Stage 17.6 — Affiliate Commerce** (COMPLETE) · **Stage 17 — Realtime Chat** (COMPLETE) · **Stage 16 — Notifications** (COMPLETE)  
+> **Stage 18 docs:** [Stages/Stage 18/README.md](./Stages/Stage%2018/README.md) · [STAGE_18_COMPLETION_REPORT.md](./Stages/Stage%2018/STAGE_18_COMPLETION_REPORT.md) · [DAY_18_SUMMARY.md](./Stages/Stage%2018/DAY_18_SUMMARY.md)  
+> **Stage 17.6 docs:** [Stages/Stage 17.6/STAGE_17.6_COMPLETION_REPORT.md](./Stages/Stage%2017.6/STAGE_17.6_COMPLETION_REPORT.md)  
+> **Stage 17 docs:** [Stages/Stage 17/README.md](./Stages/Stage%2017/README.md) · [STAGE_17_COMPLETION_REPORT.md](./Stages/Stage%2017/STAGE_17_COMPLETION_REPORT.md)  
 > **Stage 16 docs:** [Stages/Stage 16/STAGE_16_COMPLETION_REPORT.md](./Stages/Stage%2016/STAGE_16_COMPLETION_REPORT.md)  
-> **Stage 13 docs:** [Stages/Stage 13/README.md](./Stages/Stage%2013/README.md)  
-> **Previous:** Stage 12.5 — COMPLETE — [Stages/Stage 12.5/README.md](./Stages/Stage%2012.5/README.md)  
+> **Previous:** Stages 0–15 — COMPLETE  
 > **Tech baseline:** Laravel 13, MySQL, React 19
 
 ## 0. Engineering Strategy

@@ -1,14 +1,14 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-08-19  
+> **Last updated:** 2026-08-22  
 > **Maintained by:** AI development agents after each phase completion  
-> **Canonical plans:** [conception/MASTER_DEVELOPMENT_PLAN.md](../conception/MASTER_DEVELOPMENT_PLAN.md) · [conception/Stages/Stage 13/README.md](../conception/Stages/Stage%2013/README.md)
+> **Canonical plans:** [conception/MASTER_DEVELOPMENT_PLAN.md](../conception/MASTER_DEVELOPMENT_PLAN.md) · [conception/Stages/Stage 18/README.md](../conception/Stages/Stage%2018/README.md)
 
 ---
 
 ## Project
 
-**DIYAR Marketplace** — Arabic RTL multi-vendor commerce + **service marketplace (provider portal)** — Saudi Arabia · SAR · 15% VAT
+**DIYAR Marketplace** — Arabic RTL multi-vendor commerce + service marketplace + affiliate commerce + **admin operations** — Saudi Arabia · SAR · 15% VAT
 
 ---
 
@@ -17,9 +17,13 @@
 | Stage | Status |
 |-------|--------|
 | Stages 0–12.5 | **COMPLETE** |
-| **Stage 13 — Service Marketplace (Provider)** | **COMPLETE** (docs + provider UI wired) |
-| **Stage 14 — Reviews audit** | **COMPLETE** (gap fixes, no rebuild) |
-| **Stage 15 — Vendor percentage coupons** | **IN PROGRESS** (domain + checkout + vendor UI; polish in working tree) |
+| Stage 13 — Service Marketplace (Provider) | **COMPLETE** |
+| Stage 14 — Reviews audit | **COMPLETE** |
+| Stage 15 — Vendor percentage coupons | **COMPLETE** |
+| Stage 16 — Notifications | **COMPLETE** |
+| Stage 17 — Realtime chat | **COMPLETE** |
+| Stage 17.6 — Affiliate commerce | **COMPLETE** |
+| **Stage 18 — Admin / Operations** | **COMPLETE / VERIFIED (automated)** |
 
 ---
 
@@ -27,9 +31,10 @@
 
 | Field | Value |
 |-------|--------|
+| **Current stage** | **Stage 18 — Admin / Operations** |
 | **Branch** | `dev` |
-| **Last commit** | `d197702` — feat(stage): Stage 13 Provider Portal |
-| **Working tree** | Stage 14/15 + schedule negotiation UI + coupon UX (**uncommitted**) |
+| **Last commit** | `0a16d23` — Stage 17.6: Affiliate Changes, UI design polish |
+| **Working tree** | Stage 18 admin SPA, auth isolation, system settings, CI fixes (**uncommitted**) |
 
 ---
 
@@ -37,61 +42,69 @@
 
 | Portal | API prefix | UI route |
 |--------|------------|----------|
+| **Marketplace** (customer) | `/api/v1/*` | `/`, `/store/*`, `/provider/*`, etc. |
 | **Vendor** (commerce) | `/api/v1/dashboard/vendor/*` | `/dashboard/vendor/*` |
 | **Provider** (services) | `/api/v1/dashboard/provider/*` | `/dashboard/service/*` |
-| **Customer** | `/api/v1/*` | `/`, `/services`, `/service-requests`, etc. |
+| **Marketer** (affiliate) | `/api/v1/dashboard/affiliate/*` | `/dashboard/affiliate/*` |
+| **Admin** (operations) | `/api/v1/admin/*` | `/admin/*` |
+
+**Auth guards:** marketplace `web` (Sanctum) · admin `admin` (separate session context)
 
 ---
 
-## Implemented (working tree since `d197702`)
+## Stage 18 — Implemented (working tree)
 
-### Service marketplace
-- Provider dashboard: bookings, RFQ inbox, offers, finance, settings, services CRUD
-- Schedule negotiation timeline + booking detail sections
-- RFQ flow: accept offer → **provider confirmation** → payment (negotiation before pay)
-- Direct booking + provider reviews
-- Customer: service catalog, RFQ, bookings, wishlist
+### Admin foundation (18.1)
+- Dual-guard auth (`web` + `admin`), `AdminPermission` RBAC, audit logging
+- Admin login/session API, `EnsureAdminPermission` middleware
+- React `AdminAuthProvider` hoisted in `main.tsx` with path-gated bootstrap
 
-### Vendor coupons (Stage 15)
-- `vendor_coupons` table, CRUD API, checkout apply/remove, usage on payment
-- Vendor UI: `/dashboard/vendor/coupons` with share card + form modal
-- Tests: `VendorCouponTest` (8/8)
+### Admin resources (18.2)
+- Dashboard, users, vendors, providers, categories, orders, products
+- Payments, refunds, coupons, reviews, finance hub, affiliate config, audit log, settings
+- Detail workspaces with permission-gated mutations
 
-### Reviews (Stage 14 audit)
-- Unified customer review history (product + store + provider)
-- Provider self-review guard test
+### Runtime configuration (18.3)
+- `SystemSetting` model + `EffectiveConfigService` + cache invalidation
+- Admin settings UI + platform theme endpoint
+
+### Production hardening (18.4)
+- Flat admin nav with DIYAR branding, localized audit labels, RTL/LTR
+- Auth context isolation tests (`AdminIsolationTest` — 15+ cases)
+- Filament removed; ESLint/Prettier scope includes `src/admin/**`
 
 ---
 
 ## Key Backend Modules
 
 ```
-backend/app/Services/Coupon/*          — vendor coupon validation, checkout, usage
-backend/app/Services/ServiceMarketplace/* — RFQ, bookings, direct booking, reviews, finance
-backend/app/Http/Controllers/Api/V1/ServiceMarketplace/*
-backend/app/Http/Controllers/Api/V1/Dashboard/VendorCouponController.php
+backend/app/Http/Controllers/Api/V1/Admin/*     — admin REST API
+backend/app/Services/Admin/*                    — admin domain services
+backend/app/Services/Settings/*                 — runtime system settings
+backend/app/Enums/AdminPermission.php           — granular RBAC
+backend/app/Support/Identity/MarketplaceAccess.php — cross-context gate
 ```
 
 ## Key Frontend Areas
 
 ```
-frontend/src/pages/dashboard/Service*     — provider portal
-frontend/src/pages/dashboard/VendorCoupons.tsx
-frontend/src/components/services/BookingScheduleSection.tsx
-frontend/src/components/coupon/*
-frontend/src/pages/ServiceRequestsPage.tsx
+frontend/src/admin/           — React admin SPA (layouts, pages, auth, nav)
+frontend/src/api/adminAuth.ts — admin session client
+frontend/src/lib/auth/        — application context, query key namespaces
 ```
 
 ---
 
-## Last Validation (2026-08-19, local)
+## Last Validation (2026-08-22, local)
 
 | Check | Result |
 |-------|--------|
-| `vendor/bin/pint --test` | Run after `pint` fix on dirty files |
-| `php artisan test --filter=ServiceRfqWorkflowTest` | **10/10 PASS** |
-| `php artisan test --filter=VendorCouponTest` | **8/8 PASS** |
+| `vendor/bin/pint --test` | **PASS** |
+| `php artisan test` | **504/504 PASS** |
 | `npm run typecheck` | **PASS** |
+| `npm run lint` | **PASS** |
+| `npm run format:check` | **PASS** |
+| `npm test` | **101/101 PASS** |
 | `npm run build` | **PASS** |
 
 ---
@@ -99,13 +112,13 @@ frontend/src/pages/ServiceRequestsPage.tsx
 ## CI/CD
 
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml):
-- **Frontend:** typecheck, eslint (full `src/**`), prettier, vitest, build
+- **Frontend:** typecheck, eslint (`src/admin/**` included), prettier, vitest, build
 - **Backend:** composer install, pint, phpunit
 
 ---
 
 ## Next Actions
 
-1. Commit working tree (recommended split: Stage 14/15 backend, provider UI polish, coupon UX)
-2. Full regression: `php artisan test` + `npm test`
-3. Sign off Stage 15 → update MASTER_DEVELOPMENT_PLAN
+1. Commit Stage 18 working tree (see [DAY_18_SUMMARY.md](../conception/Stages/Stage%2018/DAY_18_SUMMARY.md) for suggested message)
+2. Manual browser QA: marketplace ↔ admin auth isolation matrix ([AUTH_CONTEXT_ISOLATION.md](../conception/Stages/Stage%2018/AUTH_CONTEXT_ISOLATION.md) §28)
+3. Authorize V1 production deploy / hardening when explicitly requested

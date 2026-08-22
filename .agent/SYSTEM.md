@@ -50,10 +50,8 @@ Update `.agent/CURRENT_STATE.md` after each completion. **Never delete** histori
 ## Scope Control
 
 - Implement **only** the authorized Stage / Phase / Task.
-- Stage 1 = engineering foundation. **No V1 business domains.**
-- Stage 2 = Identity & Access — **FINALIZED**.
-- Stage 3+ = Business domains — **NOT AUTHORIZED** without explicit request.
-- Sanctum **infrastructure** in Stage 1; **authentication workflows** in Stage 2 (complete).
+- Stages 0–18 are **COMPLETE** (Stage 18 automated gate; manual auth-isolation QA documented).
+- **Next authorized work:** V1 production deploy / hardening — only when explicitly requested.
 - Do not silently expand scope.
 
 ---
