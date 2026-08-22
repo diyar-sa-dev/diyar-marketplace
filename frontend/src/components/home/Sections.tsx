@@ -44,34 +44,51 @@ import {
   Gift,
   ChevronLeft,
   ChevronRight,
+  PackageOpen,
 } from 'lucide-react';
 
-// Edge-overlay left/right scroll arrows for horizontal card rails (desktop only).
-// Must be placed inside a `relative` wrapper around the scroll container.
 function RailArrows({ scroller }: { scroller: React.RefObject<HTMLDivElement | null> }) {
-  const scroll = (dir: number) =>
-    scroller.current?.scrollBy({ left: dir * 340, behavior: 'smooth' });
+  const { t, dir } = useLocale();
+  const scroll = (dirOffset: number) =>
+    scroller.current?.scrollBy({
+      left: dirOffset * (dir === 'rtl' ? -340 : 340),
+      behavior: 'smooth',
+    });
   const base =
-    'hidden md:flex absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm shadow-md border border-gray-100 items-center justify-center text-diyar-dark hover:bg-diyar-brown hover:text-white hover:border-diyar-brown transition-colors';
+    'hidden md:flex absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm shadow-md border border-gray-100 items-center justify-center text-diyar-dark hover:bg-diyar-brown hover:text-white hover:border-diyar-brown transition-colors cursor-pointer';
+  const ForwardIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
+  const BackIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
+
   return (
     <>
-      <button onClick={() => scroll(1)} aria-label="السابق" className={`${base} -right-3`}>
-        <ChevronRight size={20} />
+      <button
+        type="button"
+        onClick={() => scroll(1)}
+        aria-label={t('home.hero.next')}
+        className={`${base} inset-e-0 translate-x-1/2`}
+      >
+        <ForwardIcon size={20} />
       </button>
-      <button onClick={() => scroll(-1)} aria-label="التالي" className={`${base} -left-3`}>
-        <ChevronLeft size={20} />
+      <button
+        type="button"
+        onClick={() => scroll(-1)}
+        aria-label={t('home.hero.prev')}
+        className={`${base} inset-s-0 -translate-x-1/2`}
+      >
+        <BackIcon size={20} />
       </button>
     </>
   );
 }
 
 export function BestSellers() {
+  const { t, dir } = useLocale();
   const [tab, setTab] = useState(0);
   const tabs = [
-    { label: 'الكل', category_slug: undefined },
-    { label: 'غرف النوم', category_slug: 'bedroom' },
-    { label: 'الصالونات', category_slug: 'living-room' },
-    { label: 'المطابخ', category_slug: 'kitchen' },
+    { labelKey: 'home.bestSellers.tabs.all', category_slug: undefined },
+    { labelKey: 'home.bestSellers.tabs.bedroom', category_slug: 'bedroom' },
+    { labelKey: 'home.bestSellers.tabs.livingRoom', category_slug: 'living-room' },
+    { labelKey: 'home.bestSellers.tabs.kitchen', category_slug: 'kitchen' },
   ] as const;
   const active = tabs[tab] ?? tabs[0];
   const { data, isLoading } = useProducts({
@@ -80,61 +97,91 @@ export function BestSellers() {
     category_slug: active.category_slug,
   });
   const products = data?.items.map(mapProductCard) ?? [];
+  const showEmpty = !isLoading && products.length === 0;
+
   return (
-    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
+    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4" dir={dir}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 md:mb-8">
-        <h2 className="text-xl md:text-3xl font-sans font-bold text-center sm:text-start">
-          الأعلى مبيعاً
+        <h2 className="text-xl md:text-3xl font-sans font-bold text-center sm:text-start text-diyar-dark">
+          {t('home.bestSellers.title')}
         </h2>
         <Link
           to="/category/all?sort=-popular"
           className="text-diyar-brown text-sm font-bold hover:text-diyar-dark transition self-center cursor-pointer"
         >
-          عرض الكل
+          {t('home.bestSellers.viewAll')}
         </Link>
       </div>
-      <div className="flex gap-2 md:gap-4 mb-6 md:mb-8 overflow-x-auto scrollbar-hide snap-x justify-start md:justify-center">
-        {tabs.map((t, i) => (
+      <div className="flex gap-2 md:gap-3 mb-6 md:mb-8 overflow-x-auto scrollbar-hide snap-x justify-start md:justify-center pb-1">
+        {tabs.map((item, i) => (
           <button
-            key={t.label}
+            key={item.labelKey}
+            type="button"
             onClick={() => setTab(i)}
-            className={`px-4 md:px-6 py-2 rounded-full transition whitespace-nowrap snap-start text-sm md:text-base cursor-pointer ${tab === i ? 'bg-diyar-brown text-white shadow-md' : 'bg-diyar-cream text-diyar-dark hover:bg-diyar-brown/20'}`}
+            className={`px-4 md:px-6 py-2 rounded-full transition whitespace-nowrap snap-start text-sm md:text-base cursor-pointer ${
+              tab === i
+                ? 'bg-diyar-brown text-white shadow-md shadow-diyar-brown/20'
+                : 'bg-diyar-cream text-diyar-dark hover:bg-diyar-brown/15 border border-transparent hover:border-diyar-brown/20'
+            }`}
           >
-            {t.label}
+            {t(item.labelKey)}
           </button>
         ))}
       </div>
-      <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
-        {isLoading
-          ? [...Array(5)].map((_, i) => (
-              <div key={i} className="w-50 md:w-auto shrink-0 snap-start">
-                <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
-              </div>
-            ))
-          : products.map((p) => (
-              <div key={p.id} className="w-50 md:w-auto shrink-0 snap-start">
-                <ProductCard product={p} />
-              </div>
-            ))}
-      </div>
+
+      {showEmpty ? (
+        <div className="flex flex-col items-center justify-center text-center py-12 md:py-16 px-4 rounded-3xl border border-dashed border-gray-200 bg-gray-50/80">
+          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center justify-center text-diyar-brown mb-4">
+            <PackageOpen size={32} className="md:w-9 md:h-9" />
+          </div>
+          <h3 className="text-lg md:text-xl font-bold text-diyar-dark mb-2">
+            {t('home.bestSellers.emptyTitle')}
+          </h3>
+          <p className="text-sm md:text-base text-gray-500 max-w-md mb-6">
+            {t('home.bestSellers.emptyDescription')}
+          </p>
+          <Link
+            to="/category/all?sort=-popular"
+            className="inline-flex items-center justify-center rounded-xl bg-diyar-brown px-6 py-3 text-sm font-bold text-white hover:bg-diyar-dark transition cursor-pointer"
+          >
+            {t('home.bestSellers.browseAll')}
+          </Link>
+        </div>
+      ) : (
+        <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
+          {isLoading
+            ? [...Array(5)].map((_, i) => (
+                <div key={i} className="w-50 md:w-auto shrink-0 snap-start">
+                  <div className="h-64 bg-gray-100 animate-pulse rounded-2xl" />
+                </div>
+              ))
+            : products.map((p) => (
+                <div key={p.id} className="w-50 md:w-auto shrink-0 snap-start">
+                  <ProductCard product={p} />
+                </div>
+              ))}
+        </div>
+      )}
     </div>
   );
 }
 
 export function NewArrivals() {
+  const { t, dir } = useLocale();
   const { data, isLoading } = useProducts({ per_page: 6, sort: '-created_at' });
   const products = data?.items.map(mapProductCard) ?? [];
   const railRef = useRef<HTMLDivElement>(null);
+  const ViewAllIcon = dir === 'rtl' ? ChevronLeft : ArrowLeft;
   return (
     <div className="bg-diyar-cream/30 py-4 md:py-6">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center mb-6 md:mb-8">
-          <h2 className="text-xl md:text-4xl font-sans font-bold">وصل حديثاً</h2>
+          <h2 className="text-xl md:text-4xl font-sans font-bold">{t('home.newArrivals.title')}</h2>
           <Link
             to="/category/all?sort=-created_at"
             className="text-diyar-brown text-sm md:text-base font-semibold flex items-center gap-1 md:gap-2 hover:text-diyar-dark transition cursor-pointer"
           >
-            عرض الكل <ArrowLeft size={16} className="md:w-4.5 md:h-4.5" />
+            {t('home.newArrivals.viewAll')} <ViewAllIcon size={16} className="md:w-4.5 md:h-4.5" />
           </Link>
         </div>
         <div className="relative">
@@ -497,7 +544,9 @@ export function AIBanner() {
 
 export function PartnerBanner() {
   const navigate = useNavigate();
+  const { t, dir } = useLocale();
   const cardsRef = useRef<HTMLDivElement>(null);
+  const CtaIcon = dir === 'rtl' ? ChevronLeft : ArrowLeft;
 
   const goToRegister = (role: 'merchant' | 'marketer' | 'service_provider') => {
     navigate(`/auth?role=${role}`);
@@ -520,22 +569,21 @@ export function PartnerBanner() {
         <div className="absolute bottom-0 left-0 w-100 h-100 bg-diyar-cream/10 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/3"></div>
 
         {/* Text and Actions Content */}
-        <div className="w-full lg:translate-x-0 lg:w-1/2 relative z-10 text-center lg:text-right flex flex-col justify-center">
+        <div className="w-full lg:translate-x-0 lg:w-1/2 relative z-10 text-center lg:text-start flex flex-col justify-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-8 shadow-sm self-center lg:self-start">
             <Store size={16} className="text-diyar-cream" />
-            <span className="text-diyar-cream text-sm font-bold">شركاء النجاح في ديار</span>
+            <span className="text-diyar-cream text-sm font-bold">{t('home.partners.badge')}</span>
           </div>
 
           <h2 className="text-3xl md:text-5xl font-sans font-bold text-white mb-6 leading-snug">
-            انضم إلى مجتمع ديار <br />
+            {t('home.partners.titleLine1')} <br />
             <span className="text-transparent bg-clip-text bg-linear-to-l from-[#d4b08c] to-yellow-500">
-              وابدأ قصة نجاحك
+              {t('home.partners.titleHighlight')}
             </span>
           </h2>
 
           <p className="text-base md:text-lg text-gray-400 leading-relaxed mb-8 max-w-xl mx-auto lg:mx-0 font-light">
-            سواءً كنت تاجر أثاث تبحث عن توسيع نطاق أعمالك، أو مقدم خدمات، أو مسوق مبدع، منصة ديار هي
-            بوابتك للنمو المالي والمهني.
+            {t('home.partners.body')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -548,7 +596,7 @@ export function PartnerBanner() {
                 className="group-hover:scale-110 transition-transform text-diyar-brown"
                 size={20}
               />
-              <span>سجل كتاجر</span>
+              <span>{t('home.partners.registerMerchant')}</span>
             </button>
             <button
               type="button"
@@ -559,7 +607,7 @@ export function PartnerBanner() {
                 className="group-hover:scale-110 transition-transform text-yellow-500"
                 size={20}
               />
-              <span>اكتشف المزيد</span>
+              <span>{t('home.partners.discoverMore')}</span>
             </button>
           </div>
         </div>
@@ -576,13 +624,13 @@ export function PartnerBanner() {
               <div className="w-14 h-14 bg-diyar-brown/20 border border-diyar-brown/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner">
                 <Briefcase className="text-diyar-cream" size={28} />
               </div>
-              <h3 className="text-lg md:text-xl font-bold text-white mb-2">مسوق بالعمولة</h3>
+              <h3 className="text-lg md:text-xl font-bold text-white mb-2">{t('home.partners.affiliateTitle')}</h3>
               <p className="text-gray-400 text-sm leading-relaxed flex-1">
-                سوق لمنتجات ديار واحصل على عمولات وتتبع أرباحك لحظة بلحظة.
+                {t('home.partners.affiliateDesc')}
               </p>
               <div className="inline-flex items-center gap-1.5 text-diyar-brown text-sm font-bold group-hover:text-[#d4b08c] transition-colors mt-6">
-                <span>انضم كمسوق</span>
-                <ArrowLeft size={16} />
+                <span>{t('home.partners.affiliateCta')}</span>
+                <CtaIcon size={16} />
               </div>
             </button>
 
@@ -595,22 +643,22 @@ export function PartnerBanner() {
               <div className="w-14 h-14 bg-diyar-cream/20 border border-diyar-cream/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner">
                 <Paintbrush className="text-diyar-cream" size={28} />
               </div>
-              <h3 className="text-lg md:text-xl font-bold text-white mb-2">مقدم خدمات</h3>
+              <h3 className="text-lg md:text-xl font-bold text-white mb-2">{t('home.partners.providerTitle')}</h3>
               <p className="text-gray-400 text-sm leading-relaxed flex-1">
-                قدم خدماتك في التصميم والتركيب والصيانة لشريحة واسعة من العملاء.
+                {t('home.partners.providerDesc')}
               </p>
               <div className="inline-flex items-center gap-1.5 text-diyar-cream/80 text-sm font-bold group-hover:text-diyar-cream transition-colors mt-6">
-                <span>سجل مهنتك</span>
-                <ArrowLeft size={16} />
+                <span>{t('home.partners.providerCta')}</span>
+                <CtaIcon size={16} />
               </div>
             </button>
           </div>
 
           <div className="bg-diyar-brown/10 border border-diyar-brown/20 p-6 md:p-8 rounded-3xl hover:bg-diyar-brown/20 transition-all duration-300 group flex flex-col sm:flex-row items-center gap-6 justify-between relative overflow-hidden backdrop-blur-sm">
-            <div className="relative z-10 text-center sm:text-right w-full sm:w-[60%] flex flex-col items-center sm:items-start">
-              <h3 className="text-xl md:text-2xl font-bold text-white mb-3">لوحة تحكم متكاملة</h3>
+            <div className="relative z-10 text-center sm:text-start w-full sm:w-[60%] flex flex-col items-center sm:items-start">
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-3">{t('home.partners.dashboardTitle')}</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                أدوات احترافية لإدارة مبيعاتك، متابعة طلباتك، والتواصل مع عملائك بسهولة.
+                {t('home.partners.dashboardDesc')}
               </p>
               <button
                 type="button"
@@ -618,7 +666,7 @@ export function PartnerBanner() {
                 className="inline-flex items-center gap-2 text-white bg-white/10 px-4 py-2 rounded-lg text-sm font-bold hover:bg-white/20 transition-colors cursor-pointer"
               >
                 <Store size={16} />
-                <span>شاهد العرض التجريبي</span>
+                <span>{t('home.partners.dashboardDemo')}</span>
               </button>
             </div>
             <div className="w-full sm:w-[40%] flex justify-center opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
@@ -636,88 +684,98 @@ export function PartnerBanner() {
 }
 
 export function ShopByRoom() {
+  const { t, dir } = useLocale();
   const rooms = [
     {
-      name: 'غرفة المعيشة',
+      nameKey: 'home.shopByRoom.rooms.living',
       img: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?auto=format&fit=crop&q=80&w=600',
     },
     {
-      name: 'غرفة النوم',
+      nameKey: 'home.shopByRoom.rooms.bedroom',
       img: 'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=600',
     },
     {
-      name: 'غرفة الطعام',
+      nameKey: 'home.shopByRoom.rooms.dining',
       img: 'https://images.unsplash.com/photo-1617806118233-0011f1823578?auto=format&fit=crop&q=80&w=600',
     },
     {
-      name: 'المكتب المنزلي',
+      nameKey: 'home.shopByRoom.rooms.office',
       img: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=600',
     },
     {
-      name: 'الحديقة والجلسات الخارجية',
+      nameKey: 'home.shopByRoom.rooms.outdoor',
       img: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=600',
     },
-  ];
+  ] as const;
+
   return (
-    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
+    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4 relative" dir={dir}>
       <div className="text-center mb-6 md:mb-8">
         <h2 className="text-xl md:text-4xl font-sans font-bold text-diyar-dark mb-4">
-          تسوق حسب غرفتك
+          {t('home.shopByRoom.title')}
         </h2>
         <p className="text-gray-500 text-sm md:text-base max-w-2xl mx-auto">
-          تصفح منتجاتنا مصنفة حسب مساحات منزلك لتجربة تسوق أسهل وأكثر إلهاماً.
+          {t('home.shopByRoom.subtitle')}
         </p>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
-        {rooms.map((room, i) => (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 opacity-80 pointer-events-none select-none">
+        {rooms.map((room) => (
           <div
-            key={i}
-            className="h-44 md:h-60 rounded-xl overflow-hidden relative group cursor-pointer shadow-sm border border-gray-100"
+            key={room.nameKey}
+            className="h-44 md:h-60 rounded-2xl overflow-hidden relative shadow-sm border border-gray-100"
           >
             <img
               src={room.img}
-              alt={room.name}
+              alt={t(room.nameKey)}
               referrerPolicy="no-referrer"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="absolute inset-0 w-full h-full object-cover grayscale-15"
               onError={(e) => {
                 (e.target as HTMLImageElement).src =
                   'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=600';
               }}
             />
-            <div className="absolute inset-0 bg-linear-to-t from-diyar-dark/80 via-black/20 to-transparent transition-opacity group-hover:from-diyar-dark/90"></div>
-            <div className="absolute bottom-4 md:bottom-6 left-4 md:left-6 right-4 md:right-6 text-white text-center">
-              <h3 className="text-lg md:text-2xl font-bold font-sans mb-1 md:mb-2">{room.name}</h3>
-              <span className="text-xs md:text-sm border border-white/40 px-3 md:px-4 py-1 md:py-1.5 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 inline-block">
-                تسوق الآن
+            <div className="absolute inset-0 bg-linear-to-t from-diyar-dark/85 via-black/25 to-transparent" />
+            <div className="absolute bottom-4 md:bottom-6 inset-x-4 text-white text-center">
+              <h3 className="text-base md:text-xl font-bold font-sans mb-1 md:mb-2">
+                {t(room.nameKey)}
+              </h3>
+              <span className="text-xs md:text-sm border border-white/35 px-3 md:px-4 py-1 md:py-1.5 rounded-full backdrop-blur-sm inline-block">
+                {t('home.shopByRoom.shopNow')}
               </span>
             </div>
           </div>
         ))}
+      </div>
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center pointer-events-none px-4">
+        <span className="bg-white/95 backdrop-blur-sm text-diyar-dark text-sm font-bold px-5 py-2.5 rounded-full border border-gray-200 shadow-lg">
+          {t('home.shopByRoom.comingSoon')}
+        </span>
       </div>
     </div>
   );
 }
 
 export function FeaturedStores() {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
   const { data, isLoading } = useVendors({ per_page: 6 });
   const stores = data?.items ?? [];
+  const ViewAllIcon = dir === 'rtl' ? ChevronLeft : ArrowLeft;
 
   return (
     <div className="bg-gray-50 py-6 md:py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-end mb-6 md:mb-10">
           <div>
-            <span className="text-diyar-brown text-sm font-bold mb-2 block">شركاء النجاح</span>
+            <span className="text-diyar-brown text-sm font-bold mb-2 block">{t('home.featuredStores.badge')}</span>
             <h2 className="text-2xl md:text-4xl font-sans font-bold text-diyar-dark">
-              متاجر مميزة على ديار
+              {t('home.featuredStores.title')}
             </h2>
           </div>
           <Link
             to="/category/all"
-            className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition"
+            className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition cursor-pointer"
           >
-            عرض كل المتاجر <ArrowLeft size={18} />
+            {t('home.featuredStores.viewAll')} <ViewAllIcon size={18} />
           </Link>
         </div>
         <div className="flex overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-6 gap-4 md:gap-4 pb-2 scrollbar-hide snap-x">
@@ -754,7 +812,7 @@ export function FeaturedStores() {
                       {t('store.productsCount', { count: store.product_count ?? 0 })}
                     </span>
                     <div className="w-full py-1.5 md:py-2 text-xs md:text-sm rounded-lg border border-gray-200 text-diyar-dark font-medium group-hover:bg-diyar-brown group-hover:text-white group-hover:border-diyar-dark transition mt-auto">
-                      تصفح المتجر
+                      {t('home.featuredStores.browseStore')}
                     </div>
                   </Link>
                 ))}
@@ -898,7 +956,7 @@ export function WhyChooseDiyar() {
 }
 
 export function DesignBlog() {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
   const posts = [
     {
       titleKey: 'home.blog.post1Title',
@@ -921,10 +979,15 @@ export function DesignBlog() {
   ] as const;
 
   return (
-    <div className="py-8 md:py-12 max-w-7xl mx-auto px-4 relative">
-      <div className="flex justify-between items-end mb-6 md:mb-10">
-        <div>
-          <span className="text-diyar-brown text-sm font-bold mb-2 block">{t('home.blog.badge')}</span>
+    <div className="py-8 md:py-12 max-w-7xl mx-auto px-4 relative" dir={dir}>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 md:mb-10">
+        <div className="text-center sm:text-start">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
+            <span className="text-diyar-brown text-sm font-bold">{t('home.blog.badge')}</span>
+            <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-800">
+              {t('home.blog.comingSoon')}
+            </span>
+          </div>
           <h2 className="text-2xl md:text-4xl font-sans font-bold text-diyar-dark">
             {t('home.blog.title')}
           </h2>
@@ -932,44 +995,41 @@ export function DesignBlog() {
         <button
           type="button"
           disabled
-          className="hidden md:flex text-gray-400 font-bold items-center gap-2 cursor-not-allowed opacity-70"
+          className="inline-flex items-center justify-center gap-2 self-center rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-400 cursor-not-allowed opacity-80"
         >
-          {t('home.blog.allArticles')} <ArrowLeft size={18} />
+          {t('home.blog.allArticles')}
+          <ArrowLeft size={18} className="rtl:-scale-x-100" />
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 opacity-80 pointer-events-none select-none">
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 opacity-85 pointer-events-none select-none">
         {posts.map((post) => (
-          <article key={post.titleKey} className="block">
-            <div className="w-full h-60 rounded-xl overflow-hidden mb-6 relative">
+          <article key={post.titleKey} className="group">
+            <div className="w-full h-56 md:h-60 rounded-2xl overflow-hidden mb-5 relative shadow-sm border border-gray-100">
               <img
                 src={post.img}
                 alt={t(post.titleKey)}
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src =
                     'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=60&w=600';
                 }}
               />
-              <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-diyar-brown">
+              <div className="absolute top-4 inset-e-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-diyar-brown shadow-sm">
                 {t(post.categoryKey)}
               </div>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-400 mb-3">
               <span>{t(post.dateKey)}</span>
-              <span className="w-1.5 h-1.5 bg-gray-300 rounded-full"></span>
+              <span className="w-1.5 h-1.5 bg-gray-300 rounded-full" />
               <span>{t('home.blog.readTime')}</span>
             </div>
-            <h3 className="text-xl md:text-2xl font-bold font-sans text-diyar-dark leading-snug">
+            <h3 className="text-lg md:text-2xl font-bold font-sans text-diyar-dark leading-snug">
               {t(post.titleKey)}
             </h3>
           </article>
         ))}
-      </div>
-      <div className="absolute inset-x-0 bottom-8 flex justify-center pointer-events-none">
-        <span className="bg-white/95 backdrop-blur-sm text-diyar-dark text-sm font-bold px-5 py-2.5 rounded-full border border-gray-200 shadow-lg">
-          {t('home.blog.comingSoon')}
-        </span>
       </div>
     </div>
   );
@@ -1378,7 +1438,9 @@ export function BrandsStrip() {
 }
 
 export function ServicesSection() {
+  const { t, dir } = useLocale();
   const { data: serviceCategories, isLoading } = useCategories('service');
+  const ViewAllIcon = dir === 'rtl' ? ChevronLeft : ArrowLeft;
   const featuredCategories = (serviceCategories ?? []).slice(0, 6);
   const categoryServiceQueries = useQueries({
     queries: featuredCategories.map((category) => ({
@@ -1407,19 +1469,19 @@ export function ServicesSection() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-end mb-6">
           <div>
-            <span className="text-purple-600 text-sm font-bold mb-2 block">خدمات ديار</span>
+            <span className="text-purple-600 text-sm font-bold mb-2 block">{t('home.diyarServices.badge')}</span>
             <h2 className="text-2xl md:text-3xl font-sans font-bold text-diyar-dark flex items-center gap-3">
               <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center">
                 <Paintbrush size={20} />
               </div>
-              خدمات التصميم والصيانة
+              {t('home.diyarServices.title')}
             </h2>
           </div>
           <Link
             to="/services"
             className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition cursor-pointer"
           >
-            عرض كل الخدمات <ArrowLeft size={18} />
+            {t('home.diyarServices.viewAll')} <ViewAllIcon size={18} />
           </Link>
         </div>
         <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-5 pb-4 scrollbar-hide snap-x pt-2">
@@ -1442,7 +1504,7 @@ export function ServicesSection() {
                   </div>
                   <div className="p-4">
                     <h3 className="font-bold text-diyar-dark text-base">{category.name}</h3>
-                    <p className="text-xs text-gray-500 mt-1">تصفح قسم الخدمة</p>
+                    <p className="text-xs text-gray-500 mt-1">{t('home.diyarServices.browseCategory')}</p>
                   </div>
                 </Link>
               ))}
@@ -1462,7 +1524,7 @@ export function ServicesSection() {
                   to={`/category/${category.slug}`}
                   className="text-diyar-brown text-sm font-bold hover:text-diyar-dark transition cursor-pointer"
                 >
-                  عرض الكل <ArrowLeft size={16} className="inline ms-1" />
+                  {t('home.diyarServices.viewAllCategory')} <ViewAllIcon size={16} className="inline ms-1" />
                 </Link>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

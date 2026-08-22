@@ -1,3 +1,11 @@
+export type AffiliatePlatformConfig = {
+  min_commission_percent: string;
+  max_commission_percent: string;
+  attribution_window_days: number;
+  payout_minimum: string;
+  currency: string;
+};
+
 export type AffiliateProfileStatus = 'active' | 'suspended' | 'pending';
 
 export type AffiliatePayoutStatus =
@@ -57,6 +65,7 @@ export type AffiliateProductSummary = {
   slug: string;
   sale_price: string;
   image_url?: string | null;
+  vendor_account_id?: string | null;
   vendor?: {
     business_name: string;
     slug: string;
@@ -79,6 +88,8 @@ export type AffiliateLink = {
   referral_code: string;
   commission_rate_percent: string;
   is_active: boolean;
+  product_affiliate_enabled?: boolean;
+  inactive_reason?: 'manual' | 'product_disabled' | null;
   campaign_name: string | null;
   source: string | null;
   click_count: number;
@@ -104,6 +115,7 @@ export type AffiliateReportLinkRow = {
   name: string;
   referral_code: string;
   public_url?: string;
+  source?: string | null;
   product: {
     id: string;
     name: string | null;
@@ -137,6 +149,8 @@ export type AffiliateDailyReportRow = {
 export type AffiliateAttribution = {
   affiliate_profile_id: string;
   affiliate_link_id: string;
+  affiliate_click_id?: string | null;
+  traffic_source?: string;
   product_id: string;
   commission_rate_percent: string;
   expires_at: string;
@@ -165,9 +179,18 @@ export type AffiliatePayoutsResponse = {
   pagination: AffiliatePagination;
 };
 
+export type AffiliateReportSourceRow = {
+  source: string;
+  clicks: number;
+  conversions: number;
+  conversion_rate: string;
+  earnings: string;
+};
+
 export type AffiliateReportsResponse = {
   summary?: AffiliateReportSummary;
   by_link: AffiliateReportLinkRow[];
+  by_source?: AffiliateReportSourceRow[];
   daily: AffiliateDailyReportRow[];
   period?: { from: string; to: string; key?: string };
 };

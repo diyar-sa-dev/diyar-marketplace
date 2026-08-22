@@ -129,6 +129,126 @@ class AffiliateCommerceTest extends TestCase
     }
 
     #[Test]
+    public function click_tracks_traffic_source_and_referrer(): void
+    {
+        [$product, $link] = $this->seedAffiliateProductAndLink();
+        $session = 'sess-source-'.Str::uuid();
+
+        $this->postJson('/api/v1/affiliate/referrals/click', [
+            'ref' => $link->referral_code,
+            'product_id' => $product->id,
+            'session_fingerprint' => $session,
+            'traffic_source' => 'instagram',
+            'referrer_url' => 'https://l.instagram.com/',
+        ])->assertOk()
+            ->assertJsonPath('data.attribution.traffic_source', 'instagram')
+            ->assertJsonPath('data.attribution.affiliate_click_id', fn ($value) => is_string($value) && $value !== '');
+
+        $this->assertDatabaseHas('affiliate_clicks', [
+            'affiliate_link_id' => $link->id,
+            'session_fingerprint' => $session,
+            'traffic_source' => 'instagram',
+        ]);
+
+        $this->assertDatabaseHas('affiliate_attributions', [
+            'affiliate_link_id' => $link->id,
+            'product_id' => $product->id,
+            'traffic_source' => 'instagram',
+        ]);
+    }
+
+    #[Test]
+    public function referrer_url_can_infer_traffic_source_when_not_explicit(): void
+    {
+        [$product, $link] = $this->seedAffiliateProductAndLink();
+        $session = 'sess-referrer-'.Str::uuid();
+
+        $this->postJson('/api/v1/affiliate/referrals/click', [
+            'ref' => $link->referral_code,
+            'product_id' => $product->id,
+            'session_fingerprint' => $session,
+            'referrer_url' => 'https://www.youtube.com/watch?v=abc123',
+        ])->assertOk()
+            ->assertJsonPath('data.attribution.traffic_source', 'youtube');
+    }
+
+    #[Test]
+    public function affiliate_link_public_url_includes_referral_code_only(): void
+    {
+        [$product, $link] = $this->seedAffiliateProductAndLink();
+        $link->update(['source' => 'whatsapp']);
+
+        $url = app(\App\Services\Affiliate\AffiliateLinkService::class)->buildPublicUrl($link->fresh());
+
+        $this->assertStringContainsString('ref='.$link->referral_code, $url);
+        $this->assertStringNotContainsString('src=', $url);
+        $this->assertStringContainsString('/product/'.$product->id, $url);
+    }
+
+    #[Test]
+    public function successful_order_marks_click_as_converted_and_links_commission(): void
+    {
+        [$product, $link, , $order] = $this->createAffiliateOrderWithAttribution(
+            trafficSource: 'telegram',
+        );
+        $orderItem = $order->vendorOrders->first()->items->first();
+
+        $this->assertNotNull($orderItem->affiliate_click_id);
+        $this->assertSame('telegram', $orderItem->affiliate_traffic_source);
+
+        app(PaymentFinalizationService::class)->finalizePaid(
+            payment: $order->payment,
+            gatewayPaymentId: 'gw-conv-1',
+            gatewayInvoiceId: 'inv-conv-1',
+        );
+
+        event(new PaymentSucceeded($order->payment->fresh()));
+
+        $commission = AffiliateCommission::query()
+            ->where('order_item_id', $orderItem->id)
+            ->firstOrFail();
+
+        $this->assertSame($orderItem->affiliate_click_id, $commission->affiliate_click_id);
+        $this->assertSame('telegram', $commission->traffic_source);
+
+        $click = AffiliateClick::query()->findOrFail($orderItem->affiliate_click_id);
+        $this->assertNotNull($click->converted_at);
+        $this->assertSame($commission->id, $click->affiliate_commission_id);
+    }
+
+    #[Test]
+    public function affiliate_reports_include_platform_breakdown(): void
+    {
+        [$product, $link, $marketer] = $this->seedAffiliateProductAndLink(withMarketer: true);
+
+        app(AffiliateAttributionService::class)->recordClick(
+            referralCode: $link->referral_code,
+            productId: $product->id,
+            sessionFingerprint: 'sess-report-'.Str::uuid(),
+            trafficSource: 'facebook',
+        );
+
+        app(AffiliateAttributionService::class)->recordClick(
+            referralCode: $link->referral_code,
+            productId: $product->id,
+            sessionFingerprint: 'sess-report-2-'.Str::uuid(),
+            trafficSource: 'instagram',
+        );
+
+        $response = $this->getJsonAsUser('/api/v1/dashboard/affiliate/reports?period=month', $marketer)
+            ->assertOk();
+
+        $bySource = collect($response->json('data.by_source'));
+        $facebook = $bySource->firstWhere('source', 'facebook');
+        $instagram = $bySource->firstWhere('source', 'instagram');
+
+        $this->assertNotNull($facebook);
+        $this->assertSame(1, $facebook['clicks']);
+        $this->assertNotNull($instagram);
+        $this->assertSame(1, $instagram['clicks']);
+    }
+
+    #[Test]
     public function duplicate_click_within_dedupe_window_does_not_inflate_metrics(): void
     {
         [$product, $link] = $this->seedAffiliateProductAndLink();
@@ -550,7 +670,7 @@ class AffiliateCommerceTest extends TestCase
     /**
      * @return array{0: Product, 1: AffiliateLink, 2: User, 3: Order}
      */
-    private function createAffiliateOrderWithAttribution(): array
+    private function createAffiliateOrderWithAttribution(?string $trafficSource = null): array
     {
         [$product, $link, $marketer] = $this->seedAffiliateProductAndLink(withMarketer: true);
         $customer = $this->createUserWithRole(RoleName::Customer);
@@ -562,6 +682,7 @@ class AffiliateCommerceTest extends TestCase
             sessionFingerprint: $session,
             ip: '127.0.0.1',
             user: $customer,
+            trafficSource: $trafficSource,
         );
 
         $this->createVendorShippingSettings($product->vendorAccount);

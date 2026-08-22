@@ -24,7 +24,18 @@ class AffiliateClick extends Model
         'product_id',
         'session_fingerprint',
         'ip_hash',
+        'traffic_source',
+        'referrer_url',
+        'converted_at',
+        'affiliate_commission_id',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'converted_at' => 'datetime',
+        ];
+    }
 
     public function link(): BelongsTo
     {

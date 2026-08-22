@@ -8,6 +8,7 @@ import { NotificationProvider } from './context/NotificationProvider.tsx';
 import { ChatProvider } from './context/ChatProvider.tsx';
 import { ErrorBoundary } from './components/common/ErrorBoundary.tsx';
 import { ToastProvider } from './components/common/ToastProvider.tsx';
+import { AboutModalProvider } from './context/AboutModalContext.tsx';
 import { LocaleProvider } from './lib/i18n/LocaleProvider.tsx';
 import { applyDocumentLocale, readStoredLocale } from './lib/i18n/storage.ts';
 import { queryClient } from './lib/queryClient.ts';
@@ -20,19 +21,21 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <LocaleProvider>
-        <BrowserRouter>
-          <ErrorBoundary>
-            <ToastProvider>
-              <AuthProvider>
-                <NotificationProvider>
-                  <ChatProvider>
-                    <App />
-                  </ChatProvider>
-                </NotificationProvider>
-              </AuthProvider>
-            </ToastProvider>
-          </ErrorBoundary>
-        </BrowserRouter>
+        <AboutModalProvider>
+          <BrowserRouter>
+            <ErrorBoundary>
+              <ToastProvider>
+                <AuthProvider>
+                  <NotificationProvider>
+                    <ChatProvider>
+                      <App />
+                    </ChatProvider>
+                  </NotificationProvider>
+                </AuthProvider>
+              </ToastProvider>
+            </ErrorBoundary>
+          </BrowserRouter>
+        </AboutModalProvider>
       </LocaleProvider>
     </QueryClientProvider>
   </StrictMode>,

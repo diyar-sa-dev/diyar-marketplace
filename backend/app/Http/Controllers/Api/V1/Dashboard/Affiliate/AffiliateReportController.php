@@ -31,6 +31,7 @@ class AffiliateReportController extends Controller
         return ApiResponse::success(data: [
             'summary' => $this->dashboard->reportSummary($profile, $from, $to),
             'by_link' => $this->dashboard->reportByLink($profile, $from, $to, $sort),
+            'by_source' => $this->dashboard->reportBySource($profile, $from, $to),
             'daily' => $this->dashboard->dailySeries($profile, $from, $to),
             'period' => [
                 'from' => $from->toDateString(),

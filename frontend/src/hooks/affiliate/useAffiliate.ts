@@ -17,6 +17,7 @@ export const affiliateKeys = {
   payouts: (page: number, perPage: number) =>
     [...affiliateKeys.all, 'payouts', page, perPage] as const,
   settings: () => [...affiliateKeys.all, 'settings'] as const,
+  platformConfig: () => [...affiliateKeys.all, 'platform-config'] as const,
   vendorProductAffiliate: (productId: string) =>
     [...affiliateKeys.all, 'vendor-product', productId] as const,
 };
@@ -88,6 +89,14 @@ export function useRequestAffiliatePayout() {
       void queryClient.invalidateQueries({ queryKey: affiliateKeys.payouts(1, 20) });
       void queryClient.invalidateQueries({ queryKey: affiliateKeys.overview() });
     },
+  });
+}
+
+export function useAffiliatePlatformConfig() {
+  return useQuery({
+    queryKey: affiliateKeys.platformConfig(),
+    queryFn: affiliateApi.fetchAffiliatePlatformConfig,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

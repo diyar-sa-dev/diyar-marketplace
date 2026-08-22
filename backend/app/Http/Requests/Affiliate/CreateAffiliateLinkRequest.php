@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Affiliate;
 
+use App\Enums\AffiliateTrafficSource;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CreateAffiliateLinkRequest extends FormRequest
 {
@@ -21,7 +23,7 @@ class CreateAffiliateLinkRequest extends FormRequest
             'product_id' => ['required', 'uuid', 'exists:products,id'],
             'commission_rate_percent' => ['nullable', 'numeric', 'min:0.01', 'max:100'],
             'campaign_name' => ['nullable', 'string', 'max:120'],
-            'source' => ['nullable', 'string', 'max:60'],
+            'source' => ['nullable', 'string', 'max:32', Rule::in(AffiliateTrafficSource::values())],
         ];
     }
 }

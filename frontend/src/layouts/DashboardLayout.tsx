@@ -81,6 +81,18 @@ export default function DashboardLayout() {
     affiliate: Megaphone,
   };
 
+  const PORTAL_ACTIVE_STYLES: Record<DashboardPortalKey, string> = {
+    vendor: 'bg-diyar-brown text-white shadow-md shadow-diyar-brown/20 scale-[1.01]',
+    service: 'bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-[1.01]',
+    affiliate: 'bg-green-600 text-white shadow-md shadow-green-600/20 scale-[1.01]',
+  };
+
+  const PORTAL_ICON_ACTIVE: Record<DashboardPortalKey, string> = {
+    vendor: 'text-white',
+    service: 'text-white',
+    affiliate: 'text-white',
+  };
+
   const NAV_LINKS: Record<
     DashboardPortalKey,
     Array<{ name: string; path: string; icon: typeof LayoutDashboard; permission?: string }>
@@ -186,12 +198,12 @@ export default function DashboardLayout() {
       },
     ],
     affiliate: [
-      { name: 'الرئيسية', path: '/dashboard/affiliate', icon: LayoutDashboard },
-      { name: 'المنتجات المتاحة', path: '/dashboard/affiliate/products', icon: Package },
-      { name: 'روابطي', path: '/dashboard/affiliate/links', icon: LinkIcon },
-      { name: 'التقارير', path: '/dashboard/affiliate/reports', icon: BarChart },
-      { name: 'سحب الأرباح', path: '/dashboard/affiliate/payouts', icon: Wallet },
-      { name: 'الإعدادات', path: '/dashboard/affiliate/settings', icon: Settings },
+      { name: t('affiliate.nav.home'), path: '/dashboard/affiliate', icon: LayoutDashboard },
+      { name: t('affiliate.nav.products'), path: '/dashboard/affiliate/products', icon: Package },
+      { name: t('affiliate.nav.links'), path: '/dashboard/affiliate/links', icon: LinkIcon },
+      { name: t('affiliate.nav.reports'), path: '/dashboard/affiliate/reports', icon: BarChart },
+      { name: t('affiliate.nav.payouts'), path: '/dashboard/affiliate/payouts', icon: Wallet },
+      { name: t('affiliate.nav.settings'), path: '/dashboard/affiliate/settings', icon: Settings },
     ],
   };
 
@@ -243,6 +255,7 @@ export default function DashboardLayout() {
               {links.map((link) => {
                 const Icon = link.icon;
                 const isActive = location.pathname === link.path;
+                const portalKey = role ?? 'vendor';
                 return (
                   <li key={link.path}>
                     <Link
@@ -250,12 +263,15 @@ export default function DashboardLayout() {
                       onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)}
                       className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
                         isActive
-                          ? 'bg-diyar-brown text-white shadow-md shadow-diyar-brown/20 scale-[1.01]'
+                          ? PORTAL_ACTIVE_STYLES[portalKey]
                           : 'text-gray-300 hover:bg-white/8 hover:text-white hover:translate-x-0.5 rtl:hover:-translate-x-0.5'
                       }`}
                       title={link.name}
                     >
-                      <Icon size={20} className="shrink-0" />
+                      <Icon
+                        size={20}
+                        className={`shrink-0 ${isActive ? PORTAL_ICON_ACTIVE[portalKey] : ''}`}
+                      />
                       {isSidebarOpen && (
                         <span className="font-medium whitespace-nowrap">{link.name}</span>
                       )}

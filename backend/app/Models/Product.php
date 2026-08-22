@@ -100,6 +100,11 @@ class Product extends Model
         return $this->hasOne(ProductInventory::class);
     }
 
+    public function affiliateSetting(): HasOne
+    {
+        return $this->hasOne(ProductAffiliateSetting::class);
+    }
+
     public function inventoryMovements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class);

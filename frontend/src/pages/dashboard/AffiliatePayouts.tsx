@@ -7,6 +7,7 @@ import { LoadingState } from '../../components/common/LoadingState.tsx';
 import { PaginationBar } from '../../components/catalog/PaginationBar.tsx';
 import {
   useAffiliatePayouts,
+  useAffiliatePlatformConfig,
   useAffiliateSettings,
   useRequestAffiliatePayout,
 } from '../../hooks/affiliate/useAffiliate.ts';
@@ -15,6 +16,7 @@ import { useLocale } from '../../hooks/useLocale.ts';
 import { formatFinanceDateTime } from '../../lib/formatFinanceDateTime.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { parseApiError } from '../../utils/errors.ts';
+import { AffiliatePlatformHints } from '../../components/affiliate/AffiliatePlatformHints.tsx';
 import type { AffiliatePayoutStatus } from '../../types/affiliate.ts';
 
 export default function AffiliatePayouts() {
@@ -28,6 +30,7 @@ export default function AffiliatePayouts() {
   });
 
   const payoutsQuery = useAffiliatePayouts(page, perPage);
+  const platformQuery = useAffiliatePlatformConfig();
   const settingsQuery = useAffiliateSettings();
   const requestPayout = useRequestAffiliatePayout();
 
@@ -86,10 +89,14 @@ export default function AffiliatePayouts() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-diyar-dark">سحب الأرباح</h2>
-          <p className="text-gray-500 text-sm mt-1">إدارة رصيدك المتاح وسجل مسحوبات الأرباح.</p>
+          <h2 className="text-2xl font-bold text-diyar-dark">{t('affiliate.payouts.title')}</h2>
+          <p className="text-gray-500 text-sm mt-1">{t('affiliate.payouts.subtitle')}</p>
         </div>
       </div>
+
+      {platformQuery.data ? (
+        <AffiliatePlatformHints platform={platformQuery.data} variant="payout" />
+      ) : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-green-600 text-white p-6 rounded-2xl shadow-sm relative overflow-hidden lg:col-span-1">
@@ -121,7 +128,7 @@ export default function AffiliatePayouts() {
               disabled={
                 requestPayout.isPending || Number(balance?.available ?? 0) < Number(minimumPayout)
               }
-              className="w-full bg-white text-green-600 py-3 rounded-xl font-bold hover:bg-gray-50 transition shadow-sm flex items-center justify-center gap-2 mt-4 disabled:opacity-60"
+              className="w-full bg-white text-green-600 py-3 rounded-xl font-bold hover:bg-gray-50 transition shadow-sm flex items-center justify-center gap-2 mt-4 disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
             >
               {requestPayout.isPending ? (
                 <Loader2 size={18} className="animate-spin" />
@@ -156,9 +163,9 @@ export default function AffiliatePayouts() {
             </div>
             <Link
               to="/dashboard/affiliate/settings"
-              className="text-sm font-bold text-blue-600 hover:text-blue-700 transition"
+              className="text-sm font-bold text-green-600 hover:text-green-700 transition cursor-pointer"
             >
-              تغيير الحساب
+              {t('affiliate.payouts.changeAccount')}
             </Link>
           </div>
 
@@ -166,7 +173,7 @@ export default function AffiliatePayouts() {
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <h3 className="font-bold text-diyar-dark flex items-center gap-2">
                 <History size={18} className="text-gray-400" />
-                سجل المسحوبات السابقة
+                {t('affiliate.payouts.historyTitle')}
               </h3>
             </div>
             {payouts.length === 0 ? (
@@ -230,28 +237,27 @@ export default function AffiliatePayouts() {
         <div className="fixed inset-0 bg-black/60 z-300 flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="bg-white rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-bold text-xl text-diyar-dark">طلب سحب جديد</h3>
+              <h3 className="font-bold text-xl text-diyar-dark">{t('affiliate.payouts.modalTitle')}</h3>
             </div>
             <div className="p-6 space-y-4 text-center pb-8">
               <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 size={40} />
               </div>
-              <h4 className="font-bold text-xl text-gray-900">تم استلام طلبك بنجاح</h4>
+              <h4 className="font-bold text-xl text-gray-900">{t('affiliate.payouts.modalSuccess')}</h4>
               <p className="text-gray-500 text-sm">
-                سيتم تحويل مبلغ{' '}
-                <span className="font-bold text-diyar-dark">
-                  {requestedAmount} {currency}
-                </span>{' '}
-                إلى حسابك البنكي خلال 1-3 أيام عمل.
+                {t('affiliate.payouts.modalBody', {
+                  amount: requestedAmount,
+                  currency,
+                })}
               </p>
             </div>
             <div className="p-6 border-t border-gray-100 bg-gray-50 shrink-0">
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-full px-5 py-3 rounded-xl font-bold bg-diyar-dark text-white hover:bg-black transition"
+                className="w-full px-5 py-3 rounded-xl font-bold bg-diyar-dark text-white hover:bg-black transition cursor-pointer"
               >
-                حسناً، إغلاق
+                {t('affiliate.payouts.modalClose')}
               </button>
             </div>
           </div>

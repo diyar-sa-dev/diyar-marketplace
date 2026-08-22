@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Search,
   Star,
@@ -26,6 +26,7 @@ import { resolveServiceTypeLabel } from '../lib/serviceBookingDisplay.ts';
 
 export default function ServicesPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t, dir, locale } = useLocale();
   const PrevIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
   const NextIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
@@ -35,6 +36,14 @@ export default function ServicesPage() {
   const [sort, setSort] = useState<ServiceListFilters['sort']>('latest');
   const [page, setPage] = useState(1);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+
+  useEffect(() => {
+    const state = location.state as { openRequest?: boolean } | null;
+    if (state?.openRequest) {
+      setIsRequestModalOpen(true);
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.pathname, location.state, navigate]);
   const debouncedSearch = useDebouncedValue(searchTerm, 350);
 
   const { data: categories = [], isLoading: categoriesLoading } = useServiceCategories();

@@ -51,6 +51,10 @@ import { EmptyState } from '../components/common/EmptyState.tsx';
 import { isApiErrorDetail, isNotFound, parseApiError } from '../utils/errors.ts';
 import { trackAffiliateClick } from '../api/affiliate.ts';
 import { getOrCreateAffiliateSessionFingerprint } from '../lib/affiliateSession.ts';
+import {
+  normalizeAffiliateTrafficSource,
+  resolveTrafficSourceFromReferrer,
+} from '../lib/affiliateTrafficSources.ts';
 
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800';
@@ -59,6 +63,10 @@ export default function ProductDetailsPage() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const referralCode = searchParams.get('ref')?.trim() || undefined;
+  const trafficSourceParam =
+    searchParams.get('src')?.trim() ||
+    searchParams.get('utm_source')?.trim() ||
+    undefined;
   const trackedReferralRef = useRef<string | null>(null);
   const { t, dir, locale } = useLocale();
   const { isAuthenticated } = useAuth();
@@ -126,15 +134,20 @@ export default function ProductDetailsPage() {
 
     trackedReferralRef.current = trackingKey;
     const sessionFingerprint = getOrCreateAffiliateSessionFingerprint();
+    const explicitSource = normalizeAffiliateTrafficSource(trafficSourceParam);
+    const referrerSource = resolveTrafficSourceFromReferrer(document.referrer);
+    const trafficSource = explicitSource ?? referrerSource ?? undefined;
 
     void trackAffiliateClick({
       ref: referralCode,
       product_id: product.id,
       session_fingerprint: sessionFingerprint,
+      traffic_source: trafficSource,
+      referrer_url: document.referrer || undefined,
     }).catch(() => {
       trackedReferralRef.current = null;
     });
-  }, [product?.id, referralCode]);
+  }, [product?.id, referralCode, trafficSourceParam]);
 
   const requireAuth = useCallback(
     (action: () => void) => {

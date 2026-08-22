@@ -40,7 +40,7 @@ final class ProductAffiliateSettingsService
 
         $this->rules->assertRateWithinRange($rate, $min, $max);
 
-        return ProductAffiliateSetting::query()->updateOrCreate(
+        $setting = ProductAffiliateSetting::query()->updateOrCreate(
             ['product_id' => $owned->id],
             [
                 'enabled' => $enabled,
@@ -49,6 +49,12 @@ final class ProductAffiliateSettingsService
                 'commission_rate_percent' => number_format($rate, 2, '.', ''),
             ],
         );
+
+        if (! $enabled) {
+            app(AffiliateLinkService::class)->deactivateForProduct($owned);
+        }
+
+        return $setting;
     }
 
     public function assertAffiliateEnabled(Product $product): ProductAffiliateSetting

@@ -6,6 +6,7 @@ import { ErrorState } from '../../components/common/ErrorState.tsx';
 import { LoadingState } from '../../components/common/LoadingState.tsx';
 import {
   useAffiliateProducts,
+  useAffiliatePlatformConfig,
   useCreateAffiliateLink,
 } from '../../hooks/affiliate/useAffiliate.ts';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue.ts';
@@ -14,9 +15,14 @@ import { usePaginationState, paginationBarProps } from '../../hooks/usePaginatio
 import { useToast } from '../../hooks/useToast.ts';
 import { parseApiError } from '../../utils/errors.ts';
 import { resolveMediaUrl } from '../../lib/media.ts';
+import { AffiliatePlatformHints } from '../../components/affiliate/AffiliatePlatformHints.tsx';
 import type { AffiliateProductSetting } from '../../types/affiliate.ts';
 
 const FALLBACK_IMAGE = '/placeholder-product.png';
+
+function formatWesternNumber(value: number): string {
+  return value.toLocaleString('en-US');
+}
 
 export default function AffiliateProducts() {
   const { t, locale } = useLocale();
@@ -28,6 +34,7 @@ export default function AffiliateProducts() {
   const [creatingProductId, setCreatingProductId] = useState<string | null>(null);
 
   const productsQuery = useAffiliateProducts(page, perPage, debouncedSearch);
+  const platformQuery = useAffiliatePlatformConfig();
   const createLink = useCreateAffiliateLink();
 
   const products = productsQuery.data?.products ?? [];
@@ -78,7 +85,6 @@ export default function AffiliateProducts() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-diyar-dark">{t('affiliate.products.title')}</h2>
-          <p className="text-gray-500 text-sm mt-1">{t('affiliate.products.subtitle')}</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -100,6 +106,10 @@ export default function AffiliateProducts() {
           </div>
         </div>
       </div>
+
+      {platformQuery.data ? (
+        <AffiliatePlatformHints platform={platformQuery.data} variant="marketer" />
+      ) : null}
 
       {products.length === 0 ? (
         <EmptyState title={t('affiliate.emptyProducts')} />
@@ -144,9 +154,8 @@ export default function AffiliateProducts() {
                         <div className="text-xs text-gray-500">
                           {t('affiliate.products.productPrice')}
                         </div>
-                        <div className="font-medium text-gray-900">
-                          {price.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}{' '}
-                          {t('common.currency')}
+                        <div className="font-medium text-gray-900" dir="ltr">
+                          {formatWesternNumber(price)} {t('common.currency')}
                         </div>
                       </div>
                       <div className="text-left">

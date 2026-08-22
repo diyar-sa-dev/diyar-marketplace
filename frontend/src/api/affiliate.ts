@@ -10,6 +10,7 @@ import type {
   AffiliatePayoutsResponse,
   AffiliateProductSetting,
   AffiliateProductsResponse,
+  AffiliatePlatformConfig,
   AffiliateProfile,
   AffiliateReportPeriod,
   AffiliateReportsResponse,
@@ -56,6 +57,8 @@ export async function trackAffiliateClick(payload: {
   ref: string;
   product_id: string;
   session_fingerprint: string;
+  traffic_source?: string;
+  referrer_url?: string;
 }): Promise<{ attributed: boolean; attribution?: AffiliateAttribution }> {
   await ensureCsrfCookie();
   const { data } = await apiClient.post<
@@ -73,6 +76,13 @@ export async function resolveAffiliateReferral(params: {
     ApiSuccessResponse<{ attributed: boolean; attribution?: AffiliateAttribution }>
   >('/affiliate/referrals/resolve', { params });
   return data.data;
+}
+
+export async function fetchAffiliatePlatformConfig(): Promise<AffiliatePlatformConfig> {
+  const { data } = await apiClient.get<ApiSuccessResponse<{ platform: AffiliatePlatformConfig }>>(
+    '/dashboard/affiliate/platform-config',
+  );
+  return data.data.platform;
 }
 
 export async function fetchAffiliateOverview(params?: {
@@ -185,11 +195,14 @@ export async function updateAffiliateSettings(
 
 export async function fetchVendorProductAffiliate(
   productId: string,
-): Promise<AffiliateProductSetting | null> {
+): Promise<{ affiliate: AffiliateProductSetting | null; platform: AffiliatePlatformConfig }> {
   const { data } = await apiClient.get<
-    ApiSuccessResponse<{ affiliate: AffiliateProductSetting | null }>
+    ApiSuccessResponse<{
+      affiliate: AffiliateProductSetting | null;
+      platform: AffiliatePlatformConfig;
+    }>
   >(`/dashboard/vendor/products/${productId}/affiliate`);
-  return data.data.affiliate;
+  return data.data;
 }
 
 export async function updateVendorProductAffiliate(

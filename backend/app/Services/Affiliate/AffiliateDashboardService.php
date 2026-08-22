@@ -83,6 +83,51 @@ final class AffiliateDashboardService
     }
 
     /**
+     * @return list<array{source: string, clicks: int, conversions: int, conversion_rate: string, earnings: string}>
+     */
+    public function reportBySource(AffiliateProfile $profile, Carbon $from, Carbon $to): array
+    {
+        $clickRows = AffiliateClick::query()
+            ->selectRaw("COALESCE(traffic_source, 'direct') as source, COUNT(*) as total")
+            ->where('affiliate_profile_id', $profile->id)
+            ->whereBetween('created_at', [$from, $to])
+            ->groupBy('source')
+            ->pluck('total', 'source');
+
+        $conversionRows = AffiliateCommission::query()
+            ->selectRaw("COALESCE(traffic_source, 'direct') as source, COUNT(*) as total, SUM(commission_amount) as earnings")
+            ->where('affiliate_profile_id', $profile->id)
+            ->whereBetween('created_at', [$from, $to])
+            ->whereNotIn('status', [
+                AffiliateCommissionStatus::Reversed->value,
+                AffiliateCommissionStatus::Cancelled->value,
+            ])
+            ->groupBy('source')
+            ->get()
+            ->keyBy('source');
+
+        $sources = $clickRows->keys()
+            ->merge($conversionRows->keys())
+            ->unique()
+            ->sort()
+            ->values();
+
+        return $sources->map(function (string $source) use ($clickRows, $conversionRows) {
+            $clicks = (int) ($clickRows[$source] ?? 0);
+            $conversion = $conversionRows->get($source);
+            $conversions = (int) ($conversion->total ?? 0);
+
+            return [
+                'source' => $source,
+                'clicks' => $clicks,
+                'conversions' => $conversions,
+                'conversion_rate' => $this->conversionRate($clicks, $conversions),
+                'earnings' => number_format((float) ($conversion->earnings ?? 0), 2, '.', ''),
+            ];
+        })->sortByDesc('conversions')->values()->all();
+    }
+
+    /**
      * @return list<array<string, mixed>>
      */
     public function reportByLink(

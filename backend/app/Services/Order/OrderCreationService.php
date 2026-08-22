@@ -298,6 +298,8 @@ final class OrderCreationService
         return [
             'affiliate_profile_id' => $attribution['affiliate_profile_id'],
             'affiliate_link_id' => $attribution['affiliate_link_id'],
+            'affiliate_click_id' => $attribution['affiliate_click_id'] ?? null,
+            'affiliate_traffic_source' => $attribution['traffic_source'] ?? null,
             'affiliate_commission_rate' => $rate,
             'affiliate_commission_base' => $base,
             'affiliate_commission_amount' => $amount,

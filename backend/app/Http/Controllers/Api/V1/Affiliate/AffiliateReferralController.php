@@ -25,6 +25,8 @@ class AffiliateReferralController extends Controller
                 sessionFingerprint: $request->validated('session_fingerprint'),
                 ip: $request->ip(),
                 user: $request->user(),
+                trafficSource: $request->validated('traffic_source'),
+                referrerUrl: $request->validated('referrer_url'),
             );
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);

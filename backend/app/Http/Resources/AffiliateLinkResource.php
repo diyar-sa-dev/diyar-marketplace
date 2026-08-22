@@ -21,6 +21,12 @@ class AffiliateLinkResource extends JsonResource
         $reversedCommission = number_format((float) ($this->reversed_commission_amount ?? 0), 2, '.', '');
         $netCommission = number_format((float) ($this->net_commission_amount ?? $this->total_earnings ?? 0), 2, '.', '');
         $grossCommission = number_format((float) bcadd($netCommission, $reversedCommission, 2), 2, '.', '');
+        $productAffiliateEnabled = (bool) ($this->product?->affiliateSetting?->enabled ?? true);
+        $inactiveReason = null;
+
+        if (! $this->is_active) {
+            $inactiveReason = $productAffiliateEnabled ? 'manual' : 'product_disabled';
+        }
 
         return [
             'id' => $this->id,
@@ -28,6 +34,8 @@ class AffiliateLinkResource extends JsonResource
             'referral_code' => $this->referral_code,
             'commission_rate_percent' => number_format((float) $this->commission_rate_percent, 2, '.', ''),
             'is_active' => $this->is_active,
+            'product_affiliate_enabled' => $productAffiliateEnabled,
+            'inactive_reason' => $inactiveReason,
             'campaign_name' => $this->campaign_name,
             'source' => $this->source,
             'click_count' => $this->click_count,
@@ -44,6 +52,7 @@ class AffiliateLinkResource extends JsonResource
                 'name' => $this->product?->name,
                 'slug' => $this->product?->slug,
                 'sale_price' => $this->product?->sale_price,
+                'vendor_account_id' => $this->product?->vendor_account_id,
             ]),
             'public_url' => $this->when(
                 isset($this->public_url),

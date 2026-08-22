@@ -4,6 +4,7 @@ namespace App\Services\Affiliate;
 
 use App\Enums\AffiliateCommissionStatus;
 use App\Events\Domain\AffiliateCommissionAvailable;
+use App\Models\AffiliateClick;
 use App\Models\AffiliateCommission;
 use App\Models\AffiliateProfile;
 use App\Models\OrderItem;
@@ -48,6 +49,8 @@ final class AffiliateCommissionService
             $commission = AffiliateCommission::query()->create([
                 'affiliate_profile_id' => $orderItem->affiliate_profile_id,
                 'affiliate_link_id' => $orderItem->affiliate_link_id,
+                'affiliate_click_id' => $orderItem->affiliate_click_id,
+                'traffic_source' => $orderItem->affiliate_traffic_source,
                 'order_id' => $orderItem->vendorOrder?->order_id,
                 'order_item_id' => $orderItem->id,
                 'vendor_order_id' => $orderItem->vendor_order_id,

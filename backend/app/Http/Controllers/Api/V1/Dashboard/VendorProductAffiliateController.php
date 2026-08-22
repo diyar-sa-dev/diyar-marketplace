@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Affiliate\UpsertProductAffiliateSettingsRequest;
 use App\Http\Resources\ProductAffiliateSettingResource;
 use App\Models\Product;
+use App\Services\Affiliate\AffiliatePlatformConfigService;
 use App\Services\Affiliate\ProductAffiliateSettingsService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +17,7 @@ class VendorProductAffiliateController extends Controller
 {
     public function __construct(
         private readonly ProductAffiliateSettingsService $settings,
+        private readonly AffiliatePlatformConfigService $platform,
     ) {}
 
     public function show(Request $request, Product $product): JsonResponse
@@ -28,6 +30,7 @@ class VendorProductAffiliateController extends Controller
             'affiliate' => $setting !== null
                 ? new ProductAffiliateSettingResource($setting->load('product.vendorAccount'))
                 : null,
+            'platform' => $this->platform->snapshot(),
         ]);
     }
 
@@ -46,7 +49,10 @@ class VendorProductAffiliateController extends Controller
         }
 
         return ApiResponse::success(
-            data: ['affiliate' => new ProductAffiliateSettingResource($setting->load('product.vendorAccount'))],
+            data: [
+                'affiliate' => new ProductAffiliateSettingResource($setting->load('product.vendorAccount')),
+                'platform' => $this->platform->snapshot(),
+            ],
             message: __('diyar.affiliate.product_settings_updated'),
         );
     }

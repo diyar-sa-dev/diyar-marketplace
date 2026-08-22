@@ -26,6 +26,8 @@ class OrderItem extends Model
         'color_hex',
         'affiliate_profile_id',
         'affiliate_link_id',
+        'affiliate_click_id',
+        'affiliate_traffic_source',
         'affiliate_commission_rate',
         'affiliate_commission_base',
         'affiliate_commission_amount',

@@ -77,6 +77,15 @@
   }
 }
 
+@keyframes heroKenBurns {
+  from {
+    transform: scale(1.02);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
 @keyframes sweep {
   0% {
     clip-path: inset(0 100% 0 0);

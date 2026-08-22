@@ -17,19 +17,29 @@ final class AffiliateAttributionService
     public function __construct(
         private readonly AffiliateLinkService $links,
         private readonly ProductAffiliateSettingsService $productSettings,
+        private readonly AffiliateTrafficSourceResolver $trafficSources,
     ) {}
 
     /**
      * @return array{
      *     affiliate_profile_id: string,
      *     affiliate_link_id: string,
+     *     affiliate_click_id: string|null,
+     *     traffic_source: string,
      *     product_id: string,
      *     commission_rate_percent: string,
      *     expires_at: string
      * }|null
      */
-    public function recordClick(string $referralCode, string $productId, string $sessionFingerprint, ?string $ip = null, ?User $user = null): ?array
-    {
+    public function recordClick(
+        string $referralCode,
+        string $productId,
+        string $sessionFingerprint,
+        ?string $ip = null,
+        ?User $user = null,
+        ?string $trafficSource = null,
+        ?string $referrerUrl = null,
+    ): ?array {
         $link = $this->links->findActiveByReferralCode($referralCode);
 
         if ($link === null || $link->product_id !== $productId) {
@@ -50,19 +60,19 @@ final class AffiliateAttributionService
         $product = Product::query()->findOrFail($productId);
         $this->productSettings->assertAffiliateEnabled($product);
 
-        if (! $this->shouldRecordClick($link->referral_code, $sessionFingerprint, $link->id)) {
-            // Skip duplicate click metrics; attribution refresh continues below.
-        } else {
-            AffiliateClick::query()->create([
-                'affiliate_link_id' => $link->id,
-                'affiliate_profile_id' => $profile->id,
-                'product_id' => $productId,
-                'session_fingerprint' => $sessionFingerprint,
-                'ip_hash' => $ip !== null ? hash('sha256', $ip) : null,
-            ]);
+        $resolvedSource = $this->trafficSources
+            ->resolve($trafficSource, $referrerUrl, $link->source)
+            ->value;
 
-            $link->increment('click_count');
-        }
+        $clickId = $this->recordClickRow(
+            link: $link,
+            profile: $profile,
+            productId: $productId,
+            sessionFingerprint: $sessionFingerprint,
+            ip: $ip,
+            trafficSource: $resolvedSource,
+            referrerUrl: $referrerUrl,
+        );
 
         $expiresAt = now()->addDays((int) config('diyar.affiliate.attribution_window_days', 30));
 
@@ -74,6 +84,8 @@ final class AffiliateAttributionService
             [
                 'affiliate_profile_id' => $profile->id,
                 'affiliate_link_id' => $link->id,
+                'affiliate_click_id' => $clickId,
+                'traffic_source' => $resolvedSource,
                 'user_id' => $user?->id,
                 'expires_at' => $expiresAt,
             ],
@@ -88,6 +100,8 @@ final class AffiliateAttributionService
                 [
                     'affiliate_profile_id' => $profile->id,
                     'affiliate_link_id' => $link->id,
+                    'affiliate_click_id' => $clickId,
+                    'traffic_source' => $resolvedSource,
                     'session_fingerprint' => $sessionFingerprint,
                     'expires_at' => $expiresAt,
                 ],
@@ -109,6 +123,8 @@ final class AffiliateAttributionService
      * @return array{
      *     affiliate_profile_id: string,
      *     affiliate_link_id: string,
+     *     affiliate_click_id: string|null,
+     *     traffic_source: string,
      *     product_id: string,
      *     commission_rate_percent: string,
      *     expires_at: string
@@ -161,6 +177,8 @@ final class AffiliateAttributionService
      * @param  array{
      *     affiliate_profile_id: string,
      *     affiliate_link_id: string,
+     *     affiliate_click_id?: string|null,
+     *     traffic_source?: string,
      *     product_id: string,
      *     commission_rate_percent: string,
      *     expires_at: string
@@ -185,6 +203,46 @@ final class AffiliateAttributionService
     private function isSelfReferral(AffiliateProfile $profile, ?User $user): bool
     {
         return $user !== null && $profile->user_id === $user->id;
+    }
+
+    private function recordClickRow(
+        AffiliateLink $link,
+        AffiliateProfile $profile,
+        string $productId,
+        string $sessionFingerprint,
+        ?string $ip,
+        string $trafficSource,
+        ?string $referrerUrl,
+    ): ?string {
+        if (! $this->shouldRecordClick($link->referral_code, $sessionFingerprint, $link->id)) {
+            return $this->findRecentClickId($sessionFingerprint, $link->id);
+        }
+
+        $click = AffiliateClick::query()->create([
+            'affiliate_link_id' => $link->id,
+            'affiliate_profile_id' => $profile->id,
+            'product_id' => $productId,
+            'session_fingerprint' => $sessionFingerprint,
+            'ip_hash' => $ip !== null ? hash('sha256', $ip) : null,
+            'traffic_source' => $trafficSource,
+            'referrer_url' => $this->sanitizeReferrer($referrerUrl),
+        ]);
+
+        $link->increment('click_count');
+
+        return $click->id;
+    }
+
+    private function findRecentClickId(string $sessionFingerprint, string $affiliateLinkId): ?string
+    {
+        $windowMinutes = max(1, (int) config('diyar.affiliate.click_dedupe_window_minutes', 60));
+
+        return AffiliateClick::query()
+            ->where('session_fingerprint', $sessionFingerprint)
+            ->where('affiliate_link_id', $affiliateLinkId)
+            ->where('created_at', '>=', now()->subMinutes($windowMinutes))
+            ->latest('created_at')
+            ->value('id');
     }
 
     private function shouldRecordClick(string $referralCode, string $sessionFingerprint, string $affiliateLinkId): bool
@@ -214,6 +272,8 @@ final class AffiliateAttributionService
      * @return array{
      *     affiliate_profile_id: string,
      *     affiliate_link_id: string,
+     *     affiliate_click_id: string|null,
+     *     traffic_source: string,
      *     product_id: string,
      *     commission_rate_percent: string,
      *     expires_at: string
@@ -224,6 +284,8 @@ final class AffiliateAttributionService
         return [
             'affiliate_profile_id' => $attribution->affiliate_profile_id,
             'affiliate_link_id' => $attribution->affiliate_link_id,
+            'affiliate_click_id' => $attribution->affiliate_click_id,
+            'traffic_source' => $attribution->traffic_source ?? 'direct',
             'product_id' => $attribution->product_id,
             'commission_rate_percent' => number_format((float) $link->commission_rate_percent, 2, '.', ''),
             'expires_at' => $attribution->expires_at->toIso8601String(),
@@ -234,6 +296,8 @@ final class AffiliateAttributionService
      * @return array{
      *     affiliate_profile_id: string,
      *     affiliate_link_id: string,
+     *     affiliate_click_id: string|null,
+     *     traffic_source: string,
      *     product_id: string,
      *     commission_rate_percent: string,
      *     expires_at: string
@@ -246,6 +310,8 @@ final class AffiliateAttributionService
         return [
             'affiliate_profile_id' => $record->affiliate_profile_id,
             'affiliate_link_id' => $record->affiliate_link_id,
+            'affiliate_click_id' => $record->affiliate_click_id,
+            'traffic_source' => $record->traffic_source ?? 'direct',
             'product_id' => $record->product_id,
             'commission_rate_percent' => number_format((float) ($record->link?->commission_rate_percent ?? 0), 2, '.', ''),
             'expires_at' => $record->expires_at->toIso8601String(),
@@ -294,5 +360,20 @@ final class AffiliateAttributionService
         }
 
         return now()->lt($expiresAt);
+    }
+
+    private function sanitizeReferrer(?string $referrerUrl): ?string
+    {
+        if ($referrerUrl === null) {
+            return null;
+        }
+
+        $trimmed = trim($referrerUrl);
+
+        if ($trimmed === '' || strlen($trimmed) > 512) {
+            return null;
+        }
+
+        return $trimmed;
     }
 }

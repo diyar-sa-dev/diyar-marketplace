@@ -17,6 +17,8 @@ class AffiliateAttribution extends Model
     protected $fillable = [
         'affiliate_profile_id',
         'affiliate_link_id',
+        'affiliate_click_id',
+        'traffic_source',
         'product_id',
         'user_id',
         'session_fingerprint',

@@ -62,7 +62,10 @@ final class AffiliateLinkService
     public function listForProfile(AffiliateProfile $profile, int $perPage = 20): LengthAwarePaginator
     {
         return AffiliateLink::query()
-            ->with(['product:id,name,slug,sale_price'])
+            ->with([
+                'product:id,name,slug,sale_price,vendor_account_id',
+                'product.affiliateSetting:product_id,enabled',
+            ])
             ->withCount([
                 'commissions as gross_conversions',
                 'commissions as reversed_conversions' => fn ($query) => $query->where('status', AffiliateCommissionStatus::Reversed->value),
@@ -94,6 +97,14 @@ final class AffiliateLinkService
         return $link->fresh(['product']);
     }
 
+    public function deactivateForProduct(Product $product): int
+    {
+        return AffiliateLink::query()
+            ->where('product_id', $product->id)
+            ->where('is_active', true)
+            ->update(['is_active' => false]);
+    }
+
     public function buildPublicUrl(AffiliateLink $link): string
     {
         $base = rtrim((string) config('diyar.frontend_url'), '/');
@@ -103,9 +114,21 @@ final class AffiliateLinkService
 
     public function findActiveByReferralCode(string $code): ?AffiliateLink
     {
-        return AffiliateLink::query()
+        $link = AffiliateLink::query()
+            ->with(['product.affiliateSetting'])
             ->where('referral_code', $code)
             ->where('is_active', true)
             ->first();
+
+        if ($link === null) {
+            return null;
+        }
+
+        $setting = $link->product?->affiliateSetting;
+        if ($setting === null || ! $setting->enabled) {
+            return null;
+        }
+
+        return $link;
     }
 }

@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateLinkController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliatePayoutController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateProductController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateReportController;
+use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliatePlatformConfigController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateSettingsController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorCouponController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorDashboardController;
@@ -366,6 +367,7 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::post('/payouts', [AffiliatePayoutController::class, 'store']);
         Route::get('/settings', [AffiliateSettingsController::class, 'show']);
         Route::patch('/settings', [AffiliateSettingsController::class, 'update']);
+        Route::get('/platform-config', [AffiliatePlatformConfigController::class, 'show']);
     });
 
     Route::middleware('role:provider,admin')->prefix('dashboard/provider')->group(function () {

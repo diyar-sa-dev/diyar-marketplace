@@ -60,6 +60,7 @@ export default function AffiliateReports() {
   const summary = reportsQuery.data?.summary;
   const daily = reportsQuery.data?.daily ?? [];
   const byLink = reportsQuery.data?.by_link ?? [];
+  const bySource = reportsQuery.data?.by_source ?? [];
 
   const displaySummary = summary ?? {
     clicks: daily.reduce((sum, row) => sum + row.clicks, 0),
@@ -424,6 +425,57 @@ export default function AffiliateReports() {
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-gray-100">
+          <h3 className="font-bold text-diyar-dark">{t('affiliate.reports.bySourceTitle')}</h3>
+          <p className="text-sm text-gray-500 mt-1">{t('affiliate.reports.bySourceSubtitle')}</p>
+        </div>
+        {bySource.length === 0 ? (
+          <div className="p-8">
+            <EmptyState title={t('affiliate.reports.emptyChart')} />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm" dir={dir}>
+              <thead className="bg-gray-50 text-gray-600 border-b border-gray-100 text-xs font-bold">
+                <tr>
+                  <th className="px-6 py-4 text-start">{t('affiliate.reports.tableSource')}</th>
+                  <th className="px-6 py-4 text-start">{t('affiliate.reports.tableClicks')}</th>
+                  <th className="px-6 py-4 text-start">
+                    {t('affiliate.reports.verifiedPurchases')}
+                  </th>
+                  <th className="px-6 py-4 text-start">
+                    {t('affiliate.reports.conversionRate')}
+                  </th>
+                  <th className="px-6 py-4 text-start">{t('affiliate.reports.tableEarnings')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {bySource.map((row) => (
+                  <tr key={row.source} className="hover:bg-gray-50/50 transition">
+                    <td className="px-6 py-4 font-bold text-gray-700">
+                      {t(`affiliate.sources.${row.source}` as 'affiliate.sources.instagram')}
+                    </td>
+                    <td className="px-6 py-4 tabular-nums">
+                      {row.clicks.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+                    </td>
+                    <td className="px-6 py-4 tabular-nums">
+                      {row.conversions.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+                    </td>
+                    <td className="px-6 py-4 tabular-nums" dir="ltr">
+                      {row.conversion_rate}%
+                    </td>
+                    <td className="px-6 py-4 font-bold text-diyar-dark tabular-nums" dir="ltr">
+                      {row.earnings}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h3 className="font-bold text-diyar-dark">{t('affiliate.reports.tableTitle')}</h3>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -488,6 +540,7 @@ export default function AffiliateReports() {
               <thead className="bg-gray-50 text-gray-600 border-b border-gray-100 text-xs font-bold">
                 <tr>
                   <th className="px-6 py-4 text-start">{t('affiliate.reports.tableLink')}</th>
+                  <th className="px-6 py-4 text-start">{t('affiliate.reports.tableSource')}</th>
                   <th className="px-6 py-4 text-start">{t('affiliate.reports.tableProduct')}</th>
                   <th className="px-6 py-4 text-start">{t('affiliate.reports.tableClicks')}</th>
                   <th className="px-6 py-4 text-start">
@@ -501,6 +554,11 @@ export default function AffiliateReports() {
                 {paginatedLinks.map((row) => (
                   <tr key={row.link_id} className="hover:bg-gray-50/50 transition">
                     <td className="px-6 py-4 font-bold text-gray-700">{row.name}</td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {row.source
+                        ? t(`affiliate.sources.${row.source}` as 'affiliate.sources.instagram')
+                        : noDataLabel}
+                    </td>
                     <td className="px-6 py-4 text-gray-600">{row.product?.name ?? noDataLabel}</td>
                     <td className="px-6 py-4 text-gray-700 tabular-nums">
                       {row.clicks.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}

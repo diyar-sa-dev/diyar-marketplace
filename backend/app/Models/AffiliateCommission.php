@@ -18,6 +18,8 @@ class AffiliateCommission extends Model
     protected $fillable = [
         'affiliate_profile_id',
         'affiliate_link_id',
+        'affiliate_click_id',
+        'traffic_source',
         'order_id',
         'order_item_id',
         'vendor_order_id',
