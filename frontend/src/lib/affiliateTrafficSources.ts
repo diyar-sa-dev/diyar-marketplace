@@ -33,12 +33,17 @@ export const AFFILIATE_TRAFFIC_SOURCES: AffiliateTrafficSource[] = [
   'other',
 ];
 
-export function normalizeAffiliateTrafficSource(value?: string | null): AffiliateTrafficSource | null {
+export function normalizeAffiliateTrafficSource(
+  value?: string | null,
+): AffiliateTrafficSource | null {
   if (!value?.trim()) {
     return null;
   }
 
-  const normalized = value.trim().toLowerCase().replace(/[\s-]+/g, '_');
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
 
   if ((AFFILIATE_TRAFFIC_SOURCES as string[]).includes(normalized)) {
     return normalized as AffiliateTrafficSource;
@@ -62,7 +67,9 @@ export function normalizeAffiliateTrafficSource(value?: string | null): Affiliat
   return aliases[normalized] ?? null;
 }
 
-export function resolveTrafficSourceFromReferrer(referrerUrl?: string | null): AffiliateTrafficSource | null {
+export function resolveTrafficSourceFromReferrer(
+  referrerUrl?: string | null,
+): AffiliateTrafficSource | null {
   if (!referrerUrl?.trim()) {
     return null;
   }

@@ -90,14 +90,12 @@ export default function Hero() {
                 (e.target as HTMLImageElement).src = FALLBACK_HERO;
               }}
             />
-            <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/45 to-black/20 md:bg-linear-to-r md:from-black/75 md:via-black/35 md:to-transparent" />
             <div
-              className={`relative h-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 lg:px-20 flex items-end md:items-center pb-24 md:pb-0 ${
-                dir === 'rtl'
-                  ? 'justify-center md:justify-start text-center md:text-start'
-                  : 'justify-center md:justify-end text-center md:text-end'
+              className={`absolute inset-0 bg-linear-to-t from-black/85 via-black/45 to-black/20 md:from-black/75 md:via-black/35 md:to-transparent ${
+                dir === 'rtl' ? 'md:bg-linear-to-l' : 'md:bg-linear-to-r'
               }`}
-            >
+            />
+            <div className="relative h-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 lg:px-20 flex items-end md:items-center pb-24 md:pb-0 justify-center md:justify-start text-center md:text-start">
               <div className="text-white max-w-xl md:max-w-lg space-y-4 md:space-y-6 mb-2 md:mb-0">
                 <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold backdrop-blur-md">
                   {i + 1} / {slideCount}

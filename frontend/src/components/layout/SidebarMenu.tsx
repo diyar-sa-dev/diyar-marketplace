@@ -39,8 +39,10 @@ import {
 } from '../../lib/platformContact.ts';
 import {
   shouldShowStorefrontDashboardLink,
+  shouldShowAdminPanelLink,
   resolveAccountHubPath,
   resolveDashboardEntryPath,
+  ADMIN_PANEL_PATH,
 } from '../../lib/auth/roles.ts';
 import { validateConsultationForm } from '../../lib/platformForms.ts';
 import { saveConsultationRequest } from '../../lib/consultationStorage.ts';
@@ -150,7 +152,7 @@ const STICKERS = [
 ];
 
 export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const { t, locale } = useLocale();
+  const { t, locale, dir } = useLocale();
   const { openAboutModal } = useAboutModal();
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [showCategoriesSection, setShowCategoriesSection] = useState(false);
@@ -160,6 +162,11 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const dashboardPath = resolveDashboardEntryPath(user?.roles);
   const accountHubPath = resolveAccountHubPath(user?.roles);
   const showDashboardLink = shouldShowStorefrontDashboardLink(
+    isAuthenticated,
+    user?.status,
+    user?.roles,
+  );
+  const showAdminPanelLink = shouldShowAdminPanelLink(
     isAuthenticated,
     user?.status,
     user?.roles,
@@ -292,8 +299,14 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         onClick={onClose}
       />
 
-      {/* Primary Sidebar Container */}
-      <div className="fixed top-0 right-0 h-full w-[320px] md:w-95 bg-white z-60 shadow-2xl flex flex-col animate-in slide-in-from-right-full duration-300 pointer-events-auto">
+      {/* Primary Sidebar Container — LTR: left edge, RTL: right edge */}
+      <div
+        className={`fixed top-0 h-full w-[320px] md:w-95 bg-white z-60 shadow-2xl flex flex-col duration-300 pointer-events-auto animate-in ${
+          dir === 'rtl'
+            ? 'right-0 slide-in-from-right-full'
+            : 'left-0 slide-in-from-left-full'
+        }`}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50">
           <div className="flex items-center gap-3">
@@ -347,6 +360,25 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                 />
                 <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
                   {t('layout.sidebar.dashboard')}
+                </span>
+              </button>
+            )}
+
+            {showAdminPanelLink && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  navigate(ADMIN_PANEL_PATH);
+                }}
+                className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-start group animate-in slide-in-from-right duration-75 cursor-pointer"
+              >
+                <LayoutDashboard
+                  size={18}
+                  className="text-gray-400 group-hover:text-diyar-brown shrink-0 transition-colors"
+                />
+                <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition-colors">
+                  {t('layout.nav.adminPanel')}
                 </span>
               </button>
             )}

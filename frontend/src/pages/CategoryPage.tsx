@@ -543,8 +543,8 @@ export default function CategoryPage() {
   const page = Math.max(1, Number(searchParams.get('page') || '1'));
   const perPage = Math.max(10, Number(searchParams.get('per_page') || '12'));
   const sort = searchParams.get('sort') || '-created_at';
-  const serviceQ = searchParams.get('q') || undefined;
-  const activeSubcategory = serviceQ ?? 'الكل';
+  const searchQuery = searchParams.get('q') || undefined;
+  const activeSubcategory = searchQuery ?? 'الكل';
   const vendorId = searchParams.get('vendor_id') || undefined;
   const availabilityMode = searchParams.get('availability_mode') || undefined;
   const minPrice = Number(searchParams.get('min_price') || '0');
@@ -574,6 +574,7 @@ export default function CategoryPage() {
 
   const filters = useMemo(
     () => ({
+      q: searchQuery,
       min_price: minPrice > 0 ? minPrice : undefined,
       max_price: maxPrice < MAX_PRICE ? maxPrice : undefined,
       vendor_id: vendorId,
@@ -582,7 +583,7 @@ export default function CategoryPage() {
       page,
       sort,
     }),
-    [minPrice, maxPrice, vendorId, availabilityMode, page, perPage, sort],
+    [searchQuery, minPrice, maxPrice, vendorId, availabilityMode, page, perPage, sort],
   );
 
   const { data: apiCategory } = useCategory(slug);
@@ -592,14 +593,14 @@ export default function CategoryPage() {
   const serviceFilters = useMemo(
     () => ({
       category: resolveServiceCategorySlug(slug),
-      q: serviceQ,
+      q: searchQuery,
       min_price: minPrice > 0 ? minPrice : undefined,
       max_price: maxPrice < MAX_PRICE ? maxPrice : undefined,
       sort: mapCatalogSortToServiceSort(sort),
       page,
       per_page: perPage,
     }),
-    [slug, serviceQ, minPrice, maxPrice, sort, page, perPage],
+    [slug, searchQuery, minPrice, maxPrice, sort, page, perPage],
   );
 
   const { data: vendorsData } = useVendors({ per_page: 50 });
@@ -638,7 +639,7 @@ export default function CategoryPage() {
     maxPrice < MAX_PRICE ||
     Boolean(vendorId) ||
     Boolean(availabilityMode) ||
-    Boolean(serviceQ) ||
+    Boolean(searchQuery) ||
     sort !== '-created_at';
 
   if (slug === 'all') {
@@ -788,9 +789,9 @@ export default function CategoryPage() {
                   </button>
                 </span>
               )}
-              {serviceQ && isServiceCategory && (
+              {searchQuery && isServiceCategory && (
                 <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
-                  {serviceQ}
+                  {searchQuery}
                   <button
                     type="button"
                     aria-label="إزالة فلتر النوع"

@@ -34,7 +34,7 @@ final class ServiceCatalogService
     {
         $query = $this->publicQuery()
             ->with([
-                'providerAccount',
+                'providerAccount.user',
                 'category',
                 'portfolioItems' => fn ($q) => $q->orderBy('sort_order'),
             ])

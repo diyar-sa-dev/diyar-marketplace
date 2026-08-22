@@ -9,10 +9,6 @@ class VendorAccountPolicy
 {
     public function view(User $user, VendorAccount $vendorAccount): bool
     {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
         return $user->hasRole('vendor') && $vendorAccount->user_id === $user->id;
     }
 

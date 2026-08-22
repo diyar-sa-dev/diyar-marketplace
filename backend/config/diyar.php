@@ -61,8 +61,41 @@ return [
         'vat_rate' => env('DIYAR_VAT_RATE', '0.15'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Commerce (runtime settings — Phase 18.3)
+    |--------------------------------------------------------------------------
+    */
+
+    'commerce' => [
+        'vat_rate' => env('DIYAR_VAT_RATE', '0.15'),
+        'currency' => env('DIYAR_COMMERCE_CURRENCY', env('DIYAR_PAYMENT_CURRENCY', 'SAR')),
+        'cart_max_quantity_per_item' => (int) env('DIYAR_CART_MAX_QUANTITY_PER_ITEM', 99),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Orders (runtime settings — Phase 18.3)
+    |--------------------------------------------------------------------------
+    */
+
+    'orders' => [
+        'inventory_reservation_timeout_minutes' => (int) env('DIYAR_INVENTORY_RESERVATION_TIMEOUT_MINUTES', 15),
+    ],
+
     'shipping' => [
         'default_carrier_flat_rate' => env('DIYAR_SHIPPING_DEFAULT_CARRIER_FLAT_RATE', '28.00'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payouts (runtime settings — Phase 18.3)
+    |--------------------------------------------------------------------------
+    */
+
+    'payouts' => [
+        'vendor_minimum' => env('DIYAR_PAYOUT_MINIMUM', '100.00'),
+        'affiliate_minimum' => env('DIYAR_AFFILIATE_PAYOUT_MINIMUM', '100.00'),
     ],
 
     /*
@@ -475,5 +508,45 @@ return [
         'link_rate_limit_per_minute' => (int) env('DIYAR_AFFILIATE_LINK_RATE_LIMIT', 20),
         'commission_available_on' => env('DIYAR_AFFILIATE_COMMISSION_AVAILABLE_ON', 'vendor_order_delivered'),
         'cache_dashboard_seconds' => (int) env('DIYAR_AFFILIATE_DASHBOARD_CACHE_SECONDS', 120),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Panel (Stage 18)
+    |--------------------------------------------------------------------------
+    | Requires PHP ext-intl for Filament.
+    */
+
+    'admin' => [
+        'default_locale' => env('DIYAR_ADMIN_DEFAULT_LOCALE', 'ar'),
+        'supported_locales' => ['ar', 'en'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Feature flags (runtime settings — Phase 18.3)
+    |--------------------------------------------------------------------------
+    */
+
+    'feature' => [
+        'affiliate_enabled' => filter_var(env('DIYAR_FEATURE_AFFILIATE_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'reviews_enabled' => filter_var(env('DIYAR_FEATURE_REVIEWS_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'services_enabled' => filter_var(env('DIYAR_FEATURE_SERVICES_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'coupons_enabled' => filter_var(env('DIYAR_FEATURE_COUPONS_ENABLED', true), FILTER_VALIDATE_BOOL),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Theme tokens (runtime settings — Phase 18.3)
+    |--------------------------------------------------------------------------
+    */
+
+    'theme' => [
+        'primary_color' => env('DIYAR_THEME_PRIMARY_COLOR', '#947961'),
+        'primary_dark' => env('DIYAR_THEME_PRIMARY_DARK', '#1f3d3a'),
+        'surface_color' => env('DIYAR_THEME_SURFACE_COLOR', '#f3ecdb'),
+        'border_radius' => env('DIYAR_THEME_BORDER_RADIUS', '0.5rem'),
+        'font_family_ar' => env('DIYAR_THEME_FONT_AR', 'Alexandria, Tajawal, sans-serif'),
+        'font_family_en' => env('DIYAR_THEME_FONT_EN', 'Outfit, Inter, sans-serif'),
     ],
 ];

@@ -565,9 +565,7 @@ export default function VendorFinance() {
                 </div>
               </>
             ) : (
-              <p className="text-sm text-amber-700/80">
-                {report.upcoming_payout.note ?? t('vendor.finance.noUpcomingPayout')}
-              </p>
+              <p className="text-sm text-amber-700/80">{t('vendor.finance.noUpcomingPayout')}</p>
             )}
           </div>
         </div>

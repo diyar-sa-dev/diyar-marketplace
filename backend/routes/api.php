@@ -1,7 +1,35 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\AdminAffiliateAttributionController;
+use App\Http\Controllers\Api\V1\Admin\AdminAffiliateClickController;
+use App\Http\Controllers\Api\V1\Admin\AdminAffiliateCommissionController;
+use App\Http\Controllers\Api\V1\Admin\AdminAffiliateLinkController;
 use App\Http\Controllers\Api\V1\Admin\AdminAffiliatePayoutController;
+use App\Http\Controllers\Api\V1\Admin\AdminAffiliateProfileController;
+use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
+use App\Http\Controllers\Api\V1\Admin\AdminAuthController;
+use App\Http\Controllers\Api\V1\Admin\AdminCouponController;
+use App\Http\Controllers\Api\V1\Admin\AdminDashboardController;
+use App\Http\Controllers\Api\V1\Admin\AdminFinancialTransactionController;
+use App\Http\Controllers\Api\V1\Admin\AdminInventoryController;
+use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
+use App\Http\Controllers\Api\V1\Admin\AdminOrderController;
+use App\Http\Controllers\Api\V1\Admin\AdminPaymentController;
 use App\Http\Controllers\Api\V1\Admin\AdminPayoutController;
+use App\Http\Controllers\Api\V1\Admin\AdminPermissionController;
+use App\Http\Controllers\Api\V1\Admin\AdminProductController;
+use App\Http\Controllers\Api\V1\Admin\AdminProviderAccountController;
+use App\Http\Controllers\Api\V1\Admin\AdminReportController;
+use App\Http\Controllers\Api\V1\Admin\AdminReturnController;
+use App\Http\Controllers\Api\V1\Admin\AdminReviewController;
+use App\Http\Controllers\Api\V1\Admin\AdminRoleController;
+use App\Http\Controllers\Api\V1\Admin\AdminServiceBookingController;
+use App\Http\Controllers\Api\V1\Admin\AdminServiceRequestController;
+use App\Http\Controllers\Api\V1\Admin\AdminSessionController;
+use App\Http\Controllers\Api\V1\Admin\AdminShipmentController;
+use App\Http\Controllers\Api\V1\Admin\AdminSystemSettingController;
+use App\Http\Controllers\Api\V1\Admin\AdminUserController;
+use App\Http\Controllers\Api\V1\Admin\AdminVendorAccountController;
 use App\Http\Controllers\Api\V1\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\V1\Affiliate\AffiliateReferralController;
 use App\Http\Controllers\Api\V1\Assistant\AssistantChatController;
@@ -22,9 +50,9 @@ use App\Http\Controllers\Api\V1\Checkout\CheckoutController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateDashboardController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateLinkController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliatePayoutController;
+use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliatePlatformConfigController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateProductController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateReportController;
-use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliatePlatformConfigController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateSettingsController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorCouponController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorDashboardController;
@@ -48,6 +76,7 @@ use App\Http\Controllers\Api\V1\Order\OrderStoreReviewController;
 use App\Http\Controllers\Api\V1\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\Payment\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\Platform\PlatformContactController;
+use App\Http\Controllers\Api\V1\Platform\PlatformThemeController;
 use App\Http\Controllers\Api\V1\Profile\AddressController;
 use App\Http\Controllers\Api\V1\Profile\CustomerReviewController;
 use App\Http\Controllers\Api\V1\Profile\NotificationController;
@@ -89,6 +118,9 @@ Route::post('/assistant/chat', AssistantChatController::class)
 Route::post('/platform/consultation', [PlatformContactController::class, 'consultation'])
     ->middleware('throttle:6,1')
     ->name('api.v1.platform.consultation');
+
+Route::get('/platform/theme', [PlatformThemeController::class, 'show'])
+    ->name('api.v1.platform.theme');
 
 Route::post('/webhooks/payments/myfatoorah', [PaymentWebhookController::class, 'myfatoorah'])
     ->name('api.v1.webhooks.payments.myfatoorah');
@@ -142,280 +174,474 @@ Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:otp');
 });
 
+Route::prefix('admin/auth')->middleware('throttle:auth')->group(function () {
+    Route::post('/login', [AdminAuthController::class, 'login']);
+});
+
+Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/session', [AdminSessionController::class, 'show']);
+    Route::post('/auth/logout', [AdminAuthController::class, 'logout']);
+
+    Route::get('/dashboard', [AdminDashboardController::class, 'show'])
+        ->middleware('admin.permission:panel.access');
+
+    Route::get('/users', [AdminUserController::class, 'index'])
+        ->middleware('admin.permission:users.view');
+    Route::get('/users/{user}', [AdminUserController::class, 'show'])
+        ->middleware('admin.permission:users.view');
+    Route::post('/users/{user}/suspend', [AdminUserController::class, 'suspend'])
+        ->middleware('admin.permission:users.suspend');
+    Route::post('/users/{user}/activate', [AdminUserController::class, 'activate'])
+        ->middleware('admin.permission:users.update');
+
+    Route::get('/vendor-accounts', [AdminVendorAccountController::class, 'index'])
+        ->middleware('admin.permission:vendors.view');
+    Route::get('/vendor-accounts/{vendorAccount}', [AdminVendorAccountController::class, 'show'])
+        ->middleware('admin.permission:vendors.view');
+    Route::post('/vendor-accounts/{vendorAccount}/suspend', [AdminVendorAccountController::class, 'suspend'])
+        ->middleware('admin.permission:vendors.suspend');
+    Route::post('/vendor-accounts/{vendorAccount}/activate', [AdminVendorAccountController::class, 'activate'])
+        ->middleware('admin.permission:vendors.suspend');
+
+    Route::get('/provider-accounts', [AdminProviderAccountController::class, 'index'])
+        ->middleware('admin.permission:providers.view');
+    Route::get('/provider-accounts/{providerAccount}', [AdminProviderAccountController::class, 'show'])
+        ->middleware('admin.permission:providers.view');
+    Route::post('/provider-accounts/{providerAccount}/suspend', [AdminProviderAccountController::class, 'suspend'])
+        ->middleware('admin.permission:providers.suspend');
+    Route::post('/provider-accounts/{providerAccount}/activate', [AdminProviderAccountController::class, 'activate'])
+        ->middleware('admin.permission:providers.suspend');
+
+    Route::get('/categories', [AdminCategoryController::class, 'index'])
+        ->middleware('admin.permission:categories.view');
+    Route::post('/categories', [AdminCategoryController::class, 'store'])
+        ->middleware('admin.permission:categories.manage');
+    Route::get('/categories/{category}', [AdminCategoryController::class, 'show'])
+        ->middleware('admin.permission:categories.view');
+    Route::patch('/categories/{category}', [AdminCategoryController::class, 'update'])
+        ->middleware('admin.permission:categories.manage');
+    Route::delete('/categories/{category}', [AdminCategoryController::class, 'destroy'])
+        ->middleware('admin.permission:categories.manage');
+
+    Route::get('/orders', [AdminOrderController::class, 'index'])
+        ->middleware('admin.permission:orders.view');
+    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])
+        ->middleware('admin.permission:orders.view');
+    Route::post('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])
+        ->middleware('admin.permission:orders.action');
+
+    Route::get('/products', [AdminProductController::class, 'index'])
+        ->middleware('admin.permission:products.view');
+    Route::get('/products/{product}', [AdminProductController::class, 'show'])
+        ->middleware('admin.permission:products.view');
+    Route::post('/products/{product}/activate', [AdminProductController::class, 'activate'])
+        ->middleware('admin.permission:products.update');
+    Route::post('/products/{product}/deactivate', [AdminProductController::class, 'deactivate'])
+        ->middleware('admin.permission:products.update');
+
+    Route::get('/payouts', [AdminPayoutController::class, 'index'])
+        ->middleware('admin.permission:payouts.view');
+    Route::post('/payouts/{payout}/approve', [AdminPayoutController::class, 'approve'])
+        ->middleware('admin.permission:payouts.approve');
+    Route::post('/payouts/{payout}/reject', [AdminPayoutController::class, 'reject'])
+        ->middleware('admin.permission:payouts.approve');
+    Route::post('/payouts/{payout}/mark-paid', [AdminPayoutController::class, 'markPaid'])
+        ->middleware('admin.permission:payouts.process');
+
+    Route::get('/affiliate/payouts', [AdminAffiliatePayoutController::class, 'index'])
+        ->middleware('admin.permission:affiliate.view');
+    Route::post('/affiliate/payouts/{affiliatePayout}/approve', [AdminAffiliatePayoutController::class, 'approve'])
+        ->middleware('admin.permission:affiliate.payouts.process');
+    Route::post('/affiliate/payouts/{affiliatePayout}/processing', [AdminAffiliatePayoutController::class, 'markProcessing'])
+        ->middleware('admin.permission:affiliate.payouts.process');
+    Route::post('/affiliate/payouts/{affiliatePayout}/reject', [AdminAffiliatePayoutController::class, 'reject'])
+        ->middleware('admin.permission:affiliate.payouts.process');
+    Route::post('/affiliate/payouts/{affiliatePayout}/mark-paid', [AdminAffiliatePayoutController::class, 'markPaid'])
+        ->middleware('admin.permission:affiliate.payouts.process');
+
+    Route::get('/audit-logs', [AdminAuditLogController::class, 'index'])
+        ->middleware('admin.permission:audit.view');
+    Route::get('/audit-logs/{auditLog}', [AdminAuditLogController::class, 'show'])
+        ->middleware('admin.permission:audit.view');
+
+    Route::get('/settings', [AdminSystemSettingController::class, 'index'])
+        ->middleware('admin.permission:settings.view');
+    Route::patch('/settings', [AdminSystemSettingController::class, 'update'])
+        ->middleware('admin.permission:settings.update');
+
+    Route::get('/payments', [AdminPaymentController::class, 'index'])
+        ->middleware('admin.permission:payments.view');
+    Route::get('/payments/{payment}', [AdminPaymentController::class, 'show'])
+        ->middleware('admin.permission:payments.view');
+
+    Route::get('/return-requests', [AdminReturnController::class, 'index'])
+        ->middleware('admin.permission:refunds.view');
+    Route::get('/return-requests/{returnRequest}', [AdminReturnController::class, 'show'])
+        ->middleware('admin.permission:refunds.view');
+    Route::post('/return-requests/{returnRequest}/approve', [AdminReturnController::class, 'approve'])
+        ->middleware('admin.permission:refunds.approve');
+    Route::post('/return-requests/{returnRequest}/reject', [AdminReturnController::class, 'reject'])
+        ->middleware('admin.permission:refunds.approve');
+    Route::post('/return-requests/{returnRequest}/mark-received', [AdminReturnController::class, 'markReceived'])
+        ->middleware('admin.permission:refunds.approve');
+    Route::post('/return-requests/{returnRequest}/mark-inspected', [AdminReturnController::class, 'markInspected'])
+        ->middleware('admin.permission:refunds.approve');
+    Route::post('/return-requests/{returnRequest}/process-refund', [AdminReturnController::class, 'processRefund'])
+        ->middleware('admin.permission:refunds.approve');
+
+    Route::get('/coupons', [AdminCouponController::class, 'index'])
+        ->middleware('admin.permission:coupons.view');
+    Route::get('/coupons/{coupon}', [AdminCouponController::class, 'show'])
+        ->middleware('admin.permission:coupons.view');
+    Route::post('/coupons/{coupon}/activate', [AdminCouponController::class, 'activate'])
+        ->middleware('admin.permission:coupons.manage');
+    Route::post('/coupons/{coupon}/deactivate', [AdminCouponController::class, 'deactivate'])
+        ->middleware('admin.permission:coupons.manage');
+
+    Route::get('/reviews/products', [AdminReviewController::class, 'productReviews'])
+        ->middleware('admin.permission:reviews.view');
+    Route::get('/reviews/stores', [AdminReviewController::class, 'storeReviews'])
+        ->middleware('admin.permission:reviews.view');
+    Route::get('/reviews/providers', [AdminReviewController::class, 'providerReviews'])
+        ->middleware('admin.permission:reviews.view');
+    Route::post('/reviews/providers/{providerReview}/hide', [AdminReviewController::class, 'hideProviderReview'])
+        ->middleware('admin.permission:reviews.moderate');
+    Route::post('/reviews/providers/{providerReview}/unhide', [AdminReviewController::class, 'unhideProviderReview'])
+        ->middleware('admin.permission:reviews.moderate');
+
+    Route::get('/roles', [AdminRoleController::class, 'index'])
+        ->middleware('admin.permission:roles.view');
+    Route::get('/roles/{role}', [AdminRoleController::class, 'show'])
+        ->middleware('admin.permission:roles.view');
+    Route::put('/roles/{role}/permissions', [AdminRoleController::class, 'syncPermissions'])
+        ->middleware('admin.permission:roles.manage');
+    Route::get('/permissions', [AdminPermissionController::class, 'index'])
+        ->middleware('admin.permission:roles.view');
+
+    Route::get('/service-requests', [AdminServiceRequestController::class, 'index'])
+        ->middleware('admin.permission:service_requests.view');
+    Route::get('/service-requests/{serviceRequest}', [AdminServiceRequestController::class, 'show'])
+        ->middleware('admin.permission:service_requests.view');
+
+    Route::get('/service-bookings', [AdminServiceBookingController::class, 'index'])
+        ->middleware('admin.permission:bookings.view');
+    Route::get('/service-bookings/{serviceBooking}', [AdminServiceBookingController::class, 'show'])
+        ->middleware('admin.permission:bookings.view');
+
+    Route::get('/inventory/products', [AdminInventoryController::class, 'products'])
+        ->middleware('admin.permission:inventory.view');
+    Route::get('/inventory/movements', [AdminInventoryController::class, 'movements'])
+        ->middleware('admin.permission:inventory.view');
+
+    Route::get('/shipments', [AdminShipmentController::class, 'index'])
+        ->middleware('admin.permission:shipping.view');
+    Route::get('/shipments/{shipment}', [AdminShipmentController::class, 'show'])
+        ->middleware('admin.permission:shipping.view');
+
+    Route::get('/notifications', [AdminNotificationController::class, 'index'])
+        ->middleware('admin.permission:notifications.view');
+    Route::get('/notifications/{notification}', [AdminNotificationController::class, 'show'])
+        ->middleware('admin.permission:notifications.view');
+
+    Route::get('/transactions', [AdminFinancialTransactionController::class, 'index'])
+        ->middleware('admin.permission:balances.view');
+    Route::get('/transactions/{transaction}', [AdminFinancialTransactionController::class, 'show'])
+        ->middleware('admin.permission:balances.view');
+
+    Route::get('/reports/summary', [AdminReportController::class, 'summary'])
+        ->middleware('admin.permission:panel.access');
+
+    Route::get('/affiliate/profiles', [AdminAffiliateProfileController::class, 'index'])
+        ->middleware('admin.permission:affiliate.view');
+    Route::get('/affiliate/profiles/{affiliateProfile}', [AdminAffiliateProfileController::class, 'show'])
+        ->middleware('admin.permission:affiliate.view');
+    Route::post('/affiliate/profiles/{affiliateProfile}/suspend', [AdminAffiliateProfileController::class, 'suspend'])
+        ->middleware('admin.permission:affiliate.manage');
+    Route::post('/affiliate/profiles/{affiliateProfile}/activate', [AdminAffiliateProfileController::class, 'activate'])
+        ->middleware('admin.permission:affiliate.manage');
+
+    Route::get('/affiliate/links', [AdminAffiliateLinkController::class, 'index'])
+        ->middleware('admin.permission:affiliate.view');
+    Route::get('/affiliate/links/{affiliateLink}', [AdminAffiliateLinkController::class, 'show'])
+        ->middleware('admin.permission:affiliate.view');
+    Route::post('/affiliate/links/{affiliateLink}/disable', [AdminAffiliateLinkController::class, 'disable'])
+        ->middleware('admin.permission:affiliate.manage');
+
+    Route::get('/affiliate/clicks', [AdminAffiliateClickController::class, 'index'])
+        ->middleware('admin.permission:affiliate.view');
+    Route::get('/affiliate/clicks/{affiliateClick}', [AdminAffiliateClickController::class, 'show'])
+        ->middleware('admin.permission:affiliate.view');
+
+    Route::get('/affiliate/attributions', [AdminAffiliateAttributionController::class, 'index'])
+        ->middleware('admin.permission:affiliate.view');
+    Route::get('/affiliate/attributions/{affiliateAttribution}', [AdminAffiliateAttributionController::class, 'show'])
+        ->middleware('admin.permission:affiliate.view');
+
+    Route::get('/affiliate/commissions', [AdminAffiliateCommissionController::class, 'index'])
+        ->middleware('admin.permission:commissions.view');
+    Route::get('/affiliate/commissions/{affiliateCommission}', [AdminAffiliateCommissionController::class, 'show'])
+        ->middleware('admin.permission:commissions.view');
+});
+
 Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
-    Route::prefix('auth')->group(function () {
-        Route::get('/me', [AuthController::class, 'me']);
-        Route::post('/logout', [AuthController::class, 'logout']);
-    });
+    Route::middleware('marketplace.access')->group(function () {
+        Route::prefix('auth')->group(function () {
+            Route::get('/me', [AuthController::class, 'me']);
+            Route::post('/logout', [AuthController::class, 'logout']);
+        });
 
-    Route::get('/vendor/accounts/{vendorAccount}', [OwnershipController::class, 'showVendorAccount'])
-        ->middleware('role:vendor,admin');
+        Route::get('/vendor/accounts/{vendorAccount}', [OwnershipController::class, 'showVendorAccount'])
+            ->middleware('role:vendor');
 
-    Route::get('/provider/accounts/{providerAccount}', [OwnershipController::class, 'showProviderAccount'])
-        ->middleware('role:provider,admin');
+        Route::get('/provider/accounts/{providerAccount}', [OwnershipController::class, 'showProviderAccount'])
+            ->middleware('role:provider');
 
-    Route::post('/cart/merge', [CartController::class, 'merge']);
+        Route::post('/cart/merge', [CartController::class, 'merge']);
 
-    Route::post('/checkout/preview', [CheckoutController::class, 'preview']);
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::post('/orders', [OrderController::class, 'store']);
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
-    Route::get('/orders/{order}/store-review-eligibility', [OrderStoreReviewController::class, 'eligibility']);
-    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
-    Route::post('/vendors/{slug}/reviews', [StoreReviewController::class, 'store']);
-    Route::patch('/store-reviews/{review}', [StoreReviewController::class, 'update']);
-    Route::delete('/store-reviews/{review}', [StoreReviewController::class, 'destroy']);
-    Route::post('/vendors/{slug}/follow', [VendorFollowController::class, 'follow']);
-    Route::delete('/vendors/{slug}/follow', [VendorFollowController::class, 'unfollow']);
-    Route::post('/providers/{slug}/follow', [ProviderFollowController::class, 'follow']);
-    Route::delete('/providers/{slug}/follow', [ProviderFollowController::class, 'unfollow']);
-    Route::get('/orders/{order}/payment', [PaymentController::class, 'show']);
-    Route::post('/orders/{order}/payment', [PaymentController::class, 'initiate']);
-    Route::post('/orders/{order}/payment/submit', [PaymentController::class, 'submit']);
-    Route::post('/orders/{order}/payment/simulate', [PaymentController::class, 'simulate']);
-    Route::get('/orders/{order}/payment/callback', [PaymentController::class, 'callback']);
+        Route::post('/checkout/preview', [CheckoutController::class, 'preview']);
+        Route::get('/orders', [OrderController::class, 'index']);
+        Route::post('/orders', [OrderController::class, 'store']);
+        Route::get('/orders/{order}', [OrderController::class, 'show']);
+        Route::get('/orders/{order}/store-review-eligibility', [OrderStoreReviewController::class, 'eligibility']);
+        Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
+        Route::post('/vendors/{slug}/reviews', [StoreReviewController::class, 'store']);
+        Route::patch('/store-reviews/{review}', [StoreReviewController::class, 'update']);
+        Route::delete('/store-reviews/{review}', [StoreReviewController::class, 'destroy']);
+        Route::post('/vendors/{slug}/follow', [VendorFollowController::class, 'follow']);
+        Route::delete('/vendors/{slug}/follow', [VendorFollowController::class, 'unfollow']);
+        Route::post('/providers/{slug}/follow', [ProviderFollowController::class, 'follow']);
+        Route::delete('/providers/{slug}/follow', [ProviderFollowController::class, 'unfollow']);
+        Route::get('/orders/{order}/payment', [PaymentController::class, 'show']);
+        Route::post('/orders/{order}/payment', [PaymentController::class, 'initiate']);
+        Route::post('/orders/{order}/payment/submit', [PaymentController::class, 'submit']);
+        Route::post('/orders/{order}/payment/simulate', [PaymentController::class, 'simulate']);
+        Route::get('/orders/{order}/payment/callback', [PaymentController::class, 'callback']);
 
-    Route::get('/returns', [ReturnController::class, 'index']);
-    Route::post('/returns', [ReturnController::class, 'store']);
-    Route::get('/returns/{returnRequest}', [ReturnController::class, 'show']);
-    Route::post('/returns/{returnRequest}/evidence', [ReturnController::class, 'storeEvidence']);
-    Route::get('/vendor-orders/{vendorOrder}/items/{orderItem}/return-eligibility', [ReturnController::class, 'eligibility']);
+        Route::get('/returns', [ReturnController::class, 'index']);
+        Route::post('/returns', [ReturnController::class, 'store']);
+        Route::get('/returns/{returnRequest}', [ReturnController::class, 'show']);
+        Route::post('/returns/{returnRequest}/evidence', [ReturnController::class, 'storeEvidence']);
+        Route::get('/vendor-orders/{vendorOrder}/items/{orderItem}/return-eligibility', [ReturnController::class, 'eligibility']);
 
-    Route::get('/service-requests', [ServiceRequestController::class, 'index']);
-    Route::post('/service-requests', [ServiceRequestController::class, 'store']);
-    Route::get('/service-requests/{serviceRequest}', [ServiceRequestController::class, 'show']);
-    Route::post('/service-requests/{serviceRequest}/cancel', [ServiceRequestController::class, 'cancel']);
-    Route::post('/service-requests/{serviceRequest}/attachments', [ServiceRequestController::class, 'storeAttachment']);
-    Route::post('/service-requests/{serviceRequest}/offers', [ServiceOfferController::class, 'store']);
-    Route::post('/service-offers/{serviceOffer}/accept', [ServiceOfferController::class, 'accept']);
-    Route::post('/service-offers/{serviceOffer}/reject', [ServiceOfferController::class, 'reject']);
-    Route::get('/service-bookings', [ServiceBookingController::class, 'index']);
-    Route::get('/service-bookings/{serviceBooking}', [ServiceBookingController::class, 'show']);
-    Route::get('/service-bookings/{serviceBooking}/payment', [ServiceBookingPaymentController::class, 'show']);
-    Route::post('/service-bookings/{serviceBooking}/payment/simulate', [ServiceBookingPaymentController::class, 'simulate']);
-    Route::post('/service-bookings/{serviceBooking}/accept-schedule', [ServiceBookingController::class, 'acceptSchedule']);
-    Route::post('/service-bookings/{serviceBooking}/decline-schedule', [ServiceBookingController::class, 'declineSchedule']);
-    Route::post('/service-bookings/{serviceBooking}/cancel', [ServiceBookingController::class, 'cancelAsCustomer']);
-    Route::post('/service-bookings/{serviceBooking}/review', [ProviderReviewController::class, 'store'])->middleware('throttle:30,1');
-    Route::patch('/provider-reviews/{review}', [ProviderReviewController::class, 'update'])->middleware('throttle:30,1');
-    Route::delete('/provider-reviews/{review}', [ProviderReviewController::class, 'destroy'])->middleware('throttle:30,1');
-    Route::post('/provider-reviews/{review}/response', [ProviderReviewController::class, 'respond'])->middleware('throttle:30,1');
-    Route::post('/services/{identifier}/booking-preview', [DirectServiceBookingController::class, 'preview'])->middleware('throttle:30,1');
-    Route::post('/services/{identifier}/direct-booking', [DirectServiceBookingController::class, 'store'])->middleware('throttle:20,1');
+        Route::get('/service-requests', [ServiceRequestController::class, 'index']);
+        Route::post('/service-requests', [ServiceRequestController::class, 'store']);
+        Route::get('/service-requests/{serviceRequest}', [ServiceRequestController::class, 'show']);
+        Route::post('/service-requests/{serviceRequest}/cancel', [ServiceRequestController::class, 'cancel']);
+        Route::post('/service-requests/{serviceRequest}/attachments', [ServiceRequestController::class, 'storeAttachment']);
+        Route::post('/service-requests/{serviceRequest}/offers', [ServiceOfferController::class, 'store']);
+        Route::post('/service-offers/{serviceOffer}/accept', [ServiceOfferController::class, 'accept']);
+        Route::post('/service-offers/{serviceOffer}/reject', [ServiceOfferController::class, 'reject']);
+        Route::get('/service-bookings', [ServiceBookingController::class, 'index']);
+        Route::get('/service-bookings/{serviceBooking}', [ServiceBookingController::class, 'show']);
+        Route::get('/service-bookings/{serviceBooking}/payment', [ServiceBookingPaymentController::class, 'show']);
+        Route::post('/service-bookings/{serviceBooking}/payment/simulate', [ServiceBookingPaymentController::class, 'simulate']);
+        Route::post('/service-bookings/{serviceBooking}/accept-schedule', [ServiceBookingController::class, 'acceptSchedule']);
+        Route::post('/service-bookings/{serviceBooking}/decline-schedule', [ServiceBookingController::class, 'declineSchedule']);
+        Route::post('/service-bookings/{serviceBooking}/cancel', [ServiceBookingController::class, 'cancelAsCustomer']);
+        Route::post('/service-bookings/{serviceBooking}/review', [ProviderReviewController::class, 'store'])->middleware('throttle:30,1');
+        Route::patch('/provider-reviews/{review}', [ProviderReviewController::class, 'update'])->middleware('throttle:30,1');
+        Route::delete('/provider-reviews/{review}', [ProviderReviewController::class, 'destroy'])->middleware('throttle:30,1');
+        Route::post('/provider-reviews/{review}/response', [ProviderReviewController::class, 'respond'])->middleware('throttle:30,1');
+        Route::post('/services/{identifier}/booking-preview', [DirectServiceBookingController::class, 'preview'])->middleware('throttle:30,1');
+        Route::post('/services/{identifier}/direct-booking', [DirectServiceBookingController::class, 'store'])->middleware('throttle:20,1');
 
-    Route::post('/platform/newsletter', [PlatformContactController::class, 'newsletter'])
-        ->middleware('throttle:10,1');
+        Route::post('/platform/newsletter', [PlatformContactController::class, 'newsletter'])
+            ->middleware('throttle:10,1');
 
-    Route::prefix('profile')->group(function () {
-        Route::get('/', [ProfileController::class, 'show']);
-        Route::patch('/', [ProfileController::class, 'update']);
-        Route::patch('/password', [ProfileController::class, 'updatePassword']);
-        Route::post('/avatar', [ProfileController::class, 'uploadAvatar']);
-        Route::delete('/avatar', [ProfileController::class, 'deleteAvatar']);
+        Route::prefix('profile')->group(function () {
+            Route::get('/', [ProfileController::class, 'show']);
+            Route::patch('/', [ProfileController::class, 'update']);
+            Route::patch('/password', [ProfileController::class, 'updatePassword']);
+            Route::post('/avatar', [ProfileController::class, 'uploadAvatar']);
+            Route::delete('/avatar', [ProfileController::class, 'deleteAvatar']);
 
-        Route::post('/phone/request-change', [ProfileController::class, 'requestPhoneChange'])
-            ->middleware('throttle:otp');
-        Route::post('/phone/resend-change', [ProfileController::class, 'resendPhoneChange'])
-            ->middleware('throttle:otp');
-        Route::post('/phone/verify-change', [ProfileController::class, 'verifyPhoneChange'])
-            ->middleware('throttle:otp');
+            Route::post('/phone/request-change', [ProfileController::class, 'requestPhoneChange'])
+                ->middleware('throttle:otp');
+            Route::post('/phone/resend-change', [ProfileController::class, 'resendPhoneChange'])
+                ->middleware('throttle:otp');
+            Route::post('/phone/verify-change', [ProfileController::class, 'verifyPhoneChange'])
+                ->middleware('throttle:otp');
 
-        Route::post('/email/request-verification', [ProfileController::class, 'requestEmailVerification'])
-            ->middleware('throttle:otp');
-        Route::post('/email/resend-verification', [ProfileController::class, 'resendEmailVerification'])
-            ->middleware('throttle:otp');
-        Route::post('/email/verify', [ProfileController::class, 'verifyEmailVerification'])
-            ->middleware('throttle:otp');
+            Route::post('/email/request-verification', [ProfileController::class, 'requestEmailVerification'])
+                ->middleware('throttle:otp');
+            Route::post('/email/resend-verification', [ProfileController::class, 'resendEmailVerification'])
+                ->middleware('throttle:otp');
+            Route::post('/email/verify', [ProfileController::class, 'verifyEmailVerification'])
+                ->middleware('throttle:otp');
 
-        Route::get('/addresses', [AddressController::class, 'index']);
-        Route::post('/addresses', [AddressController::class, 'store']);
-        Route::get('/addresses/{address}', [AddressController::class, 'show']);
-        Route::patch('/addresses/{address}', [AddressController::class, 'update']);
-        Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
-        Route::post('/addresses/{address}/default', [AddressController::class, 'setDefault']);
+            Route::get('/addresses', [AddressController::class, 'index']);
+            Route::post('/addresses', [AddressController::class, 'store']);
+            Route::get('/addresses/{address}', [AddressController::class, 'show']);
+            Route::patch('/addresses/{address}', [AddressController::class, 'update']);
+            Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
+            Route::post('/addresses/{address}/default', [AddressController::class, 'setDefault']);
 
-        Route::get('/wishlist/summary', [WishlistController::class, 'summary']);
-        Route::get('/wishlist', [WishlistController::class, 'index']);
-        Route::delete('/wishlist', [WishlistController::class, 'clear']);
-        Route::get('/reviews', [CustomerReviewController::class, 'index']);
-        Route::get('/reviews/{type}/{id}', [CustomerReviewController::class, 'show'])
-            ->whereIn('type', ['product', 'store']);
+            Route::get('/wishlist/summary', [WishlistController::class, 'summary']);
+            Route::get('/wishlist', [WishlistController::class, 'index']);
+            Route::delete('/wishlist', [WishlistController::class, 'clear']);
+            Route::get('/reviews', [CustomerReviewController::class, 'index']);
+            Route::get('/reviews/{type}/{id}', [CustomerReviewController::class, 'show'])
+                ->whereIn('type', ['product', 'store']);
 
-        Route::get('/notifications', [NotificationController::class, 'index']);
-        Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
-        Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead']);
-        Route::delete('/notifications', [NotificationController::class, 'destroyAll']);
-        Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
-        Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
-        Route::post('/notifications/devices', [NotificationController::class, 'registerDevice'])
-            ->middleware('throttle:notification-devices');
-        Route::get('/notification-preferences', [NotificationPreferenceController::class, 'show']);
-        Route::patch('/notification-preferences', [NotificationPreferenceController::class, 'update'])
-            ->middleware('throttle:notification-preferences');
+            Route::get('/notifications', [NotificationController::class, 'index']);
+            Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+            Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+            Route::delete('/notifications', [NotificationController::class, 'destroyAll']);
+            Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
+            Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
+            Route::post('/notifications/devices', [NotificationController::class, 'registerDevice'])
+                ->middleware('throttle:notification-devices');
+            Route::get('/notification-preferences', [NotificationPreferenceController::class, 'show']);
+            Route::patch('/notification-preferences', [NotificationPreferenceController::class, 'update'])
+                ->middleware('throttle:notification-preferences');
 
-        Route::get('/conversations/unread-count', [ConversationController::class, 'unreadCount']);
-        Route::get('/conversations', [ConversationController::class, 'index']);
-        Route::post('/conversations', [ConversationController::class, 'store'])
-            ->middleware('throttle:chat-conversations');
-        Route::get('/conversations/{id}', [ConversationController::class, 'show']);
-        Route::patch('/conversations/{id}/read', [ConversationController::class, 'markRead']);
-        Route::delete('/conversations/{id}', [ConversationController::class, 'destroy']);
-        Route::post('/conversations/{id}/typing', [ConversationController::class, 'typing'])
-            ->middleware('throttle:chat-typing');
-        Route::get('/conversations/{id}/messages', [MessageController::class, 'index']);
-        Route::post('/conversations/{id}/messages', [MessageController::class, 'store'])
-            ->middleware('throttle:chat-messages');
-        Route::patch('/conversations/{conversationId}/messages/{messageId}', [MessageController::class, 'update'])
-            ->middleware('throttle:chat-messages');
-        Route::delete('/conversations/{conversationId}/messages/{messageId}', [MessageController::class, 'destroy'])
-            ->middleware('throttle:chat-messages');
-        Route::get('/conversations/{conversationId}/attachments/{attachmentId}', [AttachmentController::class, 'show']);
-    });
+            Route::get('/conversations/unread-count', [ConversationController::class, 'unreadCount']);
+            Route::get('/conversations', [ConversationController::class, 'index']);
+            Route::post('/conversations', [ConversationController::class, 'store'])
+                ->middleware('throttle:chat-conversations');
+            Route::get('/conversations/{id}', [ConversationController::class, 'show']);
+            Route::patch('/conversations/{id}/read', [ConversationController::class, 'markRead']);
+            Route::delete('/conversations/{id}', [ConversationController::class, 'destroy']);
+            Route::post('/conversations/{id}/typing', [ConversationController::class, 'typing'])
+                ->middleware('throttle:chat-typing');
+            Route::get('/conversations/{id}/messages', [MessageController::class, 'index']);
+            Route::post('/conversations/{id}/messages', [MessageController::class, 'store'])
+                ->middleware('throttle:chat-messages');
+            Route::patch('/conversations/{conversationId}/messages/{messageId}', [MessageController::class, 'update'])
+                ->middleware('throttle:chat-messages');
+            Route::delete('/conversations/{conversationId}/messages/{messageId}', [MessageController::class, 'destroy'])
+                ->middleware('throttle:chat-messages');
+            Route::get('/conversations/{conversationId}/attachments/{attachmentId}', [AttachmentController::class, 'show']);
+        });
 
-    Route::post('/products/{id}/reviews', [ProductEngagementController::class, 'storeReview']);
-    Route::patch('/products/{id}/reviews', [ProductEngagementController::class, 'updateReview']);
-    Route::delete('/products/{id}/reviews', [ProductEngagementController::class, 'destroyReview']);
-    Route::post('/products/{id}/like', [ProductEngagementController::class, 'toggleLike']);
-    Route::post('/products/{id}/wishlist', [ProductEngagementController::class, 'toggleWishlist'])
-        ->middleware('throttle:wishlist-toggle');
-    Route::post('/services/{identifier}/wishlist', [ServiceEngagementController::class, 'toggleWishlist'])
-        ->middleware('throttle:wishlist-toggle');
-    Route::post('/products/{id}/preorder', [ProductPreorderController::class, 'store']);
-    Route::get('/products/{id}/preorder', [ProductPreorderController::class, 'status']);
+        Route::post('/products/{id}/reviews', [ProductEngagementController::class, 'storeReview']);
+        Route::patch('/products/{id}/reviews', [ProductEngagementController::class, 'updateReview']);
+        Route::delete('/products/{id}/reviews', [ProductEngagementController::class, 'destroyReview']);
+        Route::post('/products/{id}/like', [ProductEngagementController::class, 'toggleLike']);
+        Route::post('/products/{id}/wishlist', [ProductEngagementController::class, 'toggleWishlist'])
+            ->middleware('throttle:wishlist-toggle');
+        Route::post('/services/{identifier}/wishlist', [ServiceEngagementController::class, 'toggleWishlist'])
+            ->middleware('throttle:wishlist-toggle');
+        Route::post('/products/{id}/preorder', [ProductPreorderController::class, 'store']);
+        Route::get('/products/{id}/preorder', [ProductPreorderController::class, 'status']);
 
-    Route::prefix('team-invites')->group(function () {
-        Route::get('/{token}', [VendorTeamInviteController::class, 'show']);
-        Route::post('/{token}/accept', [VendorTeamInviteController::class, 'accept']);
-        Route::post('/{token}/reject', [VendorTeamInviteController::class, 'reject']);
-    });
+        Route::prefix('team-invites')->group(function () {
+            Route::get('/{token}', [VendorTeamInviteController::class, 'show']);
+            Route::post('/{token}/accept', [VendorTeamInviteController::class, 'accept']);
+            Route::post('/{token}/reject', [VendorTeamInviteController::class, 'reject']);
+        });
 
-    Route::middleware('role:vendor,admin')->prefix('dashboard/vendor')->group(function () {
-        Route::get('/access', [VendorTeamController::class, 'access']);
-        Route::get('/team', [VendorTeamController::class, 'index']);
-        Route::post('/team/invite', [VendorTeamController::class, 'invite']);
-        Route::patch('/team/{member}', [VendorTeamController::class, 'update']);
-        Route::delete('/team/{member}', [VendorTeamController::class, 'destroy']);
-        Route::get('/reviews/inbox', [VendorReviewInboxController::class, 'index']);
-        Route::post('/reviews/inbox/{type}/{reviewId}/reply', [VendorReviewInboxController::class, 'reply']);
-        Route::get('/overview', [VendorDashboardController::class, 'overview']);
-        Route::get('/settings', [VendorSettingsController::class, 'show']);
-        Route::patch('/settings', [VendorSettingsController::class, 'update']);
-        Route::post('/settings/logo', [VendorSettingsController::class, 'uploadLogo']);
-        Route::delete('/settings/logo', [VendorSettingsController::class, 'deleteLogo']);
-        Route::post('/settings/cover', [VendorSettingsController::class, 'uploadCover']);
-        Route::delete('/settings/cover', [VendorSettingsController::class, 'deleteCover']);
-        Route::put('/settings/legal', [VendorSettingsController::class, 'updateLegal']);
-        Route::put('/settings/bank-account', [VendorSettingsController::class, 'updateBankAccount']);
-        Route::put('/settings/working-hours', [VendorSettingsController::class, 'updateWorkingHours']);
-        Route::get('/shipping-settings', [VendorShippingSettingsController::class, 'show']);
-        Route::put('/shipping-settings', [VendorShippingSettingsController::class, 'update']);
-        Route::get('/return-policy', [VendorReturnPolicyController::class, 'show']);
-        Route::put('/return-policy', [VendorReturnPolicyController::class, 'update']);
-        Route::get('/returns', [VendorReturnController::class, 'index']);
-        Route::get('/returns/{returnRequest}', [VendorReturnController::class, 'show']);
-        Route::post('/returns/{returnRequest}/submit-review', [VendorReturnController::class, 'submitForReview']);
-        Route::post('/returns/{returnRequest}/approve', [VendorReturnController::class, 'approve']);
-        Route::post('/returns/{returnRequest}/reject', [VendorReturnController::class, 'reject']);
-        Route::post('/returns/{returnRequest}/received', [VendorReturnController::class, 'received']);
-        Route::post('/returns/{returnRequest}/inspect', [VendorReturnController::class, 'inspect']);
-        Route::post('/returns/{returnRequest}/refund', [VendorReturnController::class, 'refund']);
-        Route::get('/orders', [VendorOrderController::class, 'index']);
-        Route::get('/preorders', [VendorPreorderController::class, 'index']);
-        Route::post('/preorders/{preorder}/cancel', [VendorPreorderController::class, 'cancel']);
-        Route::post('/orders', [VendorOrderController::class, 'store']);
-        Route::get('/orders/{vendorOrder}', [VendorOrderController::class, 'show']);
-        Route::get('/orders/{vendorOrder}/invoice', [VendorOrderController::class, 'invoice']);
-        Route::post('/orders/{vendorOrder}/accept', [VendorOrderController::class, 'accept']);
-        Route::post('/orders/{vendorOrder}/process', [VendorOrderController::class, 'process']);
-        Route::post('/orders/{vendorOrder}/ship', [VendorOrderController::class, 'ship']);
-        Route::post('/orders/{vendorOrder}/deliver', [VendorOrderController::class, 'deliver']);
-        Route::post('/orders/{vendorOrder}/cancel', [VendorOrderController::class, 'cancel']);
-        Route::get('/products', [VendorProductController::class, 'index']);
-        Route::post('/products', [VendorProductController::class, 'store']);
-        Route::get('/products/{product}', [VendorProductController::class, 'show']);
-        Route::patch('/products/{product}', [VendorProductController::class, 'update']);
-        Route::get('/products/{product}/affiliate', [VendorProductAffiliateController::class, 'show']);
-        Route::patch('/products/{product}/affiliate', [VendorProductAffiliateController::class, 'update']);
-        Route::delete('/products/{product}', [VendorProductController::class, 'destroy']);
-        Route::post('/products/{product}/images', [VendorProductController::class, 'addImages']);
-        Route::delete('/products/{product}/images/{image}', [VendorProductController::class, 'deleteImage']);
-        Route::patch('/inventory/{product}', [VendorInventoryController::class, 'adjust']);
-        Route::get('/coupons', [VendorCouponController::class, 'index']);
-        Route::post('/coupons', [VendorCouponController::class, 'store']);
-        Route::get('/coupons/{vendorCoupon}', [VendorCouponController::class, 'show']);
-        Route::patch('/coupons/{vendorCoupon}', [VendorCouponController::class, 'update']);
-        Route::post('/coupons/{vendorCoupon}/activate', [VendorCouponController::class, 'activate']);
-        Route::post('/coupons/{vendorCoupon}/deactivate', [VendorCouponController::class, 'deactivate']);
-        Route::get('/finance/summary', [VendorFinanceController::class, 'summary']);
-        Route::get('/finance/analytics', [VendorFinanceController::class, 'analytics']);
-        Route::get('/finance/report', [VendorFinanceController::class, 'exportReport']);
-        Route::get('/finance/transactions', [VendorFinanceController::class, 'transactions']);
-        Route::get('/finance/payouts', [VendorFinanceController::class, 'payouts']);
-        Route::post('/finance/payouts', [VendorFinanceController::class, 'requestPayout']);
-        Route::post('/finance/payouts/{payout}/cancel', [VendorFinanceController::class, 'cancelPayout']);
-    });
+        Route::middleware('role:vendor')->prefix('dashboard/vendor')->group(function () {
+            Route::get('/access', [VendorTeamController::class, 'access']);
+            Route::get('/team', [VendorTeamController::class, 'index']);
+            Route::post('/team/invite', [VendorTeamController::class, 'invite']);
+            Route::patch('/team/{member}', [VendorTeamController::class, 'update']);
+            Route::delete('/team/{member}', [VendorTeamController::class, 'destroy']);
+            Route::get('/reviews/inbox', [VendorReviewInboxController::class, 'index']);
+            Route::post('/reviews/inbox/{type}/{reviewId}/reply', [VendorReviewInboxController::class, 'reply']);
+            Route::get('/overview', [VendorDashboardController::class, 'overview']);
+            Route::get('/settings', [VendorSettingsController::class, 'show']);
+            Route::patch('/settings', [VendorSettingsController::class, 'update']);
+            Route::post('/settings/logo', [VendorSettingsController::class, 'uploadLogo']);
+            Route::delete('/settings/logo', [VendorSettingsController::class, 'deleteLogo']);
+            Route::post('/settings/cover', [VendorSettingsController::class, 'uploadCover']);
+            Route::delete('/settings/cover', [VendorSettingsController::class, 'deleteCover']);
+            Route::put('/settings/legal', [VendorSettingsController::class, 'updateLegal']);
+            Route::put('/settings/bank-account', [VendorSettingsController::class, 'updateBankAccount']);
+            Route::put('/settings/working-hours', [VendorSettingsController::class, 'updateWorkingHours']);
+            Route::get('/shipping-settings', [VendorShippingSettingsController::class, 'show']);
+            Route::put('/shipping-settings', [VendorShippingSettingsController::class, 'update']);
+            Route::get('/return-policy', [VendorReturnPolicyController::class, 'show']);
+            Route::put('/return-policy', [VendorReturnPolicyController::class, 'update']);
+            Route::get('/returns', [VendorReturnController::class, 'index']);
+            Route::get('/returns/{returnRequest}', [VendorReturnController::class, 'show']);
+            Route::post('/returns/{returnRequest}/submit-review', [VendorReturnController::class, 'submitForReview']);
+            Route::post('/returns/{returnRequest}/approve', [VendorReturnController::class, 'approve']);
+            Route::post('/returns/{returnRequest}/reject', [VendorReturnController::class, 'reject']);
+            Route::post('/returns/{returnRequest}/received', [VendorReturnController::class, 'received']);
+            Route::post('/returns/{returnRequest}/inspect', [VendorReturnController::class, 'inspect']);
+            Route::post('/returns/{returnRequest}/refund', [VendorReturnController::class, 'refund']);
+            Route::get('/orders', [VendorOrderController::class, 'index']);
+            Route::get('/preorders', [VendorPreorderController::class, 'index']);
+            Route::post('/preorders/{preorder}/cancel', [VendorPreorderController::class, 'cancel']);
+            Route::post('/orders', [VendorOrderController::class, 'store']);
+            Route::get('/orders/{vendorOrder}', [VendorOrderController::class, 'show']);
+            Route::get('/orders/{vendorOrder}/invoice', [VendorOrderController::class, 'invoice']);
+            Route::post('/orders/{vendorOrder}/accept', [VendorOrderController::class, 'accept']);
+            Route::post('/orders/{vendorOrder}/process', [VendorOrderController::class, 'process']);
+            Route::post('/orders/{vendorOrder}/ship', [VendorOrderController::class, 'ship']);
+            Route::post('/orders/{vendorOrder}/deliver', [VendorOrderController::class, 'deliver']);
+            Route::post('/orders/{vendorOrder}/cancel', [VendorOrderController::class, 'cancel']);
+            Route::get('/products', [VendorProductController::class, 'index']);
+            Route::post('/products', [VendorProductController::class, 'store']);
+            Route::get('/products/{product}', [VendorProductController::class, 'show']);
+            Route::patch('/products/{product}', [VendorProductController::class, 'update']);
+            Route::get('/products/{product}/affiliate', [VendorProductAffiliateController::class, 'show']);
+            Route::patch('/products/{product}/affiliate', [VendorProductAffiliateController::class, 'update']);
+            Route::delete('/products/{product}', [VendorProductController::class, 'destroy']);
+            Route::post('/products/{product}/images', [VendorProductController::class, 'addImages']);
+            Route::delete('/products/{product}/images/{image}', [VendorProductController::class, 'deleteImage']);
+            Route::patch('/inventory/{product}', [VendorInventoryController::class, 'adjust']);
+            Route::get('/coupons', [VendorCouponController::class, 'index']);
+            Route::post('/coupons', [VendorCouponController::class, 'store']);
+            Route::get('/coupons/{vendorCoupon}', [VendorCouponController::class, 'show']);
+            Route::patch('/coupons/{vendorCoupon}', [VendorCouponController::class, 'update']);
+            Route::post('/coupons/{vendorCoupon}/activate', [VendorCouponController::class, 'activate']);
+            Route::post('/coupons/{vendorCoupon}/deactivate', [VendorCouponController::class, 'deactivate']);
+            Route::get('/finance/summary', [VendorFinanceController::class, 'summary']);
+            Route::get('/finance/analytics', [VendorFinanceController::class, 'analytics']);
+            Route::get('/finance/report', [VendorFinanceController::class, 'exportReport']);
+            Route::get('/finance/transactions', [VendorFinanceController::class, 'transactions']);
+            Route::get('/finance/payouts', [VendorFinanceController::class, 'payouts']);
+            Route::post('/finance/payouts', [VendorFinanceController::class, 'requestPayout']);
+            Route::post('/finance/payouts/{payout}/cancel', [VendorFinanceController::class, 'cancelPayout']);
+        });
 
-    Route::middleware('role:marketer,admin')->prefix('dashboard/affiliate')->group(function () {
-        Route::get('/', [AffiliateDashboardController::class, 'overview']);
-        Route::get('/products', [AffiliateProductController::class, 'index']);
-        Route::get('/links', [AffiliateLinkController::class, 'index']);
-        Route::post('/links', [AffiliateLinkController::class, 'store'])
-            ->middleware('throttle:affiliate-link');
-        Route::post('/links/{link}/deactivate', [AffiliateLinkController::class, 'deactivate']);
-        Route::get('/reports', [AffiliateReportController::class, 'index']);
-        Route::get('/payouts', [AffiliatePayoutController::class, 'index']);
-        Route::post('/payouts', [AffiliatePayoutController::class, 'store']);
-        Route::get('/settings', [AffiliateSettingsController::class, 'show']);
-        Route::patch('/settings', [AffiliateSettingsController::class, 'update']);
-        Route::get('/platform-config', [AffiliatePlatformConfigController::class, 'show']);
-    });
+        Route::middleware('role:marketer')->prefix('dashboard/affiliate')->group(function () {
+            Route::get('/', [AffiliateDashboardController::class, 'overview']);
+            Route::get('/products', [AffiliateProductController::class, 'index']);
+            Route::get('/links', [AffiliateLinkController::class, 'index']);
+            Route::post('/links', [AffiliateLinkController::class, 'store'])
+                ->middleware('throttle:affiliate-link');
+            Route::post('/links/{link}/deactivate', [AffiliateLinkController::class, 'deactivate']);
+            Route::get('/reports', [AffiliateReportController::class, 'index']);
+            Route::get('/payouts', [AffiliatePayoutController::class, 'index']);
+            Route::post('/payouts', [AffiliatePayoutController::class, 'store']);
+            Route::get('/settings', [AffiliateSettingsController::class, 'show']);
+            Route::patch('/settings', [AffiliateSettingsController::class, 'update']);
+            Route::get('/platform-config', [AffiliatePlatformConfigController::class, 'show']);
+        });
 
-    Route::middleware('role:provider,admin')->prefix('dashboard/provider')->group(function () {
-        Route::get('/service-requests', [ServiceOfferController::class, 'providerInbox']);
-        Route::get('/service-requests/{serviceRequest}', [ServiceOfferController::class, 'providerShow']);
-        Route::get('/services', [ServiceProviderController::class, 'ownServices']);
-        Route::post('/services', [ServiceProviderController::class, 'storeService']);
-        Route::patch('/services/{service}', [ServiceProviderController::class, 'updateService']);
-        Route::delete('/services/{service}', [ServiceProviderController::class, 'destroyService']);
-        Route::get('/bookings', [ServiceBookingController::class, 'providerIndex']);
-        Route::post('/bookings/{serviceBooking}/start', [ServiceBookingController::class, 'start']);
-        Route::post('/bookings/{serviceBooking}/complete', [ServiceBookingController::class, 'complete']);
-        Route::post('/bookings/{serviceBooking}/confirm', [ServiceBookingController::class, 'confirm']);
-        Route::post('/bookings/{serviceBooking}/propose-schedule', [ServiceBookingController::class, 'proposeSchedule']);
-        Route::post('/bookings/{serviceBooking}/cancel', [ServiceBookingController::class, 'cancel']);
-        Route::get('/finance/transactions', [ProviderFinanceController::class, 'transactions']);
-        Route::get('/finance/summary', [ProviderFinanceController::class, 'summary']);
-        Route::get('/finance/analytics', [ProviderFinanceController::class, 'analytics']);
-        Route::get('/finance/export', [ProviderFinanceController::class, 'exportReport']);
-        Route::post('/finance/payouts', [ProviderFinanceController::class, 'requestPayout']);
-        Route::get('/settings', [ProviderSettingsController::class, 'show']);
-        Route::patch('/settings/profile', [ProviderSettingsController::class, 'updateProfile']);
-        Route::put('/settings/working-hours', [ProviderSettingsController::class, 'updateWorkingHours']);
-        Route::patch('/settings/account', [ProviderSettingsController::class, 'updateAccount']);
-        Route::patch('/settings/password', [ProviderSettingsController::class, 'updatePassword']);
-        Route::patch('/settings/notifications', [ProviderSettingsController::class, 'updateNotifications']);
-        Route::patch('/settings/bank-account', [ProviderSettingsController::class, 'updateBankAccount']);
-        Route::post('/settings/avatar', [ProviderSettingsController::class, 'uploadAvatar']);
-        Route::delete('/settings/avatar', [ProviderSettingsController::class, 'deleteAvatar']);
-        Route::get('/settings/work-policy', [ProviderWorkPolicyController::class, 'show']);
-        Route::put('/settings/work-policy', [ProviderWorkPolicyController::class, 'update']);
-        Route::get('/reviews', [ProviderReviewController::class, 'providerInbox']);
-    });
-
-    Route::middleware('role:admin')->prefix('admin')->group(function () {
-        Route::get('/categories', [AdminCategoryController::class, 'index']);
-        Route::post('/categories', [AdminCategoryController::class, 'store']);
-        Route::get('/categories/{category}', [AdminCategoryController::class, 'show']);
-        Route::patch('/categories/{category}', [AdminCategoryController::class, 'update']);
-        Route::delete('/categories/{category}', [AdminCategoryController::class, 'destroy']);
-        Route::get('/payouts', [AdminPayoutController::class, 'index']);
-        Route::post('/payouts/{payout}/approve', [AdminPayoutController::class, 'approve']);
-        Route::post('/payouts/{payout}/reject', [AdminPayoutController::class, 'reject']);
-        Route::post('/payouts/{payout}/mark-paid', [AdminPayoutController::class, 'markPaid']);
-        Route::get('/affiliate/payouts', [AdminAffiliatePayoutController::class, 'index']);
-        Route::post('/affiliate/payouts/{affiliatePayout}/approve', [AdminAffiliatePayoutController::class, 'approve']);
-        Route::post('/affiliate/payouts/{affiliatePayout}/processing', [AdminAffiliatePayoutController::class, 'markProcessing']);
-        Route::post('/affiliate/payouts/{affiliatePayout}/reject', [AdminAffiliatePayoutController::class, 'reject']);
-        Route::post('/affiliate/payouts/{affiliatePayout}/mark-paid', [AdminAffiliatePayoutController::class, 'markPaid']);
+        Route::middleware('role:provider')->prefix('dashboard/provider')->group(function () {
+            Route::get('/service-requests', [ServiceOfferController::class, 'providerInbox']);
+            Route::get('/service-requests/{serviceRequest}', [ServiceOfferController::class, 'providerShow']);
+            Route::get('/services', [ServiceProviderController::class, 'ownServices']);
+            Route::post('/services', [ServiceProviderController::class, 'storeService']);
+            Route::patch('/services/{service}', [ServiceProviderController::class, 'updateService']);
+            Route::delete('/services/{service}', [ServiceProviderController::class, 'destroyService']);
+            Route::get('/bookings', [ServiceBookingController::class, 'providerIndex']);
+            Route::post('/bookings/{serviceBooking}/start', [ServiceBookingController::class, 'start']);
+            Route::post('/bookings/{serviceBooking}/complete', [ServiceBookingController::class, 'complete']);
+            Route::post('/bookings/{serviceBooking}/confirm', [ServiceBookingController::class, 'confirm']);
+            Route::post('/bookings/{serviceBooking}/propose-schedule', [ServiceBookingController::class, 'proposeSchedule']);
+            Route::post('/bookings/{serviceBooking}/cancel', [ServiceBookingController::class, 'cancel']);
+            Route::get('/finance/transactions', [ProviderFinanceController::class, 'transactions']);
+            Route::get('/finance/summary', [ProviderFinanceController::class, 'summary']);
+            Route::get('/finance/analytics', [ProviderFinanceController::class, 'analytics']);
+            Route::get('/finance/export', [ProviderFinanceController::class, 'exportReport']);
+            Route::post('/finance/payouts', [ProviderFinanceController::class, 'requestPayout']);
+            Route::get('/settings', [ProviderSettingsController::class, 'show']);
+            Route::patch('/settings/profile', [ProviderSettingsController::class, 'updateProfile']);
+            Route::put('/settings/working-hours', [ProviderSettingsController::class, 'updateWorkingHours']);
+            Route::patch('/settings/account', [ProviderSettingsController::class, 'updateAccount']);
+            Route::patch('/settings/password', [ProviderSettingsController::class, 'updatePassword']);
+            Route::patch('/settings/notifications', [ProviderSettingsController::class, 'updateNotifications']);
+            Route::patch('/settings/bank-account', [ProviderSettingsController::class, 'updateBankAccount']);
+            Route::post('/settings/avatar', [ProviderSettingsController::class, 'uploadAvatar']);
+            Route::delete('/settings/avatar', [ProviderSettingsController::class, 'deleteAvatar']);
+            Route::get('/settings/work-policy', [ProviderWorkPolicyController::class, 'show']);
+            Route::put('/settings/work-policy', [ProviderWorkPolicyController::class, 'update']);
+            Route::get('/reviews', [ProviderReviewController::class, 'providerInbox']);
+        });
     });
 });

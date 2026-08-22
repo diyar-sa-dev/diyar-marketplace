@@ -1765,11 +1765,8 @@ Before production:
 * API rate limits
 * queue verification
 
-Do **not** introduce Redis just because performance testing says "cache."
+Replace Cache tables , with redis cache.
 
-Start with Laravel Cache as you decided.
-
-Introduce Redis when there is an actual operational reason.
 
 ---
 
@@ -1811,7 +1808,7 @@ React SPA
    ↓
 Laravel API
    ↓
-MySQL
+MySQL + Redis
    ↓
 Storage
 ```
@@ -2017,47 +2014,3 @@ docs/
 └── runbooks/
     ├── LOCAL_SETUP.md
 ```
-
----
-
-## Development Log
-
-### Day 5 (Stages 13–15)
-
-**Stage 13 / 13.5 — Provider Portal:** Completed full provider portal wired to real APIs, confirm-before-pay schedule negotiation, 2-hour lead time, and post-payment cancellation lock.
-
-**Stage 14 — Reviews Audit:** Unified customer review history across products, stores, and providers, with self-review guards and audit documentation.
-
-**Stage 15 — Vendor Coupons:** Implemented vendor coupon CRUD, checkout per-vendor apply/remove, usage tracking, and vendor dashboard coupon management UI.
-
-**Tax Engine Fix:** Corrected VAT calculation to compute 15% Saudi VAT on post-discount subtotal (subtotal − discount + shipping).
-
-**Checkout Polish:** Fixed null-coupon crash fallback, role-aware address navigation, and friendly inline error handling for invalid codes.
-
-**Account Routing:** Implemented customer-first account hub navigation routing users dynamically based on role (`/profile`, vendor, or provider settings).
-
-**Catalog & Engagement:** Integrated wishlist APIs for products and services along with view/like engagement counters.
-
-**Testing & Quality:** Passed 376 backend and 93 frontend tests; verified full suite with Friday provider availability and confirm-before-pay test fixes.
-
-**CI & Standards:** Executed Laravel Pint, Prettier, strict Composer validation, and expanded linting across all touched modules.
-
-**Current Status:** Stage 13, 14 & 15 COMPLETE. Next stage: Stage 16.
-
----
-
-### Day 17 (Stages 16–17.6)
-
-**Stage 16 — Notifications:** Built notification dispatcher (in-app, email, push), preference resolver, device registry, Reverb realtime broadcasts, and frontend NotificationProvider with dedupe and cross-tab sync.
-
-**Stage 17 — Realtime Chat:** Conversations, messages, attachments, typing, optimistic send, archive batches, Redis locks, unread reconciliation, and ChatPage + dashboard messaging wired to Reverb/Echo.
-
-**Stage 17.6 — Affiliate Commerce:** Full referral attribution (`?ref=` → click → checkout snapshot), commission lifecycle (pending → available → reversed), marketer dashboard wired to real APIs (KPIs, chart, top links, reports, payouts), vendor product affiliate settings, financial ledger posting, click dedupe + rate limits, admin payout backend hooks, gross/net link metrics, multi-vendor commission tests.
-
-**Platform & Homepage:** Consultation/feedback localStorage forms, newsletter auth flow, partner banner role routing, auth `?role=` pre-select, dashboard tutorial skip flag.
-
-**Testing & Quality:** AffiliateCommerceTest 12 passed; notification and chat feature tests added; frontend build verified.
-
-**CI & Standards:** Laravel Pint, Prettier, Composer strict validation, Tailwind canonical class cleanup.
-
-**Current Status:** Stages 16, 17 & 17.6 COMPLETE. Next stage: Stage 18 — Admin / Operations.

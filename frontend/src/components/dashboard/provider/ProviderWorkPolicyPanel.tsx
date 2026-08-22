@@ -13,7 +13,7 @@ import {
 } from '../../../types/providerWorkPolicy.ts';
 
 const INPUT_CLASS =
-  'w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown bg-gray-50/50 placeholder:text-gray-400 text-start';
+  'w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 bg-gray-50/50 placeholder:text-gray-400 text-start';
 
 export function ProviderWorkPolicyPanel() {
   const { t } = useLocale();
@@ -78,9 +78,9 @@ export function ProviderWorkPolicyPanel() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
-        <Info className="mt-0.5 shrink-0 text-amber-600" size={20} />
-        <p className="text-sm leading-relaxed text-amber-800">
+      <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
+        <Info className="mt-0.5 shrink-0 text-blue-600" size={20} />
+        <p className="text-sm leading-relaxed text-blue-900">
           {t('providerDashboard.settings.workPolicy.intro')}
         </p>
       </div>
@@ -179,7 +179,7 @@ export function ProviderWorkPolicyPanel() {
             type="button"
             onClick={addCustomTerm}
             disabled={!form.policy_enabled || form.custom_terms.length >= 5}
-            className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-diyar-brown hover:bg-amber-50 disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-blue-50 disabled:opacity-50 cursor-pointer"
           >
             <Plus size={14} />
             {t('providerDashboard.settings.workPolicy.addTerm')}
@@ -216,7 +216,7 @@ export function ProviderWorkPolicyPanel() {
           type="button"
           onClick={() => void handleSave()}
           disabled={saveMutation.isPending}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-diyar-brown px-6 py-3 font-bold text-white transition hover:bg-diyar-brown/90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white transition hover:bg-blue-600/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Save size={18} />
           {t('providerDashboard.settings.workPolicy.save')}

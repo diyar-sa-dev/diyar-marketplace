@@ -40,6 +40,11 @@ class UserResource extends JsonResource
                 'slug' => $this->vendorAccount->slug,
                 'store_name' => $this->vendorAccount->business_name,
             ] : null),
+            'provider_account' => $this->whenLoaded('providerAccount', fn () => $this->providerAccount !== null ? [
+                'id' => $this->providerAccount->id,
+                'slug' => $this->providerAccount->slug,
+                'business_name' => $this->providerAccount->business_name,
+            ] : null),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

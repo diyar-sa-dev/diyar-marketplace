@@ -237,13 +237,17 @@ export default function AffiliatePayouts() {
         <div className="fixed inset-0 bg-black/60 z-300 flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="bg-white rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-bold text-xl text-diyar-dark">{t('affiliate.payouts.modalTitle')}</h3>
+              <h3 className="font-bold text-xl text-diyar-dark">
+                {t('affiliate.payouts.modalTitle')}
+              </h3>
             </div>
             <div className="p-6 space-y-4 text-center pb-8">
               <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 size={40} />
               </div>
-              <h4 className="font-bold text-xl text-gray-900">{t('affiliate.payouts.modalSuccess')}</h4>
+              <h4 className="font-bold text-xl text-gray-900">
+                {t('affiliate.payouts.modalSuccess')}
+              </h4>
               <p className="text-gray-500 text-sm">
                 {t('affiliate.payouts.modalBody', {
                   amount: requestedAmount,

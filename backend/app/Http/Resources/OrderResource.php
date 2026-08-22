@@ -39,6 +39,7 @@ class OrderResource extends JsonResource
             'grand_total' => number_format((float) $this->grand_total, 2, '.', ''),
             'vendor_orders' => VendorOrderResource::collection($this->whenLoaded('vendorOrders')),
             'payment' => new PaymentResource($this->whenLoaded('payment')),
+            'user' => new UserResource($this->whenLoaded('user')),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

@@ -8,7 +8,7 @@ class VendorReturnPolicyPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('vendor') || $user->hasRole('admin');
+        return $user->hasRole('vendor');
     }
 
     public function view(User $user): bool

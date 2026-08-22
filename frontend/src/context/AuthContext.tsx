@@ -7,9 +7,11 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useLocation } from 'react-router-dom';
 import * as authApi from '../api/auth.ts';
 import { registerUnauthorizedHandler } from '../lib/auth/sessionEvents.ts';
 import { resetCsrfCookie } from '../lib/csrf.ts';
+import { isAdminQueryKey } from '../lib/auth/queryKeys.ts';
 import { queryClient } from '../lib/queryClient.ts';
 import { mergeCart } from '../api/cart.ts';
 import { cartKeys } from '../hooks/cart/queryKeys.ts';
@@ -55,8 +57,8 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function hasSessionCookie(): boolean {
-  return document.cookie.split(';').some((part) => part.trim().startsWith('laravel_session='));
+function isAdminArea(pathname: string): boolean {
+  return pathname.startsWith('/admin');
 }
 
 function invalidateUserScopedQueries(): void {
@@ -78,6 +80,7 @@ async function mergeGuestCartAfterAuth(showWarning: (message: string) => void): 
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const location = useLocation();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [status, setStatus] = useState<AuthState>('loading');
   const [error, setError] = useState<string | null>(null);
@@ -88,26 +91,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStatus('unauthenticated');
     resetCsrfCookie();
     invalidateUserScopedQueries();
+    queryClient.removeQueries({
+      predicate: (query) =>
+        query.queryKey[0] === 'marketplace' ||
+        (query.queryKey[0] !== 'admin' && !isAdminQueryKey(query.queryKey)),
+    });
   }, []);
 
   const refreshUser = useCallback(async (): Promise<AuthUser | null> => {
-    const onAuthPage = window.location.pathname.startsWith('/auth');
-    if (onAuthPage && !hasSessionCookie()) {
+    setStatus('loading');
+
+    try {
+      const currentUser = await authApi.fetchCurrentUser();
+
+      if (currentUser === null) {
+        clearSession();
+        return null;
+      }
+
+      setUser(currentUser);
+      setStatus('authenticated');
+      return currentUser;
+    } catch {
       clearSession();
       return null;
     }
-
-    const currentUser = await authApi.fetchCurrentUser();
-
-    if (currentUser === null) {
-      clearSession();
-      return null;
-    }
-
-    setUser(currentUser);
-    setStatus('authenticated');
-    return currentUser;
   }, [clearSession]);
+
+  useEffect(() => {
+    if (isAdminArea(location.pathname)) {
+      setStatus('unauthenticated');
+      setUser(null);
+      return;
+    }
+
+    void refreshUser();
+  }, [location.pathname, refreshUser]);
 
   const updateUser = useCallback((next: AuthUser) => {
     setUser(next);
@@ -115,10 +134,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    void refreshUser();
-  }, [refreshUser]);
-
-  useEffect(() => registerUnauthorizedHandler(clearSession), [clearSession]);
+    return registerUnauthorizedHandler('marketplace', clearSession);
+  }, [clearSession]);
 
   const wrap = useCallback(async <T,>(action: () => Promise<T>): Promise<T> => {
     setError(null);
@@ -185,11 +202,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearError: () => setError(null),
       hasRole: (role) => user?.roles?.some((r) => r.name === role) ?? false,
     }),
-    [user, status, error, wrap, refreshUser, updateUser, clearSession],
+    [user, status, error, wrap, refreshUser, updateUser, clearSession, toast],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
+/** Explicit marketplace auth provider — same implementation as AuthProvider. */
+export const MarketplaceAuthProvider = AuthProvider;
 
 export function useAuthContext(): AuthContextValue {
   const context = useContext(AuthContext);

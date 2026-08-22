@@ -163,8 +163,8 @@ class FinancialLedgerTest extends TestCase
 
         $payoutId = $payoutResponse->json('data.payout.id');
 
-        $this->postJsonAsUser("/api/v1/admin/payouts/{$payoutId}/approve", $admin)->assertOk();
-        $this->postJsonAsUser("/api/v1/admin/payouts/{$payoutId}/mark-paid", $admin)->assertOk();
+        $this->postJsonAsAdmin("/api/v1/admin/payouts/{$payoutId}/approve", $admin)->assertOk();
+        $this->postJsonAsAdmin("/api/v1/admin/payouts/{$payoutId}/mark-paid", $admin)->assertOk();
 
         $this->assertDatabaseHas('financial_transactions', [
             'vendor_payout_id' => $payoutId,

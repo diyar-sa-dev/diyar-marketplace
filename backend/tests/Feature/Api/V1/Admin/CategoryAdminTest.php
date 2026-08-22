@@ -17,7 +17,7 @@ class CategoryAdminTest extends TestCase
     {
         $admin = $this->createUserWithRole(RoleName::Admin);
 
-        $createResponse = $this->actingAs($admin)->postJson('/api/v1/admin/categories', [
+        $createResponse = $this->actingAs($admin, 'admin')->postJson('/api/v1/admin/categories', [
             'name' => 'New Category',
             'slug' => 'new-category',
             'sort_order' => 5,
@@ -28,16 +28,16 @@ class CategoryAdminTest extends TestCase
 
         $categoryId = $createResponse->json('data.category.id');
 
-        $this->actingAs($admin)->getJson('/api/v1/admin/categories')
+        $this->actingAs($admin, 'admin')->getJson('/api/v1/admin/categories')
             ->assertOk()
             ->assertJsonCount(1, 'data.categories');
 
-        $this->actingAs($admin)->patchJson('/api/v1/admin/categories/'.$categoryId, [
+        $this->actingAs($admin, 'admin')->patchJson('/api/v1/admin/categories/'.$categoryId, [
             'name' => 'Renamed Category',
         ])->assertOk()
             ->assertJsonPath('data.category.name', 'Renamed Category');
 
-        $this->actingAs($admin)->deleteJson('/api/v1/admin/categories/'.$categoryId)
+        $this->actingAs($admin, 'admin')->deleteJson('/api/v1/admin/categories/'.$categoryId)
             ->assertOk();
 
         $this->assertDatabaseMissing('categories', ['id' => $categoryId]);
@@ -48,15 +48,15 @@ class CategoryAdminTest extends TestCase
         $vendor = $this->createUserWithRole(RoleName::Vendor);
         $category = Category::factory()->create();
 
-        $this->actingAs($vendor)->getJson('/api/v1/admin/categories')->assertForbidden();
+        $this->actingAs($vendor)->getJson('/api/v1/admin/categories')->assertUnauthorized();
         $this->actingAs($vendor)->postJson('/api/v1/admin/categories', [
             'name' => 'Blocked',
-        ])->assertForbidden();
+        ])->assertUnauthorized();
         $this->actingAs($vendor)->patchJson('/api/v1/admin/categories/'.$category->id, [
             'name' => 'Blocked',
-        ])->assertForbidden();
+        ])->assertUnauthorized();
         $this->actingAs($vendor)->deleteJson('/api/v1/admin/categories/'.$category->id)
-            ->assertForbidden();
+            ->assertUnauthorized();
     }
 
     public function test_admin_cannot_delete_category_with_products(): void
@@ -65,7 +65,7 @@ class CategoryAdminTest extends TestCase
         $category = Category::factory()->create();
         Product::factory()->create(['category_id' => $category->id]);
 
-        $this->actingAs($admin)->deleteJson('/api/v1/admin/categories/'.$category->id)
+        $this->actingAs($admin, 'admin')->deleteJson('/api/v1/admin/categories/'.$category->id)
             ->assertStatus(422);
 
         $this->assertDatabaseHas('categories', ['id' => $category->id]);

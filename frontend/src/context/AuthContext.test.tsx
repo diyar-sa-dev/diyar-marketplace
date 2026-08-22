@@ -3,6 +3,12 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuthContext } from '../context/AuthContext.tsx';
 import * as authApi from '../api/auth.ts';
 
+const mockPathname = vi.fn(() => '/');
+
+vi.mock('react-router-dom', () => ({
+  useLocation: () => ({ pathname: mockPathname(), search: '', hash: '', state: null, key: 'default' }),
+}));
+
 vi.mock('../api/auth.ts', () => ({
   fetchCurrentUser: vi.fn(),
   login: vi.fn(),
@@ -13,6 +19,11 @@ vi.mock('../api/auth.ts', () => ({
   forgotPassword: vi.fn(),
   verifyPasswordResetOtp: vi.fn(),
   resetPassword: vi.fn(),
+}));
+
+vi.mock('../api/adminAuth.ts', () => ({
+  fetchAdminSession: vi.fn().mockResolvedValue(null),
+  logoutAdmin: vi.fn(),
 }));
 
 vi.mock('../api/cart.ts', () => ({
@@ -55,7 +66,19 @@ function wrapper({ children }: { children: React.ReactNode }) {
 describe('AuthContext', () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    mockPathname.mockReturnValue('/');
     vi.mocked(authApi.fetchCurrentUser).mockResolvedValue(null);
+  });
+
+  it('does not bootstrap marketplace session on admin routes', async () => {
+    mockPathname.mockReturnValue('/admin');
+
+    const { result } = renderHook(() => useAuthContext(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('unauthenticated');
+    });
+    expect(authApi.fetchCurrentUser).not.toHaveBeenCalled();
   });
 
   it('starts unauthenticated when /me returns null', async () => {
@@ -114,7 +137,7 @@ describe('AuthContext', () => {
     await waitFor(() => expect(result.current.isAuthenticated).toBe(true));
 
     const { notifyUnauthorized } = await import('../lib/auth/sessionEvents.ts');
-    notifyUnauthorized();
+    notifyUnauthorized('marketplace');
 
     await waitFor(() => {
       expect(result.current.isAuthenticated).toBe(false);

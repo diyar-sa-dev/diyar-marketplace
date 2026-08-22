@@ -119,7 +119,7 @@ export default function ServiceDashboard() {
             <h3 className="text-gray-500 font-medium">
               {t('providerDashboard.home.activeServices')}
             </h3>
-            <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
               <Wrench size={20} />
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function ServiceDashboard() {
               </p>
             ) : (
               stats.todaysAppointments.map((booking) => (
-                <div key={booking.id} className="border-s-2 border-amber-400 ps-4 py-2">
+                <div key={booking.id} className="border-s-2 border-blue-400 ps-4 py-2">
                   <p className="text-sm text-gray-500 mb-1" dir="ltr">
                     {formatBookingDisplayTime(booking)} — {formatBookingDisplayDate(booking)}
                   </p>

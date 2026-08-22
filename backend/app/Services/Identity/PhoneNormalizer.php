@@ -4,6 +4,26 @@ namespace App\Services\Identity;
 
 final class PhoneNormalizer
 {
+    public const NATIONAL_DIGITS = 9;
+
+    /**
+     * Strip input to Saudi national mobile digits (5XXXXXXXX), max 9 chars.
+     */
+    public static function sanitizeNationalInput(?string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', $phone ?? '') ?? '';
+
+        if (str_starts_with($digits, '00966')) {
+            $digits = substr($digits, 5);
+        } elseif (str_starts_with($digits, '966')) {
+            $digits = substr($digits, 3);
+        } elseif (str_starts_with($digits, '0')) {
+            $digits = substr($digits, 1);
+        }
+
+        return substr($digits, 0, self::NATIONAL_DIGITS);
+    }
+
     /**
      * Normalize Saudi phone numbers to E.164 digits without plus (9665xxxxxxxx).
      */

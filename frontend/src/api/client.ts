@@ -1,25 +1,28 @@
 import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 import { getAffiliateSessionFingerprint } from '../lib/affiliateSession.ts';
+import { resolveApiContextFromUrl } from '../lib/auth/applicationContext.ts';
+import { notifyUnauthorized } from '../lib/auth/sessionEvents.ts';
 import { ensureCsrfCookie, readXsrfToken } from '../lib/csrf.ts';
 import { readStoredLocale } from '../lib/i18n/storage.ts';
 import { env } from '../lib/env.ts';
-import { notifyUnauthorized } from '../lib/auth/sessionEvents.ts';
 import type { ApiErrorResponse } from '../types/api.ts';
 import { isApiErrorDetail, parseApiError } from '../utils/errors.ts';
 
 type RetryableConfig = InternalAxiosRequestConfig & { _csrfRetry?: boolean };
 
-export const apiClient: AxiosInstance = axios.create({
-  baseURL: env.apiUrl,
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
-  xsrfCookieName: 'XSRF-TOKEN',
-  xsrfHeaderName: 'X-XSRF-TOKEN',
-  timeout: 30_000,
-});
+function createApiClient(): AxiosInstance {
+  return axios.create({
+    baseURL: env.apiUrl,
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    withCredentials: true,
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+    timeout: 30_000,
+  });
+}
 
 function attachLocaleHeader(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
   config.headers.set('Accept-Language', readStoredLocale());
@@ -56,7 +59,9 @@ function shouldNotifyUnauthorized(url: string | undefined): boolean {
 
   const ignored = [
     '/auth/me',
+    '/admin/session',
     '/auth/login',
+    '/admin/auth/login',
     '/auth/register',
     '/auth/verify-otp',
     '/auth/verify-password-reset-otp',
@@ -67,31 +72,44 @@ function shouldNotifyUnauthorized(url: string | undefined): boolean {
   return !ignored.some((segment) => url.includes(segment));
 }
 
-apiClient.interceptors.request.use((config) =>
-  attachCsrfHeader(attachAffiliateSessionHeader(attachLocaleHeader(config))),
-);
+function attachInterceptors(client: AxiosInstance): AxiosInstance {
+  client.interceptors.request.use((config) =>
+    attachCsrfHeader(attachAffiliateSessionHeader(attachLocaleHeader(config))),
+  );
 
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error: AxiosError<ApiErrorResponse>) => {
-    const config = error.config as RetryableConfig | undefined;
+  client.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError<ApiErrorResponse>) => {
+      const config = error.config as RetryableConfig | undefined;
 
-    if (error.response?.status === 419 && config && !config._csrfRetry) {
-      config._csrfRetry = true;
-      await ensureCsrfCookie();
-      const token = readXsrfToken();
-      if (token) {
-        config.headers.set('X-XSRF-TOKEN', token);
+      if (error.response?.status === 419 && config && !config._csrfRetry) {
+        config._csrfRetry = true;
+        await ensureCsrfCookie();
+        const token = readXsrfToken();
+        if (token) {
+          config.headers.set('X-XSRF-TOKEN', token);
+        }
+        return client.request(config);
       }
-      return apiClient.request(config);
-    }
 
-    const parsed = isApiErrorDetail(error) ? error : parseApiError(error);
+      const parsed = isApiErrorDetail(error) ? error : parseApiError(error);
 
-    if (parsed.status === 401 && shouldNotifyUnauthorized(error.config?.url)) {
-      notifyUnauthorized();
-    }
+      if (parsed.status === 401 && shouldNotifyUnauthorized(error.config?.url)) {
+        notifyUnauthorized(resolveApiContextFromUrl(error.config?.url));
+      }
 
-    return Promise.reject(parsed);
-  },
-);
+      return Promise.reject(parsed);
+    },
+  );
+
+  return client;
+}
+
+/** Marketplace storefront API client — `/api/v1/*` excluding admin routes. */
+export const marketplaceApi = attachInterceptors(createApiClient());
+
+/** Admin operations API client — `/api/v1/admin/*`. */
+export const adminApi = attachInterceptors(createApiClient());
+
+/** @deprecated Use `marketplaceApi` for storefront calls or `adminApi` for admin calls. */
+export const apiClient = marketplaceApi;

@@ -6,6 +6,7 @@ use App\Models\ReturnRequest;
 use App\Models\User;
 use App\Models\VendorOrder;
 use App\Services\Vendor\VendorAccessService;
+use App\Support\Identity\MarketplaceAccess;
 use App\Support\Vendor\VendorAccessResolver;
 
 class ReturnRequestPolicy
@@ -17,10 +18,6 @@ class ReturnRequestPolicy
 
     public function view(User $user, ReturnRequest $returnRequest): bool
     {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
         if ($returnRequest->user_id === $user->id) {
             return true;
         }
@@ -30,15 +27,11 @@ class ReturnRequestPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole('customer') || $user->hasRole('admin');
+        return MarketplaceAccess::canAccessMarketplace($user);
     }
 
     public function manage(User $user, ReturnRequest $returnRequest): bool
     {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
         return $this->belongsToVendor($user, $returnRequest)
             && app(VendorAccessService::class)->canWrite($user, 'returns');
     }

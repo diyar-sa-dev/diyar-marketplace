@@ -10,6 +10,8 @@ export const env = {
     import.meta.env.VITE_API_URL ??
     (import.meta.env.DEV ? '/api/v1' : 'http://localhost:8000/api/v1'),
   backendUrl: import.meta.env.VITE_BACKEND_URL ?? '',
+  /** In-app React admin SPA route (same origin as marketplace). */
+  adminPanelUrl: import.meta.env.VITE_ADMIN_PANEL_URL ?? '/admin',
   appName: import.meta.env.VITE_APP_NAME ?? 'DIYAR',
   isDev: import.meta.env.DEV,
   reverb: {

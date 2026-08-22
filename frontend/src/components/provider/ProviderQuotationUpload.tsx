@@ -31,7 +31,7 @@ export function ProviderQuotationUpload({
             <img src={preview} alt="" className="w-full h-36 object-cover" />
           ) : (
             <div className="flex items-center gap-3 p-4">
-              <div className="w-12 h-12 rounded-lg bg-white border border-gray-100 flex items-center justify-center text-diyar-brown">
+              <div className="w-12 h-12 rounded-lg bg-white border border-gray-100 flex items-center justify-center text-blue-600">
                 <FileText size={22} />
               </div>
               <div className="min-w-0 flex-1">
@@ -45,7 +45,7 @@ export function ProviderQuotationUpload({
               type="button"
               disabled={disabled}
               onClick={() => inputRef.current?.click()}
-              className="px-2.5 py-1.5 rounded-lg bg-white/95 text-xs font-bold text-diyar-brown border border-gray-200 hover:bg-white cursor-pointer disabled:opacity-60"
+              className="px-2.5 py-1.5 rounded-lg bg-white/95 text-xs font-bold text-blue-600 border border-gray-200 hover:bg-white cursor-pointer disabled:opacity-60"
             >
               {t('providerDashboard.clientRequestDetails.quotationReplace')}
             </button>
@@ -65,7 +65,7 @@ export function ProviderQuotationUpload({
           type="button"
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
-          className="flex items-center justify-center gap-2 w-full bg-gray-50 border border-dashed border-gray-300 rounded-xl px-4 py-6 text-sm text-gray-600 hover:bg-gray-100 hover:border-diyar-brown transition-colors cursor-pointer disabled:opacity-60"
+          className="flex items-center justify-center gap-2 w-full bg-gray-50 border border-dashed border-gray-300 rounded-xl px-4 py-6 text-sm text-gray-600 hover:bg-gray-100 hover:border-blue-600 transition-colors cursor-pointer disabled:opacity-60"
         >
           {disabled ? (
             <Loader2 size={16} className="animate-spin" />

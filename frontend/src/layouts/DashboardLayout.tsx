@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { usePortalTheme } from '../lib/dashboard/portalTheme.ts';
 import {
   Store,
   Wrench,
@@ -32,6 +33,8 @@ import {
   getAccessibleDashboardPortals,
   getPortalByKey,
   getPortalFromPath,
+  hasDashboardAccess,
+  isAdminOnlyAccount,
   resolveAccountHubPath,
   resolveChatHubPath,
   type DashboardPortalKey,
@@ -58,6 +61,7 @@ export default function DashboardLayout() {
   }, [location.search]);
 
   const role = getPortalFromPath(location.pathname);
+  const portalTheme = usePortalTheme(role ?? undefined);
   const isVendorPortal = role === 'vendor';
   const isServicePortal = role === 'service';
   const { data: vendorAccess } = useVendorAccess(isVendorPortal);
@@ -74,6 +78,10 @@ export default function DashboardLayout() {
   const activePortal = role ? getPortalByKey(role) : null;
   const showRoleSwitcher = Boolean(role) && accessiblePortals.length > 1;
   const sidebarHiddenTransform = dir === 'rtl' ? 'translate-x-full' : '-translate-x-full';
+
+  if (isAdminOnlyAccount(user?.roles) || !hasDashboardAccess(user?.roles)) {
+    return <Navigate to="/403" replace />;
+  }
 
   const PORTAL_ICONS: Record<DashboardPortalKey, typeof Store> = {
     vendor: Store,
@@ -358,7 +366,7 @@ export default function DashboardLayout() {
 
             <Link
               to={resolveAccountHubPath(user?.roles)}
-              className="shrink-0 rounded-full transition-all hover:ring-2 hover:ring-diyar-brown/30"
+              className={`shrink-0 rounded-full transition-all hover:ring-2 ${portalTheme.avatarRing}`}
               title={t('common.myAccount')}
             >
               <UserAvatar name={headerAvatarName} avatarUrl={headerAvatarUrl} size="sm" />
@@ -372,10 +380,11 @@ export default function DashboardLayout() {
                   navigate('/');
                 })
               }
-              className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 p-2 text-sm font-medium transition hover:bg-gray-50 cursor-pointer md:px-3"
+              aria-label={t('common.logout')}
             >
               <LogOut size={16} />
-              {t('common.logout')}
+              <span className="hidden md:inline">{t('common.logout')}</span>
             </button>
           </div>
         </header>

@@ -4,6 +4,7 @@ namespace Tests\Feature\Api\V1\Identity;
 
 use App\Enums\RoleName;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;
 
@@ -62,14 +63,15 @@ class OwnershipAuthorizationTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_admin_can_view_any_vendor_account(): void
+    public function test_admin_cannot_view_vendor_account_via_marketplace_api(): void
     {
         $admin = $this->createUserWithRole(RoleName::Admin, ['phone' => '966504040404']);
         $vendor = $this->createUserWithRole(RoleName::Vendor, ['phone' => '966504040405']);
 
-        $this->actingAs($admin, 'web')
-            ->getJson('/api/v1/vendor/accounts/'.$vendor->vendorAccount->id)
-            ->assertOk();
+        Sanctum::actingAs($admin, ['*'], 'web');
+
+        $this->getJson('/api/v1/vendor/accounts/'.$vendor->vendorAccount->id)
+            ->assertForbidden();
     }
 
     public function test_unauthenticated_access_returns_401(): void

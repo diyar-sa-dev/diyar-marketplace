@@ -6,8 +6,10 @@ use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Enums\UserStatus;
 use App\Models\User;
+use App\Support\Identity\MarketplaceAccess;
 use App\Support\User\UserNotificationPreferences;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,10 +26,16 @@ final class AuthService
 
     public function establishSession(User $user, bool $remember = false): User
     {
-        Auth::guard('web')->login($user, remember: $remember);
+        return $this->establishMarketplaceSession($user, $remember);
+    }
 
-        if (request()->hasSession()) {
-            request()->session()->regenerate();
+    public function establishMarketplaceSession(User $user, bool $remember = false): User
+    {
+        $guard = Auth::guard('web');
+
+        if (! $guard->check() || (string) $guard->id() !== (string) $user->getAuthIdentifier()) {
+            $guard->login($user, remember: $remember);
+            $this->regenerateSessionForContextLogin('admin');
         }
 
         $user = $user->load('roles');
@@ -37,6 +45,36 @@ final class AuthService
         );
 
         return $user;
+    }
+
+    public function establishAdminSession(User $user, bool $remember = false): User
+    {
+        $guard = Auth::guard('admin');
+
+        if (! $guard->check() || (string) $guard->id() !== (string) $user->getAuthIdentifier()) {
+            $guard->login($user, remember: $remember);
+            $this->regenerateSessionForContextLogin('web');
+        }
+
+        return $user->load('roles');
+    }
+
+    private function regenerateSessionForContextLogin(string $otherGuard): void
+    {
+        if (! request()->hasSession()) {
+            return;
+        }
+
+        $session = request()->session();
+
+        if (Auth::guard($otherGuard)->check()) {
+            $session->regenerateToken();
+            $session->save();
+
+            return;
+        }
+
+        $session->regenerate();
     }
 
     public function loginWithPhone(string $phoneRaw, string $password, bool $remember = false): User
@@ -62,14 +100,114 @@ final class AuthService
         );
     }
 
+    public function loginForAdminWithPhone(string $phoneRaw, string $password, bool $remember = false): User
+    {
+        $phone = PhoneNormalizer::normalize($phoneRaw);
+        if ($phone === null) {
+            $this->hitRateLimiter('phone', $phoneRaw);
+            throw ValidationException::withMessages([
+                'credentials' => [__('auth.failed')],
+            ]);
+        }
+
+        return $this->attemptForAdminPanel(['phone' => $phone, 'password' => $password], 'phone', $phoneRaw, $remember);
+    }
+
+    public function loginForAdminWithEmail(string $email, string $password, bool $remember = false): User
+    {
+        return $this->attemptForAdminPanel(
+            ['email' => strtolower(trim($email)), 'password' => $password],
+            'email',
+            strtolower(trim($email)),
+            $remember,
+        );
+    }
+
     public function logout(): void
     {
+        $this->logoutMarketplace();
+    }
+
+    public function logoutMarketplace(): void
+    {
+        $adminUser = Auth::guard('admin')->user();
+
         Auth::guard('web')->logout();
 
-        if (request()->hasSession()) {
-            request()->session()->invalidate();
-            request()->session()->regenerateToken();
+        if (! request()->hasSession()) {
+            return;
         }
+
+        $session = request()->session();
+
+        if ($adminUser !== null) {
+            Auth::guard('admin')->login($adminUser);
+            $this->forgetWebSessionKeys($session);
+            $session->regenerateToken();
+            $session->save();
+
+            return;
+        }
+
+        $session->invalidate();
+        $session->regenerateToken();
+    }
+
+    public function logoutAdmin(): void
+    {
+        $marketplaceUser = Auth::guard('web')->user();
+
+        Auth::guard('admin')->logout();
+
+        if (! request()->hasSession()) {
+            return;
+        }
+
+        $session = request()->session();
+
+        if ($marketplaceUser !== null) {
+            Auth::guard('web')->login($marketplaceUser);
+            $this->forgetAdminSessionKeys($session);
+            $session->regenerateToken();
+            $session->save();
+
+            return;
+        }
+
+        $session->invalidate();
+        $session->regenerateToken();
+    }
+
+    /**
+     * @param  Session  $session
+     */
+    private function forgetWebSessionKeys($session): void
+    {
+        Auth::guard('web')->forgetUser();
+
+        foreach (array_keys($session->all()) as $key) {
+            if (str_starts_with($key, 'login_web_')) {
+                $session->forget($key);
+            }
+        }
+
+        $session->forget('password_hash_web');
+    }
+
+    /**
+     * @param  Session  $session
+     */
+    private function forgetAdminSessionKeys($session): void
+    {
+        Auth::guard('admin')->forgetUser();
+
+        foreach (array_keys($session->all()) as $key) {
+            if (str_starts_with($key, 'login_admin_')) {
+                $session->forget($key);
+            }
+        }
+
+        $session->forget('password_hash_admin');
     }
 
     /**
@@ -114,7 +252,56 @@ final class AuthService
             $this->beginEmailVerification($user, $remember);
         }
 
-        return $this->establishSession($user, $remember);
+        if (! MarketplaceAccess::canAccessMarketplace($user)) {
+            Auth::guard('web')->logout();
+
+            throw ValidationException::withMessages([
+                'credentials' => [__('auth.failed')],
+            ]);
+        }
+
+        return $this->establishMarketplaceSession($user, $remember);
+    }
+
+    /**
+     * @param  array<string, mixed>  $credentials
+     */
+    private function attemptForAdminPanel(array $credentials, string $key, string $identifier, bool $remember = false): User
+    {
+        $this->ensureIsNotRateLimited($key, $identifier);
+
+        if (! Auth::guard('admin')->attempt($credentials, remember: $remember)) {
+            RateLimiter::hit($this->throttleKey($key, $identifier), decaySeconds: $this->decaySeconds());
+            throw ValidationException::withMessages([
+                'credentials' => [__('auth.failed')],
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey($key, $identifier));
+
+        /** @var User $user */
+        $user = Auth::guard('admin')->user();
+
+        if (! $user->isActive()) {
+            Auth::guard('admin')->logout();
+
+            throw ValidationException::withMessages([
+                'credentials' => [match ($user->status) {
+                    UserStatus::Suspended, UserStatus::Rejected => __('account.suspended'),
+                    default => __('auth.failed'),
+                }],
+            ]);
+        }
+
+        if (! MarketplaceAccess::canAccessAdminPanel($user)) {
+            Auth::guard('admin')->logout();
+
+            throw ValidationException::withMessages([
+                'credentials' => [__('auth.failed')],
+            ]);
+        }
+
+        return $this->establishAdminSession($user, $remember);
     }
 
     private function requiresEmailVerification(User $user): bool

@@ -343,7 +343,11 @@ export default function VendorDashboard() {
           </div>
 
           {overview.recent_orders.length === 0 ? (
-            <p className="text-sm text-gray-500">{t('vendor.dashboard.emptyRecentOrders')}</p>
+            <div className="flex flex-1 items-center justify-center">
+              <p className="text-center text-sm text-gray-500">
+                {t('vendor.dashboard.emptyRecentOrders')}
+              </p>
+            </div>
           ) : (
             <div className="space-y-3 flex-1 overflow-y-auto">
               {overview.recent_orders.map((order) => (
@@ -388,7 +392,11 @@ export default function VendorDashboard() {
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
           <h3 className="font-bold text-diyar-dark mb-4">{t('vendor.dashboard.topSelling')}</h3>
           {(topSellingProducts.length ?? 0) === 0 ? (
-            <p className="text-sm text-gray-500">{t('vendor.dashboard.emptyRecentOrders')}</p>
+            <div className="flex min-h-32 items-center justify-center">
+              <p className="text-center text-sm text-gray-500">
+                {t('vendor.dashboard.emptyRecentOrders')}
+              </p>
+            </div>
           ) : (
             <div className="space-y-3">
               {topSellingProducts.map((product) => (

@@ -128,7 +128,9 @@ export default function AffiliateLinks() {
                     <th className="px-6 py-4 font-bold">{t('affiliate.links.tableConversions')}</th>
                     <th className="px-6 py-4 font-bold">{t('affiliate.links.tableEarnings')}</th>
                     <th className="px-6 py-4 font-bold">{t('affiliate.reports.tableStatus')}</th>
-                    <th className="px-6 py-4 font-bold text-center">{t('affiliate.links.tableActions')}</th>
+                    <th className="px-6 py-4 font-bold text-center">
+                      {t('affiliate.links.tableActions')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -147,7 +149,9 @@ export default function AffiliateLinks() {
                             {t(`affiliate.sources.${link.source}` as 'affiliate.sources.instagram')}
                           </span>
                         ) : (
-                          <span className="text-gray-400 text-xs">{t('affiliate.common.noData')}</span>
+                          <span className="text-gray-400 text-xs">
+                            {t('affiliate.common.noData')}
+                          </span>
                         )}
                       </td>
                       <td className="px-6 py-4">

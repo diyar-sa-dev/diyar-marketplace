@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Affiliate\RejectAffiliatePayoutRequest;
 use App\Http\Resources\AffiliatePayoutResource;
 use App\Models\AffiliatePayout;
+use App\Models\User;
 use App\Services\Affiliate\AffiliateAdminPayoutService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -20,7 +21,7 @@ class AdminAffiliatePayoutController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('viewAny', AffiliatePayout::class);
+        $this->authorizeAdmin('viewAny', AffiliatePayout::class);
 
         $payouts = AffiliatePayout::query()
             ->with(['profile.user'])
@@ -41,10 +42,10 @@ class AdminAffiliatePayoutController extends Controller
 
     public function approve(Request $request, AffiliatePayout $affiliatePayout): JsonResponse
     {
-        $this->authorize('approve', AffiliatePayout::class);
+        $admin = $this->authorizeAdmin('approve', AffiliatePayout::class);
 
         try {
-            $updated = $this->payouts->approve($affiliatePayout, $request->user());
+            $updated = $this->payouts->approve($affiliatePayout, $admin);
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
         }
@@ -54,10 +55,10 @@ class AdminAffiliatePayoutController extends Controller
 
     public function markProcessing(Request $request, AffiliatePayout $affiliatePayout): JsonResponse
     {
-        $this->authorize('markProcessing', AffiliatePayout::class);
+        $admin = $this->authorizeAdmin('markProcessing', AffiliatePayout::class);
 
         try {
-            $updated = $this->payouts->markProcessing($affiliatePayout, $request->user());
+            $updated = $this->payouts->markProcessing($affiliatePayout, $admin);
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
         }
@@ -67,10 +68,10 @@ class AdminAffiliatePayoutController extends Controller
 
     public function reject(RejectAffiliatePayoutRequest $request, AffiliatePayout $affiliatePayout): JsonResponse
     {
-        $this->authorize('reject', AffiliatePayout::class);
+        $admin = $this->authorizeAdmin('reject', AffiliatePayout::class);
 
         try {
-            $updated = $this->payouts->reject($affiliatePayout, $request->user(), $request->validated('reason'));
+            $updated = $this->payouts->reject($affiliatePayout, $admin, $request->validated('reason'));
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
         }
@@ -80,12 +81,12 @@ class AdminAffiliatePayoutController extends Controller
 
     public function markPaid(Request $request, AffiliatePayout $affiliatePayout): JsonResponse
     {
-        $this->authorize('markPaid', AffiliatePayout::class);
+        $admin = $this->authorizeAdmin('markPaid', AffiliatePayout::class);
 
         try {
             $updated = $this->payouts->markPaid(
                 $affiliatePayout,
-                $request->user(),
+                $admin,
                 $request->input('payment_reference'),
             );
         } catch (InvalidArgumentException $exception) {
@@ -96,5 +97,19 @@ class AdminAffiliatePayoutController extends Controller
             ['payout' => new AffiliatePayoutResource($updated)],
             message: __('diyar.affiliate.payout_marked_paid'),
         );
+    }
+
+    private function authorizeAdmin(string $ability, string $modelClass): User
+    {
+        /** @var User|null $admin */
+        $admin = request()->user('admin');
+
+        if ($admin === null) {
+            abort(401);
+        }
+
+        $this->authorizeForUser($admin, $ability, $modelClass);
+
+        return $admin;
     }
 }

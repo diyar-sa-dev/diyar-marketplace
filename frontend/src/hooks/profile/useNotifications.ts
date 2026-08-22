@@ -9,8 +9,10 @@ import {
 } from '../../api/notifications.ts';
 import type { NotificationFilter, NotificationStatusFilter } from '../../types/notification.ts';
 
+import { marketplaceQueryKey } from '../../lib/auth/queryKeys.ts';
+
 export const notificationKeys = {
-  all: ['notifications'] as const,
+  all: marketplaceQueryKey('notifications'),
   list: (page: number, status: NotificationStatusFilter, category: string | null, perPage = 20) =>
     [...notificationKeys.all, 'list', page, status, category ?? 'all', perPage] as const,
   unreadCount: () => [...notificationKeys.all, 'unread-count'] as const,

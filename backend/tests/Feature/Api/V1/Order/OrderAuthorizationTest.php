@@ -5,9 +5,11 @@ namespace Tests\Feature\Api\V1\Order;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\RoleName;
+use App\Enums\RoleStatus;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\Role;
 use App\Models\VendorOrder;
 use App\Services\Order\PaymentStateService;
 use Illuminate\Contracts\Console\Kernel;
@@ -45,6 +47,40 @@ class OrderAuthorizationTest extends TestCase
         $orderId = $response->json('data.order.id');
 
         $this->getJsonAsUser('/api/v1/orders/'.$orderId, $other)->assertForbidden();
+    }
+
+    public function test_dual_role_admin_cannot_view_another_customers_order_via_marketplace(): void
+    {
+        $owner = $this->createUserWithRole(RoleName::Customer);
+        $adminVendor = $this->createUserWithRole(RoleName::Vendor);
+        $this->attachRole($adminVendor, RoleName::Admin);
+        $adminVendor = $adminVendor->fresh('roles');
+
+        $product = Product::factory()->create(['sale_price' => 100.00]);
+        $this->createVendorShippingSettings($product->vendorAccount);
+        $address = $this->createCustomerAddress($owner);
+        $this->addProductToUserCart($owner, $product);
+
+        $response = $this->postJsonAsUser(
+            '/api/v1/orders',
+            $owner,
+            $this->checkoutPayload($address, $product),
+            ['Idempotency-Key' => (string) Str::uuid()],
+        )->assertCreated();
+
+        $orderId = $response->json('data.order.id');
+
+        $this->getJsonAsUser('/api/v1/orders/'.$orderId, $adminVendor)->assertForbidden();
+    }
+
+    private function attachRole($user, RoleName $role): void
+    {
+        $this->seedRoles();
+        $roleModel = Role::query()->where('name', $role->value)->firstOrFail();
+        $user->roles()->attach($roleModel->id, [
+            'id' => (string) str()->uuid(),
+            'status' => RoleStatus::Active->value,
+        ]);
     }
 
     public function test_vendor_cannot_view_another_vendors_vendor_order(): void

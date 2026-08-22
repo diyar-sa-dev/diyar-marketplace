@@ -148,7 +148,7 @@ export default function ServiceReviewsInbox() {
                     setReplyTarget(review);
                     setReplyText('');
                   }}
-                  className="inline-flex items-center gap-2 text-sm font-bold text-diyar-brown hover:text-orange-700 cursor-pointer"
+                  className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-orange-700 cursor-pointer"
                 >
                   <MessageSquare size={16} /> {t('providerDashboard.reviewsInbox.reply')}
                 </button>
@@ -198,14 +198,14 @@ export default function ServiceReviewsInbox() {
               rows={4}
               maxLength={2000}
               placeholder={t('providerDashboard.reviewsInbox.replyPlaceholder')}
-              className="w-full rounded-xl border border-gray-200 p-3 text-sm focus:outline-none focus:border-diyar-brown focus:ring-2 focus:ring-diyar-brown/10 resize-y min-h-24"
+              className="w-full rounded-xl border border-gray-200 p-3 text-sm focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 resize-y min-h-24"
             />
 
             <button
               type="button"
               disabled={replyReview.isPending || !replyText.trim()}
               onClick={() => void handleReply()}
-              className="w-full mt-4 bg-diyar-brown text-white py-3 rounded-xl font-bold hover:bg-orange-700 disabled:opacity-60 cursor-pointer flex items-center justify-center gap-2"
+              className="w-full mt-4 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-60 cursor-pointer flex items-center justify-center gap-2"
             >
               {replyReview.isPending ? (
                 <Loader2 size={18} className="animate-spin" />

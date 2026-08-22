@@ -1,0 +1,256 @@
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache
+    |--------------------------------------------------------------------------
+    */
+
+    'cache_ttl_seconds' => (int) env('DIYAR_SETTINGS_CACHE_TTL', 3600),
+
+    'cache_prefix' => env('DIYAR_SETTINGS_CACHE_PREFIX', 'diyar:settings:'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sensitive key patterns (never public, never seeded from secrets)
+    |--------------------------------------------------------------------------
+    */
+
+    'sensitive_key_patterns' => [
+        'password',
+        'secret',
+        'api_key',
+        'token',
+        'credential',
+        'private_key',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Setting definitions (validation + metadata for admin UI)
+    |--------------------------------------------------------------------------
+    */
+
+    'definitions' => [
+
+        // Affiliate
+        'affiliate.platform_min_commission_percent' => [
+            'group' => 'affiliate',
+            'key' => 'platform_min_commission_percent',
+            'type' => 'decimal',
+            'config_path' => 'diyar.affiliate.platform_min_commission_percent',
+            'is_public' => false,
+            'validation' => ['required', 'numeric', 'min:0', 'max:100'],
+        ],
+        'affiliate.platform_max_commission_percent' => [
+            'group' => 'affiliate',
+            'key' => 'platform_max_commission_percent',
+            'type' => 'decimal',
+            'config_path' => 'diyar.affiliate.platform_max_commission_percent',
+            'is_public' => false,
+            'validation' => ['required', 'numeric', 'min:0', 'max:100'],
+        ],
+        'affiliate.attribution_window_days' => [
+            'group' => 'affiliate',
+            'key' => 'attribution_window_days',
+            'type' => 'integer',
+            'config_path' => 'diyar.affiliate.attribution_window_days',
+            'is_public' => false,
+            'validation' => ['required', 'integer', 'min:1', 'max:365'],
+        ],
+        'affiliate.payout_minimum' => [
+            'group' => 'affiliate',
+            'key' => 'payout_minimum',
+            'type' => 'decimal',
+            'config_path' => 'diyar.affiliate.payout_minimum',
+            'is_public' => false,
+            'validation' => ['required', 'numeric', 'min:0'],
+        ],
+        'affiliate.currency' => [
+            'group' => 'affiliate',
+            'key' => 'currency',
+            'type' => 'string',
+            'config_path' => 'diyar.affiliate.currency',
+            'is_public' => false,
+            'validation' => ['required', 'string', 'size:3'],
+        ],
+
+        // Commerce
+        'commerce.vat_rate' => [
+            'group' => 'commerce',
+            'key' => 'vat_rate',
+            'type' => 'decimal',
+            'config_path' => 'diyar.commerce.vat_rate',
+            'is_public' => false,
+            'validation' => ['required', 'numeric', 'min:0', 'max:1'],
+        ],
+        'commerce.currency' => [
+            'group' => 'commerce',
+            'key' => 'currency',
+            'type' => 'string',
+            'config_path' => 'diyar.commerce.currency',
+            'is_public' => false,
+            'validation' => ['required', 'string', 'size:3'],
+        ],
+        'commerce.cart_max_quantity_per_item' => [
+            'group' => 'commerce',
+            'key' => 'cart_max_quantity_per_item',
+            'type' => 'integer',
+            'config_path' => 'diyar.commerce.cart_max_quantity_per_item',
+            'is_public' => false,
+            'validation' => ['required', 'integer', 'min:1', 'max:999'],
+        ],
+
+        // Orders
+        'orders.inventory_reservation_timeout_minutes' => [
+            'group' => 'orders',
+            'key' => 'inventory_reservation_timeout_minutes',
+            'type' => 'integer',
+            'config_path' => 'diyar.orders.inventory_reservation_timeout_minutes',
+            'is_public' => false,
+            'validation' => ['required', 'integer', 'min:1', 'max:1440'],
+        ],
+
+        // Shipping
+        'shipping.default_carrier_flat_rate' => [
+            'group' => 'shipping',
+            'key' => 'default_carrier_flat_rate',
+            'type' => 'decimal',
+            'config_path' => 'diyar.shipping.default_carrier_flat_rate',
+            'is_public' => false,
+            'validation' => ['required', 'numeric', 'min:0'],
+        ],
+
+        // Payouts
+        'payouts.vendor_minimum' => [
+            'group' => 'payouts',
+            'key' => 'vendor_minimum',
+            'type' => 'decimal',
+            'config_path' => 'diyar.payouts.vendor_minimum',
+            'is_public' => false,
+            'validation' => ['required', 'numeric', 'min:0'],
+        ],
+        'payouts.affiliate_minimum' => [
+            'group' => 'payouts',
+            'key' => 'affiliate_minimum',
+            'type' => 'decimal',
+            'config_path' => 'diyar.payouts.affiliate_minimum',
+            'is_public' => false,
+            'validation' => ['required', 'numeric', 'min:0'],
+        ],
+
+        // Services
+        'services.platform_commission_rate' => [
+            'group' => 'services',
+            'key' => 'platform_commission_rate',
+            'type' => 'decimal',
+            'config_path' => 'diyar.services.platform_commission_rate',
+            'is_public' => false,
+            'validation' => ['required', 'numeric', 'min:0', 'max:1'],
+        ],
+        'services.default_booking_duration_minutes' => [
+            'group' => 'services',
+            'key' => 'default_booking_duration_minutes',
+            'type' => 'integer',
+            'config_path' => 'diyar.services.default_booking_duration_minutes',
+            'is_public' => false,
+            'validation' => ['required', 'integer', 'min:15', 'max:480'],
+        ],
+
+        // Notifications
+        'notifications.realtime_enabled' => [
+            'group' => 'notifications',
+            'key' => 'realtime_enabled',
+            'type' => 'boolean',
+            'config_path' => 'diyar.notifications.realtime_enabled',
+            'is_public' => false,
+            'validation' => ['required', 'boolean'],
+        ],
+
+        // Feature flags
+        'feature.affiliate_enabled' => [
+            'group' => 'feature',
+            'key' => 'affiliate_enabled',
+            'type' => 'boolean',
+            'config_path' => 'diyar.feature.affiliate_enabled',
+            'is_public' => false,
+            'validation' => ['required', 'boolean'],
+        ],
+        'feature.reviews_enabled' => [
+            'group' => 'feature',
+            'key' => 'reviews_enabled',
+            'type' => 'boolean',
+            'config_path' => 'diyar.feature.reviews_enabled',
+            'is_public' => false,
+            'validation' => ['required', 'boolean'],
+        ],
+        'feature.services_enabled' => [
+            'group' => 'feature',
+            'key' => 'services_enabled',
+            'type' => 'boolean',
+            'config_path' => 'diyar.feature.services_enabled',
+            'is_public' => false,
+            'validation' => ['required', 'boolean'],
+        ],
+        'feature.coupons_enabled' => [
+            'group' => 'feature',
+            'key' => 'coupons_enabled',
+            'type' => 'boolean',
+            'config_path' => 'diyar.feature.coupons_enabled',
+            'is_public' => false,
+            'validation' => ['required', 'boolean'],
+        ],
+
+        // Theme (public tokens for storefront bootstrap)
+        'theme.primary_color' => [
+            'group' => 'theme',
+            'key' => 'primary_color',
+            'type' => 'color',
+            'config_path' => 'diyar.theme.primary_color',
+            'is_public' => true,
+            'validation' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+        ],
+        'theme.primary_dark' => [
+            'group' => 'theme',
+            'key' => 'primary_dark',
+            'type' => 'color',
+            'config_path' => 'diyar.theme.primary_dark',
+            'is_public' => true,
+            'validation' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+        ],
+        'theme.surface_color' => [
+            'group' => 'theme',
+            'key' => 'surface_color',
+            'type' => 'color',
+            'config_path' => 'diyar.theme.surface_color',
+            'is_public' => true,
+            'validation' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+        ],
+        'theme.border_radius' => [
+            'group' => 'theme',
+            'key' => 'border_radius',
+            'type' => 'string',
+            'config_path' => 'diyar.theme.border_radius',
+            'is_public' => true,
+            'validation' => ['required', 'string', 'max:32'],
+        ],
+        'theme.font_family_ar' => [
+            'group' => 'theme',
+            'key' => 'font_family_ar',
+            'type' => 'string',
+            'config_path' => 'diyar.theme.font_family_ar',
+            'is_public' => true,
+            'validation' => ['required', 'string', 'max:255'],
+        ],
+        'theme.font_family_en' => [
+            'group' => 'theme',
+            'key' => 'font_family_en',
+            'type' => 'string',
+            'config_path' => 'diyar.theme.font_family_en',
+            'is_public' => true,
+            'validation' => ['required', 'string', 'max:255'],
+        ],
+    ],
+];

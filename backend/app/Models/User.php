@@ -89,6 +89,42 @@ class User extends Authenticatable
         return $this->hasOne(ProviderAccount::class);
     }
 
+    public function adminAuditLogsAsResource(): HasMany
+    {
+        return $this->hasMany(AdminAuditLog::class, 'resource_id')
+            ->where('resource_type', self::class);
+    }
+
+    public function adminAuditLogsAsActor(): HasMany
+    {
+        return $this->hasMany(AdminAuditLog::class, 'actor_id');
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function productReviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    public function storeReviews(): HasMany
+    {
+        return $this->hasMany(StoreReview::class);
+    }
+
+    public function providerReviews(): HasMany
+    {
+        return $this->hasMany(ProviderReview::class);
+    }
+
+    public function serviceBookings(): HasMany
+    {
+        return $this->hasMany(ServiceBooking::class);
+    }
+
     public function hasRole(string|RoleName $roleName): bool
     {
         $name = $roleName instanceof RoleName ? $roleName->value : $roleName;

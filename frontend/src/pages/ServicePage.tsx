@@ -37,6 +37,8 @@ import type { ServiceBookingStatus } from '../types/serviceRequests.ts';
 import type { ServiceUserActiveBooking } from '../types/services.ts';
 import { useServiceWishlistMutation } from '../hooks/services/useServiceEngagement.ts';
 import { useStartChat } from '../hooks/chat/useStartChat.ts';
+import { shouldHideMarketplaceCommerce } from '../lib/marketplaceCommerce.ts';
+import { buildWhatsAppUrl } from '../lib/whatsapp.ts';
 
 function resolveActiveBookingHint(
   booking: ServiceUserActiveBooking,
@@ -86,6 +88,19 @@ export default function ServicePage() {
 
   const provider = service?.provider;
   const providerSlug = provider?.slug ?? '';
+  const whatsappUrl = useMemo(() => {
+    if (!provider?.contact_phone || !service) {
+      return null;
+    }
+
+    return buildWhatsAppUrl(
+      provider.contact_phone,
+      t('serviceMarketplace.detail.whatsappPrefill', {
+        provider: provider.display_name,
+        service: service.title,
+      }),
+    );
+  }, [provider, service, t]);
   const galleryImages = useMemo(() => {
     const portfolio = service?.portfolio?.map((item) => item.media_url).filter(Boolean) as string[];
     if (portfolio && portfolio.length > 0) {
@@ -159,6 +174,7 @@ export default function ServicePage() {
   const features = service.features ?? [];
   const isDirectBooking = service.booking_mode === 'direct';
   const isOwnProvider = Boolean(service.provider?.is_own_provider);
+  const isCommerceBlocked = isOwnProvider || shouldHideMarketplaceCommerce(user?.roles);
   const activeBooking = service.user_active_booking ?? null;
 
   const handleSendMessage = async () => {
@@ -167,7 +183,7 @@ export default function ServicePage() {
       return;
     }
 
-    if (!provider || isOwnProvider) {
+    if (!provider || isCommerceBlocked) {
       toast.warning(t('chat.selfChatNotAllowed'));
       return;
     }
@@ -321,7 +337,7 @@ export default function ServicePage() {
               </div>
             </div>
 
-            {!isOwnProvider && (
+            {!isCommerceBlocked && (
               <div className="flex flex-col gap-3 md:w-auto w-full md:min-w-52">
                 {activeBooking && (
                   <div className="rounded-xl border border-diyar-brown/20 bg-diyar-brown/5 p-4 space-y-3">
@@ -459,19 +475,30 @@ export default function ServicePage() {
           </div>
 
           <div className="md:col-span-1 space-y-6">
-            {!isOwnProvider ? (
+            {!isCommerceBlocked ? (
             <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-5 shadow-sm">
               <h3 className="font-bold text-lg text-diyar-dark mb-4">
                 {t('serviceMarketplace.detail.contactProvider')}
               </h3>
               <div className="space-y-3">
-                <button
-                  type="button"
-                  disabled
-                  className="w-full bg-green-50 text-green-400 border border-green-100 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed"
-                >
-                  <Smartphone size={18} /> {t('serviceMarketplace.detail.whatsapp')}
-                </button>
+                {whatsappUrl ? (
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-green-50 text-green-700 border border-green-200 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-green-100 transition-colors cursor-pointer"
+                  >
+                    <Smartphone size={18} /> {t('serviceMarketplace.detail.whatsapp')}
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full bg-green-50 text-green-400 border border-green-100 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed"
+                  >
+                    <Smartphone size={18} /> {t('serviceMarketplace.detail.whatsapp')}
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => void handleSendMessage()}

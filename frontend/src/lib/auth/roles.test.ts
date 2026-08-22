@@ -5,6 +5,7 @@ import {
   getAccessibleDashboardPortals,
   hasAnyRole,
   hasCustomerRole,
+  isAdminOnlyAccount,
   isVendorOnlyAccount,
   primaryDashboardPath,
   resolveAccountHubPath,
@@ -14,6 +15,8 @@ import {
   resolveProfileAddressesPath,
   resolveSafeReturnPath,
   requiresCustomerRoleForProfilePath,
+  shouldShowAdminPanelLink,
+  shouldShowStorefrontDashboardLink,
   RoleName,
   VENDOR_SETTINGS_ACCOUNT_PATH,
 } from './roles.ts';
@@ -84,12 +87,29 @@ describe('auth roles', () => {
     ).toEqual([]);
   });
 
-  it('allows admin to access every portal', () => {
+  it('does not grant partner portals to admin-only accounts', () => {
     expect(
       getAccessibleDashboardPortals([{ name: 'admin', status: 'active' }]).map(
         (portal) => portal.key,
       ),
-    ).toEqual(['vendor', 'service', 'affiliate']);
+    ).toEqual([]);
+  });
+
+  it('routes admin-only users to the operations panel after auth', () => {
+    expect(resolvePostAuthPath([{ name: 'admin', status: 'active' }])).toBe('/admin');
+    expect(isAdminOnlyAccount([{ name: 'admin', status: 'active' }])).toBe(true);
+    expect(
+      shouldShowStorefrontDashboardLink(true, 'active', [{ name: 'admin', status: 'active' }]),
+    ).toBe(false);
+    expect(shouldShowAdminPanelLink(true, 'active', [{ name: 'admin', status: 'active' }])).toBe(
+      true,
+    );
+  });
+
+  it('blocks admin-only users from partner dashboard paths', () => {
+    const roles = [{ name: 'admin', status: 'active' }];
+    expect(canAccessPath(roles, '/dashboard/affiliate')).toBe(false);
+    expect(canAccessPath(roles, '/dashboard')).toBe(false);
   });
 
   it('checks portal access securely by role', () => {

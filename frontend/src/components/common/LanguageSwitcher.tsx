@@ -1,5 +1,5 @@
 import { useLocale } from '../../hooks/useLocale.ts';
-import { useAuth } from '../../hooks/auth/useAuth.ts';
+import { useMarketplaceAuth } from '../../hooks/auth/useAuth.ts';
 import { useUpdateProfile } from '../../hooks/profile/useProfile.ts';
 import type { Locale } from '../../lib/i18n/types.ts';
 
@@ -8,9 +8,10 @@ const options: Array<{ id: Locale; label: string }> = [
   { id: 'en', label: 'EN' },
 ];
 
+/** Marketplace-only: persists locale preference to profile when authenticated. */
 export function LanguageSwitcher() {
   const { locale, setLocale } = useLocale();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user } = useMarketplaceAuth();
   const updateProfile = useUpdateProfile();
 
   const handleLocaleChange = (next: Locale) => {

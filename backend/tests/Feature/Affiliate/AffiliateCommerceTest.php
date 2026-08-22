@@ -24,6 +24,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\Affiliate\AffiliateAttributionService;
 use App\Services\Affiliate\AffiliateCommissionService;
+use App\Services\Affiliate\AffiliateLinkService;
 use App\Services\Affiliate\AffiliateProfileService;
 use App\Services\Payments\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -178,7 +179,7 @@ class AffiliateCommerceTest extends TestCase
         [$product, $link] = $this->seedAffiliateProductAndLink();
         $link->update(['source' => 'whatsapp']);
 
-        $url = app(\App\Services\Affiliate\AffiliateLinkService::class)->buildPublicUrl($link->fresh());
+        $url = app(AffiliateLinkService::class)->buildPublicUrl($link->fresh());
 
         $this->assertStringContainsString('ref='.$link->referral_code, $url);
         $this->assertStringNotContainsString('src=', $url);
@@ -474,9 +475,9 @@ class AffiliateCommerceTest extends TestCase
             ->assertCreated()
             ->json('data.payout.id');
 
-        $this->postJsonAsUser("/api/v1/admin/affiliate/payouts/{$payoutId}/approve", $admin)->assertOk();
-        $this->postJsonAsUser("/api/v1/admin/affiliate/payouts/{$payoutId}/processing", $admin)->assertOk();
-        $this->postJsonAsUser("/api/v1/admin/affiliate/payouts/{$payoutId}/mark-paid", $admin, [
+        $this->postJsonAsAdmin("/api/v1/admin/affiliate/payouts/{$payoutId}/approve", $admin)->assertOk();
+        $this->postJsonAsAdmin("/api/v1/admin/affiliate/payouts/{$payoutId}/processing", $admin)->assertOk();
+        $this->postJsonAsAdmin("/api/v1/admin/affiliate/payouts/{$payoutId}/mark-paid", $admin, [
             'payment_reference' => 'BNK-123',
         ])->assertOk()
             ->assertJsonPath('data.payout.status', AffiliatePayoutStatus::Paid->value);
@@ -689,13 +690,14 @@ class AffiliateCommerceTest extends TestCase
         $address = $this->createCustomerAddress($customer);
         $this->addProductToUserCart($customer, $product);
 
-        $this->postJsonAsUser('/api/v1/orders', $customer, $this->checkoutPayload($address, $product), [
+        $response = $this->postJsonAsUser('/api/v1/orders', $customer, $this->checkoutPayload($address, $product), [
             'Idempotency-Key' => (string) Str::uuid(),
             'X-Affiliate-Session' => $session,
         ])->assertCreated();
 
-        $order = Order::query()->latest()->firstOrFail();
-        $order->load('payment', 'vendorOrders.items');
+        $order = Order::query()
+            ->with('payment', 'vendorOrders.items')
+            ->findOrFail($response->json('data.order.id'));
 
         return [$product, $link, $marketer, $order];
     }

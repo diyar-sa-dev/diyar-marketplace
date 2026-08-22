@@ -9,6 +9,7 @@ return [
         'otp_verified' => 'Phone verified successfully.',
         'otp_resent' => 'If eligible, a new verification code has been sent.',
         'login_success' => 'Signed in successfully.',
+        'admin_use_operations_panel' => 'Operations admin accounts must sign in at /admin, not the marketplace.',
         'phone_verification_required' => 'Verify your phone with the code sent via SMS to continue.',
         'email_verification_required' => 'Verify your email with the code we sent you to continue.',
         'email_verified' => 'Email verified successfully.',

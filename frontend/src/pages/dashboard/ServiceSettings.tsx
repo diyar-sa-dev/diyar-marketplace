@@ -58,7 +58,7 @@ const NOTIFICATION_I18N_KEYS: Record<(typeof NOTIFICATION_KEYS)[number], string>
 };
 
 const INPUT_CLASS =
-  'w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown bg-gray-50/50 placeholder:text-gray-400 text-start';
+  'w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 bg-gray-50/50 placeholder:text-gray-400 text-start';
 
 export default function ServiceSettings() {
   const { t, dir, locale, setLocale } = useLocale();
@@ -297,7 +297,7 @@ export default function ServiceSettings() {
             onClick={() => selectTab(tab.id)}
             className={`px-4 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all cursor-pointer shrink-0 ${
               activeTab === tab.id
-                ? 'bg-white text-diyar-brown shadow-sm ring-1 ring-gray-200/80'
+                ? 'bg-white text-blue-600 shadow-sm ring-1 ring-gray-200/80'
                 : 'text-gray-500 hover:text-diyar-dark hover:bg-white/60'
             }`}
           >
@@ -396,7 +396,7 @@ export default function ServiceSettings() {
                 type="button"
                 onClick={() => void saveProfessionalProfile()}
                 disabled={isSaving}
-                className="bg-diyar-brown text-white px-6 py-3 rounded-xl font-bold flex items-center gap-3 hover:bg-[#A67B5B]/90 transition cursor-pointer disabled:opacity-60"
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-3 hover:bg-blue-700 transition cursor-pointer disabled:opacity-60"
               >
                 {updateProfile.isPending ? (
                   <Loader2 size={18} className="animate-spin" />
@@ -426,7 +426,7 @@ export default function ServiceSettings() {
                   type="button"
                   onClick={() => void saveStoreSettings()}
                   disabled={updateWorkingHours.isPending}
-                  className="bg-diyar-brown text-white px-6 py-3 rounded-xl font-bold flex items-center gap-3 hover:bg-[#A67B5B]/90 transition cursor-pointer disabled:opacity-60"
+                  className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-3 hover:bg-blue-700 transition cursor-pointer disabled:opacity-60"
                 >
                   {updateWorkingHours.isPending ? (
                     <Loader2 size={18} className="animate-spin" />
@@ -498,7 +498,7 @@ export default function ServiceSettings() {
                       </p>
                       <Link
                         to="/profile/personal-info"
-                        className="text-sm font-bold text-diyar-brown hover:text-diyar-dark transition inline-flex items-center gap-2 cursor-pointer"
+                        className="text-sm font-bold text-blue-600 hover:text-diyar-dark transition inline-flex items-center gap-2 cursor-pointer"
                       >
                         {t('providerDashboard.settings.account.manageProfile')}
                       </Link>
@@ -517,7 +517,7 @@ export default function ServiceSettings() {
                   </p>
                   <Link
                     to="/profile/security"
-                    className="text-sm font-bold text-diyar-brown border border-diyar-brown px-5 py-2.5 rounded-xl hover:bg-amber-50 transition inline-block cursor-pointer"
+                    className="text-sm font-bold text-blue-600 border border-blue-600 px-5 py-2.5 rounded-xl hover:bg-blue-50 transition inline-block cursor-pointer"
                   >
                     {t('providerDashboard.settings.account.securityLink')}
                   </Link>
@@ -584,7 +584,7 @@ export default function ServiceSettings() {
                           <button
                             type="button"
                             onClick={() => setIbanEditing(true)}
-                            className="shrink-0 rounded-lg border border-gray-200 bg-white p-2 text-diyar-brown hover:bg-amber-50 cursor-pointer transition"
+                            className="shrink-0 rounded-lg border border-gray-200 bg-white p-2 text-blue-600 hover:bg-blue-50 cursor-pointer transition"
                             aria-label={t('providerDashboard.settings.account.ibanEdit')}
                           >
                             <Pencil size={16} />
@@ -620,7 +620,7 @@ export default function ServiceSettings() {
                                 setIbanEditing(false);
                                 setBankForm((prev) => ({ ...prev, iban: '' }));
                               }}
-                              className="absolute top-1/2 -translate-y-1/2 inset-e-3 text-xs font-bold text-gray-500 hover:text-diyar-brown cursor-pointer"
+                              className="absolute top-1/2 -translate-y-1/2 inset-e-3 text-xs font-bold text-gray-500 hover:text-blue-600 cursor-pointer"
                             >
                               {t('providerDashboard.common.cancel')}
                             </button>
@@ -638,7 +638,7 @@ export default function ServiceSettings() {
                       type="button"
                       onClick={() => void saveBankAccount()}
                       disabled={isSaving}
-                      className="bg-diyar-brown text-white px-6 py-3 rounded-xl font-bold flex items-center gap-3 hover:bg-[#A67B5B]/90 transition cursor-pointer disabled:opacity-60"
+                      className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-3 hover:bg-blue-700 transition cursor-pointer disabled:opacity-60"
                     >
                       {updateBankAccount.isPending ? (
                         <Loader2 size={18} className="animate-spin" />
@@ -677,7 +677,7 @@ export default function ServiceSettings() {
                       checked={emailNotifications}
                       onChange={() => setEmailNotifications((current) => !current)}
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:right-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-diyar-brown" />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:right-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600" />
                   </label>
                 </div>
 
@@ -707,7 +707,7 @@ export default function ServiceSettings() {
                           setNotifications((prev) => ({ ...prev, [key]: e.target.checked }))
                         }
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:right-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-diyar-brown" />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:right-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600" />
                     </label>
                   </div>
                 ))}
@@ -740,7 +740,7 @@ export default function ServiceSettings() {
                 type="button"
                 onClick={() => void saveNotificationsTab()}
                 disabled={isSaving}
-                className="bg-diyar-brown text-white px-6 py-3 rounded-xl font-bold flex items-center gap-3 hover:bg-[#A67B5B]/90 transition cursor-pointer disabled:opacity-60"
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-3 hover:bg-blue-700 transition cursor-pointer disabled:opacity-60"
               >
                 {updateNotifications.isPending || updateUserProfile.isPending ? (
                   <Loader2 size={18} className="animate-spin" />

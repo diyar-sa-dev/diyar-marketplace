@@ -22,6 +22,7 @@ use App\Services\Payments\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
 use Tests\Concerns\InteractsWithCheckout;
@@ -243,10 +244,12 @@ class FinancialStage95AuditTest extends TestCase
         ])->assertCreated();
 
         $payoutId = $payoutResponse->json('data.payout.id');
-        $this->postJsonAsUser("/api/v1/admin/payouts/{$payoutId}/approve", $admin)->assertOk();
+        $this->postJsonAsAdmin("/api/v1/admin/payouts/{$payoutId}/approve", $admin)->assertOk();
 
-        $this->postJsonAsUser("/api/v1/admin/payouts/{$payoutId}/mark-paid", $vendorUser)
-            ->assertForbidden();
+        $this->app['auth']->forgetGuards();
+        Sanctum::actingAs($vendorUser);
+        $this->postJson("/api/v1/admin/payouts/{$payoutId}/mark-paid")
+            ->assertUnauthorized();
     }
 
     #[Test]
@@ -278,9 +281,9 @@ class FinancialStage95AuditTest extends TestCase
         ])->assertCreated();
 
         $payoutId = $payoutResponse->json('data.payout.id');
-        $this->postJsonAsUser("/api/v1/admin/payouts/{$payoutId}/approve", $admin)->assertOk();
-        $this->postJsonAsUser("/api/v1/admin/payouts/{$payoutId}/mark-paid", $admin)->assertOk();
-        $this->postJsonAsUser("/api/v1/admin/payouts/{$payoutId}/mark-paid", $admin)->assertOk();
+        $this->postJsonAsAdmin("/api/v1/admin/payouts/{$payoutId}/approve", $admin)->assertOk();
+        $this->postJsonAsAdmin("/api/v1/admin/payouts/{$payoutId}/mark-paid", $admin)->assertOk();
+        $this->postJsonAsAdmin("/api/v1/admin/payouts/{$payoutId}/mark-paid", $admin)->assertOk();
 
         $this->assertSame(1, FinancialTransaction::query()
             ->where('vendor_payout_id', $payoutId)
@@ -345,13 +348,13 @@ class FinancialStage95AuditTest extends TestCase
 
         $this->createVendorBankAccount($vendorUser->vendorAccount);
 
-        $this->postJsonAsUser('/api/v1/dashboard/vendor/finance/payouts', $vendorUser, [
+        $payoutResponse = $this->postJsonAsUser('/api/v1/dashboard/vendor/finance/payouts', $vendorUser, [
             'amount' => (string) $allocation->vendor_payable_amount,
         ])->assertCreated();
 
-        $payoutId = VendorPayout::query()->where('vendor_account_id', $vendorUser->vendorAccount->id)->value('id');
-        $this->postJsonAsUser("/api/v1/admin/payouts/{$payoutId}/approve", $admin)->assertOk();
-        $this->postJsonAsUser("/api/v1/admin/payouts/{$payoutId}/mark-paid", $admin)->assertOk();
+        $payoutId = $payoutResponse->json('data.payout.id');
+        $this->postJsonAsAdmin("/api/v1/admin/payouts/{$payoutId}/approve", $admin)->assertOk();
+        $this->postJsonAsAdmin("/api/v1/admin/payouts/{$payoutId}/mark-paid", $admin)->assertOk();
 
         $summaryAfterPayout = $this->getJsonAsUser('/api/v1/dashboard/vendor/finance/summary', $vendorUser)
             ->assertOk()

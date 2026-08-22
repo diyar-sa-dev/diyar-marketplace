@@ -20,6 +20,7 @@ use App\Services\Identity\RegistrationService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -115,15 +116,20 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $this->auth->logout();
+        $this->auth->logoutMarketplace();
 
         return ApiResponse::success(message: __('diyar.auth.logout_success'));
     }
 
     public function me(Request $request): JsonResponse
     {
-        /** @var User $user */
-        $user = $request->user();
+        /** @var User|null $user */
+        $user = Auth::guard('web')->user();
+
+        if ($user === null) {
+            abort(401);
+        }
+
         $user->load(['roles', 'vendorAccount']);
 
         return ApiResponse::success(data: ['user' => new UserResource($user)]);

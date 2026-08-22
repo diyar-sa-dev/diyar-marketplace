@@ -14,6 +14,7 @@ import { useAuth } from '../../hooks/auth/useAuth.ts';
 import { skipDashboardTutorial } from '../../lib/dashboardTutorialStorage.ts';
 import { isValidStoreSlug, storePath } from '../../lib/storePath.ts';
 import { mapProductCard } from '../../lib/catalogMappers.ts';
+import SectionEmptyState from './SectionEmptyState.tsx';
 import {
   Star,
   Quote,
@@ -21,7 +22,6 @@ import {
   Send,
   Sparkles,
   UploadCloud,
-  Grid,
   Store,
   Briefcase,
   Paintbrush,
@@ -44,7 +44,6 @@ import {
   Gift,
   ChevronLeft,
   ChevronRight,
-  PackageOpen,
 } from 'lucide-react';
 
 function RailArrows({ scroller }: { scroller: React.RefObject<HTMLDivElement | null> }) {
@@ -130,23 +129,12 @@ export function BestSellers() {
       </div>
 
       {showEmpty ? (
-        <div className="flex flex-col items-center justify-center text-center py-12 md:py-16 px-4 rounded-3xl border border-dashed border-gray-200 bg-gray-50/80">
-          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center justify-center text-diyar-brown mb-4">
-            <PackageOpen size={32} className="md:w-9 md:h-9" />
-          </div>
-          <h3 className="text-lg md:text-xl font-bold text-diyar-dark mb-2">
-            {t('home.bestSellers.emptyTitle')}
-          </h3>
-          <p className="text-sm md:text-base text-gray-500 max-w-md mb-6">
-            {t('home.bestSellers.emptyDescription')}
-          </p>
-          <Link
-            to="/category/all?sort=-popular"
-            className="inline-flex items-center justify-center rounded-xl bg-diyar-brown px-6 py-3 text-sm font-bold text-white hover:bg-diyar-dark transition cursor-pointer"
-          >
-            {t('home.bestSellers.browseAll')}
-          </Link>
-        </div>
+        <SectionEmptyState
+          title={t('home.bestSellers.emptyTitle')}
+          description={t('home.bestSellers.emptyDescription')}
+          browseLabel={t('home.bestSellers.browseAll')}
+          browseTo="/category/all?sort=-popular"
+        />
       ) : (
         <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
           {isLoading
@@ -171,6 +159,7 @@ export function NewArrivals() {
   const { data, isLoading } = useProducts({ per_page: 6, sort: '-created_at' });
   const products = data?.items.map(mapProductCard) ?? [];
   const railRef = useRef<HTMLDivElement>(null);
+  const showEmpty = !isLoading && products.length === 0;
   const ViewAllIcon = dir === 'rtl' ? ChevronLeft : ArrowLeft;
   return (
     <div className="bg-diyar-cream/30 py-4 md:py-6">
@@ -184,6 +173,14 @@ export function NewArrivals() {
             {t('home.newArrivals.viewAll')} <ViewAllIcon size={16} className="md:w-4.5 md:h-4.5" />
           </Link>
         </div>
+        {showEmpty ? (
+          <SectionEmptyState
+            title={t('home.newArrivals.emptyTitle')}
+            description={t('home.newArrivals.emptyDescription')}
+            browseLabel={t('home.newArrivals.browseAll')}
+            browseTo="/category/all?sort=-created_at"
+          />
+        ) : (
         <div className="relative">
           <RailArrows scroller={railRef} />
           <div
@@ -203,26 +200,39 @@ export function NewArrivals() {
                 ))}
           </div>
         </div>
+        )}
       </div>
     </div>
   );
 }
 
 export function SuggestedForYou() {
+  const { t } = useLocale();
   const { data, isLoading } = useProducts({ per_page: 5, sort: '-popular' });
   const products = data?.items.map(mapProductCard) ?? [];
+  const showEmpty = !isLoading && products.length === 0;
   return (
     <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
       <div className="text-center mb-6 md:mb-8">
-        <span className="text-diyar-brown text-sm font-medium mb-2 block">بناءً على تصفحك</span>
-        <h2 className="text-2xl md:text-3xl font-sans font-bold">مقترح لك</h2>
+        <span className="text-diyar-brown text-sm font-medium mb-2 block">
+          {t('home.suggestedForYou.badge')}
+        </span>
+        <h2 className="text-2xl md:text-3xl font-sans font-bold">{t('home.suggestedForYou.title')}</h2>
         <Link
           to="/category/all?sort=-popular"
           className="inline-block mt-3 text-diyar-brown text-sm font-bold hover:text-diyar-dark transition cursor-pointer"
         >
-          استكشف المزيد
+          {t('home.suggestedForYou.exploreMore')}
         </Link>
       </div>
+      {showEmpty ? (
+        <SectionEmptyState
+          title={t('home.suggestedForYou.emptyTitle')}
+          description={t('home.suggestedForYou.emptyDescription')}
+          browseLabel={t('home.suggestedForYou.browseAll')}
+          browseTo="/category/all?sort=-popular"
+        />
+      ) : (
       <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
         {isLoading
           ? [...Array(5)].map((_, i) => (
@@ -236,33 +246,35 @@ export function SuggestedForYou() {
               </div>
             ))}
       </div>
+      )}
     </div>
   );
 }
 
 export function Reviews() {
+  const { t } = useLocale();
   const reviews = [
     {
-      name: 'أحمد عبدالله',
-      text: 'جودة الأثاث ممتازة جداً والتوصيل كان في الموعد المحدد. تجربة شراء رائعة تفوق التوقعات.',
-      product: 'طقم كنب مودرن',
+      nameKey: 'home.reviews.review1Name',
+      textKey: 'home.reviews.review1Text',
+      productKey: 'home.reviews.review1Product',
     },
     {
-      name: 'سارة محمد',
-      text: 'خدمة العملاء راقية جداً والمنتجات مطابقة للصور تماماً. شكراً لمنصة ديار على هذا التميز.',
-      product: 'طاولة طعام خشبية',
+      nameKey: 'home.reviews.review2Name',
+      textKey: 'home.reviews.review2Text',
+      productKey: 'home.reviews.review2Product',
     },
     {
-      name: 'عبدالرحمن علي',
-      text: 'تجربة الواقع المعزز ساعدتني كثيراً في اختيار القطعة المناسبة لغرفتي قبل الشراء.',
-      product: 'سرير نيو كلاسيك',
+      nameKey: 'home.reviews.review3Name',
+      textKey: 'home.reviews.review3Text',
+      productKey: 'home.reviews.review3Product',
     },
-  ];
+  ] as const;
   return (
     <div className="bg-diyar-cream/50 py-4 md:py-6">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-xl md:text-3xl font-sans font-bold mb-6 md:mb-8 text-center">
-          ماذا قال عملاؤنا
+          {t('home.reviews.title')}
         </h2>
         <div className="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x">
           {reviews.map((r, i) => (
@@ -270,7 +282,7 @@ export function Reviews() {
               key={i}
               className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 relative min-w-70 md:min-w-0 snap-start shrink-0 flex flex-col"
             >
-              <Quote className="absolute top-6 right-6 text-diyar-cream w-8 md:w-12 h-8 md:h-12 opacity-50 z-0" />
+              <Quote className="absolute top-6 inset-e-6 text-diyar-cream w-8 md:w-12 h-8 md:h-12 opacity-50 z-0" />
               <div className="relative z-10 flex flex-col h-full">
                 <div className="flex gap-1 text-yellow-500 mb-4">
                   {[...Array(5)].map((_, i) => (
@@ -278,11 +290,13 @@ export function Reviews() {
                   ))}
                 </div>
                 <p className="text-gray-700 leading-relaxed mb-6 text-sm md:text-base flex-1">
-                  "{r.text}"
+                  "{t(r.textKey)}"
                 </p>
                 <div className="flex flex-col border-t border-gray-100 pt-4 mt-auto">
-                  <span className="font-bold text-diyar-dark text-sm md:text-base">{r.name}</span>
-                  <span className="text-xs md:text-sm text-gray-400">اشترى: {r.product}</span>
+                  <span className="font-bold text-diyar-dark text-sm md:text-base">{t(r.nameKey)}</span>
+                  <span className="text-xs md:text-sm text-gray-400">
+                    {t('home.reviews.purchased', { product: t(r.productKey) })}
+                  </span>
                 </div>
               </div>
             </div>
@@ -758,7 +772,8 @@ export function ShopByRoom() {
 export function FeaturedStores() {
   const { t, dir } = useLocale();
   const { data, isLoading } = useVendors({ per_page: 6 });
-  const stores = data?.items ?? [];
+  const stores = (data?.items ?? []).filter((store) => isValidStoreSlug(store.slug));
+  const showEmpty = !isLoading && stores.length === 0;
   const ViewAllIcon = dir === 'rtl' ? ChevronLeft : ArrowLeft;
 
   return (
@@ -778,14 +793,21 @@ export function FeaturedStores() {
             {t('home.featuredStores.viewAll')} <ViewAllIcon size={18} />
           </Link>
         </div>
+        {showEmpty ? (
+          <SectionEmptyState
+            title={t('home.featuredStores.emptyTitle')}
+            description={t('home.featuredStores.emptyDescription')}
+            browseLabel={t('home.featuredStores.browseAll')}
+            browseTo="/category/all"
+            icon={Store}
+          />
+        ) : (
         <div className="flex overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-6 gap-4 md:gap-4 pb-2 scrollbar-hide snap-x">
           {isLoading
             ? [...Array(6)].map((_, i) => (
                 <div key={i} className="min-w-35 h-40 bg-white rounded-xl animate-pulse" />
               ))
-            : stores
-                .filter((store) => isValidStoreSlug(store.slug))
-                .map((store) => (
+            : stores.map((store) => (
                   <Link
                     to={storePath(store.slug)!}
                     key={store.id}
@@ -817,6 +839,7 @@ export function FeaturedStores() {
                   </Link>
                 ))}
         </div>
+        )}
       </div>
     </div>
   );
@@ -851,104 +874,71 @@ export function SummerBanner2() {
 }
 
 export function WhyChooseDiyar() {
+  const { t } = useLocale();
   const features = [
-    {
-      title: 'خيارات لا محدودة',
-      desc: 'آلاف القطع من عشرات المتاجر الموثوقة',
-      icon: <Grid size={32} />,
-    },
-    {
-      title: 'الواقع المعزز',
-      desc: 'جرّب الأثاث في مساحتك قبل الشراء',
-      icon: <Sparkles size={32} />,
-    },
-    {
-      title: 'شحن وتركيب',
-      desc: 'خدمات شحن آمنة مع خيارات للتركيب',
-      icon: <UploadCloud size={32} />,
-    },
-    {
-      title: 'دفع آمن ومرن',
-      desc: 'طرق دفع متعددة مع خيارات التقسيط',
-      icon: <Quote size={32} className="opacity-0 hidden" />,
-    }, // Note: using dummy icons if specific ones are missing, replacing below
-  ];
+    { titleKey: 'home.whyChoose.unlimitedTitle', descKey: 'home.whyChoose.unlimitedDesc', icon: 'star' },
+    { titleKey: 'home.whyChoose.arTitle', descKey: 'home.whyChoose.arDesc', icon: 'sparkles' },
+    { titleKey: 'home.whyChoose.shippingTitle', descKey: 'home.whyChoose.shippingDesc', icon: 'truck' },
+    { titleKey: 'home.whyChoose.paymentTitle', descKey: 'home.whyChoose.paymentDesc', icon: 'lock' },
+  ] as const;
+
   return (
     <div className="py-6 md:py-8 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex overflow-x-auto md:grid md:grid-cols-4 gap-4 md:gap-8 text-center pb-4 md:pb-0 scrollbar-hide snap-x">
-          <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-none min-w-60 md:min-w-0 snap-start border border-gray-100 md:border-none">
-            <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
-              <Star size={28} className="md:w-8 md:h-8" />
-            </div>
-            <h3 className="text-lg md:text-xl font-bold text-diyar-dark mb-2 md:mb-3">
-              خيارات لا محدودة
-            </h3>
-            <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-              آلاف القطع الفريدة من عشرات المتاجر والمصانع الموثوقة في مكان واحد.
-            </p>
-          </div>
-          <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-none min-w-60 md:min-w-0 snap-start border border-gray-100 md:border-none">
-            <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 -rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
-              <Sparkles size={28} className="md:w-8 md:h-8" />
-            </div>
-            <h3 className="text-lg md:text-xl font-bold text-diyar-dark mb-2 md:mb-3">
-              تقنية الواقع المعزز
-            </h3>
-            <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-              خاصية تجربة الأثاث في غرفتك وتخيل المساحة قبل إتمام الشراء.
-            </p>
-          </div>
-          <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-none min-w-60 md:min-w-0 snap-start border border-gray-100 md:border-none">
-            <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
-              <svg
-                width="28"
-                height="28"
-                className="md:w-8 md:h-8"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          {features.map((feature, index) => (
+            <div
+              key={feature.titleKey}
+              className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-none min-w-60 md:min-w-0 snap-start border border-gray-100 md:border-none"
+            >
+              <div
+                className={`w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 hover:rotate-0 transition-transform shadow-sm md:shadow-none ${
+                  index % 2 === 0 ? 'rotate-3' : '-rotate-3'
+                }`}
               >
-                <rect x="1" y="3" width="15" height="13"></rect>
-                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                <circle cx="18.5" cy="18.5" r="2.5"></circle>
-              </svg>
+                {feature.icon === 'star' && <Star size={28} className="md:w-8 md:h-8" />}
+                {feature.icon === 'sparkles' && <Sparkles size={28} className="md:w-8 md:h-8" />}
+                {feature.icon === 'truck' && (
+                  <svg
+                    width="28"
+                    height="28"
+                    className="md:w-8 md:h-8"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                  </svg>
+                )}
+                {feature.icon === 'lock' && (
+                  <svg
+                    width="28"
+                    height="28"
+                    className="md:w-8 md:h-8"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                )}
+              </div>
+              <h3 className="text-lg md:text-xl font-bold text-diyar-dark mb-2 md:mb-3">
+                {t(feature.titleKey)}
+              </h3>
+              <p className="text-gray-500 text-sm md:text-base leading-relaxed">{t(feature.descKey)}</p>
             </div>
-            <h3 className="text-lg md:text-xl font-bold text-diyar-dark mb-2 md:mb-3">
-              توصيل سريع وتركيب
-            </h3>
-            <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-              نوفر خدمات شحن آمنة وسريعة مع خيارات التركيب لراحتك التامة.
-            </p>
-          </div>
-          <div className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-none min-w-60 md:min-w-0 snap-start border border-gray-100 md:border-none">
-            <div className="w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 -rotate-3 hover:rotate-0 transition-transform shadow-sm md:shadow-none">
-              <svg
-                width="28"
-                height="28"
-                className="md:w-8 md:h-8"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
-            </div>
-            <h3 className="text-lg md:text-xl font-bold text-diyar-dark mb-2 md:mb-3">
-              دفع آمن ومرن
-            </h3>
-            <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-              بوابات دفع مشفرة وآمنة بالكامل مع توفر خيارات التقسيط السهلة الميسرة.
-            </p>
-          </div>
+          ))}
         </div>
       </div>
     </div>
@@ -1036,6 +1026,8 @@ export function DesignBlog() {
 }
 
 export function AppPromo() {
+  const { t } = useLocale();
+
   return (
     <div className="max-w-6xl mx-auto px-4 pt-16 md:pt-28 pb-8 md:pb-12">
       <div className="bg-linear-to-br from-diyar-dark to-[#342D25] rounded-3xl relative flex flex-col md:flex-row items-stretch shadow-md">
@@ -1045,31 +1037,31 @@ export function AppPromo() {
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-600/20 rounded-full mix-blend-color-dodge filter blur-[100px] -translate-x-1/3 translate-y-1/3"></div>
         </div>
 
-        <div className="w-full md:w-1/2 p-6 md:p-10 relative z-10 text-center md:text-right flex flex-col justify-center">
+        <div className="w-full md:w-1/2 p-6 md:p-10 relative z-10 text-center md:text-start flex flex-col justify-center">
           <div className="inline-flex self-center md:self-start items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-diyar-cream mb-6 backdrop-blur-md border border-white/10">
             <Smartphone size={14} />
-            <span className="text-xs font-bold">تطبيق ديار الجديد</span>
+            <span className="text-xs font-bold">{t('home.appPromo.badge')}</span>
           </div>
 
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-white mb-4 leading-[1.4] font-sans">
-            تسوق أثاثك المفضل <br />
+            {t('home.appPromo.titleLine1')} <br />
             <span className="text-transparent bg-clip-text bg-linear-to-r from-diyar-cream to-amber-300">
-              أينما كنت!
+              {t('home.appPromo.titleLine2')}
             </span>
           </h2>
 
           <p className="text-base text-white/70 mb-8 leading-relaxed font-medium">
-            حمل الإلهام في جيبك. تجربة تسوق أسرع، عروض حصرية، وميزة الواقع المعزز.
+            {t('home.appPromo.body')}
           </p>
 
-          <div className="hidden lg:grid grid-cols-2 gap-4 mb-8 text-right">
+          <div className="hidden lg:grid grid-cols-2 gap-4 mb-8 text-start">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-diyar-cream shrink-0">
                 <Box size={16} />
               </div>
               <div>
-                <h4 className="text-white text-sm font-bold mb-0.5">الواقع المعزز</h4>
-                <p className="text-white/60 text-[10px]">جرب الأثاث في غرفتك</p>
+                <h4 className="text-white text-sm font-bold mb-0.5">{t('home.appPromo.arTitle')}</h4>
+                <p className="text-white/60 text-[10px]">{t('home.appPromo.arDesc')}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -1077,8 +1069,10 @@ export function AppPromo() {
                 <Scan size={16} />
               </div>
               <div>
-                <h4 className="text-white text-sm font-bold mb-0.5">بحث بالصور</h4>
-                <p className="text-white/60 text-[10px]">ابحث بعدسة الكاميرا</p>
+                <h4 className="text-white text-sm font-bold mb-0.5">
+                  {t('home.appPromo.imageSearchTitle')}
+                </h4>
+                <p className="text-white/60 text-[10px]">{t('home.appPromo.imageSearchDesc')}</p>
               </div>
             </div>
           </div>
@@ -1104,7 +1098,7 @@ export function AppPromo() {
         <div className="w-full md:w-1/2 relative min-h-57.5 md:min-h-65 flex justify-center items-end mt-4 md:mt-0">
           <img
             src="/app mockup.png"
-            alt="Diyar App Mockup"
+            alt={t('home.appPromo.mockupAlt')}
             referrerPolicy="no-referrer"
             className="w-[62%] sm:w-[46%] md:w-auto md:h-[120%] md:absolute md:bottom-0 md:left-1/2 md:-translate-x-1/2 max-w-105 h-auto object-contain z-20 drop-shadow-2xl hover:scale-[1.02] transition-transform duration-500"
           />
@@ -1169,6 +1163,8 @@ export function FastOffersSlider() {
 }
 
 export function LoyaltyPromo() {
+  const { t } = useLocale();
+
   return (
     <div className="max-w-7xl mx-auto px-4 my-8 md:my-12">
       <div className="bg-[#FFFDF8] rounded-3xl border border-[#F2DEB4]/50 shadow-sm overflow-hidden relative">
@@ -1177,21 +1173,18 @@ export function LoyaltyPromo() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 relative z-10 w-full items-center">
           {/* Content side */}
-          <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-center text-right order-2 lg:order-1">
+          <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-center text-start order-2 lg:order-1">
             <div className="w-fit bg-amber-100/80 border border-amber-200/60 rounded-full px-4 py-1.5 flex items-center gap-2 mb-6">
               <span className="flex items-center justify-center w-5 h-5 bg-amber-500 rounded-full text-white">
                 <Sparkles size={12} />
               </span>
-              <span className="text-amber-800 text-sm font-bold">برنامج ولاء ديار</span>
+              <span className="text-amber-800 text-sm font-bold">{t('home.loyalty.badge')}</span>
             </div>
 
             <h2 className="text-3xl lg:text-5xl font-bold text-[#3D2E1F] leading-[1.4] mb-5">
-              كل عملية شراء هي بداية <br /> لمكافأة جديدة
+              {t('home.loyalty.titleLine1')} <br /> {t('home.loyalty.titleLine2')}
             </h2>
-            <p className="text-gray-600 text-lg mb-10 max-w-lg leading-relaxed">
-              تسوق، اجمع النقاط، وحولها إلى قسائم شرائية. استمتع بتجربة تسوق فريدة ومربحة مع ديار
-              لأن ولائك يستحق التقدير والعطاء.
-            </p>
+            <p className="text-gray-600 text-lg mb-10 max-w-lg leading-relaxed">{t('home.loyalty.body')}</p>
 
             <div className="flex flex-col gap-5 mb-10">
               <div className="flex items-start gap-4">
@@ -1200,10 +1193,8 @@ export function LoyaltyPromo() {
                   <Gift size={24} className="relative z-10" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#3D2E1F] text-lg mb-1">تسوق واربح</h4>
-                  <p className="text-gray-500 text-sm leading-relaxed">
-                    اكسب النقاط بشكل تلقائي مع كل عملية دفع ناجحة عبر المنصة.
-                  </p>
+                  <h4 className="font-bold text-[#3D2E1F] text-lg mb-1">{t('home.loyalty.shopEarnTitle')}</h4>
+                  <p className="text-gray-500 text-sm leading-relaxed">{t('home.loyalty.shopEarnDesc')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
@@ -1212,10 +1203,8 @@ export function LoyaltyPromo() {
                   <ShieldCheck size={24} className="relative z-10" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#3D2E1F] text-lg mb-1">استبدال مرن</h4>
-                  <p className="text-gray-500 text-sm leading-relaxed">
-                    استخدم نقاطك في أي وقت لشراء منتجاتك المفضلة بخصومات حصرية.
-                  </p>
+                  <h4 className="font-bold text-[#3D2E1F] text-lg mb-1">{t('home.loyalty.redeemTitle')}</h4>
+                  <p className="text-gray-500 text-sm leading-relaxed">{t('home.loyalty.redeemDesc')}</p>
                 </div>
               </div>
             </div>
@@ -1224,15 +1213,15 @@ export function LoyaltyPromo() {
               to="/loyalty"
               className="bg-[#3D2E1F] text-white px-8 py-4 rounded-full font-bold hover:bg-[#2A1F15] transition-all inline-flex items-center gap-3 w-fit group"
             >
-              <span>استكشف عروض الولاء</span>
-              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:-translate-x-1 transition-transform">
-                <ArrowLeft size={14} />
+              <span>{t('home.loyalty.cta')}</span>
+              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:-translate-x-1 rtl:group-hover:translate-x-1 transition-transform">
+                <ArrowLeft size={14} className="rtl:-scale-x-100" />
               </div>
             </Link>
           </div>
 
           {/* Visual side */}
-          <div className="bg-[#F8EBCD] h-full min-h-100 flex items-center justify-center p-8 lg:p-0 relative overflow-hidden order-1 lg:order-2 border-b lg:border-b-0 lg:border-r border-amber-200/50">
+          <div className="bg-[#F8EBCD] h-full min-h-100 flex items-center justify-center p-8 lg:p-0 relative overflow-hidden order-1 lg:order-2 border-b lg:border-b-0 lg:border-e border-amber-200/50">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.05] z-0"></div>
 
             {/* Circular decoration */}
@@ -1241,7 +1230,7 @@ export function LoyaltyPromo() {
 
             <div className="relative z-10 w-full max-w-70 md:max-w-85 xl:max-w-105 transition-transform duration-700 hover:scale-105">
               <div className="absolute -inset-4 bg-amber-400/20 rounded-full blur-2xl -z-10"></div>
-              <img src="/صورة نقاط الولاء.png" alt="ديار ولاء" className="w-full drop-shadow-md" />
+              <img src="/صورة نقاط الولاء.png" alt={t('home.loyalty.imageAlt')} className="w-full drop-shadow-md" />
             </div>
 
             {/* Floating elements */}
@@ -1442,6 +1431,7 @@ export function ServicesSection() {
   const { data: serviceCategories, isLoading } = useCategories('service');
   const ViewAllIcon = dir === 'rtl' ? ChevronLeft : ArrowLeft;
   const featuredCategories = (serviceCategories ?? []).slice(0, 6);
+  const showEmpty = !isLoading && (serviceCategories ?? []).length === 0;
   const categoryServiceQueries = useQueries({
     queries: featuredCategories.map((category) => ({
       queryKey: serviceKeys.list({ category: category.slug, per_page: 3, sort: 'latest' }),
@@ -1484,12 +1474,23 @@ export function ServicesSection() {
             {t('home.diyarServices.viewAll')} <ViewAllIcon size={18} />
           </Link>
         </div>
+        {isLoading ? (
+          <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x pt-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="min-w-56 h-48 bg-white rounded-lg animate-pulse shrink-0" />
+            ))}
+          </div>
+        ) : showEmpty ? (
+          <SectionEmptyState
+            title={t('home.diyarServices.emptyTitle')}
+            description={t('home.diyarServices.emptyDescription')}
+            browseLabel={t('home.diyarServices.browseAll')}
+            browseTo="/services"
+            icon={Paintbrush}
+          />
+        ) : (
         <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-5 pb-4 scrollbar-hide snap-x pt-2">
-          {isLoading
-            ? [...Array(5)].map((_, i) => (
-                <div key={i} className="min-w-56 h-48 bg-white rounded-lg animate-pulse" />
-              ))
-            : (serviceCategories ?? []).slice(0, 10).map((category) => (
+          {(serviceCategories ?? []).slice(0, 10).map((category) => (
                 <Link
                   to={`/category/${category.slug}`}
                   key={category.id}
@@ -1509,8 +1510,10 @@ export function ServicesSection() {
                 </Link>
               ))}
         </div>
+        )}
 
-        {featuredCategories.map((category, index) => {
+        {!showEmpty &&
+          featuredCategories.map((category, index) => {
           const items = categoryServiceQueries[index]?.data?.items ?? [];
           if (items.length === 0) {
             return null;
@@ -1541,8 +1544,10 @@ export function ServicesSection() {
 }
 
 export function MostInteractiveProducts() {
+  const { t } = useLocale();
   const { data, isLoading } = useProducts({ per_page: 6, sort: '-popular' });
   const products = data?.items.map(mapProductCard) ?? [];
+  const showEmpty = !isLoading && products.length === 0;
 
   return (
     <div className="bg-linear-to-b from-white to-diyar-cream/10 py-8 md:py-8 border-t border-b border-gray-100/10">
@@ -1550,19 +1555,25 @@ export function MostInteractiveProducts() {
         <div className="flex justify-between items-baseline mb-8">
           <div>
             <h2 className="text-xl md:text-3xl font-sans font-bold text-diyar-dark">
-              الأكثر تفاعلاً ونشاطاً
+              {t('home.mostInteractive.title')}
             </h2>
-            <p className="text-gray-500 text-xs md:text-sm mt-1">
-              مرتبة حسب الإعجابات والتفاعل على المنصة
-            </p>
+            <p className="text-gray-500 text-xs md:text-sm mt-1">{t('home.mostInteractive.subtitle')}</p>
           </div>
           <Link
             to="/category/all?sort=-popular"
             className="text-diyar-brown text-xs md:text-sm font-bold hover:text-diyar-dark transition shrink-0 cursor-pointer"
           >
-            تصفح الكل
+            {t('home.mostInteractive.viewAll')}
           </Link>
         </div>
+        {showEmpty ? (
+          <SectionEmptyState
+            title={t('home.mostInteractive.emptyTitle')}
+            description={t('home.mostInteractive.emptyDescription')}
+            browseLabel={t('home.mostInteractive.browseAll')}
+            browseTo="/category/all?sort=-popular"
+          />
+        ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {isLoading
             ? [...Array(6)].map((_, i) => (
@@ -1570,6 +1581,7 @@ export function MostInteractiveProducts() {
               ))
             : products.map((product) => <ProductCard key={product.id} product={product} />)}
         </div>
+        )}
       </div>
     </div>
   );

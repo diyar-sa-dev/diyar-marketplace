@@ -8,10 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint \"src/{api,lib,utils,hooks,types,components/common,components/routes,components/coupon,components/services,components/checkout,routes,test}/**/*.{ts,tsx}\" \"src/pages/dashboard/VendorCoupons.tsx\" --max-warnings 0",
-    "lint:fix": "eslint \"src/{api,lib,utils,hooks,types,components/common,components/routes,components/coupon,components/services,components/checkout,routes,test}/**/*.{ts,tsx}\" \"src/pages/dashboard/VendorCoupons.tsx\" --fix",
+    "lint": "eslint \"src/{api,lib,utils,hooks,types,admin,components/common,components/routes,components/coupon,components/services,components/checkout,routes,test}/**/*.{ts,tsx}\" \"src/pages/dashboard/VendorCoupons.tsx\" --max-warnings 0",
+    "lint:fix": "eslint \"src/{api,lib,utils,hooks,types,admin,components/common,components/routes,components/coupon,components/services,components/checkout,routes,test}/**/*.{ts,tsx}\" \"src/pages/dashboard/VendorCoupons.tsx\" --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
-    "format:check": "prettier --check \"src/{api,lib,utils,hooks,types,components/common,components/routes,components/coupon,components/services,components/checkout,routes,test,pages/dashboard}/**/*.{ts,tsx}\" \"src/pages/dashboard/VendorCoupons.tsx\"",
+    "format:check": "prettier --check \"src/{api,lib,utils,hooks,types,admin,components/common,components/routes,components/coupon,components/services,components/checkout,routes,test,pages/dashboard}/**/*.{ts,tsx}\" \"src/pages/dashboard/VendorCoupons.tsx\"",
     "test": "vitest run",
     "test:watch": "vitest"
   },

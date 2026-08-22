@@ -92,6 +92,27 @@ class ProviderAccount extends Model
         return $this->hasOne(ProviderWorkPolicy::class);
     }
 
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class);
+    }
+
+    public function serviceBookings(): HasMany
+    {
+        return $this->hasMany(ServiceBooking::class);
+    }
+
+    public function providerReviews(): HasMany
+    {
+        return $this->hasMany(ProviderReview::class);
+    }
+
+    public function adminAuditLogsAsResource(): HasMany
+    {
+        return $this->hasMany(AdminAuditLog::class, 'resource_id')
+            ->where('resource_type', self::class);
+    }
+
     /**
      * @param  Builder<ProviderAccount>  $query
      * @return Builder<ProviderAccount>

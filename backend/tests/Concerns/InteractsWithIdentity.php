@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\VendorAccount;
 use App\Services\Identity\OtpCacheStore;
 use App\Support\SlugGenerator;
+use Database\Seeders\AdminPermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
@@ -26,6 +27,11 @@ trait InteractsWithIdentity
     protected function seedRoles(): void
     {
         $this->seed(RoleSeeder::class);
+    }
+
+    protected function seedAdminPermissions(): void
+    {
+        $this->seed(AdminPermissionSeeder::class);
     }
 
     protected function extractOtpFromLastSms(): string
@@ -56,6 +62,10 @@ trait InteractsWithIdentity
             'id' => (string) str()->uuid(),
             'status' => RoleStatus::Active->value,
         ]);
+
+        if ($role === RoleName::Admin) {
+            $this->seedAdminPermissions();
+        }
 
         if ($role === RoleName::Vendor) {
             VendorAccount::query()->create([
@@ -116,6 +126,27 @@ trait InteractsWithIdentity
         foreach ($response->headers->getCookies() as $cookie) {
             $this->withUnencryptedCookie($cookie->getName(), $cookie->getValue());
         }
+
+        $this->syncSessionCookieFromApplication();
+    }
+
+    protected function syncSessionCookieFromApplication(): void
+    {
+        if (! $this->app->bound('session')) {
+            return;
+        }
+
+        $session = $this->app->make('session');
+
+        if (! $session->isStarted()) {
+            return;
+        }
+
+        $cookieName = config('session.cookie');
+
+        if (is_string($cookieName) && $cookieName !== '') {
+            $this->withUnencryptedCookie($cookieName, $session->getId());
+        }
     }
 
     protected function statefulJsonHeaders(): array
@@ -168,14 +199,68 @@ trait InteractsWithIdentity
     protected function resetStatefulSession(): void
     {
         $this->statefulSessionBootstrapped = false;
+        $this->defaultCookies = [];
+        $this->unencryptedCookies = [];
 
         if (method_exists($this, 'flushSession')) {
             $this->flushSession();
         }
     }
 
+    protected function actingAsAdmin(User $user): static
+    {
+        return $this->actingAs($user, 'admin');
+    }
+
+    protected function getJsonAsAdmin(string $uri, User $user)
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->actingAs($user, 'admin')->getJson($uri);
+    }
+
+    protected function postJsonAsAdmin(string $uri, User $user, array $data = [], array $headers = [])
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->actingAs($user, 'admin')
+            ->withHeaders($headers)
+            ->postJson($uri, $data);
+    }
+
+    protected function patchJsonAsAdmin(string $uri, User $user, array $data = [], array $headers = [])
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->actingAs($user, 'admin')
+            ->withHeaders($headers)
+            ->patchJson($uri, $data);
+    }
+
+    protected function deleteJsonAsAdmin(string $uri, User $user, array $data = [], array $headers = [])
+    {
+        $this->app['auth']->forgetGuards();
+
+        return $this->actingAs($user, 'admin')
+            ->withHeaders($headers)
+            ->deleteJson($uri, $data);
+    }
+
+    protected function getStatefulJsonAsAdmin(string $uri, User $user)
+    {
+        $this->beginStatefulSession();
+
+        $response = $this->actingAs($user, 'admin')
+            ->withHeaders(['Accept' => 'application/json'])
+            ->get($uri);
+        $this->persistResponseCookies($response);
+
+        return $response;
+    }
+
     protected function getJsonAsUser(string $uri, User $user)
     {
+        $this->app['auth']->forgetGuards();
         Sanctum::actingAs($user);
 
         return $this->getJson($uri);
@@ -183,6 +268,7 @@ trait InteractsWithIdentity
 
     protected function postJsonAsUser(string $uri, User $user, array $data = [], array $headers = [])
     {
+        $this->app['auth']->forgetGuards();
         Sanctum::actingAs($user);
 
         return $this->withHeaders($headers)->postJson($uri, $data);
@@ -190,6 +276,7 @@ trait InteractsWithIdentity
 
     protected function patchJsonAsUser(string $uri, User $user, array $data = [], array $headers = [])
     {
+        $this->app['auth']->forgetGuards();
         Sanctum::actingAs($user);
 
         return $this->withHeaders($headers)->patchJson($uri, $data);
@@ -197,6 +284,7 @@ trait InteractsWithIdentity
 
     protected function deleteJsonAsUser(string $uri, User $user, array $data = [], array $headers = [])
     {
+        $this->app['auth']->forgetGuards();
         Sanctum::actingAs($user);
 
         return $this->withHeaders($headers)->deleteJson($uri, $data);

@@ -1,16 +1,23 @@
+import type { ApplicationContext } from './applicationContext.ts';
+
 type UnauthorizedHandler = () => void;
 
-let unauthorizedHandler: UnauthorizedHandler | null = null;
+const handlers: Record<ApplicationContext, Set<UnauthorizedHandler>> = {
+  marketplace: new Set(),
+  admin: new Set(),
+};
 
-export function registerUnauthorizedHandler(handler: UnauthorizedHandler): () => void {
-  unauthorizedHandler = handler;
+export function registerUnauthorizedHandler(
+  context: ApplicationContext,
+  handler: UnauthorizedHandler,
+): () => void {
+  handlers[context].add(handler);
+
   return () => {
-    if (unauthorizedHandler === handler) {
-      unauthorizedHandler = null;
-    }
+    handlers[context].delete(handler);
   };
 }
 
-export function notifyUnauthorized(): void {
-  unauthorizedHandler?.();
+export function notifyUnauthorized(context: ApplicationContext): void {
+  handlers[context].forEach((handler) => handler());
 }

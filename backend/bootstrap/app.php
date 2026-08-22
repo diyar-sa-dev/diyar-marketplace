@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\EnsureAdminPermission;
+use App\Http\Middleware\EnsureAdminUserIsActive;
+use App\Http\Middleware\EnsureMarketplaceAccess;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocaleFromRequest;
@@ -40,6 +43,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'security.headers' => SecurityHeaders::class,
             'role' => EnsureUserHasRole::class,
             'account.active' => EnsureAccountIsActive::class,
+            'admin.active' => EnsureAdminUserIsActive::class,
+            'admin.permission' => EnsureAdminPermission::class,
+            'marketplace.access' => EnsureMarketplaceAccess::class,
         ]);
 
         $middleware->redirectGuestsTo(function (Request $request) {

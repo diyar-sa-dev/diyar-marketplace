@@ -23,7 +23,9 @@ function persistOptimisticCart(cart: Cart): Cart {
   return cart;
 }
 
-export function useCartQuery() {
+export function useCartQuery(options?: { enabled?: boolean }) {
+  const enabled = options?.enabled ?? true;
+
   return useQuery({
     queryKey: cartKeys.detail(),
     queryFn: async () => {
@@ -47,6 +49,7 @@ export function useCartQuery() {
     staleTime: Number.POSITIVE_INFINITY,
     refetchOnWindowFocus: false,
     refetchOnMount: 'always',
+    enabled,
   });
 }
 
@@ -75,10 +78,10 @@ export function useValidateCart() {
   };
 }
 
-export function useCart() {
+export function useCart(options?: { enabled?: boolean }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const query = useCartQuery();
+  const query = useCartQuery(options);
   const cart = query.data ?? EMPTY_CART;
   const hasLocalData = cart.items.length > 0 || Boolean(readLocalCartEnvelope());
 

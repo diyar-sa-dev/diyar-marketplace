@@ -19,6 +19,7 @@ import { hasCustomerRole } from '../../lib/auth/roles.ts';
 import { normalizeIban, saudiIbanValidationMessage } from '../../lib/iban.ts';
 import { isValidOptionalUrl } from '../../lib/vendorFormValidation.ts';
 import { parseApiError } from '../../utils/errors.ts';
+import { usePortalTheme } from '../../lib/dashboard/portalTheme.ts';
 import type { AffiliateSettingsPayload, AffiliateSocialLinks } from '../../types/affiliate.ts';
 
 const TAB_IDS = ['account', 'bank', 'social'] as const;
@@ -27,7 +28,7 @@ type SettingsTab = (typeof TAB_IDS)[number];
 const BANK_CODES = ['snb', 'alrajhi', 'riyad', 'bsf'] as const;
 
 const INPUT_CLASS =
-  'w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown bg-gray-50/50 placeholder:text-gray-400 text-start';
+  'w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 bg-gray-50/50 placeholder:text-gray-400 text-start';
 
 function maskAffiliateIban(iban: string | null | undefined): string | null {
   if (!iban) {
@@ -44,6 +45,7 @@ function maskAffiliateIban(iban: string | null | undefined): string | null {
 
 export default function AffiliateSettings() {
   const { t, locale } = useLocale();
+  const theme = usePortalTheme();
   const { toast } = useToast();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -204,8 +206,7 @@ export default function AffiliateSettings() {
     );
   }
 
-  const saveButtonClass =
-    'bg-diyar-brown text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-[#A67B5B]/90 transition cursor-pointer disabled:opacity-60';
+  const saveButtonClass = `${theme.button} px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition cursor-pointer disabled:opacity-60`;
 
   return (
     <div className="w-full space-y-6 relative animate-in fade-in duration-300">
@@ -228,7 +229,7 @@ export default function AffiliateSettings() {
             onClick={() => selectTab(tab.id)}
             className={`px-4 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all cursor-pointer shrink-0 ${
               activeTab === tab.id
-                ? 'bg-white text-diyar-brown shadow-sm ring-1 ring-gray-200/80'
+                ? theme.tabActive
                 : 'text-gray-500 hover:text-diyar-dark hover:bg-white/60'
             }`}
           >
@@ -279,7 +280,7 @@ export default function AffiliateSettings() {
                       {showCustomerProfileLink && (
                         <Link
                           to="/profile/personal-info"
-                          className="text-sm font-bold text-diyar-brown hover:text-diyar-dark transition inline-flex items-center gap-2 cursor-pointer"
+                          className={`text-sm font-bold ${theme.link} transition inline-flex items-center gap-2 cursor-pointer`}
                         >
                           {t('affiliate.settings.account.manageProfile')}
                         </Link>
@@ -299,7 +300,7 @@ export default function AffiliateSettings() {
                   </p>
                   <Link
                     to="/profile/security"
-                    className="text-sm font-bold text-diyar-brown border border-diyar-brown px-5 py-2.5 rounded-xl hover:bg-amber-50 transition inline-block cursor-pointer"
+                    className={`text-sm font-bold ${theme.outline} px-5 py-2.5 rounded-xl transition inline-block cursor-pointer`}
                   >
                     {t('affiliate.settings.account.securityLink')}
                   </Link>
@@ -311,9 +312,9 @@ export default function AffiliateSettings() {
 
         {activeTab === 'bank' && (
           <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-4">
-              <Info className="text-amber-600 mt-0.5 shrink-0" size={20} />
-              <div className="text-sm text-amber-800 leading-relaxed">
+            <div className={`${theme.notice} rounded-xl p-4 flex items-start gap-4`}>
+              <Info className={`${theme.icon} mt-0.5 shrink-0`} size={20} />
+              <div className="text-sm leading-relaxed">
                 {t('affiliate.settings.bank.infoBanner')}
               </div>
             </div>
@@ -368,7 +369,7 @@ export default function AffiliateSettings() {
                     <button
                       type="button"
                       onClick={() => setIbanEditing(true)}
-                      className="shrink-0 rounded-lg border border-gray-200 bg-white p-2 text-diyar-brown hover:bg-amber-50 cursor-pointer transition"
+                      className={`shrink-0 rounded-lg border border-gray-200 bg-white p-2 ${theme.icon} ${theme.buttonSoft} cursor-pointer transition`}
                       aria-label={t('affiliate.settings.bank.ibanEdit')}
                     >
                       <Pencil size={16} />
@@ -405,7 +406,7 @@ export default function AffiliateSettings() {
                           setIbanEditing(false);
                           setIban('');
                         }}
-                        className="absolute top-1/2 -translate-y-1/2 inset-e-3 text-xs font-bold text-gray-500 hover:text-diyar-brown cursor-pointer"
+                        className={`absolute top-1/2 -translate-y-1/2 inset-e-3 text-xs font-bold text-gray-500 ${theme.link} cursor-pointer`}
                       >
                         {t('common.cancel')}
                       </button>

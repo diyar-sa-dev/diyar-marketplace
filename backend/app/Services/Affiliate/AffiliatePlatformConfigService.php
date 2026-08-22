@@ -2,8 +2,14 @@
 
 namespace App\Services\Affiliate;
 
+use App\Services\Settings\EffectiveConfigService;
+
 final class AffiliatePlatformConfigService
 {
+    public function __construct(
+        private readonly EffectiveConfigService $config,
+    ) {}
+
     /**
      * @return array{
      *     min_commission_percent: string,
@@ -26,26 +32,26 @@ final class AffiliatePlatformConfigService
 
     public function minCommissionPercent(): float
     {
-        return (float) config('diyar.affiliate.platform_min_commission_percent', 1);
+        return $this->config->decimal('affiliate.platform_min_commission_percent', 1);
     }
 
     public function maxCommissionPercent(): float
     {
-        return (float) config('diyar.affiliate.platform_max_commission_percent', 30);
+        return $this->config->decimal('affiliate.platform_max_commission_percent', 30);
     }
 
     public function attributionWindowDays(): int
     {
-        return max(1, (int) config('diyar.affiliate.attribution_window_days', 30));
+        return max(1, $this->config->integer('affiliate.attribution_window_days', 30));
     }
 
     public function payoutMinimum(): float
     {
-        return (float) config('diyar.affiliate.payout_minimum', 100.00);
+        return $this->config->decimal('affiliate.payout_minimum', 100.00);
     }
 
     public function currency(): string
     {
-        return (string) config('diyar.affiliate.currency', 'SAR');
+        return $this->config->string('affiliate.currency', 'SAR');
     }
 }

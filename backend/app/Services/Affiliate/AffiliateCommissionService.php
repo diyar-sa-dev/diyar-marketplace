@@ -35,6 +35,7 @@ final class AffiliateCommissionService
             ->first();
 
         if ($existing !== null) {
+            $this->linkClickConversion($existing, $orderItem);
             $this->financialPosting->postAffiliateCommissionPending($existing);
 
             return $existing;
@@ -70,12 +71,31 @@ final class AffiliateCommissionService
             return AffiliateCommission::query()
                 ->where('idempotency_key', $idempotencyKey)
                 ->first()
-                ?->tap(fn (AffiliateCommission $commission) => $this->financialPosting->postAffiliateCommissionPending($commission));
+                ?->tap(function (AffiliateCommission $commission) use ($orderItem): void {
+                    $this->linkClickConversion($commission, $orderItem);
+                    $this->financialPosting->postAffiliateCommissionPending($commission);
+                });
         }
 
         $this->financialPosting->postAffiliateCommissionPending($commission);
+        $this->linkClickConversion($commission, $orderItem);
 
         return $commission;
+    }
+
+    private function linkClickConversion(AffiliateCommission $commission, OrderItem $orderItem): void
+    {
+        if ($orderItem->affiliate_click_id === null) {
+            return;
+        }
+
+        AffiliateClick::query()
+            ->whereKey($orderItem->affiliate_click_id)
+            ->whereNull('converted_at')
+            ->update([
+                'converted_at' => now(),
+                'affiliate_commission_id' => $commission->id,
+            ]);
     }
 
     public function markAvailableForVendorOrder(VendorOrder $vendorOrder): int

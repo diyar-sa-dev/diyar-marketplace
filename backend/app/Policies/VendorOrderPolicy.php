@@ -11,19 +11,11 @@ class VendorOrderPolicy
 {
     public function viewAny(User $user): bool
     {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
         return $user->hasRole('vendor') && VendorAccessResolver::vendorAccount($user) !== null;
     }
 
     public function view(User $user, VendorOrder $vendorOrder): bool
     {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
         $vendorAccount = VendorAccessResolver::vendorAccount($user);
 
         return $vendorAccount !== null

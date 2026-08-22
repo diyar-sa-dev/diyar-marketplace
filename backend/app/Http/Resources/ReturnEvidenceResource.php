@@ -16,7 +16,7 @@ class ReturnEvidenceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $canView = $request->user() !== null;
+        $canView = $request->user('web') !== null;
 
         return [
             'id' => $this->id,

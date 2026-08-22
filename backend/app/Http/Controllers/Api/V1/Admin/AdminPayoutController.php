@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\RejectVendorPayoutRequest;
 use App\Http\Resources\VendorPayoutResource;
+use App\Models\User;
 use App\Models\VendorPayout;
 use App\Services\Finance\PayoutService;
 use App\Support\Api\ApiResponse;
@@ -20,7 +21,7 @@ class AdminPayoutController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('approve', VendorPayout::class);
+        $this->authorizeAdmin('viewAny', VendorPayout::class);
 
         $payouts = VendorPayout::query()
             ->with('vendorAccount')
@@ -41,10 +42,10 @@ class AdminPayoutController extends Controller
 
     public function approve(Request $request, VendorPayout $payout): JsonResponse
     {
-        $this->authorize('approve', VendorPayout::class);
+        $admin = $this->authorizeAdmin('approve', VendorPayout::class);
 
         try {
-            $updated = $this->payouts->approve($payout, $request->user());
+            $updated = $this->payouts->approve($payout, $admin);
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
         }
@@ -54,10 +55,10 @@ class AdminPayoutController extends Controller
 
     public function reject(RejectVendorPayoutRequest $request, VendorPayout $payout): JsonResponse
     {
-        $this->authorize('reject', VendorPayout::class);
+        $admin = $this->authorizeAdmin('reject', VendorPayout::class);
 
         try {
-            $updated = $this->payouts->reject($payout, $request->user(), $request->validated('reason'));
+            $updated = $this->payouts->reject($payout, $admin, $request->validated('reason'));
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
         }
@@ -67,10 +68,10 @@ class AdminPayoutController extends Controller
 
     public function markPaid(Request $request, VendorPayout $payout): JsonResponse
     {
-        $this->authorize('markPaid', VendorPayout::class);
+        $admin = $this->authorizeAdmin('markPaid', VendorPayout::class);
 
         try {
-            $updated = $this->payouts->markPaid($payout, $request->user());
+            $updated = $this->payouts->markPaid($payout, $admin);
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
         }
@@ -79,5 +80,19 @@ class AdminPayoutController extends Controller
             ['payout' => new VendorPayoutResource($updated)],
             message: __('diyar.finance.payout_marked_paid'),
         );
+    }
+
+    private function authorizeAdmin(string $ability, string $modelClass): User
+    {
+        /** @var User|null $admin */
+        $admin = request()->user('admin');
+
+        if ($admin === null) {
+            abort(401);
+        }
+
+        $this->authorizeForUser($admin, $ability, $modelClass);
+
+        return $admin;
     }
 }

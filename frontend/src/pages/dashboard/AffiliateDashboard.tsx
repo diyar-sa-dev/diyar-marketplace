@@ -8,11 +8,13 @@ import { useAffiliateOverview } from '../../hooks/affiliate/useAffiliate.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { resolveMediaUrl } from '../../lib/media.ts';
+import { usePortalTheme } from '../../lib/dashboard/portalTheme.ts';
 
 const FALLBACK_IMAGE = '/placeholder-product.png';
 
 export default function AffiliateDashboard() {
   const { t } = useLocale();
+  const theme = usePortalTheme();
   const { toast } = useToast();
   const overviewQuery = useAffiliateOverview();
 
@@ -94,7 +96,9 @@ export default function AffiliateDashboard() {
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-gray-500 font-medium">{t('affiliate.dashboard.conversionRate')}</h3>
-            <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+            <div
+              className={`w-10 h-10 ${theme.iconBg} rounded-xl flex items-center justify-center`}
+            >
               <Target size={20} />
             </div>
           </div>
@@ -216,7 +220,9 @@ export default function AffiliateDashboard() {
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-diyar-brown shadow-sm overflow-hidden">
+                      <div
+                        className={`w-8 h-8 rounded-full bg-white flex items-center justify-center ${theme.text} shadow-sm overflow-hidden`}
+                      >
                         <img
                           src={resolveMediaUrl(link.product?.image_url) ?? FALLBACK_IMAGE}
                           alt=""

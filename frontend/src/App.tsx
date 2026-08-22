@@ -2,8 +2,8 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
+import { Routes, Route, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import {
   ShoppingCart,
   Bookmark,
@@ -39,15 +39,19 @@ import { CustomerProfileRoute } from './components/routes/CustomerProfileRoute.t
 import { GuestRoute } from './components/routes/GuestRoute.tsx';
 import { AccountStatusRoute } from './components/routes/AccountStatusRoute.tsx';
 import { AccountStatusGuard } from './components/routes/AccountStatusGuard.tsx';
+import { MarketplaceCommerceRoute } from './components/routing/MarketplaceCommerceRoute.tsx';
 import {
   RoleName,
+  ADMIN_PANEL_PATH,
   isAccountHubPath,
   resolveAccountHubPath,
   resolveChatHubPath,
   resolveDashboardEntryPath,
   resolveNotificationsHubPath,
+  shouldShowAdminPanelLink,
   shouldShowStorefrontDashboardLink,
 } from './lib/auth/roles.ts';
+import { shouldHideMarketplaceCommerce } from './lib/marketplaceCommerce.ts';
 import HomePage from './pages/HomePage.tsx';
 import CategoryPage from './pages/CategoryPage.tsx';
 import ProductDetailsPage from './pages/ProductDetailsPage.tsx';
@@ -118,16 +122,51 @@ import TeamInvitePage from './pages/TeamInvitePage.tsx';
 import PendingAccountPage from './pages/account/PendingAccountPage.tsx';
 import SuspendedAccountPage from './pages/account/SuspendedAccountPage.tsx';
 import Notifications from './pages/dashboard/Notifications.tsx';
+import { AdminGuestRoute } from './admin/components/AdminGuestRoute.tsx';
+import { ProtectedAdminRoute } from './admin/components/ProtectedAdminRoute.tsx';
+import AdminLayout from './admin/layouts/AdminLayout.tsx';
+import { AdminPageSkeleton } from './admin/components/AdminPageSkeleton.tsx';
+import AdminLoginPage from './admin/pages/AdminLoginPage.tsx';
+
+const AdminDashboardPage = lazy(() => import('./admin/pages/AdminDashboardPage.tsx'));
+const AdminUsersPage = lazy(() => import('./admin/pages/AdminUsersPage.tsx'));
+const AdminUserDetailPage = lazy(() => import('./admin/pages/AdminUserDetailPage.tsx'));
+const AdminVendorsPage = lazy(() => import('./admin/pages/AdminVendorsPage.tsx'));
+const AdminVendorDetailPage = lazy(() => import('./admin/pages/AdminVendorDetailPage.tsx'));
+const AdminProvidersPage = lazy(() => import('./admin/pages/AdminProvidersPage.tsx'));
+const AdminProviderDetailPage = lazy(() => import('./admin/pages/AdminProviderDetailPage.tsx'));
+const AdminCategoriesPage = lazy(() => import('./admin/pages/AdminCategoriesPage.tsx'));
+const AdminOrdersPage = lazy(() => import('./admin/pages/AdminOrdersPage.tsx'));
+const AdminOrderDetailPage = lazy(() => import('./admin/pages/AdminOrderDetailPage.tsx'));
+const AdminProductsPage = lazy(() => import('./admin/pages/AdminProductsPage.tsx'));
+const AdminFinancePage = lazy(() => import('./admin/pages/AdminFinancePage.tsx'));
+const AdminAffiliateHubPage = lazy(() => import('./admin/pages/AdminAffiliateHubPage.tsx'));
+const AdminAuditPage = lazy(() => import('./admin/pages/AdminAuditPage.tsx'));
+const AdminSettingsPage = lazy(() => import('./admin/pages/AdminSettingsPage.tsx'));
+const AdminPaymentsPage = lazy(() => import('./admin/pages/AdminPaymentsPage.tsx'));
+const AdminRefundsPage = lazy(() => import('./admin/pages/AdminRefundsPage.tsx'));
+const AdminCouponsPage = lazy(() => import('./admin/pages/AdminCouponsPage.tsx'));
+const AdminReviewsPage = lazy(() => import('./admin/pages/AdminReviewsPage.tsx'));
+const AdminProductDetailPage = lazy(() => import('./admin/pages/AdminProductDetailPage.tsx'));
+const AdminRefundDetailPage = lazy(() => import('./admin/pages/AdminRefundDetailPage.tsx'));
+const AdminPaymentDetailPage = lazy(() => import('./admin/pages/AdminPaymentDetailPage.tsx'));
+const AdminCouponDetailPage = lazy(() => import('./admin/pages/AdminCouponDetailPage.tsx'));
+
+function AdminRouteFallback() {
+  return <AdminPageSkeleton />;
+}
 
 function MobileBottomNav({
   onOpenCart,
   isLoggedIn,
-  accountHubPath,
+  accountHubHref,
+  accountHubIsExternal,
   isAccountActive,
 }: {
   onOpenCart: () => void;
   isLoggedIn: boolean;
-  accountHubPath: string;
+  accountHubHref: string;
+  accountHubIsExternal: boolean;
   isAccountActive: boolean;
 }) {
   const location = useLocation();
@@ -175,13 +214,23 @@ function MobileBottomNav({
         <Bookmark size={22} className="mb-1" />
         <span className="text-[11px] font-medium">{t('layout.nav.wishlist')}</span>
       </Link>
-      <Link
-        to={isLoggedIn ? accountHubPath : '/auth'}
-        className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${isAccountActive ? 'text-diyar-dark' : ''}`}
-      >
-        <User size={22} className="mb-1" />
-        <span className="text-[11px] font-medium">{t('layout.nav.myAccount')}</span>
-      </Link>
+      {isLoggedIn && accountHubIsExternal ? (
+        <a
+          href={accountHubHref}
+          className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${isAccountActive ? 'text-diyar-dark' : ''}`}
+        >
+          <User size={22} className="mb-1" />
+          <span className="text-[11px] font-medium">{t('layout.nav.myAccount')}</span>
+        </a>
+      ) : (
+        <Link
+          to={isLoggedIn ? accountHubHref : '/auth'}
+          className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${isAccountActive ? 'text-diyar-dark' : ''}`}
+        >
+          <User size={22} className="mb-1" />
+          <span className="text-[11px] font-medium">{t('layout.nav.myAccount')}</span>
+        </Link>
+      )}
     </div>
   );
 }
@@ -197,16 +246,25 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const { count: cartCount } = useCart();
+  const isAdminPage = location.pathname.startsWith('/admin');
+  const { count: cartCount } = useCart({ enabled: !isAdminPage });
   const { isAuthenticated, logout, isLoading, user } = useAuth();
   const { toast } = useToast();
   const { dir, t } = useLocale();
   const dashboardPath = resolveDashboardEntryPath(user?.roles);
   const accountHubPath = resolveAccountHubPath(user?.roles);
+  const accountHubHref = accountHubPath;
+  const accountHubIsExternal = false;
   const notificationsHubPath = resolveNotificationsHubPath(user?.roles);
   const isAccountActive = isAccountHubPath(location.pathname, location.search, user?.roles);
   const chatHubPath = resolveChatHubPath(user?.roles);
   const showDashboardLink = shouldShowStorefrontDashboardLink(
+    isAuthenticated,
+    user?.status,
+    user?.roles,
+  );
+  const hideStoreCommerce = shouldHideMarketplaceCommerce(user?.roles);
+  const showAdminPanelLink = shouldShowAdminPanelLink(
     isAuthenticated,
     user?.status,
     user?.roles,
@@ -252,14 +310,16 @@ export default function App() {
   const isStatusPage =
     location.pathname === '/403' || location.pathname === '/404' || isAccountStatusPage;
   const isHomePage = location.pathname === '/';
+  const hideMarketplaceChrome = isAuthPage || isAdminPage || isDashboardPage || isStatusPage;
 
   useEffect(() => {
-    if (isAuthPage) {
+    if (hideMarketplaceChrome) {
       setIsCartOpen(false);
+      setIsSidebarOpen(false);
     }
-  }, [isAuthPage]);
+  }, [hideMarketplaceChrome]);
 
-  if (isLoading && !isAuthPage) {
+  if (isLoading && !hideMarketplaceChrome) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white" dir={dir}>
         <div className="w-8 h-8 border-2 border-diyar-brown/30 border-t-diyar-brown rounded-full animate-spin" />
@@ -269,8 +329,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-diyar-dark pb-17.5 md:pb-0" dir={dir}>
-      {!(isAuthPage || isDashboardPage || isStatusPage) && <AnnouncementBar />}
-      {!(isAuthPage || isDashboardPage || isStatusPage) && (
+      {!hideMarketplaceChrome && <AnnouncementBar />}
+      {!hideMarketplaceChrome && (
         <div
           className={`sticky top-0 z-50 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full md:translate-y-[-120%]'} w-full flex justify-center ${isHomePage ? 'h-0 overflow-visible' : ''}`}
         >
@@ -309,6 +369,14 @@ export default function App() {
                         }`}
                       >
                         {t('layout.nav.dashboard')}
+                      </Link>
+                    )}
+                    {showAdminPanelLink && (
+                      <Link
+                        to={ADMIN_PANEL_PATH}
+                        className="text-gray-600 hover:text-diyar-dark px-3 py-2 transition-colors whitespace-nowrap cursor-pointer"
+                      >
+                        {t('layout.nav.adminPanel')}
                       </Link>
                     )}
                     <Link
@@ -377,13 +445,23 @@ export default function App() {
                       <Search className="w-5 h-5" />
                     </Link>
                     {isAuthenticated ? (
-                      <Link
-                        to={accountHubPath}
-                        className="hidden md:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center overflow-hidden hover:ring-2 hover:ring-diyar-brown/30 transition-all cursor-pointer"
-                        title={t('common.myAccount')}
-                      >
-                        <UserAvatar name={user?.name} avatarUrl={user?.avatar_url} size="sm" />
-                      </Link>
+                      accountHubIsExternal ? (
+                        <a
+                          href={accountHubHref}
+                          className="hidden md:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center overflow-hidden hover:ring-2 hover:ring-diyar-brown/30 transition-all cursor-pointer"
+                          title={t('common.myAccount')}
+                        >
+                          <UserAvatar name={user?.name} avatarUrl={user?.avatar_url} size="sm" />
+                        </a>
+                      ) : (
+                        <Link
+                          to={accountHubHref}
+                          className="hidden md:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center overflow-hidden hover:ring-2 hover:ring-diyar-brown/30 transition-all cursor-pointer"
+                          title={t('common.myAccount')}
+                        >
+                          <UserAvatar name={user?.name} avatarUrl={user?.avatar_url} size="sm" />
+                        </Link>
+                      )
                     ) : (
                       <Link
                         to="/auth"
@@ -393,6 +471,7 @@ export default function App() {
                         <User size={18} />
                       </Link>
                     )}
+                    {!hideStoreCommerce ? (
                     <div
                       className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
                       onClick={() => setIsCartOpen(true)}
@@ -404,6 +483,7 @@ export default function App() {
                         </span>
                       )}
                     </div>
+                    ) : null}
                     {isAuthenticated && <ChatMessagesLink to={chatHubPath} variant="header" />}
                     {isAuthenticated ? (
                       <NotificationBellDropdown
@@ -425,12 +505,14 @@ export default function App() {
                   </div>
 
                   {/* CTA Button */}
+                  {!hideStoreCommerce ? (
                   <button
                     onClick={() => setIsRequestServiceOpen(true)}
                     className="hidden md:flex text-sm font-bold bg-diyar-dark text-diyar-cream px-5 py-2.5 rounded-2xl hover:bg-diyar-dark/90 transition-colors items-center gap-2 shrink-0 cursor-pointer"
                   >
                     {t('layout.nav.requestService')}
                   </button>
+                  ) : null}
                 </div>
               </div>
             </header>
@@ -438,14 +520,24 @@ export default function App() {
         </div>
       )}
 
-      <FilterModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
-      {!isAuthPage && <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />}
-      <SidebarMenu isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <ImageSearchModal isOpen={isImageSearchOpen} onClose={() => setIsImageSearchOpen(false)} />
-      <RequestServiceModal
-        isOpen={isRequestServiceOpen}
-        onClose={() => setIsRequestServiceOpen(false)}
-      />
+      {!hideMarketplaceChrome && (
+        <FilterModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+      )}
+      {!hideMarketplaceChrome && (
+        <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      )}
+      {!hideMarketplaceChrome && (
+        <SidebarMenu isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      )}
+      {!hideMarketplaceChrome && (
+        <ImageSearchModal isOpen={isImageSearchOpen} onClose={() => setIsImageSearchOpen(false)} />
+      )}
+      {!hideMarketplaceChrome && (
+        <RequestServiceModal
+          isOpen={isRequestServiceOpen}
+          onClose={() => setIsRequestServiceOpen(false)}
+        />
+      )}
 
       <AccountStatusGuard>
         <Routes>
@@ -458,6 +550,83 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/login"
+            element={
+              <AdminGuestRoute>
+                <AdminLoginPage />
+              </AdminGuestRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedAdminRoute>
+                <AdminLayout />
+              </ProtectedAdminRoute>
+            }
+          >
+            <Route
+              index
+              element={
+                <Suspense fallback={<AdminRouteFallback />}>
+                  <AdminDashboardPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="users"
+              element={
+                <Suspense fallback={<AdminRouteFallback />}>
+                  <AdminUsersPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="users/:userId"
+              element={
+                <Suspense fallback={<AdminRouteFallback />}>
+                  <AdminUserDetailPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="vendors"
+              element={
+                <Suspense fallback={<AdminRouteFallback />}>
+                  <AdminVendorsPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="vendors/:vendorId"
+              element={
+                <Suspense fallback={<AdminRouteFallback />}>
+                  <AdminVendorDetailPage />
+                </Suspense>
+              }
+            />
+            <Route path="providers" element={<Suspense fallback={<AdminRouteFallback />}><AdminProvidersPage /></Suspense>} />
+            <Route path="providers/:providerId" element={<Suspense fallback={<AdminRouteFallback />}><AdminProviderDetailPage /></Suspense>} />
+            <Route path="affiliate" element={<Suspense fallback={<AdminRouteFallback />}><AdminAffiliateHubPage /></Suspense>} />
+            <Route path="products" element={<Suspense fallback={<AdminRouteFallback />}><AdminProductsPage /></Suspense>} />
+            <Route path="products/:productId" element={<Suspense fallback={<AdminRouteFallback />}><AdminProductDetailPage /></Suspense>} />
+            <Route path="categories" element={<Suspense fallback={<AdminRouteFallback />}><AdminCategoriesPage /></Suspense>} />
+            <Route path="orders" element={<Suspense fallback={<AdminRouteFallback />}><AdminOrdersPage /></Suspense>} />
+            <Route path="orders/:orderId" element={<Suspense fallback={<AdminRouteFallback />}><AdminOrderDetailPage /></Suspense>} />
+            <Route path="payments" element={<Suspense fallback={<AdminRouteFallback />}><AdminPaymentsPage /></Suspense>} />
+            <Route path="payments/:paymentId" element={<Suspense fallback={<AdminRouteFallback />}><AdminPaymentDetailPage /></Suspense>} />
+            <Route path="refunds" element={<Suspense fallback={<AdminRouteFallback />}><AdminRefundsPage /></Suspense>} />
+            <Route path="refunds/:refundId" element={<Suspense fallback={<AdminRouteFallback />}><AdminRefundDetailPage /></Suspense>} />
+            <Route path="coupons" element={<Suspense fallback={<AdminRouteFallback />}><AdminCouponsPage /></Suspense>} />
+            <Route path="coupons/:couponId" element={<Suspense fallback={<AdminRouteFallback />}><AdminCouponDetailPage /></Suspense>} />
+            <Route path="reviews" element={<Suspense fallback={<AdminRouteFallback />}><AdminReviewsPage /></Suspense>} />
+            <Route path="finance" element={<Suspense fallback={<AdminRouteFallback />}><AdminFinancePage /></Suspense>} />
+            <Route path="payouts" element={<Navigate to="/admin/finance" replace />} />
+            <Route path="transactions" element={<Navigate to="/admin/finance" replace />} />
+            <Route path="audit" element={<Suspense fallback={<AdminRouteFallback />}><AdminAuditPage /></Suspense>} />
+            <Route path="settings" element={<Suspense fallback={<AdminRouteFallback />}><AdminSettingsPage /></Suspense>} />
+          </Route>
           <Route
             path="/auth"
             element={
@@ -496,7 +665,9 @@ export default function App() {
             path="/checkout"
             element={
               <ProtectedRoute>
-                <CheckoutPage />
+                <MarketplaceCommerceRoute>
+                  <CheckoutPage />
+                </MarketplaceCommerceRoute>
               </ProtectedRoute>
             }
           />
@@ -504,7 +675,9 @@ export default function App() {
             path="/checkout/payment/:orderId/simulate"
             element={
               <ProtectedRoute>
-                <LocalPaymentSimulatorPage />
+                <MarketplaceCommerceRoute>
+                  <LocalPaymentSimulatorPage />
+                </MarketplaceCommerceRoute>
               </ProtectedRoute>
             }
           />
@@ -512,7 +685,9 @@ export default function App() {
             path="/checkout/payment/:orderId"
             element={
               <ProtectedRoute>
-                <OrderPaymentPage />
+                <MarketplaceCommerceRoute>
+                  <OrderPaymentPage />
+                </MarketplaceCommerceRoute>
               </ProtectedRoute>
             }
           />
@@ -648,7 +823,7 @@ export default function App() {
             <Route
               path="vendor/orders"
               element={
-                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Vendor]}>
                   <VendorOrdersPage />
                 </ProtectedRoute>
               }
@@ -656,7 +831,7 @@ export default function App() {
             <Route
               path="vendor/preorders"
               element={
-                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Vendor]}>
                   <VendorPreordersPage />
                 </ProtectedRoute>
               }
@@ -664,7 +839,7 @@ export default function App() {
             <Route
               path="vendor/returns"
               element={
-                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Vendor]}>
                   <VendorReturnsPage />
                 </ProtectedRoute>
               }
@@ -672,7 +847,7 @@ export default function App() {
             <Route
               path="vendor/products"
               element={
-                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Vendor]}>
                   <VendorProducts />
                 </ProtectedRoute>
               }
@@ -680,7 +855,7 @@ export default function App() {
             <Route
               path="vendor/coupons"
               element={
-                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Vendor]}>
                   <VendorCoupons />
                 </ProtectedRoute>
               }
@@ -688,7 +863,7 @@ export default function App() {
             <Route
               path="vendor/reviews"
               element={
-                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Vendor]}>
                   <VendorReviewsInbox />
                 </ProtectedRoute>
               }
@@ -696,7 +871,7 @@ export default function App() {
             <Route
               path="vendor/messages"
               element={
-                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Vendor]}>
                   <VendorMessages />
                 </ProtectedRoute>
               }
@@ -704,7 +879,7 @@ export default function App() {
             <Route
               path="vendor/team"
               element={
-                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Vendor]}>
                   <VendorTeam />
                 </ProtectedRoute>
               }
@@ -712,7 +887,7 @@ export default function App() {
             <Route
               path="vendor/finance"
               element={
-                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Vendor]}>
                   <VendorFinance />
                 </ProtectedRoute>
               }
@@ -720,7 +895,7 @@ export default function App() {
             <Route
               path="vendor/settings"
               element={
-                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Vendor]}>
                   <VendorSettings />
                 </ProtectedRoute>
               }
@@ -728,7 +903,7 @@ export default function App() {
             <Route
               path="vendor/notifications"
               element={
-                <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Vendor]}>
                   <Notifications />
                 </ProtectedRoute>
               }
@@ -737,7 +912,7 @@ export default function App() {
             <Route
               path="service"
               element={
-                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Provider]}>
                   <ServiceDashboard />
                 </ProtectedRoute>
               }
@@ -745,7 +920,7 @@ export default function App() {
             <Route
               path="service/client-requests"
               element={
-                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Provider]}>
                   <ServiceClientRequests />
                 </ProtectedRoute>
               }
@@ -753,7 +928,7 @@ export default function App() {
             <Route
               path="service/client-requests/:id"
               element={
-                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Provider]}>
                   <ServiceClientRequestDetails />
                 </ProtectedRoute>
               }
@@ -761,7 +936,7 @@ export default function App() {
             <Route
               path="service/bookings"
               element={
-                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Provider]}>
                   <ServiceBookings />
                 </ProtectedRoute>
               }
@@ -769,7 +944,7 @@ export default function App() {
             <Route
               path="service/services"
               element={
-                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Provider]}>
                   <ServiceServices />
                 </ProtectedRoute>
               }
@@ -777,7 +952,7 @@ export default function App() {
             <Route
               path="service/finance"
               element={
-                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Provider]}>
                   <ServiceFinance />
                 </ProtectedRoute>
               }
@@ -785,7 +960,7 @@ export default function App() {
             <Route
               path="service/reviews"
               element={
-                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Provider]}>
                   <ServiceReviewsInbox />
                 </ProtectedRoute>
               }
@@ -793,7 +968,7 @@ export default function App() {
             <Route
               path="service/messages"
               element={
-                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Provider]}>
                   <ProviderMessages />
                 </ProtectedRoute>
               }
@@ -801,7 +976,7 @@ export default function App() {
             <Route
               path="service/settings"
               element={
-                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Provider]}>
                   <ServiceSettings />
                 </ProtectedRoute>
               }
@@ -809,7 +984,7 @@ export default function App() {
             <Route
               path="service/notifications"
               element={
-                <ProtectedRoute roles={[RoleName.Provider, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Provider]}>
                   <Notifications />
                 </ProtectedRoute>
               }
@@ -818,7 +993,7 @@ export default function App() {
             <Route
               path="affiliate"
               element={
-                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Marketer]}>
                   <AffiliateDashboard />
                 </ProtectedRoute>
               }
@@ -826,7 +1001,7 @@ export default function App() {
             <Route
               path="affiliate/products"
               element={
-                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Marketer]}>
                   <AffiliateProducts />
                 </ProtectedRoute>
               }
@@ -834,7 +1009,7 @@ export default function App() {
             <Route
               path="affiliate/links"
               element={
-                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Marketer]}>
                   <AffiliateLinks />
                 </ProtectedRoute>
               }
@@ -842,7 +1017,7 @@ export default function App() {
             <Route
               path="affiliate/reports"
               element={
-                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Marketer]}>
                   <AffiliateReports />
                 </ProtectedRoute>
               }
@@ -850,7 +1025,7 @@ export default function App() {
             <Route
               path="affiliate/payouts"
               element={
-                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Marketer]}>
                   <AffiliatePayouts />
                 </ProtectedRoute>
               }
@@ -858,7 +1033,7 @@ export default function App() {
             <Route
               path="affiliate/settings"
               element={
-                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Marketer]}>
                   <AffiliateSettings />
                 </ProtectedRoute>
               }
@@ -866,7 +1041,7 @@ export default function App() {
             <Route
               path="affiliate/notifications"
               element={
-                <ProtectedRoute roles={[RoleName.Marketer, RoleName.Admin]}>
+                <ProtectedRoute roles={[RoleName.Marketer]}>
                   <Notifications />
                 </ProtectedRoute>
               }
@@ -878,13 +1053,14 @@ export default function App() {
         </Routes>
       </AccountStatusGuard>
 
-      {!(isAuthPage || isDashboardPage || isStatusPage) && <FloatingContactBar />}
-      {!(isAuthPage || isDashboardPage || isStatusPage) && <Footer />}
-      {!(isAuthPage || isDashboardPage || isStatusPage) && (
+      {!hideMarketplaceChrome && <FloatingContactBar />}
+      {!hideMarketplaceChrome && <Footer />}
+      {!hideMarketplaceChrome && (
         <MobileBottomNav
           onOpenCart={() => setIsCartOpen(true)}
           isLoggedIn={isAuthenticated}
-          accountHubPath={accountHubPath}
+          accountHubHref={accountHubHref}
+          accountHubIsExternal={accountHubIsExternal}
           isAccountActive={isAccountActive}
         />
       )}

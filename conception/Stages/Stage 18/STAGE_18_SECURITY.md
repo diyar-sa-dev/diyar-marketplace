@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-22  
 **Scope:** Filament admin panel, settings system, audit logging  
-**Status:** Pre-implementation checklist
+**Status:** Phase 18.4 in progress — automated regression green; manual QA required before **COMPLETE / VERIFIED**
 
 ---
 
@@ -43,8 +43,11 @@
 ### 3.1 Panel level
 
 ```php
-->canAccessPanel(fn (User $user) => $user->hasRole(RoleName::Admin))
+->authGuard('admin')
+->canAccessPanel(fn (User $user) => $user->canAccessAdminPanel())
 ```
+
+Granular permissions via `AdminPermission` enum + `AuthorizesAdminResource` trait (not role-only).
 
 ### 3.2 Resource level
 

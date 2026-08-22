@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class VendorAccount extends Model
@@ -111,6 +112,39 @@ class VendorAccount extends Model
     public function teamMembers(): HasMany
     {
         return $this->hasMany(VendorTeamMember::class);
+    }
+
+    public function vendorOrders(): HasMany
+    {
+        return $this->hasMany(VendorOrder::class);
+    }
+
+    public function vendorPayouts(): HasMany
+    {
+        return $this->hasMany(VendorPayout::class);
+    }
+
+    public function financialTransactions(): HasMany
+    {
+        return $this->hasMany(FinancialTransaction::class);
+    }
+
+    public function affiliateCommissions(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            AffiliateCommission::class,
+            VendorOrder::class,
+            'vendor_account_id',
+            'vendor_order_id',
+            'id',
+            'id',
+        );
+    }
+
+    public function adminAuditLogsAsResource(): HasMany
+    {
+        return $this->hasMany(AdminAuditLog::class, 'resource_id')
+            ->where('resource_type', self::class);
     }
 
     public function scopeActive($query)

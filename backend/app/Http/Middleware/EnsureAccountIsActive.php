@@ -15,7 +15,7 @@ final class EnsureAccountIsActive
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
+        $user = $request->user('web');
 
         if ($user === null) {
             return $next($request);

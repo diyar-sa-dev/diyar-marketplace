@@ -66,7 +66,7 @@ const emptyForm = (): ServiceFormState => ({
 });
 
 const INPUT_CLASS =
-  'w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown bg-gray-50/50 placeholder:text-gray-400 text-start';
+  'w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 bg-gray-50/50 placeholder:text-gray-400 text-start';
 
 const PER_PAGE = 9;
 
@@ -240,7 +240,7 @@ export default function ServiceServices() {
                 setSearchTerm(e.target.value);
                 resetPage();
               }}
-              className="ps-10 pe-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-diyar-brown/20 focus:border-diyar-brown text-sm w-full md:w-64 bg-white"
+              className="ps-10 pe-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-sm w-full md:w-64 bg-white"
             />
             <Search
               size={18}
@@ -250,7 +250,7 @@ export default function ServiceServices() {
           <button
             type="button"
             onClick={() => setIsAddModalOpen(true)}
-            className="bg-diyar-brown text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#856b54] transition cursor-pointer shadow-sm"
+            className="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition cursor-pointer shadow-sm"
           >
             <Plus size={18} />
             {t('providerDashboard.services.addService')}
@@ -303,7 +303,7 @@ export default function ServiceServices() {
             {services.map((service) => (
               <div
                 key={service.id}
-                className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-diyar-brown/20 transition-all overflow-hidden"
+                className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-blue-600/20 transition-all overflow-hidden"
               >
                 <div className="relative h-40 bg-linear-to-br from-diyar-cream/40 to-gray-50 overflow-hidden">
                   {service.image_url ? (
@@ -313,7 +313,7 @@ export default function ServiceServices() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-diyar-brown/30">
+                    <div className="w-full h-full flex items-center justify-center text-blue-600/30">
                       <Upload size={32} />
                     </div>
                   )}
@@ -327,7 +327,7 @@ export default function ServiceServices() {
                 <div className="p-5">
                   <div className="flex flex-wrap gap-2 mb-2">
                     {service.category?.name && (
-                      <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-diyar-cream/60 text-diyar-brown border border-diyar-brown/15">
+                      <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 border border-blue-600/15">
                         {service.category.name}
                       </span>
                     )}
@@ -368,7 +368,7 @@ export default function ServiceServices() {
 
                   <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
                     <span
-                      className={`font-bold text-xl tabular-nums ${service.is_active !== false ? 'text-diyar-brown' : 'text-gray-400'}`}
+                      className={`font-bold text-xl tabular-nums ${service.is_active !== false ? 'text-blue-600' : 'text-gray-400'}`}
                       dir="ltr"
                     >
                       {formatWesternNumber(Number(service.starting_price ?? 0))}{' '}
@@ -378,7 +378,7 @@ export default function ServiceServices() {
                       <button
                         type="button"
                         onClick={() => setSelectedService(service)}
-                        className="p-2.5 text-gray-500 hover:text-diyar-brown bg-gray-50 hover:bg-amber-50 rounded-xl transition cursor-pointer"
+                        className="p-2.5 text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 rounded-xl transition cursor-pointer"
                         title={t('providerDashboard.services.editService')}
                       >
                         <Edit size={16} />
@@ -444,7 +444,7 @@ export default function ServiceServices() {
               <button
                 type="button"
                 onClick={() => coverInputRef.current?.click()}
-                className="w-full h-36 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center text-gray-400 bg-gray-50 hover:bg-amber-50/50 hover:border-diyar-brown/40 transition-colors cursor-pointer overflow-hidden"
+                className="w-full h-36 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center text-gray-400 bg-gray-50 hover:bg-blue-50/50 hover:border-blue-600/40 transition-colors cursor-pointer overflow-hidden"
               >
                 {selectedService?.image_url && !form.cover ? (
                   <img
@@ -458,7 +458,7 @@ export default function ServiceServices() {
                   </span>
                 ) : (
                   <>
-                    <Upload size={24} className="mb-2 text-diyar-brown/50" />
+                    <Upload size={24} className="mb-2 text-blue-600/50" />
                     <span className="text-sm font-medium text-gray-600">
                       {t('providerDashboard.services.modal.coverUpload')}
                     </span>
@@ -631,7 +631,7 @@ export default function ServiceServices() {
                     checked={form.is_active}
                     onChange={(e) => setForm((prev) => ({ ...prev, is_active: e.target.checked }))}
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:right-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-diyar-brown" />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:right-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600" />
                 </label>
               </div>
             </div>
@@ -648,7 +648,7 @@ export default function ServiceServices() {
                 type="button"
                 onClick={() => void handleSave()}
                 disabled={saving}
-                className="px-5 py-2.5 rounded-xl font-bold bg-diyar-brown text-white hover:bg-[#856b54] transition disabled:opacity-60 flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl font-bold bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-60 flex items-center gap-2 cursor-pointer"
               >
                 {saving && <Loader2 size={16} className="animate-spin" />}
                 {t('providerDashboard.common.saveService')}

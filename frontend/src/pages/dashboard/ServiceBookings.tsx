@@ -406,7 +406,7 @@ export default function ServiceBookings() {
                   type="button"
                   onClick={() => void handleConfirm(selectedBooking)}
                   disabled={isActionPending}
-                  className="px-4 py-2 text-sm font-bold text-white bg-diyar-brown rounded-xl hover:bg-orange-700 transition shadow-sm cursor-pointer disabled:opacity-70"
+                  className="px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition shadow-sm cursor-pointer disabled:opacity-70"
                 >
                   {t('providerDashboard.bookings.confirmBooking')}
                 </button>
@@ -526,7 +526,7 @@ export default function ServiceBookings() {
             {service && (
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <h3 className="font-bold text-diyar-dark mb-4 flex items-center gap-2">
-                  <Briefcase size={18} className="text-diyar-brown" />
+                  <Briefcase size={18} className="text-blue-600" />
                   {t('providerDashboard.bookings.serviceDetailsTitle')}
                 </h3>
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -541,14 +541,12 @@ export default function ServiceBookings() {
                     <div>
                       <p className="font-bold text-diyar-dark text-base">{service.title}</p>
                       {service.pricing_label && (
-                        <p className="text-diyar-brown font-semibold mt-1">
-                          {service.pricing_label}
-                        </p>
+                        <p className="text-blue-600 font-semibold mt-1">{service.pricing_label}</p>
                       )}
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {service.category?.name && (
-                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-diyar-cream/60 text-diyar-brown border border-diyar-brown/15">
+                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 border border-blue-600/15">
                           {service.category.name}
                         </span>
                       )}
@@ -574,7 +572,7 @@ export default function ServiceBookings() {
                     {service.slug && (
                       <Link
                         to={`/service/${service.slug}`}
-                        className="inline-flex text-sm font-bold text-diyar-brown hover:text-diyar-dark"
+                        className="inline-flex text-sm font-bold text-blue-600 hover:text-diyar-dark"
                       >
                         {t('providerDashboard.bookings.viewServicePage')} →
                       </Link>
@@ -587,7 +585,7 @@ export default function ServiceBookings() {
             {serviceRequest && (
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <h3 className="font-bold text-diyar-dark mb-4 flex items-center gap-2">
-                  <FileText size={18} className="text-diyar-brown" />
+                  <FileText size={18} className="text-blue-600" />
                   {t('providerDashboard.bookings.requestDetailsTitle')}
                 </h3>
                 <div className="space-y-3 text-sm">
@@ -614,7 +612,7 @@ export default function ServiceBookings() {
                   )}
                   {serviceRequest.location && (
                     <p className="text-gray-600 flex items-center gap-1.5">
-                      <MapPin size={14} className="text-diyar-brown shrink-0" />
+                      <MapPin size={14} className="text-blue-600 shrink-0" />
                       {serviceRequest.location}
                     </p>
                   )}
@@ -624,7 +622,7 @@ export default function ServiceBookings() {
 
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h3 className="font-bold text-diyar-dark mb-4 flex items-center gap-2">
-                <MessageSquare size={18} className="text-diyar-brown" />
+                <MessageSquare size={18} className="text-blue-600" />
                 {t('providerDashboard.bookings.customerNotesTitle')}
               </h3>
               <div className="bg-linear-to-br from-gray-50 to-diyar-cream/20 p-5 rounded-xl text-sm leading-relaxed text-gray-700 border border-gray-100">
@@ -655,11 +653,11 @@ export default function ServiceBookings() {
               </div>
               <div className="p-4 space-y-2">
                 <div className="flex items-center gap-3 p-3.5 bg-gray-50 rounded-xl border border-gray-100">
-                  <Phone size={18} className="text-diyar-brown shrink-0" />
+                  <Phone size={18} className="text-blue-600 shrink-0" />
                   {customerPhone ? (
                     <a
                       href={`tel:${customerPhone}`}
-                      className="text-sm font-medium text-diyar-dark hover:text-diyar-brown"
+                      className="text-sm font-medium text-diyar-dark hover:text-blue-600"
                       dir="ltr"
                     >
                       {formatInternationalPhone(customerPhone)}
@@ -671,11 +669,11 @@ export default function ServiceBookings() {
                   )}
                 </div>
                 <div className="flex items-center gap-3 p-3.5 bg-gray-50 rounded-xl border border-gray-100">
-                  <Mail size={18} className="text-diyar-brown shrink-0" />
+                  <Mail size={18} className="text-blue-600 shrink-0" />
                   {customerEmail ? (
                     <a
                       href={`mailto:${customerEmail}`}
-                      className="text-sm font-medium text-diyar-dark hover:text-diyar-brown truncate"
+                      className="text-sm font-medium text-diyar-dark hover:text-blue-600 truncate"
                     >
                       {customerEmail}
                     </a>
@@ -800,7 +798,7 @@ export default function ServiceBookings() {
             {bookings.map((booking) => (
               <div
                 key={booking.id}
-                className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-diyar-brown/20 transition-all overflow-hidden"
+                className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-blue-600/20 transition-all overflow-hidden"
               >
                 <div className="p-5 border-b border-gray-50 bg-linear-to-br from-white to-diyar-cream/15">
                   <div className="flex items-start justify-between gap-3 mb-3">
@@ -824,11 +822,11 @@ export default function ServiceBookings() {
 
                 <div className="p-5 space-y-2.5 text-sm">
                   <div className="flex items-center gap-2.5 text-gray-600">
-                    <CalendarIcon size={16} className="text-diyar-brown shrink-0" />
+                    <CalendarIcon size={16} className="text-blue-600 shrink-0" />
                     <span dir="ltr">{formatBookingListDate(booking)}</span>
                   </div>
                   <div className="flex items-center gap-2.5 text-gray-600">
-                    <Clock size={16} className="text-diyar-brown shrink-0" />
+                    <Clock size={16} className="text-blue-600 shrink-0" />
                     <span dir="ltr">{formatBookingListTime(booking)}</span>
                   </div>
                   {hasScheduleNegotiation(booking) && (
@@ -845,14 +843,14 @@ export default function ServiceBookings() {
                     </p>
                   )}
                   <div className="flex items-center gap-2.5 text-gray-600">
-                    <MapPin size={16} className="text-diyar-brown shrink-0" />
+                    <MapPin size={16} className="text-blue-600 shrink-0" />
                     <span className="truncate">{booking.location ?? '—'}</span>
                   </div>
                   <div className="pt-2 flex items-baseline gap-1.5">
                     <span className="text-xs text-gray-500">
                       {t('providerDashboard.bookings.price')}
                     </span>
-                    <span className="font-bold text-diyar-brown tabular-nums" dir="ltr">
+                    <span className="font-bold text-blue-600 tabular-nums" dir="ltr">
                       {formatWesternNumber(Number(booking.price))}{' '}
                       {t('providerDashboard.common.currency')}
                     </span>

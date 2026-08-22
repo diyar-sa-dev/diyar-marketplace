@@ -13,7 +13,7 @@ export default function VendorDashboardEntry() {
   }
 
   return (
-    <ProtectedRoute roles={[RoleName.Vendor, RoleName.Admin]}>
+    <ProtectedRoute roles={[RoleName.Vendor]}>
       <VendorDashboard />
     </ProtectedRoute>
   );

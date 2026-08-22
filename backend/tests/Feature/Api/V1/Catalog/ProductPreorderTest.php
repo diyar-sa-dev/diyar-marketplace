@@ -54,7 +54,7 @@ class ProductPreorderTest extends TestCase
 
         $this->actingAs($customer)->postJson("/api/v1/products/{$product->id}/preorder")->assertCreated();
 
-        $response = $this->actingAs($vendor)->getJson('/api/v1/dashboard/vendor/preorders');
+        $response = $this->getJsonAsUser('/api/v1/dashboard/vendor/preorders', $vendor);
 
         $response->assertOk()
             ->assertJsonPath('data.summary.pending', 1)

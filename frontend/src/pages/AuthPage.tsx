@@ -4,7 +4,7 @@ import { ChevronRight, Store, Briefcase, User, Megaphone } from 'lucide-react';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useOtpCooldown } from '../hooks/auth/useOtpCooldown.ts';
 import { useToast } from '../hooks/useToast.ts';
-import { resolveSafeReturnPath } from '../lib/auth/roles.ts';
+import { ADMIN_PANEL_PATH, isAdminOnlyAccount, resolveSafeReturnPath } from '../lib/auth/roles.ts';
 import {
   isValidPasswordClient,
   isValidNameClient,
@@ -129,6 +129,11 @@ export default function AuthPage() {
   ] as const;
 
   const redirectAfterAuth = (userRoles?: Array<{ name: string; status?: string }>) => {
+    if (isAdminOnlyAccount(userRoles)) {
+      navigate(ADMIN_PANEL_PATH, { replace: true });
+      return;
+    }
+
     const from = (location.state as { from?: string } | null)?.from;
     navigate(resolveSafeReturnPath(from, userRoles), { replace: true });
   };

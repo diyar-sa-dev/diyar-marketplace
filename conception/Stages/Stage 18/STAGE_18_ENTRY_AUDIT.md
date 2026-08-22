@@ -279,22 +279,23 @@ See [STAGE_18_PLAN.md](./STAGE_18_PLAN.md). **Do not install Filament until this
 
 ## 14. Open Questions for Product Owner
 
-| # | Question |
-|---|----------|
-| Q1 | Single `admin` role vs split Operations/Finance/Content admin roles in V1? |
-| Q2 | Should existing `/api/v1/admin/*` remain for automation, with Filament calling same services? |
-| Q3 | Vendor/provider **approval workflow** — is there a pending status today or only `active`/`suspended`? |
-| Q4 | Priority of **theme/CMS** settings vs operational resources in 18.2 Tier 3? |
-| Q5 | Merge uncommitted affiliate WIP before Stage 18 branch? |
+| # | Question | Resolution |
+|---|----------|------------|
+| Q1 | Single `admin` role vs split Operations/Finance/Content admin roles in V1? | **Resolved:** `admin` role gate + granular permissions seeded; split roles deferred |
+| Q2 | Should existing `/api/v1/admin/*` remain for automation, with Filament calling same services? | **Yes** — retain API; Filament uses domain services directly |
+| Q3 | Vendor/provider approval workflow — pending status today? | **Audited:** Vendor enum has `pending` but registration sets `active`; provider has no pending. No approval workflow — Phase 18.2 exposes suspend/activate only; approval deferred |
+| Q4 | Priority of theme/CMS settings vs operational resources in 18.2 Tier 3? | Open |
+| Q5 | Merge uncommitted affiliate WIP before Stage 18 branch? | **Resolved:** committed (`0a16d23`) |
 
 ---
 
 ## 15. Audit Verdict
 
 ```text
-Stage 18 — NOT STARTED (code)
-Audit — COMPLETE
-Ready for Phase 18.1 — YES, after stakeholder review of this document + capability matrix + architecture
+Stage 18 — IN PROGRESS
+Phase 18.1 — COMPLETE / VERIFIED
+Phase 18.2 — NEXT (Admin resources)
+Audit — COMPLETE (updated 2026-08-22)
 ```
 
 **Critical path:** Install Filament compatible with Laravel 13 → wire Sanctum/session auth for panel → map existing policies → build Tier 1 resources calling domain services → add settings + audit in Phase 18.3.

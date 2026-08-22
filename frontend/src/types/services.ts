@@ -95,6 +95,7 @@ export interface ProviderPublic {
   joined_at?: string | null;
   follow: ProviderFollowSummary;
   is_own_provider?: boolean;
+  contact_phone?: string | null;
   work_policy_summary?: string[];
 }
 

@@ -111,14 +111,14 @@ export default function ServiceClientRequests() {
           <button
             type="button"
             onClick={() => handleTabChange('open')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === 'open' ? 'bg-diyar-brown text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === 'open' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
           >
             {t('providerDashboard.clientRequests.tabs.open')}
           </button>
           <button
             type="button"
             onClick={() => handleTabChange('offered')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === 'offered' ? 'bg-diyar-brown text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors cursor-pointer ${activeTab === 'offered' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
           >
             {t('providerDashboard.clientRequests.tabs.offered')}
           </button>
@@ -135,7 +135,7 @@ export default function ServiceClientRequests() {
                 setSearchInput(e.target.value);
                 resetPage();
               }}
-              className="w-full bg-gray-50 border border-gray-100 rounded-lg pe-3 ps-9 py-2 text-sm focus:ring-2 focus:ring-diyar-brown outline-none"
+              className="w-full bg-gray-50 border border-gray-100 rounded-lg pe-3 ps-9 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
             />
           </div>
 
@@ -145,7 +145,7 @@ export default function ServiceClientRequests() {
               onClick={() => setFiltersOpen((open) => !open)}
               className={`relative p-2 border rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${
                 filtersOpen || activeFilterCount > 0
-                  ? 'border-diyar-brown bg-diyar-cream/40 text-diyar-brown'
+                  ? 'border-blue-600 bg-blue-50 text-blue-600'
                   : 'border-gray-200 text-gray-600 hover:bg-gray-50'
               }`}
               aria-expanded={filtersOpen}
@@ -157,7 +157,7 @@ export default function ServiceClientRequests() {
                 className={`hidden sm:block transition-transform ${filtersOpen ? 'rotate-180' : ''}`}
               />
               {activeFilterCount > 0 && (
-                <span className="absolute -top-1.5 -inset-e-1.5 min-w-4 h-4 px-1 rounded-full bg-diyar-brown text-white text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute -top-1.5 -inset-e-1.5 min-w-4 h-4 px-1 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
                   {activeFilterCount}
                 </span>
               )}
@@ -173,7 +173,7 @@ export default function ServiceClientRequests() {
                     <button
                       type="button"
                       onClick={clearFilters}
-                      className="text-xs font-bold text-diyar-brown hover:underline cursor-pointer"
+                      className="text-xs font-bold text-blue-600 hover:underline cursor-pointer"
                     >
                       {t('providerDashboard.clientRequests.filters.clear')}
                     </button>
@@ -190,7 +190,7 @@ export default function ServiceClientRequests() {
                       setCategoryFilter(e.target.value);
                       resetPage();
                     }}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown outline-none cursor-pointer"
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer"
                   >
                     <option value="">
                       {t('providerDashboard.clientRequests.filters.allCategories')}
@@ -213,7 +213,7 @@ export default function ServiceClientRequests() {
                       setSortFilter(e.target.value as SortOption);
                       resetPage();
                     }}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown outline-none cursor-pointer"
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer"
                   >
                     {sortOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -239,7 +239,7 @@ export default function ServiceClientRequests() {
       {activeFilterCount > 0 && (
         <div className="flex flex-wrap items-center gap-2">
           {categoryFilter && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-diyar-cream/50 text-diyar-dark text-xs font-bold border border-diyar-brown/20">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-diyar-dark text-xs font-bold border border-blue-600/20">
               {categories.find((c) => c.slug === categoryFilter)?.[
                 locale === 'ar' ? 'name_ar' : 'name_en'
               ] ?? categoryFilter}
@@ -292,10 +292,10 @@ export default function ServiceClientRequests() {
               <Link
                 to={`/dashboard/service/client-requests/${request.id}`}
                 key={request.id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col p-5 group focus:outline-none focus:ring-2 focus:ring-diyar-brown focus:border-transparent cursor-pointer"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col p-5 group focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent cursor-pointer"
               >
                 <div className="flex justify-between items-start mb-4">
-                  <span className="inline-block px-3 py-1 bg-diyar-cream/30 text-diyar-brown text-xs font-bold rounded-lg truncate max-w-37.5">
+                  <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg truncate max-w-37.5">
                     {providerCategoryLabel(request, locale)}
                   </span>
                   <span className="text-gray-400 text-xs flex items-center gap-1">
@@ -303,7 +303,7 @@ export default function ServiceClientRequests() {
                   </span>
                 </div>
 
-                <h3 className="font-bold text-gray-800 mb-2 truncate group-hover:text-diyar-brown transition-colors">
+                <h3 className="font-bold text-gray-800 mb-2 truncate group-hover:text-blue-600 transition-colors">
                   {t('providerDashboard.clientRequests.requestFrom', {
                     name: request.customer?.name ?? t('providerDashboard.common.client'),
                   })}
@@ -332,7 +332,7 @@ export default function ServiceClientRequests() {
                 <hr className="border-gray-50 mb-4" />
 
                 {activeTab === 'open' ? (
-                  <div className="w-full bg-diyar-brown text-white py-2 rounded-xl text-sm font-bold text-center group-hover:bg-[#8A6D46] transition-colors">
+                  <div className="w-full bg-blue-600 text-white py-2 rounded-xl text-sm font-bold text-center group-hover:bg-blue-700 transition-colors">
                     {t('providerDashboard.clientRequests.viewDetails')}
                   </div>
                 ) : (

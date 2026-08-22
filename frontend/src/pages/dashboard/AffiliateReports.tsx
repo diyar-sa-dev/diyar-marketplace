@@ -28,6 +28,7 @@ import { useAffiliateReports } from '../../hooks/affiliate/useAffiliate.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import { resolveMediaUrl } from '../../lib/media.ts';
+import { usePortalTheme } from '../../lib/dashboard/portalTheme.ts';
 import type { AffiliateReportLinkRow, AffiliateReportPeriod } from '../../types/affiliate.ts';
 
 const FALLBACK_IMAGE = '/placeholder-product.png';
@@ -46,6 +47,7 @@ function escapeCsvCell(value: string | number): string {
 
 export default function AffiliateReports() {
   const { t, locale, dir } = useLocale();
+  const theme = usePortalTheme();
   const [period, setPeriod] = useState<AffiliateReportPeriod>('month');
   const [search, setSearch] = useState('');
   const [linkFilter, setLinkFilter] = useState<LinkFilter>('all');
@@ -297,7 +299,9 @@ export default function AffiliateReports() {
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
+          <div
+            className={`w-10 h-10 rounded-xl ${theme.iconBg} flex items-center justify-center mb-4`}
+          >
             <TrendingUp size={20} />
           </div>
           <div className="text-2xl font-bold text-diyar-dark mb-1" dir="ltr">
@@ -394,7 +398,9 @@ export default function AffiliateReports() {
                   className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-xl"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="w-7 h-7 rounded-full bg-white text-diyar-brown font-bold text-sm flex items-center justify-center shadow-sm shrink-0">
+                    <span
+                      className={`w-7 h-7 rounded-full bg-white ${theme.text} font-bold text-sm flex items-center justify-center shadow-sm shrink-0`}
+                    >
                       {index + 1}
                     </span>
                     <div className="w-9 h-9 rounded-lg bg-white overflow-hidden shrink-0 shadow-sm">
@@ -443,9 +449,7 @@ export default function AffiliateReports() {
                   <th className="px-6 py-4 text-start">
                     {t('affiliate.reports.verifiedPurchases')}
                   </th>
-                  <th className="px-6 py-4 text-start">
-                    {t('affiliate.reports.conversionRate')}
-                  </th>
+                  <th className="px-6 py-4 text-start">{t('affiliate.reports.conversionRate')}</th>
                   <th className="px-6 py-4 text-start">{t('affiliate.reports.tableEarnings')}</th>
                 </tr>
               </thead>
@@ -492,7 +496,7 @@ export default function AffiliateReports() {
                   resetPage();
                 }}
                 placeholder={t('affiliate.reports.searchPlaceholder')}
-                className="w-full sm:w-64 ps-9 pe-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown"
+                className={`w-full sm:w-64 ps-9 pe-3 py-2 border border-gray-200 rounded-lg text-sm ${theme.inputFocus}`}
               />
             </div>
             <div className="relative">

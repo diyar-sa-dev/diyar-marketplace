@@ -6,18 +6,23 @@ use App\Models\User;
 use App\Models\VendorPayout;
 use App\Services\Vendor\VendorAccessService;
 use App\Support\Vendor\VendorAccessResolver;
+use Illuminate\Support\Facades\Auth;
 
 class VendorPayoutPolicy
 {
     public function viewAny(User $user): bool
     {
+        if ($this->isAdminOpsContext($user)) {
+            return $user->hasRole('admin');
+        }
+
         return app(VendorAccessService::class)->allows($user, 'finance');
     }
 
     public function view(User $user, VendorPayout $payout): bool
     {
-        if ($user->hasRole('admin')) {
-            return true;
+        if ($this->isAdminOpsContext($user)) {
+            return $user->hasRole('admin');
         }
 
         $vendorAccount = VendorAccessResolver::vendorAccount($user);
@@ -37,16 +42,22 @@ class VendorPayoutPolicy
 
     public function approve(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $this->isAdminOpsContext($user) && $user->hasRole('admin');
     }
 
     public function reject(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $this->isAdminOpsContext($user) && $user->hasRole('admin');
     }
 
     public function markPaid(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $this->isAdminOpsContext($user) && $user->hasRole('admin');
+    }
+
+    private function isAdminOpsContext(User $user): bool
+    {
+        return Auth::guard('admin')->check()
+            && (string) Auth::guard('admin')->id() === (string) $user->getAuthIdentifier();
     }
 }

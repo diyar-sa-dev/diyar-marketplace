@@ -16,6 +16,7 @@ import { useToast } from '../../hooks/useToast.ts';
 import { parseApiError } from '../../utils/errors.ts';
 import { resolveMediaUrl } from '../../lib/media.ts';
 import { AffiliatePlatformHints } from '../../components/affiliate/AffiliatePlatformHints.tsx';
+import { usePortalTheme, portalInputClass } from '../../lib/dashboard/portalTheme.ts';
 import type { AffiliateProductSetting } from '../../types/affiliate.ts';
 
 const FALLBACK_IMAGE = '/placeholder-product.png';
@@ -26,6 +27,7 @@ function formatWesternNumber(value: number): string {
 
 export default function AffiliateProducts() {
   const { t, locale } = useLocale();
+  const theme = usePortalTheme();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useDebouncedValue(searchTerm, 300);
@@ -97,7 +99,7 @@ export default function AffiliateProducts() {
                 setSearchTerm(event.target.value);
                 resetPage();
               }}
-              className="ps-10 pe-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-diyar-brown/20 focus:border-diyar-brown text-sm w-full md:w-64"
+              className={`ps-10 pe-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-600/20 focus:border-green-600 text-sm w-full md:w-64`}
             />
             <Search
               size={18}
@@ -134,7 +136,9 @@ export default function AffiliateProducts() {
                       alt={product?.name ?? ''}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-3 inset-e-3 bg-diyar-brown text-white text-xs font-bold px-2 py-1 rounded w-fit">
+                    <div
+                      className={`absolute top-3 inset-e-3 ${theme.badge} text-xs font-bold px-2 py-1 rounded w-fit`}
+                    >
                       {t('affiliate.products.commissionBadge', {
                         rate: item.commission_rate_percent,
                       })}
@@ -162,7 +166,7 @@ export default function AffiliateProducts() {
                         <div className="text-xs text-gray-500">
                           {t('affiliate.products.expectedEarnings')}
                         </div>
-                        <div className="font-bold text-diyar-brown">
+                        <div className={theme.amount}>
                           {earn} {t('common.currency')}
                         </div>
                       </div>
@@ -172,7 +176,7 @@ export default function AffiliateProducts() {
                       type="button"
                       disabled={isCreating || createLink.isPending}
                       onClick={() => void handleGenerateLink(item)}
-                      className="w-full bg-amber-50 hover:bg-amber-100 text-diyar-brown py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+                      className={`w-full ${theme.buttonSoft} py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer`}
                     >
                       {isCreating ? (
                         <Loader2 size={16} className="animate-spin" />

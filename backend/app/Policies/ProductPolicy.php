@@ -11,8 +11,7 @@ class ProductPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('admin')
-            || ($user->hasRole('vendor') && VendorAccessResolver::vendorAccount($user) !== null);
+        return $user->hasRole('vendor') && VendorAccessResolver::vendorAccount($user) !== null;
     }
 
     public function view(User $user, Product $product): bool
@@ -27,15 +26,11 @@ class ProductPolicy
 
     public function update(User $user, Product $product): bool
     {
-        return $this->ownsOrAdmin($user, $product, write: true);
+        return $this->ownsVendorProduct($user, $product, write: true);
     }
 
     public function delete(User $user, Product $product): bool
     {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
         $vendorAccount = VendorAccessResolver::vendorAccount($user);
 
         if ($vendorAccount === null || $product->vendor_account_id !== $vendorAccount->id) {
@@ -49,10 +44,6 @@ class ProductPolicy
 
     private function belongsToVendorTeam(User $user, Product $product): bool
     {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
         $vendorAccount = VendorAccessResolver::vendorAccount($user);
 
         if ($vendorAccount === null || $product->vendor_account_id !== $vendorAccount->id) {
@@ -62,12 +53,8 @@ class ProductPolicy
         return app(VendorAccessService::class)->allows($user, 'dashboard');
     }
 
-    private function ownsOrAdmin(User $user, Product $product, bool $write): bool
+    private function ownsVendorProduct(User $user, Product $product, bool $write): bool
     {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
         $vendorAccount = VendorAccessResolver::vendorAccount($user);
 
         if ($vendorAccount === null || $product->vendor_account_id !== $vendorAccount->id) {

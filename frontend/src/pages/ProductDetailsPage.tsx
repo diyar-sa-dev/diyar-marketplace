@@ -32,6 +32,7 @@ import { useProductEngagementMutations } from '../hooks/catalog/useProductEngage
 import { useSubmitProductPreorder } from '../hooks/catalog/useProductPreorder.ts';
 import { useCart } from '../hooks/cart/useCart.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
+import { shouldHideMarketplaceCommerce } from '../lib/marketplaceCommerce.ts';
 import { useLocale } from '../hooks/useLocale.ts';
 import { useToast } from '../hooks/useToast.ts';
 import {
@@ -69,7 +70,7 @@ export default function ProductDetailsPage() {
     undefined;
   const trackedReferralRef = useRef<string | null>(null);
   const { t, dir, locale } = useLocale();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const { data: product, isLoading, isError, error, refetch } = useProduct(id);
   const vendorSlug = isValidStoreSlug(product?.vendor?.slug) ? product?.vendor?.slug : undefined;
@@ -250,13 +251,14 @@ export default function ProductDetailsPage() {
   );
   const stockTone = availabilityTone(product.availability_mode, availableQty);
   const isOwnStore = Boolean(product?.is_own_store ?? vendorProfile?.is_own_store);
+  const isCommerceBlocked = isOwnStore || shouldHideMarketplaceCommerce(user?.roles);
   const availabilityDisplay =
     isOwnStore && product.availability_mode === 'in_stock' && availableQty > 0
       ? t('catalog.product.limitedStock')
       : availability;
   const isPreorderProduct = product.availability_mode === 'preorder';
-  const canPurchase = !isOwnStore && product.availability_mode === 'in_stock' && availableQty > 0;
-  const canPreorder = !isOwnStore && isPreorderProduct;
+  const canPurchase = !isCommerceBlocked && product.availability_mode === 'in_stock' && availableQty > 0;
+  const canPreorder = !isCommerceBlocked && isPreorderProduct;
   const hasPendingPreorder = Boolean(product.user_preorder_pending) || preorderSubmitted;
   const maxQuantity = Math.max(availableQty, 1);
   const productType = productTypeLabel(product.product_type);

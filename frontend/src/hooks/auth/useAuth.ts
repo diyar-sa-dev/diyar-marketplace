@@ -1,1 +1,4 @@
-export { useAuthContext as useAuth } from '../../context/AuthContext.tsx';
+export {
+  useAuthContext as useAuth,
+  useAuthContext as useMarketplaceAuth,
+} from '../../context/AuthContext.tsx';

@@ -42,7 +42,7 @@ import type { ServiceOffer } from '../../types/serviceRequests.ts';
 import { parseApiError } from '../../utils/errors.ts';
 
 const INPUT_CLASS =
-  'w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-diyar-brown focus:bg-white outline-none transition-all placeholder:text-gray-400';
+  'w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all placeholder:text-gray-400';
 
 export default function ServiceClientRequestDetails() {
   const { id } = useParams();
@@ -180,7 +180,7 @@ export default function ServiceClientRequestDetails() {
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8 h-full">
             <div className="flex justify-between items-start mb-6">
-              <span className="inline-block px-4 py-2 bg-diyar-cream/30 text-diyar-brown text-sm font-bold rounded-lg truncate">
+              <span className="inline-block px-4 py-2 bg-blue-50 text-blue-600 text-sm font-bold rounded-lg truncate">
                 {providerCategoryLabel(request, locale)}
               </span>
               <span className="text-gray-400 text-sm flex items-center gap-1">
@@ -200,7 +200,7 @@ export default function ServiceClientRequestDetails() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               <div className="bg-gray-50 p-4 rounded-xl flex items-center gap-3">
-                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-diyar-brown shadow-sm">
+                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-blue-600 shadow-sm">
                   <MapPin size={20} />
                 </div>
                 <div>
@@ -211,7 +211,7 @@ export default function ServiceClientRequestDetails() {
                 </div>
               </div>
               <div className="bg-gray-50 p-4 rounded-xl flex items-center gap-3">
-                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-diyar-brown shadow-sm">
+                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-blue-600 shadow-sm">
                   <DollarSign size={20} />
                 </div>
                 <div>
@@ -242,7 +242,7 @@ export default function ServiceClientRequestDetails() {
                       rel="noreferrer"
                       className="flex items-center gap-3 bg-gray-50 border border-gray-100 p-3 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
                     >
-                      <div className="p-2 bg-white rounded-lg text-diyar-brown shadow-sm">
+                      <div className="p-2 bg-white rounded-lg text-blue-600 shadow-sm">
                         <Paperclip size={18} />
                       </div>
                       <div>
@@ -420,7 +420,7 @@ export default function ServiceClientRequestDetails() {
                     placeholder={t(
                       'providerDashboard.clientRequestDetails.offerMessagePlaceholder',
                     )}
-                    className={`w-full h-full min-h-30 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-diyar-brown focus:bg-white outline-none transition-all resize-none placeholder:text-gray-400 ${fieldErrors.offerMessage ? 'border-red-300' : ''}`}
+                    className={`w-full h-full min-h-30 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all resize-none placeholder:text-gray-400 ${fieldErrors.offerMessage ? 'border-red-300' : ''}`}
                   />
                   <FieldError message={fieldErrors.offerMessage} />
                 </div>
@@ -444,7 +444,7 @@ export default function ServiceClientRequestDetails() {
                 <button
                   type="submit"
                   disabled={submitOffer.isPending}
-                  className="w-full bg-diyar-brown text-white py-3.5 rounded-xl font-bold hover:bg-[#8A6D46] transition-colors shadow-lg shadow-diyar-brown/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-auto cursor-pointer"
+                  className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-auto cursor-pointer"
                 >
                   {submitOffer.isPending ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent flex items-center justify-center rounded-full animate-spin" />

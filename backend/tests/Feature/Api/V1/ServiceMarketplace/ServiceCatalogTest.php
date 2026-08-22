@@ -93,7 +93,8 @@ class ServiceCatalogTest extends TestCase
         $this->getJson('/api/v1/services/integrated-apartment-design')
             ->assertOk()
             ->assertJsonPath('data.service.title', 'تصميم داخلي متكامل للشقق')
-            ->assertJsonPath('data.service.provider.slug', 'eiwan-design');
+            ->assertJsonPath('data.service.provider.slug', 'eiwan-design')
+            ->assertJsonPath('data.service.provider.contact_phone', fn ($phone) => filled($phone));
     }
 
     #[Test]

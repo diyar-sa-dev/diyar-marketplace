@@ -7,6 +7,12 @@ import {
   shouldShowStorefrontDashboardLink,
   resolveDashboardEntryPath,
 } from '../../lib/auth/roles.ts';
+import {
+  getPlatformSupportEmail,
+  getPlatformSupportMailHref,
+  getPlatformSupportPhoneDisplay,
+  getPlatformSupportTelHref,
+} from '../../lib/platformContact.ts';
 
 export function Footer() {
   const { t } = useLocale();
@@ -19,6 +25,10 @@ export function Footer() {
     user?.roles,
   );
   const year = new Date().getFullYear();
+  const supportEmail = getPlatformSupportEmail();
+  const supportMailHref = getPlatformSupportMailHref();
+  const supportPhoneDisplay = getPlatformSupportPhoneDisplay();
+  const supportTelHref = getPlatformSupportTelHref();
 
   const quickLinks = [
     { label: t('footer.about'), action: 'about' as const },
@@ -72,7 +82,7 @@ export function Footer() {
                 <Instagram size={18} />
               </a>
               <a
-                href="mailto:support@diyar.com"
+                href={supportMailHref}
                 className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-diyar-brown hover:text-white cursor-pointer transition"
                 aria-label={t('footer.contactUs')}
               >
@@ -123,13 +133,25 @@ export function Footer() {
           </div>
           <div>
             <h3 className="text-sm md:text-base font-sans font-bold mb-4">{t('footer.contactUs')}</h3>
-            <ul className="space-y-2.5 text-white/70 text-xs md:text-sm">
+            <ul className="space-y-2.5 text-white/70 text-xs md:text-sm text-start">
               <li>
-                <a href="mailto:support@diyar.com" className="hover:text-white transition cursor-pointer">
-                  support@diyar.com
+                <a
+                  href={supportMailHref}
+                  className="inline-block hover:text-white transition cursor-pointer"
+                  dir="ltr"
+                >
+                  {supportEmail}
                 </a>
               </li>
-              <li dir="ltr">+966 50 000 0000</li>
+              <li>
+                <a
+                  href={supportTelHref}
+                  className="inline-block hover:text-white transition cursor-pointer"
+                  dir="ltr"
+                >
+                  {supportPhoneDisplay}
+                </a>
+              </li>
               <li>{t('footer.address')}</li>
             </ul>
           </div>

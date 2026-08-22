@@ -41,6 +41,10 @@ class ProviderPublicResource extends JsonResource
             'joined_at' => $this->joined_at?->toIso8601String(),
             'follow' => $follow,
             'is_own_provider' => $request->user()?->providerAccount?->id === $this->id,
+            'contact_phone' => $this->when(
+                $this->relationLoaded('user') && filled($this->user?->phone),
+                fn () => $this->user->phone,
+            ),
         ];
     }
 }

@@ -1,4 +1,4 @@
-import { apiClient } from './client.ts';
+import { marketplaceApi } from './client.ts';
 import { ensureCsrfCookie, resetCsrfCookie } from '../lib/csrf.ts';
 import type {
   AuthActionResult,
@@ -25,7 +25,9 @@ function extractMessage(response: { data: ApiSuccessResponse<unknown> }): string
 }
 
 export async function register(payload: RegisterPayload): Promise<AuthUserResult> {
-  const response = await withCsrf(() => apiClient.post<UserResponse>('/auth/register', payload));
+  const response = await withCsrf(() =>
+    marketplaceApi.post<UserResponse>('/auth/register', payload),
+  );
   return {
     user: response.data.data.user,
     message: extractMessage(response),
@@ -33,7 +35,9 @@ export async function register(payload: RegisterPayload): Promise<AuthUserResult
 }
 
 export async function verifyOtp(payload: VerifyOtpPayload): Promise<AuthUserResult> {
-  const response = await withCsrf(() => apiClient.post<UserResponse>('/auth/verify-otp', payload));
+  const response = await withCsrf(() =>
+    marketplaceApi.post<UserResponse>('/auth/verify-otp', payload),
+  );
   resetCsrfCookie();
   return {
     user: response.data.data.user,
@@ -43,14 +47,14 @@ export async function verifyOtp(payload: VerifyOtpPayload): Promise<AuthUserResu
 
 export async function resendOtp(phone: string): Promise<AuthActionResult> {
   const response = await withCsrf(() =>
-    apiClient.post<MessageResponse>('/auth/resend-otp', { phone }),
+    marketplaceApi.post<MessageResponse>('/auth/resend-otp', { phone }),
   );
   return { message: extractMessage(response) };
 }
 
 export async function verifyEmailOtp(payload: VerifyEmailOtpPayload): Promise<AuthUserResult> {
   const response = await withCsrf(() =>
-    apiClient.post<UserResponse>('/auth/verify-email-otp', payload),
+    marketplaceApi.post<UserResponse>('/auth/verify-email-otp', payload),
   );
   resetCsrfCookie();
   return {
@@ -61,13 +65,13 @@ export async function verifyEmailOtp(payload: VerifyEmailOtpPayload): Promise<Au
 
 export async function resendEmailOtp(email: string): Promise<AuthActionResult> {
   const response = await withCsrf(() =>
-    apiClient.post<MessageResponse>('/auth/resend-email-otp', { email }),
+    marketplaceApi.post<MessageResponse>('/auth/resend-email-otp', { email }),
   );
   return { message: extractMessage(response) };
 }
 
 export async function login(payload: LoginPayload): Promise<AuthUserResult> {
-  const response = await withCsrf(() => apiClient.post<UserResponse>('/auth/login', payload));
+  const response = await withCsrf(() => marketplaceApi.post<UserResponse>('/auth/login', payload));
   resetCsrfCookie();
   return {
     user: response.data.data.user,
@@ -76,17 +80,17 @@ export async function login(payload: LoginPayload): Promise<AuthUserResult> {
 }
 
 export async function logout(): Promise<AuthActionResult> {
-  const response = await withCsrf(() => apiClient.post<MessageResponse>('/auth/logout'));
+  const response = await withCsrf(() => marketplaceApi.post<MessageResponse>('/auth/logout'));
   resetCsrfCookie();
   return { message: extractMessage(response) };
 }
 
 export async function fetchCurrentUser(): Promise<AuthUser | null> {
-  const response = await apiClient.get<UserResponse>('/auth/me', {
-    validateStatus: (status) => status === 200 || status === 401,
+  const response = await marketplaceApi.get<UserResponse>('/auth/me', {
+    validateStatus: (status) => status === 200 || status === 401 || status === 403,
   });
 
-  if (response.status === 401) {
+  if (response.status === 401 || response.status === 403) {
     return null;
   }
 
@@ -95,21 +99,21 @@ export async function fetchCurrentUser(): Promise<AuthUser | null> {
 
 export async function forgotPassword(phone: string): Promise<AuthActionResult> {
   const response = await withCsrf(() =>
-    apiClient.post<MessageResponse>('/auth/forgot-password', { phone }),
+    marketplaceApi.post<MessageResponse>('/auth/forgot-password', { phone }),
   );
   return { message: extractMessage(response) };
 }
 
 export async function verifyPasswordResetOtp(payload: VerifyOtpPayload): Promise<AuthActionResult> {
   const response = await withCsrf(() =>
-    apiClient.post<MessageResponse>('/auth/verify-password-reset-otp', payload),
+    marketplaceApi.post<MessageResponse>('/auth/verify-password-reset-otp', payload),
   );
   return { message: extractMessage(response) };
 }
 
 export async function resetPassword(payload: ResetPasswordPayload): Promise<AuthActionResult> {
   const response = await withCsrf(() =>
-    apiClient.post<MessageResponse>('/auth/reset-password', payload),
+    marketplaceApi.post<MessageResponse>('/auth/reset-password', payload),
   );
   return { message: extractMessage(response) };
 }

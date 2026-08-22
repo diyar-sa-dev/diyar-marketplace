@@ -100,6 +100,33 @@ export function hasActiveRole(roles: UserRoleLike[] | undefined, roleName: strin
   return roles.some((role) => role.name === roleName && isActiveDashboardRole(role));
 }
 
+export function hasAdminRole(roles: UserRoleLike[] | undefined): boolean {
+  return hasActiveRole(roles, RoleName.Admin);
+}
+
+/** Platform operator with no vendor/provider/marketer role — uses the admin SPA at /admin only. */
+export function isAdminOnlyAccount(roles: UserRoleLike[] | undefined): boolean {
+  if (!hasAdminRole(roles)) {
+    return false;
+  }
+
+  return !(
+    hasActiveRole(roles, RoleName.Vendor) ||
+    hasActiveRole(roles, RoleName.Provider) ||
+    hasActiveRole(roles, RoleName.Marketer)
+  );
+}
+
+export function hasPartnerPortalRole(roles: UserRoleLike[] | undefined): boolean {
+  return (
+    hasActiveRole(roles, RoleName.Vendor) ||
+    hasActiveRole(roles, RoleName.Provider) ||
+    hasActiveRole(roles, RoleName.Marketer)
+  );
+}
+
+export const ADMIN_PANEL_PATH = '/admin';
+
 export function hasCustomerRole(roles: UserRoleLike[] | undefined): boolean {
   return hasActiveRole(roles, RoleName.Customer);
 }
@@ -134,6 +161,10 @@ export function resolveProfileAddressesPath(_roles?: UserRoleLike[]): string {
 
 /** Primary "my account" destination in storefront chrome (header, bottom nav, dashboard avatar). */
 export function resolveAccountHubPath(roles: UserRoleLike[] | undefined): string {
+  if (isAdminOnlyAccount(roles)) {
+    return ADMIN_PANEL_PATH;
+  }
+
   if (hasCustomerRoleAssignment(roles)) {
     return '/profile';
   }
@@ -255,10 +286,7 @@ export function getAccessibleDashboardPortals(
     return [];
   }
 
-  if (hasAnyRole(roles, [RoleName.Admin])) {
-    return [...DASHBOARD_PORTALS];
-  }
-
+  // Admin is a separate control plane (/admin). Partner React dashboards require real partner roles.
   const activeRoleNames = new Set(roles.filter(isActiveDashboardRole).map((role) => role.name));
 
   return DASHBOARD_PORTALS.filter((portal) =>
@@ -285,7 +313,7 @@ export function isCustomerOnlyAccount(roles: UserRoleLike[] | undefined): boolea
   return activeRoleNames.every((name) => name === RoleName.Customer);
 }
 
-/** Storefront chrome: show لوحة التحكم for partner roles, hide for customer-only accounts. */
+/** Storefront chrome: show partner dashboard link for vendor/provider/marketer — not for admin-only ops accounts. */
 export function shouldShowStorefrontDashboardLink(
   isAuthenticated: boolean,
   status: AccountStatus | undefined,
@@ -295,7 +323,20 @@ export function shouldShowStorefrontDashboardLink(
     return false;
   }
 
+  if (isAdminOnlyAccount(roles)) {
+    return false;
+  }
+
   return hasDashboardAccess(roles) && !isCustomerOnlyAccount(roles);
+}
+
+/** Storefront chrome: link to the React admin operations panel. */
+export function shouldShowAdminPanelLink(
+  isAuthenticated: boolean,
+  status: AccountStatus | undefined,
+  roles: UserRoleLike[] | undefined,
+): boolean {
+  return isAuthenticated && isActiveAccount(status) && hasAdminRole(roles);
 }
 
 export function resolveDashboardEntryPath(roles: UserRoleLike[] | undefined): string {
@@ -314,6 +355,10 @@ export function resolveDashboardEntryPath(roles: UserRoleLike[] | undefined): st
 
 /** Default landing route after sign-in / sign-up. */
 export function resolvePostAuthPath(roles: UserRoleLike[] | undefined): string {
+  if (isAdminOnlyAccount(roles)) {
+    return ADMIN_PANEL_PATH;
+  }
+
   if (hasDashboardAccess(roles)) {
     return resolveDashboardEntryPath(roles);
   }
@@ -323,6 +368,10 @@ export function resolvePostAuthPath(roles: UserRoleLike[] | undefined): string {
 
 export function canAccessPath(roles: UserRoleLike[] | undefined, path: string): boolean {
   if (path.startsWith('/dashboard')) {
+    if (isAdminOnlyAccount(roles)) {
+      return false;
+    }
+
     if (!hasDashboardAccess(roles)) {
       return false;
     }
@@ -341,6 +390,10 @@ export function canAccessPath(roles: UserRoleLike[] | undefined, path: string): 
     path.startsWith('/profile') ||
     path.startsWith('/account/')
   ) {
+    if (isAdminOnlyAccount(roles)) {
+      return false;
+    }
+
     return true;
   }
 
