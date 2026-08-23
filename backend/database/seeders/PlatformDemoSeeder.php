@@ -9,7 +9,6 @@ use App\Enums\VendorAccountStatus;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Support\SlugGenerator;
 use Database\Seeders\Concerns\UsesDemoPassword;
 use Illuminate\Database\Seeder;
 

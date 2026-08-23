@@ -123,7 +123,7 @@ export default function AdminLoginPage() {
             {loginMethod === 'phone' ? (
               <div>
                 <AuthFieldLabel required>{t('auth.fields.phone')}</AuthFieldLabel>
-                <SaudiPhoneInput value={phone} onChange={setPhone} />
+                <SaudiPhoneInput id="admin-login-phone" value={phone} onChange={setPhone} />
               </div>
             ) : (
               <div>
@@ -135,6 +135,7 @@ export default function AdminLoginPage() {
             <div>
               <AuthFieldLabel required>{t('auth.fields.password')}</AuthFieldLabel>
               <PasswordInput
+                id="admin-login-password"
                 value={password}
                 onChange={setPassword}
                 showPassword={showPassword}
@@ -156,6 +157,7 @@ export default function AdminLoginPage() {
 
             <button
               type="submit"
+              data-testid="admin-login-submit"
               disabled={isLoading}
               className="flex w-full cursor-pointer items-center justify-center rounded-xl bg-diyar-dark py-3.5 text-sm font-bold text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-60"
             >

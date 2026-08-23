@@ -1,346 +1,521 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   X,
-  Star,
-  ChevronDown,
   Check,
   Sparkles,
   SlidersHorizontal,
   Package,
   Wrench,
-  ChevronLeft,
 } from 'lucide-react';
+import { fetchCatalogSearch } from '../../api/catalogSearch.ts';
+import { fetchServiceCategories, fetchServices } from '../../api/services.ts';
+import { useDebouncedValue } from '../../hooks/useDebouncedValue.ts';
+import { useLocale } from '../../hooks/useLocale.ts';
+import { parsePriceDigits } from '../../lib/priceInput.ts';
+import type { CatalogSearchFilters } from '../../types/catalogSearch.ts';
+import type { ServiceListFilters } from '../../types/services.ts';
+import { ColorMultiSelect } from '../search/filterFields/ColorMultiSelect.tsx';
+import { PriceRangeFields } from '../search/filterFields/PriceRangeFields.tsx';
+import { VendorPicker } from '../search/filterFields/VendorPicker.tsx';
+
+type FilterTab = 'products' | 'services' | 'ai';
+type ServiceSort = NonNullable<ServiceListFilters['sort']>;
 
 export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const [activeTab, setActiveTab] = useState<'products' | 'services' | 'ai'>('products');
+  const { t, locale } = useLocale();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<FilterTab>('products');
 
-  // Product States
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [searchType, setSearchType] = useState<'products' | 'services' | 'all'>('products');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
-  const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
-  const [selectedSpaces, setSelectedSpaces] = useState<string[]>([]);
-  const [toggles, setToggles] = useState({ new: false, bestSelling: false, offers: false });
+  const [categorySlug, setCategorySlug] = useState('');
+  const [vendorSlug, setVendorSlug] = useState('');
+  const [offersOnly, setOffersOnly] = useState(false);
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [sort, setSort] = useState<'-created_at' | '-popular'>('-created_at');
 
-  // Service States
-  const [selectedServiceTypes, setSelectedServiceTypes] = useState<string[]>([]);
+  const [serviceCategorySlug, setServiceCategorySlug] = useState('');
+  const [serviceSort, setServiceSort] = useState<ServiceSort>('latest');
+  const [serviceMinPrice, setServiceMinPrice] = useState('');
+  const [serviceMaxPrice, setServiceMaxPrice] = useState('');
 
-  // AI States
-  const [aiRoomSize, setAiRoomSize] = useState<string>('');
-  const [aiBudget, setAiBudget] = useState<string>('');
-  const [aiStyle, setAiStyle] = useState<string>('');
-  const [aiServiceType, setAiServiceType] = useState<string>('');
+  const previewFilters = useMemo<CatalogSearchFilters>(
+    () => ({
+      type: searchType,
+      category_slug: categorySlug || undefined,
+      vendor_slug: vendorSlug || undefined,
+      min_price: parsePriceDigits(minPrice),
+      max_price: parsePriceDigits(maxPrice),
+      colors: selectedColors.length > 0 ? selectedColors : undefined,
+      discounted: offersOnly ? 1 : undefined,
+      availability_mode: inStockOnly ? 'in_stock' : undefined,
+      sort,
+      per_page: 1,
+      page: 1,
+    }),
+    [
+      searchType,
+      categorySlug,
+      vendorSlug,
+      minPrice,
+      maxPrice,
+      selectedColors,
+      offersOnly,
+      inStockOnly,
+      sort,
+    ],
+  );
 
-  if (!isOpen) return null;
+  const servicePreviewFilters = useMemo<ServiceListFilters>(
+    () => ({
+      category: serviceCategorySlug || undefined,
+      sort: serviceSort,
+      min_price: parsePriceDigits(serviceMinPrice),
+      max_price: parsePriceDigits(serviceMaxPrice),
+      per_page: 1,
+      page: 1,
+    }),
+    [serviceCategorySlug, serviceSort, serviceMinPrice, serviceMaxPrice],
+  );
 
-  const toggleSelection = (
-    setter: React.Dispatch<React.SetStateAction<string[]>>,
-    value: string,
-  ) => {
-    setter((prev: string[]) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
+  const debouncedPreviewFilters = useDebouncedValue(previewFilters, 400);
+  const debouncedServicePreviewFilters = useDebouncedValue(servicePreviewFilters, 400);
+
+  const { data: facetData } = useQuery({
+    queryKey: ['filter-modal-facets'],
+    queryFn: () => fetchCatalogSearch({ type: 'products', per_page: 1, page: 1 }),
+    enabled: isOpen && activeTab === 'products',
+    staleTime: 60_000,
+  });
+
+  const { data: serviceCategories = [] } = useQuery({
+    queryKey: ['filter-modal-service-categories'],
+    queryFn: () => fetchServiceCategories(),
+    enabled: isOpen && activeTab === 'services',
+    staleTime: 60_000,
+  });
+
+  const { data: previewData } = useQuery({
+    queryKey: ['filter-modal-preview', debouncedPreviewFilters],
+    queryFn: () => fetchCatalogSearch(debouncedPreviewFilters),
+    enabled: isOpen && activeTab === 'products',
+    placeholderData: keepPreviousData,
+    staleTime: 10_000,
+  });
+
+  const { data: servicePreviewData } = useQuery({
+    queryKey: ['filter-modal-services-preview', debouncedServicePreviewFilters],
+    queryFn: () => fetchServices(debouncedServicePreviewFilters),
+    enabled: isOpen && activeTab === 'services',
+    placeholderData: keepPreviousData,
+    staleTime: 10_000,
+  });
+
+  const facets = facetData?.facets;
+  const productCategories = useMemo(
+    () => facets?.categories.filter((category) => category.type !== 'service') ?? [],
+    [facets?.categories],
+  );
+
+  const resultCount = useMemo(() => {
+    if (activeTab === 'services') {
+      return servicePreviewData?.pagination.total ?? 0;
+    }
+
+    if (!previewData) {
+      return 0;
+    }
+
+    if (searchType === 'services') {
+      return previewData.services?.pagination.total ?? 0;
+    }
+
+    if (searchType === 'products') {
+      return previewData.products?.pagination.total ?? 0;
+    }
+
+    return (
+      (previewData.products?.pagination.total ?? 0) + (previewData.services?.pagination.total ?? 0)
     );
+  }, [activeTab, previewData, searchType, servicePreviewData?.pagination.total]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    setActiveTab('products');
+  }, [isOpen]);
+
+  if (!isOpen) {
+    return null;
+  }
+
+  const applyProductFilters = () => {
+    const params = new URLSearchParams();
+
+    if (searchType !== 'all') {
+      params.set('type', searchType);
+    }
+
+    const min = parsePriceDigits(minPrice);
+    const max = parsePriceDigits(maxPrice);
+    if (min !== undefined) {
+      params.set('min_price', String(min));
+    }
+    if (max !== undefined) {
+      params.set('max_price', String(max));
+    }
+
+    if (selectedColors.length > 0) {
+      params.set('colors', selectedColors.join(','));
+    }
+
+    if (categorySlug) {
+      params.set('category_slug', categorySlug);
+    }
+
+    if (vendorSlug) {
+      params.set('vendor_slug', vendorSlug);
+    }
+
+    if (offersOnly) {
+      params.set('discounted', '1');
+    }
+
+    if (inStockOnly) {
+      params.set('availability_mode', 'in_stock');
+    }
+
+    if (sort) {
+      params.set('sort', sort);
+    }
+
+    params.set('per_page', '48');
+
+    onClose();
+    navigate(`/search?${params.toString()}`);
   };
+
+  const applyServiceFilters = () => {
+    const params = new URLSearchParams();
+
+    if (serviceCategorySlug) {
+      params.set('category', serviceCategorySlug);
+    }
+
+    const min = parsePriceDigits(serviceMinPrice);
+    const max = parsePriceDigits(serviceMaxPrice);
+    if (min !== undefined) {
+      params.set('min_price', String(min));
+    }
+    if (max !== undefined) {
+      params.set('max_price', String(max));
+    }
+
+    if (serviceSort && serviceSort !== 'latest') {
+      params.set('sort', serviceSort);
+    }
+
+    params.set('per_page', '12');
+
+    onClose();
+    navigate(`/services?${params.toString()}`);
+  };
+
+  const applyFilters = () => {
+    if (activeTab === 'services') {
+      applyServiceFilters();
+      return;
+    }
+
+    applyProductFilters();
+  };
+
+  const resetFilters = () => {
+    setSearchType('products');
+    setMinPrice('');
+    setMaxPrice('');
+    setSelectedColors([]);
+    setCategorySlug('');
+    setVendorSlug('');
+    setOffersOnly(false);
+    setInStockOnly(false);
+    setSort('-created_at');
+    setServiceCategorySlug('');
+    setServiceSort('latest');
+    setServiceMinPrice('');
+    setServiceMaxPrice('');
+  };
+
+  const categoryLabel = (nameAr: string, nameEn: string) => (locale === 'ar' ? nameAr : nameEn);
 
   const renderProductFilters = () => (
     <div className="space-y-8 animate-in fade-in duration-300">
-      {/* الفئة */}
       <div className="space-y-3">
-        <h3 className="font-bold text-sm text-diyar-dark">الفئة</h3>
+        <h3 className="font-bold text-sm text-diyar-dark">{t('catalog.search.filters.type')}</h3>
         <div className="flex flex-wrap gap-2">
-          {['منتج', 'خدمة'].map((type) => (
+          {(['products', 'services', 'all'] as const).map((type) => (
             <button
               key={type}
-              onClick={() => toggleSelection(setSelectedTypes, type)}
-              className={`px-4 py-2 rounded-xl border transition-all text-xs font-bold ${selectedTypes.includes(type) ? 'border-diyar-brown bg-diyar-brown text-white' : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'}`}
+              type="button"
+              onClick={() => setSearchType(type)}
+              className={`px-4 py-2 rounded-xl border transition-all text-xs font-bold cursor-pointer ${
+                searchType === type
+                  ? 'border-diyar-brown bg-diyar-brown text-white'
+                  : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+              }`}
             >
-              {type}
+              {t(`catalog.search.filters.type_${type}`)}
             </button>
           ))}
         </div>
       </div>
 
-      {/* السعر */}
-      <div className="space-y-3">
-        <h3 className="font-bold text-sm text-diyar-dark">السعر (ريال)</h3>
-        <div className="flex items-center gap-3">
-          <input
-            type="number"
-            placeholder="من"
-            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-gray-50 focus:bg-white focus:border-diyar-brown outline-none transition-all text-sm"
-          />
-          <span className="text-gray-400">-</span>
-          <input
-            type="number"
-            placeholder="إلى"
-            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-gray-50 focus:bg-white focus:border-diyar-brown outline-none transition-all text-sm"
-          />
-        </div>
-      </div>
-
-      {/* اللون */}
-      <div className="space-y-3">
-        <h3 className="font-bold text-sm text-diyar-dark">اللون</h3>
-        <div className="flex flex-wrap gap-3">
-          {[
-            { name: 'أبيض', class: 'bg-white border-gray-200' },
-            { name: 'أسود', class: 'bg-black border-black' },
-            { name: 'بني', class: 'bg-amber-800 border-amber-800' },
-            { name: 'خشبي', class: 'bg-[#C19A6B] border-[#C19A6B]' },
-            { name: 'رمادي', class: 'bg-gray-400 border-gray-400' },
-            { name: 'أزرق', class: 'bg-blue-800 border-blue-800' },
-            { name: 'أخضر', class: 'bg-emerald-700 border-emerald-700' },
-          ].map((color) => (
+      {productCategories.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="font-bold text-sm text-diyar-dark">{t('catalog.search.filters.category')}</h3>
+          <div className="flex flex-wrap gap-2">
             <button
-              key={color.name}
-              onClick={() => toggleSelection(setSelectedColors, color.name)}
-              className={`w-8 h-8 rounded-full border shadow-sm relative flex items-center justify-center transition-transform hover:scale-110 ${color.class}`}
-              title={color.name}
+              type="button"
+              onClick={() => setCategorySlug('')}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold cursor-pointer ${
+                !categorySlug
+                  ? 'bg-diyar-dark text-white'
+                  : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+              }`}
             >
-              {selectedColors.includes(color.name) && (
-                <div className="absolute inset-0 rounded-full ring-2 ring-offset-2 ring-diyar-brown pointer-events-none"></div>
-              )}
+              {t('catalog.search.filters.allCategories')}
             </button>
-          ))}
+            {productCategories.map((category) => (
+              <button
+                key={category.slug}
+                type="button"
+                onClick={() => setCategorySlug(category.slug)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold cursor-pointer ${
+                  categorySlug === category.slug
+                    ? 'bg-diyar-dark text-white'
+                    : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* النمط */}
-      <div className="space-y-3">
-        <h3 className="font-bold text-sm text-diyar-dark">النمط</h3>
-        <div className="flex flex-wrap gap-2">
-          {['نيوكلاسيك', 'مودرن', 'تراثي نجدي', 'بوهيمي', 'صناعي', 'كلاسيك'].map((style) => (
-            <button
-              key={style}
-              onClick={() => toggleSelection(setSelectedStyles, style)}
-              className={`px-4 py-2 rounded-xl border transition-all text-xs font-bold ${selectedStyles.includes(style) ? 'border-diyar-brown bg-diyar-brown text-white' : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'}`}
-            >
-              {style}
-            </button>
-          ))}
-        </div>
-      </div>
+      <PriceRangeFields
+        minPrice={minPrice}
+        maxPrice={maxPrice}
+        onMinChange={setMinPrice}
+        onMaxChange={setMaxPrice}
+        layout="grid"
+      />
 
-      {/* الخامة */}
-      <div className="space-y-3">
-        <h3 className="font-bold text-sm text-diyar-dark">الخامة</h3>
-        <div className="flex flex-wrap gap-2">
-          {['خشب زان', 'مخمل', 'رخام', 'ستيل', 'جلد', 'زجاج'].map((mat) => (
-            <button
-              key={mat}
-              onClick={() => toggleSelection(setSelectedMaterials, mat)}
-              className={`px-3 py-1.5 rounded-lg border transition-all text-[11px] font-bold ${selectedMaterials.includes(mat) ? 'border-[#132624] bg-[#132624] text-white' : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'}`}
-            >
-              {mat}
-            </button>
-          ))}
-        </div>
-      </div>
+      {facets?.colors && (
+        <ColorMultiSelect
+          colors={facets.colors}
+          selected={selectedColors}
+          onChange={setSelectedColors}
+        />
+      )}
 
-      {/* المساحة */}
-      <div className="space-y-3">
-        <h3 className="font-bold text-sm text-diyar-dark">المساحة</h3>
-        <div className="flex flex-wrap gap-2">
-          {['غرفة معيشة', 'غرفة نوم', 'مطبخ', 'مجلس ضيافة', 'مكتب'].map((space) => (
-            <button
-              key={space}
-              onClick={() => toggleSelection(setSelectedSpaces, space)}
-              className={`px-3 py-1.5 rounded-lg border transition-all text-[11px] font-bold ${selectedSpaces.includes(space) ? 'border-[#132624] bg-[#132624] text-white' : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'}`}
-            >
-              {space}
-            </button>
-          ))}
-        </div>
-      </div>
+      <VendorPicker value={vendorSlug} onChange={setVendorSlug} />
 
-      {/* Checkboxes (جديد, مبيعاً, عروض) */}
       <div className="space-y-3 pt-4 border-t border-gray-100">
         <label className="flex items-center gap-3 cursor-pointer group">
           <div
-            className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${toggles.new ? 'bg-diyar-brown border-diyar-brown' : 'border-gray-300 group-hover:border-diyar-brown'}`}
+            className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${
+              sort === '-created_at'
+                ? 'bg-diyar-brown border-diyar-brown'
+                : 'border-gray-300 group-hover:border-diyar-brown'
+            }`}
           >
-            {toggles.new && <Check size={14} className="text-white" />}
+            {sort === '-created_at' && <Check size={14} className="text-white" />}
           </div>
-          <span className="text-sm font-bold text-gray-700">جديد</span>
+          <span className="text-sm font-bold text-gray-700">{t('catalog.search.filters.sortNewest')}</span>
           <input
-            type="checkbox"
+            type="radio"
             className="hidden"
-            checked={toggles.new}
-            onChange={() => setToggles({ ...toggles, new: !toggles.new })}
+            checked={sort === '-created_at'}
+            onChange={() => setSort('-created_at')}
           />
         </label>
         <label className="flex items-center gap-3 cursor-pointer group">
           <div
-            className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${toggles.bestSelling ? 'bg-diyar-brown border-diyar-brown' : 'border-gray-300 group-hover:border-diyar-brown'}`}
+            className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${
+              sort === '-popular'
+                ? 'bg-diyar-brown border-diyar-brown'
+                : 'border-gray-300 group-hover:border-diyar-brown'
+            }`}
           >
-            {toggles.bestSelling && <Check size={14} className="text-white" />}
+            {sort === '-popular' && <Check size={14} className="text-white" />}
           </div>
-          <span className="text-sm font-bold text-gray-700">الأعلى مبيعًا</span>
+          <span className="text-sm font-bold text-gray-700">{t('catalog.search.filters.sortPopular')}</span>
           <input
-            type="checkbox"
+            type="radio"
             className="hidden"
-            checked={toggles.bestSelling}
-            onChange={() => setToggles({ ...toggles, bestSelling: !toggles.bestSelling })}
+            checked={sort === '-popular'}
+            onChange={() => setSort('-popular')}
           />
         </label>
         <label className="flex items-center gap-3 cursor-pointer group">
           <div
-            className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${toggles.offers ? 'bg-diyar-brown border-diyar-brown' : 'border-gray-300 group-hover:border-diyar-brown'}`}
+            className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${
+              offersOnly ? 'bg-diyar-brown border-diyar-brown' : 'border-gray-300 group-hover:border-diyar-brown'
+            }`}
           >
-            {toggles.offers && <Check size={14} className="text-white" />}
+            {offersOnly && <Check size={14} className="text-white" />}
           </div>
-          <span className="text-sm font-bold text-gray-700">العروض</span>
+          <span className="text-sm font-bold text-gray-700">{t('catalog.search.filters.offersOnly')}</span>
           <input
             type="checkbox"
             className="hidden"
-            checked={toggles.offers}
-            onChange={() => setToggles({ ...toggles, offers: !toggles.offers })}
+            checked={offersOnly}
+            onChange={() => setOffersOnly((value) => !value)}
           />
         </label>
-      </div>
-
-      {/* التاجر */}
-      <div className="space-y-3 pt-2">
-        <h3 className="font-bold text-sm text-diyar-dark">التاجر / المتجر</h3>
-        <div className="relative">
-          <select className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-sm font-bold text-diyar-dark appearance-none focus:bg-white focus:border-diyar-brown outline-none transition-all cursor-pointer">
-            <option value="">الكل</option>
-            <option value="ikea">إيكيا (IKEA)</option>
-            <option value="homecentre">هوم سنتر (Home Centre)</option>
-            <option value="abayat">أبيات (Abyat)</option>
-            <option value="almutlaq">مفروشات المطلق</option>
-            <option value="midas">ميداس (Midas)</option>
-          </select>
-          <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none w-5 h-5" />
-        </div>
+        <label className="flex items-center gap-3 cursor-pointer group">
+          <div
+            className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${
+              inStockOnly ? 'bg-diyar-brown border-diyar-brown' : 'border-gray-300 group-hover:border-diyar-brown'
+            }`}
+          >
+            {inStockOnly && <Check size={14} className="text-white" />}
+          </div>
+          <span className="text-sm font-bold text-gray-700">{t('catalog.search.filters.inStockOnly')}</span>
+          <input
+            type="checkbox"
+            className="hidden"
+            checked={inStockOnly}
+            onChange={() => setInStockOnly((value) => !value)}
+          />
+        </label>
       </div>
     </div>
   );
 
   const renderServiceFilters = () => (
     <div className="space-y-8 animate-in fade-in duration-300">
-      <div className="space-y-3">
-        <h3 className="font-bold text-sm text-diyar-dark mb-4">مجال الخدمة</h3>
-        <div className="flex flex-col gap-3">
-          {['سكني', 'فندقي', 'تجاري', 'مكاتب', 'مشاريع كاملة'].map((type) => (
-            <label
-              key={type}
-              className="flex items-center gap-3 cursor-pointer group bg-gray-50 p-3 rounded-xl hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200"
+      <p className="text-sm text-gray-500">{t('catalog.search.filters.servicesHint')}</p>
+
+      {serviceCategories.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="font-bold text-sm text-diyar-dark">{t('catalog.search.filters.category')}</h3>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setServiceCategorySlug('')}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold cursor-pointer ${
+                !serviceCategorySlug
+                  ? 'bg-diyar-dark text-white'
+                  : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+              }`}
             >
-              <div
-                className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedServiceTypes.includes(type) ? 'bg-diyar-brown border-diyar-brown text-white' : 'border-gray-300 group-hover:border-diyar-brown'}`}
+              {t('catalog.search.filters.allCategories')}
+            </button>
+            {serviceCategories.map((category) => (
+              <button
+                key={category.id}
+                type="button"
+                onClick={() => setServiceCategorySlug(category.slug)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold cursor-pointer ${
+                  serviceCategorySlug === category.slug
+                    ? 'bg-diyar-dark text-white'
+                    : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
               >
-                {selectedServiceTypes.includes(type) && <Check size={14} />}
-              </div>
-              <span className="text-sm font-bold text-diyar-dark">{type}</span>
-              <input
-                type="checkbox"
-                className="hidden"
-                checked={selectedServiceTypes.includes(type)}
-                onChange={() => toggleSelection(setSelectedServiceTypes, type)}
-              />
-            </label>
-          ))}
+                {categoryLabel(category.name_ar, category.name_en)}
+              </button>
+            ))}
+          </div>
         </div>
+      )}
+
+      <PriceRangeFields
+        minPrice={serviceMinPrice}
+        maxPrice={serviceMaxPrice}
+        onMinChange={setServiceMinPrice}
+        onMaxChange={setServiceMaxPrice}
+        layout="grid"
+      />
+
+      <div className="space-y-3 pt-4 border-t border-gray-100">
+        <h3 className="font-bold text-sm text-diyar-dark">{t('catalog.search.filters.sort')}</h3>
+        {(
+          [
+            ['latest', 'serviceMarketplace.catalog.sort.latest'],
+            ['rating', 'serviceMarketplace.catalog.sort.rating'],
+            ['most_requested', 'serviceMarketplace.catalog.sort.mostRequested'],
+            ['price_asc', 'serviceMarketplace.catalog.sort.priceAsc'],
+            ['price_desc', 'serviceMarketplace.catalog.sort.priceDesc'],
+          ] as const
+        ).map(([value, labelKey]) => (
+          <label key={value} className="flex items-center gap-3 cursor-pointer group">
+            <div
+              className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${
+                serviceSort === value
+                  ? 'bg-diyar-brown border-diyar-brown'
+                  : 'border-gray-300 group-hover:border-diyar-brown'
+              }`}
+            >
+              {serviceSort === value && <Check size={14} className="text-white" />}
+            </div>
+            <span className="text-sm font-bold text-gray-700">{t(labelKey)}</span>
+            <input
+              type="radio"
+              className="hidden"
+              checked={serviceSort === value}
+              onChange={() => setServiceSort(value)}
+            />
+          </label>
+        ))}
       </div>
     </div>
   );
 
   const renderAIFilters = () => (
-    <div className="space-y-8 animate-in fade-in duration-300">
-      <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-xl flex items-start gap-3 mb-4">
-        <Sparkles className="text-yellow-600 mt-0.5" size={20} />
+    <div className="space-y-6 animate-in fade-in duration-300">
+      <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-xl flex items-start gap-3">
+        <Sparkles className="text-yellow-600 mt-0.5 shrink-0" size={20} />
         <div>
-          <h4 className="font-bold text-sm text-yellow-800 mb-1">تخصيص بالمساعد الشخصي</h4>
-          <p className="text-xs text-yellow-700/80">
-            ساعدنا ببعض المعلومات عن مساحتك ليقوم المساعد الشخصي باقتراح أفضل المنتجات والمخططات
-            المناسبة لك بدقة.
-          </p>
+          <h4 className="font-bold text-sm text-yellow-800 mb-1">
+            {t('catalog.search.aiFilters.title')}
+          </h4>
+          <p className="text-xs text-yellow-700/80">{t('catalog.search.aiFilters.description')}</p>
         </div>
       </div>
-
-      <div className="space-y-3">
-        <h3 className="font-bold text-sm text-diyar-dark">حسب حجم الغرفة</h3>
-        <select
-          value={aiRoomSize}
-          onChange={(e) => setAiRoomSize(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-sm font-bold text-diyar-dark appearance-none focus:bg-white outline-none cursor-pointer"
-        >
-          <option value="">حدد الحجم (مثل: 4x5 متر)</option>
-          <option value="small">صغيرة (أقل من 3x3)</option>
-          <option value="medium">متوسطة (حوالي 4x4)</option>
-          <option value="large">كبيرة / مجلس (أكبر من 5x5)</option>
-        </select>
-      </div>
-
-      <div className="space-y-3">
-        <h3 className="font-bold text-sm text-diyar-dark">حسب الميزانية</h3>
-        <select
-          value={aiBudget}
-          onChange={(e) => setAiBudget(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-sm font-bold text-diyar-dark appearance-none focus:bg-white outline-none cursor-pointer"
-        >
-          <option value="">حدد النطاق</option>
-          <option value="economy">اقتصادية (أقل من 5,000 ريال)</option>
-          <option value="mid">متوسطة (5,000 - 15,000 ريال)</option>
-          <option value="luxury">فاخرة (أكثر من 15,000 ريال)</option>
-        </select>
-      </div>
-
-      <div className="space-y-3">
-        <h3 className="font-bold text-sm text-diyar-dark">حسب النمط المفضل</h3>
-        <select
-          value={aiStyle}
-          onChange={(e) => setAiStyle(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-sm font-bold text-diyar-dark appearance-none focus:bg-white outline-none cursor-pointer"
-        >
-          <option value="">اختار النمط (مودرن، كلاسيك...)</option>
-          <option value="modern">مودرن عملي</option>
-          <option value="neoclassic">نيوكلاسيك فخم</option>
-          <option value="traditional">تراثي عربي أصيل</option>
-        </select>
-      </div>
-
-      <div className="space-y-3">
-        <h3 className="font-bold text-sm text-diyar-dark">نوع الخدمة المطلوبة</h3>
-        <select
-          value={aiServiceType}
-          onChange={(e) => setAiServiceType(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-sm font-bold text-diyar-dark appearance-none focus:bg-white outline-none cursor-pointer"
-        >
-          <option value="">حدد النوع</option>
-          <option value="products_only">تأثيث فقط (قطع جاهزة)</option>
-          <option value="design_and_build">تصميم داخلي وتنفيذ</option>
-          <option value="consultation">استشارة هندسية فقط</option>
-        </select>
-      </div>
-
-      <div className="pt-2">
-        <button className="w-full bg-[#132624] text-[#f3ecdb] hover:bg-black p-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors shadow-lg">
-          <Sparkles size={16} className="text-yellow-500" />
-          تشغيل اقتراحات AI
-        </button>
+      <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-500">
+        {t('catalog.search.comingSoon')}
       </div>
     </div>
   );
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-6" dir="rtl">
-      <div
-        className="absolute inset-0 bg-diyar-dark/60 backdrop-blur-sm transition-opacity"
+    <div className="fixed inset-0 z-200 flex items-center justify-center p-0 md:p-6" dir="rtl">
+      <button
+        type="button"
+        className="absolute inset-0 bg-diyar-dark/60 backdrop-blur-sm transition-opacity cursor-pointer"
+        aria-label={t('catalog.search.filters.close')}
         onClick={onClose}
-      ></div>
+      />
+
       <div className="bg-white rounded-t-3xl md:rounded-3xl w-full max-w-xl flex flex-col relative z-10 shadow-2xl h-[90vh] md:h-auto md:max-h-[90vh] mt-auto md:mt-0 overflow-hidden transform transition-transform animate-in slide-in-from-bottom-5 duration-300">
-        {/* Header Options */}
         <div className="flex flex-col border-b border-gray-100 bg-white z-20">
           <div className="flex justify-between items-center px-6 py-4">
             <div className="flex items-center gap-2">
               <SlidersHorizontal className="text-diyar-brown" size={20} />
-              <h2 className="text-xl font-bold text-diyar-dark">التصفية والفرز</h2>
+              <h2 className="text-xl font-bold text-diyar-dark">{t('catalog.search.filters.title')}</h2>
             </div>
             <button
+              type="button"
               onClick={onClose}
-              className="p-2 text-gray-500 hover:text-diyar-dark hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 text-gray-500 hover:text-diyar-dark hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
             >
               <X size={20} />
             </button>
@@ -348,59 +523,57 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
           <div className="flex px-4 overflow-x-auto scrollbar-hide gap-1 pb-2">
             <button
+              type="button"
               onClick={() => setActiveTab('products')}
-              className={`py-2 px-4 whitespace-nowrap rounded-xl text-sm font-bold flex items-center gap-2 transition-all flex-1 justify-center ${activeTab === 'products' ? 'bg-[#132624] text-white' : 'text-gray-500 hover:bg-gray-50'}`}
+              className={`py-2 px-4 whitespace-nowrap rounded-xl text-sm font-bold flex items-center gap-2 transition-all flex-1 justify-center cursor-pointer ${
+                activeTab === 'products' ? 'bg-[#132624] text-white' : 'text-gray-500 hover:bg-gray-50'
+              }`}
             >
-              <Package size={16} /> المنتجات
+              <Package size={16} /> {t('catalog.search.filters.type_products')}
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('services')}
-              className={`py-2 px-4 whitespace-nowrap rounded-xl text-sm font-bold flex items-center gap-2 transition-all flex-1 justify-center ${activeTab === 'services' ? 'bg-[#132624] text-white' : 'text-gray-500 hover:bg-gray-50'}`}
+              className={`py-2 px-4 whitespace-nowrap rounded-xl text-sm font-bold flex items-center gap-2 transition-all flex-1 justify-center cursor-pointer ${
+                activeTab === 'services' ? 'bg-[#132624] text-white' : 'text-gray-500 hover:bg-gray-50'
+              }`}
             >
-              <Wrench size={16} /> الخدمات
+              <Wrench size={16} /> {t('catalog.search.filters.type_services')}
             </button>
             <button
-              onClick={() => setActiveTab('ai')}
-              className={`py-2 px-4 whitespace-nowrap rounded-xl text-sm font-bold flex items-center gap-2 transition-all flex-1 justify-center ${activeTab === 'ai' ? 'bg-gradient-to-l from-yellow-500 to-yellow-600 text-white shadow-md' : 'text-yellow-600 bg-yellow-50 border border-yellow-100 hover:bg-yellow-100'}`}
+              type="button"
+              disabled
+              title={t('catalog.search.comingSoon')}
+              className="py-2 px-4 whitespace-nowrap rounded-xl text-sm font-bold flex items-center gap-2 transition-all flex-1 justify-center opacity-50 cursor-not-allowed text-yellow-700 bg-yellow-50 border border-yellow-100"
             >
-              <Sparkles size={16} /> فلاتر المساعد الشخصي
+              <Sparkles size={16} /> {t('catalog.search.aiFilters.tab')}
             </button>
           </div>
         </div>
 
-        {/* Body */}
         <div className="p-6 overflow-y-auto flex-1 bg-white">
           {activeTab === 'products' && renderProductFilters()}
           {activeTab === 'services' && renderServiceFilters()}
           {activeTab === 'ai' && renderAIFilters()}
         </div>
 
-        {/* Footer */}
         <div className="p-5 border-t border-gray-100 flex gap-3 bg-white sticky bottom-0 z-20">
           <button
-            onClick={() => {
-              if (activeTab === 'products') {
-                setSelectedTypes([]);
-                setSelectedColors([]);
-                setSelectedStyles([]);
-                setSelectedMaterials([]);
-                setSelectedSpaces([]);
-                setToggles({ new: false, bestSelling: false, offers: false });
-              } else if (activeTab === 'services') {
-                setSelectedServiceTypes([]);
-              } else {
-                setAiRoomSize('');
-                setAiBudget('');
-                setAiStyle('');
-                setAiServiceType('');
-              }
-            }}
-            className="px-5 py-3 text-diyar-dark text-sm font-bold hover:bg-gray-100 transition rounded-xl"
+            type="button"
+            onClick={resetFilters}
+            className="px-5 py-3 text-diyar-dark text-sm font-bold hover:bg-gray-100 transition rounded-xl cursor-pointer"
           >
-            مسح النشط
+            {t('catalog.search.filters.clearAll')}
           </button>
-          <button className="flex-1 bg-diyar-brown text-white py-3 rounded-xl text-sm font-bold hover:bg-[#7a6450] transition-colors shadow-lg shadow-diyar-brown/20 flex items-center justify-center gap-2">
-            عرض النتائج <span className="bg-white/20 px-2 py-0.5 rounded text-xs">48</span>
+          <button
+            type="button"
+            onClick={applyFilters}
+            disabled={activeTab === 'ai'}
+            className="flex-1 bg-diyar-brown text-white py-3 rounded-xl text-sm font-bold hover:bg-[#7a6450] transition-colors shadow-lg shadow-diyar-brown/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {activeTab === 'services'
+              ? t('catalog.search.filters.browseServicesWithCount', { count: resultCount })
+              : t('catalog.search.showResults', { count: resultCount })}
           </button>
         </div>
       </div>

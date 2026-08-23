@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureAdminPermission;
 use App\Http\Middleware\EnsureAdminUserIsActive;
 use App\Http\Middleware\EnsureMarketplaceAccess;
+use App\Http\Middleware\EnsureMarketplaceNotInMaintenance;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocaleFromRequest;
@@ -33,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             EnsureFrontendRequestsAreStateful::class,
             SetLocaleFromRequest::class,
+            EnsureMarketplaceNotInMaintenance::class,
         ]);
 
         $middleware->append([

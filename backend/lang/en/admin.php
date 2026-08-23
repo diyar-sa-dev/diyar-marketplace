@@ -661,6 +661,7 @@ return [
             'commerce.vat_rate' => 'Platform VAT rate applied at checkout.',
             'commerce.currency' => 'Default commerce currency code.',
             'commerce.cart_max_quantity_per_item' => 'Maximum quantity per cart line item.',
+            'commerce.loyalty_sar_per_point' => 'SAR spent per loyalty point (e.g. 50 = 1 point per 50 SAR).',
             'orders.inventory_reservation_timeout_minutes' => 'Minutes inventory stays reserved during checkout.',
             'shipping.default_carrier_flat_rate' => 'Default flat shipping rate when no vendor rate applies.',
             'payouts.vendor_minimum' => 'Minimum vendor balance before payout request.',

@@ -3,6 +3,7 @@ import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { useAdminListQuery } from '../hooks/useAdminListQuery.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { formatLocaleDateTime } from '../../lib/intlLocale.ts';
 import { Link } from 'react-router-dom';
 import { Eye } from 'lucide-react';
 
@@ -15,7 +16,7 @@ type AdminOrder = {
 };
 
 export default function AdminOrdersPage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const {
     data,
     isLoading,
@@ -86,7 +87,7 @@ export default function AdminOrdersPage() {
           </td>
           <td className="px-4 py-3 text-sm text-gray-700">{order.grand_total}</td>
           <td className="px-4 py-3 text-sm text-gray-500">
-            {order.created_at ? new Date(order.created_at).toLocaleString() : '—'}
+            {order.created_at ? formatLocaleDateTime(order.created_at, locale) : '—'}
           </td>
           <td className="px-4 py-3">
             <div className="flex justify-end">

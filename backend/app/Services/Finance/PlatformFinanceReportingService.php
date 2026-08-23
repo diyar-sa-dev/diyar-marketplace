@@ -19,6 +19,7 @@ use App\Models\VendorPayout;
 use App\Services\Finance\DTO\PlatformFinancePeriodReport;
 use App\Services\Finance\DTO\PlatformFinanceSummary;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection;
 
 final class PlatformFinanceReportingService
 {
@@ -78,7 +79,7 @@ final class PlatformFinanceReportingService
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, FinancialTransaction>
+     * @return Collection<int, FinancialTransaction>
      */
     public function transactionsForExport(FinancePeriod $period, ?string $currency = null)
     {

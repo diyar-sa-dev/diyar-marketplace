@@ -1,4 +1,5 @@
 import type { ChatMessage, ChatParticipant, Conversation } from '../../types/chat.ts';
+import { intlLocaleTag } from '../intlLocale.ts';
 
 export type ChatConnectionState =
   'connected' | 'connecting' | 'disconnected' | 'failed' | 'reconnecting' | 'idle';
@@ -135,11 +136,13 @@ export function formatConversationPreviewTime(
     date.getMonth() === now.getMonth() &&
     date.getDate() === now.getDate();
 
+  const tag = intlLocaleTag(locale);
+
   if (sameDay) {
-    return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString(tag, { hour: '2-digit', minute: '2-digit' });
   }
 
-  return date.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
+  return date.toLocaleDateString(tag, { month: 'short', day: 'numeric' });
 }
 
 export function connectionStatusStyles(state: ChatConnectionState): {

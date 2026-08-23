@@ -27,12 +27,31 @@ class VendorCardResource extends JsonResource
             'location' => $this->location,
             'logo_url' => $media->url($this->logo_path),
             'cover_url' => $media->url($this->cover_path),
-            'product_count' => $this->when(
-                isset($this->active_products_count),
-                fn () => (int) $this->active_products_count,
-            ),
-            'rating_avg' => $storeReviews->ratingAverage($this->resource),
-            'reviews_count' => $storeReviews->reviewsCount($this->resource),
+            'product_count' => array_key_exists('active_products_count', $this->resource->getAttributes())
+                ? (int) $this->resource->active_products_count
+                : null,
+            'rating_avg' => $this->resolveRatingAverage($storeReviews),
+            'reviews_count' => $this->resolveReviewsCount($storeReviews),
         ];
+    }
+
+    private function resolveRatingAverage(StoreReviewService $storeReviews): ?float
+    {
+        if (array_key_exists('store_reviews_avg_rating', $this->resource->getAttributes())) {
+            $avg = $this->store_reviews_avg_rating;
+
+            return $avg === null ? null : round((float) $avg, 1);
+        }
+
+        return $storeReviews->ratingAverage($this->resource);
+    }
+
+    private function resolveReviewsCount(StoreReviewService $storeReviews): int
+    {
+        if (array_key_exists('store_reviews_count', $this->resource->getAttributes())) {
+            return (int) $this->store_reviews_count;
+        }
+
+        return $storeReviews->reviewsCount($this->resource);
     }
 }

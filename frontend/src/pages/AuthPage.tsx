@@ -562,6 +562,7 @@ export default function AuthPage() {
 
                 <button
                   type="submit"
+                  data-testid="marketplace-login-submit"
                   disabled={isLoading}
                   className="w-full py-3.5 px-4 rounded-xl text-white font-bold bg-diyar-dark hover:bg-black transition-colors flex justify-center items-center cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >

@@ -3,7 +3,7 @@ import * as catalogApi from '../../api/catalog.ts';
 import type { ProductListFilters } from '../../types/catalog.ts';
 import { categoryKeys, productKeys, vendorKeys } from './queryKeys.ts';
 import { isValidStoreSlug } from '../../lib/storePath.ts';
-import { isNotFoundError, parseApiError } from '../../utils/errors.ts';
+import { isNotFoundError } from '../../utils/errors.ts';
 
 export function useCategories(type?: 'product' | 'service') {
   return useQuery({

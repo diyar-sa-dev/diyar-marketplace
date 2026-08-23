@@ -4,6 +4,7 @@ namespace App\Services\Media;
 
 use App\Models\MediaFile;
 use App\Models\User;
+use App\Support\Media\ImageContentValidator;
 use App\Support\Media\SvgSafetyValidator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -45,6 +46,8 @@ final class MediaUploadService
         if (! in_array($detectedMime, $this->allowedMimes(), true)) {
             throw new InvalidArgumentException(__('diyar.media.invalid_type'));
         }
+
+        ImageContentValidator::assertRasterImage($file, (string) $detectedMime);
 
         $extension = strtolower((string) $file->getClientOriginalExtension());
         $allowedExtensions = config('diyar_media.allowed_extensions', []);
@@ -265,6 +268,10 @@ final class MediaUploadService
         $detectedMime = $file->getMimeType();
         if (! in_array($detectedMime, $allowedMimes, true)) {
             throw new InvalidArgumentException(__('diyar.media.invalid_type'));
+        }
+
+        if ($detectedMime !== 'image/svg+xml') {
+            ImageContentValidator::assertRasterImage($file, (string) $detectedMime);
         }
 
         $extension = strtolower((string) $file->getClientOriginalExtension());

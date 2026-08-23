@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { formatLocaleDateTime } from '../../lib/intlLocale.ts';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { DetailHeader } from '../components/DetailHeader.tsx';
@@ -19,7 +20,7 @@ type PaymentDetail = {
 
 export default function AdminPaymentDetailPage() {
   const { paymentId } = useParams<{ paymentId: string }>();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const {
     data: payment,
@@ -96,7 +97,7 @@ export default function AdminPaymentDetailPage() {
               {t('admin.tables.createdAt')}
             </dt>
             <dd className="mt-1 text-gray-700">
-              {payment.created_at ? new Date(payment.created_at).toLocaleString() : '—'}
+              {payment.created_at ? formatLocaleDateTime(payment.created_at, locale) : '—'}
             </dd>
           </div>
         </dl>

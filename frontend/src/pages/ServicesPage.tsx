@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Search,
   Star,
@@ -8,34 +8,82 @@ import {
   LayoutDashboard,
   Plus,
   User,
-  ChevronLeft,
-  ChevronRight,
   Loader2,
 } from 'lucide-react';
 import { RequestServiceModal } from '../components/modals/RequestServiceModal.tsx';
 import { ServiceRequestListCard } from '../components/services/ServiceRequestListCard.tsx';
 import { ServiceTypeBadge } from '../components/services/ServiceTypeBadge.tsx';
+import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useDebouncedValue } from '../hooks/useDebouncedValue.ts';
 import { useServiceRequests } from '../hooks/services/useServiceRequests.ts';
 import { useLocale } from '../hooks/useLocale.ts';
 import { useServiceCategories, useServices } from '../hooks/services/useServices.ts';
+import { parsePriceDigits } from '../lib/priceInput.ts';
 import type { ServiceListFilters } from '../types/services.ts';
 import { serviceCategoryIcon, SERVICE_IMAGE_FALLBACK } from '../lib/services/serviceUi.ts';
 import { resolveServiceTypeLabel } from '../lib/serviceBookingDisplay.ts';
 
+const SERVICE_SORTS: ServiceListFilters['sort'][] = [
+  'latest',
+  'rating',
+  'most_requested',
+  'price_asc',
+  'price_desc',
+];
+
+function readServiceFiltersFromParams(searchParams: URLSearchParams): {
+  q: string;
+  category: string | null;
+  sort: ServiceListFilters['sort'];
+  page: number;
+  minPrice: string;
+  maxPrice: string;
+  perPage: number;
+} {
+  const sortParam = searchParams.get('sort');
+  const sort = SERVICE_SORTS.includes(sortParam as ServiceListFilters['sort'])
+    ? (sortParam as ServiceListFilters['sort'])
+    : 'latest';
+
+  return {
+    q: searchParams.get('q') ?? '',
+    category: searchParams.get('category'),
+    sort,
+    page: Math.max(1, Number(searchParams.get('page') ?? 1) || 1),
+    minPrice: searchParams.get('min_price') ?? '',
+    maxPrice: searchParams.get('max_price') ?? '',
+    perPage: Math.min(48, Math.max(1, Number(searchParams.get('per_page') ?? 12) || 12)),
+  };
+}
+
 export default function ServicesPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t, dir, locale } = useLocale();
-  const PrevIcon = dir === 'rtl' ? ChevronRight : ChevronLeft;
-  const NextIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
   const { isAuthenticated } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [sort, setSort] = useState<ServiceListFilters['sort']>('latest');
-  const [page, setPage] = useState(1);
+
+  const urlState = useMemo(() => readServiceFiltersFromParams(searchParams), [searchParams]);
+
+  const [searchTerm, setSearchTerm] = useState(urlState.q);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(urlState.category);
+  const [sort, setSort] = useState<ServiceListFilters['sort']>(urlState.sort);
+  const [page, setPage] = useState(urlState.page);
+  const [minPrice, setMinPrice] = useState(urlState.minPrice);
+  const [maxPrice, setMaxPrice] = useState(urlState.maxPrice);
+  const [perPage, setPerPage] = useState(urlState.perPage);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+
+  useEffect(() => {
+    setSearchTerm(urlState.q);
+    setSelectedCategory(urlState.category);
+    setSort(urlState.sort);
+    setPage(urlState.page);
+    setMinPrice(urlState.minPrice);
+    setMaxPrice(urlState.maxPrice);
+    setPerPage(urlState.perPage);
+  }, [urlState]);
 
   useEffect(() => {
     const state = location.state as { openRequest?: boolean } | null;
@@ -44,7 +92,87 @@ export default function ServicesPage() {
       navigate(location.pathname, { replace: true, state: null });
     }
   }, [location.pathname, location.state, navigate]);
+
   const debouncedSearch = useDebouncedValue(searchTerm, 350);
+
+  const syncUrl = useCallback(
+    (patch: Partial<ReturnType<typeof readServiceFiltersFromParams>>) => {
+      const next = new URLSearchParams(searchParams);
+
+      const values = {
+        q: patch.q ?? debouncedSearch.trim(),
+        category: patch.category !== undefined ? patch.category : selectedCategory,
+        sort: patch.sort ?? sort,
+        page: patch.page ?? page,
+        minPrice: patch.minPrice ?? minPrice,
+        maxPrice: patch.maxPrice ?? maxPrice,
+        perPage: patch.perPage ?? perPage,
+      };
+
+      if (values.q) {
+        next.set('q', values.q);
+      } else {
+        next.delete('q');
+      }
+
+      if (values.category) {
+        next.set('category', values.category);
+      } else {
+        next.delete('category');
+      }
+
+      if (values.sort && values.sort !== 'latest') {
+        next.set('sort', values.sort);
+      } else {
+        next.delete('sort');
+      }
+
+      const min = parsePriceDigits(values.minPrice);
+      const max = parsePriceDigits(values.maxPrice);
+      if (min !== undefined) {
+        next.set('min_price', String(min));
+      } else {
+        next.delete('min_price');
+      }
+      if (max !== undefined) {
+        next.set('max_price', String(max));
+      } else {
+        next.delete('max_price');
+      }
+
+      if (values.page > 1) {
+        next.set('page', String(values.page));
+      } else {
+        next.delete('page');
+      }
+
+      if (values.perPage !== 12) {
+        next.set('per_page', String(values.perPage));
+      } else {
+        next.delete('per_page');
+      }
+
+      setSearchParams(next, { replace: true });
+    },
+    [
+      debouncedSearch,
+      maxPrice,
+      minPrice,
+      page,
+      perPage,
+      searchParams,
+      selectedCategory,
+      setSearchParams,
+      sort,
+    ],
+  );
+
+  useEffect(() => {
+    syncUrl({
+      q: debouncedSearch.trim(),
+      page: debouncedSearch.trim() !== urlState.q ? 1 : page,
+    });
+  }, [debouncedSearch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data: categories = [], isLoading: categoriesLoading } = useServiceCategories();
   const { data: myRequestsData, isLoading: myRequestsLoading } = useServiceRequests(
@@ -60,9 +188,11 @@ export default function ServicesPage() {
       category: selectedCategory ?? undefined,
       sort,
       page,
-      per_page: 12,
+      per_page: perPage,
+      min_price: parsePriceDigits(minPrice),
+      max_price: parsePriceDigits(maxPrice),
     }),
-    [debouncedSearch, selectedCategory, sort, page],
+    [debouncedSearch, selectedCategory, sort, page, perPage, minPrice, maxPrice],
   );
 
   const { data, isLoading, isFetching, isError } = useServices(filters);
@@ -71,6 +201,18 @@ export default function ServicesPage() {
   const myRequests = myRequestsData?.items ?? [];
 
   const categoryLabel = (nameAr: string, nameEn: string) => (locale === 'ar' ? nameAr : nameEn);
+
+  const updateCategory = (slug: string | null) => {
+    setSelectedCategory(slug);
+    setPage(1);
+    syncUrl({ category: slug, page: 1 });
+  };
+
+  const updateSort = (nextSort: ServiceListFilters['sort']) => {
+    setSort(nextSort);
+    setPage(1);
+    syncUrl({ sort: nextSort, page: 1 });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 pt-6" dir={dir}>
@@ -144,10 +286,7 @@ export default function ServicesPage() {
 
         <div className="flex overflow-x-auto snap-x gap-4 mb-8 pb-4 scrollbar-hide">
           <button
-            onClick={() => {
-              setSelectedCategory(null);
-              setPage(1);
-            }}
+            onClick={() => updateCategory(null)}
             className={`flex-none min-w-30 sm:flex-1 flex flex-col items-center justify-center p-6 rounded-2xl border transition-all duration-300 snap-center cursor-pointer ${
               selectedCategory === null
                 ? 'bg-diyar-dark border-diyar-dark text-white shadow-lg'
@@ -179,10 +318,7 @@ export default function ServicesPage() {
               return (
                 <button
                   key={category.id}
-                  onClick={() => {
-                    setSelectedCategory(category.slug);
-                    setPage(1);
-                  }}
+                  onClick={() => updateCategory(category.slug)}
                   className={`flex-none min-w-30 sm:flex-1 flex flex-col items-center justify-center p-6 rounded-2xl border transition-all duration-300 snap-center cursor-pointer ${
                     isActive
                       ? 'bg-diyar-dark border-diyar-dark text-white shadow-lg'
@@ -198,27 +334,21 @@ export default function ServicesPage() {
             })}
         </div>
 
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 mb-8">
+        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 mb-4">
           <div className="relative flex-1">
-            <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute inset-s-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder={t('serviceMarketplace.catalog.searchPlaceholder')}
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPage(1);
-              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-gray-50 border-none rounded-xl pe-4 ps-10 py-3 text-sm focus:ring-2 focus:ring-diyar-brown outline-none"
             />
           </div>
           <div className="relative md:w-52 shrink-0">
             <select
               value={sort ?? 'latest'}
-              onChange={(event) => {
-                setSort(event.target.value as ServiceListFilters['sort']);
-                setPage(1);
-              }}
+              onChange={(event) => updateSort(event.target.value as ServiceListFilters['sort'])}
               className="w-full appearance-none bg-gray-50 border border-transparent rounded-xl px-4 py-3 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-diyar-brown outline-none cursor-pointer"
             >
               <option value="latest">{t('serviceMarketplace.catalog.sort.latest')}</option>
@@ -231,12 +361,26 @@ export default function ServicesPage() {
             </select>
             <Filter
               size={18}
-              className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              className="absolute inset-e-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
             />
           </div>
         </div>
 
-        {(isLoading || isFetching) && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+          <p className="text-sm text-gray-500">
+            {pagination
+              ? t('serviceMarketplace.catalog.resultsCount', { count: pagination.total })
+              : null}
+          </p>
+          {isFetching && !isLoading && (
+            <p className="text-xs text-diyar-brown inline-flex items-center gap-2">
+              <Loader2 size={14} className="animate-spin" />
+              {t('catalog.search.updating')}
+            </p>
+          )}
+        </div>
+
+        {isLoading && !data && (
           <div className="flex justify-center py-16">
             <Loader2 className="w-8 h-8 animate-spin text-diyar-brown" />
           </div>
@@ -317,31 +461,23 @@ export default function ServicesPage() {
               </div>
             )}
 
-            {pagination && pagination.last_page > 1 && (
-              <div className="flex items-center justify-center gap-3 mt-10">
-                <button
-                  type="button"
-                  disabled={page <= 1}
-                  onClick={() => setPage((current) => Math.max(1, current - 1))}
-                  className="p-2 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-white cursor-pointer disabled:cursor-not-allowed"
-                >
-                  <PrevIcon size={18} />
-                </button>
-                <span className="text-sm text-gray-600">
-                  {t('serviceMarketplace.catalog.page', {
-                    current: pagination.current_page,
-                    total: pagination.last_page,
-                  })}
-                </span>
-                <button
-                  type="button"
-                  disabled={page >= pagination.last_page}
-                  onClick={() => setPage((current) => current + 1)}
-                  className="p-2 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-white cursor-pointer disabled:cursor-not-allowed"
-                >
-                  <NextIcon size={18} />
-                </button>
-              </div>
+            {pagination && (
+              <PaginationBar
+                pagination={pagination}
+                page={page}
+                perPage={perPage}
+                perPageOptions={[12, 24, 36, 48]}
+                onPageChange={(nextPage) => {
+                  setPage(nextPage);
+                  syncUrl({ page: nextPage });
+                }}
+                onPerPageChange={(nextPerPage) => {
+                  setPerPage(nextPerPage);
+                  setPage(1);
+                  syncUrl({ perPage: nextPerPage, page: 1 });
+                }}
+                alwaysShow={pagination.total > 0}
+              />
             )}
           </>
         )}

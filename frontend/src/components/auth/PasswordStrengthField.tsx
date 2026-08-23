@@ -156,6 +156,7 @@ export function PasswordStrengthField({
 }
 
 type PasswordInputProps = {
+  id?: string;
   value: string;
   onChange: (value: string) => void;
   showPassword: boolean;
@@ -165,6 +166,7 @@ type PasswordInputProps = {
 };
 
 export function PasswordInput({
+  id,
   value,
   onChange,
   showPassword,
@@ -184,6 +186,7 @@ export function PasswordInput({
         <Lock size={18} strokeWidth={2} className="block" />
       </AuthInputIcon>
       <input
+        id={id}
         type={showPassword ? 'text' : 'password'}
         required
         value={value}

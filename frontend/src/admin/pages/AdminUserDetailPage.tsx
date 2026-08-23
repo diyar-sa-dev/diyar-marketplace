@@ -6,6 +6,7 @@ import { adminApi } from '../../api/client.ts';
 import { formatPhoneDisplay } from '../../lib/formatPhone.ts';
 import { confirmActivateUser, confirmSuspendUser } from '../../lib/confirmDialog.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { formatLocaleDateTime } from '../../lib/intlLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { UserAvatar } from '../../components/profile/UserAvatar.tsx';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
@@ -39,7 +40,7 @@ type UserDetail = {
 
 export default function AdminUserDetailPage() {
   const { userId } = useParams<{ userId: string }>();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const { user: currentUser } = useAdminAuth();
@@ -232,7 +233,7 @@ export default function AdminUserDetailPage() {
                 {t('admin.tables.createdAt')}
               </dt>
               <dd className="mt-1 text-gray-700">
-                {user.created_at ? new Date(user.created_at).toLocaleString() : '—'}
+                {user.created_at ? formatLocaleDateTime(user.created_at, locale) : '—'}
               </dd>
             </div>
             {user.bio ? (

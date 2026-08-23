@@ -128,7 +128,7 @@ export function formatBookingScheduleDate(dateIso: string, locale: string): stri
   const [year, month, day] = dateIso.split('-').map(Number);
   const date = new Date(year, month - 1, day);
 
-  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA' : 'en-GB', {
+  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA-u-nu-latn' : 'en-GB', {
     weekday: 'short',
     year: 'numeric',
     month: 'short',
@@ -145,7 +145,7 @@ export function formatBookingScheduleTime(time: string, locale: string): string 
   const date = new Date();
   date.setHours(Number(match[1]), Number(match[2]), 0, 0);
 
-  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA' : 'en-GB', {
+  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA-u-nu-latn' : 'en-GB', {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,

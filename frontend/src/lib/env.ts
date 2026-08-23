@@ -6,9 +6,7 @@
  *   VITE_BACKEND_URL=   (empty → relative /sanctum/csrf-cookie)
  */
 export const env = {
-  apiUrl:
-    import.meta.env.VITE_API_URL ??
-    (import.meta.env.DEV ? '/api/v1' : 'http://localhost:8000/api/v1'),
+  apiUrl: import.meta.env.VITE_API_URL ?? '/api/v1',
   backendUrl: import.meta.env.VITE_BACKEND_URL ?? '',
   /** In-app React admin SPA route (same origin as marketplace). */
   adminPanelUrl: import.meta.env.VITE_ADMIN_PANEL_URL ?? '/admin',

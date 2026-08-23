@@ -224,7 +224,11 @@ class ProductEngagementService
             return 0;
         }
 
-        return (int) ($product->reviews_count ?? ProductReview::query()->where('product_id', $product->id)->count());
+        if ($product->offsetExists('reviews_count')) {
+            return (int) $product->reviews_count;
+        }
+
+        return (int) ProductReview::query()->where('product_id', $product->id)->count();
     }
 
     public function ratingAverage(Product $product): ?float
@@ -233,7 +237,17 @@ class ProductEngagementService
             return null;
         }
 
-        $avg = $product->reviews_avg_rating ?? ProductReview::query()->where('product_id', $product->id)->avg('rating');
+        if ($product->offsetExists('reviews_avg_rating')) {
+            $avg = $product->reviews_avg_rating;
+
+            return $avg === null ? null : round((float) $avg, 1);
+        }
+
+        if ($product->offsetExists('reviews_count') && (int) $product->reviews_count === 0) {
+            return null;
+        }
+
+        $avg = ProductReview::query()->where('product_id', $product->id)->avg('rating');
 
         if ($avg === null) {
             return null;

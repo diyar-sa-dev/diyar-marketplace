@@ -8,12 +8,13 @@ import { useAffiliateOverview } from '../../hooks/affiliate/useAffiliate.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { resolveMediaUrl } from '../../lib/media.ts';
+import { formatLocaleNumber } from '../../lib/intlLocale.ts';
 import { usePortalTheme } from '../../lib/dashboard/portalTheme.ts';
 
 const FALLBACK_IMAGE = '/placeholder-product.png';
 
 export default function AffiliateDashboard() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const theme = usePortalTheme();
   const { toast } = useToast();
   const overviewQuery = useAffiliateOverview();
@@ -74,7 +75,7 @@ export default function AffiliateDashboard() {
           </div>
           <div className="flex items-end gap-3">
             <span className="text-3xl font-bold text-diyar-dark">
-              {overview.clicks.toLocaleString()}
+              {formatLocaleNumber(overview.clicks, locale)}
             </span>
           </div>
         </div>
@@ -88,7 +89,7 @@ export default function AffiliateDashboard() {
           </div>
           <div className="flex items-end gap-3">
             <span className="text-3xl font-bold text-diyar-dark">
-              {overview.conversions.toLocaleString()}
+              {formatLocaleNumber(overview.conversions, locale)}
             </span>
           </div>
         </div>

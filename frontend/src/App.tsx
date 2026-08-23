@@ -40,6 +40,7 @@ import { GuestRoute } from './components/routes/GuestRoute.tsx';
 import { AccountStatusRoute } from './components/routes/AccountStatusRoute.tsx';
 import { AccountStatusGuard } from './components/routes/AccountStatusGuard.tsx';
 import { MarketplaceCommerceRoute } from './components/routing/MarketplaceCommerceRoute.tsx';
+import { MarketplaceMaintenanceGate } from './components/routing/MarketplaceMaintenanceGate.tsx';
 import {
   RoleName,
   ADMIN_PANEL_PATH,
@@ -61,6 +62,7 @@ import LocalPaymentSimulatorPage from './pages/LocalPaymentSimulatorPage.tsx';
 import OrdersPage from './pages/OrdersPage.tsx';
 import LoyaltyPage from './pages/LoyaltyPage.tsx';
 import SearchPage from './pages/SearchPage.tsx';
+import { SearchAutocomplete } from './components/search/SearchAutocomplete.tsx';
 import BlogArticlePage from './pages/BlogArticlePage.tsx';
 import ProfilePage from './pages/ProfilePage.tsx';
 import ServiceRequestsPage from './pages/ServiceRequestsPage.tsx';
@@ -136,24 +138,10 @@ const AdminVendorDetailPage = lazy(() => import('./admin/pages/AdminVendorDetail
 const AdminProvidersPage = lazy(() => import('./admin/pages/AdminProvidersPage.tsx'));
 const AdminProviderDetailPage = lazy(() => import('./admin/pages/AdminProviderDetailPage.tsx'));
 const AdminCategoriesPage = lazy(() => import('./admin/pages/AdminCategoriesPage.tsx'));
-const AdminOrdersPage = lazy(() => import('./admin/pages/AdminOrdersPage.tsx'));
-const AdminOrderDetailPage = lazy(() => import('./admin/pages/AdminOrderDetailPage.tsx'));
-const AdminProductsPage = lazy(() => import('./admin/pages/AdminProductsPage.tsx'));
 const AdminFinancePage = lazy(() => import('./admin/pages/AdminFinancePage.tsx'));
 const AdminAffiliateHubPage = lazy(() => import('./admin/pages/AdminAffiliateHubPage.tsx'));
 const AdminAuditPage = lazy(() => import('./admin/pages/AdminAuditPage.tsx'));
 const AdminSettingsPage = lazy(() => import('./admin/pages/AdminSettingsPage.tsx'));
-const AdminPaymentsPage = lazy(() => import('./admin/pages/AdminPaymentsPage.tsx'));
-const AdminRefundsPage = lazy(() => import('./admin/pages/AdminRefundsPage.tsx'));
-const AdminCouponsPage = lazy(() => import('./admin/pages/AdminCouponsPage.tsx'));
-const AdminReviewsPage = lazy(() => import('./admin/pages/AdminReviewsPage.tsx'));
-const AdminProductDetailPage = lazy(() => import('./admin/pages/AdminProductDetailPage.tsx'));
-const AdminRefundDetailPage = lazy(() => import('./admin/pages/AdminRefundDetailPage.tsx'));
-const AdminPaymentDetailPage = lazy(() => import('./admin/pages/AdminPaymentDetailPage.tsx'));
-const AdminCouponDetailPage = lazy(() => import('./admin/pages/AdminCouponDetailPage.tsx'));
-const AdminOperationsHubPage = lazy(() => import('./admin/pages/AdminOperationsHubPage.tsx'));
-const AdminServicesHubPage = lazy(() => import('./admin/pages/AdminServicesHubPage.tsx'));
-const AdminRolesPage = lazy(() => import('./admin/pages/AdminRolesPage.tsx'));
 
 function AdminRouteFallback() {
   return <AdminPageSkeleton />;
@@ -408,26 +396,13 @@ export default function App() {
                   onSubmit={handleSearchSubmit}
                   className="hidden md:flex flex-1 md:max-w-xl bg-white border border-gray-200 rounded-full px-4 py-2 items-center gap-2 md:order-2"
                 >
-                  <button
-                    type="submit"
-                    className="text-diyar-dark hover:text-diyar-dark/80 transition shrink-0 cursor-pointer"
-                  >
-                    <Search className="w-5 h-5 shrink-0" />
-                  </button>
-                  <input
-                    type="text"
-                    placeholder={t('layout.nav.searchPlaceholder')}
-                    className="bg-transparent border-none outline-none w-full text-diyar-dark placeholder:text-gray-400 text-sm h-7"
+                  <SearchAutocomplete
+                    className="flex-1 min-w-0"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={setSearchQuery}
+                    imageSearchDisabled
+                    onImageSearchClick={() => setIsImageSearchOpen(true)}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setIsImageSearchOpen(true)}
-                    className="text-gray-400 hover:text-diyar-dark transition shrink-0 ml-1 cursor-pointer"
-                  >
-                    <Camera className="w-5 h-5" />
-                  </button>
                   <div
                     className="px-2 flex items-center gap-2 cursor-pointer text-diyar-dark hover:text-diyar-dark/80 transition shrink-0 border-r border-gray-200"
                     onClick={() => setIsFilterOpen(true)}
@@ -533,7 +508,11 @@ export default function App() {
         <SidebarMenu isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       )}
       {!hideMarketplaceChrome && (
-        <ImageSearchModal isOpen={isImageSearchOpen} onClose={() => setIsImageSearchOpen(false)} />
+        <ImageSearchModal
+          isOpen={isImageSearchOpen}
+          onClose={() => setIsImageSearchOpen(false)}
+          disabled
+        />
       )}
       {!hideMarketplaceChrome && (
         <RequestServiceModal
@@ -543,6 +522,7 @@ export default function App() {
       )}
 
       <AccountStatusGuard>
+        <MarketplaceMaintenanceGate>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route
@@ -612,26 +592,21 @@ export default function App() {
             <Route path="providers" element={<Suspense fallback={<AdminRouteFallback />}><AdminProvidersPage /></Suspense>} />
             <Route path="providers/:providerId" element={<Suspense fallback={<AdminRouteFallback />}><AdminProviderDetailPage /></Suspense>} />
             <Route path="affiliate" element={<Suspense fallback={<AdminRouteFallback />}><AdminAffiliateHubPage /></Suspense>} />
-            <Route path="products" element={<Suspense fallback={<AdminRouteFallback />}><AdminProductsPage /></Suspense>} />
-            <Route path="products/:productId" element={<Suspense fallback={<AdminRouteFallback />}><AdminProductDetailPage /></Suspense>} />
             <Route path="categories" element={<Suspense fallback={<AdminRouteFallback />}><AdminCategoriesPage /></Suspense>} />
-            <Route path="orders" element={<Suspense fallback={<AdminRouteFallback />}><AdminOrdersPage /></Suspense>} />
-            <Route path="orders/:orderId" element={<Suspense fallback={<AdminRouteFallback />}><AdminOrderDetailPage /></Suspense>} />
-            <Route path="payments" element={<Suspense fallback={<AdminRouteFallback />}><AdminPaymentsPage /></Suspense>} />
-            <Route path="payments/:paymentId" element={<Suspense fallback={<AdminRouteFallback />}><AdminPaymentDetailPage /></Suspense>} />
-            <Route path="refunds" element={<Suspense fallback={<AdminRouteFallback />}><AdminRefundsPage /></Suspense>} />
-            <Route path="refunds/:refundId" element={<Suspense fallback={<AdminRouteFallback />}><AdminRefundDetailPage /></Suspense>} />
-            <Route path="coupons" element={<Suspense fallback={<AdminRouteFallback />}><AdminCouponsPage /></Suspense>} />
-            <Route path="coupons/:couponId" element={<Suspense fallback={<AdminRouteFallback />}><AdminCouponDetailPage /></Suspense>} />
-            <Route path="reviews" element={<Suspense fallback={<AdminRouteFallback />}><AdminReviewsPage /></Suspense>} />
-            <Route path="operations" element={<Suspense fallback={<AdminRouteFallback />}><AdminOperationsHubPage /></Suspense>} />
-            <Route path="services" element={<Suspense fallback={<AdminRouteFallback />}><AdminServicesHubPage /></Suspense>} />
-            <Route path="roles" element={<Suspense fallback={<AdminRouteFallback />}><AdminRolesPage /></Suspense>} />
             <Route path="finance" element={<Suspense fallback={<AdminRouteFallback />}><AdminFinancePage /></Suspense>} />
             <Route path="payouts" element={<Navigate to="/admin/finance" replace />} />
             <Route path="transactions" element={<Navigate to="/admin/finance" replace />} />
             <Route path="audit" element={<Suspense fallback={<AdminRouteFallback />}><AdminAuditPage /></Suspense>} />
             <Route path="settings" element={<Suspense fallback={<AdminRouteFallback />}><AdminSettingsPage /></Suspense>} />
+            <Route path="services/*" element={<Navigate to="/admin" replace />} />
+            <Route path="products/*" element={<Navigate to="/admin" replace />} />
+            <Route path="orders/*" element={<Navigate to="/admin" replace />} />
+            <Route path="payments/*" element={<Navigate to="/admin" replace />} />
+            <Route path="refunds/*" element={<Navigate to="/admin" replace />} />
+            <Route path="coupons/*" element={<Navigate to="/admin" replace />} />
+            <Route path="reviews" element={<Navigate to="/admin" replace />} />
+            <Route path="operations" element={<Navigate to="/admin" replace />} />
+            <Route path="roles" element={<Navigate to="/admin" replace />} />
           </Route>
           <Route
             path="/auth"
@@ -1057,6 +1032,7 @@ export default function App() {
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        </MarketplaceMaintenanceGate>
       </AccountStatusGuard>
 
       {!hideMarketplaceChrome && <FloatingContactBar />}

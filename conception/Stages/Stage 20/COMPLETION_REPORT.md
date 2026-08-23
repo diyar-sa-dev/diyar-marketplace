@@ -6,37 +6,40 @@
 ## Regression suite
 
 ```bash
-cd backend && php artisan test   # 509 passed (includes AdminIsolationTest + commerce security)
+cd backend && php artisan test   # 526 passed
 ```
 
 ## Completed
 
-- Threat model and security matrix documented
-- Auth isolation verified (507 backend tests including `AdminIsolationTest`)
-- IDOR tests for orders (customer + vendor)
+- Threat model and security matrix documented (`THREAT_MODEL.md`, `SECURITY_MATRIX.md`)
+- Auth isolation verified (`AdminIsolationTest` — 17 cases)
+- IDOR tests for products, orders (customer + vendor)
 - Checkout price authority (`CheckoutPreviewTest`)
 - Idempotency on orders and refunds
-- Rate limiting on auth, OTP, affiliate
+- Rate limiting on auth, OTP, affiliate, search
 - Admin permission middleware on sensitive routes
 - Separate admin/marketplace session guards
+- **New:** Health endpoint hides `environment` in production; DB/cache probes
+- **New:** `CatalogSearchSecurityTest` — public search without internal field leakage
 
 ## Accepted / deferred
 
 | Item | Severity | Notes |
 |------|----------|-------|
 | B2B/blog static pages | Low | No API — not a security boundary breach |
-| Frontend bundle size warning | Low | Performance, not security |
 | Production cookie domain split | Medium | Documented in `AUTH_SECURITY.md` — deploy-time config |
+| Webhook replay expanded tests | Low | Deferred per provider |
+| Browser dual-session E2E in CI | Medium | Playwright scaffolded; not in CI |
 
 ## Verification
 
 ```bash
-cd backend && php artisan test    # 507 passed
+cd backend && php artisan test
 cd frontend && npm run typecheck && npm run build
 ```
 
-## Next hardening (optional)
+## Honest sign-off
 
-- Expand upload signature tests
-- Webhook replay regression tests per provider
-- Explicit admin mutation rate limits
+Stage 20 is **not COMPLETE** for full enterprise sign-off. Automated security regression is strong; browser-level isolation in CI and expanded webhook/upload tests remain open.
+
+See also: [FINAL_STAGE_20_21_22_AUDIT.md](../../../FINAL_STAGE_20_21_22_AUDIT.md)

@@ -57,15 +57,34 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for('catalog-search', function (Request $request) {
+            $limit = (int) config('diyar.rate_limits.catalog_search_per_minute', 60);
+
+            return Limit::perMinute($limit)
+                ->by($request->ip());
+        });
+
+        RateLimiter::for('catalog-search-suggestions', function (Request $request) {
+            $limit = (int) config('diyar.rate_limits.catalog_search_suggestions_per_minute', 90);
+
+            return Limit::perMinute($limit)
+                ->by($request->ip());
+        });
+
+        RateLimiter::for('webhooks', function (Request $request) {
+            return Limit::perMinute((int) config('diyar.rate_limits.webhooks_per_minute', 120))
+                ->by($request->ip());
+        });
+
         RateLimiter::for('auth', function (Request $request) {
-            return Limit::perMinute((int) env('DIYAR_AUTH_RATE_LIMIT', 20))
+            return Limit::perMinute((int) config('diyar.rate_limits.auth_per_minute', 20))
                 ->by($request->ip());
         });
 
         RateLimiter::for('otp', function (Request $request) {
             $phone = (string) $request->input('phone', 'unknown');
 
-            return Limit::perMinute((int) env('DIYAR_OTP_RATE_LIMIT', 10))
+            return Limit::perMinute((int) config('diyar.rate_limits.otp_per_minute', 10))
                 ->by($phone.'|'.$request->ip());
         });
 
@@ -135,6 +154,10 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->user()?->id ?: $request->ip());
         });
 
+        if ($this->app->environment('production') && ! $this->app->runningUnitTests()) {
+            $this->assertProductionInfrastructure();
+        }
+
         if ($this->app->runningInConsole()) {
             $this->configureDevCommands();
         }
@@ -152,5 +175,22 @@ class AppServiceProvider extends ServiceProvider
         );
 
         DevCommands::artisan('diyar:dev-frontend', 'frontend');
+    }
+
+    private function assertProductionInfrastructure(): void
+    {
+        if (! config('diyar.infrastructure.enforce_redis_in_production', true)) {
+            return;
+        }
+
+        $cache = (string) config('cache.default');
+        $queue = (string) config('queue.default');
+
+        if ($cache !== 'redis' || $queue !== 'redis') {
+            throw new \RuntimeException(
+                'Production requires CACHE_STORE=redis and QUEUE_CONNECTION=redis. '.
+                'Set DIYAR_ENFORCE_REDIS_IN_PRODUCTION=false only for controlled maintenance windows.'
+            );
+        }
     }
 }

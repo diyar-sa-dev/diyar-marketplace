@@ -21,8 +21,17 @@ export interface HealthData {
   service: string;
   version: string;
   stage: string;
-  environment: string;
+  environment?: string;
   timestamp: string;
+  checks?: {
+    database: { ok: boolean; driver: string };
+    cache: { ok: boolean; driver: string };
+  };
+  maintenance?: {
+    marketplace_enabled: boolean;
+    message_ar: string;
+    message_en: string;
+  };
 }
 
 export interface ApiErrorDetail {

@@ -1,61 +1,310 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import {
+  Camera,
+  ChevronLeft,
+  Filter,
+  LayoutGrid,
+  List,
+  Loader2,
+  Search,
+  SlidersHorizontal,
+  X,
+} from 'lucide-react';
 import ProductCard from '../components/cards/ProductCard.tsx';
+import ServiceCard from '../components/cards/ServiceCard.tsx';
 import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
-import { ChevronLeft, Camera } from 'lucide-react';
-import { useSearchProducts, useVendors } from '../hooks/catalog/useCatalog.ts';
-import { useLocale } from '../hooks/useLocale.ts';
-import { usePaginationState } from '../hooks/usePaginationState.ts';
-import { mapProductCard } from '../lib/catalogMappers.ts';
-import { resolveMediaUrl } from '../lib/media.ts';
-import { isValidStoreSlug, storePath } from '../lib/storePath.ts';
-import { LoadingState } from '../components/common/LoadingState.tsx';
-import { ErrorState } from '../components/common/ErrorState.tsx';
+import { CatalogSearchFiltersPanel } from '../components/search/CatalogSearchFilters.tsx';
+import {
+  SearchFiltersSkeleton,
+  SearchResultsSkeleton,
+} from '../components/search/SearchResultsSkeleton.tsx';
 import { EmptyState } from '../components/common/EmptyState.tsx';
+import { ErrorState } from '../components/common/ErrorState.tsx';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { fetchCatalogSearch } from '../api/catalogSearch.ts';
+import { useDebouncedValue } from '../hooks/useDebouncedValue.ts';
+import { usePlatformCommerce } from '../hooks/usePlatformCommerce.ts';
+import {
+  normalizeCatalogSearchFilters,
+  useCatalogSearch,
+} from '../hooks/catalog/useCatalogSearch.ts';
+import { useLocale } from '../hooks/useLocale.ts';
+import { mapProductCard } from '../lib/catalogMappers.ts';
+import type { CatalogSearchFilters } from '../types/catalogSearch.ts';
 
-function useSearchParamsHelper() {
-  return new URLSearchParams(useLocation().search);
+const VISUAL_SEARCH_QUERY = 'visual_search_results';
+const PER_PAGE_OPTIONS = [12, 24, 36, 48] as const;
+const MAX_PRICE = 20000;
+
+function readFiltersFromParams(
+  searchParams: URLSearchParams,
+  debouncedQuery: string,
+): CatalogSearchFilters {
+  const entries = Object.fromEntries(searchParams.entries());
+  return normalizeCatalogSearchFilters({
+    ...entries,
+    q: debouncedQuery || entries.q,
+  });
+}
+
+function hasActiveSearchContext(filters: CatalogSearchFilters, rawQuery: string): boolean {
+  return Boolean(
+    rawQuery ||
+      filters.category_slug ||
+      filters.vendor_slug ||
+      filters.color ||
+      (filters.colors && filters.colors.length > 0) ||
+      filters.material ||
+      filters.min_price ||
+      filters.max_price ||
+      filters.discounted ||
+      filters.availability_mode,
+  );
 }
 
 export default function SearchPage() {
   const { t, dir } = useLocale();
-  const query = useSearchParamsHelper();
-  const searchQuery = query.get('q') || '';
-  const [activeTab, setActiveTab] = useState<'all' | 'products' | 'stores' | 'services'>('all');
-  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
-    usePaginationState({ initialPerPage: 24, perPageOptions: [12, 24, 36, 48] });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [draftFilters, setDraftFilters] = useState<CatalogSearchFilters | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  const rawQuery = searchParams.get('q')?.replace(/\s+/g, ' ').trim() ?? '';
+  const debouncedQuery = useDebouncedValue(rawQuery, 300);
+  const isVisualSearch = rawQuery === VISUAL_SEARCH_QUERY;
+
+  const filters = useMemo(
+    () => readFiltersFromParams(searchParams, debouncedQuery),
+    [searchParams, debouncedQuery],
+  );
+
+  const { loyaltySarPerPoint } = usePlatformCommerce();
+  const searchEnabled = !isVisualSearch && hasActiveSearchContext(filters, debouncedQuery);
 
   const {
-    data: searchData,
+    data,
     isLoading,
+    isFetching,
     isError,
     error,
     refetch,
-  } = useSearchProducts({ q: searchQuery, per_page: perPage, page });
+  } = useCatalogSearch(filters, { enabled: searchEnabled });
 
-  const {
-    data: vendorsData,
-    isLoading: vendorsLoading,
-    isError: vendorsError,
-    error: vendorsErr,
-    refetch: refetchVendors,
-  } = useVendors({ q: searchQuery, per_page: 12 });
+  const products = useMemo(
+    () => data?.products?.items.map((item) => mapProductCard(item, loyaltySarPerPoint)) ?? [],
+    [data?.products?.items, loyaltySarPerPoint],
+  );
+  const services = data?.services?.items ?? [];
+  const productPagination = data?.products?.pagination;
+  const servicePagination = data?.services?.pagination;
+  const facets = data?.facets ?? { vendors: [], categories: [], colors: [] };
 
-  const filteredProducts = searchData?.items.map(mapProductCard) ?? [];
-  const vendors = vendorsData?.items ?? [];
-  const isVisualSearch = searchQuery === 'visual_search_results';
-  const productCount = searchData?.pagination.total ?? filteredProducts.length;
-  const storeCount = vendorsData?.pagination.total ?? vendors.length;
-  const totalResults = productCount + storeCount;
+  const activeType = filters.type ?? 'all';
+  const productCount = productPagination?.total ?? 0;
+  const serviceCount = servicePagination?.total ?? 0;
+  const totalResults =
+    activeType === 'products'
+      ? productCount
+      : activeType === 'services'
+        ? serviceCount
+        : productCount + serviceCount;
 
-  const showProducts =
-    (activeTab === 'all' || activeTab === 'products') && !isVisualSearch && Boolean(searchQuery);
-  const showStoresTab = activeTab === 'stores' && !isVisualSearch;
-  const showServicesTab = activeTab === 'services' && !isVisualSearch;
+  const updateFilters = useCallback(
+    (patch: Partial<CatalogSearchFilters>, resetPage = false) => {
+      const next = new URLSearchParams(searchParams);
+
+      Object.entries(patch).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === '') {
+          next.delete(key);
+          if (key === 'colors') {
+            next.delete('color');
+          }
+          return;
+        }
+
+        if (key === 'colors' && Array.isArray(value)) {
+          if (value.length === 0) {
+            next.delete('colors');
+            next.delete('color');
+          } else {
+            next.set('colors', value.join(','));
+            next.delete('color');
+          }
+          return;
+        }
+
+        if (key === 'discounted') {
+          next.set(key, value === true || value === 1 ? '1' : '0');
+          return;
+        }
+
+        next.set(key, String(value));
+      });
+
+      if (resetPage) {
+        next.delete('page');
+      }
+
+      setSearchParams(next, { replace: true });
+    },
+    [searchParams, setSearchParams],
+  );
+
+  const clearFilters = useCallback(() => {
+    const next = new URLSearchParams();
+    if (rawQuery) {
+      next.set('q', rawQuery);
+    }
+    setSearchParams(next, { replace: true });
+  }, [rawQuery, setSearchParams]);
+
+  const openFilterModal = () => {
+    setDraftFilters(filters);
+    setIsFilterOpen(true);
+  };
+
+  const applyDraftFilters = () => {
+    if (!draftFilters) {
+      setIsFilterOpen(false);
+      return;
+    }
+
+    const next = new URLSearchParams();
+    if (rawQuery) {
+      next.set('q', rawQuery);
+    }
+
+    Object.entries(draftFilters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return;
+      }
+      if (key === 'colors' && Array.isArray(value)) {
+        if (value.length > 0) {
+          next.set('colors', value.join(','));
+        }
+        return;
+      }
+      if (key === 'discounted') {
+        next.set(key, value === true || value === 1 ? '1' : '0');
+        return;
+      }
+      if (key === 'q') {
+        return;
+      }
+      next.set(key, String(value));
+    });
+
+    setSearchParams(next, { replace: true });
+    setIsFilterOpen(false);
+  };
 
   useEffect(() => {
-    resetPage();
-  }, [searchQuery, activeTab, resetPage]);
+    setIsFilterOpen(false);
+  }, [searchParams]);
+
+  const showInitialSkeleton = isLoading && !data;
+  const showSubtleLoading = isFetching && Boolean(data);
+  const panelFilters = draftFilters ?? filters;
+  const debouncedPanelFilters = useDebouncedValue(panelFilters, 400);
+
+  const { data: draftPreviewData } = useQuery({
+    queryKey: ['search-page-draft-preview', debouncedPanelFilters],
+    queryFn: () =>
+      fetchCatalogSearch({
+        ...debouncedPanelFilters,
+        per_page: 1,
+        page: 1,
+      }),
+    enabled: isFilterOpen,
+    placeholderData: keepPreviousData,
+    staleTime: 10_000,
+  });
+
+  const draftResultCount = useMemo(() => {
+    if (!draftPreviewData) {
+      return totalResults;
+    }
+
+    const draftType = debouncedPanelFilters.type ?? 'all';
+    if (draftType === 'services') {
+      return draftPreviewData.services?.pagination.total ?? 0;
+    }
+    if (draftType === 'products') {
+      return draftPreviewData.products?.pagination.total ?? 0;
+    }
+
+    return (
+      (draftPreviewData.products?.pagination.total ?? 0) +
+      (draftPreviewData.services?.pagination.total ?? 0)
+    );
+  }, [debouncedPanelFilters.type, draftPreviewData, totalResults]);
+
+  const renderProducts = () => {
+    if (showInitialSkeleton) {
+      return <SearchResultsSkeleton />;
+    }
+    if (products.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="space-y-6">
+        <div
+          className={
+            viewMode === 'grid'
+              ? 'grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4'
+              : 'flex flex-col gap-3'
+          }
+        >
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} layout={viewMode} />
+          ))}
+        </div>
+        {productPagination && (
+          <PaginationBar
+            pagination={productPagination}
+            page={filters.page ?? 1}
+            perPage={filters.per_page ?? 48}
+            perPageOptions={[...PER_PAGE_OPTIONS]}
+            onPageChange={(page) => updateFilters({ page }, false)}
+            onPerPageChange={(perPage) => updateFilters({ per_page: perPage, page: 1 }, false)}
+            alwaysShow={productPagination.total > 0}
+          />
+        )}
+      </div>
+    );
+  };
+
+  const renderServices = () => {
+    if (showInitialSkeleton) {
+      return <SearchResultsSkeleton count={4} />;
+    }
+    if (services.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {services.map((service) => (
+            <ServiceCard key={service.id} service={service} />
+          ))}
+        </div>
+        {servicePagination && (
+          <PaginationBar
+            pagination={servicePagination}
+            page={filters.page ?? 1}
+            perPage={filters.per_page ?? 48}
+            perPageOptions={[...PER_PAGE_OPTIONS]}
+            onPageChange={(page) => updateFilters({ page }, false)}
+            onPerPageChange={(perPage) => updateFilters({ per_page: perPage, page: 1 }, false)}
+            alwaysShow={servicePagination.total > 0}
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen pb-12" dir={dir}>
@@ -80,207 +329,261 @@ export default function SearchPage() {
                 <span>{t('catalog.productDetail.visualSearchTitle')}</span>
               </>
             ) : (
-              <span>{t('catalog.search.resultsFor', { query: searchQuery })}</span>
+              <span className="inline-flex items-center gap-2">
+                <Search size={22} className="text-diyar-brown" />
+                {rawQuery
+                  ? t('catalog.search.resultsFor', { query: rawQuery })
+                  : searchEnabled
+                    ? t('catalog.search.filteredResultsTitle')
+                    : t('catalog.search.startBrowsingTitle')}
+              </span>
             )}
           </h1>
-          {!isVisualSearch && searchQuery && !isLoading && (
+          {searchEnabled && !showInitialSkeleton && (
             <p className="text-gray-500 text-sm">
-              {t('catalog.productDetail.productsFound', { count: productCount })}
+              {t('catalog.search.resultsCount', { count: totalResults })}
             </p>
           )}
-
-          {isVisualSearch && (
-            <div className="mt-4 flex items-center gap-4 bg-white p-3 rounded-xl border border-gray-100 w-fit shadow-sm">
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-lg overflow-hidden shrink-0 border border-gray-100 bg-gray-100">
-                <img
-                  src="https://images.unsplash.com/photo-1544457070-4cd773b4d71e?auto=format&fit=crop&q=80&w=200"
-                  alt={t('catalog.search.uploadedImage')}
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-diyar-dark mb-1">
-                  {t('catalog.search.uploadedImage')}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {t('catalog.search.uploadedImageDescription')}
-                </p>
-              </div>
-            </div>
+          {showSubtleLoading && (
+            <p className="text-xs text-diyar-brown mt-2 inline-flex items-center gap-2">
+              <Loader2 size={14} className="animate-spin" />
+              {t('catalog.search.updating')}
+            </p>
           )}
         </div>
 
-        {/* Tabs */}
-        {!isVisualSearch && (
-          <div className="flex overflow-x-auto scrollbar-hide gap-2 mb-8">
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${activeTab === 'all' ? 'bg-diyar-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`}
-            >
-              {t('catalog.search.all')} ({totalResults})
-            </button>
-            <button
-              onClick={() => setActiveTab('products')}
-              className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${activeTab === 'products' ? 'bg-diyar-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`}
-            >
-              {t('catalog.search.products')} ({productCount})
-            </button>
-            <button
-              onClick={() => setActiveTab('stores')}
-              className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${activeTab === 'stores' ? 'bg-diyar-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`}
-            >
-              {t('catalog.search.stores')} ({storeCount})
-            </button>
-            <button
-              onClick={() => setActiveTab('services')}
-              className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${activeTab === 'services' ? 'bg-diyar-dark text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`}
-            >
-              {t('catalog.productDetail.servicesTab')} (0)
-            </button>
-          </div>
-        )}
-
-        {!searchQuery && !isVisualSearch ? (
+        {!searchEnabled && !isVisualSearch ? (
           <EmptyState
             title={t('catalog.search.emptyTitle')}
             description={t('catalog.search.emptyDescription')}
+            action={
+              <button
+                type="button"
+                onClick={openFilterModal}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-6 py-3 text-sm font-bold text-white cursor-pointer"
+              >
+                <SlidersHorizontal size={16} />
+                {t('catalog.search.filters.open')}
+              </button>
+            }
           />
         ) : isVisualSearch ? (
-          showProducts && (
-            <EmptyState
-              title={t('catalog.search.visualSearchSoon')}
-              description={t('catalog.search.visualSearchSoonDescription')}
-            />
-          )
-        ) : showStoresTab ? (
-          vendorsLoading ? (
-            <LoadingState className="min-h-40" />
-          ) : vendorsError ? (
-            <ErrorState error={vendorsErr as Error} onRetry={() => refetchVendors()} />
-          ) : vendors.length === 0 ? (
-            <EmptyState
-              title={t('catalog.search.noStores')}
-              description={t('catalog.search.noStoresDescription')}
-            />
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {vendors
-                .filter((vendor) => isValidStoreSlug(vendor.slug))
-                .map((vendor) => (
-                  <Link
-                    key={vendor.id}
-                    to={storePath(vendor.slug)!}
-                    className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md transition text-center cursor-pointer"
-                  >
-                    {vendor.logo_url ? (
-                      <img
-                        src={resolveMediaUrl(vendor.logo_url) ?? ''}
-                        alt={vendor.store_name}
-                        className="w-16 h-16 rounded-full object-cover mx-auto mb-3"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 rounded-full bg-diyar-cream/40 flex items-center justify-center mx-auto mb-3 text-diyar-brown font-bold">
-                        {vendor.store_name.charAt(0)}
-                      </div>
-                    )}
-                    <h3 className="font-bold text-diyar-dark">{vendor.store_name}</h3>
-                    {vendor.location && (
-                      <p className="text-xs text-gray-500 mt-1">{vendor.location}</p>
-                    )}
-                  </Link>
-                ))}
-            </div>
-          )
-        ) : showServicesTab ? (
           <EmptyState
-            title={t('catalog.search.servicesSoon')}
-            description={t('catalog.search.servicesSoonDescription')}
+            title={t('catalog.search.visualSearchSoon')}
+            description={t('catalog.search.visualSearchSoonDescription')}
           />
-        ) : isLoading ? (
-          <LoadingState className="min-h-60" />
         ) : isError ? (
           <ErrorState error={error as Error} onRetry={() => refetch()} />
-        ) : showProducts && filteredProducts.length === 0 ? (
-          <div className="bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-100 flex flex-col items-center">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-gray-400"
-              >
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-diyar-dark mb-2">
-              {t('catalog.search.noResultsTitle')}
-            </h3>
-            <p className="text-gray-500 mb-8 max-w-md">
-              {t('catalog.search.noResultsDescription')}
-            </p>
-            <Link
-              to="/"
-              className="bg-diyar-dark text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all cursor-pointer"
-            >
-              {t('catalog.search.backHome')}
-            </Link>
-          </div>
         ) : (
-          showProducts && (
-            <div className="space-y-12">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <path d="M16 10a4 4 0 0 1-8 0"></path>
-                      </svg>
-                    </div>
-                    <h2 className="text-xl font-bold text-diyar-dark">
-                      {t('catalog.search.products')}
-                    </h2>
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+            <aside className="hidden md:block w-72 shrink-0 self-start">
+              {showInitialSkeleton ? (
+                <SearchFiltersSkeleton />
+              ) : (
+                <div className="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm">
+                  <CatalogSearchFiltersPanel
+                    filters={filters}
+                    facets={facets}
+                    onChange={updateFilters}
+                    onClear={clearFilters}
+                    maxPrice={MAX_PRICE}
+                    variant="plain"
+                  />
+                </div>
+              )}
+            </aside>
+
+            <div className="flex-1 min-w-0">
+              <div className="bg-white border border-gray-200 rounded-2xl p-3 md:p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={openFilterModal}
+                  className="inline-flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2 text-sm font-bold text-diyar-dark cursor-pointer md:hidden"
+                >
+                  <Filter size={18} />
+                  {t('catalog.search.filters.open')}
+                </button>
+
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span className="font-medium hidden sm:inline">
+                    {t('catalog.search.showingResults', {
+                      shown:
+                        activeType === 'services'
+                          ? services.length
+                          : activeType === 'products'
+                            ? products.length
+                            : products.length + services.length,
+                      total: totalResults,
+                    })}
+                  </span>
+                  <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-1.5 bg-gray-50">
+                    <span className="text-gray-500">{t('catalog.search.filters.sort')}:</span>
+                    <select
+                      value={filters.sort ?? '-created_at'}
+                      onChange={(event) =>
+                        updateFilters(
+                          { sort: event.target.value as CatalogSearchFilters['sort'] },
+                          true,
+                        )
+                      }
+                      className="bg-transparent border-none outline-none font-bold text-diyar-dark cursor-pointer"
+                    >
+                      <option value="-created_at">{t('catalog.search.filters.sortNewest')}</option>
+                      <option value="-popular">{t('catalog.search.filters.sortPopular')}</option>
+                      <option value="-discount">{t('catalog.search.filters.sortOffers')}</option>
+                      <option value="price">{t('catalog.search.filters.sortPriceLow')}</option>
+                      <option value="-price">{t('catalog.search.filters.sortPriceHigh')}</option>
+                      <option value="rating">{t('catalog.search.filters.sortRating')}</option>
+                    </select>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-                  {filteredProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
+
+                <div className="hidden md:flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl p-1">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('grid')}
+                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${viewMode === 'grid' ? 'bg-white shadow-sm text-diyar-brown' : 'text-gray-400 hover:text-diyar-dark'}`}
+                    aria-label="Grid view"
+                  >
+                    <LayoutGrid size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('list')}
+                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${viewMode === 'list' ? 'bg-white shadow-sm text-diyar-brown' : 'text-gray-400 hover:text-diyar-dark'}`}
+                    aria-label="List view"
+                  >
+                    <List size={18} />
+                  </button>
                 </div>
-                {searchData?.pagination && (
-                  <PaginationBar
-                    pagination={searchData.pagination}
-                    page={page}
-                    perPage={perPage}
-                    perPageOptions={[...perPageOptions]}
-                    onPageChange={onPageChange}
-                    onPerPageChange={onPerPageChange}
-                    alwaysShow={searchData.pagination.total > 0}
-                    className="mt-8"
-                  />
-                )}
               </div>
+
+              <div className="flex overflow-x-auto scrollbar-hide gap-2 mb-6">
+                {(['all', 'products', 'services'] as const).map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => updateFilters({ type }, true)}
+                    className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
+                      activeType === type
+                        ? 'bg-diyar-dark text-white shadow-md'
+                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    {t(`catalog.search.filters.type_${type}`)} (
+                    {type === 'products'
+                      ? productCount
+                      : type === 'services'
+                        ? serviceCount
+                        : productCount + serviceCount}
+                    )
+                  </button>
+                ))}
+              </div>
+
+              {(activeType === 'all' || activeType === 'products') && renderProducts()}
+              {(activeType === 'all' || activeType === 'services') && (
+                <div className={activeType === 'all' && products.length > 0 ? 'mt-10' : ''}>
+                  {activeType === 'all' && services.length > 0 && (
+                    <h2 className="text-lg font-bold text-diyar-dark mb-4">
+                      {t('catalog.search.servicesSection')}
+                    </h2>
+                  )}
+                  {renderServices()}
+                </div>
+              )}
+
+              {!showInitialSkeleton && products.length === 0 && services.length === 0 && (
+                <div className="bg-white rounded-3xl p-10 text-center shadow-sm border border-gray-100">
+                  <h3 className="text-2xl font-bold text-diyar-dark mb-2">
+                    {t('catalog.search.noResultsTitle')}
+                  </h3>
+                  <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                    {t('catalog.search.noResultsDescription')}
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={clearFilters}
+                      className="bg-white border border-gray-200 text-diyar-dark px-6 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all cursor-pointer"
+                    >
+                      {t('catalog.search.filters.clearAll')}
+                    </button>
+                    <Link
+                      to="/"
+                      className="bg-diyar-dark text-white px-6 py-3 rounded-xl font-bold hover:bg-black transition-all cursor-pointer"
+                    >
+                      {t('catalog.search.backHome')}
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
-          )
+          </div>
         )}
       </div>
+
+      {isFilterOpen && !isVisualSearch && (
+        <div className="fixed inset-0 z-50 flex">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/50 cursor-pointer"
+            aria-label={t('catalog.search.filters.close')}
+            onClick={() => setIsFilterOpen(false)}
+          />
+          <div className="absolute bottom-0 left-0 right-0 md:inset-y-0 md:inset-inline-end-0 md:left-auto md:w-full md:max-w-md max-h-[90vh] md:max-h-none bg-white md:rounded-none rounded-t-3xl shadow-2xl flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+              <h2 className="font-bold text-lg text-diyar-dark inline-flex items-center gap-2">
+                <SlidersHorizontal size={18} className="text-diyar-brown" />
+                {t('catalog.search.filters.title')}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsFilterOpen(false)}
+                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 cursor-pointer"
+                aria-label={t('catalog.search.filters.close')}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              <CatalogSearchFiltersPanel
+                filters={panelFilters}
+                facets={facets}
+                onChange={(patch) =>
+                  setDraftFilters((current) => ({
+                    ...(current ?? filters),
+                    ...patch,
+                  }))
+                }
+                onClear={() => setDraftFilters({ q: rawQuery || undefined })}
+                maxPrice={MAX_PRICE}
+                variant="plain"
+              />
+            </div>
+            <div className="border-t border-gray-100 p-4 flex gap-3 bg-white">
+              <button
+                type="button"
+                onClick={() => {
+                  setDraftFilters({ q: rawQuery || undefined });
+                  clearFilters();
+                  setIsFilterOpen(false);
+                }}
+                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-bold text-gray-600 cursor-pointer"
+              >
+                {t('catalog.search.filters.clearAll')}
+              </button>
+              <button
+                type="button"
+                onClick={applyDraftFilters}
+                className="flex-[1.4] rounded-xl bg-diyar-dark py-3 text-sm font-bold text-white shadow-lg cursor-pointer"
+              >
+                {t('catalog.search.showResults', { count: draftResultCount })}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

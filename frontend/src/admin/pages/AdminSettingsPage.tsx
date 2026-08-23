@@ -6,6 +6,7 @@ import { useToast } from '../../hooks/useToast.ts';
 import { useAdminAuth } from '../auth/AdminAuthContext.tsx';
 import { UserAvatar } from '../../components/profile/UserAvatar.tsx';
 import { platformThemeKeys } from '../../hooks/usePlatformTheme.ts';
+import { platformCommerceKeys } from '../../hooks/usePlatformCommerce.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
 import { AdminThemeSettingsPanel } from '../components/AdminThemeSettingsPanel.tsx';
@@ -103,13 +104,25 @@ function SettingControl({
   }
 
   if (setting.type === 'integer' || setting.type === 'decimal') {
+    const isLoyaltySetting = setting.full_key === 'commerce.loyalty_sar_per_point';
+
     return (
       <input
         name="value"
-        type="number"
+        type={isLoyaltySetting ? 'text' : 'number'}
+        inputMode={isLoyaltySetting ? 'numeric' : undefined}
+        pattern={isLoyaltySetting ? '[0-9]*' : undefined}
         step={setting.type === 'decimal' ? '0.01' : '1'}
+        min={isLoyaltySetting ? 1 : undefined}
         defaultValue={defaultValue}
         disabled={disabled}
+        onInput={
+          isLoyaltySetting
+            ? (event) => {
+                event.currentTarget.value = event.currentTarget.value.replace(/\D/g, '');
+              }
+            : undefined
+        }
         className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown disabled:bg-gray-50"
       />
     );
@@ -149,7 +162,10 @@ export default function AdminSettingsPage() {
     onSuccess: () => {
       toast.success(t('admin.settings.saved'));
       void queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'health', 'summary'] });
+      void queryClient.invalidateQueries({ queryKey: ['health', 'maintenance'] });
       void queryClient.invalidateQueries({ queryKey: platformThemeKeys.all });
+      void queryClient.invalidateQueries({ queryKey: platformCommerceKeys.all });
     },
     onError: () => toast.error(t('admin.settings.saveError')),
   });

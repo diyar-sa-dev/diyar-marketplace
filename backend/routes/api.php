@@ -10,8 +10,8 @@ use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuthController;
 use App\Http\Controllers\Api\V1\Admin\AdminCouponController;
 use App\Http\Controllers\Api\V1\Admin\AdminDashboardController;
-use App\Http\Controllers\Api\V1\Admin\AdminFinancialTransactionController;
 use App\Http\Controllers\Api\V1\Admin\AdminFinanceController;
+use App\Http\Controllers\Api\V1\Admin\AdminFinancialTransactionController;
 use App\Http\Controllers\Api\V1\Admin\AdminInventoryController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 use App\Http\Controllers\Api\V1\Admin\AdminOrderController;
@@ -36,6 +36,8 @@ use App\Http\Controllers\Api\V1\Affiliate\AffiliateReferralController;
 use App\Http\Controllers\Api\V1\Assistant\AssistantChatController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Cart\CartController;
+use App\Http\Controllers\Api\V1\Catalog\CatalogSearchController;
+use App\Http\Controllers\Api\V1\Catalog\CatalogSearchSuggestionsController;
 use App\Http\Controllers\Api\V1\Catalog\CategoryController;
 use App\Http\Controllers\Api\V1\Catalog\ProductController;
 use App\Http\Controllers\Api\V1\Catalog\ProductEngagementController;
@@ -76,6 +78,7 @@ use App\Http\Controllers\Api\V1\Order\OrderController;
 use App\Http\Controllers\Api\V1\Order\OrderStoreReviewController;
 use App\Http\Controllers\Api\V1\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\Payment\PaymentWebhookController;
+use App\Http\Controllers\Api\V1\Platform\PlatformCommerceController;
 use App\Http\Controllers\Api\V1\Platform\PlatformContactController;
 use App\Http\Controllers\Api\V1\Platform\PlatformThemeController;
 use App\Http\Controllers\Api\V1\Profile\AddressController;
@@ -123,7 +126,11 @@ Route::post('/platform/consultation', [PlatformContactController::class, 'consul
 Route::get('/platform/theme', [PlatformThemeController::class, 'show'])
     ->name('api.v1.platform.theme');
 
+Route::get('/platform/commerce', [PlatformCommerceController::class, 'show'])
+    ->name('api.v1.platform.commerce');
+
 Route::post('/webhooks/payments/myfatoorah', [PaymentWebhookController::class, 'myfatoorah'])
+    ->middleware('throttle:webhooks')
     ->name('api.v1.webhooks.payments.myfatoorah');
 
 Route::get('/categories', [CategoryController::class, 'index']);
@@ -132,7 +139,9 @@ Route::get('/categories/{slug}/items', [CategoryController::class, 'items']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/products/{id}/reviews', [ProductEngagementController::class, 'reviews']);
-Route::get('/search', SearchController::class);
+Route::get('/search', SearchController::class)->middleware('throttle:catalog-search');
+Route::get('/catalog/search', CatalogSearchController::class)->middleware('throttle:catalog-search');
+Route::get('/catalog/search/suggestions', CatalogSearchSuggestionsController::class)->middleware('throttle:catalog-search-suggestions');
 Route::get('/vendors', [VendorController::class, 'index']);
 Route::get('/vendors/{slug}', [VendorController::class, 'show']);
 Route::get('/vendors/{slug}/products', [VendorController::class, 'products']);
@@ -517,7 +526,8 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
                 ->middleware('throttle:chat-messages');
             Route::delete('/conversations/{conversationId}/messages/{messageId}', [MessageController::class, 'destroy'])
                 ->middleware('throttle:chat-messages');
-            Route::get('/conversations/{conversationId}/attachments/{attachmentId}', [AttachmentController::class, 'show']);
+            Route::get('/conversations/{conversationId}/attachments/{attachmentId}', [AttachmentController::class, 'show'])
+                ->middleware('throttle:chat-attachments');
         });
 
         Route::post('/products/{id}/reviews', [ProductEngagementController::class, 'storeReview']);

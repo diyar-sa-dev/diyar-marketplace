@@ -26,6 +26,15 @@ class SecurityHeaders
             $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate');
         }
 
+        $response->headers->set(
+            'Permissions-Policy',
+            'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+        );
+
+        if (app()->environment('production')) {
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+        }
+
         return $response;
     }
 }

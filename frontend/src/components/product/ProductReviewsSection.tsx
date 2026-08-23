@@ -13,6 +13,7 @@ import {
 import { confirmDeleteReview, showErrorAlert, showSuccessToast } from '../../lib/confirmDialog.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
 import { VendorReplyBlock } from '../reviews/VendorReplyBlock.tsx';
+import { formatLocaleDate } from '../../lib/intlLocale.ts';
 import type { Locale } from '../../lib/i18n/types.ts';
 
 const MAX_COMMENT_LENGTH = 2000;
@@ -27,10 +28,10 @@ function formatReviewDate(iso: string | undefined, locale: Locale): string {
     return '';
   }
 
-  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA' : 'en-US', {
+  return formatLocaleDate(new Date(iso), locale, {
     dateStyle: 'medium',
     timeStyle: 'short',
-  }).format(new Date(iso));
+  });
 }
 
 function validateReviewInput(rating: number, comment: string): string | null {

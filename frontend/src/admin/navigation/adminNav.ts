@@ -43,7 +43,6 @@ export const adminNavItems: AdminNavItem[] = [
     labelKey: 'admin.nav.categories',
     permission: 'categories.view',
   },
-  { to: '/admin/services', icon: Wrench, labelKey: 'admin.nav.services', permission: 'bookings.view' },
   { to: '/admin/finance', icon: Wallet, labelKey: 'admin.nav.finance', permission: 'payouts.view' },
   {
     to: '/admin/affiliate',

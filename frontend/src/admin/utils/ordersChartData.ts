@@ -1,3 +1,5 @@
+import { intlLocaleTag } from '../../lib/intlLocale.ts';
+
 export type OrdersChartMode = 'daily' | 'weekly';
 
 export type OrdersChartPoint = {
@@ -28,7 +30,7 @@ function parseIsoDate(iso: string): Date {
 }
 
 function localeTag(locale: string): string {
-  return locale === 'ar' ? 'ar-SA' : 'en-US';
+  return intlLocaleTag(locale);
 }
 
 function formatDailyAxisLabel(iso: string, locale: string): string {

@@ -14,6 +14,7 @@ import {
   availabilityTone,
   estimateLoyaltyPoints,
 } from '../../lib/catalogMappers.ts';
+import { usePlatformCommerce } from '../../hooks/usePlatformCommerce.ts';
 
 const PLACEHOLDER =
   'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=60&w=400';
@@ -33,7 +34,7 @@ type CardInput = Omit<Partial<UiProductCard>, 'id' | 'price'> & {
   tag?: string;
 };
 
-function normalizeProduct(product: CardInput): UiProductCard {
+function normalizeProduct(product: CardInput, sarPerPoint = 50): UiProductCard {
   const price = Number(product.price ?? 0);
   const oldPrice = product.oldPrice ?? product.originalPrice;
   const ratingAvg = product.ratingAvg ?? product.rating ?? null;
@@ -53,7 +54,7 @@ function normalizeProduct(product: CardInput): UiProductCard {
     availableQuantity: product.availableQuantity,
     ratingAvg: ratingAvg != null ? Number(ratingAvg) : null,
     reviewsCount: Number(reviewsCount),
-    loyaltyPoints: product.loyaltyPoints ?? estimateLoyaltyPoints(price),
+    loyaltyPoints: product.loyaltyPoints ?? estimateLoyaltyPoints(price, sarPerPoint),
     userSaved: product.userSaved,
     isOwnStore: product.isOwnStore,
   };
@@ -63,7 +64,11 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
   product,
   layout = 'grid',
 }) => {
-  const item = normalizeProduct(product);
+  const { loyaltySarPerPoint } = usePlatformCommerce();
+  const item = useMemo(
+    () => normalizeProduct(product, loyaltySarPerPoint),
+    [product, loyaltySarPerPoint],
+  );
   const { t } = useLocale();
   const { isAuthenticated } = useAuth();
   const { addItem } = useCart();
@@ -90,7 +95,8 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
   const availability = availabilityLabel(mode, availableQty, availabilityLabels);
   const canPurchase = !item.isOwnStore && mode === 'in_stock' && availableQty > 0;
   const isPreorder = !item.isOwnStore && mode === 'preorder';
-  const showRating = (item.ratingAvg ?? 0) > 0 || (item.reviewsCount ?? 0) > 0;
+  const showProductRating =
+    (item.ratingAvg ?? 0) > 0 && (item.reviewsCount ?? 0) > 0;
   const showLoyalty = !item.isOwnStore && canPurchase && (item.loyaltyPoints ?? 0) > 0;
 
   const availabilityDetail = item.isOwnStore
@@ -206,7 +212,7 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
       >
         <div className="flex items-center gap-1 text-gray-400 text-[10px] mb-1 font-medium min-w-0">
           <Store size={12} className="text-diyar-brown shrink-0" />
-          <span className="truncate">
+          <span className="truncate text-diyar-dark/80">
             {item.vendor || item.store || t('catalog.product.defaultStore')}
           </span>
         </div>
@@ -217,7 +223,7 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
           {item.name}
         </h3>
 
-        {showRating && (
+        {showProductRating && (
           <div className={`${layout === 'list' ? 'mb-1' : 'mb-1.5'}`}>
             <div className="inline-flex items-center gap-1 min-w-0">
               <StarRating
@@ -225,11 +231,9 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
                 readOnly
                 size={layout === 'list' ? 10 : 11}
               />
-              {(item.reviewsCount ?? 0) > 0 && (
-                <span className="text-[10px] text-gray-500 font-medium tabular-nums">
-                  {t('catalog.product.reviewCount', { count: item.reviewsCount })}
-                </span>
-              )}
+              <span className="text-[10px] text-gray-500 font-medium tabular-nums">
+                {t('catalog.product.reviewCount', { count: item.reviewsCount ?? 0 })}
+              </span>
             </div>
           </div>
         )}
@@ -253,7 +257,10 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
             {availabilityDetail}
           </p>
           {showLoyalty && (
-            <span className="inline-flex items-center rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold text-amber-700 border border-amber-100 shrink-0">
+            <span
+              className="inline-flex items-center rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold text-amber-700 border border-amber-100 shrink-0"
+              title={t('catalog.product.loyaltyPointsHint', { sar: loyaltySarPerPoint })}
+            >
               {t('catalog.product.loyaltyPoints', { count: item.loyaltyPoints })}
             </span>
           )}

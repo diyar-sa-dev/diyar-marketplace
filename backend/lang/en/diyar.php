@@ -46,6 +46,10 @@ return [
         'conflict' => 'This action conflicts with existing data.',
     ],
 
+    'maintenance' => [
+        'marketplace_unavailable' => 'The marketplace is temporarily unavailable for maintenance.',
+    ],
+
     'profile' => [
         'updated' => 'Profile updated successfully.',
         'password_updated' => 'Password updated successfully.',

@@ -82,6 +82,30 @@ return [
             'is_public' => true,
             'validation' => ['required', 'boolean'],
         ],
+        'platform.marketplace_maintenance_enabled' => [
+            'group' => 'platform',
+            'key' => 'marketplace_maintenance_enabled',
+            'type' => 'boolean',
+            'config_path' => 'diyar.maintenance.marketplace_enabled',
+            'is_public' => true,
+            'validation' => ['required', 'boolean'],
+        ],
+        'platform.maintenance_message_ar' => [
+            'group' => 'platform',
+            'key' => 'maintenance_message_ar',
+            'type' => 'string',
+            'config_path' => 'diyar.maintenance.message_ar',
+            'is_public' => true,
+            'validation' => ['required', 'string', 'max:500'],
+        ],
+        'platform.maintenance_message_en' => [
+            'group' => 'platform',
+            'key' => 'maintenance_message_en',
+            'type' => 'string',
+            'config_path' => 'diyar.maintenance.message_en',
+            'is_public' => true,
+            'validation' => ['required', 'string', 'max:500'],
+        ],
 
         // Affiliate
         'affiliate.platform_min_commission_percent' => [
@@ -141,6 +165,14 @@ return [
             'config_path' => 'diyar.commerce.cart_max_quantity_per_item',
             'is_public' => false,
             'validation' => ['required', 'integer', 'min:1', 'max:999'],
+        ],
+        'commerce.loyalty_sar_per_point' => [
+            'group' => 'commerce',
+            'key' => 'loyalty_sar_per_point',
+            'type' => 'integer',
+            'config_path' => 'diyar.commerce.loyalty_sar_per_point',
+            'is_public' => true,
+            'validation' => ['required', 'integer', 'min:1', 'max:10000'],
         ],
 
         // Orders

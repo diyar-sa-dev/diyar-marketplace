@@ -5,6 +5,7 @@ import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { useAdminListQuery } from '../hooks/useAdminListQuery.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { formatLocaleDate } from '../../lib/intlLocale.ts';
 
 type ProviderAccount = {
   id: string;
@@ -16,7 +17,7 @@ type ProviderAccount = {
 };
 
 export default function AdminProvidersPage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const {
     data,
     isLoading,
@@ -91,7 +92,11 @@ export default function AdminProvidersPage() {
               </Link>
               {provider.created_at && (
                 <p className="mt-0.5 text-xs text-gray-400">
-                  {new Date(provider.created_at).toLocaleDateString()}
+                  {formatLocaleDate(provider.created_at, locale, {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
                 </p>
               )}
             </div>

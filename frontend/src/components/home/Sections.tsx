@@ -845,21 +845,20 @@ export function FeaturedStores() {
                     >
                       {store.store_name}
                     </h3>
-                    {store.rating_avg != null && store.rating_avg > 0 ? (
-                      <div className="flex items-center justify-center gap-1 mb-3 text-[10px] md:text-xs text-gray-500">
+                    {(store.rating_avg ?? 0) > 0 && (store.reviews_count ?? 0) > 0 && (
+                      <div className="flex items-center justify-center gap-1 mb-1 text-[10px] md:text-xs text-gray-500">
+                        <StarRating value={store.rating_avg ?? 0} readOnly size={11} />
                         <span className="font-bold text-diyar-dark tabular-nums">
-                          {store.rating_avg.toFixed(1)}
+                          {(store.rating_avg ?? 0).toFixed(1)}
                         </span>
-                        <StarRating value={store.rating_avg} readOnly size={11} />
                         <span>
-                          ({t('store.productsCount', { count: store.product_count ?? 0 })})
+                          {t('storeReviews.overallRatingCount', { count: store.reviews_count ?? 0 })}
                         </span>
                       </div>
-                    ) : (
-                      <span className="text-gray-400 text-[10px] md:text-xs font-normal mb-3">
-                        {t('store.productsCount', { count: store.product_count ?? 0 })}
-                      </span>
                     )}
+                    <span className="text-gray-400 text-[10px] md:text-xs font-normal mb-3">
+                      {t('store.productsCount', { count: store.product_count ?? 0 })}
+                    </span>
                     <div className="w-full py-1.5 md:py-2 text-xs md:text-sm rounded-lg border border-gray-200 text-diyar-dark font-medium group-hover:bg-diyar-brown group-hover:text-white group-hover:border-diyar-dark transition mt-auto">
                       {t('home.featuredStores.browseStore')}
                     </div>

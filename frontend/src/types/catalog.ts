@@ -17,6 +17,9 @@ export interface ProductVendor {
   id?: string;
   store_name: string;
   slug: string;
+  rating_avg?: number | null;
+  reviews_count?: number;
+  product_count?: number | null;
 }
 
 export interface ProductCategoryRef {

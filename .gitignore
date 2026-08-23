@@ -14,8 +14,11 @@ backend/public/hot
 backend/public/storage
 backend/storage/*.key
 
-# Coverage & logs
-coverage/
+# Playwright
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+
 *.log
 npm-debug.log*
 
@@ -26,6 +29,7 @@ npm-debug.log*
 frontend/.env
 frontend/.env.*
 !frontend/.env.example
+!frontend/.env.production
 backend/.env
 backend/.env.*
 !backend/.env.example

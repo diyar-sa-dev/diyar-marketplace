@@ -1,7 +1,8 @@
 import type { Locale } from './i18n/types.ts';
+import { intlLocaleTag } from './intlLocale.ts';
 
 function localeTag(locale: Locale): string {
-  return locale === 'ar' ? 'ar-SA-u-nu-latn' : 'en-GB';
+  return locale === 'ar' ? intlLocaleTag('ar') : 'en-GB';
 }
 
 export function formatOrderDate(value: string | undefined, locale: Locale): string {

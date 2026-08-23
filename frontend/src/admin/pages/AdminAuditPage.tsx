@@ -3,6 +3,7 @@ import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
 import { useAdminListQuery } from '../hooks/useAdminListQuery.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { formatLocaleDateTime } from '../../lib/intlLocale.ts';
 import {
   AUDIT_ACTION_FILTER_OPTIONS,
   localizedAuditAction,
@@ -19,7 +20,7 @@ type AuditLog = {
 };
 
 export default function AdminAuditPage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const {
     data,
     isLoading,
@@ -103,7 +104,7 @@ export default function AdminAuditPage() {
           </td>
           <td className="px-4 py-3 text-sm text-gray-700">{log.actor?.name ?? '—'}</td>
           <td className="px-4 py-3 text-sm text-gray-500">
-            {log.created_at ? new Date(log.created_at).toLocaleString() : '—'}
+            {log.created_at ? formatLocaleDateTime(log.created_at, locale) : '—'}
           </td>
         </tr>
       ))}

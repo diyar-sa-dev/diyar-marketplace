@@ -46,6 +46,10 @@ return [
         'conflict' => 'يتعارض هذا الإجراء مع بيانات موجودة.',
     ],
 
+    'maintenance' => [
+        'marketplace_unavailable' => 'المتجر غير متاح مؤقتاً للصيانة.',
+    ],
+
     'profile' => [
         'updated' => 'تم تحديث البيانات الشخصية بنجاح.',
         'password_updated' => 'تم تحديث كلمة المرور بنجاح.',

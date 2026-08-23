@@ -51,6 +51,11 @@ return [
 
     'rate_limits' => [
         'wishlist_toggle_per_minute' => (int) env('DIYAR_WISHLIST_TOGGLE_RATE_LIMIT', 60),
+        'auth_per_minute' => (int) env('DIYAR_AUTH_RATE_LIMIT', 20),
+        'otp_per_minute' => (int) env('DIYAR_OTP_RATE_LIMIT', 10),
+        'catalog_search_per_minute' => (int) env('DIYAR_CATALOG_SEARCH_RATE_LIMIT', 60),
+        'catalog_search_suggestions_per_minute' => (int) env('DIYAR_CATALOG_SEARCH_SUGGESTIONS_RATE_LIMIT', 90),
+        'webhooks_per_minute' => (int) env('DIYAR_WEBHOOKS_RATE_LIMIT', 120),
     ],
 
     /*
@@ -81,6 +86,7 @@ return [
         'vat_rate' => env('DIYAR_VAT_RATE', '0.15'),
         'currency' => env('DIYAR_COMMERCE_CURRENCY', env('DIYAR_PAYMENT_CURRENCY', 'SAR')),
         'cart_max_quantity_per_item' => (int) env('DIYAR_CART_MAX_QUANTITY_PER_ITEM', 99),
+        'loyalty_sar_per_point' => (int) env('DIYAR_LOYALTY_SAR_PER_POINT', 50),
     ],
 
     /*
@@ -561,5 +567,21 @@ return [
         'vendor_accent_color' => env('DIYAR_THEME_VENDOR_ACCENT', '#947961'),
         'provider_accent_color' => env('DIYAR_THEME_PROVIDER_ACCENT', '#2563eb'),
         'affiliate_accent_color' => env('DIYAR_THEME_AFFILIATE_ACCENT', '#16a34a'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Marketplace maintenance (storefront only — admin panel stays available)
+    |--------------------------------------------------------------------------
+    */
+
+    'maintenance' => [
+        'marketplace_enabled' => filter_var(env('DIYAR_MARKETPLACE_MAINTENANCE', false), FILTER_VALIDATE_BOOL),
+        'message_ar' => env('DIYAR_MAINTENANCE_MESSAGE_AR', 'المنصة قيد الصيانة حالياً. نعود قريباً.'),
+        'message_en' => env('DIYAR_MAINTENANCE_MESSAGE_EN', 'The marketplace is under maintenance. We will be back soon.'),
+    ],
+
+    'infrastructure' => [
+        'enforce_redis_in_production' => filter_var(env('DIYAR_ENFORCE_REDIS_IN_PRODUCTION', true), FILTER_VALIDATE_BOOL),
     ],
 ];

@@ -22,7 +22,9 @@ final class VendorService
                 'products as active_products_count' => fn ($q) => $q
                     ->where('status', ProductStatus::Active)
                     ->whereNull('deleted_at'),
-            ]);
+                'storeReviews as store_reviews_count',
+            ])
+            ->withAvg('storeReviews', 'rating');
 
         if (! empty($filters['q'])) {
             $term = '%'.$filters['q'].'%';
@@ -56,7 +58,9 @@ final class VendorService
                 'products as active_products_count' => fn ($q) => $q
                     ->where('status', ProductStatus::Active)
                     ->whereNull('deleted_at'),
+                'storeReviews as store_reviews_count',
             ])
+            ->withAvg('storeReviews', 'rating')
             ->first();
 
         if ($vendor === null) {

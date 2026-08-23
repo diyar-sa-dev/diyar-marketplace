@@ -1,4 +1,5 @@
 import type { ProductListFilters } from '../../types/catalog.ts';
+import type { CatalogSearchFilters } from '../../types/catalogSearch.ts';
 
 export const categoryKeys = {
   all: ['categories'] as const,
@@ -21,4 +22,9 @@ export const vendorKeys = {
   detail: (slug: string) => [...vendorKeys.all, 'detail', slug] as const,
   products: (slug: string, filters: ProductListFilters = {}) =>
     [...vendorKeys.all, 'products', slug, filters] as const,
+};
+
+export const catalogSearchKeys = {
+  all: ['marketplace', 'catalog', 'search'] as const,
+  query: (filters: CatalogSearchFilters = {}) => [...catalogSearchKeys.all, filters] as const,
 };

@@ -24,7 +24,18 @@ export interface UiProductCard {
   isOwnStore?: boolean;
 }
 
-export function mapProductCard(product: ProductCard): UiProductCard {
+/** Estimated loyalty earn on purchase: 1 point per N SAR (configurable). */
+export function estimateLoyaltyPoints(salePrice: number, sarPerPoint = 50): number {
+  if (!Number.isFinite(salePrice) || salePrice <= 0) {
+    return 0;
+  }
+
+  const divisor = Number.isFinite(sarPerPoint) && sarPerPoint > 0 ? sarPerPoint : 50;
+
+  return Math.floor(salePrice / divisor);
+}
+
+export function mapProductCard(product: ProductCard, sarPerPoint = 50): UiProductCard {
   const salePrice = Number(product.sale_price);
   const comparePrice = product.compare_price != null ? Number(product.compare_price) : undefined;
   const discountPercent =
@@ -47,19 +58,10 @@ export function mapProductCard(product: ProductCard): UiProductCard {
     availableQuantity: product.inventory?.available_quantity,
     ratingAvg: product.rating_avg ?? null,
     reviewsCount: product.reviews_count ?? 0,
-    loyaltyPoints: estimateLoyaltyPoints(salePrice),
+    loyaltyPoints: estimateLoyaltyPoints(salePrice, sarPerPoint),
     userSaved: product.user_saved,
     isOwnStore: product.is_own_store,
   };
-}
-
-/** Rough earn estimate for card display (≈1 point per 7 SAR, min 10). */
-export function estimateLoyaltyPoints(salePrice: number): number {
-  if (!Number.isFinite(salePrice) || salePrice <= 0) {
-    return 0;
-  }
-
-  return Math.max(10, Math.round(salePrice / 7));
 }
 
 export interface AvailabilityLabels {

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { adminApi } from '../../api/client.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { formatLocaleDateTime } from '../../lib/intlLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
@@ -58,7 +59,7 @@ type OrderDetail = {
 
 export default function AdminOrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('summary');
@@ -116,7 +117,7 @@ export default function AdminOrderDetailPage() {
         backTo="/admin/orders"
         backLabel={t('admin.detail.backToOrders')}
         title={order.order_number}
-        subtitle={order.created_at ? new Date(order.created_at).toLocaleString() : undefined}
+        subtitle={order.created_at ? formatLocaleDateTime(order.created_at, locale) : undefined}
         status={order.effective_status}
         actions={
           canCancel ? (

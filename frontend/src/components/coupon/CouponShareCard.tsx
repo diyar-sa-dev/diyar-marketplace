@@ -1,5 +1,6 @@
 import React from 'react';
 import { Copy, Tag } from 'lucide-react';
+import { formatLocaleDate } from '../../lib/intlLocale.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { resolveMediaUrl } from '../../lib/media.ts';
@@ -35,11 +36,11 @@ export function CouponShareCard({
   };
 
   const expiresLabel = coupon.ends_at
-    ? new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA' : 'en-US', {
+    ? formatLocaleDate(new Date(coupon.ends_at), locale, {
         day: 'numeric',
         month: 'short',
         year: 'numeric',
-      }).format(new Date(coupon.ends_at))
+      })
     : t('vendor.coupons.noExpiry');
 
   return (

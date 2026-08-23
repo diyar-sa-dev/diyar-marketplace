@@ -39,16 +39,22 @@ final class ProductService
      */
     public function listPublic(array $filters = [], ?User $user = null): LengthAwarePaginator
     {
-        $query = $this->publicQuery()
-            ->with(['vendorAccount', 'category', 'images.mediaFile', 'inventory']);
-
-        $query->withUserSaved($user);
+        $query = $this->cardQuery($user);
 
         $this->applyFilters($query, $filters);
 
-        $perPage = min((int) ($filters['per_page'] ?? 20), 100);
+        $perPage = min(max((int) ($filters['per_page'] ?? 20), 1), 50);
 
         return $query->paginate($perPage);
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     * @param  array<string, mixed>  $filters
+     */
+    public function applyPublicFilters(Builder $query, array $filters): void
+    {
+        $this->applyFilters($query, $filters);
     }
 
     /**
@@ -88,14 +94,11 @@ final class ProductService
      */
     public function relatedProducts(Product $product, int $limit = 8, ?User $user = null): Collection
     {
-        $query = $this->publicQuery()
-            ->with(['vendorAccount', 'category', 'images.mediaFile', 'inventory'])
+        $query = $this->cardQuery($user)
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->latest()
             ->limit($limit);
-
-        $query->withUserSaved($user);
 
         return $query->get();
     }
@@ -281,11 +284,8 @@ final class ProductService
 
     public function listForCategory(Category $category, array $filters = [], ?User $user = null): LengthAwarePaginator
     {
-        $query = $this->publicQuery()
-            ->where('category_id', $category->id)
-            ->with(['vendorAccount', 'category', 'images.mediaFile', 'inventory']);
-
-        $query->withUserSaved($user);
+        $query = $this->cardQuery($user)
+            ->where('category_id', $category->id);
 
         $this->applyFilters($query, $filters);
 
@@ -307,11 +307,8 @@ final class ProductService
      */
     public function listForVendorPublic(VendorAccount $vendor, array $filters = [], ?User $user = null): LengthAwarePaginator
     {
-        $query = $this->publicQuery()
-            ->where('vendor_account_id', $vendor->id)
-            ->with(['vendorAccount', 'category', 'images.mediaFile', 'inventory']);
-
-        $query->withUserSaved($user);
+        $query = $this->cardQuery($user)
+            ->where('vendor_account_id', $vendor->id);
 
         $this->applyFilters($query, $filters);
 
@@ -324,13 +321,41 @@ final class ProductService
     }
 
     /**
+     * @return Builder<Product>
+     */
+    private function cardQuery(?User $user = null): Builder
+    {
+        $query = $this->publicQuery()
+            ->with($this->cardEagerLoads())
+            ->withCount(['reviews'])
+            ->withAvg('reviews', 'rating');
+
+        $query->withUserSaved($user);
+
+        return $query;
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    private function cardEagerLoads(): array
+    {
+        return [
+            'vendorAccount',
+            'category',
+            'images.mediaFile',
+            'inventory',
+        ];
+    }
+
+    /**
      * @param  Builder<Product>  $query
      * @param  array<string, mixed>  $filters
      */
     private function applyFilters(Builder $query, array $filters): void
     {
         if (! empty($filters['q'])) {
-            $term = '%'.$filters['q'].'%';
+            $term = '%'.mb_substr((string) $filters['q'], 0, 120).'%';
             $query->where(function (Builder $q) use ($term) {
                 $q->where('name', 'like', $term)
                     ->orWhere('description', 'like', $term);
@@ -350,6 +375,25 @@ final class ProductService
 
         if (! empty($filters['vendor_id'])) {
             $query->where('vendor_account_id', $filters['vendor_id']);
+        }
+
+        if (! empty($filters['vendor_slug'])) {
+            $query->whereHas('vendorAccount', fn (Builder $vendorQuery) => $vendorQuery
+                ->where('slug', (string) $filters['vendor_slug']));
+        }
+
+        $colorList = $this->normalizeColorFilter($filters);
+        if ($colorList !== []) {
+            $query->whereHas('colors', fn (Builder $colorQuery) => $colorQuery->whereIn('name', $colorList));
+        }
+
+        if (! empty($filters['material'])) {
+            $material = (string) $filters['material'];
+            $query->where(function (Builder $materialQuery) use ($material) {
+                $materialQuery
+                    ->where('materials', 'like', '%'.$material.'%')
+                    ->orWhereJsonContains('materials', $material);
+            });
         }
 
         if (! empty($filters['availability_mode'])) {
@@ -414,6 +458,32 @@ final class ProductService
         }
 
         return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return list<string>
+     */
+    private function normalizeColorFilter(array $filters): array
+    {
+        if (! empty($filters['colors'])) {
+            $raw = $filters['colors'];
+
+            $values = is_array($raw)
+                ? $raw
+                : explode(',', (string) $raw);
+
+            return array_values(array_filter(array_map(
+                static fn (mixed $color): string => trim((string) $color),
+                $values,
+            )));
+        }
+
+        if (! empty($filters['color'])) {
+            return [trim((string) $filters['color'])];
+        }
+
+        return [];
     }
 
     /**

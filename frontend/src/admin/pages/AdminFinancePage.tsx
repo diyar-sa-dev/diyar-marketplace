@@ -14,6 +14,7 @@ import {
 import { adminApi } from '../../api/client.ts';
 import { confirmRejectPayout } from '../../lib/confirmDialog.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { formatLocaleDateTime, intlLocaleTag } from '../../lib/intlLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
 import {
@@ -83,7 +84,7 @@ function payoutRecipientName(payout: AdminPayoutRow, kind: AdminPayoutKind): str
 
 function formatShortDate(value?: string | null, locale?: string): string {
   if (!value) return '—';
-  return new Date(value).toLocaleDateString(locale, {
+  return new Date(value).toLocaleDateString(locale ? intlLocaleTag(locale) : undefined, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -471,7 +472,7 @@ export default function AdminFinancePage() {
                     {row.amount} {row.currency ?? 'SAR'}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-500">
-                    {row.created_at ? new Date(row.created_at).toLocaleString(locale) : '—'}
+                    {row.created_at ? formatLocaleDateTime(row.created_at, locale) : '—'}
                   </td>
                 </tr>
               );

@@ -15,6 +15,7 @@ import {
 import { Link } from 'react-router-dom';
 import { formatPhoneDisplay } from '../../lib/formatPhone.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { intlLocaleTag } from '../../lib/intlLocale.ts';
 import { AdminStatusBadge } from './AdminStatusBadge.tsx';
 import { PermissionGate } from './PermissionGate.tsx';
 import type { AdminAffiliatePayout, AdminPayoutKind, AdminVendorPayout, PayoutAction } from '../types/payouts.ts';
@@ -30,7 +31,7 @@ type AdminPayoutDetailModalProps = {
 
 function formatDateTime(value?: string | null, locale?: string): string {
   if (!value) return '—';
-  return new Date(value).toLocaleString(locale);
+  return new Date(value).toLocaleString(locale ? intlLocaleTag(locale) : undefined);
 }
 
 function DetailRow({

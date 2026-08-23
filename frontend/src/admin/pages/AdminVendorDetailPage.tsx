@@ -7,6 +7,7 @@ import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
 import { formatPhoneDisplay } from '../../lib/formatPhone.ts';
 import { confirmSuspendVendor } from '../../lib/confirmDialog.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { formatLocaleDateTime } from '../../lib/intlLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { AdminDetailField } from '../components/AdminDetailField.tsx';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
@@ -40,7 +41,7 @@ type VendorDetail = {
 
 export default function AdminVendorDetailPage() {
   const { vendorId } = useParams<{ vendorId: string }>();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('profile');
@@ -207,7 +208,7 @@ export default function AdminVendorDetailPage() {
               {vendor.location ?? '—'}
             </AdminDetailField>
             <AdminDetailField label={t('admin.tables.createdAt')} icon={<Calendar size={18} />}>
-              {vendor.created_at ? new Date(vendor.created_at).toLocaleString() : '—'}
+              {vendor.created_at ? formatLocaleDateTime(vendor.created_at, locale) : '—'}
             </AdminDetailField>
             <AdminDetailField label={t('admin.detail.vendor.supportEmail')} icon={<Mail size={18} />}>
               <span dir="ltr">{vendor.support_email ?? '—'}</span>

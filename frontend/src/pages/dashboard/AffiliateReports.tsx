@@ -20,6 +20,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { PaginationBar } from '../../components/catalog/PaginationBar.tsx';
+import { intlLocaleTag } from '../../lib/intlLocale.ts';
 import { PageLoadingOverlay } from '../../components/common/PageLoadingOverlay.tsx';
 import { ErrorState } from '../../components/common/ErrorState.tsx';
 import { TableSkeleton } from '../../components/common/TableSkeleton.tsx';
@@ -281,7 +282,7 @@ export default function AffiliateReports() {
             <MousePointerClick size={20} />
           </div>
           <div className="text-2xl font-bold text-diyar-dark mb-1">
-            {displaySummary.clicks.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+            {displaySummary.clicks.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
           </div>
           <div className="text-sm font-medium text-gray-500">
             {t('affiliate.reports.totalClicks')}
@@ -292,7 +293,7 @@ export default function AffiliateReports() {
             <ShoppingBag size={20} />
           </div>
           <div className="text-2xl font-bold text-diyar-dark mb-1">
-            {displaySummary.conversions.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+            {displaySummary.conversions.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
           </div>
           <div className="text-sm font-medium text-gray-500">
             {t('affiliate.reports.totalConversions')}
@@ -419,7 +420,7 @@ export default function AffiliateReports() {
                   </div>
                   <div className="text-end shrink-0">
                     <p className="text-sm font-bold text-diyar-dark tabular-nums">
-                      {row.clicks.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+                      {row.clicks.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
                     </p>
                     <p className="text-xs text-gray-500">{t('affiliate.reports.chartClicks')}</p>
                   </div>
@@ -460,10 +461,10 @@ export default function AffiliateReports() {
                       {t(`affiliate.sources.${row.source}` as 'affiliate.sources.instagram')}
                     </td>
                     <td className="px-6 py-4 tabular-nums">
-                      {row.clicks.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+                      {row.clicks.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
                     </td>
                     <td className="px-6 py-4 tabular-nums">
-                      {row.conversions.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+                      {row.conversions.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
                     </td>
                     <td className="px-6 py-4 tabular-nums" dir="ltr">
                       {row.conversion_rate}%
@@ -565,10 +566,10 @@ export default function AffiliateReports() {
                     </td>
                     <td className="px-6 py-4 text-gray-600">{row.product?.name ?? noDataLabel}</td>
                     <td className="px-6 py-4 text-gray-700 tabular-nums">
-                      {row.clicks.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+                      {row.clicks.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
                     </td>
                     <td className="px-6 py-4 text-gray-700 tabular-nums">
-                      {row.conversions.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+                      {row.conversions.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
                     </td>
                     <td className="px-6 py-4 font-bold text-diyar-dark tabular-nums" dir="ltr">
                       {row.earnings}

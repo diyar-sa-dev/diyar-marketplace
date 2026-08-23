@@ -658,6 +658,7 @@ return [
             'commerce.vat_rate' => 'نسبة ضريبة القيمة المضافة المطبقة عند الدفع.',
             'commerce.currency' => 'رمز العملة الافتراضي للتجارة.',
             'commerce.cart_max_quantity_per_item' => 'الحد الأقصى للكمية لكل عنصر في السلة.',
+            'commerce.loyalty_sar_per_point' => 'عدد الريالات لكل نقطة ولاء (مثال: 50 = نقطة واحدة لكل 50 ريال).',
             'orders.inventory_reservation_timeout_minutes' => 'دقائق حجز المخزون أثناء الدفع.',
             'shipping.default_carrier_flat_rate' => 'سعر الشحن الثابت الافتراضي عند غياب سعر التاجر.',
             'payouts.vendor_minimum' => 'الحد الأدنى لرصيد التاجر قبل طلب السحب.',

@@ -13,7 +13,10 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "format:check": "prettier --check \"src/{api,lib,utils,hooks,types,admin,components/common,components/routes,components/coupon,components/services,components/checkout,routes,test,pages/dashboard}/**/*.{ts,tsx}\" \"src/pages/dashboard/VendorCoupons.tsx\"",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install --with-deps chromium",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.4",
@@ -30,6 +33,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/vite": "^4.1.14",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",

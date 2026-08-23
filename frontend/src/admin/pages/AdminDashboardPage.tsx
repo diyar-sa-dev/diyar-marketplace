@@ -18,6 +18,7 @@ import { localizedAuditAction, localizedAuditResource } from '../utils/localized
 import type { ApiSuccessResponse } from '../../types/api.ts';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
 import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
+import { formatLocaleNumber } from '../../lib/intlLocale.ts';
 import {
   buildOrdersChartData,
   formatPeriodSubtitle,
@@ -51,13 +52,15 @@ function MetricCard({
   icon: React.ReactNode;
   accent?: string;
 }) {
+  const { locale } = useLocale();
+
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-medium text-gray-500">{label}</p>
           <p className="mt-2 text-3xl font-extrabold text-diyar-dark tabular-nums">
-            {typeof value === 'number' ? value.toLocaleString() : value}
+            {typeof value === 'number' ? formatLocaleNumber(value, locale) : value}
           </p>
         </div>
         <div className={`rounded-xl p-2.5 ${accent}`}>{icon}</div>
@@ -261,7 +264,10 @@ export default function AdminDashboardPage() {
                         width={36}
                       />
                       <Tooltip
-                        formatter={(value: number) => [value, t('admin.reports.ordersSeries')]}
+                        formatter={(value: number) => [
+                          formatLocaleNumber(value, locale),
+                          t('admin.reports.ordersSeries'),
+                        ]}
                         labelFormatter={(_, items) => {
                           const row = items?.[0]?.payload as { tooltipLabel?: string } | undefined;
                           return row?.tooltipLabel ?? '';
