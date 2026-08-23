@@ -76,10 +76,7 @@ export default function AdminDashboardPage() {
   const [chartPeriodDays, setChartPeriodDays] = useState<ChartPeriodDays>(7);
   const activityPerPage = 8;
 
-  const chartPeriod = useMemo(
-    () => resolveChartPeriod(chartPeriodDays),
-    [chartPeriodDays],
-  );
+  const chartPeriod = useMemo(() => resolveChartPeriod(chartPeriodDays), [chartPeriodDays]);
 
   const dashboardQuery = useQuery({
     queryKey: ['admin', 'dashboard'],
@@ -125,10 +122,7 @@ export default function AdminDashboardPage() {
   const metrics = dashboardQuery.data;
   const report = reportsQuery.data;
   const chartData = useMemo(
-    () =>
-      report
-        ? buildOrdersChartData(report.orders_by_day ?? [], chartPeriod, locale)
-        : [],
+    () => (report ? buildOrdersChartData(report.orders_by_day ?? [], chartPeriod, locale) : []),
     [report, chartPeriod, locale],
   );
   const chartTitle =

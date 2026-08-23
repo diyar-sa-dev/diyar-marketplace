@@ -29,10 +29,7 @@ import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
 import { DetailTabs } from '../components/DetailTabs.tsx';
 import { PermissionGate } from '../components/PermissionGate.tsx';
 import { useAdminListQuery } from '../hooks/useAdminListQuery.ts';
-import {
-  invalidateAdminResource,
-  syncAdminPayoutStatus,
-} from '../utils/adminQueryCache.ts';
+import { invalidateAdminResource, syncAdminPayoutStatus } from '../utils/adminQueryCache.ts';
 import {
   FINANCIAL_TRANSACTION_TYPES,
   localizedTransactionType,
@@ -254,7 +251,9 @@ export default function AdminFinancePage() {
             className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-600 shadow-sm transition hover:bg-gray-50 disabled:opacity-60 cursor-pointer"
           >
             <Download size={18} />
-            {downloadReport.isPending ? t('admin.finance.exporting') : t('admin.finance.exportReport')}
+            {downloadReport.isPending
+              ? t('admin.finance.exporting')
+              : t('admin.finance.exportReport')}
           </button>
         </div>
       </div>
@@ -312,7 +311,9 @@ export default function AdminFinancePage() {
           <div className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <h3 className="font-medium text-gray-500">{t('admin.finance.platformCommission')}</h3>
+                <h3 className="font-medium text-gray-500">
+                  {t('admin.finance.platformCommission')}
+                </h3>
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600">
                   <ArrowDownRight size={20} />
                 </div>
@@ -442,7 +443,9 @@ export default function AdminFinancePage() {
               <th className="px-4 py-3 text-start font-semibold">{t('admin.payouts.reference')}</th>
               <th className="px-4 py-3 text-start font-semibold">{t('admin.payouts.recipient')}</th>
               <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.amount')}</th>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.payouts.requestedAt')}</th>
+              <th className="px-4 py-3 text-start font-semibold">
+                {t('admin.payouts.requestedAt')}
+              </th>
               <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.status')}</th>
               <th className="px-4 py-3 text-end font-semibold">{t('admin.tables.actions')}</th>
             </tr>
@@ -492,7 +495,9 @@ export default function AdminFinancePage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="font-semibold text-diyar-dark">{payoutRecipientName(row, kind)}</p>
+                    <p className="font-semibold text-diyar-dark">
+                      {payoutRecipientName(row, kind)}
+                    </p>
                     <p className="text-xs text-gray-400 font-mono mt-0.5" dir="ltr">
                       {row.id.slice(0, 8)}…
                     </p>

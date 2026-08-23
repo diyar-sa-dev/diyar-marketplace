@@ -5,7 +5,6 @@ import { LocaleSwitcher } from '../../components/common/LocaleSwitcher.tsx';
 import { useToast } from '../../hooks/useToast.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useAdminAuth } from '../auth/AdminAuthContext.tsx';
-import { AdminSystemHealthBar } from '../components/AdminSystemHealthBar.tsx';
 import {
   adminNavItems,
   adminSidebarFooterItem,
@@ -53,7 +52,6 @@ export default function AdminLayout() {
             sidebarOpen ? 'translate-x-0' : sidebarHiddenTransform
           } ${dir === 'rtl' ? 'right-0' : 'left-0'}`}
         >
-          <AdminSystemHealthBar />
           <div className="shrink-0 border-b border-white/10 px-4 py-5">
             <Link to="/admin" className="flex items-center gap-3">
               <img

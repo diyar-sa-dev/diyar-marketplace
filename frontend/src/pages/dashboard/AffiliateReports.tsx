@@ -293,7 +293,9 @@ export default function AffiliateReports() {
             <ShoppingBag size={20} />
           </div>
           <div className="text-2xl font-bold text-diyar-dark mb-1">
-            {displaySummary.conversions.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
+            {displaySummary.conversions.toLocaleString(
+              locale === 'ar' ? intlLocaleTag('ar') : 'en-US',
+            )}
           </div>
           <div className="text-sm font-medium text-gray-500">
             {t('affiliate.reports.totalConversions')}
@@ -464,7 +466,9 @@ export default function AffiliateReports() {
                       {row.clicks.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
                     </td>
                     <td className="px-6 py-4 tabular-nums">
-                      {row.conversions.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
+                      {row.conversions.toLocaleString(
+                        locale === 'ar' ? intlLocaleTag('ar') : 'en-US',
+                      )}
                     </td>
                     <td className="px-6 py-4 tabular-nums" dir="ltr">
                       {row.conversion_rate}%
@@ -569,7 +573,9 @@ export default function AffiliateReports() {
                       {row.clicks.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
                     </td>
                     <td className="px-6 py-4 text-gray-700 tabular-nums">
-                      {row.conversions.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
+                      {row.conversions.toLocaleString(
+                        locale === 'ar' ? intlLocaleTag('ar') : 'en-US',
+                      )}
                     </td>
                     <td className="px-6 py-4 font-bold text-diyar-dark tabular-nums" dir="ltr">
                       {row.earnings}

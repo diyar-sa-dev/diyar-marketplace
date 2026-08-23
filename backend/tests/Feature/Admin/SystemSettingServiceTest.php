@@ -44,6 +44,12 @@ class SystemSettingServiceTest extends TestCase
         $this->assertFalse($this->service->validate(false, SystemSettingType::Boolean, ['required', 'boolean']));
     }
 
+    public function test_validate_casts_string_boolean_values(): void
+    {
+        $this->assertTrue($this->service->validate('true', SystemSettingType::Boolean, ['required', 'boolean']));
+        $this->assertFalse($this->service->validate('false', SystemSettingType::Boolean, ['required', 'boolean']));
+    }
+
     public function test_set_persists_value_in_transaction(): void
     {
         $setting = $this->service->set(

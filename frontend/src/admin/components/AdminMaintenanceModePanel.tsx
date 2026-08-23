@@ -19,9 +19,7 @@ type AdminMaintenanceModePanelProps = {
   canUpdate: boolean;
 };
 
-function readBoolean(value: unknown): boolean {
-  return value === true || value === 'true' || value === 1 || value === '1';
-}
+import { readBooleanFlag } from '../../lib/readBooleanFlag.ts';
 
 function maintenanceSettingsKey(settings: MaintenanceSetting[]): string {
   return settings
@@ -29,24 +27,23 @@ function maintenanceSettingsKey(settings: MaintenanceSetting[]): string {
     .join('|');
 }
 
-function AdminMaintenanceModePanelForm({
-  settings,
-  canUpdate,
-}: AdminMaintenanceModePanelProps) {
+function AdminMaintenanceModePanelForm({ settings, canUpdate }: AdminMaintenanceModePanelProps) {
   const { t } = useLocale();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const enabledSetting = settings.find((s) => s.full_key === 'platform.marketplace_maintenance_enabled');
+  const enabledSetting = settings.find(
+    (s) => s.full_key === 'platform.marketplace_maintenance_enabled',
+  );
   const messageAr = settings.find((s) => s.full_key === 'platform.maintenance_message_ar');
   const messageEn = settings.find((s) => s.full_key === 'platform.maintenance_message_en');
 
-  const [enabled, setEnabled] = useState(() => readBoolean(enabledSetting?.effective_value));
+  const [enabled, setEnabled] = useState(() => readBooleanFlag(enabledSetting?.effective_value));
   const [arMessage, setArMessage] = useState(() => String(messageAr?.effective_value ?? ''));
   const [enMessage, setEnMessage] = useState(() => String(messageEn?.effective_value ?? ''));
 
   const saveMutation = useMutation({
-    mutationFn: async (payload: { group: string; key: string; value: string }) => {
+    mutationFn: async (payload: { group: string; key: string; value: boolean | string }) => {
       await adminApi.patch('/admin/settings', payload);
     },
     onSuccess: () => {
@@ -58,7 +55,7 @@ function AdminMaintenanceModePanelForm({
     onError: () => toast.error(t('admin.settings.saveError')),
   });
 
-  const patchSetting = (setting: MaintenanceSetting | undefined, value: string) => {
+  const patchSetting = (setting: MaintenanceSetting | undefined, value: boolean | string) => {
     if (!setting || !canUpdate) return;
     saveMutation.mutate({ group: setting.group, key: setting.key, value });
   };
@@ -67,7 +64,7 @@ function AdminMaintenanceModePanelForm({
     if (!enabledSetting || !canUpdate) return;
     const next = !enabled;
     setEnabled(next);
-    patchSetting(enabledSetting, next ? 'true' : 'false');
+    patchSetting(enabledSetting, next);
   };
 
   const handleSaveMessages = (event: React.FormEvent) => {
@@ -131,9 +128,7 @@ function AdminMaintenanceModePanelForm({
             <div className="mt-3 flex flex-wrap gap-2">
               <span
                 className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
-                  enabled
-                    ? 'bg-amber-200/70 text-amber-900'
-                    : 'bg-emerald-100 text-emerald-800'
+                  enabled ? 'bg-amber-200/70 text-amber-900' : 'bg-emerald-100 text-emerald-800'
                 }`}
               >
                 <Power size={12} />

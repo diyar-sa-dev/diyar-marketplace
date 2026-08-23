@@ -18,7 +18,12 @@ import { useLocale } from '../../hooks/useLocale.ts';
 import { intlLocaleTag } from '../../lib/intlLocale.ts';
 import { AdminStatusBadge } from './AdminStatusBadge.tsx';
 import { PermissionGate } from './PermissionGate.tsx';
-import type { AdminAffiliatePayout, AdminPayoutKind, AdminVendorPayout, PayoutAction } from '../types/payouts.ts';
+import type {
+  AdminAffiliatePayout,
+  AdminPayoutKind,
+  AdminVendorPayout,
+  PayoutAction,
+} from '../types/payouts.ts';
 
 type AdminPayoutDetailModalProps = {
   open: boolean;
@@ -74,7 +79,7 @@ export function AdminPayoutDetailModal({
 
   const recipientName = isVendor
     ? vendorPayout?.vendor?.business_name
-    : affiliatePayout?.affiliate?.display_name ?? affiliatePayout?.affiliate?.owner?.name;
+    : (affiliatePayout?.affiliate?.display_name ?? affiliatePayout?.affiliate?.owner?.name);
 
   const owner = isVendor ? vendorPayout?.vendor?.owner : affiliatePayout?.affiliate?.owner;
 
@@ -112,7 +117,11 @@ export function AdminPayoutDetailModal({
               <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
                 {isVendor ? t('admin.finance.vendorPayouts') : t('admin.finance.affiliatePayouts')}
               </p>
-              <h2 id="payout-detail-title" className="mt-1 text-2xl font-extrabold tabular-nums" dir="ltr">
+              <h2
+                id="payout-detail-title"
+                className="mt-1 text-2xl font-extrabold tabular-nums"
+                dir="ltr"
+              >
                 {payout.amount} {payout.currency}
               </h2>
               <p className="mt-2 font-mono text-sm text-white/75" dir="ltr">
@@ -218,11 +227,15 @@ export function AdminPayoutDetailModal({
               </h3>
               <dl className="grid gap-3 sm:grid-cols-2 text-sm">
                 <div>
-                  <dt className="text-xs font-semibold text-gray-400">{t('admin.payouts.accountHolder')}</dt>
+                  <dt className="text-xs font-semibold text-gray-400">
+                    {t('admin.payouts.accountHolder')}
+                  </dt>
                   <dd className="mt-1 font-medium text-diyar-dark">{bankLabel ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-semibold text-gray-400">{t('admin.payouts.bankName')}</dt>
+                  <dt className="text-xs font-semibold text-gray-400">
+                    {t('admin.payouts.bankName')}
+                  </dt>
                   <dd className="mt-1 font-medium text-diyar-dark">{bankName ?? '—'}</dd>
                 </div>
                 <div className="sm:col-span-2">
@@ -293,7 +306,9 @@ export function AdminPayoutDetailModal({
                 className="inline-flex items-center gap-2 rounded-xl bg-diyar-brown px-4 py-2.5 text-sm font-bold text-white hover:bg-[#A67B5B] disabled:opacity-50 cursor-pointer"
               >
                 <DollarSign size={16} />
-                {kind === 'affiliate' ? t('admin.payouts.markProcessing') : t('admin.payouts.markPaid')}
+                {kind === 'affiliate'
+                  ? t('admin.payouts.markProcessing')
+                  : t('admin.payouts.markPaid')}
               </button>
             </PermissionGate>
           ) : null}

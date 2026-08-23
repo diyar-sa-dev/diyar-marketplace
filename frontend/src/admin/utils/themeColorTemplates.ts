@@ -111,9 +111,7 @@ export const THEME_COLOR_KEYS = [
   'affiliate_accent_color',
 ] as const;
 
-export function detectActiveTemplate(
-  settings: Map<string, string>,
-): ThemeColorTemplate | null {
+export function detectActiveTemplate(settings: Map<string, string>): ThemeColorTemplate | null {
   for (const template of THEME_COLOR_TEMPLATES) {
     const matches = THEME_COLOR_KEYS.every(
       (key) => settings.get(key)?.toLowerCase() === template.colors[key].toLowerCase(),

@@ -4,8 +4,14 @@ export type SettingFontOption = {
 };
 
 export const ARABIC_FONT_OPTIONS: SettingFontOption[] = [
-  { value: 'Alexandria, Tajawal, sans-serif', labelKey: 'admin.settings.fonts.arAlexandriaTajawal' },
-  { value: 'Tajawal, Alexandria, sans-serif', labelKey: 'admin.settings.fonts.arTajawalAlexandria' },
+  {
+    value: 'Alexandria, Tajawal, sans-serif',
+    labelKey: 'admin.settings.fonts.arAlexandriaTajawal',
+  },
+  {
+    value: 'Tajawal, Alexandria, sans-serif',
+    labelKey: 'admin.settings.fonts.arTajawalAlexandria',
+  },
   { value: 'Cairo, Tajawal, sans-serif', labelKey: 'admin.settings.fonts.arCairoTajawal' },
   {
     value: 'IBM Plex Sans Arabic, Tajawal, sans-serif',

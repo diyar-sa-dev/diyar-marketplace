@@ -11,11 +11,8 @@ import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
 import { AdminThemeSettingsPanel } from '../components/AdminThemeSettingsPanel.tsx';
-import {
-  AdminMaintenanceModePanel,
-} from '../components/AdminMaintenanceModePanel.tsx';
+import { AdminMaintenanceModePanel } from '../components/AdminMaintenanceModePanel.tsx';
 import { isMaintenanceSetting } from '../utils/maintenanceSettings.ts';
-import { AdminPlatformHealthPanel } from '../components/AdminPlatformHealthPanel.tsx';
 import {
   localizedSettingGroup,
   localizedSettingHint,
@@ -187,10 +184,9 @@ export default function AdminSettingsPage() {
       map.set(setting.group, list);
     }
 
-    return SETTINGS_GROUP_ORDER.filter((group) => map.has(group)).map((group) => [
-      group,
-      map.get(group) ?? [],
-    ] as const);
+    return SETTINGS_GROUP_ORDER.filter((group) => map.has(group)).map(
+      (group) => [group, map.get(group) ?? []] as const,
+    );
   }, [data]);
 
   if (isLoading) {
@@ -247,13 +243,10 @@ export default function AdminSettingsPage() {
       {grouped.map(([group, settings]) => (
         <section key={group} className="space-y-4">
           {group === 'platform' ? (
-            <>
-              <AdminPlatformHealthPanel />
-              <AdminMaintenanceModePanel
-                settings={settings.filter((setting) => isMaintenanceSetting(setting.full_key))}
-                canUpdate={canUpdate}
-              />
-            </>
+            <AdminMaintenanceModePanel
+              settings={settings.filter((setting) => isMaintenanceSetting(setting.full_key))}
+              canUpdate={canUpdate}
+            />
           ) : null}
 
           <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -275,62 +268,64 @@ export default function AdminSettingsPage() {
                     group === 'platform' ? !isMaintenanceSetting(setting.full_key) : true,
                   )
                   .map((setting) => {
-              const hint = localizedSettingHint(setting.full_key, t);
-              const showEffective =
-                setting.type !== 'boolean' &&
-                setting.type !== 'color' &&
-                fontOptionsForSetting(setting.full_key) === null;
+                    const hint = localizedSettingHint(setting.full_key, t);
+                    const showEffective =
+                      setting.type !== 'boolean' &&
+                      setting.type !== 'color' &&
+                      fontOptionsForSetting(setting.full_key) === null;
 
-              return (
-                <form
-                  key={setting.full_key}
-                  className="rounded-2xl border border-gray-100 bg-[#f7f4f1]/30 p-4"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    if (!canUpdate) return;
-                    const formData = new FormData(event.currentTarget);
-                    const raw = formData.get('value');
-                    updateMutation.mutate({
-                      group: setting.group,
-                      key: setting.key,
-                      value: raw instanceof File ? '' : String(raw ?? ''),
-                    });
-                  }}
-                >
-                  <p className="text-sm font-bold text-diyar-dark">
-                    {localizedSettingLabel(setting.full_key, t)}
-                  </p>
-                  {hint ? (
-                    <p className="mt-1 text-xs leading-relaxed text-gray-500">{hint}</p>
-                  ) : null}
-                  {showEffective ? (
-                    <p className="mt-2 text-xs text-gray-500">
-                      {t('admin.settings.effective')}: {String(setting.effective_value)}
-                      {setting.has_override ? ` · ${t('admin.settings.overridden')}` : ''}
-                    </p>
-                  ) : setting.has_override ? (
-                    <p className="mt-2 text-xs text-amber-700">{t('admin.settings.overridden')}</p>
-                  ) : null}
-                  <div className="mt-3">
-                    <SettingControl
-                      setting={setting}
-                      disabled={!canUpdate}
-                      defaultValue={String(setting.effective_value ?? '')}
-                      booleanOnLabel={t('admin.settings.booleanOn')}
-                      booleanOffLabel={t('admin.settings.booleanOff')}
-                      t={t}
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={!canUpdate || updateMutation.isPending}
-                    className="mt-3 rounded-xl bg-diyar-dark px-4 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-                  >
-                    {t('admin.settings.saveChanges')}
-                  </button>
-                </form>
-              );
-            })}
+                    return (
+                      <form
+                        key={setting.full_key}
+                        className="rounded-2xl border border-gray-100 bg-[#f7f4f1]/30 p-4"
+                        onSubmit={(event) => {
+                          event.preventDefault();
+                          if (!canUpdate) return;
+                          const formData = new FormData(event.currentTarget);
+                          const raw = formData.get('value');
+                          updateMutation.mutate({
+                            group: setting.group,
+                            key: setting.key,
+                            value: raw instanceof File ? '' : String(raw ?? ''),
+                          });
+                        }}
+                      >
+                        <p className="text-sm font-bold text-diyar-dark">
+                          {localizedSettingLabel(setting.full_key, t)}
+                        </p>
+                        {hint ? (
+                          <p className="mt-1 text-xs leading-relaxed text-gray-500">{hint}</p>
+                        ) : null}
+                        {showEffective ? (
+                          <p className="mt-2 text-xs text-gray-500">
+                            {t('admin.settings.effective')}: {String(setting.effective_value)}
+                            {setting.has_override ? ` · ${t('admin.settings.overridden')}` : ''}
+                          </p>
+                        ) : setting.has_override ? (
+                          <p className="mt-2 text-xs text-amber-700">
+                            {t('admin.settings.overridden')}
+                          </p>
+                        ) : null}
+                        <div className="mt-3">
+                          <SettingControl
+                            setting={setting}
+                            disabled={!canUpdate}
+                            defaultValue={String(setting.effective_value ?? '')}
+                            booleanOnLabel={t('admin.settings.booleanOn')}
+                            booleanOffLabel={t('admin.settings.booleanOff')}
+                            t={t}
+                          />
+                        </div>
+                        <button
+                          type="submit"
+                          disabled={!canUpdate || updateMutation.isPending}
+                          className="mt-3 rounded-xl bg-diyar-dark px-4 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                        >
+                          {t('admin.settings.saveChanges')}
+                        </button>
+                      </form>
+                    );
+                  })}
               </div>
             )}
           </div>

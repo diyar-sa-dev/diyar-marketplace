@@ -6,9 +6,6 @@ test.describe('Maintenance mode', () => {
   test('admin settings page is reachable and exposes maintenance controls', async ({ page }) => {
     await loginAdminUi(page, demoUsers.admin.phoneNational);
     await page.goto('/admin/settings');
-    await expect(page.getByText(/حالة النظام|system status/i).first()).toBeVisible({
-      timeout: 30_000,
-    });
     await expect(page.getByText(/وضع صيانة|maintenance mode/i).first()).toBeVisible({
       timeout: 30_000,
     });

@@ -187,10 +187,16 @@ export default function AdminProviderDetailPage() {
             <AdminDetailField label={t('admin.tables.createdAt')} icon={<Calendar size={18} />}>
               {provider.created_at ? formatLocaleDateTime(provider.created_at, locale) : '—'}
             </AdminDetailField>
-            <AdminDetailField label={t('admin.detail.vendor.supportEmail')} icon={<Mail size={18} />}>
+            <AdminDetailField
+              label={t('admin.detail.vendor.supportEmail')}
+              icon={<Mail size={18} />}
+            >
               <span dir="ltr">{provider.support_email ?? '—'}</span>
             </AdminDetailField>
-            <AdminDetailField label={t('admin.detail.vendor.supportPhone')} icon={<Phone size={18} />}>
+            <AdminDetailField
+              label={t('admin.detail.vendor.supportPhone')}
+              icon={<Phone size={18} />}
+            >
               <span dir="ltr">{formatPhoneDisplay(provider.support_phone) ?? '—'}</span>
             </AdminDetailField>
           </dl>

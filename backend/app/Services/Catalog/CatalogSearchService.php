@@ -166,6 +166,7 @@ final class CatalogSearchService
         $this->products->applyPublicFilters($query, $this->productFilters($facetFilters));
 
         $rows = $query
+            ->reorder()
             ->selectRaw('vendor_account_id, COUNT(*) as product_count')
             ->groupBy('vendor_account_id')
             ->orderByDesc('product_count')

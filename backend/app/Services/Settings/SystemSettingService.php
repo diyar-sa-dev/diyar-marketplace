@@ -108,6 +108,10 @@ final class SystemSettingService
      */
     public function validate(mixed $value, SystemSettingType $type, array $rules = []): mixed
     {
+        if ($type === SystemSettingType::Boolean) {
+            $value = $this->normalizeBooleanInput($value);
+        }
+
         $payload = ['value' => $value];
 
         $resolvedRules = $rules !== [] ? $rules : $this->defaultRulesForType($type);
@@ -174,6 +178,29 @@ final class SystemSettingService
             SystemSettingType::Decimal => ['required', 'numeric'],
             SystemSettingType::Boolean => ['required', 'boolean'],
             SystemSettingType::Json => ['required', 'array'],
+        };
+    }
+
+    private function normalizeBooleanInput(mixed $value): mixed
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (bool) $value;
+        }
+
+        if (! is_string($value)) {
+            return $value;
+        }
+
+        $normalized = strtolower(trim($value));
+
+        return match ($normalized) {
+            '1', 'true', 'on', 'yes' => true,
+            '0', 'false', 'off', 'no', '' => false,
+            default => $value,
         };
     }
 }

@@ -73,19 +73,21 @@ final class PlatformHealthService
      */
     public function probeDatabase(): array
     {
-        try {
-            DB::connection()->getPdo();
+        return $this->rememberProbe('database', function (): array {
+            try {
+                DB::connection()->getPdo();
 
-            return [
-                'ok' => true,
-                'driver' => (string) config('database.default'),
-            ];
-        } catch (Throwable) {
-            return [
-                'ok' => false,
-                'driver' => (string) config('database.default'),
-            ];
-        }
+                return [
+                    'ok' => true,
+                    'driver' => (string) config('database.default'),
+                ];
+            } catch (Throwable) {
+                return [
+                    'ok' => false,
+                    'driver' => (string) config('database.default'),
+                ];
+            }
+        });
     }
 
     /**
@@ -93,24 +95,26 @@ final class PlatformHealthService
      */
     public function probeCache(): array
     {
-        $driver = (string) config('cache.default');
-        $probeKey = 'diyar:health:probe:'.uniqid('', true);
+        return $this->rememberProbe('cache', function (): array {
+            $driver = (string) config('cache.default');
+            $probeKey = 'diyar:health:probe:'.uniqid('', true);
 
-        try {
-            Cache::put($probeKey, '1', 5);
-            $ok = Cache::get($probeKey) === '1';
-            Cache::forget($probeKey);
+            try {
+                Cache::put($probeKey, '1', 5);
+                $ok = Cache::get($probeKey) === '1';
+                Cache::forget($probeKey);
 
-            return [
-                'ok' => $ok,
-                'driver' => $driver,
-            ];
-        } catch (Throwable) {
-            return [
-                'ok' => false,
-                'driver' => $driver,
-            ];
-        }
+                return [
+                    'ok' => $ok,
+                    'driver' => $driver,
+                ];
+            } catch (Throwable) {
+                return [
+                    'ok' => false,
+                    'driver' => $driver,
+                ];
+            }
+        });
     }
 
     /**
@@ -118,25 +122,42 @@ final class PlatformHealthService
      */
     public function probeQueue(): array
     {
-        $driver = (string) config('queue.default');
+        return $this->rememberProbe('queue', function (): array {
+            $driver = (string) config('queue.default');
 
-        try {
-            $connection = Queue::connection();
-            $size = method_exists($connection, 'size') ? (int) $connection->size('default') : null;
-            $failedJobs = $this->countFailedJobs();
+            try {
+                $connection = Queue::connection();
+                $size = method_exists($connection, 'size') ? (int) $connection->size('default') : null;
+                $failedJobs = $this->countFailedJobs();
 
-            return array_filter([
-                'ok' => true,
-                'driver' => $driver,
-                'pending_jobs' => $size,
-                'failed_jobs' => $failedJobs,
-            ], fn ($value) => $value !== null);
-        } catch (Throwable) {
-            return [
-                'ok' => false,
-                'driver' => $driver,
-            ];
+                return array_filter([
+                    'ok' => true,
+                    'driver' => $driver,
+                    'pending_jobs' => $size,
+                    'failed_jobs' => $failedJobs,
+                ], fn ($value) => $value !== null);
+            } catch (Throwable) {
+                return [
+                    'ok' => false,
+                    'driver' => $driver,
+                ];
+            }
+        });
+    }
+
+    /**
+     * @param  callable(): array<string, mixed>  $callback
+     * @return array<string, mixed>
+     */
+    private function rememberProbe(string $name, callable $callback): array
+    {
+        $ttl = (int) config('diyar.loadtest.health_probe_cache_seconds', 0);
+
+        if ($ttl <= 0 || app()->runningUnitTests()) {
+            return $callback();
         }
+
+        return Cache::remember("diyar:health:probe:{$name}", $ttl, $callback);
     }
 
     private function countFailedJobs(): ?int

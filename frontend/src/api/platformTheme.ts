@@ -13,9 +13,8 @@ export type PlatformThemeTokens = {
 };
 
 export async function fetchPlatformTheme(): Promise<PlatformThemeTokens> {
-  const { data } = await apiClient.get<ApiSuccessResponse<{ theme: PlatformThemeTokens }>>(
-    '/platform/theme',
-  );
+  const { data } =
+    await apiClient.get<ApiSuccessResponse<{ theme: PlatformThemeTokens }>>('/platform/theme');
 
   return data.data.theme ?? {};
 }

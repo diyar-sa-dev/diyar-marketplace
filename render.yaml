@@ -1,0 +1,100 @@
+# Render Blueprint — API + queue worker (V1: Vercel hosts the React SPA)
+# Docs: https://render.com/docs/blueprint-spec
+#
+# After deploy: set FRONTEND_URL + SANCTUM_STATEFUL_DOMAINS to your Vercel URL.
+
+services:
+  - type: web
+    name: diyar-api
+    runtime: php
+    rootDir: backend
+    buildCommand: composer install --no-dev --optimize-autoloader && php artisan config:cache && php artisan route:cache && php artisan view:cache
+    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_LEVEL
+        value: warning
+      - key: CACHE_STORE
+        value: redis
+      - key: QUEUE_CONNECTION
+        value: redis
+      - key: SESSION_DRIVER
+        value: redis
+      - key: SESSION_SECURE_COOKIE
+        value: true
+      - key: SESSION_SAME_SITE
+        value: none
+      - key: DIYAR_ENFORCE_REDIS_IN_PRODUCTION
+        value: true
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: SANCTUM_STATEFUL_DOMAINS
+        sync: false
+      - key: DIYAR_FRONTEND_URL
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: REDIS_PORT
+        value: 6379
+
+  - type: worker
+    name: diyar-queue
+    runtime: php
+    rootDir: backend
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    envVars:
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: APP_KEY
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: APP_URL
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: DB_HOST
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: DB_DATABASE
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: DB_USERNAME
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: DB_PASSWORD
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: REDIS_HOST
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: REDIS_PASSWORD
+      - key: APP_ENV
+        value: production
+      - key: QUEUE_CONNECTION
+        value: redis

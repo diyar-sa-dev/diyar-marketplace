@@ -20,7 +20,10 @@ export function UnauthorizedState({ title, description, returnTo }: Unauthorized
       title={title ?? t('status.authRequired.title')}
       description={description ?? t('status.authRequired.description')}
       action={
-        <Link to={authPath} className={`${vendorButtonClass} inline-flex rounded-xl px-5 py-2.5 text-sm font-bold`}>
+        <Link
+          to={authPath}
+          className={`${vendorButtonClass} inline-flex rounded-xl px-5 py-2.5 text-sm font-bold`}
+        >
           {t('status.authRequired.primaryAction')}
         </Link>
       }

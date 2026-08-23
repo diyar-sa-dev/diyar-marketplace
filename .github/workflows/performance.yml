@@ -20,28 +20,34 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, pdo, pdo_sqlite, intl
+          extensions: mbstring, pdo, pdo_sqlite, intl, redis, swoole
           tools: composer:v2
 
       - name: Install backend dependencies
         working-directory: backend
         run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Bootstrap API for load test
+      - name: Bootstrap API for load test (Octane + Swoole)
         working-directory: backend
         run: |
-          cp .env.example .env
+          cp .env.loadtest.example .env
+          # CI smoke uses sqlite (no MySQL service in this workflow).
+          sed -i 's/^DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
+          sed -i 's|^DB_DATABASE=.*|DB_DATABASE=database/loadtest.sqlite|' .env
           php artisan key:generate --force
-          touch database/database.sqlite
-          export DB_CONNECTION=sqlite
-          export DB_DATABASE=database/database.sqlite
-          export CACHE_STORE=redis
-          export REDIS_HOST=127.0.0.1
-          export QUEUE_CONNECTION=sync
-          export DIYAR_PAYMENT_USE_FAKE_GATEWAY=true
-          php artisan migrate:fresh --seed --force
-          php artisan serve --host=127.0.0.1 --port=8000 &
-          sleep 5
+          touch database/loadtest.sqlite
+          php artisan migrate:fresh --seed --seeder=DatabaseSeeder --force
+          php artisan config:cache
+          php artisan route:cache
+          nohup php artisan octane:start --server=swoole --host=127.0.0.1 --port=8000 --workers=2 --max-requests=500 > /tmp/octane.log 2>&1 &
+          sleep 8
+          curl -sf http://127.0.0.1:8000/api/v1/health
+        env:
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+          CACHE_STORE: redis
+          QUEUE_CONNECTION: sync
+          DIYAR_LOADTEST_MODE: true
 
       - name: Install k6
         run: |

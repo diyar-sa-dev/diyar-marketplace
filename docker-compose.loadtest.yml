@@ -1,0 +1,91 @@
+# DIYAR load-test stack — Octane (Swoole) + Redis + MySQL
+# Windows: Swoole is not available natively; use this Docker stack for k6.
+#
+#   docker compose -f docker-compose.loadtest.yml up --build
+#   .\scripts\performance\run-k6.ps1 -Profile 100
+#
+# k6 runs on the compose network (http://api:8000) — avoid host.docker.internal on Windows.
+
+services:
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: loadtest
+      MYSQL_DATABASE: diyar_loadtest
+    ports:
+      - '3307:3306'
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '-uroot', '-ploadtest']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.octane
+    ports:
+      - '8000:8000'
+    depends_on:
+      redis:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    environment:
+      APP_ENV: local
+      APP_DEBUG: 'false'
+      APP_KEY: base64:2fl+KtvkblFZiGZtacP1ZAwJfvyIZxSzUI/qpgQHoW0=
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: diyar_loadtest
+      DB_USERNAME: root
+      DB_PASSWORD: loadtest
+      CACHE_STORE: redis
+      QUEUE_CONNECTION: sync
+      SESSION_DRIVER: array
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PREFIX: diyar-loadtest-
+      DIYAR_LOADTEST_MODE: 'true'
+      DIYAR_HEALTH_PROBE_CACHE_SECONDS: '5'
+      DIYAR_PAYMENT_USE_FAKE_GATEWAY: 'true'
+      DIYAR_ENFORCE_REDIS_IN_PRODUCTION: 'false'
+      LOG_CHANNEL: stderr
+      LOG_LEVEL: warning
+    healthcheck:
+      test: ['CMD-SHELL', 'php -r "$$c=@file_get_contents(\"http://127.0.0.1:8000/api/v1/health\"); exit($$c===false?1:0);"']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 120s
+    command: >
+      sh -c "
+        php artisan package:discover --ansi &&
+        mkdir -p storage/logs storage/framework/cache/data storage/framework/sessions storage/framework/views bootstrap/cache &&
+        php artisan migrate:fresh --seed --seeder=DatabaseSeeder --force &&
+        php artisan config:cache &&
+        php artisan route:cache &&
+        php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000 --workers=8 --task-workers=4 --max-requests=2000
+      "
+
+  k6:
+    image: grafana/k6:latest
+    profiles: ['k6']
+    volumes:
+      - ./scripts/performance:/scripts:ro
+    environment:
+      BASE_URL: http://api:8000/api/v1
+      PROFILE: baseline
+    depends_on:
+      - api
+    entrypoint: ['k6', 'run', '/scripts/profiles.js']

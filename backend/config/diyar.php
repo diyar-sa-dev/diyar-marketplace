@@ -584,4 +584,9 @@ return [
     'infrastructure' => [
         'enforce_redis_in_production' => filter_var(env('DIYAR_ENFORCE_REDIS_IN_PRODUCTION', true), FILTER_VALIDATE_BOOL),
     ],
+
+    'loadtest' => [
+        'enabled' => filter_var(env('DIYAR_LOADTEST_MODE', false), FILTER_VALIDATE_BOOL),
+        'health_probe_cache_seconds' => (int) env('DIYAR_HEALTH_PROBE_CACHE_SECONDS', 0),
+    ],
 ];

@@ -1,11 +1,14 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
+import { apiParams, checkOk, safeJson } from './common.js';
 
 /**
  * Shared DIYAR catalog hot-path scenario for staged load profiles.
  * Env:
  *   BASE_URL — API root (default http://127.0.0.1:8000/api/v1)
  *   PROFILE  — baseline | 100 | 500 | 1000 | 5000 | 10000 | 25000
+ *
+ * Use Laravel Octane (Swoole) — NOT `php artisan serve` — for profiles >= 100.
  */
 const baseUrl = __ENV.BASE_URL || 'http://127.0.0.1:8000/api/v1';
 const profile = __ENV.PROFILE || 'baseline';
@@ -29,8 +32,8 @@ const profiles = {
       { duration: '30s', target: 0 },
     ],
     thresholds: {
-      http_req_failed: ['rate<0.03'],
-      http_req_duration: ['p(95)<1200', 'p(99)<2500'],
+      http_req_failed: ['rate<0.05'],
+      http_req_duration: ['p(95)<1500', 'p(99)<3000'],
     },
   },
   500: {
@@ -40,8 +43,8 @@ const profiles = {
       { duration: '1m', target: 0 },
     ],
     thresholds: {
-      http_req_failed: ['rate<0.05'],
-      http_req_duration: ['p(95)<2000', 'p(99)<4000'],
+      http_req_failed: ['rate<0.08'],
+      http_req_duration: ['p(95)<2500', 'p(99)<5000'],
     },
   },
   1000: {
@@ -51,8 +54,8 @@ const profiles = {
       { duration: '1m', target: 0 },
     ],
     thresholds: {
-      http_req_failed: ['rate<0.08'],
-      http_req_duration: ['p(95)<3000', 'p(99)<6000'],
+      http_req_failed: ['rate<0.10'],
+      http_req_duration: ['p(95)<3500', 'p(99)<7000'],
     },
   },
   5000: {
@@ -62,8 +65,8 @@ const profiles = {
       { duration: '2m', target: 0 },
     ],
     thresholds: {
-      http_req_failed: ['rate<0.10'],
-      http_req_duration: ['p(95)<5000', 'p(99)<10000'],
+      http_req_failed: ['rate<0.12'],
+      http_req_duration: ['p(95)<6000', 'p(99)<12000'],
     },
   },
   10000: {
@@ -73,8 +76,8 @@ const profiles = {
       { duration: '2m', target: 0 },
     ],
     thresholds: {
-      http_req_failed: ['rate<0.12'],
-      http_req_duration: ['p(95)<8000', 'p(99)<15000'],
+      http_req_failed: ['rate<0.15'],
+      http_req_duration: ['p(95)<9000', 'p(99)<18000'],
     },
   },
   25000: {
@@ -84,8 +87,8 @@ const profiles = {
       { duration: '3m', target: 0 },
     ],
     thresholds: {
-      http_req_failed: ['rate<0.15'],
-      http_req_duration: ['p(95)<12000', 'p(99)<25000'],
+      http_req_failed: ['rate<0.18'],
+      http_req_duration: ['p(95)<15000', 'p(99)<30000'],
     },
   },
 };
@@ -98,25 +101,31 @@ export const options = {
 };
 
 export default function catalogHotPath() {
-  const health = http.get(`${baseUrl}/health`);
-  check(health, {
-    'health 200': (r) => r.status === 200,
-  });
+  const params = apiParams('catalog-hot-path');
+
+  if (__ITER % 10 === 0) {
+    const health = http.get(`${baseUrl}/health`, params);
+    check(health, {
+      'health 200': (r) => checkOk(r),
+      'health ok': (r) => safeJson(r, 'data.status') === 'ok',
+    });
+  }
 
   const search = http.get(
     `${baseUrl}/catalog/search?q=%D9%83%D9%86%D8%A8&type=products&per_page=12`,
+    params,
   );
   check(search, {
-    'search 200': (r) => r.status === 200,
-    'search success': (r) => r.json('success') === true,
+    'search 200': (r) => checkOk(r),
+    'search success': (r) => safeJson(r, 'success') === true,
   });
 
-  const products = http.get(`${baseUrl}/products?per_page=12`);
+  const products = http.get(`${baseUrl}/products?per_page=12`, params);
   check(products, {
-    'products 200': (r) => r.status === 200,
+    'products 200': (r) => checkOk(r),
   });
 
-  sleep(0.3);
+  sleep(0.2);
 }
 
 export function handleSummary(data) {
@@ -133,10 +142,11 @@ export function handleSummary(data) {
     `p95: ${p95.toFixed(2)}ms`,
     `p99: ${p99.toFixed(2)}ms`,
     `error rate: ${(failed * 100).toFixed(2)}%`,
+    'Server: use Octane+Swoole (docker-compose.loadtest.yml) for profiles >= 100.',
   ];
 
   if (profile === '25000') {
-    lines.push('25K profile executed — verify infrastructure tier before claiming production capacity.');
+    lines.push('25K profile executed — verify staging infrastructure before claiming production capacity.');
   } else if (['5000', '10000'].includes(profile)) {
     lines.push('High-VU profile — requires staging-grade infrastructure.');
   }

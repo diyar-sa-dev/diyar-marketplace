@@ -486,16 +486,20 @@ export const en = {
           'When enabled, the public storefront shows a maintenance page. Admin panel stays available.',
         platform_maintenance_message_ar: 'Message shown to Arabic visitors during maintenance.',
         platform_maintenance_message_en: 'Message shown to English visitors during maintenance.',
-        affiliate_platform_min_commission_percent: 'Minimum commission vendors may offer affiliates.',
-        affiliate_platform_max_commission_percent: 'Maximum commission vendors may offer affiliates.',
+        affiliate_platform_min_commission_percent:
+          'Minimum commission vendors may offer affiliates.',
+        affiliate_platform_max_commission_percent:
+          'Maximum commission vendors may offer affiliates.',
         affiliate_attribution_window_days: 'Days a referral click stays attributable at checkout.',
         affiliate_payout_minimum: 'Minimum balance before an affiliate payout request.',
         commerce_vat_rate: 'VAT rate applied at checkout (e.g. 0.15).',
         commerce_currency: 'Default marketplace currency code.',
         commerce_cart_max_quantity_per_item: 'Maximum quantity per cart line item.',
         commerce_loyalty_sar_per_point: 'SAR spent required to earn one loyalty point.',
-        orders_inventory_reservation_timeout_minutes: 'Minutes inventory stays reserved during checkout.',
-        shipping_default_carrier_flat_rate: 'Fallback shipping rate when vendor settings are missing.',
+        orders_inventory_reservation_timeout_minutes:
+          'Minutes inventory stays reserved during checkout.',
+        shipping_default_carrier_flat_rate:
+          'Fallback shipping rate when vendor settings are missing.',
         payouts_vendor_minimum: 'Minimum vendor balance before payout request.',
         payouts_affiliate_minimum: 'Minimum affiliate balance before payout request.',
         services_platform_commission_rate: 'Platform commission on service bookings.',
@@ -2420,7 +2424,8 @@ export const en = {
         selectedCount: '{{count}} selected',
         searchStore: 'Search stores...',
         loadMoreStores: 'Load more stores',
-        servicesHint: 'Browse design, installation, and maintenance services from verified providers.',
+        servicesHint:
+          'Browse design, installation, and maintenance services from verified providers.',
         browseServices: 'Browse services',
         browseServicesWithCount: 'Browse services ({{count}})',
       },
@@ -3752,7 +3757,8 @@ export const en = {
     providerPage: {
       loadError: 'Could not load provider profile.',
       unavailableTitle: 'Provider unavailable',
-      unavailableDescription: 'This account may be suspended or is no longer available on the platform.',
+      unavailableDescription:
+        'This account may be suspended or is no longer available on the platform.',
       shareTitle: 'Share this provider',
       shareCopied: 'Link copied to clipboard.',
       shareCopy: 'Copy link',

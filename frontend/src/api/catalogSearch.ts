@@ -1,5 +1,9 @@
 import { apiClient } from './client.ts';
-import type { CatalogSearchFilters, CatalogSearchResponse, CatalogSearchResult } from '../types/catalogSearch.ts';
+import type {
+  CatalogSearchFilters,
+  CatalogSearchResponse,
+  CatalogSearchResult,
+} from '../types/catalogSearch.ts';
 
 function buildQuery(filters: CatalogSearchFilters = {}): string {
   const params = new URLSearchParams();

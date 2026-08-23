@@ -14,10 +14,7 @@ export const SETTINGS_GROUP_ORDER = [
   'theme',
 ] as const;
 
-function settingI18nKey(
-  fullKey: string,
-  prefix: 'keys' | 'descriptions' | 'hints',
-): string {
+function settingI18nKey(fullKey: string, prefix: 'keys' | 'descriptions' | 'hints'): string {
   return `admin.settings.${prefix}.${fullKey.replace(/\./g, '_')}`;
 }
 

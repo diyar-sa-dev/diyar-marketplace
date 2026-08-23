@@ -6,9 +6,10 @@ export type PlatformCommerceConfig = {
 };
 
 export async function fetchPlatformCommerce(): Promise<PlatformCommerceConfig> {
-  const { data } = await apiClient.get<ApiSuccessResponse<{ commerce: PlatformCommerceConfig }>>(
-    '/platform/commerce',
-  );
+  const { data } =
+    await apiClient.get<ApiSuccessResponse<{ commerce: PlatformCommerceConfig }>>(
+      '/platform/commerce',
+    );
 
   return data.data.commerce ?? { loyalty_sar_per_point: 50 };
 }

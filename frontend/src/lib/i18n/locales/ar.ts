@@ -2317,8 +2317,7 @@ export const ar = {
     notFoundTitle: 'المتجر غير موجود',
     notFoundDescription: 'لم نتمكن من العثور على هذا المتجر.',
     unavailableTitle: 'المتجر غير متاح',
-    unavailableDescription:
-      'هذا المتجر غير متاح حالياً. قد يكون موقوفاً أو غير نشط على ديار.',
+    unavailableDescription: 'هذا المتجر غير متاح حالياً. قد يكون موقوفاً أو غير نشط على ديار.',
   },
   catalog: {
     search: {

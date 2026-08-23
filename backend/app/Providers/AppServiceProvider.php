@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Octane\Octane;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -155,6 +156,10 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->user()?->id ?: $request->ip());
         });
 
+        if (config('diyar.loadtest.enabled')) {
+            $this->configureLoadTestRateLimits();
+        }
+
         if (in_array($this->app->environment(), ['production', 'staging'], true) && ! $this->app->runningUnitTests()) {
             $this->assertProductionInfrastructure();
             app(EnvironmentSafetyValidator::class)->assertSafe();
@@ -177,6 +182,39 @@ class AppServiceProvider extends ServiceProvider
         );
 
         DevCommands::artisan('diyar:dev-frontend', 'frontend');
+
+        if (extension_loaded('swoole') && class_exists(Octane::class)) {
+            DevCommands::artisan(
+                'octane:start --server=swoole --host=127.0.0.1 --port=8000 --workers=4 --max-requests=500',
+                'octane',
+            );
+        }
+    }
+
+    private function configureLoadTestRateLimits(): void
+    {
+        $unlimited = static fn () => Limit::none();
+
+        foreach ([
+            'api',
+            'catalog-search',
+            'catalog-search-suggestions',
+            'webhooks',
+            'auth',
+            'otp',
+            'wishlist-toggle',
+            'notification-devices',
+            'notification-preferences',
+            'chat-messages',
+            'chat-conversations',
+            'chat-typing',
+            'chat-attachments',
+            'affiliate-click',
+            'affiliate-resolve',
+            'affiliate-link',
+        ] as $name) {
+            RateLimiter::for($name, $unlimited);
+        }
     }
 
     private function assertProductionInfrastructure(): void

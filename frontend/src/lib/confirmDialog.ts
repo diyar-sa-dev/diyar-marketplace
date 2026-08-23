@@ -182,7 +182,9 @@ export async function confirmSuspendUser(t: TranslateFn, userName?: string): Pro
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.users.suspend'),
-    text: userName ? t('admin.users.suspendConfirmNamed', { name: userName }) : t('admin.users.suspendConfirm'),
+    text: userName
+      ? t('admin.users.suspendConfirmNamed', { name: userName })
+      : t('admin.users.suspendConfirm'),
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: t('admin.users.suspend'),
@@ -212,7 +214,10 @@ export async function confirmSuspendVendor(t: TranslateFn, storeName?: string): 
   return result.isConfirmed;
 }
 
-export async function confirmSuspendProvider(t: TranslateFn, providerName?: string): Promise<boolean> {
+export async function confirmSuspendProvider(
+  t: TranslateFn,
+  providerName?: string,
+): Promise<boolean> {
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.detail.provider.suspend'),
@@ -234,7 +239,9 @@ export async function confirmActivateUser(t: TranslateFn, userName?: string): Pr
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.users.activate'),
-    text: userName ? t('admin.users.activateConfirmNamed', { name: userName }) : t('admin.users.activateConfirm'),
+    text: userName
+      ? t('admin.users.activateConfirmNamed', { name: userName })
+      : t('admin.users.activateConfirm'),
     icon: 'question',
     showCancelButton: true,
     confirmButtonText: t('admin.users.activate'),

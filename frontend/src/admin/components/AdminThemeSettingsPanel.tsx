@@ -3,10 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '../../api/client.ts';
 import { platformThemeKeys } from '../../hooks/usePlatformTheme.ts';
 import type { TranslateFn } from '../../lib/i18n/types.ts';
-import {
-  localizedSettingHint,
-  localizedSettingLabel,
-} from '../utils/localizedSetting.ts';
+import { localizedSettingHint, localizedSettingLabel } from '../utils/localizedSetting.ts';
 import { fontOptionsForSetting } from '../utils/settingFontOptions.ts';
 import {
   detectActiveTemplate,
@@ -49,12 +46,7 @@ export function AdminThemeSettingsPanel({
   const byKey = useMemo(() => new Map(settings.map((s) => [s.key, s])), [settings]);
   const colorValues = useMemo(
     () =>
-      new Map(
-        THEME_COLOR_KEYS.map((key) => [
-          key,
-          String(byKey.get(key)?.effective_value ?? ''),
-        ]),
-      ),
+      new Map(THEME_COLOR_KEYS.map((key) => [key, String(byKey.get(key)?.effective_value ?? '')])),
     [byKey],
   );
   const activeTemplate = useMemo(() => detectActiveTemplate(colorValues), [colorValues]);
@@ -97,7 +89,9 @@ export function AdminThemeSettingsPanel({
     }
   };
 
-  const colorSettings = THEME_COLOR_KEYS.map((key) => byKey.get(key)).filter(Boolean) as SystemSetting[];
+  const colorSettings = THEME_COLOR_KEYS.map((key) => byKey.get(key)).filter(
+    Boolean,
+  ) as SystemSetting[];
   const fontSettings = settings.filter((s) => fontOptionsForSetting(s.full_key) !== null);
 
   return (
@@ -158,7 +152,9 @@ export function AdminThemeSettingsPanel({
       </div>
 
       <div>
-        <h4 className="text-sm font-bold text-diyar-dark">{t('admin.settings.templates.customTitle')}</h4>
+        <h4 className="text-sm font-bold text-diyar-dark">
+          {t('admin.settings.templates.customTitle')}
+        </h4>
         <p className="mt-1 text-xs text-gray-500">{t('admin.settings.templates.customSubtitle')}</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {colorSettings.map((setting) => {
@@ -220,7 +216,9 @@ export function AdminThemeSettingsPanel({
 
       {fontSettings.length > 0 ? (
         <div>
-          <h4 className="text-sm font-bold text-diyar-dark">{t('admin.settings.templates.fontsTitle')}</h4>
+          <h4 className="text-sm font-bold text-diyar-dark">
+            {t('admin.settings.templates.fontsTitle')}
+          </h4>
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             {fontSettings.map((setting) => {
               const hint = localizedSettingHint(setting.full_key, t);

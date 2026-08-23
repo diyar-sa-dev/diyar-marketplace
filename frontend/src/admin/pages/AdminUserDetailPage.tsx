@@ -17,10 +17,7 @@ import { PermissionGate } from '../components/PermissionGate.tsx';
 import { useAdminAuth } from '../auth/AdminAuthContext.tsx';
 import { useAdminDetailQuery } from '../hooks/useAdminDetailQuery.ts';
 import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
-import {
-  invalidateAdminResource,
-  syncAdminUserStatus,
-} from '../utils/adminQueryCache.ts';
+import { invalidateAdminResource, syncAdminUserStatus } from '../utils/adminQueryCache.ts';
 
 type UserDetail = {
   id: string;
@@ -63,7 +60,10 @@ export default function AdminUserDetailPage() {
   const applyUserStatus = (status: string, updated?: UserDetail) => {
     if (!userId) return;
     if (updated) {
-      queryClient.setQueryData<UserDetail>(adminQueryKey('admin-user-detail', detailEndpoint), updated);
+      queryClient.setQueryData<UserDetail>(
+        adminQueryKey('admin-user-detail', detailEndpoint),
+        updated,
+      );
     }
     syncAdminUserStatus(queryClient, userId, status);
   };

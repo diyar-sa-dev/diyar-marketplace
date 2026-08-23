@@ -89,7 +89,11 @@ export function formatPeriodSubtitle(period: OrdersChartPeriod, locale: string):
   const from = parseIsoDate(period.from);
   const to = parseIsoDate(period.to);
   const tag = localeTag(locale);
-  const fromLabel = from.toLocaleDateString(tag, { day: 'numeric', month: 'short', year: 'numeric' });
+  const fromLabel = from.toLocaleDateString(tag, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
   const toLabel = to.toLocaleDateString(tag, { day: 'numeric', month: 'short', year: 'numeric' });
   return `${fromLabel} – ${toLabel}`;
 }

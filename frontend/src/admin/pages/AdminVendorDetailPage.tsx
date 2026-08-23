@@ -60,7 +60,10 @@ export default function AdminVendorDetailPage() {
   });
 
   const commitVendorUpdate = (updated: VendorDetail) => {
-    queryClient.setQueryData<VendorDetail>(adminQueryKey('admin-vendor-detail', detailEndpoint), updated);
+    queryClient.setQueryData<VendorDetail>(
+      adminQueryKey('admin-vendor-detail', detailEndpoint),
+      updated,
+    );
     syncAdminVendorStatus(queryClient, updated.id, updated.status);
     invalidatePublicVendorStore(queryClient, updated.slug);
   };
@@ -210,10 +213,16 @@ export default function AdminVendorDetailPage() {
             <AdminDetailField label={t('admin.tables.createdAt')} icon={<Calendar size={18} />}>
               {vendor.created_at ? formatLocaleDateTime(vendor.created_at, locale) : '—'}
             </AdminDetailField>
-            <AdminDetailField label={t('admin.detail.vendor.supportEmail')} icon={<Mail size={18} />}>
+            <AdminDetailField
+              label={t('admin.detail.vendor.supportEmail')}
+              icon={<Mail size={18} />}
+            >
               <span dir="ltr">{vendor.support_email ?? '—'}</span>
             </AdminDetailField>
-            <AdminDetailField label={t('admin.detail.vendor.supportPhone')} icon={<Phone size={18} />}>
+            <AdminDetailField
+              label={t('admin.detail.vendor.supportPhone')}
+              icon={<Phone size={18} />}
+            >
               <span dir="ltr">{formatPhoneDisplay(vendor.support_phone) ?? '—'}</span>
             </AdminDetailField>
           </dl>
@@ -231,7 +240,9 @@ export default function AdminVendorDetailPage() {
                 </Link>
               </AdminDetailField>
               <AdminDetailField label={t('admin.tables.contact')}>
-                <span dir="ltr">{vendor.user.email ?? formatPhoneDisplay(vendor.user.phone) ?? '—'}</span>
+                <span dir="ltr">
+                  {vendor.user.email ?? formatPhoneDisplay(vendor.user.phone) ?? '—'}
+                </span>
               </AdminDetailField>
             </dl>
           ) : (
