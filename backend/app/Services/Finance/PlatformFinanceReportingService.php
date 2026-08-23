@@ -153,6 +153,7 @@ final class PlatformFinanceReportingService
             ->where('currency', $currency)
             ->whereHas('payment', function ($query) use ($from, $to) {
                 $query->where('status', PaymentStatus::Paid->value)
+                    ->whereNotNull('paid_at')
                     ->whereBetween('paid_at', [$from, $to]);
             })
             ->first();

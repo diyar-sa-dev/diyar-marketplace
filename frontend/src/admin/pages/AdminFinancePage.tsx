@@ -29,6 +29,7 @@ import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
 import { DetailTabs } from '../components/DetailTabs.tsx';
 import { PermissionGate } from '../components/PermissionGate.tsx';
 import { useAdminListQuery } from '../hooks/useAdminListQuery.ts';
+import { useAdminAuth } from '../auth/AdminAuthContext.tsx';
 import { invalidateAdminResource, syncAdminPayoutStatus } from '../utils/adminQueryCache.ts';
 import {
   FINANCIAL_TRANSACTION_TYPES,
@@ -92,6 +93,9 @@ export default function AdminFinancePage() {
   const { t, locale } = useLocale();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isAuthenticated, hasPermission } = useAdminAuth();
+  const canViewBalances = hasPermission('balances.view');
+  const canViewPayouts = hasPermission('payouts.view');
   const [section, setSection] = useState<'vendor' | 'affiliate' | 'ledger'>('vendor');
   const [selectedPayout, setSelectedPayout] = useState<AdminPayoutRow | null>(null);
   const [period, setPeriod] = useState<AdminFinancePeriod>('month');
@@ -99,6 +103,8 @@ export default function AdminFinancePage() {
   const financeReportQuery = useQuery({
     queryKey: adminQueryKey('admin-finance-summary', period),
     queryFn: () => fetchAdminFinanceReport(period),
+    enabled: isAuthenticated && canViewBalances,
+    retry: false,
   });
 
   const downloadReport = useMutation({
@@ -137,6 +143,9 @@ export default function AdminFinancePage() {
     endpoint: listConfig.endpoint,
     itemsKey: listConfig.itemsKey,
     paramFilterKey: section === 'ledger' ? 'transaction_type' : undefined,
+    enabled:
+      isAuthenticated &&
+      (section === 'ledger' ? canViewBalances : canViewPayouts),
   });
 
   const payoutKind: AdminPayoutKind = section === 'affiliate' ? 'affiliate' : 'vendor';

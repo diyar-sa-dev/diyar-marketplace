@@ -82,7 +82,14 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   }, [applicationContext, refreshSession]);
 
   useEffect(() => {
-    return registerUnauthorizedHandler('admin', clearSession);
+    return registerUnauthorizedHandler('admin', () => {
+      void (async () => {
+        const session = await adminAuthApi.fetchAdminSession();
+        if (session === null) {
+          clearSession();
+        }
+      })();
+    });
   }, [clearSession]);
 
   const setUser = useCallback((next: AuthUser, nextPermissions?: string[]) => {

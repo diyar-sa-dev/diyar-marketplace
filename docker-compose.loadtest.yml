@@ -52,7 +52,8 @@ services:
       DB_PASSWORD: loadtest
       CACHE_STORE: redis
       QUEUE_CONNECTION: sync
-      SESSION_DRIVER: array
+      SESSION_DRIVER: redis
+      SESSION_CONNECTION: default
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PREFIX: diyar-loadtest-

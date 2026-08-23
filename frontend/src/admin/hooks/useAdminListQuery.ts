@@ -18,6 +18,7 @@ export function useAdminListQuery<TItem>({
   perPage = 20,
   extraParams,
   paramFilterKey,
+  enabled = true,
 }: {
   resourceKey: string;
   endpoint: string;
@@ -25,6 +26,7 @@ export function useAdminListQuery<TItem>({
   perPage?: number;
   extraParams?: Record<string, string | undefined>;
   paramFilterKey?: string;
+  enabled?: boolean;
 }) {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -70,6 +72,7 @@ export function useAdminListQuery<TItem>({
 
       return { items, meta };
     },
+    enabled,
     placeholderData: (previous) => previous,
   });
 

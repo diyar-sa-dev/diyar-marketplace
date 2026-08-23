@@ -234,8 +234,9 @@ export default function AdminDashboardPage() {
                     ))}
                   </div>
                 </div>
-                <div className="h-72 w-full min-w-0" dir="ltr">
-                  <ResponsiveContainer width="100%" height="100%">
+                <div className="h-72 w-full min-h-72 min-w-0" dir="ltr">
+                  {chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%" minHeight={288}>
                     <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
                       <CartesianGrid stroke="#e5e7eb" strokeDasharray="4 4" />
                       <XAxis
@@ -277,6 +278,7 @@ export default function AdminDashboardPage() {
                       />
                     </LineChart>
                   </ResponsiveContainer>
+                  ) : null}
                 </div>
               </section>
 
