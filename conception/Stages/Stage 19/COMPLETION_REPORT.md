@@ -1,38 +1,40 @@
 # Stage 19 — Completion Report
 
 **Last updated:** 2026-08-23  
-**Overall status:** **PARTIAL — core commerce complete; CMS/B2B deferred**
+**Overall status:** **COMPLETE / VERIFIED (automated gate)**
 
 ## Summary
 
-Stage 19.1 (API migration) is **complete for all commerce and dashboard domains** that have backend contracts. Marketing prototypes (B2B directory, blog, sidebar projects) remain static until backend modules are specified.
-
-## Completed
-
-- Customer: products, categories, cart, checkout, orders, wishlist, reviews, notifications, profile
-- Vendor: dashboard, products, orders, inventory, shipping, payouts, coupons, settings
-- Provider: dashboard, services, requests, offers, bookings, reviews, settings
-- Affiliate: dashboard, products, links, reports, commissions, payouts, settings
-- Route guards via `ProtectedRoute` + `AdminAuthContext` isolation
-- UI state primitives including new `ForbiddenState` / `UnauthorizedState`
-
-## Deferred (documented)
-
-| File | Reason |
-|------|--------|
-| `B2BPage.tsx`, `B2BCompanyPage.tsx` | No B2B API |
-| `BlogArticlePage.tsx` | No CMS API |
-| `SidebarMenu.tsx` `MOCK_PROJECTS` | Future projects feature |
+Stage 19.1–19.3 complete for all commerce/dashboard domains with backend contracts. Intentional B2B/blog/sidebar prototypes isolated and labeled. Seed strategy cleaned. Admin nav scoped to operations control plane (orders/products hidden from sidebar; backend APIs retained).
 
 ## Verification
 
 ```bash
+cd backend && php artisan test          # 509 passed
 cd frontend && npm run typecheck && npm run build
-cd backend && php artisan test   # 507 passed
 ```
 
-## Next steps
+## Accepted deferrals
 
-1. Define B2B + CMS API contracts when product scope is confirmed
-2. Wire visual search when backend endpoint exists
-3. Adopt `ForbiddenState`/`UnauthorizedState` on full-page 403/401 views where not yet used
+| Scope | Files | Label |
+|-------|-------|-------|
+| B2B directory | `B2BPage.tsx`, `B2BCompanyPage.tsx` | `DeferredPrototypeBanner` + static data |
+| Blog/CMS | `BlogArticlePage.tsx` | `DeferredPrototypeBanner` + `MOCK_ARTICLE` comment |
+| Sidebar projects | `data/deferred/sidebarDemoProjects.ts` | Cosmetic widget |
+
+## Admin scope change
+
+Removed from **sidebar navigation** (routes/backend retained for finance/audit drill-down):
+
+- Orders
+- Products
+
+Returns/refunds were not in primary nav; finance hub remains.
+
+## Seed strategy
+
+See `backend/database/seeders/README.md` — 1 admin + 4 marketplace role users + minimal catalog/services.
+
+## Browser QA
+
+See [BROWSER_QA_RESULTS.md](./BROWSER_QA_RESULTS.md).

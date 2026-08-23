@@ -13,15 +13,18 @@ Arabic RTL multi-vendor marketplace for furniture products and home services —
 | Stage 16 — Notifications | **COMPLETE** |
 | Stage 17 — Realtime Chat | **COMPLETE** |
 | Stage 17.6 — Affiliate Commerce | **COMPLETE** |
-| **Stage 18 — Admin / Operations** | **COMPLETE / VERIFIED (automated)** |
+| **Stage 18 — Admin / Operations** | **COMPLETE / VERIFIED** |
+| **Stage 19 — Frontend API Migration** | **COMPLETE / VERIFIED (automated)** |
+| Stage 20 — Security Hardening | **PARTIAL** (matrix + regression; production deploy checklist) |
 
 | Component | Status |
 |-----------|--------|
-| Frontend UI | React 19 SPA — marketplace, vendor/provider/marketer dashboards, **admin ops SPA** (`/admin`) |
-| Backend API | Laravel 13 — `/api/v1` marketplace + `/api/v1/admin` operations |
-| CI | GitHub Actions — lint, test, build (frontend + backend) |
+| Frontend UI | React 19 SPA — marketplace, dashboards, admin ops (`/admin`) |
+| Backend API | Laravel 13 — `/api/v1` + `/api/v1/admin` |
+| Cache / Queue | Redis recommended (`CACHE_STORE=redis`, `QUEUE_CONNECTION=redis`) |
+| CI | GitHub Actions — lint, test, build |
 
-**Last validation (2026-08-22):** PHPUnit **504/504**, Vitest **101/101**, typecheck, ESLint, Pint, Prettier, production build — all pass.
+**Last validation (2026-08-23):** PHPUnit **509/509**, typecheck + production build — pass.
 
 Live project state: [.agent/CURRENT_STATE.md](.agent/CURRENT_STATE.md)  
 Stage 18 docs: [conception/Stages/Stage 18/README.md](conception/Stages/Stage%2018/README.md)

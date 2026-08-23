@@ -7,12 +7,19 @@ use App\Enums\RoleStatus;
 use App\Enums\UserStatus;
 use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\Concerns\UsesDemoPassword;
 use Illuminate\Database\Seeder;
 
 class AdminSeeder extends Seeder
 {
+    use UsesDemoPassword;
+
     public function run(): void
     {
+        if (app()->environment('production')) {
+            return;
+        }
+
         $adminRole = Role::query()->where('name', RoleName::Admin->value)->firstOrFail();
 
         $admin = User::query()->firstOrCreate(
@@ -21,7 +28,7 @@ class AdminSeeder extends Seeder
                 'name' => 'DIYAR Admin',
                 'email' => 'admin@diyar.local',
                 'email_verified_at' => now(),
-                'password' => 'Password123!',
+                'password' => $this->demoPassword(),
                 'status' => UserStatus::Active,
                 'phone_verified_at' => now(),
             ],

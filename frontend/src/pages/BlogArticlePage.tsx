@@ -11,8 +11,10 @@ import {
   Link as LinkIcon,
   Bookmark,
 } from 'lucide-react';
+import { DeferredPrototypeBanner } from '../components/deferred/DeferredPrototypeBanner.tsx';
 import { Link, useParams } from 'react-router-dom';
 
+/** Deferred CMS prototype — not live article data. */
 const MOCK_ARTICLE = {
   id: '1',
   title: 'أحدث اتجاهات التصميم الداخلي لعام 2024: العودة إلى الطبيعة',
@@ -87,6 +89,9 @@ export default function BlogArticlePage() {
   return (
     <div className="bg-gray-50 min-h-screen pb-24 md:pb-12 font-sans">
       {/* Breadcrumbs */}
+      <div className="max-w-4xl mx-auto px-4 py-4">
+          <DeferredPrototypeBanner scopeId="blogCms" />
+        </div>
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { DeferredPrototypeBanner } from '../components/deferred/DeferredPrototypeBanner.tsx';
 import {
   Search,
   MapPin,
@@ -167,6 +168,9 @@ export default function B2BPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20" dir="rtl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <DeferredPrototypeBanner scopeId="b2bDirectory" />
+      </div>
       {/* Full-width mini hero (edge-to-edge, banner height) */}
       <div className="relative w-full min-h-[300px] md:min-h-[360px] flex items-end overflow-hidden mb-8">
         <img

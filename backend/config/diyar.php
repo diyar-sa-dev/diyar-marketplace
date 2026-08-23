@@ -39,6 +39,16 @@ return [
         'login_decay_minutes' => (int) env('DIYAR_LOGIN_DECAY_MINUTES', 15),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Local demo seed credentials (never used in production seeders)
+    |--------------------------------------------------------------------------
+    */
+
+    'demo' => [
+        'password' => env('DIYAR_DEMO_PASSWORD', 'Password123!'),
+    ],
+
     'rate_limits' => [
         'wishlist_toggle_per_minute' => (int) env('DIYAR_WISHLIST_TOGGLE_RATE_LIMIT', 60),
     ],

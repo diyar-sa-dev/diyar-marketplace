@@ -15,12 +15,19 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\ServicePortfolioItem;
 use App\Models\User;
+use Database\Seeders\Concerns\UsesDemoPassword;
 use Illuminate\Database\Seeder;
 
 class ServiceMarketplaceSeeder extends Seeder
 {
+    use UsesDemoPassword;
+
     public function run(): void
     {
+        if (app()->environment('production')) {
+            return;
+        }
+
         $providerRole = Role::query()->where('name', RoleName::Provider->value)->firstOrFail();
 
         $categories = [
@@ -98,74 +105,6 @@ class ServiceMarketplaceSeeder extends Seeder
                 'cover' => 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1200',
                 'badges' => ['تركيب معتمد'],
             ],
-            [
-                'phone' => '966500000104',
-                'name' => 'Ibdaa Office Provider',
-                'email' => 'ibdaa@diyar.local',
-                'business' => 'مكتب الإبداع',
-                'slug' => 'ibdaa-office',
-                'bio' => 'تصميم ثلاثي الأبعاد للمطابخ والمساحات التجارية.',
-                'location' => 'الدمام',
-                'remote' => true,
-                'verified' => false,
-                'rating' => 4.9,
-                'reviews' => 210,
-                'projects' => 78,
-                'avatar' => 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200',
-                'cover' => 'https://images.unsplash.com/photo-1581404176840-0255b7bd4b4c?auto=format&fit=crop&q=80&w=1200',
-                'badges' => [],
-            ],
-            [
-                'phone' => '966500000105',
-                'name' => 'Maintenance Specialists Provider',
-                'email' => 'maintenance@diyar.local',
-                'business' => 'مختصي الصيانة',
-                'slug' => 'maintenance-specialists',
-                'bio' => 'صيانة وطلاء الأثاث الخشبي.',
-                'location' => 'الرياض',
-                'remote' => false,
-                'verified' => true,
-                'rating' => 4.2,
-                'reviews' => 45,
-                'projects' => 160,
-                'avatar' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
-                'cover' => 'https://images.unsplash.com/photo-1621293954908-907159247fc8?auto=format&fit=crop&q=80&w=1200',
-                'badges' => [],
-            ],
-            [
-                'phone' => '966500000106',
-                'name' => 'Elegance Upholstery Provider',
-                'email' => 'upholstery@diyar.local',
-                'business' => 'لمسة أناقة للتنجيد',
-                'slug' => 'lamset-anaqa',
-                'bio' => 'تنجيد كنب ومجالس بجودة عالية.',
-                'location' => 'مكة',
-                'remote' => false,
-                'verified' => true,
-                'rating' => 4.7,
-                'reviews' => 156,
-                'projects' => 190,
-                'avatar' => 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200',
-                'cover' => 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=1200',
-                'badges' => ['تنجيد احترافي'],
-            ],
-            [
-                'phone' => '966500000107',
-                'name' => 'Speed Moving Provider',
-                'email' => 'moving@diyar.local',
-                'business' => 'سرعة الإنجاز للنقل',
-                'slug' => 'speed-moving',
-                'bio' => 'نقل أثاث مع الفك والتركيب.',
-                'location' => 'الرياض',
-                'remote' => false,
-                'verified' => true,
-                'rating' => 4.6,
-                'reviews' => 320,
-                'projects' => 450,
-                'avatar' => 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&q=80&w=200',
-                'cover' => 'https://images.unsplash.com/photo-1593696140826-c58b021acf8b?auto=format&fit=crop&q=80&w=1200',
-                'badges' => ['نقل مؤمن'],
-            ],
         ];
 
         $providerMap = [];
@@ -176,7 +115,7 @@ class ServiceMarketplaceSeeder extends Seeder
                     'name' => $providerData['name'],
                     'email' => $providerData['email'],
                     'email_verified_at' => now(),
-                    'password' => 'Password123!',
+                    'password' => $this->demoPassword(),
                     'status' => UserStatus::Active,
                     'phone_verified_at' => now(),
                 ],
@@ -230,12 +169,6 @@ class ServiceMarketplaceSeeder extends Seeder
             ['provider' => 'eiwan-design', 'category' => 'interior-design', 'slug' => 'office-3d-design', 'title' => 'تصميم 3D للمكاتب وإخراج الصور', 'price' => 1500, 'mode' => ServicePricingMode::Fixed, 'type' => 'سعر ثابت', 'rating' => 4.9, 'reviews' => 210, 'requests' => 180, 'cover' => 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&q=80&w=400', 'features' => ['نماذج واقعية', 'تعديلات مجانية', 'ملفات مصدر']],
             ['provider' => 'eiwan-design', 'category' => 'interior-design', 'slug' => 'architectural-lighting', 'title' => 'توزيع وتصميم الإضاءة المعمارية', 'price' => 600, 'mode' => ServicePricingMode::PerProject, 'type' => 'مخططات فنية', 'rating' => 4.7, 'reviews' => 156, 'requests' => 95, 'cover' => 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=400', 'features' => ['حسابات الإضاءة', 'اختيار التجهيزات']],
             ['provider' => 'eiwan-design', 'category' => 'interior-design', 'slug' => 'online-design-consultation', 'title' => 'جلسة استشارة تصميم أونلاين', 'price' => 300, 'mode' => ServicePricingMode::Hourly, 'type' => 'بالساعة', 'rating' => 5.0, 'reviews' => 64, 'requests' => 220, 'cover' => 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=400', 'features' => ['جلسة مرئية', 'ملخص مكتوب']],
-            ['provider' => 'diyar-design', 'category' => 'interior-design', 'slug' => 'full-apartment-design', 'title' => 'تصميم داخلي متكامل للشقق', 'price' => 150, 'mode' => ServicePricingMode::StartingFrom, 'type' => 'استشارة ومخطط', 'rating' => 4.8, 'reviews' => 124, 'requests' => 280, 'cover' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=400', 'features' => []],
-            ['provider' => 'enjaz-workshop', 'category' => 'maintenance', 'slug' => 'bedroom-installation', 'title' => 'تركيب غرف نوم كاملة', 'price' => 500, 'mode' => ServicePricingMode::Fixed, 'type' => 'تركيب وصيانة', 'rating' => 4.5, 'reviews' => 86, 'requests' => 410, 'cover' => 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=400', 'features' => []],
-            ['provider' => 'ibdaa-office', 'category' => 'interior-design', 'slug' => 'kitchen-3d-design', 'title' => 'تصميم 3D للمطابخ', 'price' => 1200, 'mode' => ServicePricingMode::Fixed, 'type' => 'التنفيذ بالقطعة', 'rating' => 4.9, 'reviews' => 210, 'requests' => 150, 'cover' => 'https://images.unsplash.com/photo-1581404176840-0255b7bd4b4c?auto=format&fit=crop&q=80&w=400', 'features' => []],
-            ['provider' => 'maintenance-specialists', 'category' => 'upholstery', 'slug' => 'wood-furniture-maintenance', 'title' => 'صيانة وطلاء الأثاث الخشبي', 'price' => 300, 'mode' => ServicePricingMode::StartingFrom, 'type' => 'زيارة فنية', 'rating' => 4.2, 'reviews' => 45, 'requests' => 88, 'cover' => 'https://images.unsplash.com/photo-1621293954908-907159247fc8?auto=format&fit=crop&q=80&w=400', 'features' => []],
-            ['provider' => 'lamset-anaqa', 'category' => 'upholstery', 'slug' => 'sofa-upholstery', 'title' => 'تنجيد كنب ومجالس', 'price' => 800, 'mode' => ServicePricingMode::StartingFrom, 'type' => 'التنفيذ بالقطعة', 'rating' => 4.7, 'reviews' => 156, 'requests' => 260, 'cover' => 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=400', 'features' => []],
-            ['provider' => 'speed-moving', 'category' => 'moving', 'slug' => 'furniture-moving', 'title' => 'نقل أثاث مع الفك والتركيب', 'price' => 600, 'mode' => ServicePricingMode::Fixed, 'type' => 'خدمة متكاملة', 'rating' => 4.6, 'reviews' => 320, 'requests' => 520, 'cover' => 'https://images.unsplash.com/photo-1593696140826-c58b021acf8b?auto=format&fit=crop&q=80&w=400', 'features' => []],
         ];
 
         foreach ($services as $serviceData) {

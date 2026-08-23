@@ -1,6 +1,6 @@
 # Stage 19 — Frontend API Migration
 
-**Status:** In progress (core commerce API-driven; marketing prototypes deferred)  
+**Status:** COMPLETE — core commerce API-driven; documented prototypes deferred  
 **Last updated:** 2026-08-23
 
 ## Goal
@@ -39,14 +39,13 @@ Admin remains on the separate `adminApi` + `AdminAuthContext` control plane (Sta
 | Sidebar projects widget | ❌ | — | Cosmetic | `MOCK_PROJECTS` in `SidebarMenu` — future feature |
 | Visual search | Partial | — | Coming-soon UX | i18n placeholder until API exists |
 
-## Deferred mocks (documented)
+## Deferred mocks (documented — DO NOT replace without product scope)
 
-These pages intentionally use static content until a backend CMS/B2B module is specified:
+These use `DeferredPrototypeBanner` + `frontend/src/data/deferred/`:
 
-- `frontend/src/pages/B2BCompanyPage.tsx` — `COMPANIES`, `MOCK_REVIEWS`
-- `frontend/src/pages/B2BPage.tsx` — static company list
-- `frontend/src/pages/BlogArticlePage.tsx` — `MOCK_ARTICLE`
-- `frontend/src/components/layout/SidebarMenu.tsx` — `MOCK_PROJECTS`
+- `B2BPage.tsx`, `B2BCompanyPage.tsx` — static company directory (`b2bDirectory`)
+- `BlogArticlePage.tsx` — `MOCK_ARTICLE` CMS prototype (`blogCms`)
+- `SidebarMenu.tsx` — `DEFERRED_SIDEBAR_PROJECTS` widget (`sidebarProjects`)
 
 **Rule:** No silent mock fallback on API failure for commerce flows. Errors surface via `ErrorState` + retry.
 

@@ -273,6 +273,27 @@ class AdminIsolationTest extends TestCase
         $this->getStatefulJson('/api/v1/admin/session')->assertUnauthorized();
     }
 
+    public function test_admin_only_cannot_list_marketplace_orders(): void
+    {
+        $admin = $this->createUserWithRole(RoleName::Admin);
+
+        Sanctum::actingAs($admin, ['*'], 'web');
+
+        $this->getJson('/api/v1/orders')->assertForbidden();
+    }
+
+    public function test_admin_only_cannot_preview_checkout(): void
+    {
+        $admin = $this->createUserWithRole(RoleName::Admin);
+
+        Sanctum::actingAs($admin, ['*'], 'web');
+
+        $this->postJson('/api/v1/checkout/preview', [
+            'shipping_address_id' => (string) str()->uuid(),
+            'items' => [],
+        ])->assertForbidden();
+    }
+
     private function attachRole($user, RoleName $role): void
     {
         $this->seedRoles();

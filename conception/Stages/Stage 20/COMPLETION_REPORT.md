@@ -1,7 +1,13 @@
 # Stage 20 — Completion Report
 
 **Last updated:** 2026-08-23  
-**Overall status:** **PARTIAL — no open Critical exploits in regression suite**
+**Overall status:** **PARTIAL — automated regression green; production deploy hardening documented**
+
+## Regression suite
+
+```bash
+cd backend && php artisan test   # 509 passed (includes AdminIsolationTest + commerce security)
+```
 
 ## Completed
 

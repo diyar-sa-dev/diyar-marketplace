@@ -48,16 +48,16 @@ class ServiceCatalogTest extends TestCase
                     'pagination' => ['current_page', 'last_page', 'per_page', 'total'],
                 ],
             ])
-            ->assertJsonPath('data.pagination.total', 10);
+            ->assertJsonPath('data.pagination.total', 4);
     }
 
     #[Test]
     public function filters_services_by_category_slug(): void
     {
-        $this->getJson('/api/v1/services?category=moving')
+        $this->getJson('/api/v1/services?category=interior-design')
             ->assertOk()
-            ->assertJsonPath('data.pagination.total', 1)
-            ->assertJsonPath('data.items.0.title', 'نقل أثاث مع الفك والتركيب');
+            ->assertJsonPath('data.pagination.total', 4)
+            ->assertJsonPath('data.items.0.provider.slug', 'eiwan-design');
     }
 
     #[Test]
@@ -84,7 +84,7 @@ class ServiceCatalogTest extends TestCase
 
         $this->getJson('/api/v1/services')
             ->assertOk()
-            ->assertJsonPath('data.pagination.total', 9);
+            ->assertJsonPath('data.pagination.total', 3);
     }
 
     #[Test]

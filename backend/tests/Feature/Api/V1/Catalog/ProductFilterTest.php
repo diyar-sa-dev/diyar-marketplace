@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\VendorAccount;
 use Database\Seeders\CatalogSeeder;
 use Database\Seeders\CategorySeeder;
+use Database\Seeders\PlatformDemoSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -20,6 +21,7 @@ class ProductFilterTest extends TestCase
     {
         parent::setUp();
         $this->seed(RoleSeeder::class);
+        $this->seed(PlatformDemoSeeder::class);
         $this->seed(CategorySeeder::class);
         $this->seed(CatalogSeeder::class);
     }
@@ -54,13 +56,13 @@ class ProductFilterTest extends TestCase
 
     public function test_products_can_be_filtered_by_vendor_id(): void
     {
-        $vendor = VendorAccount::query()->where('slug', 'rawae-al-khashab')->firstOrFail();
+        $vendor = VendorAccount::query()->where('slug', 'diyar-furniture')->firstOrFail();
 
         $response = $this->getJson('/api/v1/products?vendor_id='.$vendor->id);
 
         $response->assertOk();
         foreach ($response->json('data.items') as $item) {
-            $this->assertSame('rawae-al-khashab', $item['vendor']['slug']);
+            $this->assertSame('diyar-furniture', $item['vendor']['slug']);
         }
     }
 
@@ -88,7 +90,7 @@ class ProductFilterTest extends TestCase
         $response = $this->getJson('/api/v1/vendors?per_page=10');
 
         $response->assertOk()
-            ->assertJsonPath('data.pagination.total', 6);
+            ->assertJsonPath('data.pagination.total', 2);
 
         $diyar = collect($response->json('data.items'))->firstWhere('slug', 'diyar-furniture');
         $this->assertNotNull($diyar);

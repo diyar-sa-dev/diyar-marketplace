@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { DeferredPrototypeBanner } from '../components/deferred/DeferredPrototypeBanner.tsx';
 import { useParams, Link } from 'react-router-dom';
 import {
   MapPin,
@@ -241,6 +242,9 @@ export default function B2BCompanyPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20" dir="rtl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <DeferredPrototypeBanner scopeId="b2bDirectory" />
+      </div>
       {/* Cover */}
       <div className="h-56 md:h-72 w-full relative overflow-hidden bg-diyar-dark">
         <img
