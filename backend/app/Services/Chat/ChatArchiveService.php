@@ -6,6 +6,7 @@ use App\Enums\ChatArchiveBatchStatus;
 use App\Enums\ConversationLifecycleStatus;
 use App\Models\ChatArchiveBatch;
 use App\Models\Message;
+use App\Services\Settings\EffectiveConfigService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -17,6 +18,7 @@ final class ChatArchiveService
 {
     public function __construct(
         private readonly ChatLockService $locks,
+        private readonly EffectiveConfigService $config,
     ) {}
 
     /**
@@ -24,7 +26,7 @@ final class ChatArchiveService
      */
     public function archiveEligibleMessages(?int $limit = null): array
     {
-        if (! (bool) config('diyar.chat.retention.archive_enabled', false)) {
+        if (! $this->config->boolean('chat.archive_enabled', false)) {
             return ['archived' => 0, 'batches' => 0, 'verified' => 0, 'failed' => 0];
         }
 
@@ -43,7 +45,7 @@ final class ChatArchiveService
         $startedAt = microtime(true);
         ChatMetrics::info('chat.archive.started', ['limit' => $limit]);
 
-        $archiveAfterDays = (int) config('diyar.chat.retention.archive_after_days', 365);
+        $archiveAfterDays = $this->config->integer('chat.archive_after_days', 365);
         $batchSize = (int) config('diyar.chat.retention.batch_size', 200);
         $cutoff = now()->subDays($archiveAfterDays);
         $disk = (string) config('diyar.chat.retention.archive_disk', 'local');
@@ -223,7 +225,7 @@ final class ChatArchiveService
 
     private function shouldPurgeBatch(ChatArchiveBatch $batch): bool
     {
-        if (! (bool) config('diyar.chat.retention.purge_after_archive', false)) {
+        if (! $this->config->boolean('chat.purge_after_archive', false)) {
             return false;
         }
 

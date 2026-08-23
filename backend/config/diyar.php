@@ -84,7 +84,7 @@ return [
     ],
 
     'shipping' => [
-        'default_carrier_flat_rate' => env('DIYAR_SHIPPING_DEFAULT_CARRIER_FLAT_RATE', '28.00'),
+        'default_carrier_flat_rate' => env('DIYAR_SHIPPING_DEFAULT_CARRIER_FLAT_RATE', '30.00'),
     ],
 
     /*
@@ -548,5 +548,8 @@ return [
         'border_radius' => env('DIYAR_THEME_BORDER_RADIUS', '0.5rem'),
         'font_family_ar' => env('DIYAR_THEME_FONT_AR', 'Alexandria, Tajawal, sans-serif'),
         'font_family_en' => env('DIYAR_THEME_FONT_EN', 'Outfit, Inter, sans-serif'),
+        'vendor_accent_color' => env('DIYAR_THEME_VENDOR_ACCENT', '#947961'),
+        'provider_accent_color' => env('DIYAR_THEME_PROVIDER_ACCENT', '#2563eb'),
+        'affiliate_accent_color' => env('DIYAR_THEME_AFFILIATE_ACCENT', '#16a34a'),
     ],
 ];

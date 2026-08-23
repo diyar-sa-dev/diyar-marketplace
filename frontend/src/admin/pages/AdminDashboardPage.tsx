@@ -1,8 +1,9 @@
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Area,
-  AreaChart,
   CartesianGrid,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -16,6 +17,12 @@ import { useAdminAuth } from '../auth/AdminAuthContext.tsx';
 import { localizedAuditAction, localizedAuditResource } from '../utils/localizedAudit.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
+import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
+import {
+  buildOrdersChartData,
+  formatPeriodSubtitle,
+  resolveChartPeriod,
+} from '../utils/ordersChartData.ts';
 
 type ReportSummary = {
   period: { from: string; to: string };
@@ -23,45 +30,15 @@ type ReportSummary = {
   orders_by_day: Array<{ day: string; count: number; revenue: string }>;
 };
 
-function buildOrdersChartData(
-  rows: Array<{ day: string; count: number; revenue: string }>,
-  period: { from: string; to: string },
-): Array<{ day: string; orders: number; revenue: number }> {
-  if (rows.length > 0) {
-    return rows.map((row) => ({
-      day: row.day.slice(5),
-      orders: row.count,
-      revenue: Number.parseFloat(row.revenue) || 0,
-    }));
-  }
+type AuditLogRow = {
+  id: string;
+  action: string;
+  resource_type: string | null;
+  resource_id: string | null;
+  created_at?: string;
+};
 
-  const start = new Date(`${period.from}T00:00:00`);
-  const end = new Date(`${period.to}T00:00:00`);
-  const points: Array<{ day: string; orders: number; revenue: number }> = [];
-
-  if (!Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime()) && start <= end) {
-    const cursor = new Date(start);
-    while (cursor <= end) {
-      const month = String(cursor.getMonth() + 1).padStart(2, '0');
-      const date = String(cursor.getDate()).padStart(2, '0');
-      points.push({ day: `${month}-${date}`, orders: 0, revenue: 0 });
-      cursor.setDate(cursor.getDate() + 1);
-    }
-  }
-
-  if (points.length === 0) {
-    const today = new Date();
-    for (let offset = 6; offset >= 0; offset -= 1) {
-      const day = new Date(today);
-      day.setDate(today.getDate() - offset);
-      const month = String(day.getMonth() + 1).padStart(2, '0');
-      const date = String(day.getDate()).padStart(2, '0');
-      points.push({ day: `${month}-${date}`, orders: 0, revenue: 0 });
-    }
-  }
-
-  return points;
-}
+type ChartPeriodDays = 7 | 30;
 
 function MetricCard({
   label,
@@ -90,8 +67,16 @@ function MetricCard({
 }
 
 export default function AdminDashboardPage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { user } = useAdminAuth();
+  const [activityPage, setActivityPage] = useState(1);
+  const [chartPeriodDays, setChartPeriodDays] = useState<ChartPeriodDays>(7);
+  const activityPerPage = 8;
+
+  const chartPeriod = useMemo(
+    () => resolveChartPeriod(chartPeriodDays),
+    [chartPeriodDays],
+  );
 
   const dashboardQuery = useQuery({
     queryKey: ['admin', 'dashboard'],
@@ -99,17 +84,60 @@ export default function AdminDashboardPage() {
   });
 
   const reportsQuery = useQuery({
-    queryKey: ['admin-reports-summary'],
+    queryKey: ['admin-reports-summary', chartPeriod.from, chartPeriod.to],
     queryFn: async () => {
-      const response =
-        await adminApi.get<ApiSuccessResponse<ReportSummary>>('/admin/reports/summary');
+      const response = await adminApi.get<ApiSuccessResponse<ReportSummary>>(
+        '/admin/reports/summary',
+        {
+          params: {
+            from: chartPeriod.from,
+            to: chartPeriod.to,
+          },
+        },
+      );
+      return response.data.data;
+    },
+  });
+
+  const activityQuery = useQuery({
+    queryKey: ['admin', 'dashboard', 'activity', activityPage, activityPerPage],
+    queryFn: async () => {
+      const response = await adminApi.get<
+        ApiSuccessResponse<{
+          audit_logs: AuditLogRow[];
+          meta: {
+            current_page: number;
+            last_page: number;
+            per_page: number;
+            total: number;
+          };
+        }>
+      >('/admin/audit-logs', {
+        params: { page: activityPage, per_page: activityPerPage },
+      });
       return response.data.data;
     },
   });
 
   const metrics = dashboardQuery.data;
   const report = reportsQuery.data;
-  const chartData = report ? buildOrdersChartData(report.orders_by_day ?? [], report.period) : [];
+  const chartData = useMemo(
+    () =>
+      report
+        ? buildOrdersChartData(report.orders_by_day ?? [], chartPeriod, locale)
+        : [],
+    [report, chartPeriod, locale],
+  );
+  const chartTitle =
+    chartPeriod.mode === 'daily'
+      ? t('admin.reports.ordersLast7Days')
+      : t('admin.reports.ordersByWeek');
+  const periodSubtitle = formatPeriodSubtitle(chartPeriod, locale);
+  const maxOrders = useMemo(
+    () => chartData.reduce((max, row) => Math.max(max, row.orders), 0),
+    [chartData],
+  );
+  const yMax = Math.max(5, Math.ceil(maxOrders * 1.2));
 
   if (dashboardQuery.isLoading) {
     return <AdminPageSkeleton />;
@@ -117,8 +145,8 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-3xl border border-[#1f3d3a]/10 bg-gradient-to-br from-[#1f3d3a] via-[#2a4f4b] to-[#947961] p-6 text-white shadow-lg md:p-8">
-        <p className="text-sm font-semibold text-[#f3ecdb]/80">
+      <section className="overflow-hidden rounded-3xl border border-diyar-dark/10 bg-linear-to-br from-diyar-dark via-[#2a4f4b] to-diyar-brown p-6 text-white shadow-lg md:p-8">
+        <p className="text-sm font-semibold text-diyar-cream/80">
           {t('admin.dashboard.welcomeLabel')}
         </p>
         <h2 className="mt-1 text-2xl font-extrabold md:text-3xl">
@@ -185,48 +213,69 @@ export default function AdminDashboardPage() {
           {report && (
             <div className="grid gap-4 xl:grid-cols-3">
               <section className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm xl:col-span-2">
-                <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+                <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <h3 className="text-lg font-bold text-diyar-dark">
-                      {t('admin.reports.ordersByDay')}
-                    </h3>
-                    <p className="text-xs text-gray-500">
-                      {report.period.from} → {report.period.to}
-                    </p>
+                    <h3 className="text-lg font-bold text-diyar-dark">{chartTitle}</h3>
+                    <p className="text-xs text-gray-500">{periodSubtitle}</p>
+                  </div>
+                  <div className="flex rounded-xl border border-gray-200 bg-[#f7f4f1]/50 p-1">
+                    {([7, 30] as const).map((days) => (
+                      <button
+                        key={days}
+                        type="button"
+                        onClick={() => setChartPeriodDays(days)}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+                          chartPeriodDays === days
+                            ? 'bg-white text-diyar-dark shadow-sm'
+                            : 'text-gray-500 hover:text-diyar-dark'
+                        }`}
+                      >
+                        {days === 7
+                          ? t('admin.reports.period7Days')
+                          : t('admin.reports.period30Days')}
+                      </button>
+                    ))}
                   </div>
                 </div>
-                <div className="h-64 w-full min-w-0" dir="ltr">
+                <div className="h-72 w-full min-w-0" dir="ltr">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData}>
-                      <defs>
-                        <linearGradient id="ordersFill" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#947961" stopOpacity={0.35} />
-                          <stop offset="95%" stopColor="#947961" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0ebe4" />
+                    <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
+                      <CartesianGrid stroke="#e5e7eb" strokeDasharray="4 4" />
                       <XAxis
-                        dataKey="day"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 11, fill: '#9ca3af' }}
+                        dataKey="label"
+                        interval={0}
+                        axisLine={{ stroke: '#9ca3af' }}
+                        tickLine={{ stroke: '#9ca3af' }}
+                        tick={{ fontSize: 11, fill: '#6b7280' }}
+                        angle={chartPeriod.mode === 'weekly' ? -18 : 0}
+                        textAnchor={chartPeriod.mode === 'weekly' ? 'end' : 'middle'}
+                        height={chartPeriod.mode === 'weekly' ? 52 : 32}
                       />
                       <YAxis
                         allowDecimals={false}
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 11, fill: '#9ca3af' }}
-                        domain={[0, 'auto']}
+                        domain={[0, yMax]}
+                        tickCount={6}
+                        axisLine={{ stroke: '#9ca3af' }}
+                        tickLine={{ stroke: '#9ca3af' }}
+                        tick={{ fontSize: 11, fill: '#6b7280' }}
+                        width={36}
                       />
-                      <Tooltip />
-                      <Area
+                      <Tooltip
+                        formatter={(value: number) => [value, t('admin.reports.ordersSeries')]}
+                        labelFormatter={(_, items) => {
+                          const row = items?.[0]?.payload as { tooltipLabel?: string } | undefined;
+                          return row?.tooltipLabel ?? '';
+                        }}
+                      />
+                      <Line
                         type="monotone"
                         dataKey="orders"
                         stroke="#1f3d3a"
-                        fill="url(#ordersFill)"
-                        strokeWidth={2}
+                        strokeWidth={2.5}
+                        dot={{ r: 3, fill: '#947961', stroke: '#1f3d3a', strokeWidth: 1 }}
+                        activeDot={{ r: 5 }}
                       />
-                    </AreaChart>
+                    </LineChart>
                   </ResponsiveContainer>
                 </div>
               </section>
@@ -243,7 +292,7 @@ export default function AdminDashboardPage() {
                       value: report.totals.payment_volume,
                     },
                     {
-                      label: t('admin.dashboard.metrics.ordersToday'),
+                      label: t('admin.reports.ordersInPeriod'),
                       value: report.totals.orders,
                     },
                   ].map((item) => (
@@ -266,25 +315,37 @@ export default function AdminDashboardPage() {
             <h3 className="text-lg font-bold text-diyar-dark">
               {t('admin.dashboard.recentActivity')}
             </h3>
-            {metrics.recent_activity.length === 0 ? (
+            {activityQuery.isLoading ? (
+              <p className="mt-3 text-sm text-gray-500">{t('admin.dashboard.activityLoading')}</p>
+            ) : activityQuery.isError ? (
+              <p className="mt-3 text-sm text-red-600">{t('admin.dashboard.activityError')}</p>
+            ) : (activityQuery.data?.audit_logs.length ?? 0) === 0 ? (
               <p className="mt-3 text-sm text-gray-500">{t('admin.dashboard.noRecentActivity')}</p>
             ) : (
-              <ul className="mt-4 space-y-3">
-                {metrics.recent_activity.map((entry, index) => (
-                  <li
-                    key={`${entry.action}-${entry.created_at}-${index}`}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#f7f4f1] px-4 py-3 text-sm"
-                  >
-                    <span className="font-semibold text-diyar-dark">
-                      {localizedAuditAction(entry.action, t)}
-                    </span>
-                    <span className="text-gray-500">
-                      {localizedAuditResource(entry.resource_type, t)}
-                      {entry.resource_id ? ` · ${entry.resource_id.slice(0, 8)}` : ''}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <>
+                <ul className="mt-4 space-y-3">
+                  {activityQuery.data?.audit_logs.map((entry) => (
+                    <li
+                      key={entry.id}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#f7f4f1] px-4 py-3 text-sm"
+                    >
+                      <span className="font-semibold text-diyar-dark">
+                        {localizedAuditAction(entry.action, t)}
+                      </span>
+                      <span className="text-gray-500">
+                        {localizedAuditResource(entry.resource_type ?? '', t)}
+                        {entry.resource_id ? ` · ${entry.resource_id.slice(0, 8)}` : ''}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <AdminTablePagination
+                  meta={activityQuery.data?.meta}
+                  page={activityPage}
+                  onPageChange={setActivityPage}
+                  isLoading={activityQuery.isFetching}
+                />
+              </>
             )}
           </section>
         </>

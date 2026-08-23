@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
 import { useAdminListQuery } from '../hooks/useAdminListQuery.ts';
@@ -20,14 +20,22 @@ type AuditLog = {
 
 export default function AdminAuditPage() {
   const { t } = useLocale();
-  const [actionFilter, setActionFilter] = useState('');
-  const { data, isLoading, isError, search, setSearch, page, setPage } =
-    useAdminListQuery<AuditLog>({
-      resourceKey: 'admin-audit',
-      endpoint: '/admin/audit-logs',
-      itemsKey: 'audit_logs',
-      extraParams: actionFilter ? { action: actionFilter } : undefined,
-    });
+  const {
+    data,
+    isLoading,
+    isError,
+    search,
+    setSearch,
+    paramFilter: actionFilter,
+    setParamFilter: setActionFilter,
+    page,
+    setPage,
+  } = useAdminListQuery<AuditLog>({
+    resourceKey: 'admin-audit',
+    endpoint: '/admin/audit-logs',
+    itemsKey: 'audit_logs',
+    paramFilterKey: 'action',
+  });
 
   const logs = data?.items ?? [];
   const meta = data?.meta;
@@ -51,11 +59,8 @@ export default function AdminAuditPage() {
       filters={
         <select
           value={actionFilter}
-          onChange={(event) => {
-            setActionFilter(event.target.value);
-            setPage(1);
-          }}
-          className="rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+          onChange={(event) => setActionFilter(event.target.value)}
+          className="rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-diyar-brown cursor-pointer"
         >
           <option value="">{t('admin.audit.allActions')}</option>
           {actionOptions.map((option) => (

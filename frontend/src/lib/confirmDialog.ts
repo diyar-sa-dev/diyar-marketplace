@@ -178,6 +178,120 @@ export async function confirmRemoveConversation(t: TranslateFn): Promise<boolean
   return result.isConfirmed;
 }
 
+export async function confirmSuspendUser(t: TranslateFn, userName?: string): Promise<boolean> {
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.users.suspend'),
+    text: userName ? t('admin.users.suspendConfirmNamed', { name: userName }) : t('admin.users.suspendConfirm'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.users.suspend'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
+export async function confirmSuspendVendor(t: TranslateFn, storeName?: string): Promise<boolean> {
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.detail.vendor.suspend'),
+    text: storeName
+      ? t('admin.detail.vendor.suspendConfirmNamed', { name: storeName })
+      : t('admin.detail.vendor.suspendConfirm'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.detail.vendor.suspend'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
+export async function confirmSuspendProvider(t: TranslateFn, providerName?: string): Promise<boolean> {
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.detail.provider.suspend'),
+    text: providerName
+      ? t('admin.detail.provider.suspendConfirmNamed', { name: providerName })
+      : t('admin.detail.provider.suspendConfirm'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.detail.provider.suspend'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
+export async function confirmActivateUser(t: TranslateFn, userName?: string): Promise<boolean> {
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.users.activate'),
+    text: userName ? t('admin.users.activateConfirmNamed', { name: userName }) : t('admin.users.activateConfirm'),
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: t('admin.users.activate'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#16a34a',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
+export async function confirmRejectPayout(t: TranslateFn): Promise<string | null> {
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.payouts.rejectTitle'),
+    text: t('admin.payouts.rejectBody'),
+    input: 'textarea',
+    inputPlaceholder: t('admin.payouts.rejectReasonPlaceholder'),
+    inputAttributes: { 'aria-label': t('admin.payouts.rejectReasonPlaceholder') },
+    inputValidator: (value) => {
+      if (!value?.trim()) {
+        return t('admin.payouts.rejectReasonRequired');
+      }
+      return null;
+    },
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.payouts.reject'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed ? (result.value?.trim() ?? null) : null;
+}
+
+export async function confirmDeleteCategory(
+  t: TranslateFn,
+  categoryName?: string,
+): Promise<boolean> {
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.categories.deleteTitle'),
+    text: categoryName
+      ? t('admin.categories.deleteConfirmNamed', { name: categoryName })
+      : t('admin.categories.deleteConfirm'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.categories.deleteAction'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
 export async function showShareLinkDialog(t: TranslateFn, url: string): Promise<boolean> {
   const result = await Swal.fire({
     ...modalOptions,

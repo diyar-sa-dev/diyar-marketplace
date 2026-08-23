@@ -35,7 +35,7 @@ class CheckoutPreviewTest extends TestCase
         $this->assertSame('71.70', $vat);
     }
 
-    public function test_preview_blocks_when_vendor_shipping_not_configured(): void
+    public function test_preview_uses_platform_default_when_vendor_shipping_not_configured(): void
     {
         $customer = $this->createUserWithRole(RoleName::Customer);
         $product = Product::factory()->create();
@@ -43,7 +43,9 @@ class CheckoutPreviewTest extends TestCase
         $this->addProductToUserCart($customer, $product);
 
         $this->postStatefulJsonAsUser('/api/v1/checkout/preview', $customer, $this->checkoutPayload($address, $product))
-            ->assertUnprocessable();
+            ->assertOk()
+            ->assertJsonPath('data.preview.valid', true)
+            ->assertJsonPath('data.preview.totals.shipping', '30.00');
     }
 
     public function test_preview_requires_complete_vendor_delivery_selections(): void

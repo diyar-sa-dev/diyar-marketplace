@@ -11,6 +11,7 @@ import {
   Info,
   Loader2,
   X,
+  Wrench,
 } from 'lucide-react';
 import ServiceCard from '../components/cards/ServiceCard.tsx';
 import { StarRating } from '../components/product/StarRating.tsx';
@@ -27,6 +28,8 @@ import { ProviderReviewsTab } from '../components/provider/ProviderReviewsTab.ts
 import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
 import { SERVICE_IMAGE_FALLBACK } from '../lib/services/serviceUi.ts';
 import { useStartChat } from '../hooks/chat/useStartChat.ts';
+import { EmptyState } from '../components/common/EmptyState.tsx';
+import { isNotFoundError } from '../utils/errors.ts';
 
 export default function ProviderPage() {
   const { id: slug } = useParams();
@@ -40,8 +43,11 @@ export default function ProviderPage() {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
 
-  const { data: provider, isLoading, isError } = useProvider(slug);
-  const { data: servicesData, isLoading: servicesLoading } = useProviderServices(slug, { sort });
+  const { data: provider, isLoading, isPending, isError, error } = useProvider(slug);
+  const providerUnavailable = isNotFoundError(error);
+  const { data: servicesData, isLoading: servicesLoading } = useProviderServices(slug, { sort }, {
+    enabled: Boolean(provider) && !providerUnavailable,
+  });
   const { followMutation, unfollowMutation } = useProviderFollow(slug);
   const { startProviderChat, isStarting: isStartingChat } = useStartChat();
   const services = servicesData?.items ?? [];
@@ -89,7 +95,21 @@ export default function ProviderPage() {
     });
   };
 
-  if (isLoading) {
+  const unavailableState = (
+    <div className="min-h-screen bg-gray-50 px-4 py-16">
+      <EmptyState
+        icon={<Wrench size={32} strokeWidth={1.5} />}
+        title={t('serviceMarketplace.providerPage.unavailableTitle')}
+        description={t('serviceMarketplace.providerPage.unavailableDescription')}
+      />
+    </div>
+  );
+
+  if (providerUnavailable) {
+    return unavailableState;
+  }
+
+  if (isPending && !provider) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Loader2 className="w-8 h-8 animate-spin text-diyar-brown" />
@@ -98,11 +118,16 @@ export default function ProviderPage() {
   }
 
   if (isError || !provider) {
+    if (isNotFoundError(error)) {
+      return unavailableState;
+    }
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <p className="text-gray-600 font-medium">
-          {t('serviceMarketplace.providerPage.loadError')}
-        </p>
+        <EmptyState
+          icon={<Wrench size={32} strokeWidth={1.5} />}
+          title={t('serviceMarketplace.providerPage.loadError')}
+          description={t('serviceMarketplace.providerPage.unavailableDescription')}
+        />
       </div>
     );
   }

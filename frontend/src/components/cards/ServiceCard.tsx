@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Bookmark, Star, Store } from 'lucide-react';
+import { Bookmark, Store } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
@@ -9,6 +9,7 @@ import { SERVICE_IMAGE_FALLBACK } from '../../lib/services/serviceUi.ts';
 import { ServiceTypeBadge } from '../services/ServiceTypeBadge.tsx';
 import { resolveServiceTypeLabel } from '../../lib/serviceBookingDisplay.ts';
 import { useServiceWishlistMutation } from '../../hooks/services/useServiceEngagement.ts';
+import { StarRating } from '../product/StarRating.tsx';
 
 type LegacyServiceShape = {
   id?: string | number;
@@ -25,6 +26,7 @@ type LegacyServiceShape = {
   currency?: string;
   rating?: number;
   rating_average?: number;
+  reviews_count?: number;
   type?: string;
   service_type_label?: string | null;
   delivery_type_label?: string | null;
@@ -51,17 +53,28 @@ function normalizeServiceCard(
     ('rating_average' in service && service.rating_average) ||
     ('rating' in service && service.rating) ||
     0;
+  const reviewsCount =
+    ('reviews_count' in service && service.reviews_count) ||
+    ('reviews' in service && (service as { reviews?: number }).reviews) ||
+    0;
   const typeLabel =
     resolveServiceTypeLabel(service as ServiceCardType) ||
     ('type' in service && service.type) ||
     scheduleFallback;
-  const priceLabel =
-    ('pricing_label' in service && service.pricing_label) ||
-    ('starting_price' in service && service.starting_price != null
-      ? `${service.starting_price} ${('currency' in service && service.currency) || currencyLabel}`
+  const currency =
+    ('currency' in service && service.currency) || currencyLabel;
+  const startingPrice =
+    'starting_price' in service && service.starting_price != null
+      ? Number(service.starting_price)
+      : null;
+  const priceAmount =
+    startingPrice != null
+      ? `${startingPrice} ${currency}`
       : 'price' in service && service.price != null
         ? String(service.price)
-        : '—');
+        : null;
+  const priceLabel =
+    ('pricing_label' in service && service.pricing_label) || priceAmount || '—';
 
   return {
     title,
@@ -69,8 +82,11 @@ function normalizeServiceCard(
     imageUrl,
     vendorName,
     rating,
+    reviewsCount: Number(reviewsCount),
     typeLabel,
     priceLabel,
+    priceAmount,
+    startingPrice,
     bookingMode: (('booking_mode' in service && service.booking_mode) || 'request') as
       'request' | 'direct',
   };
@@ -84,12 +100,23 @@ const ServiceCard: React.FC<{
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { title, slug, imageUrl, vendorName, rating, typeLabel, priceLabel, bookingMode } =
-    normalizeServiceCard(
-      service,
-      t('serviceMarketplace.catalog.scheduleAppointment'),
-      t('providerDashboard.common.currency'),
-    );
+  const {
+    title,
+    slug,
+    imageUrl,
+    vendorName,
+    rating,
+    reviewsCount,
+    typeLabel,
+    priceLabel,
+    priceAmount,
+    startingPrice,
+    bookingMode,
+  } = normalizeServiceCard(
+    service,
+    t('serviceMarketplace.catalog.scheduleAppointment'),
+    t('providerDashboard.common.currency'),
+  );
   const wishlist = useServiceWishlistMutation(slug);
   const [isSaved, setIsSaved] = useState(
     () => ('user_saved' in service && service.user_saved) || false,
@@ -139,6 +166,26 @@ const ServiceCard: React.FC<{
     navigate(`/service/${slug}?${isDirectBooking ? 'book=1' : 'request=1'}`);
   };
 
+  const priceDisplay = (
+    <>
+      <span className="text-[10px] sm:text-xs text-gray-400">
+        {t('serviceMarketplace.catalog.startingPrice')}:
+      </span>
+      <div className="leading-tight">
+        {startingPrice != null && priceAmount ? (
+          <>
+            <span className="text-xs sm:text-sm text-gray-600">
+              {t('serviceMarketplace.catalog.startsFrom')}{' '}
+            </span>
+            <span className="font-bold text-sm sm:text-lg text-diyar-brown">{priceAmount}</span>
+          </>
+        ) : (
+          <span className="font-bold text-sm sm:text-lg text-diyar-brown">{priceLabel}</span>
+        )}
+      </div>
+    </>
+  );
+
   if (layout === 'list') {
     return (
       <Link to={`/service/${slug}`} className="block w-full group">
@@ -169,15 +216,11 @@ const ServiceCard: React.FC<{
                   <Store size={11} className="text-diyar-brown" />
                   <span>{vendorName}</span>
                 </div>
-                <div className="flex gap-0.5 text-yellow-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={9}
-                      fill={i < Math.floor(rating) ? 'currentColor' : 'none'}
-                      strokeWidth={i < Math.floor(rating) ? 0 : 2}
-                    />
-                  ))}
+                <div className="flex items-center gap-1 min-w-0">
+                  <StarRating value={rating} readOnly size={9} />
+                  {reviewsCount > 0 ? (
+                    <span className="text-[9px] text-gray-500 tabular-nums">({reviewsCount})</span>
+                  ) : null}
                 </div>
               </div>
 
@@ -190,21 +233,17 @@ const ServiceCard: React.FC<{
               </div>
             </div>
 
-            <div className="flex justify-start items-center gap-1 mb-1">
-              <span className="text-[10px] sm:text-xs text-gray-400">
-                {t('serviceMarketplace.catalog.startingPrice')}:
-              </span>
-              <span className="font-bold text-sm sm:text-lg text-diyar-dark">{priceLabel}</span>
-            </div>
-
-            <div className="flex justify-end">
-              <button
-                className="bg-diyar-brown text-white rounded-lg sm:rounded-lg py-1 px-3 sm:py-1.5 sm:px-5 font-bold text-[10px] sm:text-xs transition-all hover:bg-orange-700 flex items-center justify-center gap-1 z-10 relative cursor-pointer"
-                title={actionHint}
-                onClick={handleServiceAction}
-              >
-                {actionLabel}
-              </button>
+            <div className="flex flex-wrap items-stretch gap-2 mb-1">
+              <div className="w-[70%] min-w-36 flex flex-col justify-center">{priceDisplay}</div>
+              <div className="w-[30%] min-w-22 flex-1 flex">
+                <button
+                  className="w-full self-stretch bg-diyar-brown text-white rounded-lg py-1 px-2 sm:py-1.5 sm:px-3 font-bold text-[10px] sm:text-xs transition-all hover:bg-orange-700 flex items-center justify-center gap-1 z-10 relative cursor-pointer"
+                  title={actionHint}
+                  onClick={handleServiceAction}
+                >
+                  {actionLabel}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -240,15 +279,11 @@ const ServiceCard: React.FC<{
               <Store size={12} className="text-diyar-brown shrink-0" />
               <span className="truncate">{vendorName}</span>
             </div>
-            <div className="flex gap-0.5 text-yellow-400">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  size={10}
-                  fill={i < Math.floor(rating) ? 'currentColor' : 'none'}
-                  strokeWidth={i < Math.floor(rating) ? 0 : 2}
-                />
-              ))}
+            <div className="flex items-center gap-1 min-w-0 shrink-0">
+              <StarRating value={rating} readOnly size={10} />
+              {reviewsCount > 0 ? (
+                <span className="text-[10px] text-gray-500 tabular-nums">({reviewsCount})</span>
+              ) : null}
             </div>
           </div>
 
@@ -260,19 +295,34 @@ const ServiceCard: React.FC<{
             {typeLabel && <ServiceTypeBadge label={typeLabel} />}
           </div>
 
-          <div className="flex justify-start items-center gap-1 mb-3 mt-1">
-            <span className="text-xs text-gray-500 ms-1">
-              {t('serviceMarketplace.catalog.startingPrice')}:
-            </span>
-            <span className="font-bold text-base text-diyar-dark">{priceLabel}</span>
+          <div className="flex flex-wrap items-stretch gap-2 mt-1">
+            <div className="w-[70%] min-w-36 flex flex-col justify-center">
+              <span className="text-xs text-gray-500">
+                {t('serviceMarketplace.catalog.startingPrice')}:
+              </span>
+              <div className="leading-tight">
+                {startingPrice != null && priceAmount ? (
+                  <>
+                    <span className="text-xs text-gray-600">
+                      {t('serviceMarketplace.catalog.startsFrom')}{' '}
+                    </span>
+                    <span className="font-bold text-base text-diyar-brown">{priceAmount}</span>
+                  </>
+                ) : (
+                  <span className="font-bold text-base text-diyar-brown">{priceLabel}</span>
+                )}
+              </div>
+            </div>
+            <div className="w-[30%] min-w-22 flex-1 flex">
+              <button
+                className="w-full self-stretch bg-diyar-brown text-white rounded-lg py-1.5 px-2 font-bold text-xs transition-colors hover:bg-orange-700 flex items-center justify-center gap-1.5 z-10 relative cursor-pointer"
+                title={actionHint}
+                onClick={handleServiceAction}
+              >
+                {actionLabel}
+              </button>
+            </div>
           </div>
-          <button
-            className="w-full bg-diyar-brown text-white rounded-lg py-1.5 font-bold text-xs transition-colors hover:bg-orange-700 flex items-center justify-center gap-1.5 mt-auto z-10 relative cursor-pointer"
-            title={actionHint}
-            onClick={handleServiceAction}
-          >
-            {actionLabel}
-          </button>
         </div>
       </div>
     </Link>

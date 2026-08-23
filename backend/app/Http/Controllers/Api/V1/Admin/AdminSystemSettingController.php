@@ -11,6 +11,7 @@ use App\Services\Settings\SystemSettingService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class AdminSystemSettingController extends Controller
@@ -78,7 +79,11 @@ class AdminSystemSettingController extends Controller
         $definition = $definitions[$fullKey];
         $group = SystemSettingGroup::from((string) $definition['group']);
         $type = SystemSettingType::from((string) $definition['type']);
-        $rules = $definition['validation'] ?? [];
+        $rules = is_array($definition['validation'] ?? null) ? $definition['validation'] : [];
+
+        if (isset($definition['allowed_values']) && is_array($definition['allowed_values'])) {
+            $rules[] = Rule::in($definition['allowed_values']);
+        }
 
         try {
             $setting = $this->settings->set(

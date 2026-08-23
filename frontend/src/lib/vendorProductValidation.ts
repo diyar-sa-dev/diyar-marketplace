@@ -16,7 +16,9 @@ export type VendorProductFormErrorCode =
   | 'dimensionInvalid'
   | 'imagesRequired'
   | 'imagesInvalidType'
-  | 'imagesTooLarge';
+  | 'imagesTooLarge'
+  | 'expectedAvailableAtInvalid'
+  | 'expectedAvailableAtPast';
 
 export type VendorProductFormErrors = Partial<
   Record<
@@ -33,6 +35,7 @@ export type VendorProductFormErrors = Partial<
     | 'material'
     | 'images'
     | 'colors'
+    | 'expectedAvailableAt'
     | 'form',
     VendorProductFormErrorCode
   >
@@ -63,6 +66,19 @@ export interface VendorProductFormValues {
   isEditing: boolean;
   imageCount: number;
   pendingFileCount: number;
+  preorderEnabled?: boolean;
+  expectedAvailableAt?: string;
+}
+
+function todayIsoDate(): string {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
+function isIsoDate(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
@@ -167,6 +183,15 @@ export function validateVendorProductForm(
       if (dim === null || dim <= 0) {
         errors[field] = 'dimensionInvalid';
       }
+    }
+  }
+
+  if (values.preorderEnabled && values.expectedAvailableAt?.trim()) {
+    const dateValue = values.expectedAvailableAt.trim();
+    if (!isIsoDate(dateValue)) {
+      errors.expectedAvailableAt = 'expectedAvailableAtInvalid';
+    } else if (dateValue < todayIsoDate()) {
+      errors.expectedAvailableAt = 'expectedAvailableAtPast';
     }
   }
 

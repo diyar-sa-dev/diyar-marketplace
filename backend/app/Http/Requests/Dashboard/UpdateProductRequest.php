@@ -52,4 +52,14 @@ class UpdateProductRequest extends FormRequest
             'user_id' => ['prohibited'],
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'expected_available_at' => __('validation.attributes.expected_available_at'),
+        ];
+    }
 }

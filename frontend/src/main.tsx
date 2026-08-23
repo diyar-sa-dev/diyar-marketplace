@@ -11,6 +11,7 @@ import { ErrorBoundary } from './components/common/ErrorBoundary.tsx';
 import { ToastProvider } from './components/common/ToastProvider.tsx';
 import { AboutModalProvider } from './context/AboutModalContext.tsx';
 import { LocaleProvider } from './lib/i18n/LocaleProvider.tsx';
+import { PlatformThemeProvider } from './components/theme/PlatformThemeProvider.tsx';
 import { applyDocumentLocale, readStoredLocale } from './lib/i18n/storage.ts';
 import { queryClient } from './lib/queryClient.ts';
 import './index.css';
@@ -22,7 +23,8 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <LocaleProvider>
-        <AboutModalProvider>
+        <PlatformThemeProvider>
+          <AboutModalProvider>
           <BrowserRouter>
             <ErrorBoundary>
               <ToastProvider>
@@ -39,6 +41,7 @@ createRoot(document.getElementById('root')!).render(
             </ErrorBoundary>
           </BrowserRouter>
         </AboutModalProvider>
+        </PlatformThemeProvider>
       </LocaleProvider>
     </QueryClientProvider>
   </StrictMode>,

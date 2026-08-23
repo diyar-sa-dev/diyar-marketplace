@@ -90,6 +90,24 @@ final class AdminPayoutActionService
         });
     }
 
+    public function markAffiliatePayoutProcessing(AffiliatePayout $payout, User $actor): AffiliatePayout
+    {
+        return DB::transaction(function () use ($payout, $actor): AffiliatePayout {
+            $before = ['status' => $payout->status->value];
+            $updated = $this->affiliatePayouts->markProcessing($payout, $actor);
+
+            $this->audit->record(
+                actor: $actor,
+                action: 'payout.affiliate.mark_processing',
+                resource: $updated,
+                before: $before,
+                after: ['status' => $updated->status->value],
+            );
+
+            return $updated;
+        });
+    }
+
     public function rejectAffiliatePayout(AffiliatePayout $payout, User $actor, string $reason): AffiliatePayout
     {
         return DB::transaction(function () use ($payout, $actor, $reason): AffiliatePayout {

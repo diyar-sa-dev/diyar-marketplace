@@ -3,6 +3,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ExternalLink, Mail, Phone, Store, Wrench } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { adminApi } from '../../api/client.ts';
+import { formatPhoneDisplay } from '../../lib/formatPhone.ts';
+import { confirmActivateUser, confirmSuspendUser } from '../../lib/confirmDialog.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { UserAvatar } from '../../components/profile/UserAvatar.tsx';
@@ -11,7 +13,13 @@ import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { AdminUserRoleBadges } from '../components/AdminRoleBadge.tsx';
 import { DetailTabs } from '../components/DetailTabs.tsx';
 import { PermissionGate } from '../components/PermissionGate.tsx';
+import { useAdminAuth } from '../auth/AdminAuthContext.tsx';
 import { useAdminDetailQuery } from '../hooks/useAdminDetailQuery.ts';
+import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
+import {
+  invalidateAdminResource,
+  syncAdminUserStatus,
+} from '../utils/adminQueryCache.ts';
 
 type UserDetail = {
   id: string;
@@ -34,7 +42,9 @@ export default function AdminUserDetailPage() {
   const { t } = useLocale();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
+  const { user: currentUser } = useAdminAuth();
   const [activeTab, setActiveTab] = useState('profile');
+  const detailEndpoint = `/admin/users/${userId}`;
 
   const {
     data: user,
@@ -42,29 +52,57 @@ export default function AdminUserDetailPage() {
     isError,
   } = useAdminDetailQuery<UserDetail>({
     resourceKey: 'admin-user-detail',
-    endpoint: `/admin/users/${userId}`,
+    endpoint: detailEndpoint,
     dataKey: 'user',
     enabled: Boolean(userId),
   });
 
+  const isCurrentUser = Boolean(user && currentUser && user.id === currentUser.id);
+
+  const applyUserStatus = (status: string, updated?: UserDetail) => {
+    if (!userId) return;
+    if (updated) {
+      queryClient.setQueryData<UserDetail>(adminQueryKey('admin-user-detail', detailEndpoint), updated);
+    }
+    syncAdminUserStatus(queryClient, userId, status);
+  };
+
   const suspendMutation = useMutation({
-    mutationFn: async () => adminApi.post(`/admin/users/${userId}/suspend`),
-    onSuccess: async () => {
-      showToast(t('admin.detail.user.suspended'), 'success');
-      await queryClient.invalidateQueries({ queryKey: ['admin-user-detail'] });
-      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    mutationFn: async () => {
+      const response = await adminApi.post<{ data: { user: UserDetail } }>(
+        `/admin/users/${userId}/suspend`,
+      );
+      return response.data.data.user;
     },
-    onError: () => showToast(t('admin.detail.user.actionError'), 'error'),
+    onSuccess: (updated) => {
+      applyUserStatus(updated?.status ?? 'suspended', updated);
+      showToast(t('admin.detail.user.suspended'), 'success');
+      void invalidateAdminResource(queryClient, 'admin-users');
+    },
+    onError: () => {
+      showToast(t('admin.detail.user.actionError'), 'error');
+      void invalidateAdminResource(queryClient, 'admin-user-detail');
+      void invalidateAdminResource(queryClient, 'admin-users');
+    },
   });
 
   const activateMutation = useMutation({
-    mutationFn: async () => adminApi.post(`/admin/users/${userId}/activate`),
-    onSuccess: async () => {
-      showToast(t('admin.detail.user.activated'), 'success');
-      await queryClient.invalidateQueries({ queryKey: ['admin-user-detail'] });
-      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    mutationFn: async () => {
+      const response = await adminApi.post<{ data: { user: UserDetail } }>(
+        `/admin/users/${userId}/activate`,
+      );
+      return response.data.data.user;
     },
-    onError: () => showToast(t('admin.detail.user.actionError'), 'error'),
+    onSuccess: (updated) => {
+      applyUserStatus(updated?.status ?? 'active', updated);
+      showToast(t('admin.detail.user.activated'), 'success');
+      void invalidateAdminResource(queryClient, 'admin-users');
+    },
+    onError: () => {
+      showToast(t('admin.detail.user.actionError'), 'error');
+      void invalidateAdminResource(queryClient, 'admin-user-detail');
+      void invalidateAdminResource(queryClient, 'admin-users');
+    },
   });
 
   if (isLoading) return <AdminPageSkeleton />;
@@ -86,7 +124,7 @@ export default function AdminUserDetailPage() {
   return (
     <div className="space-y-6">
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div className="bg-linear-to-r from-[#1f3d3a] to-[#2d524e] px-6 py-6 text-white">
+        <div className="bg-linear-to-r from-diyar-dark to-[#2d524e] px-6 py-6 text-white">
           <Link
             to="/admin/users"
             className="mb-4 inline-flex text-sm font-semibold text-white/70 hover:text-white"
@@ -95,10 +133,12 @@ export default function AdminUserDetailPage() {
           </Link>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
-              <UserAvatar name={user.name} avatarUrl={user.avatar_url} size="lg" />
+              <UserAvatar name={user.name} avatarUrl={user.avatar_url} size="lg" variant="onDark" />
               <div>
                 <h1 className="text-2xl font-extrabold">{user.name}</h1>
-                <p className="mt-1 text-sm text-white/70">{user.email ?? user.phone}</p>
+                <p className="mt-1 text-sm text-white/70" dir="ltr">
+                  {user.email ?? formatPhoneDisplay(user.phone) ?? '—'}
+                </p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <AdminStatusBadge status={user.status} />
                   <AdminUserRoleBadges roles={user.roles} />
@@ -106,12 +146,22 @@ export default function AdminUserDetailPage() {
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              {user.status === 'suspended' ? (
+              {isCurrentUser ? (
+                <span className="rounded-xl border border-white/30 bg-white/15 px-4 py-2 text-sm font-bold text-white">
+                  {t('admin.users.you')}
+                </span>
+              ) : user.status === 'suspended' ? (
                 <PermissionGate permission="users.update">
                   <button
                     type="button"
                     disabled={activateMutation.isPending}
-                    onClick={() => activateMutation.mutate()}
+                    onClick={async () => {
+                      const confirmed = await confirmActivateUser(t, user.name);
+                      if (confirmed) {
+                        applyUserStatus('active');
+                        activateMutation.mutate();
+                      }
+                    }}
                     className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-emerald-700 cursor-pointer disabled:opacity-50"
                   >
                     {t('admin.detail.user.activate')}
@@ -122,8 +172,10 @@ export default function AdminUserDetailPage() {
                   <button
                     type="button"
                     disabled={suspendMutation.isPending}
-                    onClick={() => {
-                      if (window.confirm(t('admin.detail.user.suspendConfirm'))) {
+                    onClick={async () => {
+                      const confirmed = await confirmSuspendUser(t, user.name);
+                      if (confirmed) {
+                        applyUserStatus('suspended');
                         suspendMutation.mutate();
                       }
                     }}
@@ -166,7 +218,7 @@ export default function AdminUserDetailPage() {
                   {t('admin.settings.phone')}
                 </dt>
                 <dd className="mt-1 font-medium text-diyar-dark" dir="ltr">
-                  {user.phone ?? '—'}
+                  {formatPhoneDisplay(user.phone) ?? '—'}
                 </dd>
                 {user.phone_verified_at ? (
                   <p className="mt-1 text-xs text-emerald-600">

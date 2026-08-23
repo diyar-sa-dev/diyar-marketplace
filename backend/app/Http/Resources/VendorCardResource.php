@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\VendorAccount;
 use App\Services\Media\MediaUploadService;
+use App\Services\StoreReview\StoreReviewService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,6 +17,7 @@ class VendorCardResource extends JsonResource
     public function toArray(Request $request): array
     {
         $media = app(MediaUploadService::class);
+        $storeReviews = app(StoreReviewService::class);
 
         return [
             'id' => $this->id,
@@ -29,6 +31,8 @@ class VendorCardResource extends JsonResource
                 isset($this->active_products_count),
                 fn () => (int) $this->active_products_count,
             ),
+            'rating_avg' => $storeReviews->ratingAverage($this->resource),
+            'reviews_count' => $storeReviews->reviewsCount($this->resource),
         ];
     }
 }

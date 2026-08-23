@@ -2,7 +2,7 @@
 
 namespace App\Services\Admin;
 
-use App\Models\AdminAuditLog;
+use App\Jobs\Admin\RecordAdminAuditLogJob;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -35,8 +35,10 @@ final class AdminAuditService
         ?array $before = null,
         ?array $after = null,
         ?string $reason = null,
-    ): AdminAuditLog {
-        return AdminAuditLog::query()->create([
+    ): void {
+        $actor->loadMissing('roles');
+
+        $payload = [
             'id' => (string) Str::uuid(),
             'actor_id' => $actor->id,
             'actor_role' => $actor->roles->first()?->name?->value,
@@ -50,7 +52,9 @@ final class AdminAuditService
             'user_agent' => Request::userAgent(),
             'request_id' => Request::header('X-Request-Id') ?? Request::header('X-Correlation-Id'),
             'created_at' => now(),
-        ]);
+        ];
+
+        RecordAdminAuditLogJob::dispatch($payload)->afterCommit();
     }
 
     /**

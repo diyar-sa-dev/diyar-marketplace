@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminAuthController;
 use App\Http\Controllers\Api\V1\Admin\AdminCouponController;
 use App\Http\Controllers\Api\V1\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\AdminFinancialTransactionController;
+use App\Http\Controllers\Api\V1\Admin\AdminFinanceController;
 use App\Http\Controllers\Api\V1\Admin\AdminInventoryController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 use App\Http\Controllers\Api\V1\Admin\AdminOrderController;
@@ -346,6 +347,11 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
     Route::get('/transactions', [AdminFinancialTransactionController::class, 'index'])
         ->middleware('admin.permission:balances.view');
     Route::get('/transactions/{transaction}', [AdminFinancialTransactionController::class, 'show'])
+        ->middleware('admin.permission:balances.view');
+
+    Route::get('/finance/summary', [AdminFinanceController::class, 'summary'])
+        ->middleware('admin.permission:balances.view');
+    Route::get('/finance/report', [AdminFinanceController::class, 'exportReport'])
         ->middleware('admin.permission:balances.view');
 
     Route::get('/reports/summary', [AdminReportController::class, 'summary'])

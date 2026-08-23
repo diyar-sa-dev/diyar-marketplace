@@ -10,6 +10,10 @@ final class EffectiveConfigService
 {
     public function get(string $fullKey, mixed $default = null): mixed
     {
+        if (app()->environment('testing')) {
+            return $this->resolve($fullKey, $default);
+        }
+
         return Cache::remember(
             $this->cacheKey($fullKey),
             $this->cacheTtl(),
@@ -93,7 +97,8 @@ final class EffectiveConfigService
             return app(SystemSettingService::class)->cast($setting->rawValue(), $setting->type);
         }
 
-        $definition = config("system_settings.definitions.{$fullKey}");
+        $definitions = config('system_settings.definitions', []);
+        $definition = is_array($definitions) ? ($definitions[$fullKey] ?? null) : null;
         if (is_array($definition) && isset($definition['config_path'])) {
             $configValue = config($definition['config_path']);
             if ($configValue !== null) {

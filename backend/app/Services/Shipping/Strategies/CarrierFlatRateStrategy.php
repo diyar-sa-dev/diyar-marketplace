@@ -20,7 +20,8 @@ final class CarrierFlatRateStrategy implements ShippingMethodStrategy
             throw new UnprocessableEntityHttpException(__('diyar.shipping.method_not_available'));
         }
 
-        $rate = bcadd((string) ($settings->carrier_flat_rate ?? '0'), '0', 2);
+        $defaultRate = config('diyar.shipping.default_carrier_flat_rate', '30.00');
+        $rate = bcadd((string) ($settings->carrier_flat_rate ?? $defaultRate), '0', 2);
         $cost = $rate;
 
         $freeApplied = false;

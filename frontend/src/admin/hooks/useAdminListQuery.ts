@@ -17,19 +17,31 @@ export function useAdminListQuery<TItem>({
   itemsKey,
   perPage = 20,
   extraParams,
+  paramFilterKey,
 }: {
   resourceKey: string;
   endpoint: string;
   itemsKey: string;
   perPage?: number;
   extraParams?: Record<string, string | undefined>;
+  paramFilterKey?: string;
 }) {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
+  const [paramFilter, setParamFilterState] = useState('');
 
   const query = useQuery({
-    queryKey: adminQueryKey(resourceKey, page, perPage, search, statusFilter, extraParams),
+    queryKey: adminQueryKey(
+      resourceKey,
+      page,
+      perPage,
+      search,
+      statusFilter,
+      paramFilterKey,
+      paramFilter,
+      extraParams,
+    ),
     queryFn: async () => {
       const response = await adminApi.get<
         ApiSuccessResponse<
@@ -41,6 +53,7 @@ export function useAdminListQuery<TItem>({
           per_page: perPage,
           q: search.trim() || undefined,
           status: statusFilter || undefined,
+          ...(paramFilterKey && paramFilter ? { [paramFilterKey]: paramFilter } : {}),
           ...extraParams,
         },
       });
@@ -70,6 +83,10 @@ export function useAdminListQuery<TItem>({
         setStatusFilter(value);
         setPage(1);
       },
+      setParamFilter: (value: string) => {
+        setParamFilterState(value);
+        setPage(1);
+      },
     }),
     [],
   );
@@ -80,6 +97,8 @@ export function useAdminListQuery<TItem>({
     setSearch: resetPageOnFilter.setSearch,
     statusFilter,
     setStatusFilter: resetPageOnFilter.setStatusFilter,
+    paramFilter,
+    setParamFilter: resetPageOnFilter.setParamFilter,
     page,
     setPage,
     perPage,

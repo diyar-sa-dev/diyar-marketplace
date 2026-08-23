@@ -3,6 +3,7 @@ import * as catalogApi from '../../api/catalog.ts';
 import type { ProductListFilters } from '../../types/catalog.ts';
 import { categoryKeys, productKeys, vendorKeys } from './queryKeys.ts';
 import { isValidStoreSlug } from '../../lib/storePath.ts';
+import { isNotFoundError, parseApiError } from '../../utils/errors.ts';
 
 export function useCategories(type?: 'product' | 'service') {
   return useQuery({
@@ -62,14 +63,31 @@ export function useVendor(slug: string | undefined) {
     queryKey: vendorKeys.detail(slug ?? ''),
     queryFn: () => catalogApi.fetchVendor(slug!),
     enabled: isValidStoreSlug(slug),
+    staleTime: 0,
+    retry: (failureCount, error) => {
+      if (isNotFoundError(error)) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 }
 
-export function useVendorProducts(slug: string | undefined, filters: ProductListFilters = {}) {
+export function useVendorProducts(
+  slug: string | undefined,
+  filters: ProductListFilters = {},
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: vendorKeys.products(slug ?? '', filters),
     queryFn: () => catalogApi.fetchVendorProducts(slug!, filters),
-    enabled: isValidStoreSlug(slug),
+    enabled: options?.enabled !== false && isValidStoreSlug(slug),
+    retry: (failureCount, error) => {
+      if (isNotFoundError(error)) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 }
 

@@ -1,15 +1,24 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink } from 'lucide-react';
+import { Calendar, ExternalLink, Hash, Mail, MapPin, Phone, Wrench } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { adminApi } from '../../api/client.ts';
+import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
+import { formatPhoneDisplay } from '../../lib/formatPhone.ts';
+import { confirmSuspendProvider } from '../../lib/confirmDialog.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
+import { AdminDetailField } from '../components/AdminDetailField.tsx';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
-import { DetailHeader } from '../components/DetailHeader.tsx';
+import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { DetailTabs } from '../components/DetailTabs.tsx';
 import { PermissionGate } from '../components/PermissionGate.tsx';
 import { useAdminDetailQuery } from '../hooks/useAdminDetailQuery.ts';
+import {
+  invalidateAdminResource,
+  invalidatePublicProviderStore,
+  syncAdminProviderStatus,
+} from '../utils/adminQueryCache.ts';
 
 type ProviderDetail = {
   id: string;
@@ -23,15 +32,6 @@ type ProviderDetail = {
   user?: { id: string; name: string; email?: string | null; phone?: string | null };
 };
 
-function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border border-gray-100 bg-[#f7f4f1]/40 p-4">
-      <dt className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</dt>
-      <dd className="mt-1.5 text-sm font-medium text-diyar-dark">{children}</dd>
-    </div>
-  );
-}
-
 export default function AdminProviderDetailPage() {
   const { providerId } = useParams<{ providerId: string }>();
   const { t } = useLocale();
@@ -39,27 +39,47 @@ export default function AdminProviderDetailPage() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('profile');
 
+  const detailEndpoint = `/admin/provider-accounts/${providerId}`;
+
   const {
     data: provider,
     isLoading,
     isError,
   } = useAdminDetailQuery<ProviderDetail>({
     resourceKey: 'admin-provider-detail',
-    endpoint: `/admin/provider-accounts/${providerId}`,
+    endpoint: detailEndpoint,
     dataKey: 'provider_account',
     enabled: Boolean(providerId),
   });
 
+  const commitProviderUpdate = (updated: ProviderDetail) => {
+    queryClient.setQueryData<ProviderDetail>(
+      adminQueryKey('admin-provider-detail', detailEndpoint),
+      updated,
+    );
+    syncAdminProviderStatus(queryClient, updated.id, updated.status);
+    invalidatePublicProviderStore(queryClient, updated.slug);
+  };
+
   const suspendMutation = useMutation({
     mutationFn: async (action: 'suspend' | 'activate') => {
-      await adminApi.post(`/admin/provider-accounts/${providerId}/${action}`);
+      const response = await adminApi.post<{ data: { provider_account: ProviderDetail } }>(
+        `/admin/provider-accounts/${providerId}/${action}`,
+      );
+      return { action, account: response.data.data.provider_account };
     },
-    onSuccess: async () => {
+    onSuccess: ({ account }) => {
+      if (account) {
+        commitProviderUpdate(account);
+      }
       toast.success(t('admin.detail.provider.updated'));
-      await queryClient.invalidateQueries({ queryKey: ['admin-provider-detail'] });
-      await queryClient.invalidateQueries({ queryKey: ['admin-providers'] });
+      void invalidateAdminResource(queryClient, 'admin-providers');
     },
-    onError: () => toast.error(t('admin.detail.provider.actionError')),
+    onError: () => {
+      toast.error(t('admin.detail.provider.actionError'));
+      void invalidateAdminResource(queryClient, 'admin-provider-detail');
+      void invalidateAdminResource(queryClient, 'admin-providers');
+    },
   });
 
   if (isLoading) return <AdminPageSkeleton />;
@@ -75,53 +95,72 @@ export default function AdminProviderDetailPage() {
 
   return (
     <div className="space-y-6">
-      <DetailHeader
-        backTo="/admin/providers"
-        backLabel={t('admin.detail.backToProviders')}
-        title={provider.business_name}
-        subtitle={provider.slug}
-        status={provider.status}
-        actions={
-          <>
-            <Link
-              to={storefrontUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-diyar-brown hover:text-diyar-brown"
-            >
-              <ExternalLink size={16} />
-              {t('admin.detail.provider.viewStorefront')}
-            </Link>
-            {provider.status === 'suspended' ? (
-              <PermissionGate permission="providers.suspend">
-                <button
-                  type="button"
-                  disabled={suspendMutation.isPending}
-                  onClick={() => suspendMutation.mutate('activate')}
-                  className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 cursor-pointer"
-                >
-                  {t('admin.detail.provider.activate')}
-                </button>
-              </PermissionGate>
-            ) : (
-              <PermissionGate permission="providers.suspend">
-                <button
-                  type="button"
-                  disabled={suspendMutation.isPending}
-                  onClick={() => {
-                    if (window.confirm(t('admin.detail.provider.suspendConfirm'))) {
-                      suspendMutation.mutate('suspend');
-                    }
-                  }}
-                  className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 cursor-pointer"
-                >
-                  {t('admin.detail.provider.suspend')}
-                </button>
-              </PermissionGate>
-            )}
-          </>
-        }
-      />
+      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="bg-linear-to-r from-diyar-dark to-[#2d524e] px-6 py-6 text-white">
+          <Link
+            to="/admin/providers"
+            className="mb-4 inline-flex text-sm font-semibold text-white/70 hover:text-white"
+          >
+            ← {t('admin.detail.backToProviders')}
+          </Link>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 text-white">
+                <Wrench size={26} strokeWidth={1.75} />
+              </div>
+              <div>
+                <h1 className="text-2xl font-extrabold">{provider.business_name}</h1>
+                <p className="mt-1 text-sm text-white/70 font-mono" dir="ltr">
+                  {provider.slug}
+                </p>
+                <div className="mt-2">
+                  <AdminStatusBadge status={provider.status} />
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to={storefrontUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-3 py-2 text-sm font-bold text-white hover:bg-white/20"
+                title={t('admin.detail.provider.viewStorefront')}
+              >
+                <ExternalLink size={16} />
+                <span className="hidden sm:inline">{t('admin.detail.provider.openPage')}</span>
+              </Link>
+              {provider.status === 'suspended' ? (
+                <PermissionGate permission="providers.suspend">
+                  <button
+                    type="button"
+                    disabled={suspendMutation.isPending}
+                    onClick={() => suspendMutation.mutate('activate')}
+                    className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-emerald-700 cursor-pointer disabled:opacity-50"
+                  >
+                    {t('admin.detail.provider.activate')}
+                  </button>
+                </PermissionGate>
+              ) : (
+                <PermissionGate permission="providers.suspend">
+                  <button
+                    type="button"
+                    disabled={suspendMutation.isPending}
+                    onClick={async () => {
+                      const confirmed = await confirmSuspendProvider(t, provider.business_name);
+                      if (confirmed) {
+                        suspendMutation.mutate('suspend');
+                      }
+                    }}
+                    className="rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-bold text-white cursor-pointer disabled:opacity-50"
+                  >
+                    {t('admin.detail.provider.suspend')}
+                  </button>
+                </PermissionGate>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
 
       <DetailTabs
         tabs={[
@@ -132,29 +171,31 @@ export default function AdminProviderDetailPage() {
         onChange={setActiveTab}
       />
 
-      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         {activeTab === 'profile' ? (
           <dl className="grid gap-4 sm:grid-cols-2">
-            <DetailField label={t('admin.tables.business')}>{provider.business_name}</DetailField>
-            <DetailField label={t('admin.tables.slug')}>
+            <AdminDetailField label={t('admin.tables.business')} icon={<Wrench size={18} />}>
+              {provider.business_name}
+            </AdminDetailField>
+            <AdminDetailField label={t('admin.tables.slug')} icon={<Hash size={18} />}>
               <span dir="ltr">{provider.slug}</span>
-            </DetailField>
-            <DetailField label={t('admin.detail.vendor.location')}>
+            </AdminDetailField>
+            <AdminDetailField label={t('admin.detail.vendor.location')} icon={<MapPin size={18} />}>
               {provider.location ?? '—'}
-            </DetailField>
-            <DetailField label={t('admin.tables.createdAt')}>
+            </AdminDetailField>
+            <AdminDetailField label={t('admin.tables.createdAt')} icon={<Calendar size={18} />}>
               {provider.created_at ? new Date(provider.created_at).toLocaleString() : '—'}
-            </DetailField>
-            <DetailField label={t('admin.detail.vendor.supportEmail')}>
-              {provider.support_email ?? '—'}
-            </DetailField>
-            <DetailField label={t('admin.detail.vendor.supportPhone')}>
-              {provider.support_phone ?? '—'}
-            </DetailField>
+            </AdminDetailField>
+            <AdminDetailField label={t('admin.detail.vendor.supportEmail')} icon={<Mail size={18} />}>
+              <span dir="ltr">{provider.support_email ?? '—'}</span>
+            </AdminDetailField>
+            <AdminDetailField label={t('admin.detail.vendor.supportPhone')} icon={<Phone size={18} />}>
+              <span dir="ltr">{formatPhoneDisplay(provider.support_phone) ?? '—'}</span>
+            </AdminDetailField>
           </dl>
         ) : (
           <dl className="grid gap-4 sm:grid-cols-2">
-            <DetailField label={t('admin.tables.name')}>
+            <AdminDetailField label={t('admin.tables.name')}>
               {provider.user ? (
                 <Link
                   to={`/admin/users/${provider.user.id}`}
@@ -165,10 +206,12 @@ export default function AdminProviderDetailPage() {
               ) : (
                 '—'
               )}
-            </DetailField>
-            <DetailField label={t('admin.tables.contact')}>
-              <span dir="ltr">{provider.user?.email ?? provider.user?.phone ?? '—'}</span>
-            </DetailField>
+            </AdminDetailField>
+            <AdminDetailField label={t('admin.tables.contact')}>
+              <span dir="ltr">
+                {provider.user?.email ?? formatPhoneDisplay(provider.user?.phone) ?? '—'}
+              </span>
+            </AdminDetailField>
           </dl>
         )}
       </div>

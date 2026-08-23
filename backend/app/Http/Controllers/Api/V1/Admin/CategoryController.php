@@ -7,15 +7,19 @@ use App\Http\Requests\Admin\StoreCategoryRequest;
 use App\Http\Requests\Admin\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use App\Models\User;
+use App\Services\Admin\AdminCategoryService;
 use App\Services\Catalog\CategoryService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CategoryController extends Controller
 {
     public function __construct(
         private readonly CategoryService $categories,
+        private readonly AdminCategoryService $adminCategories,
     ) {}
 
     public function index(): JsonResponse
@@ -33,7 +37,10 @@ class CategoryController extends Controller
     {
         $this->authorize('create', Category::class);
 
-        $category = $this->categories->create($request->validated());
+        $category = $this->adminCategories->create(
+            $request->validated(),
+            $this->adminActor($request),
+        );
 
         return ApiResponse::success(
             data: ['category' => new CategoryResource($category)],
@@ -64,14 +71,18 @@ class CategoryController extends Controller
 
         $this->authorize('update', $model);
 
-        $updated = $this->categories->update($model, $request->validated());
+        $updated = $this->adminCategories->update(
+            $model,
+            $request->validated(),
+            $this->adminActor($request),
+        );
 
         return ApiResponse::success(data: [
             'category' => new CategoryResource($updated),
         ]);
     }
 
-    public function destroy(string $category): JsonResponse
+    public function destroy(Request $request, string $category): JsonResponse
     {
         $model = Category::query()->find($category);
         if ($model === null) {
@@ -80,8 +91,16 @@ class CategoryController extends Controller
 
         $this->authorize('delete', $model);
 
-        $this->categories->delete($model);
+        $this->adminCategories->delete($model, $this->adminActor($request));
 
         return ApiResponse::success();
+    }
+
+    private function adminActor(Request $request): User
+    {
+        /** @var User $admin */
+        $admin = $request->user('admin');
+
+        return $admin;
     }
 }

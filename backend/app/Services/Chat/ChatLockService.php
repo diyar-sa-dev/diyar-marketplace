@@ -22,6 +22,10 @@ final class ChatLockService
      */
     public function run(string $name, Closure $callback, int $seconds = 30, int $waitSeconds = 5): mixed
     {
+        if (app()->environment('testing')) {
+            return $callback();
+        }
+
         $lock = Cache::lock($this->prefix().$name, $seconds);
 
         try {

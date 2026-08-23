@@ -9,6 +9,7 @@ import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { PermissionGate } from '../components/PermissionGate.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
+import { confirmDeleteCategory } from '../../lib/confirmDialog.ts';
 import { parseApiError } from '../../utils/errors.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
 
@@ -136,8 +137,9 @@ export default function AdminCategoriesPage() {
             <button
               type="button"
               disabled={deleteMutation.isPending}
-              onClick={() => {
-                if (window.confirm(t('admin.categories.deleteConfirm'))) {
+              onClick={async () => {
+                const confirmed = await confirmDeleteCategory(t, category.name);
+                if (confirmed) {
                   deleteMutation.mutate(category.id);
                 }
               }}

@@ -12,6 +12,8 @@ enum SystemSettingGroup: string
     case Services = 'services';
     case Notifications = 'notifications';
     case Feature = 'feature';
+    case Platform = 'platform';
+    case Chat = 'chat';
     case Theme = 'theme';
 
     /** @return list<self> */

@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Affiliate\RejectAffiliatePayoutRequest;
+use App\Http\Resources\Admin\AdminAffiliatePayoutResource;
 use App\Http\Resources\AffiliatePayoutResource;
 use App\Models\AffiliatePayout;
 use App\Models\User;
-use App\Services\Affiliate\AffiliateAdminPayoutService;
+use App\Services\Admin\AdminPayoutActionService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ use InvalidArgumentException;
 class AdminAffiliatePayoutController extends Controller
 {
     public function __construct(
-        private readonly AffiliateAdminPayoutService $payouts,
+        private readonly AdminPayoutActionService $payouts,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -26,11 +27,21 @@ class AdminAffiliatePayoutController extends Controller
         $payouts = AffiliatePayout::query()
             ->with(['profile.user'])
             ->when($request->query('status'), fn ($query, $status) => $query->where('status', $status))
+            ->when($request->query('q'), function ($query, $term) {
+                $like = '%'.$term.'%';
+                $query->where(function ($builder) use ($like) {
+                    $builder->where('reference', 'like', $like)
+                        ->orWhereHas('profile', function ($profile) use ($like) {
+                            $profile->where('display_name', 'like', $like)
+                                ->orWhere('referral_code', 'like', $like);
+                        });
+                });
+            })
             ->latest('requested_at')
             ->paginate(20);
 
         return ApiResponse::success([
-            'payouts' => AffiliatePayoutResource::collection(collect($payouts->items())),
+            'payouts' => AdminAffiliatePayoutResource::collection(collect($payouts->items())),
             'pagination' => [
                 'current_page' => $payouts->currentPage(),
                 'last_page' => $payouts->lastPage(),
@@ -45,7 +56,7 @@ class AdminAffiliatePayoutController extends Controller
         $admin = $this->authorizeAdmin('approve', AffiliatePayout::class);
 
         try {
-            $updated = $this->payouts->approve($affiliatePayout, $admin);
+            $updated = $this->payouts->approveAffiliatePayout($affiliatePayout, $admin);
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
         }
@@ -58,7 +69,7 @@ class AdminAffiliatePayoutController extends Controller
         $admin = $this->authorizeAdmin('markProcessing', AffiliatePayout::class);
 
         try {
-            $updated = $this->payouts->markProcessing($affiliatePayout, $admin);
+            $updated = $this->payouts->markAffiliatePayoutProcessing($affiliatePayout, $admin);
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
         }
@@ -71,7 +82,7 @@ class AdminAffiliatePayoutController extends Controller
         $admin = $this->authorizeAdmin('reject', AffiliatePayout::class);
 
         try {
-            $updated = $this->payouts->reject($affiliatePayout, $admin, $request->validated('reason'));
+            $updated = $this->payouts->rejectAffiliatePayout($affiliatePayout, $admin, $request->validated('reason'));
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
         }
@@ -84,7 +95,7 @@ class AdminAffiliatePayoutController extends Controller
         $admin = $this->authorizeAdmin('markPaid', AffiliatePayout::class);
 
         try {
-            $updated = $this->payouts->markPaid(
+            $updated = $this->payouts->markAffiliatePayoutPaid(
                 $affiliatePayout,
                 $admin,
                 $request->input('payment_reference'),

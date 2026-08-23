@@ -27,6 +27,7 @@ describe('mapProductCard', () => {
     expect(mapped.vendor).toBe('متجر ديار');
     expect(mapped.availabilityMode).toBe('in_stock');
     expect(mapped.availableQuantity).toBe(12);
+    expect(mapped.loyaltyPoints).toBe(271);
   });
 
   it('omits old price when there is no discount', () => {

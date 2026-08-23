@@ -4,6 +4,7 @@ namespace Tests\Feature\Admin;
 
 use App\Enums\AdminPermission;
 use App\Enums\RoleName;
+use App\Models\AdminAuditLog;
 use App\Services\Admin\AdminAuditService;
 use App\Services\Admin\AdminPermissionService;
 use Database\Seeders\AdminPermissionSeeder;
@@ -26,13 +27,15 @@ class AdminFoundationTest extends TestCase
     {
         $admin = $this->createUserWithRole(RoleName::Admin);
 
-        $log = app(AdminAuditService::class)->record(
+        app(AdminAuditService::class)->record(
             actor: $admin,
             action: 'user.update',
             before: ['password' => 'secret', 'name' => 'Before'],
             after: ['password' => 'new-secret', 'name' => 'After'],
             reason: 'Support update',
         );
+
+        $log = AdminAuditLog::query()->where('action', 'user.update')->firstOrFail();
 
         $this->assertSame('[REDACTED]', $log->before['password']);
         $this->assertSame('[REDACTED]', $log->after['password']);

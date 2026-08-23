@@ -144,6 +144,10 @@ export function isNotFound(error: ApiErrorDetail): boolean {
   return error.status === 404;
 }
 
+export function isNotFoundError(error: unknown, locale: Locale = readStoredLocale()): boolean {
+  return isNotFound(parseApiError(error, locale));
+}
+
 export function isRateLimited(error: ApiErrorDetail): boolean {
   return error.status === 429;
 }

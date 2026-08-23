@@ -71,6 +71,49 @@ class CategoryAdminTest extends TestCase
         $this->assertDatabaseHas('categories', ['id' => $category->id]);
     }
 
+    public function test_category_mutations_record_admin_audit_logs(): void
+    {
+        $admin = $this->createUserWithRole(RoleName::Admin);
+
+        $createResponse = $this->actingAs($admin, 'admin')->postJson('/api/v1/admin/categories', [
+            'name' => 'Audited Category',
+            'slug' => 'audited-category',
+            'sort_order' => 1,
+        ])->assertCreated();
+
+        $categoryId = $createResponse->json('data.category.id');
+
+        $this->assertDatabaseHas('admin_audit_logs', [
+            'action' => 'category.create',
+            'resource_type' => Category::class,
+            'resource_id' => $categoryId,
+            'actor_id' => $admin->id,
+        ]);
+
+        $this->actingAs($admin, 'admin')->patchJson('/api/v1/admin/categories/'.$categoryId, [
+            'name' => 'Audited Category Updated',
+        ])->assertOk();
+
+        $this->assertDatabaseHas('admin_audit_logs', [
+            'action' => 'category.update',
+            'resource_id' => $categoryId,
+            'actor_id' => $admin->id,
+        ]);
+
+        $this->actingAs($admin, 'admin')->deleteJson('/api/v1/admin/categories/'.$categoryId)
+            ->assertOk();
+
+        $this->assertDatabaseHas('admin_audit_logs', [
+            'action' => 'category.delete',
+            'resource_id' => $categoryId,
+            'actor_id' => $admin->id,
+        ]);
+
+        $this->actingAs($admin, 'admin')->getJson('/api/v1/admin/audit-logs?action=category.create')
+            ->assertOk()
+            ->assertJsonPath('data.audit_logs.0.action', 'category.create');
+    }
+
     public function test_unauthenticated_admin_routes_are_rejected(): void
     {
         $category = Category::factory()->create();

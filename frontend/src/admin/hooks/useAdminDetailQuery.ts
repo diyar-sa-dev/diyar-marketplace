@@ -17,6 +17,8 @@ export function useAdminDetailQuery<TData>({
   return useQuery({
     queryKey: adminQueryKey(resourceKey, endpoint),
     enabled,
+    staleTime: 0,
+    refetchOnMount: 'always',
     queryFn: async () => {
       const response = await adminApi.get<ApiSuccessResponse<Record<string, TData>>>(endpoint);
       return response.data.data[dataKey] as TData;

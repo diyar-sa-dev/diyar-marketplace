@@ -294,7 +294,16 @@ export function VendorProductFormModal({
       isEditing: Boolean(editingId),
       imageCount: existingImages.length,
       pendingFileCount: pendingImages.length,
+      preorderEnabled,
+      expectedAvailableAt,
     });
+
+  const minExpectedDate = (() => {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${now.getFullYear()}-${month}-${day}`;
+  })();
 
   const showError = (field: keyof VendorProductFormErrors) => {
     const code = touched[field] || touched.form ? errors[field] : undefined;
@@ -801,10 +810,24 @@ export function VendorProductFormModal({
                           </label>
                           <input
                             type="date"
+                            min={minExpectedDate}
                             value={expectedAvailableAt}
-                            onChange={(event) => setExpectedAvailableAt(event.target.value)}
-                            className={`${vendorFieldClass(false)} p-2.5 text-right`}
+                            onChange={(event) => {
+                              setExpectedAvailableAt(event.target.value);
+                              clearFieldError('expectedAvailableAt');
+                            }}
+                            onBlur={() => markTouched('expectedAvailableAt')}
+                            className={`${vendorFieldClass(Boolean(showError('expectedAvailableAt')))} p-2.5 text-right`}
                           />
+                          {showError('expectedAvailableAt') ? (
+                            <p className="text-xs font-medium text-red-600">
+                              {showError('expectedAvailableAt')}
+                            </p>
+                          ) : (
+                            <p className="text-[11px] text-gray-400">
+                              {t('vendor.form.expectedAvailableAtHint')}
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>

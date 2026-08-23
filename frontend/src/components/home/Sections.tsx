@@ -13,6 +13,7 @@ import { subscribeNewsletter } from '../../api/platform.ts';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
 import { skipDashboardTutorial } from '../../lib/dashboardTutorialStorage.ts';
 import { isValidStoreSlug, storePath } from '../../lib/storePath.ts';
+import { StarRating } from '../product/StarRating.tsx';
 import { mapProductCard } from '../../lib/catalogMappers.ts';
 import SectionEmptyState from './SectionEmptyState.tsx';
 import {
@@ -181,25 +182,25 @@ export function NewArrivals() {
             browseTo="/category/all?sort=-created_at"
           />
         ) : (
-        <div className="relative">
-          <RailArrows scroller={railRef} />
-          <div
-            ref={railRef}
-            className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6"
-          >
-            {isLoading
-              ? [...Array(4)].map((_, i) => (
-                  <div key={i} className="w-50 md:w-57.5 shrink-0 snap-start">
-                    <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
-                  </div>
-                ))
-              : products.map((p) => (
-                  <div className="w-50 md:w-57.5 shrink-0 snap-start" key={p.id}>
-                    <ProductCard product={p} />
-                  </div>
-                ))}
+          <div className="relative">
+            <RailArrows scroller={railRef} />
+            <div
+              ref={railRef}
+              className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6"
+            >
+              {isLoading
+                ? [...Array(4)].map((_, i) => (
+                    <div key={i} className="w-50 md:w-57.5 shrink-0 snap-start">
+                      <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+                    </div>
+                  ))
+                : products.map((p) => (
+                    <div className="w-50 md:w-57.5 shrink-0 snap-start" key={p.id}>
+                      <ProductCard product={p} />
+                    </div>
+                  ))}
+            </div>
           </div>
-        </div>
         )}
       </div>
     </div>
@@ -217,7 +218,9 @@ export function SuggestedForYou() {
         <span className="text-diyar-brown text-sm font-medium mb-2 block">
           {t('home.suggestedForYou.badge')}
         </span>
-        <h2 className="text-2xl md:text-3xl font-sans font-bold">{t('home.suggestedForYou.title')}</h2>
+        <h2 className="text-2xl md:text-3xl font-sans font-bold">
+          {t('home.suggestedForYou.title')}
+        </h2>
         <Link
           to="/category/all?sort=-popular"
           className="inline-block mt-3 text-diyar-brown text-sm font-bold hover:text-diyar-dark transition cursor-pointer"
@@ -233,19 +236,19 @@ export function SuggestedForYou() {
           browseTo="/category/all?sort=-popular"
         />
       ) : (
-      <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
-        {isLoading
-          ? [...Array(5)].map((_, i) => (
-              <div key={i} className="w-50 md:w-auto shrink-0 snap-start">
-                <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
-              </div>
-            ))
-          : products.map((p) => (
-              <div key={p.id} className="w-50 md:w-auto shrink-0 snap-start">
-                <ProductCard product={p} />
-              </div>
-            ))}
-      </div>
+        <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
+          {isLoading
+            ? [...Array(5)].map((_, i) => (
+                <div key={i} className="w-50 md:w-auto shrink-0 snap-start">
+                  <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+                </div>
+              ))
+            : products.map((p) => (
+                <div key={p.id} className="w-50 md:w-auto shrink-0 snap-start">
+                  <ProductCard product={p} />
+                </div>
+              ))}
+        </div>
       )}
     </div>
   );
@@ -293,7 +296,9 @@ export function Reviews() {
                   "{t(r.textKey)}"
                 </p>
                 <div className="flex flex-col border-t border-gray-100 pt-4 mt-auto">
-                  <span className="font-bold text-diyar-dark text-sm md:text-base">{t(r.nameKey)}</span>
+                  <span className="font-bold text-diyar-dark text-sm md:text-base">
+                    {t(r.nameKey)}
+                  </span>
                   <span className="text-xs md:text-sm text-gray-400">
                     {t('home.reviews.purchased', { product: t(r.productKey) })}
                   </span>
@@ -384,7 +389,9 @@ export function Newsletter() {
               disabled={submitting}
               className="bg-diyar-brown text-white px-8 py-4 rounded-lg hover:bg-diyar-dark transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
             >
-              <span>{submitting ? t('home.newsletter.submitting') : t('home.newsletter.submit')}</span>
+              <span>
+                {submitting ? t('home.newsletter.submitting') : t('home.newsletter.submit')}
+              </span>
               <Send className="w-5 h-5 rtl:-scale-x-100" />
             </button>
           </form>
@@ -638,7 +645,9 @@ export function PartnerBanner() {
               <div className="w-14 h-14 bg-diyar-brown/20 border border-diyar-brown/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner">
                 <Briefcase className="text-diyar-cream" size={28} />
               </div>
-              <h3 className="text-lg md:text-xl font-bold text-white mb-2">{t('home.partners.affiliateTitle')}</h3>
+              <h3 className="text-lg md:text-xl font-bold text-white mb-2">
+                {t('home.partners.affiliateTitle')}
+              </h3>
               <p className="text-gray-400 text-sm leading-relaxed flex-1">
                 {t('home.partners.affiliateDesc')}
               </p>
@@ -657,7 +666,9 @@ export function PartnerBanner() {
               <div className="w-14 h-14 bg-diyar-cream/20 border border-diyar-cream/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner">
                 <Paintbrush className="text-diyar-cream" size={28} />
               </div>
-              <h3 className="text-lg md:text-xl font-bold text-white mb-2">{t('home.partners.providerTitle')}</h3>
+              <h3 className="text-lg md:text-xl font-bold text-white mb-2">
+                {t('home.partners.providerTitle')}
+              </h3>
               <p className="text-gray-400 text-sm leading-relaxed flex-1">
                 {t('home.partners.providerDesc')}
               </p>
@@ -670,7 +681,9 @@ export function PartnerBanner() {
 
           <div className="bg-diyar-brown/10 border border-diyar-brown/20 p-6 md:p-8 rounded-3xl hover:bg-diyar-brown/20 transition-all duration-300 group flex flex-col sm:flex-row items-center gap-6 justify-between relative overflow-hidden backdrop-blur-sm">
             <div className="relative z-10 text-center sm:text-start w-full sm:w-[60%] flex flex-col items-center sm:items-start">
-              <h3 className="text-xl md:text-2xl font-bold text-white mb-3">{t('home.partners.dashboardTitle')}</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-3">
+                {t('home.partners.dashboardTitle')}
+              </h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-6">
                 {t('home.partners.dashboardDesc')}
               </p>
@@ -781,7 +794,9 @@ export function FeaturedStores() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-end mb-6 md:mb-10">
           <div>
-            <span className="text-diyar-brown text-sm font-bold mb-2 block">{t('home.featuredStores.badge')}</span>
+            <span className="text-diyar-brown text-sm font-bold mb-2 block">
+              {t('home.featuredStores.badge')}
+            </span>
             <h2 className="text-2xl md:text-4xl font-sans font-bold text-diyar-dark">
               {t('home.featuredStores.title')}
             </h2>
@@ -802,12 +817,12 @@ export function FeaturedStores() {
             icon={Store}
           />
         ) : (
-        <div className="flex overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-6 gap-4 md:gap-4 pb-2 scrollbar-hide snap-x">
-          {isLoading
-            ? [...Array(6)].map((_, i) => (
-                <div key={i} className="min-w-35 h-40 bg-white rounded-xl animate-pulse" />
-              ))
-            : stores.map((store) => (
+          <div className="flex overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-6 gap-4 md:gap-4 pb-2 scrollbar-hide snap-x">
+            {isLoading
+              ? [...Array(6)].map((_, i) => (
+                  <div key={i} className="min-w-35 h-40 bg-white rounded-xl animate-pulse" />
+                ))
+              : stores.map((store) => (
                   <Link
                     to={storePath(store.slug)!}
                     key={store.id}
@@ -830,15 +845,27 @@ export function FeaturedStores() {
                     >
                       {store.store_name}
                     </h3>
-                    <span className="text-gray-400 text-[10px] md:text-xs font-normal mb-3">
-                      {t('store.productsCount', { count: store.product_count ?? 0 })}
-                    </span>
+                    {store.rating_avg != null && store.rating_avg > 0 ? (
+                      <div className="flex items-center justify-center gap-1 mb-3 text-[10px] md:text-xs text-gray-500">
+                        <span className="font-bold text-diyar-dark tabular-nums">
+                          {store.rating_avg.toFixed(1)}
+                        </span>
+                        <StarRating value={store.rating_avg} readOnly size={11} />
+                        <span>
+                          ({t('store.productsCount', { count: store.product_count ?? 0 })})
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-[10px] md:text-xs font-normal mb-3">
+                        {t('store.productsCount', { count: store.product_count ?? 0 })}
+                      </span>
+                    )}
                     <div className="w-full py-1.5 md:py-2 text-xs md:text-sm rounded-lg border border-gray-200 text-diyar-dark font-medium group-hover:bg-diyar-brown group-hover:text-white group-hover:border-diyar-dark transition mt-auto">
                       {t('home.featuredStores.browseStore')}
                     </div>
                   </Link>
                 ))}
-        </div>
+          </div>
         )}
       </div>
     </div>
@@ -876,10 +903,22 @@ export function SummerBanner2() {
 export function WhyChooseDiyar() {
   const { t } = useLocale();
   const features = [
-    { titleKey: 'home.whyChoose.unlimitedTitle', descKey: 'home.whyChoose.unlimitedDesc', icon: 'star' },
+    {
+      titleKey: 'home.whyChoose.unlimitedTitle',
+      descKey: 'home.whyChoose.unlimitedDesc',
+      icon: 'star',
+    },
     { titleKey: 'home.whyChoose.arTitle', descKey: 'home.whyChoose.arDesc', icon: 'sparkles' },
-    { titleKey: 'home.whyChoose.shippingTitle', descKey: 'home.whyChoose.shippingDesc', icon: 'truck' },
-    { titleKey: 'home.whyChoose.paymentTitle', descKey: 'home.whyChoose.paymentDesc', icon: 'lock' },
+    {
+      titleKey: 'home.whyChoose.shippingTitle',
+      descKey: 'home.whyChoose.shippingDesc',
+      icon: 'truck',
+    },
+    {
+      titleKey: 'home.whyChoose.paymentTitle',
+      descKey: 'home.whyChoose.paymentDesc',
+      icon: 'lock',
+    },
   ] as const;
 
   return (
@@ -936,7 +975,9 @@ export function WhyChooseDiyar() {
               <h3 className="text-lg md:text-xl font-bold text-diyar-dark mb-2 md:mb-3">
                 {t(feature.titleKey)}
               </h3>
-              <p className="text-gray-500 text-sm md:text-base leading-relaxed">{t(feature.descKey)}</p>
+              <p className="text-gray-500 text-sm md:text-base leading-relaxed">
+                {t(feature.descKey)}
+              </p>
             </div>
           ))}
         </div>
@@ -1060,7 +1101,9 @@ export function AppPromo() {
                 <Box size={16} />
               </div>
               <div>
-                <h4 className="text-white text-sm font-bold mb-0.5">{t('home.appPromo.arTitle')}</h4>
+                <h4 className="text-white text-sm font-bold mb-0.5">
+                  {t('home.appPromo.arTitle')}
+                </h4>
                 <p className="text-white/60 text-[10px]">{t('home.appPromo.arDesc')}</p>
               </div>
             </div>
@@ -1184,7 +1227,9 @@ export function LoyaltyPromo() {
             <h2 className="text-3xl lg:text-5xl font-bold text-[#3D2E1F] leading-[1.4] mb-5">
               {t('home.loyalty.titleLine1')} <br /> {t('home.loyalty.titleLine2')}
             </h2>
-            <p className="text-gray-600 text-lg mb-10 max-w-lg leading-relaxed">{t('home.loyalty.body')}</p>
+            <p className="text-gray-600 text-lg mb-10 max-w-lg leading-relaxed">
+              {t('home.loyalty.body')}
+            </p>
 
             <div className="flex flex-col gap-5 mb-10">
               <div className="flex items-start gap-4">
@@ -1193,8 +1238,12 @@ export function LoyaltyPromo() {
                   <Gift size={24} className="relative z-10" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#3D2E1F] text-lg mb-1">{t('home.loyalty.shopEarnTitle')}</h4>
-                  <p className="text-gray-500 text-sm leading-relaxed">{t('home.loyalty.shopEarnDesc')}</p>
+                  <h4 className="font-bold text-[#3D2E1F] text-lg mb-1">
+                    {t('home.loyalty.shopEarnTitle')}
+                  </h4>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {t('home.loyalty.shopEarnDesc')}
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
@@ -1203,8 +1252,12 @@ export function LoyaltyPromo() {
                   <ShieldCheck size={24} className="relative z-10" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#3D2E1F] text-lg mb-1">{t('home.loyalty.redeemTitle')}</h4>
-                  <p className="text-gray-500 text-sm leading-relaxed">{t('home.loyalty.redeemDesc')}</p>
+                  <h4 className="font-bold text-[#3D2E1F] text-lg mb-1">
+                    {t('home.loyalty.redeemTitle')}
+                  </h4>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {t('home.loyalty.redeemDesc')}
+                  </p>
                 </div>
               </div>
             </div>
@@ -1230,7 +1283,11 @@ export function LoyaltyPromo() {
 
             <div className="relative z-10 w-full max-w-70 md:max-w-85 xl:max-w-105 transition-transform duration-700 hover:scale-105">
               <div className="absolute -inset-4 bg-amber-400/20 rounded-full blur-2xl -z-10"></div>
-              <img src="/صورة نقاط الولاء.png" alt={t('home.loyalty.imageAlt')} className="w-full drop-shadow-md" />
+              <img
+                src="/صورة نقاط الولاء.png"
+                alt={t('home.loyalty.imageAlt')}
+                className="w-full drop-shadow-md"
+              />
             </div>
 
             {/* Floating elements */}
@@ -1459,7 +1516,9 @@ export function ServicesSection() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-end mb-6">
           <div>
-            <span className="text-purple-600 text-sm font-bold mb-2 block">{t('home.diyarServices.badge')}</span>
+            <span className="text-purple-600 text-sm font-bold mb-2 block">
+              {t('home.diyarServices.badge')}
+            </span>
             <h2 className="text-2xl md:text-3xl font-sans font-bold text-diyar-dark flex items-center gap-3">
               <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center">
                 <Paintbrush size={20} />
@@ -1489,55 +1548,58 @@ export function ServicesSection() {
             icon={Paintbrush}
           />
         ) : (
-        <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-5 pb-4 scrollbar-hide snap-x pt-2">
-          {(serviceCategories ?? []).slice(0, 10).map((category) => (
-                <Link
-                  to={`/category/${category.slug}`}
-                  key={category.id}
-                  className="min-w-56 md:min-w-0 bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all snap-start group cursor-pointer"
-                >
-                  <div className="h-36 relative overflow-hidden bg-diyar-brown/10">
-                    <img
-                      src={STATIC_IMG[category.slug] ?? '/logo_diyar.svg'}
-                      alt={category.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-diyar-dark text-base">{category.name}</h3>
-                    <p className="text-xs text-gray-500 mt-1">{t('home.diyarServices.browseCategory')}</p>
-                  </div>
-                </Link>
-              ))}
-        </div>
+          <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-5 pb-4 scrollbar-hide snap-x pt-2">
+            {(serviceCategories ?? []).slice(0, 10).map((category) => (
+              <Link
+                to={`/category/${category.slug}`}
+                key={category.id}
+                className="min-w-56 md:min-w-0 bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all snap-start group cursor-pointer"
+              >
+                <div className="h-36 relative overflow-hidden bg-diyar-brown/10">
+                  <img
+                    src={STATIC_IMG[category.slug] ?? '/logo_diyar.svg'}
+                    alt={category.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-diyar-dark text-base">{category.name}</h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {t('home.diyarServices.browseCategory')}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
         )}
 
         {!showEmpty &&
           featuredCategories.map((category, index) => {
-          const items = categoryServiceQueries[index]?.data?.items ?? [];
-          if (items.length === 0) {
-            return null;
-          }
+            const items = categoryServiceQueries[index]?.data?.items ?? [];
+            if (items.length === 0) {
+              return null;
+            }
 
-          return (
-            <div key={category.id} className="mt-8">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-diyar-dark">{category.name}</h3>
-                <Link
-                  to={`/category/${category.slug}`}
-                  className="text-diyar-brown text-sm font-bold hover:text-diyar-dark transition cursor-pointer"
-                >
-                  {t('home.diyarServices.viewAllCategory')} <ViewAllIcon size={16} className="inline ms-1" />
-                </Link>
+            return (
+              <div key={category.id} className="mt-8">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold text-diyar-dark">{category.name}</h3>
+                  <Link
+                    to={`/category/${category.slug}`}
+                    className="text-diyar-brown text-sm font-bold hover:text-diyar-dark transition cursor-pointer"
+                  >
+                    {t('home.diyarServices.viewAllCategory')}{' '}
+                    <ViewAllIcon size={16} className="inline ms-1" />
+                  </Link>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {items.map((service) => (
+                    <ServiceCard key={service.id} service={service} />
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {items.map((service) => (
-                  <ServiceCard key={service.id} service={service} />
-                ))}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
     </div>
   );
@@ -1557,7 +1619,9 @@ export function MostInteractiveProducts() {
             <h2 className="text-xl md:text-3xl font-sans font-bold text-diyar-dark">
               {t('home.mostInteractive.title')}
             </h2>
-            <p className="text-gray-500 text-xs md:text-sm mt-1">{t('home.mostInteractive.subtitle')}</p>
+            <p className="text-gray-500 text-xs md:text-sm mt-1">
+              {t('home.mostInteractive.subtitle')}
+            </p>
           </div>
           <Link
             to="/category/all?sort=-popular"
@@ -1574,13 +1638,13 @@ export function MostInteractiveProducts() {
             browseTo="/category/all?sort=-popular"
           />
         ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {isLoading
-            ? [...Array(6)].map((_, i) => (
-                <div key={i} className="h-64 bg-gray-100 animate-pulse rounded-lg" />
-              ))
-            : products.map((product) => <ProductCard key={product.id} product={product} />)}
-        </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {isLoading
+              ? [...Array(6)].map((_, i) => (
+                  <div key={i} className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+                ))
+              : products.map((product) => <ProductCard key={product.id} product={product} />)}
+          </div>
         )}
       </div>
     </div>

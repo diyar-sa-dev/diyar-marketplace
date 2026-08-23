@@ -11,6 +11,7 @@ use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\ServiceMarketplaceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\InteractsWithIdentity;
@@ -37,7 +38,7 @@ class ProviderReviewAndDirectBookingTest extends TestCase
         Sanctum::actingAs($customer);
 
         $this->postJson("/api/v1/services/{$service->slug}/direct-booking", [
-            'scheduled_date' => now()->addDays(3)->toDateString(),
+            'scheduled_date' => $this->openBookingDate(3),
             'scheduled_time' => '10:00',
             'customer_notes' => 'Please call before arrival.',
             'idempotency_key' => 'direct-booking-test-1',
@@ -56,7 +57,7 @@ class ProviderReviewAndDirectBookingTest extends TestCase
 
         Sanctum::actingAs($customer);
         $this->postJson("/api/v1/services/{$service->slug}/direct-booking", [
-            'scheduled_date' => now()->addDays(5)->toDateString(),
+            'scheduled_date' => $this->openBookingDate(5),
             'scheduled_time' => '10:00',
             'customer_notes' => 'nothing',
             'idempotency_key' => 'service-details-booking',
@@ -91,7 +92,7 @@ class ProviderReviewAndDirectBookingTest extends TestCase
         Sanctum::actingAs($customer);
 
         $payload = [
-            'scheduled_date' => now()->addDays(3)->toDateString(),
+            'scheduled_date' => $this->openBookingDate(3),
             'scheduled_time' => '11:00',
             'idempotency_key' => 'direct-booking-idempotent',
         ];
@@ -114,7 +115,7 @@ class ProviderReviewAndDirectBookingTest extends TestCase
         Sanctum::actingAs($customer);
 
         $this->postJson("/api/v1/services/{$service->slug}/direct-booking", [
-            'scheduled_date' => now()->addDays(3)->toDateString(),
+            'scheduled_date' => $this->openBookingDate(3),
             'scheduled_time' => '10:00',
             'idempotency_key' => 'duplicate-booking-block-1',
         ])->assertOk();
@@ -136,7 +137,7 @@ class ProviderReviewAndDirectBookingTest extends TestCase
         Sanctum::actingAs($customer);
 
         $this->postJson("/api/v1/services/{$service->slug}/direct-booking", [
-            'scheduled_date' => now()->addDays(4)->toDateString(),
+            'scheduled_date' => $this->openBookingDate(4),
             'scheduled_time' => '14:00',
             'idempotency_key' => 'detail-active-booking',
         ])->assertOk();
@@ -170,7 +171,7 @@ class ProviderReviewAndDirectBookingTest extends TestCase
 
         Sanctum::actingAs($customer);
         $bookingId = $this->postJson("/api/v1/services/{$service->slug}/direct-booking", [
-            'scheduled_date' => now()->addDays(3)->toDateString(),
+            'scheduled_date' => $this->openBookingDate(3),
             'scheduled_time' => '12:00',
             'idempotency_key' => 'review-flow-booking',
         ])->json('data.booking.id');
@@ -251,7 +252,7 @@ class ProviderReviewAndDirectBookingTest extends TestCase
 
         Sanctum::actingAs($customer);
         $bookingId = $this->postJson("/api/v1/services/{$service->slug}/direct-booking", [
-            'scheduled_date' => now()->addDays(5)->toDateString(),
+            'scheduled_date' => $this->openBookingDate(5),
             'scheduled_time' => '10:00',
             'idempotency_key' => 'propose-schedule-past-date',
         ])->json('data.booking.id');
@@ -275,11 +276,12 @@ class ProviderReviewAndDirectBookingTest extends TestCase
         $customer = $this->createUserWithRole(RoleName::Customer);
         $providerUser = User::query()->where('email', 'eiwan@diyar.local')->firstOrFail();
         $service = Service::query()->where('slug', 'office-3d-design')->firstOrFail();
-        $proposedDate = now()->addDays(12)->toDateString();
+        $requestedDate = $this->openBookingDate(5);
+        $proposedDate = $this->openBookingDate(12);
 
         Sanctum::actingAs($customer);
         $bookingId = $this->postJson("/api/v1/services/{$service->slug}/direct-booking", [
-            'scheduled_date' => now()->addDays(5)->toDateString(),
+            'scheduled_date' => $requestedDate,
             'scheduled_time' => '10:00',
             'idempotency_key' => 'propose-schedule-success',
         ])->json('data.booking.id');
@@ -294,7 +296,7 @@ class ProviderReviewAndDirectBookingTest extends TestCase
             ->assertJsonPath('data.booking.status', ServiceBookingStatus::PendingCustomerAcceptance->value)
             ->assertJsonPath('data.booking.proposed_scheduled_date', $proposedDate)
             ->assertJsonPath('data.booking.proposed_scheduled_time', '10:00')
-            ->assertJsonPath('data.booking.requested_scheduled_date', now()->addDays(5)->toDateString())
+            ->assertJsonPath('data.booking.requested_scheduled_date', $requestedDate)
             ->assertJsonPath('data.booking.last_proposed_scheduled_date', $proposedDate)
             ->assertJsonPath('data.booking.provider_notes', 'Does this time work for you?');
     }
@@ -335,7 +337,7 @@ class ProviderReviewAndDirectBookingTest extends TestCase
 
         Sanctum::actingAs($customer);
         $bookingId = $this->postJson("/api/v1/services/{$service->slug}/direct-booking", [
-            'scheduled_date' => now()->addDays(4)->toDateString(),
+            'scheduled_date' => $this->openBookingDate(4),
             'scheduled_time' => '13:00',
             'idempotency_key' => 'completed-'.uniqid(),
         ])->json('data.booking.id');
@@ -353,5 +355,16 @@ class ProviderReviewAndDirectBookingTest extends TestCase
         $this->postJson("/api/v1/dashboard/provider/bookings/{$bookingId}/complete")->assertOk();
 
         return ServiceBooking::query()->findOrFail($bookingId);
+    }
+
+    private function openBookingDate(int $minimumDaysFromNow): string
+    {
+        $date = Carbon::now()->startOfDay()->addDays($minimumDaysFromNow);
+
+        while (strtolower($date->format('l')) === 'friday') {
+            $date->addDay();
+        }
+
+        return $date->toDateString();
     }
 }

@@ -12,7 +12,7 @@ import type { VendorShippingSettingsPayload } from '../../../../types/shipping.t
 
 const defaultForm: VendorShippingSettingsPayload = {
   carrier_enabled: true,
-  carrier_flat_rate: '28.00',
+  carrier_flat_rate: '30.00',
   carrier_free_shipping_enabled: false,
   carrier_free_shipping_threshold: null,
   pickup_enabled: false,

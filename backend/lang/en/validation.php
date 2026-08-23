@@ -27,5 +27,6 @@ return [
         'provider_notes' => 'provider notes',
         'scheduled_date' => 'scheduled date',
         'scheduled_time' => 'scheduled time',
+        'expected_available_at' => 'expected availability date',
     ],
 ];

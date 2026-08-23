@@ -7,8 +7,13 @@ import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { useProductEngagementMutations } from '../../hooks/catalog/useProductEngagement.ts';
 import { AuthPromptModal } from '../product/AuthPromptModal.tsx';
+import { StarRating } from '../product/StarRating.tsx';
 import type { UiProductCard } from '../../lib/catalogMappers.ts';
-import { availabilityLabel, availabilityTone } from '../../lib/catalogMappers.ts';
+import {
+  availabilityLabel,
+  availabilityTone,
+  estimateLoyaltyPoints,
+} from '../../lib/catalogMappers.ts';
 
 const PLACEHOLDER =
   'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=60&w=400';
@@ -21,13 +26,18 @@ type CardInput = Omit<Partial<UiProductCard>, 'id' | 'price'> & {
   price?: number | string;
   img?: string;
   rating?: number;
+  ratingAvg?: number | null;
   reviews?: number;
+  reviewsCount?: number;
+  loyaltyPoints?: number;
   tag?: string;
 };
 
 function normalizeProduct(product: CardInput): UiProductCard {
   const price = Number(product.price ?? 0);
   const oldPrice = product.oldPrice ?? product.originalPrice;
+  const ratingAvg = product.ratingAvg ?? product.rating ?? null;
+  const reviewsCount = product.reviewsCount ?? product.reviews ?? 0;
 
   return {
     id: String(product.id ?? ''),
@@ -41,6 +51,9 @@ function normalizeProduct(product: CardInput): UiProductCard {
     category: product.category,
     availabilityMode: product.availabilityMode,
     availableQuantity: product.availableQuantity,
+    ratingAvg: ratingAvg != null ? Number(ratingAvg) : null,
+    reviewsCount: Number(reviewsCount),
+    loyaltyPoints: product.loyaltyPoints ?? estimateLoyaltyPoints(price),
     userSaved: product.userSaved,
     isOwnStore: product.isOwnStore,
   };
@@ -77,6 +90,8 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
   const availability = availabilityLabel(mode, availableQty, availabilityLabels);
   const canPurchase = !item.isOwnStore && mode === 'in_stock' && availableQty > 0;
   const isPreorder = !item.isOwnStore && mode === 'preorder';
+  const showRating = (item.ratingAvg ?? 0) > 0 || (item.reviewsCount ?? 0) > 0;
+  const showLoyalty = !item.isOwnStore && canPurchase && (item.loyaltyPoints ?? 0) > 0;
 
   const availabilityDetail = item.isOwnStore
     ? stockTone === 'limited' || (mode === 'in_stock' && availableQty > 0 && availableQty <= 5)
@@ -189,32 +204,61 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
       <div
         className={`flex flex-col grow ${layout === 'list' ? 'p-2.5 sm:p-4 justify-between h-full' : 'px-3.5 pb-3.5'}`}
       >
-        <div className="flex items-center gap-1 text-gray-400 text-[10px] mb-1 font-medium">
+        <div className="flex items-center gap-1 text-gray-400 text-[10px] mb-1 font-medium min-w-0">
           <Store size={12} className="text-diyar-brown shrink-0" />
           <span className="truncate">
             {item.vendor || item.store || t('catalog.product.defaultStore')}
           </span>
         </div>
+
         <h3
-          className={`font-bold text-diyar-dark leading-snug ${layout === 'list' ? 'text-xs sm:text-base mb-1 line-clamp-1 sm:line-clamp-2' : 'text-sm md:text-base mb-1.5 line-clamp-2'}`}
+          className={`font-bold text-diyar-dark leading-snug ${layout === 'list' ? 'text-xs sm:text-base mb-1 line-clamp-1 sm:line-clamp-2' : 'text-sm md:text-base mb-1 line-clamp-2'}`}
         >
           {item.name}
         </h3>
-        <p
-          className={`text-[10px] mb-2 tabular-nums ${
-            item.isOwnStore
-              ? 'text-orange-500 font-medium'
-              : stockTone === 'out'
-                ? 'text-red-500 font-medium'
-                : stockTone === 'limited'
-                  ? 'text-orange-500 font-medium'
-                  : stockTone === 'preorder'
-                    ? 'text-purple-600 font-medium'
-                    : 'text-green-600 font-medium'
-          }`}
+
+        {showRating && (
+          <div className={`${layout === 'list' ? 'mb-1' : 'mb-1.5'}`}>
+            <div className="inline-flex items-center gap-1 min-w-0">
+              <StarRating
+                value={item.ratingAvg ?? 0}
+                readOnly
+                size={layout === 'list' ? 10 : 11}
+              />
+              {(item.reviewsCount ?? 0) > 0 && (
+                <span className="text-[10px] text-gray-500 font-medium tabular-nums">
+                  {t('catalog.product.reviewCount', { count: item.reviewsCount })}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div
+          className={`flex items-center justify-between gap-2 ${layout === 'list' ? 'mb-1' : 'mb-2'}`}
         >
-          {availabilityDetail}
-        </p>
+          <p
+            className={`text-[10px] tabular-nums shrink-0 ${
+              item.isOwnStore
+                ? 'text-orange-500 font-medium'
+                : stockTone === 'out'
+                  ? 'text-red-500 font-medium'
+                  : stockTone === 'limited'
+                    ? 'text-orange-500 font-medium'
+                    : stockTone === 'preorder'
+                      ? 'text-purple-600 font-medium'
+                      : 'text-green-600 font-medium'
+            }`}
+          >
+            {availabilityDetail}
+          </p>
+          {showLoyalty && (
+            <span className="inline-flex items-center rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold text-amber-700 border border-amber-100 shrink-0">
+              {t('catalog.product.loyaltyPoints', { count: item.loyaltyPoints })}
+            </span>
+          )}
+        </div>
+
         {!item.isOwnStore ? (
           <div className={`flex items-baseline gap-2 ${layout === 'list' ? 'mb-1' : 'mb-3'}`}>
             <span
@@ -234,6 +278,7 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
         ) : (
           <div className={layout === 'list' ? 'mb-1' : 'mb-3'} />
         )}
+
         <button
           type="button"
           disabled={!canPurchase && !isPreorder}

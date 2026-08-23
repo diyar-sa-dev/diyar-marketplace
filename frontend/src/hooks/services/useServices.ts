@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as servicesApi from '../../api/services.ts';
 import type { ServiceListFilters, ProviderPublic } from '../../types/services.ts';
+import { isNotFoundError } from '../../utils/errors.ts';
 import { serviceKeys } from './queryKeys.ts';
 
 export function useServiceCategories() {
@@ -39,14 +40,31 @@ export function useProvider(slug: string | undefined) {
     queryKey: serviceKeys.providers.detail(slug ?? ''),
     queryFn: () => servicesApi.fetchProvider(slug!),
     enabled: Boolean(slug),
+    staleTime: 0,
+    retry: (failureCount, error) => {
+      if (isNotFoundError(error)) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 }
 
-export function useProviderServices(slug: string | undefined, filters: ServiceListFilters = {}) {
+export function useProviderServices(
+  slug: string | undefined,
+  filters: ServiceListFilters = {},
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: serviceKeys.providers.services(slug ?? '', filters),
     queryFn: () => servicesApi.fetchProviderServices(slug!, filters),
-    enabled: Boolean(slug),
+    enabled: options?.enabled !== false && Boolean(slug),
+    retry: (failureCount, error) => {
+      if (isNotFoundError(error)) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 }
 

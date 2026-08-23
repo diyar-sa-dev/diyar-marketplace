@@ -24,6 +24,7 @@ const ACTION_KEYS: Record<string, string> = {
   'payout.vendor.mark_paid': 'admin.audit.actions.payoutVendorMarkPaid',
   'payout.affiliate.approve': 'admin.audit.actions.payoutAffiliateApprove',
   'payout.affiliate.reject': 'admin.audit.actions.payoutAffiliateReject',
+  'payout.affiliate.mark_processing': 'admin.audit.actions.payoutAffiliateMarkProcessing',
   'payout.affiliate.mark_paid': 'admin.audit.actions.payoutAffiliateMarkPaid',
   'affiliate_link.disable': 'admin.audit.actions.affiliateLinkDisable',
   'return.process_refund': 'admin.audit.actions.returnProcessRefund',

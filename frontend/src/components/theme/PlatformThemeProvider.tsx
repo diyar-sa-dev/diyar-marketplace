@@ -1,0 +1,42 @@
+import { useEffect, type ReactNode } from 'react';
+import { useLocale } from '../../hooks/useLocale.ts';
+import { usePlatformThemeQuery } from '../../hooks/usePlatformTheme.ts';
+import type { PlatformThemeTokens } from '../../api/platformTheme.ts';
+
+const DEFAULTS: Required<PlatformThemeTokens> = {
+  primary_color: '#947961',
+  primary_dark: '#1f3d3a',
+  surface_color: '#f3ecdb',
+  font_family_ar: 'Alexandria, Tajawal, sans-serif',
+  font_family_en: 'Outfit, Inter, sans-serif',
+  vendor_accent_color: '#947961',
+  provider_accent_color: '#2563eb',
+  affiliate_accent_color: '#16a34a',
+};
+
+function applyPlatformTheme(theme: PlatformThemeTokens, locale: string): void {
+  const root = document.documentElement;
+  const merged = { ...DEFAULTS, ...theme };
+
+  root.style.setProperty('--diyar-theme-primary', merged.primary_color);
+  root.style.setProperty('--diyar-theme-primary-dark', merged.primary_dark);
+  root.style.setProperty('--diyar-theme-surface', merged.surface_color);
+  root.style.setProperty('--diyar-portal-vendor', merged.vendor_accent_color);
+  root.style.setProperty('--diyar-portal-provider', merged.provider_accent_color);
+  root.style.setProperty('--diyar-portal-affiliate', merged.affiliate_accent_color);
+
+  const fontStack = locale === 'ar' ? merged.font_family_ar : merged.font_family_en;
+  root.style.setProperty('--diyar-theme-font', fontStack);
+  document.body.style.fontFamily = fontStack;
+}
+
+export function PlatformThemeProvider({ children }: { children: ReactNode }) {
+  const { locale } = useLocale();
+  const { data } = usePlatformThemeQuery();
+
+  useEffect(() => {
+    applyPlatformTheme(data ?? {}, locale);
+  }, [data, locale]);
+
+  return children;
+}

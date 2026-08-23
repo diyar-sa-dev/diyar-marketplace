@@ -151,6 +151,9 @@ const AdminProductDetailPage = lazy(() => import('./admin/pages/AdminProductDeta
 const AdminRefundDetailPage = lazy(() => import('./admin/pages/AdminRefundDetailPage.tsx'));
 const AdminPaymentDetailPage = lazy(() => import('./admin/pages/AdminPaymentDetailPage.tsx'));
 const AdminCouponDetailPage = lazy(() => import('./admin/pages/AdminCouponDetailPage.tsx'));
+const AdminOperationsHubPage = lazy(() => import('./admin/pages/AdminOperationsHubPage.tsx'));
+const AdminServicesHubPage = lazy(() => import('./admin/pages/AdminServicesHubPage.tsx'));
+const AdminRolesPage = lazy(() => import('./admin/pages/AdminRolesPage.tsx'));
 
 function AdminRouteFallback() {
   return <AdminPageSkeleton />;
@@ -621,6 +624,9 @@ export default function App() {
             <Route path="coupons" element={<Suspense fallback={<AdminRouteFallback />}><AdminCouponsPage /></Suspense>} />
             <Route path="coupons/:couponId" element={<Suspense fallback={<AdminRouteFallback />}><AdminCouponDetailPage /></Suspense>} />
             <Route path="reviews" element={<Suspense fallback={<AdminRouteFallback />}><AdminReviewsPage /></Suspense>} />
+            <Route path="operations" element={<Suspense fallback={<AdminRouteFallback />}><AdminOperationsHubPage /></Suspense>} />
+            <Route path="services" element={<Suspense fallback={<AdminRouteFallback />}><AdminServicesHubPage /></Suspense>} />
+            <Route path="roles" element={<Suspense fallback={<AdminRouteFallback />}><AdminRolesPage /></Suspense>} />
             <Route path="finance" element={<Suspense fallback={<AdminRouteFallback />}><AdminFinancePage /></Suspense>} />
             <Route path="payouts" element={<Navigate to="/admin/finance" replace />} />
             <Route path="transactions" element={<Navigate to="/admin/finance" replace />} />

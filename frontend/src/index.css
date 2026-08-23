@@ -2,11 +2,11 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-serif: 'Alexandria', 'Outfit', 'Tajawal', sans-serif;
-  --font-sans: 'Alexandria', 'Tajawal', 'Outfit', sans-serif;
-  --color-diyar-dark: #1f3d3a;
-  --color-diyar-cream: #f3ecdb;
-  --color-diyar-brown: #947961;
+  --font-serif: var(--diyar-theme-font, 'Alexandria', 'Outfit', 'Tajawal', sans-serif);
+  --font-sans: var(--diyar-theme-font, 'Alexandria', 'Tajawal', 'Outfit', sans-serif);
+  --color-diyar-dark: var(--diyar-theme-primary-dark, #1f3d3a);
+  --color-diyar-cream: var(--diyar-theme-surface, #f3ecdb);
+  --color-diyar-brown: var(--diyar-theme-primary, #947961);
 }
 
 @layer base {

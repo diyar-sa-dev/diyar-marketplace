@@ -52,6 +52,8 @@ final class AffiliatePlatformConfigService
 
     public function currency(): string
     {
-        return $this->config->string('affiliate.currency', 'SAR');
+        $currency = $this->config->string('commerce.currency', '');
+
+        return $currency !== '' ? $currency : 'SAR';
     }
 }

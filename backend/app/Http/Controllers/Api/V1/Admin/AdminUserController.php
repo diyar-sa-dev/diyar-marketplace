@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Enums\RoleName;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -32,9 +33,18 @@ class AdminUserController extends Controller
             $query->where('status', $status);
         }
 
-        $paginator = $query->orderByDesc('created_at')->paginate(
-            perPage: min(max((int) $request->integer('per_page', 20), 1), 100),
-        );
+        if ($role = $request->string('role')->toString()) {
+            if (RoleName::tryFrom($role) !== null) {
+                $query->whereHas('roles', fn ($builder) => $builder->where('name', $role));
+            }
+        }
+
+        $paginator = $query
+            ->orderByRaw('CASE WHEN users.id = ? THEN 0 ELSE 1 END', [$request->user('admin')->id])
+            ->orderByDesc('created_at')
+            ->paginate(
+                perPage: min(max((int) $request->integer('per_page', 20), 1), 100),
+            );
 
         return ApiResponse::success(data: [
             'users' => UserResource::collection($paginator->items()),

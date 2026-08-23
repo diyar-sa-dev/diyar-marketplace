@@ -5,8 +5,18 @@ import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { useAdminAuth } from '../auth/AdminAuthContext.tsx';
 import { UserAvatar } from '../../components/profile/UserAvatar.tsx';
+import { platformThemeKeys } from '../../hooks/usePlatformTheme.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
+import { AdminThemeSettingsPanel } from '../components/AdminThemeSettingsPanel.tsx';
+import {
+  localizedSettingGroup,
+  localizedSettingHint,
+  localizedSettingLabel,
+  SETTINGS_GROUP_ORDER,
+} from '../utils/localizedSetting.ts';
+import { fontOptionsForSetting } from '../utils/settingFontOptions.ts';
+import type { TranslateFn } from '../../lib/i18n/types.ts';
 
 type SystemSetting = {
   group: string;
@@ -22,12 +32,41 @@ function SettingControl({
   setting,
   disabled,
   defaultValue,
+  booleanOnLabel,
+  booleanOffLabel,
+  t,
 }: {
   setting: SystemSetting;
   disabled: boolean;
   defaultValue: string;
+  booleanOnLabel: string;
+  booleanOffLabel: string;
+  t: TranslateFn;
 }) {
+  const fontOptions = fontOptionsForSetting(setting.full_key);
+
+  if (fontOptions) {
+    const hasCurrent = fontOptions.some((option) => option.value === defaultValue);
+
+    return (
+      <select
+        name="value"
+        defaultValue={hasCurrent ? defaultValue : fontOptions[0]?.value}
+        disabled={disabled}
+        className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-diyar-brown disabled:bg-gray-50"
+        style={{ fontFamily: defaultValue }}
+      >
+        {fontOptions.map((option) => (
+          <option key={option.value} value={option.value} style={{ fontFamily: option.value }}>
+            {t(option.labelKey as never)}
+          </option>
+        ))}
+      </select>
+    );
+  }
   if (setting.type === 'boolean') {
+    const isOn = defaultValue === 'true' || defaultValue === '1';
+
     return (
       <label className="inline-flex items-center gap-3 cursor-pointer">
         <input type="hidden" name="value" value="false" />
@@ -35,24 +74,31 @@ function SettingControl({
           type="checkbox"
           name="value"
           value="true"
-          defaultChecked={defaultValue === 'true' || defaultValue === '1'}
+          defaultChecked={isOn}
           disabled={disabled}
-          className="h-5 w-5 rounded border-gray-300"
+          className="h-5 w-5 rounded border-gray-300 accent-diyar-brown"
         />
-        <span className="text-sm text-gray-600">{defaultValue === 'true' ? 'On' : 'Off'}</span>
+        <span className="text-sm font-medium text-gray-600">
+          {isOn ? booleanOnLabel : booleanOffLabel}
+        </span>
       </label>
     );
   }
 
   if (setting.type === 'color') {
     return (
-      <input
-        name="value"
-        type="color"
-        defaultValue={defaultValue.startsWith('#') ? defaultValue : '#947961'}
-        disabled={disabled}
-        className="h-10 w-16 cursor-pointer rounded-lg border border-gray-200 bg-white"
-      />
+      <div className="flex items-center gap-3">
+        <input
+          name="value"
+          type="color"
+          defaultValue={defaultValue.startsWith('#') ? defaultValue : '#947961'}
+          disabled={disabled}
+          className="h-10 w-16 cursor-pointer rounded-lg border border-gray-200 bg-white"
+        />
+        <span className="font-mono text-xs text-gray-500" dir="ltr">
+          {defaultValue}
+        </span>
+      </div>
     );
   }
 
@@ -103,25 +149,27 @@ export default function AdminSettingsPage() {
     onSuccess: () => {
       toast.success(t('admin.settings.saved'));
       void queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
+      void queryClient.invalidateQueries({ queryKey: platformThemeKeys.all });
     },
     onError: () => toast.error(t('admin.settings.saveError')),
   });
 
   const grouped = useMemo(() => {
     const map = new Map<string, SystemSetting[]>();
+    const ignoredKeys = new Set(['theme.border_radius']);
+
     for (const setting of data ?? []) {
+      if (ignoredKeys.has(setting.full_key)) continue;
       const list = map.get(setting.group) ?? [];
       list.push(setting);
       map.set(setting.group, list);
     }
-    return Array.from(map.entries());
-  }, [data]);
 
-  const settingLabel = (fullKey: string) => {
-    const key = `admin.settings.keys.${fullKey.replace(/\./g, '_')}`;
-    const translated = t(key as never);
-    return translated === key ? fullKey.split('.').slice(1).join(' · ') : translated;
-  };
+    return SETTINGS_GROUP_ORDER.filter((group) => map.has(group)).map((group) => [
+      group,
+      map.get(group) ?? [],
+    ] as const);
+  }, [data]);
 
   if (isLoading) {
     return <AdminPageSkeleton />;
@@ -177,53 +225,77 @@ export default function AdminSettingsPage() {
       {grouped.map(([group, settings]) => (
         <section key={group} className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
           <h3 className="mb-4 text-lg font-bold text-diyar-dark">
-            {(() => {
-              const key = `admin.settings.groups.${group}`;
-              const translated = t(key as never);
-              return translated === key ? group : translated;
-            })()}
+            {localizedSettingGroup(group, t)}
           </h3>
+          {group === 'theme' ? (
+            <AdminThemeSettingsPanel
+              settings={settings}
+              canUpdate={canUpdate}
+              t={t}
+              onSaved={() => toast.success(t('admin.settings.saved'))}
+              onError={() => toast.error(t('admin.settings.saveError'))}
+            />
+          ) : (
           <div className="grid gap-4 lg:grid-cols-2">
-            {settings.map((setting) => (
-              <form
-                key={setting.full_key}
-                className="rounded-2xl border border-gray-100 bg-[#f7f4f1]/30 p-4"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  if (!canUpdate) return;
-                  const formData = new FormData(event.currentTarget);
-                  const raw = formData.get('value');
-                  updateMutation.mutate({
-                    group: setting.group,
-                    key: setting.key,
-                    value: raw instanceof File ? '' : String(raw ?? ''),
-                  });
-                }}
-              >
-                <p className="text-sm font-bold text-diyar-dark">
-                  {settingLabel(setting.full_key)}
-                </p>
-                <p className="mt-1 text-xs text-gray-500">
-                  {t('admin.settings.effective')}: {String(setting.effective_value)}
-                  {setting.has_override ? ` · ${t('admin.settings.overridden')}` : ''}
-                </p>
-                <div className="mt-3">
-                  <SettingControl
-                    setting={setting}
-                    disabled={!canUpdate}
-                    defaultValue={String(setting.effective_value ?? '')}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={!canUpdate || updateMutation.isPending}
-                  className="mt-3 rounded-xl bg-diyar-dark px-4 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+            {settings.map((setting) => {
+              const hint = localizedSettingHint(setting.full_key, t);
+              const showEffective =
+                setting.type !== 'boolean' &&
+                setting.type !== 'color' &&
+                fontOptionsForSetting(setting.full_key) === null;
+
+              return (
+                <form
+                  key={setting.full_key}
+                  className="rounded-2xl border border-gray-100 bg-[#f7f4f1]/30 p-4"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    if (!canUpdate) return;
+                    const formData = new FormData(event.currentTarget);
+                    const raw = formData.get('value');
+                    updateMutation.mutate({
+                      group: setting.group,
+                      key: setting.key,
+                      value: raw instanceof File ? '' : String(raw ?? ''),
+                    });
+                  }}
                 >
-                  {t('common.save')}
-                </button>
-              </form>
-            ))}
+                  <p className="text-sm font-bold text-diyar-dark">
+                    {localizedSettingLabel(setting.full_key, t)}
+                  </p>
+                  {hint ? (
+                    <p className="mt-1 text-xs leading-relaxed text-gray-500">{hint}</p>
+                  ) : null}
+                  {showEffective ? (
+                    <p className="mt-2 text-xs text-gray-500">
+                      {t('admin.settings.effective')}: {String(setting.effective_value)}
+                      {setting.has_override ? ` · ${t('admin.settings.overridden')}` : ''}
+                    </p>
+                  ) : setting.has_override ? (
+                    <p className="mt-2 text-xs text-amber-700">{t('admin.settings.overridden')}</p>
+                  ) : null}
+                  <div className="mt-3">
+                    <SettingControl
+                      setting={setting}
+                      disabled={!canUpdate}
+                      defaultValue={String(setting.effective_value ?? '')}
+                      booleanOnLabel={t('admin.settings.booleanOn')}
+                      booleanOffLabel={t('admin.settings.booleanOff')}
+                      t={t}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={!canUpdate || updateMutation.isPending}
+                    className="mt-3 rounded-xl bg-diyar-dark px-4 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                  >
+                    {t('admin.settings.saveChanges')}
+                  </button>
+                </form>
+              );
+            })}
           </div>
+          )}
         </section>
       ))}
     </div>

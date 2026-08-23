@@ -1,5 +1,19 @@
 <?php
 
+$arFontStacks = [
+    'Alexandria, Tajawal, sans-serif',
+    'Tajawal, Alexandria, sans-serif',
+    'Cairo, Tajawal, sans-serif',
+    'IBM Plex Sans Arabic, Tajawal, sans-serif',
+];
+
+$enFontStacks = [
+    'Outfit, Inter, sans-serif',
+    'Inter, system-ui, sans-serif',
+    'Outfit, system-ui, sans-serif',
+    'Plus Jakarta Sans, Inter, sans-serif',
+];
+
 return [
 
     /*
@@ -35,6 +49,40 @@ return [
 
     'definitions' => [
 
+        // Platform support & assistant
+        'platform.support_phone' => [
+            'group' => 'platform',
+            'key' => 'support_phone',
+            'type' => 'string',
+            'config_path' => 'diyar.platform.support_phone',
+            'is_public' => true,
+            'validation' => ['required', 'string', 'max:30'],
+        ],
+        'platform.support_email' => [
+            'group' => 'platform',
+            'key' => 'support_email',
+            'type' => 'string',
+            'config_path' => 'diyar.platform.support_email',
+            'is_public' => true,
+            'validation' => ['required', 'email', 'max:255'],
+        ],
+        'platform.support_hours' => [
+            'group' => 'platform',
+            'key' => 'support_hours',
+            'type' => 'string',
+            'config_path' => 'diyar.platform.support_hours',
+            'is_public' => true,
+            'validation' => ['required', 'string', 'max:64'],
+        ],
+        'platform.assistant_enabled' => [
+            'group' => 'platform',
+            'key' => 'assistant_enabled',
+            'type' => 'boolean',
+            'config_path' => 'diyar.assistant.enabled',
+            'is_public' => true,
+            'validation' => ['required', 'boolean'],
+        ],
+
         // Affiliate
         'affiliate.platform_min_commission_percent' => [
             'group' => 'affiliate',
@@ -67,14 +115,6 @@ return [
             'config_path' => 'diyar.affiliate.payout_minimum',
             'is_public' => false,
             'validation' => ['required', 'numeric', 'min:0'],
-        ],
-        'affiliate.currency' => [
-            'group' => 'affiliate',
-            'key' => 'currency',
-            'type' => 'string',
-            'config_path' => 'diyar.affiliate.currency',
-            'is_public' => false,
-            'validation' => ['required', 'string', 'size:3'],
         ],
 
         // Commerce
@@ -169,6 +209,32 @@ return [
             'validation' => ['required', 'boolean'],
         ],
 
+        // Chat retention (operational)
+        'chat.archive_enabled' => [
+            'group' => 'chat',
+            'key' => 'archive_enabled',
+            'type' => 'boolean',
+            'config_path' => 'diyar.chat.retention.archive_enabled',
+            'is_public' => false,
+            'validation' => ['required', 'boolean'],
+        ],
+        'chat.archive_after_days' => [
+            'group' => 'chat',
+            'key' => 'archive_after_days',
+            'type' => 'integer',
+            'config_path' => 'diyar.chat.retention.archive_after_days',
+            'is_public' => false,
+            'validation' => ['required', 'integer', 'min:1', 'max:3650'],
+        ],
+        'chat.purge_after_archive' => [
+            'group' => 'chat',
+            'key' => 'purge_after_archive',
+            'type' => 'boolean',
+            'config_path' => 'diyar.chat.retention.purge_after_archive',
+            'is_public' => false,
+            'validation' => ['required', 'boolean'],
+        ],
+
         // Feature flags
         'feature.affiliate_enabled' => [
             'group' => 'feature',
@@ -228,21 +294,14 @@ return [
             'is_public' => true,
             'validation' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ],
-        'theme.border_radius' => [
-            'group' => 'theme',
-            'key' => 'border_radius',
-            'type' => 'string',
-            'config_path' => 'diyar.theme.border_radius',
-            'is_public' => true,
-            'validation' => ['required', 'string', 'max:32'],
-        ],
         'theme.font_family_ar' => [
             'group' => 'theme',
             'key' => 'font_family_ar',
             'type' => 'string',
             'config_path' => 'diyar.theme.font_family_ar',
             'is_public' => true,
-            'validation' => ['required', 'string', 'max:255'],
+            'allowed_values' => $arFontStacks,
+            'validation' => ['required', 'string'],
         ],
         'theme.font_family_en' => [
             'group' => 'theme',
@@ -250,7 +309,32 @@ return [
             'type' => 'string',
             'config_path' => 'diyar.theme.font_family_en',
             'is_public' => true,
-            'validation' => ['required', 'string', 'max:255'],
+            'allowed_values' => $enFontStacks,
+            'validation' => ['required', 'string'],
+        ],
+        'theme.vendor_accent_color' => [
+            'group' => 'theme',
+            'key' => 'vendor_accent_color',
+            'type' => 'color',
+            'config_path' => 'diyar.theme.vendor_accent_color',
+            'is_public' => true,
+            'validation' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+        ],
+        'theme.provider_accent_color' => [
+            'group' => 'theme',
+            'key' => 'provider_accent_color',
+            'type' => 'color',
+            'config_path' => 'diyar.theme.provider_accent_color',
+            'is_public' => true,
+            'validation' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+        ],
+        'theme.affiliate_accent_color' => [
+            'group' => 'theme',
+            'key' => 'affiliate_accent_color',
+            'type' => 'color',
+            'config_path' => 'diyar.theme.affiliate_accent_color',
+            'is_public' => true,
+            'validation' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ],
     ],
 ];

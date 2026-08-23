@@ -56,7 +56,9 @@ export function UserAvatar({
   const borderWidth = size === 'sm' ? 'border-2' : 'border-4';
   const shellClassName =
     variant === 'onDark'
-      ? 'bg-white/15 text-white border-white/50'
+      ? showImage
+        ? 'border-white/50'
+        : 'bg-white text-diyar-dark border-white/80'
       : 'bg-diyar-brown/10 text-diyar-dark border-white';
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

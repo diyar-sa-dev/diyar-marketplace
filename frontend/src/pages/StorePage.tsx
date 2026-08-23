@@ -16,6 +16,7 @@ import {
   Truck,
   X,
   UserCheck,
+  Store,
 } from 'lucide-react';
 import ProductCard from '../components/cards/ProductCard.tsx';
 import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
@@ -26,7 +27,7 @@ import { formatTimeRange } from '../lib/formatTimeRange.ts';
 import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { EmptyState } from '../components/common/EmptyState.tsx';
-import { isApiErrorDetail, isNotFound, parseApiError } from '../utils/errors.ts';
+import { isNotFoundError, parseApiError } from '../utils/errors.ts';
 import { isValidStoreSlug } from '../lib/storePath.ts';
 import { StoreReviewsTab } from '../components/store/StoreReviewsTab.tsx';
 import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
@@ -60,28 +61,51 @@ export default function StorePage() {
 
   const {
     data: vendor,
-    isLoading: vendorLoading,
+    isPending: vendorPending,
     isError: vendorError,
     error: vendorErr,
     refetch: refetchVendor,
   } = useVendor(slug);
+
+  const vendorUnavailable = isNotFoundError(vendorErr);
+
   const {
     data: productsData,
     isLoading: productsLoading,
     isError: productsError,
     error: productsErr,
     refetch: refetchProducts,
-  } = useVendorProducts(slug, { per_page: perPage, page, sort });
+  } = useVendorProducts(slug, { per_page: perPage, page, sort }, {
+    enabled: Boolean(vendor) && !vendorUnavailable,
+  });
+
+  const unavailableState = (
+    <div className="bg-gray-50 min-h-screen pb-16 pt-8">
+      <EmptyState
+        icon={<Store size={32} strokeWidth={1.5} />}
+        title={t('store.unavailableTitle')}
+        description={t('store.unavailableDescription')}
+      />
+    </div>
+  );
 
   if (!isValidStoreSlug(id)) {
     return (
       <div className="bg-gray-50 min-h-screen pb-16 pt-8">
-        <EmptyState title="المتجر غير موجود" description="لم نتمكن من العثور على هذا المتجر." />
+        <EmptyState
+          icon={<Store size={32} strokeWidth={1.5} />}
+          title={t('store.notFoundTitle')}
+          description={t('store.notFoundDescription')}
+        />
       </div>
     );
   }
 
-  if (vendorLoading) {
+  if (vendorUnavailable) {
+    return unavailableState;
+  }
+
+  if (vendorPending && !vendor) {
     return (
       <div className="bg-gray-50 min-h-screen pb-16 pt-8">
         <LoadingState className="min-h-80" />
@@ -89,13 +113,9 @@ export default function StorePage() {
     );
   }
 
-  if (vendorError) {
-    if (isApiErrorDetail(vendorErr) && isNotFound(vendorErr)) {
-      return (
-        <div className="bg-gray-50 min-h-screen pb-16 pt-8">
-          <EmptyState title="المتجر غير موجود" description="لم نتمكن من العثور على هذا المتجر." />
-        </div>
-      );
+  if (vendorError && !vendor) {
+    if (isNotFoundError(vendorErr)) {
+      return unavailableState;
     }
     return (
       <div className="bg-gray-50 min-h-screen pb-16 pt-8">
@@ -105,11 +125,7 @@ export default function StorePage() {
   }
 
   if (!vendor) {
-    return (
-      <div className="bg-gray-50 min-h-screen pb-16 pt-8">
-        <EmptyState title="المتجر غير موجود" description="لم نتمكن من العثور على هذا المتجر." />
-      </div>
-    );
+    return unavailableState;
   }
 
   const canonicalSlug = vendor.slug;
@@ -416,7 +432,15 @@ export default function StorePage() {
                 {productsLoading ? (
                   <LoadingState className="min-h-50" />
                 ) : productsError ? (
-                  <ErrorState error={productsErr as Error} onRetry={() => refetchProducts()} />
+                  isNotFoundError(productsErr) ? (
+                    <EmptyState
+                      icon={<Store size={28} strokeWidth={1.5} />}
+                      title={t('store.unavailableTitle')}
+                      description={t('store.unavailableDescription')}
+                    />
+                  ) : (
+                    <ErrorState error={productsErr as Error} onRetry={() => refetchProducts()} />
+                  )
                 ) : products.length > 0 ? (
                   <>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">

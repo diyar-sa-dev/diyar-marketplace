@@ -44,6 +44,8 @@ export interface ProductCard {
   vendor?: ProductVendor;
   category?: ProductCategoryRef & { type?: CategoryType };
   inventory?: ProductInventoryRef;
+  rating_avg?: number | null;
+  reviews_count?: number;
   user_saved?: boolean;
   is_own_store?: boolean;
 }
