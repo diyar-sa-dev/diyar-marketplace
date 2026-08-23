@@ -24,6 +24,7 @@ class HealthEndpointTest extends TestCase
                     'checks' => [
                         'database' => ['ok', 'driver'],
                         'cache' => ['ok', 'driver'],
+                        'queue' => ['ok', 'driver'],
                     ],
                     'maintenance' => [
                         'marketplace_enabled',

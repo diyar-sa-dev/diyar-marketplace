@@ -7,9 +7,15 @@ import { useAdminAuth } from '../auth/AdminAuthContext.tsx';
 import { UserAvatar } from '../../components/profile/UserAvatar.tsx';
 import { platformThemeKeys } from '../../hooks/usePlatformTheme.ts';
 import { platformCommerceKeys } from '../../hooks/usePlatformCommerce.ts';
+import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
 import { AdminThemeSettingsPanel } from '../components/AdminThemeSettingsPanel.tsx';
+import {
+  AdminMaintenanceModePanel,
+} from '../components/AdminMaintenanceModePanel.tsx';
+import { isMaintenanceSetting } from '../utils/maintenanceSettings.ts';
+import { AdminPlatformHealthPanel } from '../components/AdminPlatformHealthPanel.tsx';
 import {
   localizedSettingGroup,
   localizedSettingHint,
@@ -147,7 +153,7 @@ export default function AdminSettingsPage() {
   const canUpdate = hasPermission('settings.update');
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['admin-settings'],
+    queryKey: adminQueryKey('settings'),
     queryFn: async () => {
       const response =
         await adminApi.get<ApiSuccessResponse<{ settings: SystemSetting[] }>>('/admin/settings');
@@ -161,7 +167,7 @@ export default function AdminSettingsPage() {
     },
     onSuccess: () => {
       toast.success(t('admin.settings.saved'));
-      void queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
+      void queryClient.invalidateQueries({ queryKey: adminQueryKey('settings') });
       void queryClient.invalidateQueries({ queryKey: ['admin', 'health', 'summary'] });
       void queryClient.invalidateQueries({ queryKey: ['health', 'maintenance'] });
       void queryClient.invalidateQueries({ queryKey: platformThemeKeys.all });
@@ -239,21 +245,36 @@ export default function AdminSettingsPage() {
       </section>
 
       {grouped.map(([group, settings]) => (
-        <section key={group} className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-lg font-bold text-diyar-dark">
-            {localizedSettingGroup(group, t)}
-          </h3>
-          {group === 'theme' ? (
-            <AdminThemeSettingsPanel
-              settings={settings}
-              canUpdate={canUpdate}
-              t={t}
-              onSaved={() => toast.success(t('admin.settings.saved'))}
-              onError={() => toast.error(t('admin.settings.saveError'))}
-            />
-          ) : (
-          <div className="grid gap-4 lg:grid-cols-2">
-            {settings.map((setting) => {
+        <section key={group} className="space-y-4">
+          {group === 'platform' ? (
+            <>
+              <AdminPlatformHealthPanel />
+              <AdminMaintenanceModePanel
+                settings={settings.filter((setting) => isMaintenanceSetting(setting.full_key))}
+                canUpdate={canUpdate}
+              />
+            </>
+          ) : null}
+
+          <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-bold text-diyar-dark">
+              {localizedSettingGroup(group, t)}
+            </h3>
+            {group === 'theme' ? (
+              <AdminThemeSettingsPanel
+                settings={settings}
+                canUpdate={canUpdate}
+                t={t}
+                onSaved={() => toast.success(t('admin.settings.saved'))}
+                onError={() => toast.error(t('admin.settings.saveError'))}
+              />
+            ) : (
+              <div className="grid gap-4 lg:grid-cols-2">
+                {settings
+                  .filter((setting) =>
+                    group === 'platform' ? !isMaintenanceSetting(setting.full_key) : true,
+                  )
+                  .map((setting) => {
               const hint = localizedSettingHint(setting.full_key, t);
               const showEffective =
                 setting.type !== 'boolean' &&
@@ -310,8 +331,9 @@ export default function AdminSettingsPage() {
                 </form>
               );
             })}
+              </div>
+            )}
           </div>
-          )}
         </section>
       ))}
     </div>

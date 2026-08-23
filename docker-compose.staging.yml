@@ -1,0 +1,51 @@
+# DIYAR — local staging simulation (isolated MySQL + Redis + mail sink)
+# Usage:
+#   docker compose -f docker-compose.staging.yml up -d
+#   cp backend/.env.staging.example backend/.env
+#   cd backend && php artisan migrate --force && php artisan db:seed --class=PlatformDemoSeeder
+#
+# Never point this stack at production credentials.
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: staging_root
+      MYSQL_DATABASE: diyar_staging
+      MYSQL_USER: diyar_staging
+      MYSQL_PASSWORD: staging_secret
+    ports:
+      - '3307:3306'
+    volumes:
+      - diyar_staging_mysql:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '-pstaging_root']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '6380:6379'
+    volumes:
+      - diyar_staging_redis:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    restart: unless-stopped
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+
+volumes:
+  diyar_staging_mysql:
+  diyar_staging_redis:

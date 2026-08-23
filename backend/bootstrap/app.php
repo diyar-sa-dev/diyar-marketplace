@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AssignRequestCorrelationId;
 use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureAdminPermission;
 use App\Http\Middleware\EnsureAdminUserIsActive;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(prepend: [
+            AssignRequestCorrelationId::class,
             EnsureFrontendRequestsAreStateful::class,
             SetLocaleFromRequest::class,
             EnsureMarketplaceNotInMaintenance::class,

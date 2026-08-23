@@ -15,7 +15,11 @@ Arabic RTL multi-vendor marketplace for furniture products and home services —
 | Stage 17.6 — Affiliate Commerce | **COMPLETE** |
 | **Stage 18 — Admin / Operations** | **COMPLETE / VERIFIED** |
 | **Stage 19 — Frontend API Migration** | **COMPLETE / VERIFIED (automated)** |
-| Stage 20 — Security Hardening | **PARTIAL** (matrix + regression; production deploy checklist) |
+| Stage 20 — Security Hardening | **PARTIAL** (matrix + regression) |
+| Stage 21 — E2E Testing | **PARTIAL** (19 Playwright tests; checkout E2E limited) |
+| Stage 22 — Performance & Hardening | **CODE COMPLETE** (25K **NOT VERIFIED**) |
+| Stage 23 — Staging | **CODE COMPLETE** (remote host optional) |
+| Stage 24 — Production | **DOCS + CONFIG COMPLETE** (not live-deployed) |
 
 | Component | Status |
 |-----------|--------|
@@ -24,10 +28,10 @@ Arabic RTL multi-vendor marketplace for furniture products and home services —
 | Cache / Queue | Redis recommended (`CACHE_STORE=redis`, `QUEUE_CONNECTION=redis`) |
 | CI | GitHub Actions — lint, test, build |
 
-**Last validation (2026-08-23):** PHPUnit **509/509**, typecheck + production build — pass.
+**Last validation (2026-08-23):** PHPUnit **545/545**, Vitest **101/101**, ESLint + typecheck + build — pass.
 
 Live project state: [.agent/CURRENT_STATE.md](.agent/CURRENT_STATE.md)  
-Stage 18 docs: [conception/Stages/Stage 18/README.md](conception/Stages/Stage%2018/README.md)
+Stage docs: [Stage 22](conception/Stages/Stage%2022/README.md) · [Stage 23](conception/Stages/Stage%2023/README.md) · [Stage 24](conception/Stages/Stage%2024/README.md)
 
 ## Repository Structure
 

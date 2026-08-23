@@ -1,0 +1,120 @@
+name: Staging Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [dev]
+
+concurrency:
+  group: staging-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-staging-env:
+    name: Validate staging configuration
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      CACHE_STORE: redis
+      QUEUE_CONNECTION: redis
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      REDIS_PREFIX: diyar-staging-
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo, pdo_sqlite, intl
+          tools: composer:v2
+
+      - name: Install backend dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare staging .env
+        run: |
+          cp .env.staging.example .env
+          php artisan key:generate
+          sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
+          sed -i 's|DB_DATABASE=diyar_staging|DB_DATABASE=database/database.sqlite|' .env
+
+      - name: Staging safety validation
+        run: php artisan diyar:validate-environment
+
+  staging-smoke:
+    name: Staging stack smoke
+    runs-on: ubuntu-latest
+    needs: [validate-staging-env]
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo, pdo_sqlite, intl
+          tools: composer:v2
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Bootstrap staging API
+        working-directory: backend
+        run: |
+          cp .env.staging.example .env
+          php artisan key:generate
+          sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
+          sed -i 's|DB_DATABASE=diyar_staging|DB_DATABASE=database/database.sqlite|' .env
+          php artisan migrate --force
+          php artisan db:seed --class=PlatformDemoSeeder --no-interaction
+        env:
+          APP_ENV: staging
+          CACHE_STORE: redis
+          QUEUE_CONNECTION: redis
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+          REDIS_PREFIX: diyar-staging-
+          DIYAR_PAYMENT_USE_FAKE_GATEWAY: true
+
+      - name: Start API server
+        working-directory: backend
+        run: php artisan serve --host=127.0.0.1 --port=8000 &
+        env:
+          APP_ENV: staging
+          CACHE_STORE: redis
+          QUEUE_CONNECTION: redis
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+          REDIS_PREFIX: diyar-staging-
+
+      - name: Run staging smoke script
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y jq
+          sleep 3
+          STAGING_API_URL=http://127.0.0.1:8000/api/v1 bash scripts/staging/smoke.sh
+
+  deploy-staging:
+    name: Deploy to staging host (optional)
+    runs-on: ubuntu-latest
+    needs: [staging-smoke]
+    if: ${{ vars.STAGING_DEPLOY_ENABLED == 'true' }}
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remote deploy placeholder
+        run: |
+          echo "Configure STAGING_DEPLOY_ENABLED repo variable and staging environment secrets"
+          echo "Expected: SSH host, deploy path, health URL — see conception/runbooks/STAGING.md"

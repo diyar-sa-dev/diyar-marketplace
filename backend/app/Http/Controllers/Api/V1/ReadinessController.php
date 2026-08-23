@@ -7,14 +7,15 @@ use App\Services\Infrastructure\PlatformHealthService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 
-class HealthController extends Controller
+class ReadinessController extends Controller
 {
     public function __invoke(PlatformHealthService $health): JsonResponse
     {
         $includeEnvironment = ! app()->environment('production');
         $payload = $health->buildPayload($includeEnvironment);
-        $statusCode = ($payload['status'] ?? '') === 'ok' ? 200 : 503;
 
-        return ApiResponse::success($payload, null, $statusCode);
+        $ready = ($payload['status'] ?? '') === 'ok';
+
+        return ApiResponse::success($payload, null, $ready ? 200 : 503);
     }
 }

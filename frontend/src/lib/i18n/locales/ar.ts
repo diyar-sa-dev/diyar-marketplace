@@ -118,6 +118,18 @@ export const ar = {
       maintenanceOn: 'صيانة',
       maintenanceOff: 'متاح',
       loading: 'جاري فحص الخدمات…',
+      unavailable: 'تعذر قراءة حالة النظام.',
+      statusOk: 'الخدمات تعمل بشكل طبيعي',
+      statusDegraded: 'بعض الخدمات متدهورة',
+      drivers: {
+        mysql: 'MySQL',
+        sqlite: 'SQLite',
+        pgsql: 'PostgreSQL',
+        redis: 'Redis',
+        database: 'قاعدة البيانات',
+        file: 'ملفات',
+        array: 'ذاكرة مؤقتة',
+      },
     },
     tables: {
       name: 'الاسم',
@@ -380,6 +392,9 @@ export const ar = {
     },
     settings: {
       subtitle: 'إعدادات المنصة وقت التشغيل (قاعدة البيانات تتجاوز ملف الإعدادات).',
+      platformHealthTitle: 'حالة النظام',
+      platformHealthSubtitle:
+        'ملخص فوري لقاعدة البيانات والذاكرة المؤقتة وواجهة API وحالة المتجر العام.',
       accountTitle: 'الحساب',
       accountHint: 'البريد والجوال للقراءة فقط حالياً. تغيير كلمة المرور سيُتاح لاحقاً.',
       email: 'البريد الإلكتروني',
@@ -393,6 +408,22 @@ export const ar = {
       saveChanges: 'حفظ التغييرات',
       booleanOn: 'مفعّل',
       booleanOff: 'معطّل',
+      maintenance: {
+        title: 'وضع صيانة المتجر',
+        description:
+          'عند التفعيل، تُحجب واجهات المتجر العامة (API والواجهة) وتُعرض صفحة الصيانة للزوار. لوحة الإدارة تبقى متاحة.',
+        badgeOn: 'الصيانة مفعّلة',
+        badgeOff: 'المتجر متاح',
+        storefrontBlocked: 'الزوار يرون صفحة الصيانة',
+        storefrontLive: 'المتجر يعمل للجميع',
+        apiBlocked: 'واجهات المتجر محجوبة',
+        apiLive: 'واجهات المتجر متاحة',
+        toggleLabel: 'تبديل وضع صيانة المتجر',
+        messagesTitle: 'رسائل الصيانة للزوار',
+        messageArPlaceholder: 'اكتب رسالة الصيانة بالعربية…',
+        messageEnPlaceholder: 'Write the maintenance message in English…',
+        saveMessages: 'حفظ رسائل الصيانة',
+      },
       groups: {
         platform: 'المنصة والدعم',
         affiliate: 'التسويق بالعمولة',

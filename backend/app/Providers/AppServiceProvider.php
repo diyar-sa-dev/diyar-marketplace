@@ -9,6 +9,7 @@ use App\Infrastructure\Sms\SmsProviderFactory;
 use App\Services\Checkout\AssemblyCalculator;
 use App\Services\Checkout\StubAssemblyCalculator;
 use App\Services\Identity\SecureOtpCodeGenerator;
+use App\Services\Infrastructure\EnvironmentSafetyValidator;
 use App\Services\Payments\Gateways\LocalPaymentGateway;
 use App\Services\Payments\Gateways\MyFatoorah\MyFatoorahGateway;
 use App\Services\Payments\PaymentGatewayManager;
@@ -154,8 +155,9 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->user()?->id ?: $request->ip());
         });
 
-        if ($this->app->environment('production') && ! $this->app->runningUnitTests()) {
+        if (in_array($this->app->environment(), ['production', 'staging'], true) && ! $this->app->runningUnitTests()) {
             $this->assertProductionInfrastructure();
+            app(EnvironmentSafetyValidator::class)->assertSafe();
         }
 
         if ($this->app->runningInConsole()) {

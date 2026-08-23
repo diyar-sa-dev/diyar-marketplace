@@ -118,6 +118,18 @@ export const en = {
       maintenanceOn: 'Maintenance',
       maintenanceOff: 'Live',
       loading: 'Checking services…',
+      unavailable: 'Unable to read system status.',
+      statusOk: 'All services healthy',
+      statusDegraded: 'Some services degraded',
+      drivers: {
+        mysql: 'MySQL',
+        sqlite: 'SQLite',
+        pgsql: 'PostgreSQL',
+        redis: 'Redis',
+        database: 'Database',
+        file: 'File',
+        array: 'In-memory',
+      },
     },
     tables: {
       name: 'Name',
@@ -380,6 +392,9 @@ export const en = {
     },
     settings: {
       subtitle: 'Runtime platform configuration (database overrides config files).',
+      platformHealthTitle: 'System status',
+      platformHealthSubtitle:
+        'Live summary of database, cache, API, and public storefront availability.',
       accountTitle: 'Account',
       accountHint:
         'Email and phone are read-only for now. Password changes will be available in a later update.',
@@ -394,6 +409,22 @@ export const en = {
       saveChanges: 'Save changes',
       booleanOn: 'On',
       booleanOff: 'Off',
+      maintenance: {
+        title: 'Marketplace maintenance mode',
+        description:
+          'When enabled, public storefront APIs and UI are blocked and visitors see a maintenance page. The admin panel stays available.',
+        badgeOn: 'Maintenance active',
+        badgeOff: 'Storefront live',
+        storefrontBlocked: 'Visitors see the maintenance page',
+        storefrontLive: 'Storefront open to everyone',
+        apiBlocked: 'Marketplace APIs blocked',
+        apiLive: 'Marketplace APIs available',
+        toggleLabel: 'Toggle marketplace maintenance mode',
+        messagesTitle: 'Visitor maintenance messages',
+        messageArPlaceholder: 'اكتب رسالة الصيانة بالعربية…',
+        messageEnPlaceholder: 'Write the maintenance message in English…',
+        saveMessages: 'Save maintenance messages',
+      },
       groups: {
         platform: 'Platform & support',
         affiliate: 'Affiliate',
