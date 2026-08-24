@@ -83,6 +83,30 @@ DIYAR_SEED_ON_BOOT=true        # seed only (migrate runs automatically first)
 
 Redeploy API after changing env vars.
 
+### Staging OTP testing (Render logs)
+
+The Arabic OTP screen (`التحقق برمز OTP`) appears on the frontend at **`/auth`** after register, forgot password, or phone/email verification login.
+
+For staging QA on Render (no real SMS), set:
+
+```env
+APP_ENV=staging
+DIYAR_OTP_TEST_CODE=123456
+# Leave MSEGAT_* empty so LogSmsProvider is used
+MSEGAT_USERNAME=
+MSEGAT_API_KEY=
+MSEGAT_SENDER_ID=
+LOG_LEVEL=info
+```
+
+After a user triggers OTP, open **Render → your API service → Logs** and search for:
+
+`OTP issued for development testing`
+
+The log line includes `"otp":"123456"`. Enter **`123456`** on the OTP form at `https://diyar-psi.vercel.app/auth`.
+
+> **Never set `DIYAR_OTP_TEST_CODE` in production.** Production requires real MSEGAT credentials.
+
 **Octane + Redis cache:** never store Eloquent models in Redis (causes `__PHP_Incomplete_Class` / 500). Category trees use `EloquentTreeCache` (array payload). Search facets, dashboards, settings, and notifications already cache arrays/scalars only.
 
 ## 3b. Optional: Supabase PostgreSQL + Storage

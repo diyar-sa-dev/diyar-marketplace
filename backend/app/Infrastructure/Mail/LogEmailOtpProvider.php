@@ -41,6 +41,14 @@ final class LogEmailOtpProvider
             return false;
         }
 
+        if (self::testCodeConfigured()) {
+            return true;
+        }
+
+        if (app()->environment('staging')) {
+            return true;
+        }
+
         if (! app()->environment(['local', 'testing'])) {
             return false;
         }
@@ -50,6 +58,13 @@ final class LogEmailOtpProvider
         }
 
         return true;
+    }
+
+    private static function testCodeConfigured(): bool
+    {
+        $code = config('diyar.otp.test_code');
+
+        return is_string($code) && $code !== '';
     }
 
     public static function flush(): void
