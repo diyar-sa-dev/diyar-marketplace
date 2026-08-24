@@ -164,8 +164,8 @@ final class VendorFinanceReportingService
             })
             ->first();
 
-        $commissionBase = number_format((float) ($row->subtotal_total ?? 0), 2, '.', '');
-        $commission = number_format((float) ($row->commission_total ?? 0), 2, '.', '');
+        $commissionBase = number_format((float) ($row?->subtotal_total ?? 0), 2, '.', '');
+        $commission = number_format((float) ($row?->commission_total ?? 0), 2, '.', '');
         $commissionRatePercent = null;
 
         if (bccomp($commissionBase, '0.00', 2) > 0) {
@@ -177,9 +177,9 @@ final class VendorFinanceReportingService
         }
 
         return [
-            'gross' => number_format((float) ($row->gross_total ?? 0), 2, '.', ''),
+            'gross' => number_format((float) ($row?->gross_total ?? 0), 2, '.', ''),
             'commission' => $commission,
-            'payable' => number_format((float) ($row->payable_total ?? 0), 2, '.', ''),
+            'payable' => number_format((float) ($row?->payable_total ?? 0), 2, '.', ''),
             'commission_base' => $commissionBase,
             'commission_rate_percent' => $commissionRatePercent,
         ];

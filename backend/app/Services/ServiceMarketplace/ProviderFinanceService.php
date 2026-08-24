@@ -128,8 +128,8 @@ final class ProviderFinanceService
     {
         return ServiceBooking::query()
             ->where('provider_account_id', $provider->id)
-            ->where('status', ServiceBookingStatus::Completed)
-            ->where('payment_status', ServiceBookingPaymentStatus::Paid);
+            ->where('status', ServiceBookingStatus::Completed->value)
+            ->where('payment_status', ServiceBookingPaymentStatus::Paid->value);
     }
 
     private function formatAmount(float|string|null $amount): string

@@ -208,4 +208,4 @@ jobs:
         run: |
           cp .env.example .env
           php artisan migrate:fresh --force
-          php artisan test --filter='HealthEndpointTest|CatalogSearchTest|CartTest|ProductEngagementTest'
+          php artisan test --filter='HealthEndpointTest|CatalogSearchTest|CartTest|ProductEngagementTest|VendorDashboardOverviewTest|AffiliateDashboardOverviewTest|ProviderDashboardExtrasTest'

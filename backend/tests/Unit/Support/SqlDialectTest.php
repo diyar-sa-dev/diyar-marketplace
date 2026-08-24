@@ -31,4 +31,9 @@ class SqlDialectTest extends TestCase
 
         $this->assertSame('COALESCE(proposed_scheduled_time, scheduled_time)', $sql);
     }
+
+    public function test_traffic_source_expression_coalesces_direct(): void
+    {
+        $this->assertSame("COALESCE(traffic_source, 'direct')", SqlDialect::trafficSourceExpression());
+    }
 }

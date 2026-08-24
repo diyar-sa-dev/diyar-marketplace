@@ -159,8 +159,8 @@ final class PlatformFinanceReportingService
             ->first();
 
         return [
-            'gross' => number_format((float) ($row->gross_total ?? 0), 2, '.', ''),
-            'commission' => number_format((float) ($row->commission_total ?? 0), 2, '.', ''),
+            'gross' => number_format((float) ($row?->gross_total ?? 0), 2, '.', ''),
+            'commission' => number_format((float) ($row?->commission_total ?? 0), 2, '.', ''),
         ];
     }
 
