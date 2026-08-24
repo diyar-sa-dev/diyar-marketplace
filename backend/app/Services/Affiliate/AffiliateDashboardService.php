@@ -88,22 +88,24 @@ final class AffiliateDashboardService
      */
     public function reportBySource(AffiliateProfile $profile, Carbon $from, Carbon $to): array
     {
+        $sourceExpr = SqlDialect::trafficSourceExpression('traffic_source');
+
         $clickRows = AffiliateClick::query()
-            ->selectRaw("COALESCE(traffic_source, 'direct') as source, COUNT(*) as total")
+            ->selectRaw("{$sourceExpr} as source, COUNT(*) as total")
             ->where('affiliate_profile_id', $profile->id)
             ->whereBetween('created_at', [$from, $to])
-            ->groupBy('source')
+            ->groupByRaw($sourceExpr)
             ->pluck('total', 'source');
 
         $conversionRows = AffiliateCommission::query()
-            ->selectRaw("COALESCE(traffic_source, 'direct') as source, COUNT(*) as total, SUM(commission_amount) as earnings")
+            ->selectRaw("{$sourceExpr} as source, COUNT(*) as total, SUM(commission_amount) as earnings")
             ->where('affiliate_profile_id', $profile->id)
             ->whereBetween('created_at', [$from, $to])
             ->whereNotIn('status', [
                 AffiliateCommissionStatus::Reversed->value,
                 AffiliateCommissionStatus::Cancelled->value,
             ])
-            ->groupBy('source')
+            ->groupByRaw($sourceExpr)
             ->get()
             ->keyBy('source');
 
@@ -217,7 +219,7 @@ final class AffiliateDashboardService
             ->selectRaw("{$monthPeriod} as period, COUNT(*) as total")
             ->where('affiliate_profile_id', $profile->id)
             ->whereBetween('created_at', [$from, $to])
-            ->groupBy('period')
+            ->groupByRaw($monthPeriod)
             ->pluck('total', 'period');
 
         $conversionRows = AffiliateCommission::query()
@@ -225,7 +227,7 @@ final class AffiliateDashboardService
             ->where('affiliate_profile_id', $profile->id)
             ->whereBetween('created_at', [$from, $to])
             ->whereNotIn('status', [AffiliateCommissionStatus::Reversed->value, AffiliateCommissionStatus::Cancelled->value])
-            ->groupBy('period')
+            ->groupByRaw($monthPeriod)
             ->get()
             ->keyBy('period');
 

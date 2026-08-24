@@ -19,6 +19,11 @@ final class SqlDialect
         };
     }
 
+    public static function trafficSourceExpression(string $column = 'traffic_source'): string
+    {
+        return "COALESCE({$column}, 'direct')";
+    }
+
     public static function dayPeriodExpression(string $column = 'created_at'): string
     {
         return match (DB::connection()->getDriverName()) {
