@@ -47,6 +47,7 @@ use Laravel\Octane\Listeners\EnsureUploadedFilesAreValid;
 use Laravel\Octane\Listeners\EnsureUploadedFilesCanBeMoved;
 use Laravel\Octane\Listeners\FlushOnce;
 use Laravel\Octane\Listeners\FlushTemporaryContainerInstances;
+use Laravel\Octane\Listeners\FlushSessionState;
 use Laravel\Octane\Listeners\FlushUploadedFiles;
 use Laravel\Octane\Listeners\ReportException;
 use Laravel\Octane\Listeners\StopWorkerIfNecessary;
@@ -72,6 +73,7 @@ return [
         RequestHandled::class => [],
 
         RequestTerminated::class => [
+            FlushSessionState::class,
             FlushUploadedFiles::class,
         ],
 
