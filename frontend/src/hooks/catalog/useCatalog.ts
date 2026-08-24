@@ -33,6 +33,7 @@ export function useCategoryProducts(
         ? catalogApi.fetchProducts(filters)
         : catalogApi.fetchCategoryProducts(slug, filters),
     enabled: options?.enabled !== false && Boolean(slug),
+    staleTime: 2 * 60_000,
   });
 }
 
@@ -58,6 +59,7 @@ export function useSearchProducts(filters: ProductListFilters = {}) {
     queryKey: productKeys.search(filters),
     queryFn: () => catalogApi.searchProducts(filters),
     enabled: Boolean(filters.q?.trim()),
+    staleTime: 60_000,
   });
 }
 
@@ -85,6 +87,7 @@ export function useVendorProducts(
     queryKey: vendorKeys.products(slug ?? '', filters),
     queryFn: () => catalogApi.fetchVendorProducts(slug!, filters),
     enabled: options?.enabled !== false && isValidStoreSlug(slug),
+    staleTime: 2 * 60_000,
     retry: (failureCount, error) => {
       if (isNotFoundError(error)) {
         return false;

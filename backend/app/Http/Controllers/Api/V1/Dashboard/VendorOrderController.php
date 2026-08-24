@@ -35,9 +35,12 @@ class VendorOrderController extends Controller
         $query = VendorOrder::query()
             ->where('vendor_account_id', $vendorAccount->id)
             ->with([
-                'items.product.images.mediaFile',
-                'order.payment.attempts',
-                'order.user',
+                'items.product.images' => fn ($query) => $query
+                    ->orderBy('sort_order')
+                    ->limit(1)
+                    ->with('mediaFile:id,path'),
+                'order.payment:id,order_id,status,payment_method,payment_reference,amount',
+                'order.user:id,name,email,created_at',
                 'order.shippingAddress',
                 'shipment',
             ]);

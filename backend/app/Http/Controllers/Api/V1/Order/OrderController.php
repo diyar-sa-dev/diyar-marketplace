@@ -29,10 +29,13 @@ class OrderController extends Controller
         $orders = Order::query()
             ->where('user_id', $request->user()->id)
             ->with([
-                'vendorOrders.vendorAccount',
+                'vendorOrders.vendorAccount:id,business_name,slug',
                 'vendorOrders.shipment',
-                'vendorOrders.items.product.images.mediaFile',
-                'payment',
+                'vendorOrders.items.product.images' => fn ($query) => $query
+                    ->orderBy('sort_order')
+                    ->limit(1)
+                    ->with('mediaFile:id,path'),
+                'payment:id,order_id,status,payment_method,payment_reference,paid_at,amount',
             ])
             ->latest()
             ->paginate(15);

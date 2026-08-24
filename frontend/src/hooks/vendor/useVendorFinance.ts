@@ -54,6 +54,7 @@ export function useVendorDashboardOverview(enabled = true) {
     queryKey: vendorFinanceKeys.overview(),
     queryFn: financeApi.fetchVendorDashboardOverview,
     enabled,
+    staleTime: 90_000,
     retry: shouldRetryVendorQuery,
     refetchInterval: (query) => (query.state.fetchFailureCount > 0 ? false : 60_000),
   });

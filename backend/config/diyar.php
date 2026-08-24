@@ -176,6 +176,7 @@ return [
     'vendor' => [
         'store_domain' => env('DIYAR_STORE_DOMAIN', 'diyar.sa'),
         'low_stock_threshold' => (int) env('DIYAR_LOW_STOCK_THRESHOLD', 5),
+        'dashboard_cache_seconds' => (int) env('DIYAR_VENDOR_DASHBOARD_CACHE_SECONDS', 90),
         'reserved_slugs' => [
             'admin',
             'api',
@@ -448,6 +449,8 @@ return [
 
     'catalog' => [
         'category_tree_seconds' => (int) env('DIYAR_CATEGORY_TREE_CACHE_SECONDS', 900),
+        'search_facets_seconds' => (int) env('DIYAR_SEARCH_FACETS_CACHE_SECONDS', 300),
+        'search_suggestions_seconds' => (int) env('DIYAR_SEARCH_SUGGESTIONS_CACHE_SECONDS', 45),
     ],
 
     /*

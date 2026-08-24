@@ -20,6 +20,7 @@ use App\Services\Finance\VendorFinancePeriodResolver;
 use App\Services\Finance\VendorFinanceReportingService;
 use App\Services\Media\MediaUploadService;
 use App\Services\StoreReview\StoreReviewService;
+use Illuminate\Support\Facades\Cache;
 
 final class VendorDashboardOverviewService
 {
@@ -39,6 +40,17 @@ final class VendorDashboardOverviewService
      * @return array<string, mixed>
      */
     public function overview(VendorAccount $vendorAccount): array
+    {
+        $ttl = (int) config('diyar.vendor.dashboard_cache_seconds', 90);
+        $cacheKey = 'diyar:vendor:'.$vendorAccount->id.':dashboard:overview';
+
+        return Cache::remember($cacheKey, $ttl, fn (): array => $this->buildOverview($vendorAccount));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildOverview(VendorAccount $vendorAccount): array
     {
         $currency = (string) config('diyar.finance.currency', 'SAR');
         $monthReport = $this->financeReporting->periodReport($vendorAccount, FinancePeriod::Month, $currency);
@@ -129,7 +141,7 @@ final class VendorDashboardOverviewService
     {
         return VendorOrder::query()
             ->where('vendor_account_id', $vendorAccountId)
-            ->with(['order', 'items.product.images.mediaFile'])
+            ->with(['order:id,order_number', 'items:id,vendor_order_id,product_name'])
             ->latest()
             ->limit(5)
             ->get()
@@ -155,7 +167,10 @@ final class VendorDashboardOverviewService
     private function lowStockProducts(string $vendorAccountId, int $threshold): array
     {
         return ProductInventory::query()
-            ->with(['product.images.mediaFile'])
+            ->with(['product.images' => fn ($query) => $query
+                ->orderBy('sort_order')
+                ->limit(1)
+                ->with('mediaFile:id,path')])
             ->whereHas('product', fn ($query) => $query
                 ->where('vendor_account_id', $vendorAccountId)
                 ->where('status', ProductStatus::Active->value))
@@ -195,7 +210,10 @@ final class VendorDashboardOverviewService
             ->get();
 
         $products = Product::query()
-            ->with(['images.mediaFile'])
+            ->with(['images' => fn ($query) => $query
+                ->orderBy('sort_order')
+                ->limit(1)
+                ->with('mediaFile:id,path')])
             ->whereIn('id', $rows->pluck('product_id')->filter()->unique())
             ->get()
             ->keyBy('id');

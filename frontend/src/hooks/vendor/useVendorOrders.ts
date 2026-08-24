@@ -13,6 +13,8 @@ export function useVendorOrders(filters: VendorOrderFilters = {}, options?: { en
     queryKey: vendorOrderKeys.list(filters),
     queryFn: () => ordersApi.fetchVendorOrders(filters),
     enabled: options?.enabled ?? true,
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
   });
 }
 

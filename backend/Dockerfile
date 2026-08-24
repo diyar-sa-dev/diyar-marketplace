@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     libicu-dev \
     libsqlite3-dev \
+    libpq-dev \
     libbrotli-dev \
     libssl-dev \
     zlib1g-dev \

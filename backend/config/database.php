@@ -97,6 +97,8 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // Render FREE PostgreSQL: keep pool small (Octane workers × ~1 connection each).
+            'connect_timeout' => (int) env('DB_CONNECT_TIMEOUT', 5),
         ],
 
         'sqlsrv' => [

@@ -20,6 +20,7 @@ export function useProductReviews(productId: string | undefined, page = 1) {
     queryKey: reviewKeys.list(productId ?? '', page),
     queryFn: () => fetchProductReviews(productId!, page),
     enabled: Boolean(productId),
+    staleTime: 60_000,
   });
 }
 

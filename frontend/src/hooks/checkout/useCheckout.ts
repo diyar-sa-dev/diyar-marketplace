@@ -43,5 +43,7 @@ export function useOrders(page = 1, perPage = 10) {
   return useQuery({
     queryKey: orderKeys.list(page, perPage),
     queryFn: () => ordersApi.fetchOrders(page, perPage),
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
   });
 }

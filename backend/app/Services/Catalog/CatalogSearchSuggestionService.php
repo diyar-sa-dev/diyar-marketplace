@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\VendorAccount;
+use App\Support\Cache\CatalogCacheVersion;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
 
@@ -30,9 +31,11 @@ final class CatalogSearchSuggestionService
             ];
         }
 
-        $cacheKey = 'catalog.search.suggestions.'.md5(mb_strtolower($normalized)).'.'.$limit;
+        $version = CatalogCacheVersion::current();
+        $cacheKey = 'diyar:search:suggestions:v'.$version.'.'.md5(mb_strtolower($normalized)).'.'.$limit;
+        $ttl = (int) config('diyar.catalog.search_suggestions_seconds', 45);
 
-        return Cache::remember($cacheKey, now()->addSeconds(45), function () use ($normalized, $limit): array {
+        return Cache::remember($cacheKey, $ttl, function () use ($normalized, $limit): array {
             $prefix = $normalized.'%';
             $contains = '%'.$normalized.'%';
 
