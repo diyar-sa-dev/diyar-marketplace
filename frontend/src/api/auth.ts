@@ -15,8 +15,11 @@ import type { ApiSuccessResponse } from '../types/api.ts';
 type UserResponse = ApiSuccessResponse<{ user: AuthUser }>;
 type MessageResponse = ApiSuccessResponse<Record<string, never>>;
 
-async function withCsrf<T>(action: (csrfToken: string) => Promise<T>): Promise<T> {
-  const csrfToken = await bootstrapCsrfToken({ refresh: true });
+async function withCsrf<T>(
+  action: (csrfToken: string) => Promise<T>,
+  options?: { refresh?: boolean },
+): Promise<T> {
+  const csrfToken = await bootstrapCsrfToken({ refresh: options?.refresh ?? true });
   return action(csrfToken);
 }
 
@@ -79,8 +82,10 @@ export async function resendEmailOtp(email: string): Promise<AuthActionResult> {
 }
 
 export async function login(payload: LoginPayload): Promise<AuthUserResult> {
-  const response = await withCsrf((csrfToken) =>
-    marketplaceApi.post<UserResponse>('/auth/login', payload, authRequestConfig(csrfToken)),
+  const response = await withCsrf(
+    (csrfToken) =>
+      marketplaceApi.post<UserResponse>('/auth/login', payload, authRequestConfig(csrfToken)),
+    { refresh: false },
   );
   resetCsrfCookie();
   return {
