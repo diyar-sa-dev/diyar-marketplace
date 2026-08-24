@@ -8,11 +8,13 @@ if [ -z "${APP_KEY:-}" ]; then
   php artisan key:generate --force
 fi
 
-if [ "${DIYAR_MIGRATE_ON_BOOT:-false}" = "true" ]; then
+if [ "${DIYAR_MIGRATE_ON_BOOT:-false}" = "true" ] || [ "${DIYAR_SEED_ON_BOOT:-false}" = "true" ] || [ "${DIYAR_PROVISION_ON_BOOT:-false}" = "true" ]; then
+  echo "Running database migrations..."
   php artisan migrate --force
 fi
 
-if [ "${DIYAR_SEED_ON_BOOT:-false}" = "true" ]; then
+if [ "${DIYAR_SEED_ON_BOOT:-false}" = "true" ] || [ "${DIYAR_PROVISION_ON_BOOT:-false}" = "true" ]; then
+  echo "Running database seeders..."
   php artisan db:seed --force
 fi
 
