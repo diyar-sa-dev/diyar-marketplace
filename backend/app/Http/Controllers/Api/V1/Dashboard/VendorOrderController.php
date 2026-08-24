@@ -41,7 +41,6 @@ class VendorOrderController extends Controller
                     ->with('mediaFile:id,path'),
                 'order.payment:id,order_id,status,payment_method,payment_reference,amount',
                 'order.user:id,name,email,created_at',
-                'order.shippingAddress',
                 'shipment',
             ]);
 

@@ -23,7 +23,7 @@ function configuredApiUrl(): string {
   return import.meta.env.VITE_API_URL ?? '/api/v1';
 }
 
-function useApiProxyEnabled(): boolean {
+function isApiProxyEnabled(): boolean {
   return import.meta.env.VITE_USE_API_PROXY === 'true';
 }
 
@@ -33,7 +33,7 @@ export function shouldUseSameOriginApiProxy(): boolean {
     return false;
   }
 
-  if (useApiProxyEnabled()) {
+  if (isApiProxyEnabled()) {
     return true;
   }
 

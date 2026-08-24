@@ -271,6 +271,7 @@ return [
         'realtime_enabled' => filter_var(env('DIYAR_NOTIFICATIONS_REALTIME', true), FILTER_VALIDATE_BOOL),
         'reconciliation_poll_seconds' => (int) env('DIYAR_NOTIFICATIONS_RECONCILE_SECONDS', 120),
         'poll_interval_seconds' => (int) env('DIYAR_NOTIFICATIONS_POLL_SECONDS', 120),
+        'unread_count_cache_seconds' => (int) env('DIYAR_NOTIFICATIONS_UNREAD_CACHE_SECONDS', 30),
         'queues' => [
             'high' => env('DIYAR_NOTIFICATIONS_QUEUE_HIGH', 'notifications-high'),
             'normal' => env('DIYAR_NOTIFICATIONS_QUEUE', 'notifications'),
@@ -549,6 +550,7 @@ return [
     'admin' => [
         'default_locale' => env('DIYAR_ADMIN_DEFAULT_LOCALE', 'ar'),
         'supported_locales' => ['ar', 'en'],
+        'dashboard_cache_seconds' => (int) env('DIYAR_ADMIN_DASHBOARD_CACHE_SECONDS', 60),
     ],
 
     /*

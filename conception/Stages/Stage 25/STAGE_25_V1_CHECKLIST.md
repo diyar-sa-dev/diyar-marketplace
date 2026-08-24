@@ -21,7 +21,8 @@ Legend: **PASS** | **PARTIAL** | **FAIL** | Evidence required
 | Redis | PARTIAL | render.yaml requires Redis | high without Redis | Upstash free tier |
 | Vercel config | PARTIAL | env.ts, vercel.json headers | low | Set direct API URL |
 | Render config | IMPLEMENTED | render.yaml Docker/Octane | low | Redeploy from main |
-| CI/CD | PARTIAL | ci.yml + backend-pgsql job | low | Monitor first PG CI run |
+| CI/CD | PARTIAL | ci.yml migrate + expanded PG smoke | low | Monitor CI on push |
+| Tests (local) | **VERIFIED LOCALLY** | PHPUnit 548/548, Vitest 102/102, build OK | none | CI run on push |
 | Database backup | FAIL | FREE tier limitation | **high** | Manual pg_dump procedure |
 | No demo in production | PASS | `DIYAR_SEED_ON_BOOT` default false | none | — |
 | Performance tests | PARTIAL | performance.yml exists, not PR-gated | low | Document FREE capacity honestly |

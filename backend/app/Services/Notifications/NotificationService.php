@@ -5,6 +5,7 @@ namespace App\Services\Notifications;
 use App\Models\User;
 use App\Models\UserNotification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 
 final class NotificationService
 {
@@ -15,10 +16,18 @@ final class NotificationService
 
     public function unreadCount(User $user): int
     {
-        return UserNotification::query()
+        $ttl = (int) config('diyar.notifications.unread_count_cache_seconds', 30);
+        $cacheKey = $this->unreadCountCacheKey($user->id);
+
+        return (int) Cache::remember($cacheKey, $ttl, fn (): int => UserNotification::query()
             ->where('user_id', $user->id)
             ->whereNull('read_at')
-            ->count();
+            ->count());
+    }
+
+    public function forgetUnreadCountCache(string $userId): void
+    {
+        Cache::forget($this->unreadCountCacheKey($userId));
     }
 
     /**
@@ -61,6 +70,7 @@ final class NotificationService
         $notification = $this->findOwned($user, $notificationId);
         if ($notification->read_at === null) {
             $notification->update(['read_at' => now()]);
+            $this->forgetUnreadCountCache($user->id);
         }
 
         $fresh = $notification->fresh();
@@ -81,6 +91,7 @@ final class NotificationService
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
+        $this->forgetUnreadCountCache($user->id);
         $this->realtime->readStateChanged($user->id, 0, 'read_all');
 
         return $count;
@@ -93,6 +104,7 @@ final class NotificationService
         $notification->delete();
 
         if ($wasUnread) {
+            $this->forgetUnreadCountCache($user->id);
             $this->realtime->readStateChanged(
                 $user->id,
                 $this->unreadCount($user),
@@ -108,6 +120,7 @@ final class NotificationService
             ->where('user_id', $user->id)
             ->delete();
 
+        $this->forgetUnreadCountCache($user->id);
         $this->realtime->readStateChanged($user->id, 0, 'deleted_all');
 
         return $count;
@@ -119,5 +132,10 @@ final class NotificationService
             ->whereKey($notificationId)
             ->where('user_id', $user->id)
             ->firstOrFail();
+    }
+
+    private function unreadCountCacheKey(string $userId): string
+    {
+        return 'diyar:notifications:unread:'.$userId;
     }
 }

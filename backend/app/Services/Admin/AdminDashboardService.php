@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorPayout;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 final class AdminDashboardService
@@ -21,10 +22,22 @@ final class AdminDashboardService
     /** @return array<string, mixed> */
     public function metrics(): array
     {
+        $ttl = (int) config('diyar.admin.dashboard_cache_seconds', 60);
+
+        return Cache::remember('diyar:admin:dashboard:metrics', $ttl, fn (): array => $this->buildMetrics());
+    }
+
+    /** @return array<string, mixed> */
+    private function buildMetrics(): array
+    {
         $today = Carbon::today();
+        $tomorrow = $today->copy()->addDay();
 
         return [
-            'orders_today' => Order::query()->whereDate('created_at', $today)->count(),
+            'orders_today' => Order::query()
+                ->where('created_at', '>=', $today)
+                ->where('created_at', '<', $tomorrow)
+                ->count(),
             'pending_vendor_payouts' => VendorPayout::query()->where('status', PayoutStatus::Pending)->count(),
             'pending_affiliate_payouts' => AffiliatePayout::query()->where('status', PayoutStatus::Pending)->count(),
             'active_users' => User::query()->where('status', 'active')->count(),

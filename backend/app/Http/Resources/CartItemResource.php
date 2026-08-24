@@ -47,7 +47,9 @@ class CartItemResource extends JsonResource
                     'height' => $product->height,
                     'depth' => $product->depth,
                 ],
-                'user_saved' => $engagement->userSaved($request->user(), $product),
+                'user_saved' => array_key_exists('user_saved', $product->getAttributes())
+                    ? (bool) $product->user_saved
+                    : $engagement->userSaved($request->user(), $product),
             ];
         }
 

@@ -18,7 +18,10 @@ final class ServiceCatalogService
     public function listPublic(array $filters = [], ?User $user = null): LengthAwarePaginator
     {
         $query = $this->publicQuery()
-            ->with(['providerAccount', 'category']);
+            ->with([
+                'providerAccount:id,business_name,slug,avatar_path,verified',
+                'category:id,name,slug,type',
+            ]);
 
         $query->withUserSaved($user);
 
@@ -39,9 +42,9 @@ final class ServiceCatalogService
                 'portfolioItems' => fn ($q) => $q->orderBy('sort_order'),
             ])
             ->where(function (Builder $query) use ($identifier) {
-                $query->where('slug', $identifier);
+                $query->where('services.slug', $identifier);
                 if (preg_match('/^[0-9a-f-]{36}$/i', $identifier) === 1) {
-                    $query->orWhere('id', $identifier);
+                    $query->orWhere('services.id', $identifier);
                 }
             });
 
@@ -62,7 +65,10 @@ final class ServiceCatalogService
     public function relatedServices(Service $service, int $limit = 8, ?User $user = null): Collection
     {
         $query = $this->publicQuery()
-            ->with(['providerAccount', 'category'])
+            ->with([
+                'providerAccount:id,business_name,slug,avatar_path,verified',
+                'category:id,name,slug,type',
+            ])
             ->where('service_category_id', $service->service_category_id)
             ->where('id', '!=', $service->id)
             ->orderByDesc('rating_average')
@@ -80,10 +86,11 @@ final class ServiceCatalogService
     {
         return Service::query()
             ->active()
-            ->whereHas('providerAccount', fn (Builder $q) => $q
-                ->where('status', ProviderAccountStatus::Active)
-                ->whereNotNull('slug')
-                ->where('slug', '!=', ''));
+            ->join('provider_accounts', 'provider_accounts.id', '=', 'services.provider_account_id')
+            ->where('provider_accounts.status', ProviderAccountStatus::Active)
+            ->whereNotNull('provider_accounts.slug')
+            ->where('provider_accounts.slug', '!=', '')
+            ->select('services.*');
     }
 
     /**
@@ -102,52 +109,49 @@ final class ServiceCatalogService
         if (! empty($filters['q'])) {
             $term = '%'.$filters['q'].'%';
             $query->where(function (Builder $q) use ($term) {
-                $q->where('title', 'like', $term)
-                    ->orWhere('description', 'like', $term)
-                    ->orWhereHas('providerAccount', fn (Builder $provider) => $provider
-                        ->where('business_name', 'like', $term));
+                $q->where('services.title', 'like', $term)
+                    ->orWhere('services.description', 'like', $term)
+                    ->orWhere('provider_accounts.business_name', 'like', $term);
             });
         }
 
         if (! empty($filters['location'])) {
             $location = '%'.$filters['location'].'%';
             $query->where(function (Builder $q) use ($location) {
-                $q->where('location', 'like', $location)
-                    ->orWhereHas('providerAccount', fn (Builder $provider) => $provider
-                        ->where('location', 'like', $location));
+                $q->where('services.location', 'like', $location)
+                    ->orWhere('provider_accounts.location', 'like', $location);
             });
         }
 
         if (! empty($filters['pricing_mode'])) {
-            $query->where('pricing_mode', (string) $filters['pricing_mode']);
+            $query->where('services.pricing_mode', (string) $filters['pricing_mode']);
         }
 
         if (isset($filters['min_price']) && $filters['min_price'] !== '') {
-            $query->where('starting_price', '>=', (float) $filters['min_price']);
+            $query->where('services.starting_price', '>=', (float) $filters['min_price']);
         }
 
         if (isset($filters['max_price']) && $filters['max_price'] !== '') {
-            $query->where('starting_price', '<=', (float) $filters['max_price']);
+            $query->where('services.starting_price', '<=', (float) $filters['max_price']);
         }
 
         if (isset($filters['min_rating']) && $filters['min_rating'] !== '') {
-            $query->where('rating_average', '>=', (float) $filters['min_rating']);
+            $query->where('services.rating_average', '>=', (float) $filters['min_rating']);
         }
 
         if (isset($filters['remote']) && $filters['remote'] !== '') {
             $remote = filter_var($filters['remote'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
             if ($remote !== null) {
                 $query->where(function (Builder $q) use ($remote) {
-                    $q->where('remote_available', $remote)
-                        ->orWhereHas('providerAccount', fn (Builder $provider) => $provider
-                            ->where('remote_available', $remote));
+                    $q->where('services.remote_available', $remote)
+                        ->orWhere('provider_accounts.remote_available', $remote);
                 });
             }
         }
 
         if (! empty($filters['provider'])) {
             $providerSlug = (string) $filters['provider'];
-            $query->whereHas('providerAccount', fn (Builder $q) => $q->where('slug', $providerSlug));
+            $query->where('provider_accounts.slug', $providerSlug);
         }
     }
 
@@ -157,11 +161,11 @@ final class ServiceCatalogService
     private function applySort(Builder $query, string $sort): void
     {
         match ($sort) {
-            'most_requested' => $query->orderByDesc('requests_count')->orderByDesc('created_at'),
-            'price_asc' => $query->orderBy('starting_price')->orderByDesc('created_at'),
-            'price_desc' => $query->orderByDesc('starting_price')->orderByDesc('created_at'),
-            'rating' => $query->orderByDesc('rating_average')->orderByDesc('reviews_count'),
-            default => $query->orderByDesc('created_at'),
+            'most_requested' => $query->orderByDesc('services.requests_count')->orderByDesc('services.created_at'),
+            'price_asc' => $query->orderBy('services.starting_price')->orderByDesc('services.created_at'),
+            'price_desc' => $query->orderByDesc('services.starting_price')->orderByDesc('services.created_at'),
+            'rating' => $query->orderByDesc('services.rating_average')->orderByDesc('services.reviews_count'),
+            default => $query->orderByDesc('services.created_at'),
         };
     }
 }
