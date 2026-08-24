@@ -83,6 +83,42 @@ DIYAR_SEED_ON_BOOT=true        # seed only (migrate runs automatically first)
 
 Redeploy API after changing env vars.
 
+## 3b. Optional: Supabase PostgreSQL + Storage
+
+Render's filesystem is **ephemeral** — uploaded product images are lost on redeploy unless you use object storage.
+
+Recommended split for FREE tier:
+
+| Service | Host |
+|---------|------|
+| API | Render |
+| Frontend | Vercel |
+| PostgreSQL | Render Postgres **or** Supabase (`DATABASE_URL`) |
+| Redis | Upstash / Render Redis |
+| Media uploads | **Supabase Storage** (S3-compatible) |
+
+**Database:** point Render env at Supabase instead of Render Postgres:
+
+```env
+DATABASE_URL=postgresql://postgres:<password>@db.ivhlydioztriyhvzniyx.supabase.co:5432/postgres
+DB_CONNECTION=pgsql
+```
+
+**Storage:** create a public bucket in Supabase, then set:
+
+```env
+FILESYSTEM_DISK=s3
+AWS_ACCESS_KEY_ID=<supabase-s3-access-key>
+AWS_SECRET_ACCESS_KEY=<supabase-s3-secret>
+AWS_DEFAULT_REGION=auto
+AWS_BUCKET=<bucket-name>
+AWS_ENDPOINT=https://ivhlydioztriyhvzniyx.supabase.co/storage/v1/s3
+AWS_USE_PATH_STYLE_ENDPOINT=true
+AWS_URL=https://ivhlydioztriyhvzniyx.supabase.co/storage/v1/object/public/<bucket-name>
+```
+
+Generate S3 keys in Supabase → Project Settings → Storage → S3 connection.
+
 ## 4. Validate
 
 ```bash

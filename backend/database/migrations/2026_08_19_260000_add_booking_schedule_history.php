@@ -16,20 +16,8 @@ return new class extends Migration
             $table->string('last_proposed_scheduled_time', 8)->nullable()->after('last_proposed_scheduled_date');
         });
 
-        DB::table('service_bookings')
-            ->whereNull('requested_scheduled_date')
-            ->update([
-                'requested_scheduled_date' => DB::raw('scheduled_date'),
-                'requested_scheduled_time' => DB::raw('scheduled_time'),
-            ]);
-
-        DB::table('service_bookings')
-            ->whereNotNull('schedule_proposed_at')
-            ->whereNull('last_proposed_scheduled_date')
-            ->update([
-                'last_proposed_scheduled_date' => DB::raw('COALESCE(proposed_scheduled_date, scheduled_date)'),
-                'last_proposed_scheduled_time' => DB::raw('COALESCE(proposed_scheduled_time, scheduled_time)'),
-            ]);
+        $this->backfillRequestedSchedule();
+        $this->backfillLastProposedSchedule();
     }
 
     public function down(): void
@@ -42,5 +30,64 @@ return new class extends Migration
                 'last_proposed_scheduled_time',
             ]);
         });
+    }
+
+    private function backfillRequestedSchedule(): void
+    {
+        DB::table('service_bookings')
+            ->whereNull('requested_scheduled_date')
+            ->select(['id', 'scheduled_date', 'scheduled_time'])
+            ->orderBy('id')
+            ->chunkById(200, function ($rows): void {
+                foreach ($rows as $row) {
+                    DB::table('service_bookings')
+                        ->where('id', $row->id)
+                        ->update([
+                            'requested_scheduled_date' => $row->scheduled_date,
+                            'requested_scheduled_time' => $this->formatTimeValue($row->scheduled_time),
+                        ]);
+                }
+            });
+    }
+
+    private function backfillLastProposedSchedule(): void
+    {
+        DB::table('service_bookings')
+            ->whereNotNull('schedule_proposed_at')
+            ->whereNull('last_proposed_scheduled_date')
+            ->select([
+                'id',
+                'proposed_scheduled_date',
+                'proposed_scheduled_time',
+                'scheduled_date',
+                'scheduled_time',
+            ])
+            ->orderBy('id')
+            ->chunkById(200, function ($rows): void {
+                foreach ($rows as $row) {
+                    DB::table('service_bookings')
+                        ->where('id', $row->id)
+                        ->update([
+                            'last_proposed_scheduled_date' => $row->proposed_scheduled_date ?? $row->scheduled_date,
+                            'last_proposed_scheduled_time' => $row->proposed_scheduled_time
+                                ?? $this->formatTimeValue($row->scheduled_time),
+                        ]);
+                }
+            });
+    }
+
+    private function formatTimeValue(mixed $time): ?string
+    {
+        if ($time === null) {
+            return null;
+        }
+
+        if ($time instanceof \DateTimeInterface) {
+            return $time->format('H:i:s');
+        }
+
+        $value = trim((string) $time);
+
+        return $value === '' ? null : $value;
     }
 };
