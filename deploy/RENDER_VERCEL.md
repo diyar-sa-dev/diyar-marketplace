@@ -66,7 +66,16 @@ Run migrations once after provisioning PostgreSQL:
 php artisan migrate --force
 ```
 
-**Render FREE has no shell.** Run migrations by setting `DIYAR_MIGRATE_ON_BOOT=true`, redeploying, then setting it back to `false`.
+**Render FREE has no shell.** First deploy — set ONE of these in Render env, redeploy, then disable:
+
+```env
+DIYAR_PROVISION_ON_BOOT=true   # recommended: migrate + seed in one deploy
+# or
+DIYAR_MIGRATE_ON_BOOT=true     # migrate only
+DIYAR_SEED_ON_BOOT=true        # seed only (migrate runs automatically first)
+```
+
+> Seeding in `APP_ENV=production` skips demo users/passwords but still creates roles, categories, catalog, and system settings.
 
 > **Blanket 500 on every data endpoint** (`/catalog/search`, `/cart`, `/csrf-token`) while `/health` returns 200 means the database is connected but **not migrated** — `/health` only opens a PDO connection. Check `data.checks.schema.missing_tables` in the health payload.
 
