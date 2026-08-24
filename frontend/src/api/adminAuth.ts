@@ -1,5 +1,6 @@
 import { adminApi } from './client.ts';
 import { authRequestConfig, bootstrapCsrfToken, resetCsrfCookie } from '../lib/csrf.ts';
+import { withColdStartRetry } from '../lib/coldStartRetry.ts';
 import type { AuthActionResult, AuthUser, AuthUserResult, LoginPayload } from '../types/auth.ts';
 import type { ApiSuccessResponse } from '../types/api.ts';
 
@@ -20,10 +21,12 @@ function extractMessage(response: { data: ApiSuccessResponse<unknown> }): string
 }
 
 export async function loginAdmin(payload: LoginPayload): Promise<AuthUserResult> {
-  const response = await withCsrf(
-    (csrfToken) =>
-      adminApi.post<UserResponse>('/admin/auth/login', payload, authRequestConfig(csrfToken)),
-    { refresh: false },
+  const response = await withColdStartRetry(() =>
+    withCsrf(
+      (csrfToken) =>
+        adminApi.post<UserResponse>('/admin/auth/login', payload, authRequestConfig(csrfToken)),
+      { refresh: false },
+    ),
   );
   resetCsrfCookie();
   return {

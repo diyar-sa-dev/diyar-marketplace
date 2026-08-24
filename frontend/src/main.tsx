@@ -14,10 +14,13 @@ import { LocaleProvider } from './lib/i18n/LocaleProvider.tsx';
 import { PlatformThemeProvider } from './components/theme/PlatformThemeProvider.tsx';
 import { applyDocumentLocale, readStoredLocale } from './lib/i18n/storage.ts';
 import { queryClient } from './lib/queryClient.ts';
+import { registerDeployRecovery, clearDeployRecoveryFlag } from './lib/deployRecovery.ts';
 import './index.css';
 import 'sweetalert2/dist/sweetalert2.min.css';
 
 applyDocumentLocale(readStoredLocale());
+registerDeployRecovery();
+clearDeployRecoveryFlag();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
