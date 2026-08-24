@@ -83,6 +83,8 @@ DIYAR_SEED_ON_BOOT=true        # seed only (migrate runs automatically first)
 
 Redeploy API after changing env vars.
 
+**Octane + Redis cache:** never store Eloquent models in Redis (causes `__PHP_Incomplete_Class` / 500). Category trees use `EloquentTreeCache` (array payload). Search facets, dashboards, settings, and notifications already cache arrays/scalars only.
+
 ## 3b. Optional: Supabase PostgreSQL + Storage
 
 Render's filesystem is **ephemeral** — uploaded product images are lost on redeploy unless you use object storage.

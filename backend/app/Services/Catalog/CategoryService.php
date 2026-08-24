@@ -4,6 +4,7 @@ namespace App\Services\Catalog;
 
 use App\Enums\CategoryType;
 use App\Models\Category;
+use App\Support\Cache\EloquentTreeCache;
 use App\Support\SlugGenerator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -20,20 +21,32 @@ final class CategoryService
         $cacheKey = 'diyar:catalog:categories:tree:'.($type ?? 'all');
         $ttl = (int) config('diyar.catalog.category_tree_seconds', 900);
 
-        return Cache::remember($cacheKey, $ttl, function () use ($type) {
-            $query = Category::query()
-                ->active()
-                ->roots()
-                ->ordered();
+        return EloquentTreeCache::remember(
+            $cacheKey,
+            $ttl,
+            fn (): Collection => $this->fetchActiveTree($type),
+            Category::class,
+            ['children'],
+        );
+    }
 
-            if ($type !== null && $type !== '') {
-                $query->where('type', $type);
-            }
+    /**
+     * @return Collection<int, Category>
+     */
+    private function fetchActiveTree(?string $type): Collection
+    {
+        $query = Category::query()
+            ->active()
+            ->roots()
+            ->ordered();
 
-            return $query
-                ->with(['children' => fn ($q) => $q->active()->ordered()])
-                ->get();
-        });
+        if ($type !== null && $type !== '') {
+            $query->where('type', $type);
+        }
+
+        return $query
+            ->with(['children' => fn ($q) => $q->active()->ordered()])
+            ->get();
     }
 
     /**
