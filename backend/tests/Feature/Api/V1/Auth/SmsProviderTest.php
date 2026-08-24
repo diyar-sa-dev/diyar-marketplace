@@ -30,6 +30,54 @@ class SmsProviderTest extends TestCase
         $this->assertInstanceOf(LogSmsProvider::class, $provider);
     }
 
+    public function test_fixed_test_code_is_used_when_configured_in_non_production(): void
+    {
+        config(['diyar.otp.test_code' => '123456']);
+
+        Log::shouldReceive('info')
+            ->once()
+            ->withArgs(function (string $message, array $context = []) {
+                return ($context['otp'] ?? null) === '123456';
+            });
+
+        app(OtpService::class)->issue(
+            phone: '966509999999',
+            purpose: OtpPurpose::Registration,
+        );
+
+        $devOtp = LogSmsProvider::lastDevelopmentOtp();
+
+        $this->assertNotNull($devOtp);
+        $this->assertSame('123456', $devOtp['otp']);
+    }
+
+    public function test_fixed_test_code_is_ignored_in_production(): void
+    {
+        config(['diyar.otp.test_code' => '123456']);
+        $this->app->detectEnvironment(fn () => 'production');
+
+        Log::shouldReceive('info')->never();
+
+        app(OtpService::class)->issue(
+            phone: '966508888888',
+            purpose: OtpPurpose::Registration,
+        );
+
+        $this->assertNull(LogSmsProvider::lastDevelopmentOtp());
+    }
+
+    public function test_staging_environment_exposes_plain_otp_when_msegat_not_configured(): void
+    {
+        config([
+            'app.env' => 'staging',
+            'services.msegat.username' => null,
+            'services.msegat.api_key' => null,
+            'services.msegat.sender_id' => null,
+        ]);
+
+        $this->assertTrue(LogSmsProvider::shouldExposePlainOtp());
+    }
+
     public function test_log_sms_provider_exposes_plain_otp_only_in_testing_mode(): void
     {
         Log::shouldReceive('info')
