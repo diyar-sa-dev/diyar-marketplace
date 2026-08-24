@@ -10,6 +10,7 @@ use App\Models\AffiliateProfile;
 use App\Models\ProductAffiliateSetting;
 use App\Models\User;
 use App\Services\Media\MediaUploadService;
+use App\Support\Database\SqlDialect;
 use App\Support\Vendor\VendorOwnership;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -210,15 +211,17 @@ final class AffiliateDashboardService
         $from = now()->subMonths($months - 1)->startOfMonth();
         $to = now()->endOfMonth();
 
+        $monthPeriod = SqlDialect::monthPeriodExpression('created_at');
+
         $clickRows = AffiliateClick::query()
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as period, COUNT(*) as total')
+            ->selectRaw("{$monthPeriod} as period, COUNT(*) as total")
             ->where('affiliate_profile_id', $profile->id)
             ->whereBetween('created_at', [$from, $to])
             ->groupBy('period')
             ->pluck('total', 'period');
 
         $conversionRows = AffiliateCommission::query()
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as period, COUNT(*) as total, SUM(commission_amount) as earnings')
+            ->selectRaw("{$monthPeriod} as period, COUNT(*) as total, SUM(commission_amount) as earnings")
             ->where('affiliate_profile_id', $profile->id)
             ->whereBetween('created_at', [$from, $to])
             ->whereNotIn('status', [AffiliateCommissionStatus::Reversed->value, AffiliateCommissionStatus::Cancelled->value])

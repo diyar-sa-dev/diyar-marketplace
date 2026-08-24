@@ -157,3 +157,54 @@ jobs:
 
       - name: PHPUnit
         run: php artisan test
+
+  backend-pgsql:
+    name: Backend — PostgreSQL migrate smoke
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: diyar_ci
+          POSTGRES_USER: diyar
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U diyar -d diyar_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo, pdo_pgsql, intl
+          coverage: none
+          tools: composer:v2
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress --no-dev
+
+      - name: Migrate against PostgreSQL
+        env:
+          APP_ENV: testing
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: diyar_ci
+          DB_USERNAME: diyar
+          DB_PASSWORD: secret
+          CACHE_STORE: array
+          QUEUE_CONNECTION: sync
+          SESSION_DRIVER: array
+        run: |
+          cp .env.example .env
+          php artisan migrate:fresh --force
+          php artisan test --filter=HealthEndpointTest

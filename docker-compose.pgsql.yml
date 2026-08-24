@@ -1,0 +1,44 @@
+# DIYAR — local production-like stack (PostgreSQL + Redis)
+# Usage (prod-temp validation only — dev branch stays on MySQL):
+#   docker compose -f docker-compose.pgsql.yml up -d
+#   cp backend/.env.staging.example backend/.env
+#   # set DB_CONNECTION=pgsql, DB_HOST=127.0.0.1, DB_PORT=5433, REDIS on 6381
+#   cd backend && php artisan migrate:fresh --seed --force
+#
+# Never point this stack at production credentials.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: diyar_pgsql
+      POSTGRES_USER: diyar
+      POSTGRES_PASSWORD: pgsql_secret
+    ports:
+      - '5433:5432'
+    volumes:
+      - diyar_pgsql_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U diyar -d diyar_pgsql']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '6381:6379'
+    volumes:
+      - diyar_pgsql_redis:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  diyar_pgsql_data:
+  diyar_pgsql_redis:
