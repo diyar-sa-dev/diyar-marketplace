@@ -160,7 +160,7 @@ class AppServiceProvider extends ServiceProvider
             $this->configureLoadTestRateLimits();
         }
 
-        if (in_array($this->app->environment(), ['production', 'staging'], true) && ! $this->app->runningUnitTests()) {
+        if ($this->shouldEnforceEnvironmentSafety()) {
             $this->assertProductionInfrastructure();
             app(EnvironmentSafetyValidator::class)->assertSafe();
         }
@@ -215,6 +215,26 @@ class AppServiceProvider extends ServiceProvider
         ] as $name) {
             RateLimiter::for($name, $unlimited);
         }
+    }
+
+    private function shouldEnforceEnvironmentSafety(): bool
+    {
+        if ($this->app->runningUnitTests()) {
+            return false;
+        }
+
+        if (! is_readable($this->app->environmentFilePath())) {
+            return false;
+        }
+
+        if ($this->app->runningInConsole()) {
+            $argv = $_SERVER['argv'] ?? [];
+            if (in_array('package:discover', $argv, true)) {
+                return false;
+            }
+        }
+
+        return in_array($this->app->environment(), ['production', 'staging'], true);
     }
 
     private function assertProductionInfrastructure(): void
