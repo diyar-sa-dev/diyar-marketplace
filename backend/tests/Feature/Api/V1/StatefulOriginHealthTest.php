@@ -11,19 +11,36 @@ class StatefulOriginHealthTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_health_with_vercel_spa_origin_and_render_host_is_not_stateful(): void
+    public function test_health_with_vercel_spa_origin_and_render_host_returns_ok(): void
     {
         config([
             'sanctum.stateful' => ['diyar-psi.vercel.app'],
-            'session.same_site' => 'lax',
+            'session.same_site' => 'none',
             'session.secure' => true,
-            'session.domain' => 'diyar-psi.vercel.app',
+            'session.domain' => null,
         ]);
 
         $this->withHeader('Origin', 'https://diyar-psi.vercel.app')
             ->getJson('/api/v1/health')
             ->assertOk()
             ->assertJsonPath('success', true);
+    }
+
+    public function test_cross_origin_stateful_domain_is_allowed_on_render_host(): void
+    {
+        config(['sanctum.stateful' => ['diyar-psi.vercel.app']]);
+
+        $request = Request::create(
+            'https://diyar-k255.onrender.com/api/v1/auth/login',
+            'POST',
+            server: [
+                'HTTP_HOST' => 'diyar-k255.onrender.com',
+                'HTTP_ORIGIN' => 'https://diyar-psi.vercel.app',
+            ],
+        );
+
+        $this->assertTrue(EnsureFrontendRequestsAreStateful::originIsSanctumStatefulDomain($request));
+        $this->assertFalse(EnsureFrontendRequestsAreStateful::originMatchesApplicationHost($request));
     }
 
     public function test_health_with_forwarded_host_and_matching_origin_is_stateful(): void

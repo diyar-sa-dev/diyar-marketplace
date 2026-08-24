@@ -1,5 +1,6 @@
 import { marketplaceApi } from './client.ts';
 import { authRequestConfig, bootstrapCsrfToken, resetCsrfCookie } from '../lib/csrf.ts';
+import { withColdStartRetry } from '../lib/coldStartRetry.ts';
 import type {
   AuthActionResult,
   AuthUser,
@@ -82,10 +83,12 @@ export async function resendEmailOtp(email: string): Promise<AuthActionResult> {
 }
 
 export async function login(payload: LoginPayload): Promise<AuthUserResult> {
-  const response = await withCsrf(
-    (csrfToken) =>
-      marketplaceApi.post<UserResponse>('/auth/login', payload, authRequestConfig(csrfToken)),
-    { refresh: false },
+  const response = await withColdStartRetry(() =>
+    withCsrf(
+      (csrfToken) =>
+        marketplaceApi.post<UserResponse>('/auth/login', payload, authRequestConfig(csrfToken)),
+      { refresh: false },
+    ),
   );
   resetCsrfCookie();
   return {
