@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { AuthEmailInput, AuthFieldLabel } from '../../components/auth/AuthInputIcon.tsx';
@@ -10,6 +10,7 @@ import { useAuthFieldDirection, useLocale } from '../../lib/i18n/localeContext.t
 import { ADMIN_PANEL_PATH } from '../../lib/auth/roles.ts';
 import { useAdminAuth } from '../auth/AdminAuthContext.tsx';
 import { collectDisplayErrors, isUnexpectedServerError } from '../../utils/errors.ts';
+import { ensureCsrfCookie } from '../../lib/csrf.ts';
 
 type LoginMethod = 'phone' | 'email';
 
@@ -29,6 +30,10 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<string[]>([]);
+
+  useEffect(() => {
+    void ensureCsrfCookie();
+  }, []);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();

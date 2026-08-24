@@ -27,6 +27,7 @@ import { AuthEmailInput, AuthFieldLabel } from '../components/auth/AuthInputIcon
 import { PasswordInput, PasswordStrengthField } from '../components/auth/PasswordStrengthField.tsx';
 import { SaudiPhoneInput } from '../components/auth/SaudiPhoneInput.tsx';
 import { useAuthFieldDirection, useLocale } from '../lib/i18n/localeContext.ts';
+import { ensureCsrfCookie } from '../lib/csrf.ts';
 
 type AuthView = 'login' | 'register' | 'forgot' | 'otp' | 'reset';
 type OtpContext = 'register' | 'forgot' | 'email_verify';
@@ -86,6 +87,10 @@ export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [fatalError, setFatalError] = useState<Error | null>(null);
   const { secondsLeft, isCoolingDown, startCooldown } = useOtpCooldown(60);
+
+  useEffect(() => {
+    void ensureCsrfCookie();
+  }, []);
 
   useEffect(() => {
     const state = location.state as { authView?: AuthView } | null;

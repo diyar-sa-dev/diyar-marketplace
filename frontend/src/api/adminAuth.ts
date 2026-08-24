@@ -7,8 +7,11 @@ type UserResponse = ApiSuccessResponse<{ user: AuthUser }>;
 type SessionResponse = ApiSuccessResponse<{ user: AuthUser; permissions: string[] }>;
 type MessageResponse = ApiSuccessResponse<Record<string, never>>;
 
-async function withCsrf<T>(action: (csrfToken: string) => Promise<T>): Promise<T> {
-  const csrfToken = await bootstrapCsrfToken({ refresh: true });
+async function withCsrf<T>(
+  action: (csrfToken: string) => Promise<T>,
+  options?: { refresh?: boolean },
+): Promise<T> {
+  const csrfToken = await bootstrapCsrfToken({ refresh: options?.refresh ?? true });
   return action(csrfToken);
 }
 
@@ -17,8 +20,10 @@ function extractMessage(response: { data: ApiSuccessResponse<unknown> }): string
 }
 
 export async function loginAdmin(payload: LoginPayload): Promise<AuthUserResult> {
-  const response = await withCsrf((csrfToken) =>
-    adminApi.post<UserResponse>('/admin/auth/login', payload, authRequestConfig(csrfToken)),
+  const response = await withCsrf(
+    (csrfToken) =>
+      adminApi.post<UserResponse>('/admin/auth/login', payload, authRequestConfig(csrfToken)),
+    { refresh: false },
   );
   resetCsrfCookie();
   return {
