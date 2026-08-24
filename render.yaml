@@ -34,7 +34,7 @@ services:
       - key: SESSION_SECURE_COOKIE
         value: true
       - key: SESSION_SAME_SITE
-        value: none
+        value: lax
       - key: DIYAR_ENFORCE_REDIS_IN_PRODUCTION
         value: true
       - key: DIYAR_HEALTH_PROBE_CACHE_SECONDS

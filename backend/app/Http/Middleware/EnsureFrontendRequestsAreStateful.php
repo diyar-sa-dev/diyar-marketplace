@@ -2,28 +2,46 @@
 
 namespace App\Http\Middleware;
 
+use Illuminate\Http\Request;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful as SanctumEnsureFrontendRequestsAreStateful;
 
 final class EnsureFrontendRequestsAreStateful extends SanctumEnsureFrontendRequestsAreStateful
 {
     /**
-     * Sanctum defaults to SameSite=lax for "first-party" SPAs.
-     * Split hosting (Vercel UI + Render API) requires SESSION_SAME_SITE=none.
+     * Vercel same-origin proxy: keep Sanctum's secure defaults (SameSite=lax).
      */
     protected function configureSecureCookieSessions(): void
     {
-        $sameSite = (string) config('session.same_site', 'lax');
-        $secure = filter_var(config('session.secure', app()->environment('production')), FILTER_VALIDATE_BOOL);
-
-        config([
-            'session.http_only' => true,
-            'session.secure' => $sameSite === 'none' ? true : $secure,
-            'session.same_site' => $sameSite === '' ? 'lax' : $sameSite,
-        ]);
+        parent::configureSecureCookieSessions();
     }
 
-    protected function frontendMiddleware(): array
+    /**
+     * Only treat requests as stateful when the SPA Origin matches the app host.
+     * Prevents Render (*.onrender.com) from crashing when Origin is the Vercel domain.
+     */
+    public static function fromFrontend($request)
     {
-        return parent::frontendMiddleware();
+        if (! parent::fromFrontend($request)) {
+            return false;
+        }
+
+        return self::originMatchesApplicationHost($request);
+    }
+
+    public static function originMatchesApplicationHost(Request $request): bool
+    {
+        $origin = $request->headers->get('origin') ?: $request->headers->get('referer');
+
+        if (! is_string($origin) || $origin === '') {
+            return false;
+        }
+
+        $originHost = parse_url($origin, PHP_URL_HOST);
+
+        if (! is_string($originHost) || $originHost === '') {
+            return false;
+        }
+
+        return strcasecmp($originHost, $request->getHost()) === 0;
     }
 }
