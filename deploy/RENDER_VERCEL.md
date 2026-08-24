@@ -49,11 +49,22 @@ APP_URL=https://<your-vercel-app>.vercel.app
 FRONTEND_URL=https://<your-vercel-app>.vercel.app
 DIYAR_FRONTEND_URL=https://<your-vercel-app>.vercel.app
 SANCTUM_STATEFUL_DOMAINS=<your-vercel-app>.vercel.app
-SESSION_SAME_SITE=lax
+DB_CONNECTION=pgsql
+SESSION_SAME_SITE=none
 SESSION_SECURE_COOKIE=true
 SESSION_DOMAIN=
 APP_KEY=base64:...   # required — php artisan key:generate --show
+DIYAR_MIGRATE_ON_BOOT=false
+DIYAR_HEALTH_PROBE_CACHE_SECONDS=45
 ```
+
+Run migrations once after provisioning PostgreSQL:
+
+```bash
+php artisan migrate --force
+```
+
+**Backups (Render FREE):** automatic PostgreSQL backups may be unavailable on free plans. Schedule external `pg_dump` before claiming production backup readiness.
 
 Redeploy API after changing env vars.
 

@@ -6,6 +6,7 @@ use App\Enums\CategoryType;
 use App\Models\Category;
 use App\Support\SlugGenerator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -16,18 +17,23 @@ final class CategoryService
      */
     public function listActiveTree(?string $type = null): Collection
     {
-        $query = Category::query()
-            ->active()
-            ->roots()
-            ->ordered();
+        $cacheKey = 'marketplace:catalog:categories:tree:'.($type ?? 'all');
+        $ttl = (int) config('diyar.catalog.category_tree_seconds', 900);
 
-        if ($type !== null && $type !== '') {
-            $query->where('type', $type);
-        }
+        return Cache::remember($cacheKey, $ttl, function () use ($type) {
+            $query = Category::query()
+                ->active()
+                ->roots()
+                ->ordered();
 
-        return $query
-            ->with(['children' => fn ($q) => $q->active()->ordered()])
-            ->get();
+            if ($type !== null && $type !== '') {
+                $query->where('type', $type);
+            }
+
+            return $query
+                ->with(['children' => fn ($q) => $q->active()->ordered()])
+                ->get();
+        });
     }
 
     /**
@@ -57,7 +63,7 @@ final class CategoryService
      */
     public function create(array $attributes): Category
     {
-        return DB::transaction(function () use ($attributes) {
+        $category = DB::transaction(function () use ($attributes) {
             $slug = $attributes['slug'] ?? SlugGenerator::unique(
                 $attributes['name'],
                 new Category,
@@ -72,6 +78,10 @@ final class CategoryService
                 'is_active' => $attributes['is_active'] ?? true,
             ]);
         });
+
+        $this->forgetTreeCache();
+
+        return $category;
     }
 
     /**
@@ -100,8 +110,17 @@ final class CategoryService
                 'is_active' => $attributes['is_active'] ?? $category->is_active,
             ])->save();
 
+            $this->forgetTreeCache();
+
             return $category->fresh(['parent', 'children']);
         });
+    }
+
+    public function forgetTreeCache(): void
+    {
+        Cache::forget('marketplace:catalog:categories:tree:all');
+        Cache::forget('marketplace:catalog:categories:tree:product');
+        Cache::forget('marketplace:catalog:categories:tree:service');
     }
 
     public function delete(Category $category): void
@@ -111,5 +130,6 @@ final class CategoryService
         }
 
         $category->delete();
+        $this->forgetTreeCache();
     }
 }

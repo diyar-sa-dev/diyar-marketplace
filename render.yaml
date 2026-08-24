@@ -1,16 +1,19 @@
-# Render Blueprint — API + queue worker (V1: Vercel hosts the React SPA)
-# Docs: https://render.com/docs/blueprint-spec
+# Render Blueprint — API (Docker + Octane) for prod-temp / V1
+# Frontend: Vercel (see deploy/RENDER_VERCEL.md)
+# Database: Render PostgreSQL (prod-temp). Dev branch stays on MySQL.
 #
-# After deploy: set FRONTEND_URL + SANCTUM_STATEFUL_DOMAINS to your Vercel URL.
+# FREE tier notes:
+# - Web service sleeps when idle (cold starts ~30–60s)
+# - Worker service is a separate paid service; omit if using sync queue fallback
+# - Use Upstash Redis free tier or Render Redis
 
 services:
   - type: web
     name: diyar-api
-    runtime: php
+    runtime: docker
     rootDir: backend
-    buildCommand: composer install --no-dev --optimize-autoloader && php artisan config:cache && php artisan route:cache && php artisan view:cache
-    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
-    healthCheckPath: /api/v1/health
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
     envVars:
       - key: APP_ENV
         value: production
@@ -18,6 +21,10 @@ services:
         value: false
       - key: LOG_LEVEL
         value: warning
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_PORT
+        value: 5432
       - key: CACHE_STORE
         value: redis
       - key: QUEUE_CONNECTION
@@ -30,6 +37,14 @@ services:
         value: none
       - key: DIYAR_ENFORCE_REDIS_IN_PRODUCTION
         value: true
+      - key: DIYAR_HEALTH_PROBE_CACHE_SECONDS
+        value: 45
+      - key: DIYAR_MIGRATE_ON_BOOT
+        value: false
+      - key: OCTANE_WORKERS
+        value: 2
+      - key: OCTANE_TASK_WORKERS
+        value: 1
       - key: APP_KEY
         generateValue: true
       - key: APP_URL
@@ -55,12 +70,14 @@ services:
       - key: REDIS_PORT
         value: 6379
 
+  # Optional — requires Render paid worker. Without this, set QUEUE_CONNECTION=sync
+  # on FREE tier or accept delayed notification delivery until worker is provisioned.
   - type: worker
     name: diyar-queue
-    runtime: php
+    runtime: docker
     rootDir: backend
-    buildCommand: composer install --no-dev --optimize-autoloader
-    startCommand: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    dockerfilePath: ./Dockerfile
+    dockerCommand: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
     envVars:
       - fromService:
           type: web
@@ -96,5 +113,7 @@ services:
           envVarKey: REDIS_PASSWORD
       - key: APP_ENV
         value: production
+      - key: DB_CONNECTION
+        value: pgsql
       - key: QUEUE_CONNECTION
         value: redis

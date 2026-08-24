@@ -9,6 +9,7 @@ export function useCategories(type?: 'product' | 'service') {
   return useQuery({
     queryKey: [...categoryKeys.list(), type ?? 'all'],
     queryFn: () => catalogApi.fetchCategories(type),
+    staleTime: 15 * 60_000,
   });
 }
 
@@ -39,6 +40,7 @@ export function useProducts(filters: ProductListFilters = {}) {
   return useQuery({
     queryKey: productKeys.list(filters),
     queryFn: () => catalogApi.fetchProducts(filters),
+    staleTime: 2 * 60_000,
   });
 }
 
@@ -47,6 +49,7 @@ export function useProduct(id: string | undefined) {
     queryKey: productKeys.detail(id ?? ''),
     queryFn: () => catalogApi.fetchProduct(id!),
     enabled: Boolean(id),
+    staleTime: 3 * 60_000,
   });
 }
 
@@ -63,7 +66,7 @@ export function useVendor(slug: string | undefined) {
     queryKey: vendorKeys.detail(slug ?? ''),
     queryFn: () => catalogApi.fetchVendor(slug!),
     enabled: isValidStoreSlug(slug),
-    staleTime: 0,
+    staleTime: 5 * 60_000,
     retry: (failureCount, error) => {
       if (isNotFoundError(error)) {
         return false;

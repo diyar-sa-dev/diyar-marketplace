@@ -389,11 +389,7 @@ final class ProductService
 
         if (! empty($filters['material'])) {
             $material = (string) $filters['material'];
-            $query->where(function (Builder $materialQuery) use ($material) {
-                $materialQuery
-                    ->where('materials', 'like', '%'.$material.'%')
-                    ->orWhereJsonContains('materials', $material);
-            });
+            $query->whereJsonContains('materials', $material);
         }
 
         if (! empty($filters['availability_mode'])) {

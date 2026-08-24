@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libbrotli-dev \
     libssl-dev \
     zlib1g-dev \
-    && docker-php-ext-install pdo_mysql pdo_sqlite zip intl pcntl \
+    && docker-php-ext-install pdo_mysql pdo_pgsql pdo_sqlite zip intl pcntl \
     && pecl install redis swoole \
     && docker-php-ext-enable redis swoole \
     && rm -rf /var/lib/apt/lists/*
