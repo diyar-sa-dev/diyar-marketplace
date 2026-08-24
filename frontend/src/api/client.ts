@@ -4,15 +4,14 @@ import { resolveApiContextFromUrl } from '../lib/auth/applicationContext.ts';
 import { notifyUnauthorized } from '../lib/auth/sessionEvents.ts';
 import { ensureCsrfCookie, readXsrfToken } from '../lib/csrf.ts';
 import { readStoredLocale } from '../lib/i18n/storage.ts';
-import { env } from '../lib/env.ts';
+import { apiBaseUrl, env } from '../lib/env.ts';
 import type { ApiErrorResponse } from '../types/api.ts';
 import { isApiErrorDetail, parseApiError } from '../utils/errors.ts';
 
 type RetryableConfig = InternalAxiosRequestConfig & { _csrfRetry?: boolean };
 
 function createApiClient(): AxiosInstance {
-  return axios.create({
-    baseURL: env.apiUrl,
+  const client = axios.create({
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -22,6 +21,13 @@ function createApiClient(): AxiosInstance {
     xsrfHeaderName: 'X-XSRF-TOKEN',
     timeout: env.isDev ? 30_000 : 90_000,
   });
+
+  client.interceptors.request.use((config) => {
+    config.baseURL = apiBaseUrl();
+    return config;
+  });
+
+  return client;
 }
 
 function attachLocaleHeader(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
