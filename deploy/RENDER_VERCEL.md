@@ -25,6 +25,8 @@ V1 split hosting. Later migrate to Hostinger VPS with Nginx same-origin (`VITE_A
 5. Deploy.
 
 > **Why proxy?** Vercel (`*.vercel.app`) + Render (`*.onrender.com`) are different sites. Browsers block third-party session/CSRF cookies → **419** on login. Proxying `/api` and `/sanctum` through Vercel fixes this.
+>
+> **CSRF fallback:** The API exposes `GET /api/v1/csrf-token` (JSON `{ data: { token } }`). The frontend caches this token and sends it as `X-XSRF-TOKEN` on POST/PUT/PATCH/DELETE. This works even before the Vercel proxy is redeployed (cross-origin Render calls).
 
 ## 3. Link frontend ↔ API
 

@@ -16,7 +16,8 @@ type UserResponse = ApiSuccessResponse<{ user: AuthUser }>;
 type MessageResponse = ApiSuccessResponse<Record<string, never>>;
 
 async function withCsrf<T>(action: () => Promise<T>): Promise<T> {
-  await ensureCsrfCookie();
+  resetCsrfCookie();
+  await ensureCsrfCookie({ refresh: true });
   return action();
 }
 

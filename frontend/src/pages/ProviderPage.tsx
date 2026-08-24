@@ -44,7 +44,7 @@ export default function ProviderPage() {
   const [isShareOpen, setIsShareOpen] = useState(false);
 
   const { data: provider, isLoading, isPending, isError, error } = useProvider(slug);
-  const providerUnavailable = isNotFoundError(error);
+  const providerUnavailable = Boolean(error) && isNotFoundError(error);
   const { data: servicesData, isLoading: servicesLoading } = useProviderServices(slug, { sort }, {
     enabled: Boolean(provider) && !providerUnavailable,
   });

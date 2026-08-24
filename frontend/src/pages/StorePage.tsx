@@ -67,7 +67,7 @@ export default function StorePage() {
     refetch: refetchVendor,
   } = useVendor(slug);
 
-  const vendorUnavailable = isNotFoundError(vendorErr);
+  const vendorUnavailable = Boolean(vendorErr) && isNotFoundError(vendorErr);
 
   const {
     data: productsData,

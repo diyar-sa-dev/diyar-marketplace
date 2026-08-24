@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   isApiErrorDetail,
+  isNotFoundError,
   parseApiError,
   getFieldErrors,
   formatFieldErrors,
@@ -35,6 +36,13 @@ describe('parseApiError', () => {
     expect(parsed.message).toBe('The given data was invalid.');
     expect(getFieldErrors(parsed).credentials[0]).toContain('credentials');
     expect(formatFieldErrors(parsed).length).toBeGreaterThan(0);
+  });
+
+  it('handles null and undefined without throwing', () => {
+    expect(parseApiError(null, 'en').status).toBe(0);
+    expect(parseApiError(undefined, 'en').status).toBe(0);
+    expect(isNotFoundError(null)).toBe(false);
+    expect(isNotFoundError(undefined)).toBe(false);
   });
 
   it('maps network failures to friendly message', () => {

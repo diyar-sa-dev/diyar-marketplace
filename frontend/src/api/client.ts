@@ -2,7 +2,7 @@ import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestCo
 import { getAffiliateSessionFingerprint } from '../lib/affiliateSession.ts';
 import { resolveApiContextFromUrl } from '../lib/auth/applicationContext.ts';
 import { notifyUnauthorized } from '../lib/auth/sessionEvents.ts';
-import { ensureCsrfCookie, readXsrfToken } from '../lib/csrf.ts';
+import { ensureCsrfCookie, readXsrfToken, resetCsrfCookie } from '../lib/csrf.ts';
 import { readStoredLocale } from '../lib/i18n/storage.ts';
 import { apiBaseUrl, env } from '../lib/env.ts';
 import type { ApiErrorResponse } from '../types/api.ts';
@@ -17,8 +17,6 @@ function createApiClient(): AxiosInstance {
       'Content-Type': 'application/json',
     },
     withCredentials: true,
-    xsrfCookieName: 'XSRF-TOKEN',
-    xsrfHeaderName: 'X-XSRF-TOKEN',
     timeout: env.isDev ? 30_000 : 90_000,
   });
 
@@ -90,7 +88,8 @@ function attachInterceptors(client: AxiosInstance): AxiosInstance {
 
       if (error.response?.status === 419 && config && !config._csrfRetry) {
         config._csrfRetry = true;
-        await ensureCsrfCookie();
+        resetCsrfCookie();
+        await ensureCsrfCookie({ refresh: true });
         const token = readXsrfToken();
         if (token) {
           config.headers.set('X-XSRF-TOKEN', token);
