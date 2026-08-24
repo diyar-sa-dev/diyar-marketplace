@@ -19,14 +19,26 @@ V1 split hosting. Later migrate to Hostinger VPS with Nginx same-origin (`VITE_A
 1. Import repo; set **Root Directory** to `frontend`.
 2. Update `frontend/vercel.json` — set `destination` to your Render API URL (`https://<service>.onrender.com`).
 3. Framework: Vite (uses `frontend/vercel.json` proxy rewrites).
-4. Add env from `frontend/.env.production.example` (**same-origin — required for login**):
-   - `VITE_API_URL=/api/v1`
-   - `VITE_BACKEND_URL=` (empty)
+4. Add env (**recommended — direct Render API, avoids Vercel proxy 408 timeouts on cold start**):
+
+```env
+VITE_API_URL=https://<service>.onrender.com/api/v1
+VITE_BACKEND_URL=https://<service>.onrender.com
+```
+
+Optional same-origin proxy (can timeout ~60s when Render is cold):
+
+```env
+VITE_API_URL=/api/v1
+VITE_BACKEND_URL=
+VITE_USE_API_PROXY=true
+```
+
 5. Deploy.
 
-> **Why proxy?** Vercel (`*.vercel.app`) + Render (`*.onrender.com`) are different sites. Browsers block third-party session/CSRF cookies → **419** on login. Proxying `/api` and `/sanctum` through Vercel fixes this.
+> **CSRF:** The API exposes `GET /api/v1/csrf-token` (JSON `{ data: { token } }`). The frontend sends that plain token as `X-XSRF-TOKEN` on mutating requests — works cross-origin without reading cookies in JS.
 >
-> **CSRF fallback:** The API exposes `GET /api/v1/csrf-token` (JSON `{ data: { token } }`). The frontend caches this token and sends it as `X-XSRF-TOKEN` on POST/PUT/PATCH/DELETE. This works even before the Vercel proxy is redeployed (cross-origin Render calls).
+> **408 timeouts:** Vercel rewrites to Render can return **408** when login takes >~60s (Render free cold start + slow external DB). Prefer **direct `VITE_API_URL`** to Render instead of `/api/v1` proxy.
 
 ## 3. Link frontend ↔ API
 

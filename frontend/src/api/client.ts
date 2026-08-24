@@ -46,7 +46,7 @@ function attachAffiliateSessionHeader(
 
 function attachCsrfHeader(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
   const method = config.method?.toLowerCase();
-  if (method && method !== 'get' && method !== 'head') {
+  if (method && method !== 'get' && method !== 'head' && !config.headers.has('X-XSRF-TOKEN')) {
     const token = readXsrfToken();
     if (token) {
       config.headers.set('X-XSRF-TOKEN', token);

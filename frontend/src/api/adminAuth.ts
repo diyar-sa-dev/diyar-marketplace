@@ -1,5 +1,5 @@
 import { adminApi } from './client.ts';
-import { ensureCsrfCookie, resetCsrfCookie } from '../lib/csrf.ts';
+import { authRequestConfig, bootstrapCsrfToken, resetCsrfCookie } from '../lib/csrf.ts';
 import type { AuthActionResult, AuthUser, AuthUserResult, LoginPayload } from '../types/auth.ts';
 import type { ApiSuccessResponse } from '../types/api.ts';
 
@@ -7,10 +7,9 @@ type UserResponse = ApiSuccessResponse<{ user: AuthUser }>;
 type SessionResponse = ApiSuccessResponse<{ user: AuthUser; permissions: string[] }>;
 type MessageResponse = ApiSuccessResponse<Record<string, never>>;
 
-async function withCsrf<T>(action: () => Promise<T>): Promise<T> {
-  resetCsrfCookie();
-  await ensureCsrfCookie({ refresh: true });
-  return action();
+async function withCsrf<T>(action: (csrfToken: string) => Promise<T>): Promise<T> {
+  const csrfToken = await bootstrapCsrfToken({ refresh: true });
+  return action(csrfToken);
 }
 
 function extractMessage(response: { data: ApiSuccessResponse<unknown> }): string | undefined {
@@ -18,7 +17,9 @@ function extractMessage(response: { data: ApiSuccessResponse<unknown> }): string
 }
 
 export async function loginAdmin(payload: LoginPayload): Promise<AuthUserResult> {
-  const response = await withCsrf(() => adminApi.post<UserResponse>('/admin/auth/login', payload));
+  const response = await withCsrf((csrfToken) =>
+    adminApi.post<UserResponse>('/admin/auth/login', payload, authRequestConfig(csrfToken)),
+  );
   resetCsrfCookie();
   return {
     user: response.data.data.user,
@@ -27,7 +28,9 @@ export async function loginAdmin(payload: LoginPayload): Promise<AuthUserResult>
 }
 
 export async function logoutAdmin(): Promise<AuthActionResult> {
-  const response = await withCsrf(() => adminApi.post<MessageResponse>('/admin/auth/logout'));
+  const response = await withCsrf((csrfToken) =>
+    adminApi.post<MessageResponse>('/admin/auth/logout', undefined, authRequestConfig(csrfToken)),
+  );
   resetCsrfCookie();
   return { message: extractMessage(response) };
 }

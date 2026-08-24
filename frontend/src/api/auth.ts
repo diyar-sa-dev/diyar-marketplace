@@ -1,5 +1,5 @@
 import { marketplaceApi } from './client.ts';
-import { ensureCsrfCookie, resetCsrfCookie } from '../lib/csrf.ts';
+import { authRequestConfig, bootstrapCsrfToken, resetCsrfCookie } from '../lib/csrf.ts';
 import type {
   AuthActionResult,
   AuthUser,
@@ -15,10 +15,9 @@ import type { ApiSuccessResponse } from '../types/api.ts';
 type UserResponse = ApiSuccessResponse<{ user: AuthUser }>;
 type MessageResponse = ApiSuccessResponse<Record<string, never>>;
 
-async function withCsrf<T>(action: () => Promise<T>): Promise<T> {
-  resetCsrfCookie();
-  await ensureCsrfCookie({ refresh: true });
-  return action();
+async function withCsrf<T>(action: (csrfToken: string) => Promise<T>): Promise<T> {
+  const csrfToken = await bootstrapCsrfToken({ refresh: true });
+  return action(csrfToken);
 }
 
 function extractMessage(response: { data: ApiSuccessResponse<unknown> }): string | undefined {
@@ -26,8 +25,8 @@ function extractMessage(response: { data: ApiSuccessResponse<unknown> }): string
 }
 
 export async function register(payload: RegisterPayload): Promise<AuthUserResult> {
-  const response = await withCsrf(() =>
-    marketplaceApi.post<UserResponse>('/auth/register', payload),
+  const response = await withCsrf((csrfToken) =>
+    marketplaceApi.post<UserResponse>('/auth/register', payload, authRequestConfig(csrfToken)),
   );
   return {
     user: response.data.data.user,
@@ -36,8 +35,8 @@ export async function register(payload: RegisterPayload): Promise<AuthUserResult
 }
 
 export async function verifyOtp(payload: VerifyOtpPayload): Promise<AuthUserResult> {
-  const response = await withCsrf(() =>
-    marketplaceApi.post<UserResponse>('/auth/verify-otp', payload),
+  const response = await withCsrf((csrfToken) =>
+    marketplaceApi.post<UserResponse>('/auth/verify-otp', payload, authRequestConfig(csrfToken)),
   );
   resetCsrfCookie();
   return {
@@ -47,15 +46,19 @@ export async function verifyOtp(payload: VerifyOtpPayload): Promise<AuthUserResu
 }
 
 export async function resendOtp(phone: string): Promise<AuthActionResult> {
-  const response = await withCsrf(() =>
-    marketplaceApi.post<MessageResponse>('/auth/resend-otp', { phone }),
+  const response = await withCsrf((csrfToken) =>
+    marketplaceApi.post<MessageResponse>('/auth/resend-otp', { phone }, authRequestConfig(csrfToken)),
   );
   return { message: extractMessage(response) };
 }
 
 export async function verifyEmailOtp(payload: VerifyEmailOtpPayload): Promise<AuthUserResult> {
-  const response = await withCsrf(() =>
-    marketplaceApi.post<UserResponse>('/auth/verify-email-otp', payload),
+  const response = await withCsrf((csrfToken) =>
+    marketplaceApi.post<UserResponse>(
+      '/auth/verify-email-otp',
+      payload,
+      authRequestConfig(csrfToken),
+    ),
   );
   resetCsrfCookie();
   return {
@@ -65,14 +68,20 @@ export async function verifyEmailOtp(payload: VerifyEmailOtpPayload): Promise<Au
 }
 
 export async function resendEmailOtp(email: string): Promise<AuthActionResult> {
-  const response = await withCsrf(() =>
-    marketplaceApi.post<MessageResponse>('/auth/resend-email-otp', { email }),
+  const response = await withCsrf((csrfToken) =>
+    marketplaceApi.post<MessageResponse>(
+      '/auth/resend-email-otp',
+      { email },
+      authRequestConfig(csrfToken),
+    ),
   );
   return { message: extractMessage(response) };
 }
 
 export async function login(payload: LoginPayload): Promise<AuthUserResult> {
-  const response = await withCsrf(() => marketplaceApi.post<UserResponse>('/auth/login', payload));
+  const response = await withCsrf((csrfToken) =>
+    marketplaceApi.post<UserResponse>('/auth/login', payload, authRequestConfig(csrfToken)),
+  );
   resetCsrfCookie();
   return {
     user: response.data.data.user,
@@ -81,7 +90,9 @@ export async function login(payload: LoginPayload): Promise<AuthUserResult> {
 }
 
 export async function logout(): Promise<AuthActionResult> {
-  const response = await withCsrf(() => marketplaceApi.post<MessageResponse>('/auth/logout'));
+  const response = await withCsrf((csrfToken) =>
+    marketplaceApi.post<MessageResponse>('/auth/logout', undefined, authRequestConfig(csrfToken)),
+  );
   resetCsrfCookie();
   return { message: extractMessage(response) };
 }
@@ -99,22 +110,34 @@ export async function fetchCurrentUser(): Promise<AuthUser | null> {
 }
 
 export async function forgotPassword(phone: string): Promise<AuthActionResult> {
-  const response = await withCsrf(() =>
-    marketplaceApi.post<MessageResponse>('/auth/forgot-password', { phone }),
+  const response = await withCsrf((csrfToken) =>
+    marketplaceApi.post<MessageResponse>(
+      '/auth/forgot-password',
+      { phone },
+      authRequestConfig(csrfToken),
+    ),
   );
   return { message: extractMessage(response) };
 }
 
 export async function verifyPasswordResetOtp(payload: VerifyOtpPayload): Promise<AuthActionResult> {
-  const response = await withCsrf(() =>
-    marketplaceApi.post<MessageResponse>('/auth/verify-password-reset-otp', payload),
+  const response = await withCsrf((csrfToken) =>
+    marketplaceApi.post<MessageResponse>(
+      '/auth/verify-password-reset-otp',
+      payload,
+      authRequestConfig(csrfToken),
+    ),
   );
   return { message: extractMessage(response) };
 }
 
 export async function resetPassword(payload: ResetPasswordPayload): Promise<AuthActionResult> {
-  const response = await withCsrf(() =>
-    marketplaceApi.post<MessageResponse>('/auth/reset-password', payload),
+  const response = await withCsrf((csrfToken) =>
+    marketplaceApi.post<MessageResponse>(
+      '/auth/reset-password',
+      payload,
+      authRequestConfig(csrfToken),
+    ),
   );
   return { message: extractMessage(response) };
 }

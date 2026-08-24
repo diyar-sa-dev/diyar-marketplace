@@ -10,7 +10,6 @@ import {
 import { useLocation } from 'react-router-dom';
 import * as authApi from '../api/auth.ts';
 import { registerUnauthorizedHandler } from '../lib/auth/sessionEvents.ts';
-import { resetCsrfCookie } from '../lib/csrf.ts';
 import { isAdminQueryKey } from '../lib/auth/queryKeys.ts';
 import { queryClient } from '../lib/queryClient.ts';
 import { mergeCart } from '../api/cart.ts';
@@ -79,6 +78,10 @@ async function mergeGuestCartAfterAuth(showWarning: (message: string) => void): 
   }
 }
 
+function isGuestAuthPath(pathname: string): boolean {
+  return pathname === '/auth' || pathname.startsWith('/auth/');
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -89,7 +92,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const clearSession = useCallback(() => {
     setUser(null);
     setStatus('unauthenticated');
-    resetCsrfCookie();
     invalidateUserScopedQueries();
     queryClient.removeQueries({
       predicate: (query) =>
@@ -122,6 +124,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isAdminArea(location.pathname)) {
       setStatus('unauthenticated');
       setUser(null);
+      return;
+    }
+
+    if (isGuestAuthPath(location.pathname)) {
+      setStatus('unauthenticated');
       return;
     }
 
