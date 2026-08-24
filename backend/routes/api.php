@@ -50,6 +50,7 @@ use App\Http\Controllers\Api\V1\Chat\AttachmentController;
 use App\Http\Controllers\Api\V1\Chat\ConversationController;
 use App\Http\Controllers\Api\V1\Chat\MessageController;
 use App\Http\Controllers\Api\V1\Checkout\CheckoutController;
+use App\Http\Controllers\Api\V1\CsrfTokenController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateDashboardController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateLinkController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliatePayoutController;
@@ -116,6 +117,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class)->name('api.v1.health');
 Route::get('/readiness', ReadinessController::class)->name('api.v1.readiness');
+Route::get('/csrf-token', CsrfTokenController::class)->name('api.v1.csrf-token');
 
 Route::post('/assistant/chat', AssistantChatController::class)
     ->middleware('throttle:30,1')

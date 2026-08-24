@@ -17,9 +17,19 @@ async function readXsrfToken(request: APIRequestContext): Promise<string | null>
 }
 
 export async function ensureCsrf(request: APIRequestContext): Promise<string | null> {
-  const response = await request.get(`${appOrigin()}/sanctum/csrf-cookie`);
+  const response = await request.get(`${apiBaseUrl()}/csrf-token`, {
+    headers: {
+      Accept: 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+  });
   if (!response.ok()) {
-    throw new Error(`CSRF cookie bootstrap failed: ${response.status()}`);
+    throw new Error(`CSRF bootstrap failed: ${response.status()}`);
+  }
+
+  const body = (await response.json()) as { data?: { token?: string } };
+  if (typeof body.data?.token === 'string' && body.data.token !== '') {
+    return body.data.token;
   }
 
   return readXsrfToken(request);

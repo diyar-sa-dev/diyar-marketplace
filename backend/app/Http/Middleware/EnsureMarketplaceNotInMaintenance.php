@@ -16,6 +16,7 @@ final class EnsureMarketplaceNotInMaintenance
     private const EXEMPT_PREFIXES = [
         'api/v1/health',
         'api/v1/readiness',
+        'api/v1/csrf-token',
         'api/v1/admin',
         'api/v1/webhooks',
         'api/v1/platform/theme',
