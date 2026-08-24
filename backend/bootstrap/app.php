@@ -9,6 +9,7 @@ use App\Http\Middleware\EnsureMarketplaceNotInMaintenance;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocaleFromRequest;
+use App\Http\Middleware\TrustForwardedHost;
 use App\Support\Api\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -34,8 +35,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
 
+        $middleware->web(prepend: [
+            TrustForwardedHost::class,
+        ]);
+
         $middleware->api(prepend: [
             AssignRequestCorrelationId::class,
+            TrustForwardedHost::class,
             EnsureFrontendRequestsAreStateful::class,
             SetLocaleFromRequest::class,
             EnsureMarketplaceNotInMaintenance::class,

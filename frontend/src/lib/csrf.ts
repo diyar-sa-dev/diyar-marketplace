@@ -1,8 +1,9 @@
 import axios from 'axios';
-import { env } from './env.ts';
+import { backendBaseUrl } from './env.ts';
 
 export function csrfCookieUrl(): string {
-  return env.backendUrl ? `${env.backendUrl}/sanctum/csrf-cookie` : '/sanctum/csrf-cookie';
+  const backend = backendBaseUrl();
+  return backend ? `${backend}/sanctum/csrf-cookie` : '/sanctum/csrf-cookie';
 }
 
 export function readXsrfToken(): string | null {
