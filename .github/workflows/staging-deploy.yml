@@ -22,11 +22,13 @@ jobs:
       run:
         working-directory: backend
     env:
+      APP_ENV: staging
       CACHE_STORE: redis
       QUEUE_CONNECTION: redis
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
       REDIS_PREFIX: diyar-staging-
+      DIYAR_PAYMENT_USE_FAKE_GATEWAY: true
     steps:
       - uses: actions/checkout@v4
 
@@ -42,9 +44,10 @@ jobs:
       - name: Prepare staging .env
         run: |
           cp .env.staging.example .env
-          php artisan key:generate
+          php artisan key:generate --force
           sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
           sed -i 's|DB_DATABASE=diyar_staging|DB_DATABASE=database/database.sqlite|' .env
+          touch database/database.sqlite
 
       - name: Staging safety validation
         run: php artisan diyar:validate-environment
@@ -70,14 +73,17 @@ jobs:
       - name: Install backend dependencies
         working-directory: backend
         run: composer install --no-interaction --prefer-dist --no-progress
+        env:
+          APP_ENV: staging
 
       - name: Bootstrap staging API
         working-directory: backend
         run: |
           cp .env.staging.example .env
-          php artisan key:generate
+          php artisan key:generate --force
           sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
           sed -i 's|DB_DATABASE=diyar_staging|DB_DATABASE=database/database.sqlite|' .env
+          touch database/database.sqlite
           php artisan migrate --force
           php artisan db:seed --class=PlatformDemoSeeder --no-interaction
         env:
