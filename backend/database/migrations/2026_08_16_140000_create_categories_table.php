@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('parent_id')->nullable()->constrained('categories')->nullOnDelete();
+            // Self-referencing FK added after create — PostgreSQL rejects inline parent_id → categories(id).
+            $table->uuid('parent_id')->nullable();
             $table->string('name');
             $table->string('slug')->unique();
             $table->string('type')->default('product');
@@ -20,6 +21,10 @@ return new class extends Migration
 
             $table->index(['is_active', 'sort_order']);
             $table->index('parent_id');
+        });
+
+        Schema::table('categories', function (Blueprint $table) {
+            $table->foreign('parent_id')->references('id')->on('categories')->nullOnDelete();
         });
     }
 
