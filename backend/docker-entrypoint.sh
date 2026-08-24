@@ -22,6 +22,9 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
+echo "Purging legacy Redis cache entries (Octane-safe)..."
+php artisan diyar:purge-legacy-redis-cache --quiet || true
+
 if php artisan list --raw 2>/dev/null | grep -q '^octane:start'; then
   exec php artisan octane:start \
     --server=swoole \
