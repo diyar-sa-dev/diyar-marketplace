@@ -13,7 +13,6 @@ import * as adminAuthApi from '../../api/adminAuth.ts';
 import { resolveApplicationContext } from '../../lib/auth/applicationContext.ts';
 import { isAdminQueryKey } from '../../lib/auth/queryKeys.ts';
 import { registerUnauthorizedHandler } from '../../lib/auth/sessionEvents.ts';
-import { resetCsrfCookie } from '../../lib/csrf.ts';
 import { queryClient } from '../../lib/queryClient.ts';
 import { RoleName } from '../../lib/auth/roles.ts';
 import type { AuthActionResult, AuthState, AuthUser } from '../../types/auth.ts';
@@ -45,7 +44,6 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     setUserState(null);
     setPermissions([]);
     setStatus('unauthenticated');
-    resetCsrfCookie();
   }, []);
 
   const refreshSession = useCallback(async (): Promise<AuthUser | null> => {

@@ -5,8 +5,14 @@
  *   VITE_API_URL=/api/v1
  *   VITE_BACKEND_URL=
  *
- * Vercel + Render: always use same-origin `/api/v1` (vercel.json proxies to Render).
- * Cross-origin direct Render URLs break Sanctum session/CSRF cookies (419).
+ * Vercel + Render (recommended): call Render directly to avoid Vercel proxy timeouts:
+ *   VITE_API_URL=https://<render-service>.onrender.com/api/v1
+ *   VITE_BACKEND_URL=https://<render-service>.onrender.com
+ *
+ * Optional same-origin proxy (vercel.json rewrites) — can hit ~60s proxy timeout on cold Render:
+ *   VITE_API_URL=/api/v1
+ *   VITE_BACKEND_URL=
+ *   VITE_USE_API_PROXY=true
  */
 
 function configuredBackendUrl(): string {
@@ -17,25 +23,29 @@ function configuredApiUrl(): string {
   return import.meta.env.VITE_API_URL ?? '/api/v1';
 }
 
-/** Use Vercel/nginx same-origin proxy instead of cross-origin Render URL. */
+function useApiProxyEnabled(): boolean {
+  return import.meta.env.VITE_USE_API_PROXY === 'true';
+}
+
+/** Use same-origin `/api/v1` proxy instead of cross-origin backend URL. */
 export function shouldUseSameOriginApiProxy(): boolean {
   if (typeof window === 'undefined') {
     return false;
   }
 
-  if (window.location.hostname.endsWith('.vercel.app')) {
+  if (useApiProxyEnabled()) {
     return true;
   }
 
   const backend = configuredBackendUrl();
   if (backend === '') {
-    return false;
+    return configuredApiUrl().startsWith('/');
   }
 
   try {
     return new URL(backend).hostname !== window.location.hostname;
   } catch {
-    return false;
+    return configuredApiUrl().startsWith('/');
   }
 }
 

@@ -5,29 +5,14 @@ import { readStoredLocale } from './i18n/storage.ts';
 let cachedCsrfToken: string | null = null;
 let inflightBootstrap: Promise<string> | null = null;
 
+export const AUTH_REQUEST_TIMEOUT_MS = 120_000;
+
 export function csrfCookieUrl(): string {
   return '/sanctum/csrf-cookie';
 }
 
-function readCookieXsrfToken(): string | null {
-  if (typeof document === 'undefined') {
-    return null;
-  }
-
-  const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]*)/);
-  if (!match?.[1]) {
-    return null;
-  }
-
-  try {
-    return decodeURIComponent(match[1]);
-  } catch {
-    return match[1];
-  }
-}
-
 export function readXsrfToken(): string | null {
-  return cachedCsrfToken ?? readCookieXsrfToken();
+  return cachedCsrfToken;
 }
 
 async function fetchCsrfToken(): Promise<string> {
@@ -38,6 +23,7 @@ async function fetchCsrfToken(): Promise<string> {
   inflightBootstrap = axios
     .get<{ data?: { token?: string } }>(`${apiBaseUrl()}/csrf-token`, {
       withCredentials: true,
+      timeout: AUTH_REQUEST_TIMEOUT_MS,
       headers: {
         Accept: 'application/json',
         'Accept-Language': readStoredLocale(),
@@ -59,20 +45,32 @@ async function fetchCsrfToken(): Promise<string> {
   return inflightBootstrap;
 }
 
+/** Fetch and cache a plain-text CSRF token for mutating requests. */
+export async function bootstrapCsrfToken(options?: { refresh?: boolean }): Promise<string> {
+  if (options?.refresh) {
+    cachedCsrfToken = null;
+  } else if (cachedCsrfToken) {
+    return cachedCsrfToken;
+  }
+
+  return fetchCsrfToken();
+}
+
 /**
  * Establish session + cache CSRF token for the next mutating request.
  * Concurrent callers share one in-flight bootstrap to avoid session/token races.
  */
 export async function ensureCsrfCookie(options?: { refresh?: boolean }): Promise<void> {
-  if (options?.refresh) {
-    cachedCsrfToken = null;
-  } else if (cachedCsrfToken) {
-    return;
-  }
-
-  await fetchCsrfToken();
+  await bootstrapCsrfToken(options);
 }
 
 export function resetCsrfCookie(): void {
   cachedCsrfToken = null;
+}
+
+export function authRequestConfig(csrfToken: string) {
+  return {
+    headers: { 'X-XSRF-TOKEN': csrfToken },
+    timeout: AUTH_REQUEST_TIMEOUT_MS,
+  };
 }
