@@ -44,7 +44,13 @@ final class VendorDashboardOverviewService
         $ttl = (int) config('diyar.vendor.dashboard_cache_seconds', 90);
         $cacheKey = 'diyar:vendor:'.$vendorAccount->id.':dashboard:overview';
 
-        return Cache::remember($cacheKey, $ttl, fn (): array => $this->buildOverview($vendorAccount));
+        try {
+            return Cache::remember($cacheKey, $ttl, fn (): array => $this->buildOverview($vendorAccount));
+        } catch (\Throwable) {
+            Cache::forget($cacheKey);
+
+            return $this->buildOverview($vendorAccount);
+        }
     }
 
     public static function forgetOverviewCache(string $vendorAccountId): void

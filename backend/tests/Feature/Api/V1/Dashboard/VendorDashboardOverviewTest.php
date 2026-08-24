@@ -27,6 +27,17 @@ class VendorDashboardOverviewTest extends TestCase
     }
 
     #[Test]
+    public function vendor_overview_returns_zeros_for_new_vendor_without_orders(): void
+    {
+        $vendor = $this->createUserWithRole(RoleName::Vendor);
+
+        $this->getJsonAsUser('/api/v1/dashboard/vendor/overview', $vendor)
+            ->assertOk()
+            ->assertJsonPath('data.overview.orders.completed', 0)
+            ->assertJsonPath('data.overview.orders.pending', 0);
+    }
+
+    #[Test]
     public function vendor_overview_returns_real_metrics(): void
     {
         $this->fakePaymentGateway();
