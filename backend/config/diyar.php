@@ -26,6 +26,8 @@ return [
         'max_attempts' => (int) env('DIYAR_OTP_MAX_ATTEMPTS', 5),
         'max_resends_per_hour' => (int) env('DIYAR_OTP_MAX_RESENDS', 5),
         'resend_cooldown_seconds' => (int) env('DIYAR_OTP_RESEND_COOLDOWN', 60),
+        // Non-production only — fixed OTP for staging QA (e.g. 123456). Never set in production.
+        'test_code' => env('DIYAR_OTP_TEST_CODE'),
     ],
 
     /*

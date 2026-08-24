@@ -60,7 +60,11 @@ final class LogSmsProvider implements SmsProvider
             return false;
         }
 
-        if (! app()->environment(['local', 'testing'])) {
+        if (self::testCodeConfigured()) {
+            return true;
+        }
+
+        if (! app()->environment(['local', 'testing', 'staging'])) {
             return false;
         }
 
@@ -69,6 +73,13 @@ final class LogSmsProvider implements SmsProvider
         }
 
         return true;
+    }
+
+    private static function testCodeConfigured(): bool
+    {
+        $code = config('diyar.otp.test_code');
+
+        return is_string($code) && $code !== '';
     }
 
     public static function isProductionEnvironment(): bool
