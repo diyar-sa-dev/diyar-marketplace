@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Http\Middleware;
 
+use App\Http\Middleware\ValidateCsrfToken;
 use App\Http\Middleware\NormalizeSessionCookieDomain;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -34,5 +35,16 @@ class NormalizeSessionCookieDomainTest extends TestCase
         $middleware->handle($request, fn () => response('ok'));
 
         $this->assertSame('diyar-psi.vercel.app', config('session.domain'));
+    }
+
+    public function test_compatible_session_domain_helper(): void
+    {
+        $this->assertNull(
+            ValidateCsrfToken::compatibleSessionDomain('diyar-k255.onrender.com', 'diyar-psi.vercel.app'),
+        );
+        $this->assertSame(
+            'diyar-psi.vercel.app',
+            ValidateCsrfToken::compatibleSessionDomain('diyar-psi.vercel.app', 'diyar-psi.vercel.app'),
+        );
     }
 }

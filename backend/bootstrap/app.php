@@ -8,6 +8,7 @@ use App\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use App\Http\Middleware\EnsureMarketplaceAccess;
 use App\Http\Middleware\EnsureMarketplaceNotInMaintenance;
 use App\Http\Middleware\EnsureUserHasRole;
+use App\Http\Middleware\NormalizeSessionCookieDomain;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocaleFromRequest;
 use App\Http\Middleware\TrustForwardedHost;
@@ -42,6 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             AssignRequestCorrelationId::class,
             TrustForwardedHost::class,
+            NormalizeSessionCookieDomain::class,
             EnsureFrontendRequestsAreStateful::class,
             SetLocaleFromRequest::class,
             EnsureMarketplaceNotInMaintenance::class,

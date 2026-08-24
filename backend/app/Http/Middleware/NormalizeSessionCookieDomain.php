@@ -15,21 +15,12 @@ final class NormalizeSessionCookieDomain
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $configuredDomain = config('session.domain');
-
-        if (! is_string($configuredDomain) || $configuredDomain === '') {
-            return $next($request);
-        }
-
-        $host = strtolower($request->getHost());
-        $normalizedDomain = strtolower(ltrim($configuredDomain, '.'));
-
-        $compatible = $host === $normalizedDomain
-            || str_ends_with($host, '.'.$normalizedDomain);
-
-        if (! $compatible) {
-            config(['session.domain' => null]);
-        }
+        config([
+            'session.domain' => ValidateCsrfToken::compatibleSessionDomain(
+                $request->getHost(),
+                config('session.domain'),
+            ),
+        ]);
 
         return $next($request);
     }
