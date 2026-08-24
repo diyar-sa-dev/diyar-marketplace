@@ -32,4 +32,5 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-d
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "php artisan package:discover --ansi && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
+# migrate --force on boot: Render free tier has no Shell; safe to re-run (tracks migrations table).
+CMD ["sh", "-c", "php artisan package:discover --ansi && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
