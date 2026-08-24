@@ -28,4 +28,25 @@ final class SqlDialect
             default => "DATE({$column})",
         };
     }
+
+    /** Cast a SQL TIME column to a string for assignment into varchar columns. */
+    public static function timeColumnAsString(string $column): string
+    {
+        return match (DB::connection()->getDriverName()) {
+            'pgsql' => "TO_CHAR({$column}, 'HH24:MI:SS')",
+            'mysql' => $column,
+            'sqlite' => $column,
+            default => $column,
+        };
+    }
+
+    public static function coalesceStringWithTimeColumn(string $stringColumn, string $timeColumn): string
+    {
+        return match (DB::connection()->getDriverName()) {
+            'pgsql' => 'COALESCE('.$stringColumn.'::text, '.self::timeColumnAsString($timeColumn).')',
+            'mysql' => 'COALESCE('.$stringColumn.', '.$timeColumn.')',
+            'sqlite' => 'COALESCE('.$stringColumn.', '.$timeColumn.')',
+            default => 'COALESCE('.$stringColumn.', '.self::timeColumnAsString($timeColumn).')',
+        };
+    }
 }
