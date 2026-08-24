@@ -20,7 +20,7 @@ function createApiClient(): AxiosInstance {
     withCredentials: true,
     xsrfCookieName: 'XSRF-TOKEN',
     xsrfHeaderName: 'X-XSRF-TOKEN',
-    timeout: 30_000,
+    timeout: env.isDev ? 30_000 : 90_000,
   });
 }
 
