@@ -80,6 +80,7 @@ final class ProductService
         }
 
         $query->withUserSaved($user);
+        $query->withUserLiked($user);
 
         $product = $query->first();
 
@@ -328,18 +329,22 @@ final class ProductService
     }
 
     /**
-     * @return Builder<Product>
+     * @param  Builder<Product>  $query
      */
-    private function cardQuery(?User $user = null): Builder
+    public function applyCardPresentation(Builder $query, ?User $user = null): Builder
     {
-        $query = $this->publicQuery()
+        return $query
             ->with($this->cardEagerLoads())
             ->withCount(['reviews'])
-            ->withAvg('reviews', 'rating');
+            ->withAvg('reviews', 'rating')
+            ->tap(function (Builder $builder) use ($user): void {
+                $builder->withUserSaved($user);
+            });
+    }
 
-        $query->withUserSaved($user);
-
-        return $query;
+    private function cardQuery(?User $user = null): Builder
+    {
+        return $this->applyCardPresentation($this->publicQuery(), $user);
     }
 
     /**

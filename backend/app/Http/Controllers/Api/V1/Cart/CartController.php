@@ -27,7 +27,7 @@ class CartController extends Controller
         $cart = $this->resolveCart($request);
 
         return ApiResponse::success(data: [
-            'cart' => new CartResource($this->carts->loadCart($cart)),
+            'cart' => new CartResource($this->carts->loadCart($cart, $request->user())),
         ]);
     }
 
@@ -103,7 +103,7 @@ class CartController extends Controller
         $result = $this->validation->validate($cart);
 
         return ApiResponse::success(data: [
-            'cart' => new CartResource($this->carts->loadCart($cart)),
+            'cart' => new CartResource($this->carts->loadCart($cart, $request->user())),
             'validation' => $result,
         ]);
     }

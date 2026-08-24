@@ -90,7 +90,7 @@ class ProductDetailResource extends JsonResource
             'rating_avg' => $engagement->ratingAverage($this->resource),
             'reviews_count' => $engagement->reviewsCount($this->resource),
             'likes_count' => $engagement->likesCount($this->resource),
-            'user_liked' => $engagement->userLiked($request->user(), $this->resource),
+            'user_liked' => $this->resolveUserLiked($request),
             'user_saved' => $this->resolveUserSaved($request),
             'user_preorder_pending' => $viewer !== null
                 && $this->availability_mode === AvailabilityMode::Preorder
@@ -123,6 +123,15 @@ class ProductDetailResource extends JsonResource
         }
 
         return app(ProductEngagementService::class)->userSaved($request->user(), $this->resource);
+    }
+
+    private function resolveUserLiked(Request $request): bool
+    {
+        if (array_key_exists('user_liked', $this->resource->getAttributes())) {
+            return (bool) $this->user_liked;
+        }
+
+        return app(ProductEngagementService::class)->userLiked($request->user(), $this->resource);
     }
 
     /**

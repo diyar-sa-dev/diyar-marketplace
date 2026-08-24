@@ -74,13 +74,28 @@ final class CartService
         });
     }
 
-    public function loadCart(Cart $cart): Cart
+    public function loadCart(Cart $cart, ?User $user = null): Cart
     {
+        if ($user === null && $cart->user_id !== null) {
+            $user = User::query()->find($cart->user_id);
+        }
+
         return $cart->load([
-            'items.product.vendorAccount',
-            'items.product.category',
-            'items.product.images.mediaFile',
-            'items.product.inventory',
+            'items.product' => function ($query) use ($user) {
+                $query->with([
+                    'vendorAccount:id,business_name,slug',
+                    'category:id,name,slug',
+                    'images' => fn ($imageQuery) => $imageQuery
+                        ->orderBy('sort_order')
+                        ->limit(1)
+                        ->with('mediaFile:id,path'),
+                    'inventory:id,product_id,available_quantity',
+                ]);
+
+                if ($user !== null) {
+                    $query->withUserSaved($user);
+                }
+            },
         ]);
     }
 

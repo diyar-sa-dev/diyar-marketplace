@@ -47,6 +47,11 @@ final class VendorDashboardOverviewService
         return Cache::remember($cacheKey, $ttl, fn (): array => $this->buildOverview($vendorAccount));
     }
 
+    public static function forgetOverviewCache(string $vendorAccountId): void
+    {
+        Cache::forget('diyar:vendor:'.$vendorAccountId.':dashboard:overview');
+    }
+
     /**
      * @return array<string, mixed>
      */

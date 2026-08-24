@@ -151,4 +151,19 @@ class Product extends Model
                 ->where('user_id', $user->id),
         ]);
     }
+
+    /**
+     * @param  Builder<Product>  $query
+     */
+    public function scopeWithUserLiked(Builder $query, ?User $user): void
+    {
+        if ($user === null || ! Schema::hasTable('product_likes')) {
+            return;
+        }
+
+        $query->withExists([
+            'likes as user_liked' => fn (Builder $likeQuery) => $likeQuery
+                ->where('user_id', $user->id),
+        ]);
+    }
 }

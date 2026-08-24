@@ -86,6 +86,10 @@ final class NotificationDispatcher
             $channels,
         );
 
+        if ($wasCreated) {
+            app(NotificationService::class)->forgetUnreadCountCache($recipient->id);
+        }
+
         if ($notification === null) {
             return;
         }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductCardResource;
 use App\Models\Product;
 use App\Services\Admin\AdminProductService;
+use App\Services\Catalog\ProductService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,11 +15,12 @@ class AdminProductController extends Controller
 {
     public function __construct(
         private readonly AdminProductService $products,
+        private readonly ProductService $catalog,
     ) {}
 
     public function index(Request $request): JsonResponse
     {
-        $query = Product::query()->with(['vendorAccount', 'category']);
+        $query = $this->catalog->applyCardPresentation(Product::query());
 
         if ($search = trim((string) $request->string('q'))) {
             $query->where(function ($builder) use ($search): void {
