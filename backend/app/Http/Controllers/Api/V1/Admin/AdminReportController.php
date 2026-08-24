@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorPayout;
 use App\Support\Api\ApiResponse;
+use App\Support\Database\SqlDialect;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -52,10 +53,12 @@ class AdminReportController extends Controller
     /** @return list<array<string, mixed>> */
     private function ordersByDay(Carbon $from, Carbon $to): array
     {
+        $dayExpr = SqlDialect::dayPeriodExpression('created_at');
+
         return DB::table('orders')
-            ->selectRaw('DATE(created_at) as day, COUNT(*) as count, SUM(grand_total) as revenue')
+            ->selectRaw("{$dayExpr} as day, COUNT(*) as count, SUM(grand_total) as revenue")
             ->whereBetween('created_at', [$from, $to])
-            ->groupBy('day')
+            ->groupByRaw($dayExpr)
             ->orderBy('day')
             ->get()
             ->map(fn ($row) => [

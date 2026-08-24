@@ -14,7 +14,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ProductEngagementService
 {
@@ -25,6 +27,25 @@ class ProductEngagementService
     public function findPublicProduct(string $id): Product
     {
         return app(ProductService::class)->findPublic($id);
+    }
+
+    public function resolvePublicProduct(string $id): Product
+    {
+        $query = Product::query()->publiclyVisible();
+
+        if (Str::isUuid($id)) {
+            $query->whereKey($id);
+        } else {
+            $query->where('slug', $id);
+        }
+
+        $product = $query->first();
+
+        if ($product === null) {
+            throw new NotFoundHttpException(__('diyar.catalog.product_not_found'));
+        }
+
+        return $product;
     }
 
     /**
@@ -94,7 +115,7 @@ class ProductEngagementService
     public function paginateReviews(Product $product, int $page = 1, int $perPage = 5): LengthAwarePaginator
     {
         return ProductReview::query()
-            ->with(['user:id,name,avatar_path', 'product.vendorAccount:id,business_name'])
+            ->with(['user:id,name,avatar_path'])
             ->where('product_id', $product->id)
             ->latest()
             ->paginate(perPage: min($perPage, 20), page: max($page, 1));
@@ -107,7 +128,7 @@ class ProductEngagementService
         }
 
         return ProductReview::query()
-            ->with(['user:id,name,avatar_path', 'product.vendorAccount:id,business_name'])
+            ->with(['user:id,name,avatar_path'])
             ->where('user_id', $user->id)
             ->where('product_id', $product->id)
             ->first();

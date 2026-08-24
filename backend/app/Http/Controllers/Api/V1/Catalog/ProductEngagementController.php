@@ -21,8 +21,8 @@ class ProductEngagementController extends Controller
 
     public function reviews(Request $request, string $id): JsonResponse
     {
-        $product = $this->engagement->findPublicProduct($id);
-        $product->loadMissing('vendorAccount');
+        $product = $this->engagement->resolvePublicProduct($id);
+        $product->loadMissing('vendorAccount:id,business_name,logo_path');
         $paginator = $this->engagement->paginateReviews(
             $product,
             (int) $request->query('page', 1),

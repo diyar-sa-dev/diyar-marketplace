@@ -313,19 +313,21 @@ final class AffiliateDashboardService
      */
     public function dailySeries(AffiliateProfile $profile, Carbon $from, Carbon $to): array
     {
+        $dayExpr = SqlDialect::dayPeriodExpression('created_at');
+
         $clickRows = AffiliateClick::query()
-            ->selectRaw('DATE(created_at) as day, COUNT(*) as total')
+            ->selectRaw("{$dayExpr} as day, COUNT(*) as total")
             ->where('affiliate_profile_id', $profile->id)
             ->whereBetween('created_at', [$from, $to])
-            ->groupBy('day')
+            ->groupByRaw($dayExpr)
             ->pluck('total', 'day');
 
         $conversionRows = AffiliateCommission::query()
-            ->selectRaw('DATE(created_at) as day, COUNT(*) as total, SUM(commission_amount) as earnings')
+            ->selectRaw("{$dayExpr} as day, COUNT(*) as total, SUM(commission_amount) as earnings")
             ->where('affiliate_profile_id', $profile->id)
             ->whereBetween('created_at', [$from, $to])
             ->whereNotIn('status', [AffiliateCommissionStatus::Reversed->value, AffiliateCommissionStatus::Cancelled->value])
-            ->groupBy('day')
+            ->groupByRaw($dayExpr)
             ->get()
             ->keyBy('day');
 

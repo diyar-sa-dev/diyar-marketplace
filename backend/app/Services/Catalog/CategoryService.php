@@ -17,7 +17,7 @@ final class CategoryService
      */
     public function listActiveTree(?string $type = null): Collection
     {
-        $cacheKey = 'marketplace:catalog:categories:tree:'.($type ?? 'all');
+        $cacheKey = 'diyar:catalog:categories:tree:'.($type ?? 'all');
         $ttl = (int) config('diyar.catalog.category_tree_seconds', 900);
 
         return Cache::remember($cacheKey, $ttl, function () use ($type) {
@@ -118,9 +118,9 @@ final class CategoryService
 
     public function forgetTreeCache(): void
     {
-        Cache::forget('marketplace:catalog:categories:tree:all');
-        Cache::forget('marketplace:catalog:categories:tree:product');
-        Cache::forget('marketplace:catalog:categories:tree:service');
+        Cache::forget('diyar:catalog:categories:tree:all');
+        Cache::forget('diyar:catalog:categories:tree:product');
+        Cache::forget('diyar:catalog:categories:tree:service');
     }
 
     public function delete(Category $category): void

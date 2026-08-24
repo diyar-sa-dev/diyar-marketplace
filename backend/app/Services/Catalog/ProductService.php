@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\VendorAccount;
 use App\Services\Media\MediaUploadService;
 use App\Services\Vendor\VendorAccessService;
+use App\Support\Cache\CatalogCacheVersion;
 use App\Support\SlugGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -169,6 +170,8 @@ final class ProductService
                 $this->attachImages($user, $product, $images);
             }
 
+            CatalogCacheVersion::bump();
+
             return $product->fresh(['vendorAccount', 'category', 'colors', 'images.mediaFile', 'inventory']);
         });
     }
@@ -209,6 +212,8 @@ final class ProductService
 
             $this->syncReturnPolicy($product, $attributes);
 
+            CatalogCacheVersion::bump();
+
             return $product->fresh(['vendorAccount', 'category', 'colors', 'images.mediaFile', 'inventory']);
         });
     }
@@ -219,6 +224,8 @@ final class ProductService
 
         $product->forceFill(['status' => ProductStatus::Archived])->save();
         $product->delete();
+
+        CatalogCacheVersion::bump();
 
         return $product->fresh();
     }
@@ -341,10 +348,13 @@ final class ProductService
     private function cardEagerLoads(): array
     {
         return [
-            'vendorAccount',
-            'category',
-            'images.mediaFile',
-            'inventory',
+            'vendorAccount:id,business_name,slug,logo_path',
+            'category:id,name,slug,type',
+            'images' => fn ($query) => $query
+                ->orderBy('sort_order')
+                ->limit(1)
+                ->with('mediaFile:id,path'),
+            'inventory:id,product_id,available_quantity,stock_quantity,reserved_quantity',
         ];
     }
 
