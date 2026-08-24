@@ -17,25 +17,31 @@ V1 split hosting. Later migrate to Hostinger VPS with Nginx same-origin (`VITE_A
 ## 2. Vercel (React SPA)
 
 1. Import repo; set **Root Directory** to `frontend`.
-2. Framework: Vite (uses `frontend/vercel.json`).
-3. Add env from `frontend/.env.production.example`:
-   - `VITE_API_URL=https://<your-render-api>/api/v1`
-   - `VITE_BACKEND_URL=https://<your-render-api>`
-4. Deploy.
+2. Update `frontend/vercel.json` — set `destination` to your Render API URL (`https://<service>.onrender.com`).
+3. Framework: Vite (uses `frontend/vercel.json` proxy rewrites).
+4. Add env from `frontend/.env.production.example` (**same-origin — required for login**):
+   - `VITE_API_URL=/api/v1`
+   - `VITE_BACKEND_URL=` (empty)
+5. Deploy.
+
+> **Why proxy?** Vercel (`*.vercel.app`) + Render (`*.onrender.com`) are different sites. Browsers block third-party session/CSRF cookies → **419** on login. Proxying `/api` and `/sanctum` through Vercel fixes this.
 
 ## 3. Link frontend ↔ API
 
 On **Render**, set:
 
 ```env
+APP_URL=https://<your-vercel-app>.vercel.app
 FRONTEND_URL=https://<your-vercel-app>.vercel.app
-SANCTUM_STATEFUL_DOMAINS=<your-vercel-app>.vercel.app
 DIYAR_FRONTEND_URL=https://<your-vercel-app>.vercel.app
-SESSION_SAME_SITE=none
+SANCTUM_STATEFUL_DOMAINS=<your-vercel-app>.vercel.app
+SESSION_SAME_SITE=lax
 SESSION_SECURE_COOKIE=true
+SESSION_DOMAIN=
+APP_KEY=base64:...   # required — php artisan key:generate --show
 ```
 
-Redeploy API after changing CORS/Sanctum vars.
+Redeploy API after changing env vars.
 
 ## 4. Validate
 
