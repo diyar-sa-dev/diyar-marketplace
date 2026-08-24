@@ -45,10 +45,10 @@ VITE_USE_API_PROXY=true
 On **Render**, set:
 
 ```env
-APP_URL=https://<your-vercel-app>.vercel.app
-FRONTEND_URL=https://<your-vercel-app>.vercel.app
-DIYAR_FRONTEND_URL=https://<your-vercel-app>.vercel.app
-SANCTUM_STATEFUL_DOMAINS=<your-vercel-app>.vercel.app
+APP_URL=https://diyar-k255.onrender.com
+FRONTEND_URL=https://diyar-psi.vercel.app
+DIYAR_FRONTEND_URL=https://diyar-psi.vercel.app
+SANCTUM_STATEFUL_DOMAINS=diyar-psi.vercel.app
 DB_CONNECTION=pgsql
 SESSION_SAME_SITE=none
 SESSION_SECURE_COOKIE=true
@@ -57,6 +57,8 @@ APP_KEY=base64:...   # required — php artisan key:generate --show
 DIYAR_MIGRATE_ON_BOOT=false
 DIYAR_HEALTH_PROBE_CACHE_SECONDS=45
 ```
+
+> **500 on login / health with SPA Origin:** if `SESSION_DOMAIN` is set to the Vercel hostname while the API runs on `*.onrender.com`, Sanctum stateful session cookies crash. Keep `SESSION_DOMAIN` **empty** for split hosting.
 
 Run migrations once after provisioning PostgreSQL:
 
