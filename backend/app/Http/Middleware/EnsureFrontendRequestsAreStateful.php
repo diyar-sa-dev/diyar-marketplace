@@ -24,10 +24,6 @@ final class EnsureFrontendRequestsAreStateful extends SanctumEnsureFrontendReque
 
     protected function frontendMiddleware(): array
     {
-        $middleware = parent::frontendMiddleware();
-
-        array_unshift($middleware, NormalizeSessionCookieDomain::class);
-
-        return $middleware;
+        return parent::frontendMiddleware();
     }
 }
