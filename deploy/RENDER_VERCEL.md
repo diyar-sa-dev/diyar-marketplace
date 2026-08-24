@@ -66,6 +66,10 @@ Run migrations once after provisioning PostgreSQL:
 php artisan migrate --force
 ```
 
+**Render FREE has no shell.** Run migrations by setting `DIYAR_MIGRATE_ON_BOOT=true`, redeploying, then setting it back to `false`.
+
+> **Blanket 500 on every data endpoint** (`/catalog/search`, `/cart`, `/csrf-token`) while `/health` returns 200 means the database is connected but **not migrated** — `/health` only opens a PDO connection. Check `data.checks.schema.missing_tables` in the health payload.
+
 **Backups (Render FREE):** automatic PostgreSQL backups may be unavailable on free plans. Schedule external `pg_dump` before claiming production backup readiness.
 
 Redeploy API after changing env vars.

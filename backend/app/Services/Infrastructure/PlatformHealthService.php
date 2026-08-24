@@ -29,6 +29,7 @@ final class PlatformHealthService
 
         $checks = [
             'database' => $database,
+            'schema' => $this->probeSchema(),
             'cache' => $cache,
             'queue' => $queue,
         ];
@@ -85,6 +86,38 @@ final class PlatformHealthService
                 return [
                     'ok' => false,
                     'driver' => (string) config('database.default'),
+                ];
+            }
+        });
+    }
+
+    /**
+     * Detect an unmigrated database — the usual cause of blanket 500s after a fresh deploy.
+     *
+     * @return array{ok: bool, session_driver: string, missing_tables?: list<string>}
+     */
+    public function probeSchema(): array
+    {
+        return $this->rememberProbe('schema', function (): array {
+            $sessionDriver = (string) config('session.driver');
+            $required = ['users', 'sessions', 'products', 'categories'];
+
+            try {
+                $schema = DB::getSchemaBuilder();
+                $missing = array_values(array_filter(
+                    $required,
+                    static fn (string $table): bool => ! $schema->hasTable($table),
+                ));
+
+                return array_filter([
+                    'ok' => $missing === [],
+                    'session_driver' => $sessionDriver,
+                    'missing_tables' => $missing === [] ? null : $missing,
+                ], static fn ($value) => $value !== null);
+            } catch (Throwable) {
+                return [
+                    'ok' => false,
+                    'session_driver' => $sessionDriver,
                 ];
             }
         });
