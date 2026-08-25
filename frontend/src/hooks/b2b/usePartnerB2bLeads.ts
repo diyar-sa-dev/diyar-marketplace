@@ -23,11 +23,7 @@ export function usePartnerB2bLeads(
   });
 }
 
-export function usePartnerB2bLead(
-  portal: PartnerB2bPortal,
-  leadId: string | null,
-  enabled = true,
-) {
+export function usePartnerB2bLead(portal: PartnerB2bPortal, leadId: string | null, enabled = true) {
   return useQuery({
     queryKey: b2bKeys.partnerLead(portal, leadId ?? ''),
     queryFn: () => fetchPartnerB2bLead(portal, leadId!),

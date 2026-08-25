@@ -11,9 +11,8 @@ export async function createAdminBlogCategory(name: string): Promise<BlogCategor
 }
 
 export async function createAdminBlogTag(name: string): Promise<BlogTag> {
-  const response = await adminApi.post<ApiSuccessResponse<{ tag: BlogTag }>>(
-    '/admin/blog/tags',
-    { name },
-  );
+  const response = await adminApi.post<ApiSuccessResponse<{ tag: BlogTag }>>('/admin/blog/tags', {
+    name,
+  });
   return response.data.data.tag;
 }

@@ -48,7 +48,10 @@ function HealthRow({
           <p className="truncate text-xs text-gray-500">{detail}</p>
         </div>
       </div>
-      <StatusPill ok={ok} label={ok ? t('admin.health.statusOkShort') : t('admin.health.statusDegradedShort')} />
+      <StatusPill
+        ok={ok}
+        label={ok ? t('admin.health.statusOkShort') : t('admin.health.statusDegradedShort')}
+      />
     </div>
   );
 }

@@ -2,10 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Archive, Eye, EyeOff, Globe, Pencil, Plus, Trash2 } from 'lucide-react';
 import { adminApi } from '../../api/client.ts';
-import {
-  AdminProjectModal,
-  type ProjectFormValues,
-} from '../components/AdminProjectModal.tsx';
+import { AdminProjectModal, type ProjectFormValues } from '../components/AdminProjectModal.tsx';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
@@ -221,13 +218,20 @@ export default function AdminProjectsPage() {
           <tr>
             <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.title')}</th>
             <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.slug')}</th>
-            <th className="px-4 py-3 text-start font-semibold">{t('admin.detail.vendor.location')}</th>
+            <th className="px-4 py-3 text-start font-semibold">
+              {t('admin.detail.vendor.location')}
+            </th>
             <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.status')}</th>
             <th className="px-4 py-3 text-end font-semibold">{t('admin.tables.actions')}</th>
           </tr>
         }
         footer={
-          <AdminTablePagination meta={meta} page={page} onPageChange={setPage} isLoading={isLoading} />
+          <AdminTablePagination
+            meta={meta}
+            page={page}
+            onPageChange={setPage}
+            isLoading={isLoading}
+          />
         }
       >
         {projects.map((project) => (

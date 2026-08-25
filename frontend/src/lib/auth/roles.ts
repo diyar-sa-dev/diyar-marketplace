@@ -424,9 +424,7 @@ export function resolveSafeReturnPath(
   return resolvePostAuthPath(roles);
 }
 
-export function resolvePartnerB2bDashboardPath(
-  roles: UserRoleLike[] | undefined,
-): string | null {
+export function resolvePartnerB2bDashboardPath(roles: UserRoleLike[] | undefined): string | null {
   if (hasActiveRole(roles, RoleName.Vendor)) {
     return '/dashboard/vendor/b2b';
   }

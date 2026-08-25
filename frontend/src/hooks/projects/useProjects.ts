@@ -3,10 +3,7 @@ import { fetchProjects } from '../../api/projects.ts';
 import type { ProjectListFilters } from '../../types/project.ts';
 import { projectKeys } from './queryKeys.ts';
 
-export function useProjects(
-  filters: ProjectListFilters = {},
-  options?: { enabled?: boolean },
-) {
+export function useProjects(filters: ProjectListFilters = {}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: projectKeys.list(filters),
     queryFn: () => fetchProjects(filters),

@@ -3,12 +3,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Archive, Eye, EyeOff, Globe, Pencil, Plus, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { adminApi } from '../../api/client.ts';
-import {
-  createAdminBlogCategory,
-  createAdminBlogTag,
-} from '../../api/adminContentMeta.ts';
+import { createAdminBlogCategory, createAdminBlogTag } from '../../api/adminContentMeta.ts';
 import { blogKeys } from '../../hooks/blog/queryKeys.ts';
-import { AdminBlogArticleModal, type BlogArticleFormValues } from '../components/AdminBlogArticleModal.tsx';
+import {
+  AdminBlogArticleModal,
+  type BlogArticleFormValues,
+} from '../components/AdminBlogArticleModal.tsx';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
@@ -20,7 +20,12 @@ import { confirmDeleteBlogArticle } from '../../lib/confirmDialog.ts';
 import { formatLocaleDate } from '../../lib/intlLocale.ts';
 import { parseApiError } from '../../utils/errors.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
-import type { BlogArticleCard, BlogArticleDetail, BlogCategory, BlogTag } from '../../types/blog.ts';
+import type {
+  BlogArticleCard,
+  BlogArticleDetail,
+  BlogCategory,
+  BlogTag,
+} from '../../types/blog.ts';
 
 function buildArticlePayload(values: BlogArticleFormValues, isCreate: boolean) {
   const payload: Record<string, unknown> = {
@@ -64,7 +69,9 @@ function mapArticleToForm(article: BlogArticleDetail): BlogArticleFormValues {
 
 async function fetchBlogCategories() {
   const response =
-    await adminApi.get<ApiSuccessResponse<{ categories: BlogCategory[] }>>('/admin/blog/categories');
+    await adminApi.get<ApiSuccessResponse<{ categories: BlogCategory[] }>>(
+      '/admin/blog/categories',
+    );
   return response.data.data.categories;
 }
 
@@ -280,7 +287,12 @@ export default function AdminBlogArticlesPage() {
           </tr>
         }
         footer={
-          <AdminTablePagination meta={meta} page={page} onPageChange={setPage} isLoading={isLoading} />
+          <AdminTablePagination
+            meta={meta}
+            page={page}
+            onPageChange={setPage}
+            isLoading={isLoading}
+          />
         }
       >
         {articles.map((article) => (

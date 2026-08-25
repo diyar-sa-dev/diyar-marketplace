@@ -96,7 +96,12 @@ export function ImageGalleryLightbox({
                   : 'border-transparent opacity-50 hover:opacity-80'
               }`}
             >
-              <img src={img} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+              <img
+                src={img}
+                alt=""
+                className="h-full w-full object-cover"
+                referrerPolicy="no-referrer"
+              />
             </button>
           ))}
         </div>

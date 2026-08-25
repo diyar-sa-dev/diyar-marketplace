@@ -11,8 +11,7 @@ export function useBlogArticles(
 
   return useQuery({
     queryKey: tag ? blogKeys.tagArticles(tag, rest) : blogKeys.articles(filters),
-    queryFn: () =>
-      tag ? fetchBlogTagArticles(tag, rest) : fetchBlogArticles(filters),
+    queryFn: () => (tag ? fetchBlogTagArticles(tag, rest) : fetchBlogArticles(filters)),
     enabled: options?.enabled !== false,
     staleTime: 5 * 60 * 1000,
   });

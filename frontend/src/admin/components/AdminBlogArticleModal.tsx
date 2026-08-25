@@ -140,7 +140,12 @@ function BlogArticleForm({
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4" data-testid="blog-article-modal" dir={dir}>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4"
+        data-testid="blog-article-modal"
+        dir={dir}
+      >
         <div>
           <RequiredFieldLabel label={t('admin.tables.title')} />
           <input

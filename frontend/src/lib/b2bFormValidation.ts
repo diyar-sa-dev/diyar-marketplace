@@ -1,7 +1,4 @@
-import {
-  isValidSaudiPhoneNational,
-  toSaudiPhoneNationalInput,
-} from './auth/validation.ts';
+import { isValidSaudiPhoneNational, toSaudiPhoneNationalInput } from './auth/validation.ts';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -24,7 +21,9 @@ export function isValidB2bWebsite(value: string): boolean {
 
   try {
     const parsed = new URL(candidate);
-    return (parsed.protocol === 'http:' || parsed.protocol === 'https:') && parsed.hostname.includes('.');
+    return (
+      (parsed.protocol === 'http:' || parsed.protocol === 'https:') && parsed.hostname.includes('.')
+    );
   } catch {
     return DOMAIN_PATTERN.test(trimmed.replace(/^https?:\/\//i, ''));
   }

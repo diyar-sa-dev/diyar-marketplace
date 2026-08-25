@@ -26,7 +26,9 @@ function buildQuery(filters: B2bCompanyListFilters = {}): string {
 export async function fetchB2bCompanies(
   filters: B2bCompanyListFilters = {},
 ): Promise<PaginatedB2bCompanies> {
-  const response = await apiClient.get<B2bCompaniesResponse>(`/b2b/companies${buildQuery(filters)}`);
+  const response = await apiClient.get<B2bCompaniesResponse>(
+    `/b2b/companies${buildQuery(filters)}`,
+  );
   return response.data.data;
 }
 
@@ -45,7 +47,10 @@ export async function submitB2bLead(slug: string, payload: SubmitB2bLeadPayload)
   return response.data.data.lead;
 }
 
-export async function fetchCustomerB2bLeads(page = 1, perPage = 10): Promise<PaginatedCustomerB2bLeads> {
+export async function fetchCustomerB2bLeads(
+  page = 1,
+  perPage = 10,
+): Promise<PaginatedCustomerB2bLeads> {
   const params = new URLSearchParams({
     page: String(page),
     per_page: String(perPage),

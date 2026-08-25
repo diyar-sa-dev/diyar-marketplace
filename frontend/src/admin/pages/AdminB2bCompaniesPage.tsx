@@ -56,7 +56,13 @@ type AdminIconHoverActionProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
 };
 
-function AdminIconHoverAction({ label, hint, children, className = '', ...buttonProps }: AdminIconHoverActionProps) {
+function AdminIconHoverAction({
+  label,
+  hint,
+  children,
+  className = '',
+  ...buttonProps
+}: AdminIconHoverActionProps) {
   return (
     <span className="relative inline-flex group/icon-action">
       <button
@@ -73,7 +79,9 @@ function AdminIconHoverAction({ label, hint, children, className = '', ...button
       >
         <span className="block text-[11px] font-bold leading-tight text-white">{label}</span>
         {hint ? (
-          <span className="mt-1 block text-[10px] font-normal leading-snug text-white/75">{hint}</span>
+          <span className="mt-1 block text-[10px] font-normal leading-snug text-white/75">
+            {hint}
+          </span>
         ) : null}
         <span
           aria-hidden
@@ -92,7 +100,13 @@ function AdminB2bPreviewModal({
   isPublishPending,
 }: AdminB2bPreviewModalProps) {
   const { t, dir } = useLocale();
-  const { data: company, isPending, isError, error, refetch } = useAdminDetailQuery<AdminB2bCompanyDetail>({
+  const {
+    data: company,
+    isPending,
+    isError,
+    error,
+    refetch,
+  } = useAdminDetailQuery<AdminB2bCompanyDetail>({
     resourceKey: 'admin-b2b-company-preview',
     endpoint: companyId ? `/admin/b2b/companies/${companyId}` : '',
     dataKey: 'company',
@@ -123,7 +137,10 @@ function AdminB2bPreviewModal({
             <p className="text-xs font-bold uppercase tracking-wide text-diyar-brown">
               {t('admin.b2b.preview.badge')}
             </p>
-            <h2 id="admin-b2b-preview-title" className="mt-1 truncate text-xl font-bold text-diyar-dark">
+            <h2
+              id="admin-b2b-preview-title"
+              className="mt-1 truncate text-xl font-bold text-diyar-dark"
+            >
               {company?.name ?? t('admin.b2b.preview.loadingTitle')}
             </h2>
             {company ? (
@@ -206,15 +223,25 @@ function AdminB2bPreviewModal({
               </div>
 
               <section>
-                <h3 className="mb-3 text-sm font-bold text-diyar-dark">{t('b2b.company.contact')}</h3>
+                <h3 className="mb-3 text-sm font-bold text-diyar-dark">
+                  {t('b2b.company.contact')}
+                </h3>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                  <PreviewField icon={<MapPin size={15} />} label={t('b2b.partner.fields.location')} value={company.location ?? '—'} />
+                  <PreviewField
+                    icon={<MapPin size={15} />}
+                    label={t('b2b.partner.fields.location')}
+                    value={company.location ?? '—'}
+                  />
                   <PreviewField
                     icon={<Phone size={15} />}
                     label={t('admin.b2b.fields.phone')}
                     value={phoneNational ? `+966 ${phoneNational}` : '—'}
                   />
-                  <PreviewField icon={<Mail size={15} />} label={t('admin.b2b.fields.email')} value={company.email ?? '—'} />
+                  <PreviewField
+                    icon={<Mail size={15} />}
+                    label={t('admin.b2b.fields.email')}
+                    value={company.email ?? '—'}
+                  />
                   <PreviewField
                     icon={<Globe size={15} />}
                     label={t('admin.b2b.fields.website')}
@@ -230,15 +257,23 @@ function AdminB2bPreviewModal({
               </section>
 
               <section>
-                <h3 className="mb-3 text-sm font-bold text-diyar-dark">{t('admin.b2b.preview.stats')}</h3>
+                <h3 className="mb-3 text-sm font-bold text-diyar-dark">
+                  {t('admin.b2b.preview.stats')}
+                </h3>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                   <PreviewField
                     label={t('admin.b2b.fields.yearsExperience')}
-                    value={company.stats.years_experience ? `+${company.stats.years_experience}` : '—'}
+                    value={
+                      company.stats.years_experience ? `+${company.stats.years_experience}` : '—'
+                    }
                   />
                   <PreviewField
                     label={t('admin.b2b.fields.completedProjects')}
-                    value={company.stats.completed_projects ? `+${company.stats.completed_projects}` : '—'}
+                    value={
+                      company.stats.completed_projects
+                        ? `+${company.stats.completed_projects}`
+                        : '—'
+                    }
                   />
                   <PreviewField
                     label={t('admin.b2b.fields.teamSize')}
@@ -255,7 +290,10 @@ function AdminB2bPreviewModal({
                   </h3>
                   <div className="space-y-2">
                     {company.services.map((service) => (
-                      <div key={service.id} className="rounded-xl border border-gray-100 bg-[#f7f4f1]/40 p-3">
+                      <div
+                        key={service.id}
+                        className="rounded-xl border border-gray-100 bg-[#f7f4f1]/40 p-3"
+                      >
                         <p className="font-semibold text-diyar-dark">{service.name}</p>
                         {service.description ? (
                           <p className="mt-1 text-sm text-gray-500">{service.description}</p>
@@ -318,7 +356,11 @@ function AdminB2bPreviewModal({
               onClick={() => onPublish(company.id)}
               className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-green-700 disabled:opacity-60 cursor-pointer"
             >
-              {isPublishPending ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} />}
+              {isPublishPending ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Eye size={16} />
+              )}
               {t('admin.actions.publish')}
             </button>
           ) : null}
@@ -349,7 +391,10 @@ function PreviewField({
       </dt>
       <dd className="mt-1.5 text-sm font-medium text-diyar-dark wrap-break-word">
         {html ? (
-          <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: String(value) }} />
+          <div
+            className="prose prose-sm max-w-none"
+            dangerouslySetInnerHTML={{ __html: String(value) }}
+          />
         ) : (
           value
         )}
@@ -445,9 +490,13 @@ export default function AdminB2bCompaniesPage() {
         columns={
           <tr>
             <th className="px-4 py-3 text-start font-semibold">{t('admin.b2b.columns.name')}</th>
-            <th className="px-4 py-3 text-start font-semibold">{t('admin.b2b.columns.category')}</th>
+            <th className="px-4 py-3 text-start font-semibold">
+              {t('admin.b2b.columns.category')}
+            </th>
             <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.status')}</th>
-            <th className="px-4 py-3 text-start font-semibold">{t('admin.b2b.columns.verification')}</th>
+            <th className="px-4 py-3 text-start font-semibold">
+              {t('admin.b2b.columns.verification')}
+            </th>
             <th className="px-4 py-3 text-start font-semibold">{t('admin.b2b.columns.rating')}</th>
             <th className="px-4 py-3 text-end font-semibold">{t('admin.tables.actions')}</th>
           </tr>
@@ -513,7 +562,9 @@ export default function AdminB2bCompaniesPage() {
                       title={t('admin.actions.publish')}
                       disabled={actionMutation.isPending}
                       data-testid={`b2b-publish-${company.slug}`}
-                      onClick={() => company.id && actionMutation.mutate({ id: company.id, action: 'publish' })}
+                      onClick={() =>
+                        company.id && actionMutation.mutate({ id: company.id, action: 'publish' })
+                      }
                     >
                       {t('admin.actions.publish')}
                     </button>
@@ -525,7 +576,9 @@ export default function AdminB2bCompaniesPage() {
                       title={t('admin.actions.unpublish')}
                       disabled={actionMutation.isPending}
                       data-testid={`b2b-unpublish-${company.slug}`}
-                      onClick={() => company.id && actionMutation.mutate({ id: company.id, action: 'unpublish' })}
+                      onClick={() =>
+                        company.id && actionMutation.mutate({ id: company.id, action: 'unpublish' })
+                      }
                     >
                       <EyeOff size={16} />
                     </button>
@@ -537,7 +590,9 @@ export default function AdminB2bCompaniesPage() {
                       title={t('admin.b2b.verify')}
                       disabled={actionMutation.isPending}
                       data-testid={`b2b-verify-${company.slug}`}
-                      onClick={() => company.id && actionMutation.mutate({ id: company.id, action: 'verify' })}
+                      onClick={() =>
+                        company.id && actionMutation.mutate({ id: company.id, action: 'verify' })
+                      }
                     >
                       <BadgeCheck size={16} />
                     </button>
@@ -547,7 +602,9 @@ export default function AdminB2bCompaniesPage() {
                       label={t('admin.b2b.unfeature')}
                       className="text-amber-600 hover:bg-amber-50"
                       disabled={actionMutation.isPending}
-                      onClick={() => company.id && actionMutation.mutate({ id: company.id, action: 'unfeature' })}
+                      onClick={() =>
+                        company.id && actionMutation.mutate({ id: company.id, action: 'unfeature' })
+                      }
                     >
                       <StarOff size={16} />
                     </AdminIconHoverAction>
@@ -557,7 +614,9 @@ export default function AdminB2bCompaniesPage() {
                       hint={t('admin.b2b.featureHint')}
                       className="text-amber-600 hover:bg-amber-50"
                       disabled={actionMutation.isPending}
-                      onClick={() => company.id && actionMutation.mutate({ id: company.id, action: 'feature' })}
+                      onClick={() =>
+                        company.id && actionMutation.mutate({ id: company.id, action: 'feature' })
+                      }
                     >
                       <Star size={16} />
                     </AdminIconHoverAction>

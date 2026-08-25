@@ -3,12 +3,7 @@ import { ensureCsrfCookie } from '../lib/csrf.ts';
 import type { ApiSuccessResponse } from '../types/api.ts';
 
 export type CmsImageContext =
-  | 'blog_hero'
-  | 'blog_avatar'
-  | 'project_cover'
-  | 'project_gallery'
-  | 'b2b_logo'
-  | 'b2b_cover';
+  'blog_hero' | 'blog_avatar' | 'project_cover' | 'project_gallery' | 'b2b_logo' | 'b2b_cover';
 
 type CmsImageUploadData = { path: string; url: string };
 

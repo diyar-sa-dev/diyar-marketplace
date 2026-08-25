@@ -4,12 +4,7 @@ import type { ProjectCard } from './project.ts';
 
 export type B2bPublicationStatus = 'draft' | 'published' | 'archived';
 export type B2bVerificationStatus = 'pending' | 'verified' | 'rejected';
-export type B2bLeadBudgetRange =
-  | 'unspecified'
-  | 'under_10k'
-  | '10k_50k'
-  | '50k_200k'
-  | 'over_200k';
+export type B2bLeadBudgetRange = 'unspecified' | 'under_10k' | '10k_50k' | '50k_200k' | 'over_200k';
 
 export interface B2bCategory {
   id: string;
@@ -230,4 +225,6 @@ export interface PartnerB2bCompanyPayload {
   services?: Array<{ name: string; description?: string | null }>;
 }
 
-export type PartnerB2bCompanyResponse = ApiSuccessResponse<{ company: PartnerB2bCompanyDetail | null }>;
+export type PartnerB2bCompanyResponse = ApiSuccessResponse<{
+  company: PartnerB2bCompanyDetail | null;
+}>;

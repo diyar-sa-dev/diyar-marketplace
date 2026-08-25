@@ -236,48 +236,52 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="h-72 w-full min-h-72 min-w-0" dir="ltr">
                   {chartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%" minHeight={288}>
-                    <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
-                      <CartesianGrid stroke="#e5e7eb" strokeDasharray="4 4" />
-                      <XAxis
-                        dataKey="label"
-                        interval={0}
-                        axisLine={{ stroke: '#9ca3af' }}
-                        tickLine={{ stroke: '#9ca3af' }}
-                        tick={{ fontSize: 11, fill: '#6b7280' }}
-                        angle={chartPeriod.mode === 'weekly' ? -18 : 0}
-                        textAnchor={chartPeriod.mode === 'weekly' ? 'end' : 'middle'}
-                        height={chartPeriod.mode === 'weekly' ? 52 : 32}
-                      />
-                      <YAxis
-                        allowDecimals={false}
-                        domain={[0, yMax]}
-                        tickCount={6}
-                        axisLine={{ stroke: '#9ca3af' }}
-                        tickLine={{ stroke: '#9ca3af' }}
-                        tick={{ fontSize: 11, fill: '#6b7280' }}
-                        width={36}
-                      />
-                      <Tooltip
-                        formatter={(value: number) => [
-                          formatLocaleNumber(value, locale),
-                          t('admin.reports.ordersSeries'),
-                        ]}
-                        labelFormatter={(_, items) => {
-                          const row = items?.[0]?.payload as { tooltipLabel?: string } | undefined;
-                          return row?.tooltipLabel ?? '';
-                        }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="orders"
-                        stroke="#1f3d3a"
-                        strokeWidth={2.5}
-                        dot={{ r: 3, fill: '#947961', stroke: '#1f3d3a', strokeWidth: 1 }}
-                        activeDot={{ r: 5 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                    <ResponsiveContainer width="100%" height="100%" minHeight={288}>
+                      <LineChart
+                        data={chartData}
+                        margin={{ top: 8, right: 12, left: 0, bottom: 4 }}
+                      >
+                        <CartesianGrid stroke="#e5e7eb" strokeDasharray="4 4" />
+                        <XAxis
+                          dataKey="label"
+                          interval={0}
+                          axisLine={{ stroke: '#9ca3af' }}
+                          tickLine={{ stroke: '#9ca3af' }}
+                          tick={{ fontSize: 11, fill: '#6b7280' }}
+                          angle={chartPeriod.mode === 'weekly' ? -18 : 0}
+                          textAnchor={chartPeriod.mode === 'weekly' ? 'end' : 'middle'}
+                          height={chartPeriod.mode === 'weekly' ? 52 : 32}
+                        />
+                        <YAxis
+                          allowDecimals={false}
+                          domain={[0, yMax]}
+                          tickCount={6}
+                          axisLine={{ stroke: '#9ca3af' }}
+                          tickLine={{ stroke: '#9ca3af' }}
+                          tick={{ fontSize: 11, fill: '#6b7280' }}
+                          width={36}
+                        />
+                        <Tooltip
+                          formatter={(value: number) => [
+                            formatLocaleNumber(value, locale),
+                            t('admin.reports.ordersSeries'),
+                          ]}
+                          labelFormatter={(_, items) => {
+                            const row = items?.[0]?.payload as
+                              { tooltipLabel?: string } | undefined;
+                            return row?.tooltipLabel ?? '';
+                          }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="orders"
+                          stroke="#1f3d3a"
+                          strokeWidth={2.5}
+                          dot={{ r: 3, fill: '#947961', stroke: '#1f3d3a', strokeWidth: 1 }}
+                          activeDot={{ r: 5 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
                   ) : null}
                 </div>
               </section>

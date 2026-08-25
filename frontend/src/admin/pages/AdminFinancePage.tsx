@@ -143,9 +143,7 @@ export default function AdminFinancePage() {
     endpoint: listConfig.endpoint,
     itemsKey: listConfig.itemsKey,
     paramFilterKey: section === 'ledger' ? 'transaction_type' : undefined,
-    enabled:
-      isAuthenticated &&
-      (section === 'ledger' ? canViewBalances : canViewPayouts),
+    enabled: isAuthenticated && (section === 'ledger' ? canViewBalances : canViewPayouts),
   });
 
   const payoutKind: AdminPayoutKind = section === 'affiliate' ? 'affiliate' : 'vendor';

@@ -37,8 +37,9 @@ export async function fetchWishlist(
   const { data } = await apiClient.get<ApiSuccessResponse<PaginatedWishlist<WishlistItem>>>(
     '/profile/wishlist',
     {
-    params: { page, per_page: perPage, kind },
-  });
+      params: { page, per_page: perPage, kind },
+    },
+  );
   return data.data;
 }
 
