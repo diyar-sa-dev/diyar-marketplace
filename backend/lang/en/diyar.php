@@ -755,6 +755,7 @@ return [
 
     'loyalty' => [
         'adjustment_zero' => 'Adjustment points cannot be zero.',
+        'adjustment_exceeds_max' => 'Adjustment cannot exceed :max points.',
         'adjustment_reason_required' => 'A reason is required for manual adjustments.',
         'insufficient_balance' => 'Insufficient loyalty balance for this adjustment.',
         'reasons' => [

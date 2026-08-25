@@ -45,7 +45,7 @@ class AdminLoyaltyController extends Controller
     public function adjust(Request $request, string $userId): JsonResponse
     {
         $validated = $request->validate([
-            'points' => ['required', 'integer', 'not_in:0'],
+            'points' => ['required', 'integer', 'not_in:0', 'min:1', 'max:'.config('diyar.loyalty.max_adjustment_points', 100_000)],
             'direction' => ['required', Rule::in(['credit', 'debit'])],
             'reason' => ['required', 'string', 'min:3', 'max:500'],
         ]);

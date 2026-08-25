@@ -114,6 +114,11 @@ final class LoyaltyLedgerService
             throw new InvalidArgumentException(__('diyar.loyalty.adjustment_zero'));
         }
 
+        $max = $this->rules->maxAdjustmentPoints();
+        if (abs($signedPoints) > $max) {
+            throw new InvalidArgumentException(__('diyar.loyalty.adjustment_exceeds_max', ['max' => $max]));
+        }
+
         $trimmedReason = trim($reason);
 
         if ($trimmedReason === '') {
@@ -230,7 +235,13 @@ final class LoyaltyLedgerService
     private function isUniqueReferenceViolation(QueryException $exception): bool
     {
         $code = (string) ($exception->errorInfo[1] ?? '');
+        $sqlState = (string) ($exception->errorInfo[0] ?? '');
 
-        return in_array($code, ['1062', '23505'], true);
+        if (in_array($code, ['1062', '23505', '19'], true)) {
+            return true;
+        }
+
+        return $sqlState === '23000'
+            && str_contains(strtolower($exception->getMessage()), 'loyalty_transactions.reference');
     }
 }

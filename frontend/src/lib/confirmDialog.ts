@@ -366,3 +366,34 @@ export async function showShareLinkDialog(t: TranslateFn, url: string): Promise<
 
   return result.isConfirmed;
 }
+
+export async function confirmLoyaltyAdjustment(
+  t: TranslateFn,
+  options: {
+    direction: 'credit' | 'debit';
+    points: number;
+    currentBalance: number;
+  },
+): Promise<boolean> {
+  const body =
+    options.direction === 'credit'
+      ? t('admin.loyalty.confirmAdjustBodyCredit', { points: options.points })
+      : t('admin.loyalty.confirmAdjustBodyDebit', {
+          points: options.points,
+          balance: Math.max(0, options.currentBalance - options.points),
+        });
+
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.loyalty.confirmAdjustTitle'),
+    text: body,
+    icon: options.direction === 'debit' ? 'warning' : 'question',
+    showCancelButton: true,
+    confirmButtonText: t('admin.loyalty.confirmAdjustConfirm'),
+    cancelButtonText: t('admin.loyalty.confirmAdjustCancel'),
+    confirmButtonColor: options.direction === 'debit' ? '#ef4444' : '#111827',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}

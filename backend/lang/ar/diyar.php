@@ -755,6 +755,7 @@ return [
 
     'loyalty' => [
         'adjustment_zero' => 'لا يمكن أن تكون نقاط التعديل صفراً.',
+        'adjustment_exceeds_max' => 'لا يمكن أن يتجاوز التعديل :max نقطة.',
         'adjustment_reason_required' => 'سبب التعديل مطلوب.',
         'insufficient_balance' => 'رصيد النقاط غير كافٍ لهذا التعديل.',
         'reasons' => [

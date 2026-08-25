@@ -1946,9 +1946,11 @@ See: `conception/Stages/Stage 26/Phase 26.2 - B2B Directory/COMPLETION_REPORT.md
 
 ## Phase 26.3 — Loyalty 
 
-**Status:** Complete (Stage 26.3)
+**Status:** Complete (Stage 26.3 — hardened)
 
 Database-backed loyalty with ledger, configurable earn rules, payment accrual, refund reversals, admin adjustments, customer history UI, and honest empty rewards state.
+
+Hardening (2026-08-25): BCMath money rules, SQLite idempotency, 26 backend tests, admin adjust confirmation, API filter validation, expanded docs.
 
 Delivered:
 

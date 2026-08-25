@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Loyalty;
 
+use App\Enums\LoyaltyTransactionType;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\LoyaltyTransactionResource;
 use App\Models\User;
@@ -9,6 +10,7 @@ use App\Services\Loyalty\LoyaltyQueryService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class LoyaltyController extends Controller
 {
@@ -31,11 +33,19 @@ class LoyaltyController extends Controller
         /** @var User $user */
         $user = $request->user();
 
+        $validated = $request->validate([
+            'type' => ['sometimes', 'nullable', 'string', Rule::in(array_merge(['all'], LoyaltyTransactionType::filterValues()))],
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:50'],
+        ]);
+
+        $type = isset($validated['type']) ? (string) $validated['type'] : null;
+
         $paginator = $this->loyalty->paginateTransactionsForUser(
             user: $user,
-            type: $request->string('type')->toString() ?: null,
-            page: (int) $request->integer('page', 1),
-            perPage: (int) $request->integer('per_page', 20),
+            type: $type !== 'all' ? $type : null,
+            page: (int) ($validated['page'] ?? 1),
+            perPage: (int) ($validated['per_page'] ?? 20),
         );
 
         return ApiResponse::success([

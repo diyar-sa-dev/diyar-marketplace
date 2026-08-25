@@ -103,7 +103,7 @@ export default function LoyaltyPage() {
           />
         ) : (
           <>
-            <div className="bg-gradient-to-br from-diyar-dark to-black rounded-[2rem] p-8 md:p-12 text-white shadow-2xl mb-8 relative overflow-hidden">
+            <div className="bg-linear-to-br from-diyar-dark to-black rounded-4xl p-8 md:p-12 text-white shadow-2xl mb-8 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
                 <div className="absolute -top-24 -left-24 w-64 h-64 bg-amber-400 rounded-full blur-3xl" />
                 <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-diyar-brown rounded-full blur-3xl" />
@@ -125,7 +125,7 @@ export default function LoyaltyPage() {
                         </span>
                       ) : (
                         <>
-                          <span className="text-5xl md:text-7xl font-sans font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">
+                          <span className="text-5xl md:text-7xl font-sans font-bold text-transparent bg-clip-text bg-linear-to-r from-amber-200 to-amber-500">
                             {summary?.balance.toLocaleString(locale)}
                           </span>
                           <span className="text-xl md:text-2xl font-bold text-amber-500 mb-2">

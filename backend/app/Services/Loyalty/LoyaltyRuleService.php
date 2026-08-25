@@ -9,6 +9,8 @@ use App\Services\Settings\EffectiveConfigService;
  *
  * Default: floor(eligible_amount / sar_per_point) * points_per_unit
  * Example: 50 SAR per point, 1 point per unit → 149 SAR = 2 points.
+ *
+ * Monetary math uses BCMath on normalized decimal strings — never floats.
  */
 final class LoyaltyRuleService
 {
@@ -31,19 +33,24 @@ final class LoyaltyRuleService
         return max(1, $this->config->integer('commerce.loyalty_points_per_unit', 1));
     }
 
+    public function maxAdjustmentPoints(): int
+    {
+        return max(1, (int) config('diyar.loyalty.max_adjustment_points', 100_000));
+    }
+
     public function calculatePoints(float|string $eligibleAmount): int
     {
         if (! $this->isEnabled()) {
             return 0;
         }
 
-        $amount = (float) $eligibleAmount;
+        $amount = $this->normalizeMoney($eligibleAmount);
 
-        if ($amount <= 0) {
+        if (bccomp($amount, '0', 2) <= 0) {
             return 0;
         }
 
-        $units = (int) floor($amount / $this->sarPerPoint());
+        $units = (int) bcdiv($amount, (string) $this->sarPerPoint(), 0);
 
         return $units * $this->pointsPerUnit();
     }
@@ -57,17 +64,38 @@ final class LoyaltyRuleService
             return 0;
         }
 
-        $original = (float) $originalEligibleAmount;
-        $refunded = (float) $refundedAmount;
+        $original = $this->normalizeMoney($originalEligibleAmount);
+        $refunded = $this->normalizeMoney($refundedAmount);
 
-        if ($original <= 0 || $refunded <= 0) {
+        if (bccomp($original, '0', 2) <= 0 || bccomp($refunded, '0', 2) <= 0) {
             return 0;
         }
 
-        if ($refunded >= $original) {
+        if (bccomp($refunded, $original, 2) >= 0) {
             return $earnedPoints;
         }
 
-        return (int) floor($earnedPoints * ($refunded / $original));
+        $product = bcmul(
+            (string) $earnedPoints,
+            bcdiv($refunded, $original, 8),
+            8,
+        );
+
+        return (int) bcdiv($product, '1', 0);
+    }
+
+    private function normalizeMoney(float|string $amount): string
+    {
+        if (is_string($amount)) {
+            $trimmed = trim($amount);
+
+            if ($trimmed === '' || ! is_numeric($trimmed)) {
+                return '0.00';
+            }
+
+            return bcadd($trimmed, '0', 2);
+        }
+
+        return bcadd((string) $amount, '0', 2);
     }
 }

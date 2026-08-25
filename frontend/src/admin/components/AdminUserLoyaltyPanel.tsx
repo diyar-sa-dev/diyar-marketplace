@@ -1,16 +1,14 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Star, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import {
-  adjustAdminCustomerLoyalty,
-  fetchAdminCustomerLoyalty,
-} from '../../api/adminLoyalty.ts';
+import { adjustAdminCustomerLoyalty, fetchAdminCustomerLoyalty } from '../../api/adminLoyalty.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { PermissionGate } from '../components/PermissionGate.tsx';
 import { LoadingState } from '../../components/common/LoadingState.tsx';
 import { ErrorState } from '../../components/common/ErrorState.tsx';
 import { formatLocaleDateTime } from '../../lib/intlLocale.ts';
+import { confirmLoyaltyAdjustment } from '../../lib/confirmDialog.ts';
 import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
 
 type Props = {
@@ -43,7 +41,9 @@ export function AdminUserLoyaltyPanel({ userId }: Props) {
       showToast(t('admin.loyalty.adjustSuccess'), 'success');
       setPoints('');
       setReason('');
-      void queryClient.invalidateQueries({ queryKey: adminQueryKey('admin-user-loyalty', endpoint) });
+      void queryClient.invalidateQueries({
+        queryKey: adminQueryKey('admin-user-loyalty', endpoint),
+      });
     },
     onError: () => {
       showToast(t('admin.loyalty.adjustError'), 'error');
@@ -97,8 +97,23 @@ export function AdminUserLoyaltyPanel({ userId }: Props) {
       <PermissionGate permission="loyalty.adjust">
         <form
           className="rounded-2xl border border-gray-100 bg-gray-50/80 p-5 space-y-4"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
+            const parsedPoints = Number(points);
+            if (!Number.isFinite(parsedPoints) || parsedPoints <= 0) {
+              return;
+            }
+
+            const confirmed = await confirmLoyaltyAdjustment(t, {
+              direction,
+              points: parsedPoints,
+              currentBalance: loyalty.balance,
+            });
+
+            if (!confirmed) {
+              return;
+            }
+
             adjustMutation.mutate();
           }}
         >

@@ -17,6 +17,8 @@ Database-backed loyalty accounts, automatic accrual on successful payments, reve
 |------|---------|
 | [BUSINESS_RULES.md](./BUSINESS_RULES.md) | Earning, reversal, rounding, eligible amount |
 | [IMPLEMENTATION.md](./IMPLEMENTATION.md) | Architecture and integration points |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Service boundaries, idempotency, events |
+| [PERFORMANCE.md](./PERFORMANCE.md) | Indexes, query patterns, caching |
 | [API.md](./API.md) | HTTP endpoints |
 | [SECURITY.md](./SECURITY.md) | Authorization and idempotency |
 | [TESTING.md](./TESTING.md) | Test coverage |
