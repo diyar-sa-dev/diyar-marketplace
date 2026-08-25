@@ -1950,7 +1950,9 @@ See: `conception/Stages/Stage 26/Phase 26.2 - B2B Directory/COMPLETION_REPORT.md
 
 Database-backed loyalty with ledger, configurable earn rules, payment accrual, refund reversals, admin adjustments, customer history UI, and honest empty rewards state.
 
-Hardening (2026-08-25): BCMath money rules, SQLite idempotency, 26 backend tests, admin adjust confirmation, API filter validation, expanded docs.
+Hardening (2026-08-25): BCMath money rules, SQLite idempotency, 31 backend tests, admin adjust confirmation, API filter validation, in-transaction debit guard, cumulative reversal cap, expanded docs.
+
+Final enterprise pass (2026-08-25): debit TOCTOU fix, multi-return reversal cap, decimal boundary tests, admin view auth tests.
 
 Delivered:
 

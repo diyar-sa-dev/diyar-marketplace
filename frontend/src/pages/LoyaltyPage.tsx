@@ -188,6 +188,26 @@ export default function LoyaltyPage() {
           <div className="p-8">
             {rewardsQuery.isLoading ? (
               <LoadingState message={t('common.loading')} />
+            ) : rewardsQuery.isError ? (
+              <ErrorState
+                message={t('loyaltyPage.loadError')}
+                onRetry={() => void rewardsQuery.refetch()}
+              />
+            ) : rewardsQuery.data?.items?.length ? (
+              <ul className="space-y-3">
+                {rewardsQuery.data.items.map((reward, index) => (
+                  <li
+                    key={typeof reward === 'object' && reward !== null && 'id' in reward
+                      ? String((reward as { id: string }).id)
+                      : `reward-${index}`}
+                    className="rounded-xl border border-gray-100 p-4 text-sm text-diyar-dark"
+                  >
+                    {typeof reward === 'object' && reward !== null && 'name' in reward
+                      ? String((reward as { name: string }).name)
+                      : t('loyaltyPage.rewardsTitle')}
+                  </li>
+                ))}
+              </ul>
             ) : (
               <EmptyState
                 title={t('loyaltyPage.rewardsEmptyTitle')}
@@ -203,11 +223,17 @@ export default function LoyaltyPage() {
               <Clock className="text-diyar-brown" size={24} />
               <h3 className="text-xl font-bold text-diyar-dark">{t('loyaltyPage.historyTitle')}</h3>
             </div>
-            <div className="flex flex-wrap items-center p-1 bg-gray-50 rounded-xl w-full md:w-auto gap-1">
+            <div
+              className="flex flex-wrap items-center p-1 bg-gray-50 rounded-xl w-full md:w-auto gap-1"
+              role="tablist"
+              aria-label={t('loyaltyPage.historyTitle')}
+            >
               {FILTERS.map((filter) => (
                 <button
                   key={filter}
                   type="button"
+                  role="tab"
+                  aria-selected={activeFilter === filter}
                   onClick={() => handleFilterChange(filter)}
                   className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
                     activeFilter === filter

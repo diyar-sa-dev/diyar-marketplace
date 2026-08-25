@@ -14,6 +14,12 @@ final class LoyaltyEligibleAmountService
 {
     public function forOrder(Order $order): string
     {
-        return number_format((float) $order->grand_total, 2, '.', '');
+        $amount = $order->grand_total;
+
+        if ($amount === null || $amount === '') {
+            return '0.00';
+        }
+
+        return bcadd((string) $amount, '0', 2);
     }
 }

@@ -32,13 +32,21 @@
 - Max adjustment cap validation
 - Invalid zero config clamped to safe minimums
 
-**Total backend loyalty tests: 26**
+**Total backend loyalty tests: 31**
 
 Run:
 
 ```bash
 cd backend && php artisan test tests/Feature/Loyalty
 ```
+
+### Enterprise hardening additions (`LoyaltyHardeningTest`)
+
+- Decimal boundaries: 49.99, 50, 149.99, 499.99, 500
+- Sequential debit guard (insufficient balance on second debit)
+- Cumulative multi-return reversal cap
+- Admin `loyalty.view` denial
+- Unauthenticated 401 on customer endpoints
 
 ## Frontend
 

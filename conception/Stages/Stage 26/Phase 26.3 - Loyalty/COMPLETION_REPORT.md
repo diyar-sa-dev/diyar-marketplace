@@ -1,59 +1,63 @@
-# Completion Report — Stage 26.3 Loyalty (Hardening)
+# Completion Report — Stage 26.3 Loyalty (Final Enterprise Hardening)
 
 **Date:** 2026-08-25  
-**Commit target:** `feat(stage-26.3): harden loyalty rewards and points`
+**Base commit:** `c8bd8fa`  
+**Follow-up commit:** `feat(stage-26.3): final enterprise loyalty hardening`
 
-## Summary
+## Verdict
 
-Hardening pass on the loyalty ledger introduced in `def5c74`. Focus: money precision, idempotency under SQLite, expanded tests, admin UX confirmation, API validation, and documentation.
+**COMPLETE WITH DEFERRED INFRASTRUCTURE**
 
-## Bugs found & fixed
+Stage 26.3 is production-ready for earn, balance, reversal, admin adjust, and customer/admin UX within approved scope. Playwright E2E and staging p95/p99 remain infrastructure-dependent.
 
-| Issue | Fix |
-|-------|-----|
-| `LoyaltyRuleService` used float math | BCMath on normalized decimal strings |
-| SQLite unique violations not treated as idempotent | Extended `isUniqueReferenceViolation()` for SQLite (`19`, SQLSTATE `23000`) |
-| Admin adjust had no max cap | `diyar.loyalty.max_adjustment_points` + validation in controller/ledger |
-| Customer API accepted arbitrary `type` filter | Validated against enum + `all` |
-| Admin adjust had no confirmation | SweetAlert confirm dialog with debit balance preview |
+## Audit findings (independent re-audit)
 
-## Acceptance matrix
+| Area | Finding | Action |
+|------|---------|--------|
+| Debit adjust TOCTOU | Pre-check outside transaction; `max(0,…)` could desync ledger | **Fixed** — solvency inside `postMutation()` |
+| Multi-return reversal | Could exceed earned points per order | **Fixed** — cap at remaining reversible |
+| Eligible amount | Float cast on `grand_total` | **Fixed** — BCMath string normalization |
+| Decimal boundaries | Partial coverage | **Fixed** — explicit 49.99–500 tests |
+| Admin view permission | Untested | **Fixed** — 403 test added |
+| Guest API access | Untested | **Fixed** — 401 tests added |
+| Notifications | Out of scope | **Documented** — no expansion |
+| True parallel concurrency | Not provable on SQLite CI | **Deferred** — sequential debit guard tested |
+| Rewards catalog | Intentionally empty | **Unchanged** |
 
-| Criterion | Status | Evidence |
-|-----------|--------|----------|
-| Configurable 50 SAR → 1 point | VERIFIED | `LoyaltyCommerceTest` + `LoyaltyHardeningTest` |
-| Accrual only after successful payment | VERIFIED | Unpaid + failed payment tests |
-| Accrual idempotent | VERIFIED | Duplicate `PaymentSucceeded` test |
-| Refund reversal proportional | VERIFIED | Rule helper + return integration tests |
-| Reversal idempotent | VERIFIED | Duplicate reversal + listener tests |
-| Immutable ledger | VERIFIED | Earn row preserved after reversal |
-| Balance consistent with ledger | VERIFIED | Sum(points) == balance test |
-| Admin adjust secure | VERIFIED | Permission + max cap + reason required |
-| Customer cannot manipulate loyalty | VERIFIED | Admin route unauthorized for customer |
-| Enable/disable behavior | VERIFIED | Disabled accrual + re-enable tests |
-| Customer UI production-ready | VERIFIED | Unit tests + existing page polish |
-| Admin loyalty UI | VERIFIED | Confirm dialog + existing panel |
-| Pagination / filtering | VERIFIED | Backend + frontend hooks |
-| DB indexes | VERIFIED | Migration unchanged, documented in PERFORMANCE.md |
-| Backend tests | VERIFIED | 26 passing |
-| Frontend tests | VERIFIED | 5 passing |
-| Lint / typecheck / build / Pint | VERIFIED | Local run |
-| Playwright E2E | DEFERRED | Env-dependent |
-| Staging p95/p99 | DEFERRED | Not measured |
-| Rewards catalog | DEFERRED | Intentionally empty |
-| Stage 26.4 not started | VERIFIED | No 26.4 code touched |
+## Changes made
 
-## Known limitations
+### Backend
+- `LoyaltyLedgerService`: in-transaction debit guard; reversal cap; removed silent balance clamp
+- `LoyaltyEligibleAmountService`: decimal-safe `bcadd`
+- 5 new tests (31 total loyalty tests)
 
-- Reward redemption products remain deferred (empty state only).
-- Playwright loyalty spec not executed locally.
-- Full platform regression suite not re-run (loyalty scope verified).
-- Staging latency benchmarks not collected.
+### Frontend
+- Loyalty page: rewards error/retry; filter tab a11y; future-ready rewards list branch
+- Home `LoyaltyPromo`: loading state for authenticated users
 
-## Stage 26.3 status
+### Documentation
+- Updated SECURITY, TESTING, COMPLETION_REPORT, ARCHITECTURE notes
 
-**COMPLETE** for defined scope, with E2E/staging performance marked DEFERRED/INFRASTRUCTURE-DEPENDENT.
+## Test results
 
-## Next phase (not started)
+| Gate | Result |
+|------|--------|
+| Loyalty backend (31) | PASS |
+| Return/refund regression (subset) | PASS |
+| Pint | PASS |
+| Frontend unit (5) | PASS |
+| Typecheck / lint / build | PASS |
+| Playwright E2E | DEFERRED |
+| Full backend regression | PARTIAL |
 
-26.4 — Advanced Shipping (per PLAN.md)
+## Deferred
+
+- Playwright loyalty spec execution
+- Staging/production p95 latency
+- True multi-process concurrency proof (MySQL/PostgreSQL row locks in CI)
+- Loyalty push/in-app notifications
+- Reward catalog / redemption (future phase)
+
+## Stage 26.4
+
+**NOT STARTED.**

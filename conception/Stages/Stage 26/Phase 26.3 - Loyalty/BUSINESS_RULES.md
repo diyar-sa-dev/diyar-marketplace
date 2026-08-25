@@ -26,7 +26,8 @@ Duplicate payment-success events produce zero additional points.
 - Creates `reversal` transaction (never deletes earn row)
 - **Full refund:** reverse all earned points for the order
 - **Partial refund:** `floor(earned * (refund_amount / original_eligible))`
-- Balance clamped to ≥ 0
+- **Cumulative cap:** total reversals for an order never exceed original earned points
+- **Debit guard:** negative mutations rejected inside DB transaction if balance insufficient
 
 ## Admin adjustment
 

@@ -1222,7 +1222,7 @@ export function FastOffersSlider() {
 export function LoyaltyPromo() {
   const { t, locale } = useLocale();
   const { isAuthenticated } = useAuth();
-  const { data: loyaltySummary } = useLoyaltySummary(isAuthenticated);
+  const { data: loyaltySummary, isLoading: loyaltyLoading } = useLoyaltySummary(isAuthenticated);
 
   return (
     <div className="max-w-7xl mx-auto px-4 my-8 md:my-12">
@@ -1244,14 +1244,16 @@ export function LoyaltyPromo() {
               {t('home.loyalty.titleLine1')} <br /> {t('home.loyalty.titleLine2')}
             </h2>
             <p className="text-gray-600 text-lg mb-10 max-w-lg leading-relaxed">
-              {isAuthenticated && loyaltySummary
-                ? t('home.loyalty.authenticatedBody', {
-                    balance: loyaltySummary.balance.toLocaleString(locale),
-                  })
-                : t('home.loyalty.body')}
+              {isAuthenticated && loyaltyLoading
+                ? t('common.loading')
+                : isAuthenticated && loyaltySummary
+                  ? t('home.loyalty.authenticatedBody', {
+                      balance: loyaltySummary.balance.toLocaleString(locale),
+                    })
+                  : t('home.loyalty.body')}
             </p>
 
-            {isAuthenticated && loyaltySummary ? (
+            {isAuthenticated && loyaltySummary && !loyaltyLoading ? (
               <div className="mb-8 inline-flex items-center gap-3 rounded-2xl border border-amber-200 bg-white px-5 py-3 shadow-sm">
                 <Star size={20} className="text-amber-500 fill-amber-500" />
                 <span className="font-bold text-[#3D2E1F]">

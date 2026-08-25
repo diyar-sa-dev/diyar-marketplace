@@ -80,11 +80,20 @@ final class LoyaltyLedgerService
             return null;
         }
 
+        $remainingEarn = $this->remainingReversiblePointsForOrder($order->id, $earn->points);
+
+        if ($remainingEarn <= 0) {
+            return null;
+        }
+
         $eligible = $this->eligibleAmounts->forOrder($order);
-        $reversalPoints = $this->rules->calculateReversalPoints(
-            $earn->points,
-            $eligible,
-            (string) $refundAmount,
+        $reversalPoints = min(
+            $remainingEarn,
+            $this->rules->calculateReversalPoints(
+                $earn->points,
+                $eligible,
+                (string) $refundAmount,
+            ),
         );
 
         if ($reversalPoints <= 0) {
@@ -102,7 +111,7 @@ final class LoyaltyLedgerService
             sourceType: 'return',
             sourceId: $returnRequest->id,
             onBalance: fn (LoyaltyAccount $account, int $delta) => [
-                'balance' => max(0, $account->balance + $delta),
+                'balance' => $account->balance + $delta,
                 'total_reversed' => $account->total_reversed + abs($delta),
             ],
         );
@@ -125,13 +134,6 @@ final class LoyaltyLedgerService
             throw new InvalidArgumentException(__('diyar.loyalty.adjustment_reason_required'));
         }
 
-        if ($signedPoints < 0) {
-            $account = $this->lockAccount($customer);
-            if ($account->balance + $signedPoints < 0) {
-                throw new InvalidArgumentException(__('diyar.loyalty.insufficient_balance'));
-            }
-        }
-
         return $this->postMutation(
             user: $customer,
             type: LoyaltyTransactionType::Adjust,
@@ -144,7 +146,7 @@ final class LoyaltyLedgerService
             sourceId: null,
             createdBy: $admin->id,
             onBalance: fn (LoyaltyAccount $account, int $delta) => [
-                'balance' => max(0, $account->balance + $delta),
+                'balance' => $account->balance + $delta,
                 'total_adjusted' => $account->total_adjusted + $delta,
             ],
         );
@@ -162,6 +164,17 @@ final class LoyaltyLedgerService
                 'total_adjusted' => 0,
             ],
         );
+    }
+
+    private function remainingReversiblePointsForOrder(string $orderId, int $earnedPoints): int
+    {
+        $alreadyReversed = (int) LoyaltyTransaction::query()
+            ->where('order_id', $orderId)
+            ->where('type', LoyaltyTransactionType::Reversal)
+            ->selectRaw('COALESCE(SUM(ABS(points)), 0) as total')
+            ->value('total');
+
+        return max(0, $earnedPoints - $alreadyReversed);
     }
 
     /**
@@ -195,6 +208,11 @@ final class LoyaltyLedgerService
                 $createdBy,
             ): LoyaltyTransaction {
                 $account = $this->lockAccount($user);
+
+                if ($points < 0 && $account->balance + $points < 0) {
+                    throw new InvalidArgumentException(__('diyar.loyalty.insufficient_balance'));
+                }
+
                 $updates = $onBalance($account, $points);
 
                 $account->forceFill($updates)->save();

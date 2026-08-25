@@ -41,6 +41,8 @@ PaymentSucceeded / ReturnUpdated (Refunded)
 
 Duplicate references are caught at the database layer (MySQL `1062`, PostgreSQL `23505`, SQLite `19` / SQLSTATE `23000`) and resolved by returning the existing transaction.
 
+Debit solvency is validated **inside** the transaction after `lockForUpdate()`. Reversals are capped at `earn.points − sum(prior reversals for order)`.
+
 ## Concurrency
 
 - `loyalty_accounts` row is locked with `lockForUpdate()` before balance mutation.

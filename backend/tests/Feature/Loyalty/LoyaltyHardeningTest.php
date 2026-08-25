@@ -374,6 +374,122 @@ class LoyaltyHardeningTest extends TestCase
         $this->assertSame(100, $rules->calculatePoints(100));
     }
 
+    #[Test]
+    public function decimal_boundary_amounts_use_floor_rounding(): void
+    {
+        $rules = app(LoyaltyRuleService::class);
+
+        $this->assertSame(0, $rules->calculatePoints('49.99'));
+        $this->assertSame(1, $rules->calculatePoints('50'));
+        $this->assertSame(1, $rules->calculatePoints('50.00'));
+        $this->assertSame(1, $rules->calculatePoints('50.000'));
+        $this->assertSame(2, $rules->calculatePoints('100'));
+        $this->assertSame(2, $rules->calculatePoints('149.99'));
+        $this->assertSame(3, $rules->calculatePoints('150'));
+        $this->assertSame(9, $rules->calculatePoints('499.99'));
+        $this->assertSame(10, $rules->calculatePoints('500'));
+    }
+
+    #[Test]
+    public function sequential_debit_adjustments_cannot_drive_balance_negative(): void
+    {
+        $customer = $this->createUserWithRole(RoleName::Customer);
+        $admin = $this->createUserWithRole(RoleName::Admin);
+
+        $this->postJsonAsAdmin("/api/v1/admin/loyalty/customers/{$customer->id}/adjust", $admin, [
+            'points' => 10,
+            'direction' => 'credit',
+            'reason' => 'Seed balance for debit guard test',
+        ])->assertOk();
+
+        $this->postJsonAsAdmin("/api/v1/admin/loyalty/customers/{$customer->id}/adjust", $admin, [
+            'points' => 8,
+            'direction' => 'debit',
+            'reason' => 'First debit within balance',
+        ])->assertOk()
+            ->assertJsonPath('data.loyalty.balance', 2);
+
+        $this->postJsonAsAdmin("/api/v1/admin/loyalty/customers/{$customer->id}/adjust", $admin, [
+            'points' => 8,
+            'direction' => 'debit',
+            'reason' => 'Second debit must be rejected',
+        ])->assertUnprocessable();
+
+        $this->assertSame(2, LoyaltyAccount::query()->where('user_id', $customer->id)->value('balance'));
+    }
+
+    #[Test]
+    public function cumulative_reversals_never_exceed_earned_points(): void
+    {
+        [$customer, $vendor, $vendorOrder, $item] = $this->deliverSingleItemOrder(
+            quantity: 2,
+            salePrice: 250.00,
+        );
+        $order = $vendorOrder->order;
+        event(new PaymentSucceeded($order->payment->fresh()));
+
+        $earn = LoyaltyTransaction::query()
+            ->where('order_id', $order->id)
+            ->where('type', LoyaltyTransactionType::Earn)
+            ->firstOrFail();
+
+        $firstReturnId = $this->postJsonAsUser('/api/v1/returns', $customer, [
+            'vendor_order_id' => $vendorOrder->id,
+            'reason' => ReturnReason::ManufacturingDefect->value,
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
+        ])->assertCreated()->json('data.return_request.id');
+
+        $this->advanceReturnToRefunded($vendor, $firstReturnId);
+
+        $secondReturnId = $this->postJsonAsUser('/api/v1/returns', $customer, [
+            'vendor_order_id' => $vendorOrder->id,
+            'reason' => ReturnReason::ManufacturingDefect->value,
+            'items' => [['order_item_id' => $item->id, 'quantity' => 1]],
+        ])->assertCreated()->json('data.return_request.id');
+
+        $this->advanceReturnToRefunded($vendor, $secondReturnId);
+
+        $totalReversed = (int) LoyaltyTransaction::query()
+            ->where('order_id', $order->id)
+            ->where('type', LoyaltyTransactionType::Reversal)
+            ->get()
+            ->sum(fn (LoyaltyTransaction $tx): int => abs($tx->points));
+
+        $this->assertLessThanOrEqual($earn->points, $totalReversed);
+        $this->assertSame(
+            max(0, $earn->points - $totalReversed),
+            LoyaltyAccount::query()->where('user_id', $customer->id)->value('balance'),
+        );
+    }
+
+    #[Test]
+    public function admin_without_loyalty_view_permission_is_forbidden(): void
+    {
+        $customer = $this->createUserWithRole(RoleName::Customer);
+        $admin = $this->createUserWithRole(RoleName::Admin);
+        $adminRole = Role::query()->where('name', RoleName::Admin)->firstOrFail();
+
+        $keys = Permission::query()
+            ->where('key', '!=', AdminPermission::LoyaltyView->value)
+            ->pluck('key')
+            ->all();
+
+        app(AdminRolePermissionService::class)->syncPermissions($adminRole, $keys, $admin);
+        app(AdminPermissionService::class)->forget($admin);
+
+        $this->actingAs($admin, 'admin')
+            ->getJson("/api/v1/admin/loyalty/customers/{$customer->id}")
+            ->assertForbidden();
+    }
+
+    #[Test]
+    public function unauthenticated_customer_cannot_access_loyalty_endpoints(): void
+    {
+        $this->getJson('/api/v1/loyalty')->assertUnauthorized();
+        $this->getJson('/api/v1/loyalty/transactions')->assertUnauthorized();
+        $this->getJson('/api/v1/loyalty/rewards')->assertUnauthorized();
+    }
+
     /**
      * @return array{0: User, 1: Order}
      */
