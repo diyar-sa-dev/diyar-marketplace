@@ -60,9 +60,11 @@ Migrations use Laravel Schema — portable across MySQL and PostgreSQL.
 
 ## Documentation
 
-- [STAGE_26_1_API.md](./STAGE_26_1_API.md)
-- [STAGE_26_1_SECURITY.md](./STAGE_26_1_SECURITY.md)
-- [STAGE_26_1_DELIVERY_REPORT.md](./STAGE_26_1_DELIVERY_REPORT.md) (superseded by this report)
+- [README.md](./README.md) — phase index
+- [STAGE_26_1.md](./STAGE_26_1.md) — phase plan (sub-phases 26.1.1–26.1.6)
+- [STAGE_26_1_API.md](./STAGE_26_1_API.md) — endpoint reference
+- [STAGE_26_1_SECURITY.md](./STAGE_26_1_SECURITY.md) — security controls
+- [STAGE_26_1_DELIVERY_REPORT.md](./STAGE_26_1_DELIVERY_REPORT.md) — initial delivery (superseded)
 
 ---
 

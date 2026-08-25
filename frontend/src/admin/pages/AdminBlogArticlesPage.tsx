@@ -1,10 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Archive, Eye, EyeOff, Globe, Pencil, Plus, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { adminApi } from '../../api/client.ts';
+import {
+  createAdminBlogCategory,
+  createAdminBlogTag,
+} from '../../api/adminContentMeta.ts';
+import { blogKeys } from '../../hooks/blog/queryKeys.ts';
 import { AdminBlogArticleModal, type BlogArticleFormValues } from '../components/AdminBlogArticleModal.tsx';
-import { toDatetimeLocalValue } from '../../lib/datetimeLocal.ts';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
@@ -18,8 +22,8 @@ import { parseApiError } from '../../utils/errors.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
 import type { BlogArticleCard, BlogArticleDetail, BlogCategory, BlogTag } from '../../types/blog.ts';
 
-function buildArticlePayload(values: BlogArticleFormValues) {
-  return {
+function buildArticlePayload(values: BlogArticleFormValues, isCreate: boolean) {
+  const payload: Record<string, unknown> = {
     title: values.title,
     slug: values.slug || undefined,
     excerpt: values.excerpt || null,
@@ -30,11 +34,15 @@ function buildArticlePayload(values: BlogArticleFormValues) {
     author_role: values.author_role || null,
     hero_image: values.hero_image || null,
     author_avatar: values.author_avatar || null,
-    published_at: values.published_at ? new Date(values.published_at).toISOString() : null,
     seo_title: values.seo_title || null,
     seo_description: values.seo_description || null,
-    status: values.status,
   };
+
+  if (isCreate) {
+    payload.status = 'draft';
+  }
+
+  return payload;
 }
 
 function mapArticleToForm(article: BlogArticleDetail): BlogArticleFormValues {
@@ -49,11 +57,8 @@ function mapArticleToForm(article: BlogArticleDetail): BlogArticleFormValues {
     author_role: article.author_role ?? '',
     hero_image: article.hero_image ?? '',
     author_avatar: article.author_avatar ?? '',
-    reading_time_minutes: article.reading_time_minutes ?? null,
-    published_at: toDatetimeLocalValue(article.published_at),
     seo_title: article.seo_title ?? '',
     seo_description: article.seo_description ?? '',
-    status: article.status ?? 'draft',
   };
 }
 
@@ -118,10 +123,6 @@ export default function AdminBlogArticlesPage() {
 
   const articles = data?.items ?? [];
   const meta = data?.meta;
-  const existingSlugs = useMemo(
-    () => (data?.items ?? []).map((article) => article.slug),
-    [data?.items],
-  );
 
   const invalidateArticles = async () => {
     await queryClient.invalidateQueries({ queryKey: ['admin', 'admin-blog-articles'] });
@@ -129,7 +130,29 @@ export default function AdminBlogArticlesPage() {
 
   const saveMutation = useMutation({
     mutationFn: async (values: BlogArticleFormValues) => {
-      const payload = buildArticlePayload(values);
+      let categoryId = values.blog_category_id;
+      if (values.new_category_name?.trim()) {
+        const category = await createAdminBlogCategory(values.new_category_name.trim());
+        categoryId = category.id;
+      }
+
+      const tagIds = [...values.tag_ids];
+      if (values.new_tag_names?.length) {
+        for (const name of values.new_tag_names) {
+          const tag = await createAdminBlogTag(name);
+          tagIds.push(tag.id);
+        }
+      }
+
+      const payload = buildArticlePayload(
+        {
+          ...values,
+          blog_category_id: categoryId,
+          tag_ids: tagIds,
+        },
+        !editingId,
+      );
+
       if (editingId) {
         await adminApi.patch(`/admin/blog/articles/${editingId}`, payload);
       } else {
@@ -140,7 +163,12 @@ export default function AdminBlogArticlesPage() {
       toast.success(editingId ? t('admin.blogArticles.updated') : t('admin.blogArticles.created'));
       setModalOpen(false);
       setEditingId(null);
-      await invalidateArticles();
+      await Promise.all([
+        invalidateArticles(),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'blog-categories'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'blog-tags'] }),
+        queryClient.invalidateQueries({ queryKey: blogKeys.categories() }),
+      ]);
     },
     onError: (error) => {
       toast.error(parseApiError(error, locale).message || t('admin.blogArticles.updateError'));
@@ -200,8 +228,6 @@ export default function AdminBlogArticlesPage() {
         initial={modalInitial}
         categories={categoriesQuery.data ?? []}
         tags={tagsQuery.data ?? []}
-        existingSlugs={existingSlugs}
-        currentSlug={editingArticle?.slug}
         isSaving={saveMutation.isPending || editingQuery.isLoading}
         onClose={() => {
           setModalOpen(false);

@@ -91,7 +91,7 @@ interface ProductShareSheetProps {
   onClose: () => void;
   url: string;
   title: string;
-  context?: 'product' | 'store' | 'service' | 'provider';
+  context?: 'product' | 'store' | 'service' | 'provider' | 'blog';
 }
 
 export function ProductShareSheet({
@@ -112,7 +112,9 @@ export function ProductShareSheet({
         ? 'serviceMarketplace.detail'
         : context === 'provider'
           ? 'serviceMarketplace.providerPage'
-          : 'catalog.productDetail';
+          : context === 'blog'
+            ? 'blog.article'
+            : 'catalog.productDetail';
 
   if (!open) {
     return null;

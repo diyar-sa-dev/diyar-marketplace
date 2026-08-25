@@ -18,12 +18,10 @@ class UpdateBlogArticleRequest extends FormRequest
      */
     public function rules(): array
     {
-        $articleId = $this->route('article');
-
         return [
             'blog_category_id' => ['sometimes', 'nullable', 'uuid', 'exists:blog_categories,id'],
             'title' => ['sometimes', 'string', 'max:255'],
-            'slug' => ['sometimes', 'string', 'max:255', Rule::unique('blog_articles', 'slug')->ignore($articleId)],
+            'slug' => ['sometimes', 'string', 'max:255'],
             'excerpt' => ['sometimes', 'nullable', 'string'],
             'content' => ['sometimes', 'string'],
             'hero_image' => ['sometimes', 'nullable', 'string', 'max:2048'],

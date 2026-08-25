@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Schema;
 
 class BlogArticle extends Model
 {
@@ -52,6 +54,26 @@ class BlogArticle extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(BlogTag::class, 'blog_article_tag');
+    }
+
+    public function wishlistItems(): HasMany
+    {
+        return $this->hasMany(BlogWishlistItem::class, 'blog_article_id');
+    }
+
+    /**
+     * @param  Builder<self>  $query
+     */
+    public function scopeWithUserSaved(Builder $query, ?User $user): void
+    {
+        if ($user === null || ! Schema::hasTable('blog_wishlist_items')) {
+            return;
+        }
+
+        $query->withExists([
+            'wishlistItems as user_saved' => fn (Builder $wishlistQuery) => $wishlistQuery
+                ->where('user_id', $user->id),
+        ]);
     }
 
     /**

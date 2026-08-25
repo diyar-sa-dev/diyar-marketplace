@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
-import { Calendar, ChevronLeft, Search } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Calendar, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { useBlogArticles } from '../hooks/blog/useBlogArticles.ts';
 import { useBlogCategories } from '../hooks/blog/useBlogCategories.ts';
+import { useDebouncedValue } from '../hooks/useDebouncedValue.ts';
 import { useLocale } from '../hooks/useLocale.ts';
 import { usePaginationState, paginationBarProps } from '../hooks/usePaginationState.ts';
 import { formatBlogReadingTime } from '../lib/formatBlogReadingTime.ts';
@@ -33,7 +34,7 @@ function BlogArticleCardLink({
     <Link
       to={`/blog/${article.slug}`}
       data-testid={`blog-article-card-${article.slug}`}
-      className="group bg-gray-50 rounded-3xl overflow-hidden border border-gray-100 hover:shadow-md transition-all"
+      className="group cursor-pointer bg-gray-50 rounded-3xl overflow-hidden border border-gray-100 hover:shadow-md hover:border-diyar-brown/20 transition-all"
     >
       <div className="h-48 overflow-hidden relative">
         {article.category?.name && (
@@ -45,6 +46,7 @@ function BlogArticleCardLink({
           src={article.hero_image ?? FALLBACK_IMAGE}
           alt={article.title}
           referrerPolicy="no-referrer"
+          loading="lazy"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           onError={(e) => {
             (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
@@ -79,9 +81,27 @@ export default function BlogPage() {
   const { t, locale, dir } = useLocale();
   const pagination = usePaginationState({ initialPerPage: 12 });
   const [searchInput, setSearchInput] = useState(searchParams.get('q') ?? '');
+  const debouncedSearch = useDebouncedValue(searchInput, 350);
+  const BreadcrumbChevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   const category = searchParams.get('category') ?? undefined;
   const q = searchParams.get('q')?.trim() || undefined;
+
+  useEffect(() => {
+    const trimmed = debouncedSearch.trim();
+    const current = searchParams.get('q') ?? '';
+    if (trimmed === current) return;
+
+    const next = new URLSearchParams(searchParams);
+    if (trimmed) {
+      next.set('q', trimmed);
+    } else {
+      next.delete('q');
+    }
+    pagination.resetPage();
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sync debounced search to URL only
+  }, [debouncedSearch]);
 
   const filters = useMemo(
     () => ({
@@ -94,24 +114,17 @@ export default function BlogPage() {
     [pagination.page, pagination.perPage, category, tagSlug, q],
   );
 
-  const { data, isPending, isError, error, refetch } = useBlogArticles(filters);
+  const { data, isPending, isError, error, refetch, isFetching } = useBlogArticles(filters);
   const { data: categories } = useBlogCategories();
+
+  const filterableCategories = useMemo(
+    () => (categories ?? []).filter((item) => (item.published_articles_count ?? 0) > 0),
+    [categories],
+  );
 
   const articles = data?.items ?? [];
   const showEmpty = !isPending && !isError && articles.length === 0;
-
-  const applySearch = (event: React.FormEvent) => {
-    event.preventDefault();
-    const next = new URLSearchParams(searchParams);
-    const trimmed = searchInput.trim();
-    if (trimmed) {
-      next.set('q', trimmed);
-    } else {
-      next.delete('q');
-    }
-    pagination.resetPage();
-    setSearchParams(next);
-  };
+  const isSearching = isFetching && !isPending;
 
   const setCategoryFilter = (nextCategory: string) => {
     const next = new URLSearchParams(searchParams);
@@ -129,14 +142,14 @@ export default function BlogPage() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
-            <Link to="/" className="hover:text-diyar-dark transition">
+            <Link to="/" className="hover:text-diyar-dark transition cursor-pointer">
               {t('layout.nav.home')}
             </Link>
-            <ChevronLeft size={16} />
+            <BreadcrumbChevron size={16} />
             <span className="font-bold text-diyar-dark">{t('home.blog.badge')}</span>
             {tagSlug ? (
               <>
-                <ChevronLeft size={16} />
+                <BreadcrumbChevron size={16} />
                 <span className="font-bold text-diyar-brown">#{tagSlug}</span>
               </>
             ) : null}
@@ -156,38 +169,70 @@ export default function BlogPage() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 mb-8">
-          <form onSubmit={applySearch} className="flex-1 flex gap-2">
-            <div className="relative flex-1">
-              <Search size={18} className="absolute top-1/2 -translate-y-1/2 inset-s-3 text-gray-400" />
-              <input
-                type="search"
-                value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
-                placeholder={t('blog.searchPlaceholder')}
-                className="w-full rounded-2xl border border-gray-200 bg-white ps-10 pe-4 py-3 text-sm outline-none focus:border-diyar-brown"
-              />
-            </div>
-            <button
-              type="submit"
-              className="rounded-2xl bg-diyar-dark text-white px-5 py-3 text-sm font-bold hover:bg-black transition-colors"
-            >
-              {t('blog.search')}
-            </button>
-          </form>
+          <div className="relative flex-1">
+            <Search size={18} className="absolute top-1/2 -translate-y-1/2 inset-s-3 text-gray-400 pointer-events-none" />
+            <input
+              type="search"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              placeholder={t('blog.searchPlaceholder')}
+              aria-label={t('blog.searchPlaceholder')}
+              className="w-full rounded-2xl border border-gray-200 bg-white ps-10 pe-4 py-3 text-sm outline-none focus:border-diyar-brown transition-colors"
+            />
+            {isSearching ? (
+              <span className="absolute top-1/2 -translate-y-1/2 inset-e-3 h-2 w-2 rounded-full bg-diyar-brown animate-pulse" />
+            ) : null}
+          </div>
 
           <select
             value={category ?? ''}
             onChange={(event) => setCategoryFilter(event.target.value)}
-            className="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-diyar-brown lg:min-w-55"
+            className="cursor-pointer rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-diyar-brown lg:min-w-55 transition-colors"
           >
             <option value="">{t('blog.allCategories')}</option>
-            {(categories ?? []).map((item) => (
+            {filterableCategories.map((item) => (
               <option key={item.id} value={item.slug}>
                 {item.name}
+                {item.published_articles_count
+                  ? ` (${item.published_articles_count})`
+                  : ''}
               </option>
             ))}
           </select>
         </div>
+
+        {filterableCategories.length > 0 ? (
+          <div className="mb-8 flex gap-2 overflow-x-auto pb-1">
+            <button
+              type="button"
+              onClick={() => setCategoryFilter('')}
+              className={`shrink-0 cursor-pointer rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                !category
+                  ? 'bg-diyar-dark text-white'
+                  : 'border border-gray-200 bg-white text-gray-600 hover:border-diyar-brown'
+              }`}
+            >
+              {t('blog.allCategories')}
+            </button>
+            {filterableCategories.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setCategoryFilter(item.slug)}
+                className={`shrink-0 cursor-pointer rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                  category === item.slug
+                    ? 'bg-diyar-dark text-white'
+                    : 'border border-gray-200 bg-white text-gray-600 hover:border-diyar-brown'
+                }`}
+              >
+                {item.name}
+                {item.published_articles_count ? (
+                  <span className="ms-1.5 opacity-70">({item.published_articles_count})</span>
+                ) : null}
+              </button>
+            ))}
+          </div>
+        ) : null}
 
         {isPending ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

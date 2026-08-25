@@ -1,11 +1,10 @@
 import { useMemo, useRef, useState } from 'react';
 import { ArrowDown, ArrowUp, Loader2, Trash2, Upload, X } from 'lucide-react';
 import { uploadCmsImage } from '../../api/adminCms.ts';
+import { AdminCmsImageField } from './AdminCmsImageField.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { parseApiError } from '../../utils/errors.ts';
-import type { ProjectPublicationStatus } from '../../types/project.ts';
-import { toDatetimeLocalValue } from '../../lib/datetimeLocal.ts';
 
 export type ProjectImageFormValue = {
   image_url: string;
@@ -21,8 +20,6 @@ export type ProjectFormValues = {
   location: string;
   year: number | null;
   cover_image: string;
-  status: ProjectPublicationStatus;
-  published_at: string;
   images: ProjectImageFormValue[];
 };
 
@@ -30,8 +27,6 @@ type AdminProjectModalProps = {
   open: boolean;
   mode: 'create' | 'edit';
   initial?: ProjectFormValues;
-  existingSlugs: string[];
-  currentSlug?: string;
   isSaving: boolean;
   onClose: () => void;
   onSubmit: (values: ProjectFormValues) => void;
@@ -47,37 +42,25 @@ function slugifyName(name: string): string {
     .replace(/^-|-$/g, '');
 }
 
-function uniqueSlug(base: string, existing: string[], ignore?: string): string {
-  if (!base) return '';
-  const taken = new Set(existing.filter((s) => s !== ignore));
-  if (!taken.has(base)) return base;
-  let i = 2;
-  while (taken.has(`${base}-${i}`)) i += 1;
-  return `${base}-${i}`;
-}
-
 type ProjectFormProps = {
   mode: 'create' | 'edit';
   initial?: ProjectFormValues;
-  existingSlugs: string[];
-  currentSlug?: string;
   isSaving: boolean;
   onClose: () => void;
   onSubmit: (values: ProjectFormValues) => void;
 };
 
-function ProjectForm({
-  mode,
-  initial,
-  existingSlugs,
-  currentSlug,
-  isSaving,
-  onClose,
-  onSubmit,
-}: ProjectFormProps) {
-  const { t, locale } = useLocale();
+function RequiredFieldLabel({ label }: { label: string }) {
+  return (
+    <span className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
+      {label} <span className="text-red-500">*</span>
+    </span>
+  );
+}
+
+function ProjectForm({ mode, initial, isSaving, onClose, onSubmit }: ProjectFormProps) {
+  const { t, locale, dir } = useLocale();
   const { toast } = useToast();
-  const coverInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState(initial?.title ?? '');
@@ -87,19 +70,13 @@ function ProjectForm({
   const [location, setLocation] = useState(initial?.location ?? '');
   const [year, setYear] = useState(initial?.year != null ? String(initial.year) : '');
   const [coverImage, setCoverImage] = useState(initial?.cover_image ?? '');
-  const [status, setStatus] = useState<ProjectPublicationStatus>(initial?.status ?? 'draft');
-  const [publishedAt, setPublishedAt] = useState(toDatetimeLocalValue(initial?.published_at));
   const [images, setImages] = useState<ProjectImageFormValue[]>(initial?.images ?? []);
   const [slugTouched, setSlugTouched] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
 
-  const suggestedSlug = useMemo(() => {
-    const base = slugifyName(title);
-    return uniqueSlug(base, existingSlugs, mode === 'edit' ? currentSlug : undefined);
-  }, [title, existingSlugs, mode, currentSlug]);
-
-  const displaySlug = slugTouched ? slug : suggestedSlug;
+  const suggestedSlug = useMemo(() => slugifyName(title), [title]);
+  const displaySlug = slugTouched ? slug : mode === 'edit' ? slug : suggestedSlug;
 
   const reorderImages = (index: number, direction: 'up' | 'down') => {
     setImages((current) => {
@@ -122,7 +99,7 @@ function ProjectForm({
   const handleGalleryUpload = async (file: File) => {
     setUploadingGallery(true);
     try {
-      const result = await uploadCmsImage(file, 'project-gallery');
+      const result = await uploadCmsImage(file, 'project_gallery');
       setImages((current) => [
         ...current,
         {
@@ -140,21 +117,15 @@ function ProjectForm({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    const trimmedSlug = displaySlug.trim();
-    const finalSlug = trimmedSlug
-      ? uniqueSlug(trimmedSlug, existingSlugs, mode === 'edit' ? currentSlug : undefined)
-      : suggestedSlug;
 
     onSubmit({
       title: title.trim(),
-      slug: finalSlug,
+      slug: displaySlug.trim(),
       description: description.trim(),
       category: category.trim(),
       location: location.trim(),
       year: year.trim() ? Number.parseInt(year, 10) : null,
       cover_image: coverImage.trim(),
-      status,
-      published_at: publishedAt,
       images: images.map((image, index) => ({
         ...image,
         sort_order: index,
@@ -169,7 +140,7 @@ function ProjectForm({
           <h3 className="text-lg font-bold text-diyar-dark">
             {mode === 'create' ? t('admin.projects.createTitle') : t('admin.projects.editTitle')}
           </h3>
-          <p className="mt-1 text-sm text-gray-500">{t('admin.categories.modalHint')}</p>
+          <p className="mt-1 text-sm text-gray-500">{t('admin.projects.slugHint')}</p>
         </div>
         <button
           type="button"
@@ -180,17 +151,17 @@ function ProjectForm({
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4" data-testid="project-modal">
+      <form onSubmit={handleSubmit} className="space-y-4" data-testid="project-modal" dir={dir}>
         <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-            {t('admin.tables.title')}
-          </label>
+          <RequiredFieldLabel label={t('admin.tables.title')} />
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
+            placeholder={t('admin.projects.placeholders.title')}
             data-testid="project-title"
             className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+            dir={dir}
           />
         </div>
 
@@ -204,7 +175,7 @@ function ProjectForm({
               setSlugTouched(true);
               setSlug(e.target.value);
             }}
-            placeholder={suggestedSlug || t('admin.categories.slugAuto')}
+            placeholder={suggestedSlug || t('admin.projects.placeholders.slug')}
             data-testid="project-slug"
             className="w-full rounded-xl border border-gray-200 px-3 py-2.5 font-mono text-sm outline-none focus:border-diyar-brown"
             dir="ltr"
@@ -219,20 +190,22 @@ function ProjectForm({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
+            placeholder={t('admin.projects.placeholders.description')}
             className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+            dir={dir}
           />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.projects.category')}
-            </label>
+            <RequiredFieldLabel label={t('admin.projects.category')} />
             <input
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               required
+              placeholder={t('admin.projects.placeholders.category')}
               className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+              dir={dir}
             />
           </div>
           <div>
@@ -242,175 +215,63 @@ function ProjectForm({
             <input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
+              placeholder={t('admin.projects.placeholders.location')}
               className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+              dir={dir}
             />
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.projects.year')}
-            </label>
-            <input
-              type="number"
-              min={1900}
-              max={2100}
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
-              dir="ltr"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.tables.status')}
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as ProjectPublicationStatus)}
-              data-testid="project-status"
-              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
-            >
-              <option value="draft">{t('admin.status.draft')}</option>
-              <option value="published">{t('admin.status.published')}</option>
-              <option value="archived">{t('admin.status.archived')}</option>
-            </select>
           </div>
         </div>
 
         <div>
           <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-            {t('admin.projects.coverImage')}
-          </label>
-          <div className="flex gap-2">
-            <input
-              value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
-              placeholder="https://"
-              className="min-w-0 flex-1 rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
-              dir="ltr"
-            />
-            <input
-              ref={coverInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (!file) return;
-                setUploadingCover(true);
-                void uploadCmsImage(file, 'project-cover')
-                  .then((result) => setCoverImage(result.url))
-                  .catch((error) => {
-                    toast.error(
-                      parseApiError(error, locale).message || t('admin.projects.uploadError'),
-                    );
-                  })
-                  .finally(() => setUploadingCover(false));
-                event.target.value = '';
-              }}
-            />
-            <button
-              type="button"
-              disabled={uploadingCover}
-              onClick={() => coverInputRef.current?.click()}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-2.5 text-xs font-semibold text-gray-600 cursor-pointer"
-            >
-              {uploadingCover ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-              {t('admin.projects.upload')}
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-            {t('admin.projects.publishedAt')}
+            {t('admin.projects.deliveredYear')}
           </label>
           <input
-            type="datetime-local"
-            value={publishedAt}
-            onChange={(e) => setPublishedAt(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+            type="number"
+            min={1900}
+            max={2100}
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            placeholder={t('admin.projects.placeholders.year')}
+            className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown sm:max-w-xs"
             dir="ltr"
           />
         </div>
 
+        <AdminCmsImageField
+          label={t('admin.projects.coverImage')}
+          value={coverImage}
+          onChange={setCoverImage}
+          context="project_cover"
+          uploading={uploadingCover}
+          onUploadingChange={setUploadingCover}
+          uploadLabel={t('admin.projects.upload')}
+        />
+
         <div>
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <label className="block text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.projects.gallery')}
-            </label>
-            <div>
-              <input
-                ref={galleryInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) {
-                    void handleGalleryUpload(file);
-                  }
-                  event.target.value = '';
-                }}
-              />
-              <button
-                type="button"
-                disabled={uploadingGallery}
-                onClick={() => galleryInputRef.current?.click()}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-semibold text-gray-600 cursor-pointer"
-              >
-                {uploadingGallery ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <Upload size={14} />
-                )}
-                {t('admin.projects.addImage')}
-              </button>
-            </div>
-          </div>
-          {images.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-gray-200 px-3 py-4 text-xs text-gray-500">
-              {t('admin.projects.noImages')}
-            </p>
-          ) : (
-            <div className="space-y-2">
+          <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-500">
+            {t('admin.projects.gallery')}
+          </label>
+
+          {images.length > 0 ? (
+            <div className="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
               {images.map((image, index) => (
                 <div
                   key={`${image.image_url}-${index}`}
-                  className="flex items-center gap-2 rounded-xl border border-gray-100 bg-[#f7f4f1]/40 p-2"
+                  className="relative aspect-square overflow-hidden rounded-2xl border border-gray-100 bg-gray-50"
                 >
                   <img
                     src={image.image_url}
                     alt={image.alt}
-                    className="h-12 w-12 rounded-lg border border-gray-100 object-cover"
+                    className="h-full w-full object-cover"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="min-w-0 flex-1">
-                    <input
-                      value={image.alt}
-                      onChange={(event) => {
-                        const alt = event.target.value;
-                        setImages((current) =>
-                          current.map((entry, entryIndex) =>
-                            entryIndex === index ? { ...entry, alt } : entry,
-                          ),
-                        );
-                      }}
-                      placeholder={t('admin.projects.imageAlt')}
-                      className="w-full rounded-lg border border-gray-200 px-2 py-1.5 text-xs outline-none focus:border-diyar-brown"
-                    />
-                    <p className="mt-1 truncate font-mono text-[10px] text-gray-400" dir="ltr">
-                      #{index + 1} · {image.image_url}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 flex-col gap-1">
+                  <div className="absolute top-1 inset-s-1 flex flex-col gap-1">
                     <button
                       type="button"
                       disabled={index === 0}
                       onClick={() => reorderImages(index, 'up')}
-                      className="rounded-lg border border-gray-200 p-1 text-gray-500 disabled:opacity-40 cursor-pointer"
+                      className="rounded-lg border border-gray-200 bg-white/90 p-1 text-gray-600 disabled:opacity-40 cursor-pointer"
                     >
                       <ArrowUp size={12} />
                     </button>
@@ -418,22 +279,59 @@ function ProjectForm({
                       type="button"
                       disabled={index === images.length - 1}
                       onClick={() => reorderImages(index, 'down')}
-                      className="rounded-lg border border-gray-200 p-1 text-gray-500 disabled:opacity-40 cursor-pointer"
+                      className="rounded-lg border border-gray-200 bg-white/90 p-1 text-gray-600 disabled:opacity-40 cursor-pointer"
                     >
                       <ArrowDown size={12} />
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="rounded-lg border border-red-200 p-1 text-red-600 cursor-pointer"
-                    >
-                      <Trash2 size={12} />
-                    </button>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-1 inset-e-1 inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-red-500 text-white"
+                  >
+                    <Trash2 size={12} />
+                  </button>
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
+
+          <button
+            type="button"
+            disabled={uploadingGallery}
+            onClick={() => galleryInputRef.current?.click()}
+            className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 p-4 text-gray-400 transition-colors hover:border-diyar-brown/50 hover:bg-diyar-brown/5 disabled:opacity-60"
+          >
+            {uploadingGallery ? (
+              <Loader2 size={22} className="animate-spin text-diyar-brown" />
+            ) : (
+              <>
+                <div className="rounded-xl bg-white p-2 text-diyar-brown shadow-sm">
+                  <Upload size={20} />
+                </div>
+                <span className="mt-2 text-sm font-bold text-diyar-dark">
+                  {t('admin.projects.addImage')}
+                </span>
+                <span className="mt-1 text-xs text-gray-400">{t('admin.cmsImage.formats')}</span>
+              </>
+            )}
+          </button>
+
+          {images.length === 0 ? (
+            <p className="mt-2 text-xs text-gray-500">{t('admin.projects.noImages')}</p>
+          ) : null}
+
+          <input
+            ref={galleryInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/*"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void handleGalleryUpload(file);
+              event.target.value = '';
+            }}
+          />
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
@@ -463,20 +361,18 @@ export function AdminProjectModal({
   open,
   mode,
   initial,
-  existingSlugs,
-  currentSlug,
   isSaving,
   onClose,
   onSubmit,
 }: AdminProjectModalProps) {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
 
   if (!open) return null;
 
-  const formKey = `${mode}-${currentSlug ?? initial?.slug ?? 'new'}`;
+  const formKey = `${mode}-${initial?.slug ?? 'new'}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" dir={dir}>
       <button
         type="button"
         className="absolute inset-0 bg-black/45"
@@ -488,8 +384,6 @@ export function AdminProjectModal({
           key={formKey}
           mode={mode}
           initial={initial}
-          existingSlugs={existingSlugs}
-          currentSlug={currentSlug}
           isSaving={isSaving}
           onClose={onClose}
           onSubmit={onSubmit}

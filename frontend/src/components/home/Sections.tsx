@@ -1008,7 +1008,7 @@ export function DesignBlog() {
         </div>
         <Link
           to="/blog"
-          className="inline-flex items-center justify-center gap-2 self-center rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-diyar-brown hover:text-diyar-dark hover:border-diyar-brown transition-colors"
+          className="inline-flex items-center justify-center gap-2 self-center rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-diyar-brown hover:text-diyar-dark hover:border-diyar-brown transition-colors cursor-pointer"
         >
           {t('home.blog.allArticles')}
           <ViewAllIcon size={18} className="rtl:-scale-x-100" />
@@ -1035,7 +1035,7 @@ export function DesignBlog() {
                 </div>
               ))
             : posts.map((post) => (
-                <Link key={post.id} to={`/blog/${post.slug}`} className="group">
+                <Link key={post.id} to={`/blog/${post.slug}`} className="group cursor-pointer">
                   <div className="w-full h-56 md:h-60 rounded-2xl overflow-hidden mb-5 relative shadow-sm border border-gray-100">
                     <img
                       src={

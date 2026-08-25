@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '../../api/client.ts';
+import { useDebouncedValue } from '../../hooks/useDebouncedValue.ts';
 import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
 
@@ -29,6 +30,7 @@ export function useAdminListQuery<TItem>({
   enabled?: boolean;
 }) {
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search, 300);
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [paramFilter, setParamFilterState] = useState('');
@@ -38,7 +40,7 @@ export function useAdminListQuery<TItem>({
       resourceKey,
       page,
       perPage,
-      search,
+      debouncedSearch,
       statusFilter,
       paramFilterKey,
       paramFilter,
@@ -53,7 +55,7 @@ export function useAdminListQuery<TItem>({
         params: {
           page,
           per_page: perPage,
-          q: search.trim() || undefined,
+          q: debouncedSearch.trim() || undefined,
           status: statusFilter || undefined,
           ...(paramFilterKey && paramFilter ? { [paramFilterKey]: paramFilter } : {}),
           ...extraParams,

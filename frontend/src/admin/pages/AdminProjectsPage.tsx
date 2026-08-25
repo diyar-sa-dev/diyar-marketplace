@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Archive, Eye, EyeOff, Globe, Pencil, Plus, Trash2 } from 'lucide-react';
 import { adminApi } from '../../api/client.ts';
@@ -6,7 +6,6 @@ import {
   AdminProjectModal,
   type ProjectFormValues,
 } from '../components/AdminProjectModal.tsx';
-import { toDatetimeLocalValue } from '../../lib/datetimeLocal.ts';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
@@ -20,8 +19,8 @@ import { parseApiError } from '../../utils/errors.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
 import type { ProjectCard, ProjectDetail } from '../../types/project.ts';
 
-function buildProjectPayload(values: ProjectFormValues) {
-  return {
+function buildProjectPayload(values: ProjectFormValues, isCreate: boolean) {
+  const payload: Record<string, unknown> = {
     title: values.title,
     slug: values.slug || undefined,
     description: values.description || null,
@@ -29,14 +28,18 @@ function buildProjectPayload(values: ProjectFormValues) {
     location: values.location || null,
     year: values.year,
     cover_image: values.cover_image || null,
-    status: values.status,
-    published_at: values.published_at ? new Date(values.published_at).toISOString() : null,
     images: values.images.map((image, index) => ({
       image_url: image.image_url,
       alt: image.alt || null,
       sort_order: index,
     })),
   };
+
+  if (isCreate) {
+    payload.status = 'draft';
+  }
+
+  return payload;
 }
 
 function mapProjectToForm(project: ProjectDetail): ProjectFormValues {
@@ -48,8 +51,6 @@ function mapProjectToForm(project: ProjectDetail): ProjectFormValues {
     location: project.location ?? '',
     year: project.year ?? null,
     cover_image: project.cover_image ?? '',
-    status: project.status ?? 'draft',
-    published_at: toDatetimeLocalValue(project.published_at),
     images:
       project.images?.map((image, index) => ({
         image_url: image.image_url,
@@ -97,10 +98,6 @@ export default function AdminProjectsPage() {
 
   const projects = data?.items ?? [];
   const meta = data?.meta;
-  const existingSlugs = useMemo(
-    () => (data?.items ?? []).map((project) => project.slug),
-    [data?.items],
-  );
 
   const invalidateProjects = async () => {
     await queryClient.invalidateQueries({ queryKey: ['admin', 'admin-projects'] });
@@ -108,7 +105,7 @@ export default function AdminProjectsPage() {
 
   const saveMutation = useMutation({
     mutationFn: async (values: ProjectFormValues) => {
-      const payload = buildProjectPayload(values);
+      const payload = buildProjectPayload(values, !editingId);
       if (editingId) {
         await adminApi.patch(`/admin/projects/${editingId}`, payload);
       } else {
@@ -177,8 +174,6 @@ export default function AdminProjectsPage() {
         open={modalOpen}
         mode={editingId ? 'edit' : 'create'}
         initial={modalInitial}
-        existingSlugs={existingSlugs}
-        currentSlug={editingProject?.slug}
         isSaving={saveMutation.isPending || editingQuery.isLoading}
         onClose={() => {
           setModalOpen(false);

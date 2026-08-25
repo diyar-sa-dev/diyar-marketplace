@@ -1879,11 +1879,13 @@ The existing specification similarly recommends a single-server-capable V1 archi
 
 # STAGE 26 — V1.1
 
-Post-V1 product expansion in loosely coupled phases. **26.1 COMPLETE** — see `conception/Stages/Stage 26/STAGE_26_1_DELIVERY_REPORT.md`.
+Post-V1 product expansion in loosely coupled phases. Each phase wires existing prototype UI to production APIs **without redesign**.
+
+Core rule: preserve existing UI/UX — wire prototypes to production APIs without redesign.
 
 ```text
 STAGE 26
-├── 26.1 — Blogs & Projects          ✅ COMPLETE
+├── 26.1 — Blogs & Projects
 ├── 26.2 — B2B
 ├── 26.3 — Loyalty
 ├── 26.4 — Advanced Shipping
@@ -1897,7 +1899,205 @@ STAGE 26
 └── 26.12 — UX Improvements
 ```
 
-Core rule: preserve existing UI/UX — wire prototypes to production APIs without redesign.
+Docs: `conception/Stages/Stage 26/` — see [README.md](./Stages/Stage%2026/README.md)
+
+---
+
+## Phase 26.1 — Blogs & Projects
+
+Wire blog and projects storefront prototypes to production CMS.
+
+Implement:
+
+* blog categories, tags, articles (draft / published / archived lifecycle)
+* projects with cover image and ordered gallery
+* public listing, detail, search, category and tag filters
+* homepage blog section and sidebar projects showcase
+* admin CRUD + publish / unpublish / archive
+* CMS image upload to storage (hero, author avatar, cover, gallery)
+* HTML sanitization, Redis cache, admin audit logging
+* permissions: `blog.view`, `blog.manage`, `projects.view`, `projects.manage`
+
+See: `conception/Stages/Stage 26/Phase 26.1 - Blogs & Projects/STAGE_26_1.md` and [STAGE_26_1_FINAL_REPORT.md](./Stages/Stage%2026/Phase%2026.1%20-%20Blogs%20%26%20Projects/STAGE_26_1_FINAL_REPORT.md).
+
+---
+
+## Phase 26.2 — B2B
+
+Wire B2B company directory and company detail pages to backend.
+
+Implement:
+
+* B2B company profiles (listing + detail)
+* portfolio / project references on company pages
+* admin management of B2B listings (if separate from vendor/provider model)
+* public read APIs with pagination and filters
+* preserve existing `/b2b` and `/b2b/:id` UI patterns
+
+Special attention:
+
+* separate B2B entity vs vendor/provider overlap
+* listing visibility rules (published / featured)
+* contact and lead flows (if in scope)
+
+---
+
+## Phase 26.3 — Loyalty
+
+Wire loyalty rewards UI to production accrual and redemption.
+
+Implement:
+
+* loyalty account balance per customer
+* transaction history (earn / redeem / adjust)
+* accrual rules on order completion
+* checkout redemption hooks (if prototype supports it)
+* admin visibility and manual adjustments
+
+Special attention:
+
+* points vs currency conversion rules
+* refund/reversal impact on earned points
+* abuse prevention on redemption
+
+---
+
+## Phase 26.4 — Advanced Shipping
+
+Extend shipping beyond V1 baseline.
+
+Implement:
+
+* additional carrier / zone rules
+* weight- and dimension-based tiers
+* vendor-specific shipping profiles (if required)
+* improved checkout shipping quote accuracy
+* admin configuration for complex scenarios
+
+---
+
+## Phase 26.5 — Advanced Coupons
+
+Extend coupon engine for marketing campaigns.
+
+Implement:
+
+* stackability and exclusion rules
+* category / vendor scoped coupons
+* usage limits per user and global caps
+* scheduled start / end windows
+* improved admin coupon analytics
+
+Special attention:
+
+* coupon abuse and double-application at checkout
+* alignment with order splitter and commission logic
+
+---
+
+## Phase 26.6 — Improved Notifications
+
+Upgrade notification delivery and preferences.
+
+Implement:
+
+* richer in-app notification types for V1.1 domains
+* email / SMS channel improvements where configured
+* user preference matrix (category × channel)
+* admin broadcast or targeted notifications
+* delivery status and retry visibility
+
+---
+
+## Phase 26.7 — Improved Chat
+
+Upgrade customer ↔ vendor/provider messaging.
+
+Implement:
+
+* thread persistence improvements
+* attachment support (if in prototype scope)
+* unread counts and real-time updates (Echo/Pusher)
+* moderation and abuse reporting hooks
+* admin read-only oversight where required
+
+---
+
+## Phase 26.8 — Admin Improvements
+
+Cross-cutting admin panel enhancements.
+
+Implement:
+
+* operational dashboards for V1.1 modules
+* bulk actions and export where missing
+* improved audit log filtering and localization
+* platform health and settings polish
+* permission refinements for new domains
+
+---
+
+## Phase 26.9 — Advanced Search
+
+Upgrade catalog and global search.
+
+Implement:
+
+* unified search across products, services, stores (and blog if indexed)
+* suggestions and typo tolerance
+* filter facets (category, price, rating)
+* search analytics for admin
+* performance indexing strategy (DB or dedicated engine)
+
+---
+
+## Phase 26.10 — Additional Payment Methods
+
+Add payment options beyond V1 gateway.
+
+Implement:
+
+* secondary gateway or method (per product decision)
+* saved payment methods (if allowed by provider)
+* installment / BNPL integration (if in scope)
+* webhook and reconciliation for new providers
+* checkout UX for method selection without redesign
+
+Special attention:
+
+* PCI scope and tokenization
+* refund path parity with existing MyFatoorah flow
+
+---
+
+## Phase 26.11 — Advanced Analytics
+
+Reporting for vendors, providers, and admin.
+
+Implement:
+
+* sales and conversion dashboards
+* cohort and funnel views (where data exists)
+* export (CSV) for finance reconciliation
+* role-scoped metrics (vendor sees own store only)
+* caching for heavy aggregate queries
+
+---
+
+## Phase 26.12 — UX Improvements
+
+Polish pass across storefront and dashboards.
+
+Implement:
+
+* performance (lazy load, skeleton consistency)
+* accessibility fixes
+* RTL/LTR edge cases
+* mobile layout refinements
+* error and empty state consistency
+* micro-interactions aligned with DIYAR design system
+
+No new business domains — refinement only.
 
 ---
 

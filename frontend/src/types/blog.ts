@@ -41,6 +41,7 @@ export interface BlogArticleDetail extends BlogArticleCard {
   content?: string | null;
   seo_title?: string | null;
   seo_description?: string | null;
+  user_saved?: boolean;
   created_at?: string;
   updated_at?: string;
 }

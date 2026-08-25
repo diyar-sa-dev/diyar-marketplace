@@ -36,6 +36,24 @@ const ACTION_KEYS: Record<string, string> = {
   'role.permissions.sync': 'admin.audit.actions.rolePermissionsSync',
   'provider_review.hide': 'admin.audit.actions.providerReviewHide',
   'provider_review.unhide': 'admin.audit.actions.providerReviewUnhide',
+  'blog_article.create': 'admin.audit.actions.blogArticleCreate',
+  'blog_article.update': 'admin.audit.actions.blogArticleUpdate',
+  'blog_article.delete': 'admin.audit.actions.blogArticleDelete',
+  'blog_article.publish': 'admin.audit.actions.blogArticlePublish',
+  'blog_article.unpublish': 'admin.audit.actions.blogArticleUnpublish',
+  'blog_article.archive': 'admin.audit.actions.blogArticleArchive',
+  'blog_category.create': 'admin.audit.actions.blogCategoryCreate',
+  'blog_category.update': 'admin.audit.actions.blogCategoryUpdate',
+  'blog_category.delete': 'admin.audit.actions.blogCategoryDelete',
+  'blog_tag.create': 'admin.audit.actions.blogTagCreate',
+  'blog_tag.update': 'admin.audit.actions.blogTagUpdate',
+  'blog_tag.delete': 'admin.audit.actions.blogTagDelete',
+  'project.create': 'admin.audit.actions.projectCreate',
+  'project.update': 'admin.audit.actions.projectUpdate',
+  'project.delete': 'admin.audit.actions.projectDelete',
+  'project.publish': 'admin.audit.actions.projectPublish',
+  'project.unpublish': 'admin.audit.actions.projectUnpublish',
+  'project.archive': 'admin.audit.actions.projectArchive',
 };
 
 const RESOURCE_KEYS: Record<string, string> = {
@@ -54,6 +72,10 @@ const RESOURCE_KEYS: Record<string, string> = {
   'App\\Models\\Role': 'admin.audit.resources.role',
   'App\\Models\\ProviderReview': 'admin.audit.resources.providerReview',
   'App\\Models\\AffiliateProfile': 'admin.audit.resources.affiliateProfile',
+  'App\\Models\\BlogArticle': 'admin.audit.resources.blogArticle',
+  'App\\Models\\BlogCategory': 'admin.audit.resources.blogCategory',
+  'App\\Models\\BlogTag': 'admin.audit.resources.blogTag',
+  'App\\Models\\Project': 'admin.audit.resources.project',
 };
 
 export const AUDIT_ACTION_FILTER_OPTIONS = Object.keys(ACTION_KEYS);

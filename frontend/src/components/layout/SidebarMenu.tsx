@@ -127,6 +127,50 @@ const STICKERS = [
   },
 ];
 
+function ProjectShowcaseListSkeleton() {
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col md:flex-row gap-5">
+      <div className="w-full md:w-2/5 h-44 md:h-48 bg-gray-100 animate-pulse shrink-0" />
+      <div className="p-5 md:py-6 flex-1 space-y-3">
+        <div className="h-3 w-24 bg-gray-100 animate-pulse rounded" />
+        <div className="h-5 w-3/4 bg-gray-100 animate-pulse rounded" />
+        <div className="h-4 w-full bg-gray-100 animate-pulse rounded" />
+        <div className="h-4 w-5/6 bg-gray-100 animate-pulse rounded" />
+        <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
+          <div className="h-3 w-20 bg-gray-100 animate-pulse rounded" />
+          <div className="h-3 w-24 bg-gray-100 animate-pulse rounded" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProjectShowcaseDetailSkeleton() {
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+      <div className="w-full h-56 md:h-72 bg-gray-100 animate-pulse" />
+      <div className="p-5 md:p-6 space-y-4">
+        <div className="h-3 w-28 bg-gray-100 animate-pulse rounded" />
+        <div className="h-4 w-40 bg-gray-100 animate-pulse rounded" />
+        <div className="h-6 w-2/3 bg-gray-100 animate-pulse rounded" />
+        <div className="space-y-2">
+          <div className="h-3 w-full bg-gray-100 animate-pulse rounded" />
+          <div className="h-3 w-full bg-gray-100 animate-pulse rounded" />
+          <div className="h-3 w-4/5 bg-gray-100 animate-pulse rounded" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+          {[...Array(3)].map((_, index) => (
+            <div key={index} className="h-28 bg-gray-100 animate-pulse rounded-xl" />
+          ))}
+        </div>
+        <div className="pt-4 border-t border-gray-50">
+          <div className="h-3 w-32 bg-gray-100 animate-pulse rounded" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { t, locale, dir } = useLocale();
   const { openAboutModal } = useAboutModal();
@@ -578,15 +622,15 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
       {/* 4. MODAL: معرض المشاريع (Hospitality Projects Showcase) */}
       {isProjectsOpen && (
-        <div className="fixed inset-0 bg-black/80 z-100 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-250">
+        <div className="fixed inset-0 bg-black/80 z-100 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-250" dir={dir}>
           <div className="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
             <button
               onClick={() => {
                 setIsProjectsOpen(false);
                 setSelectedProjectSlug(null);
               }}
-              className="absolute top-4 right-4 bg-white/90 hover:bg-white text-gray-500 hover:text-black p-2.5 rounded-full shadow-md z-10 transition-all border border-gray-200"
-              title="إغلاق"
+              className="cursor-pointer absolute top-4 right-4 bg-white/90 hover:bg-white text-gray-500 hover:text-black p-2.5 rounded-full shadow-md z-10 transition-all border border-gray-200"
+              title={t('projects.showcase.close')}
             >
               <X size={18} />
             </button>
@@ -595,11 +639,10 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
               <div className="absolute top-0 right-0 w-24 h-24 bg-white/2 rounded-full -mr-8 -mt-8" />
               <FolderGit2 className="w-12 h-12 text-diyar-brown mx-auto mb-3" />
               <h3 className="text-xl md:text-2xl font-bold mb-1.5 font-sans">
-                معرض مشاريع ديار العقارية والهندسية
+                {t('projects.showcase.title')}
               </h3>
               <p className="text-xs md:text-sm text-diyar-cream max-w-lg mx-auto opacity-90 leading-relaxed">
-                نفخر بتنفيذ وتجهيز الفلل الفاخرة والمجالس الرسمية في مختلف مناطق المملكة بأرقى
-                الخامات المطابقة لتقاليد الضيافة الأصيلة.
+                {t('projects.showcase.subtitle')}
               </p>
             </div>
 
@@ -626,9 +669,9 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                     <button
                       type="button"
                       onClick={() => setSelectedProjectSlug(null)}
-                      className="text-xs font-bold text-diyar-brown hover:text-[#132624] flex items-center gap-1 transition-colors"
+                      className="cursor-pointer text-xs font-bold text-diyar-brown hover:text-[#132624] flex items-center gap-1 transition-colors"
                     >
-                      <ChevronLeft size={14} /> العودة للمعرض
+                      <ChevronLeft size={14} className="rtl:rotate-180" /> {t('projects.showcase.backToGallery')}
                     </button>
                     <div className="flex items-center gap-1.5 text-gray-400 text-xs">
                       <MapPin size={12} className="text-diyar-brown" />
@@ -650,35 +693,31 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                       </div>
                     ) : null}
                     <div className="pt-4 border-t border-gray-50 text-[11px] text-gray-400 font-bold">
-                      {selectedProject.year ? `${selectedProject.year} م • ` : ''}تم التسليم
+                      {selectedProject.year
+                        ? `${selectedProject.year}${t('projects.showcase.yearSuffix') ? ` ${t('projects.showcase.yearSuffix')}` : ''} • `
+                        : ''}
+                      {t('projects.showcase.delivered')}
                     </div>
                   </div>
                 </div>
               ) : selectedProjectSlug && selectedProjectLoading ? (
-                <div className="bg-white rounded-2xl p-8 text-center text-sm text-gray-500 animate-pulse">
-                  جاري تحميل تفاصيل المشروع...
-                </div>
+                <ProjectShowcaseDetailSkeleton />
               ) : projectsLoading ? (
-                [...Array(3)].map((_, index) => (
-                  <div
-                    key={index}
-                    className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 h-44 animate-pulse"
-                  />
-                ))
+                [...Array(3)].map((_, index) => <ProjectShowcaseListSkeleton key={index} />)
               ) : projectsError ? (
                 <div className="bg-white rounded-2xl p-8 text-center">
-                  <p className="text-sm text-gray-500 mb-4">تعذر تحميل المشاريع.</p>
+                  <p className="text-sm text-gray-500 mb-4">{t('projects.showcase.loadError')}</p>
                   <button
                     type="button"
                     onClick={() => void refetchProjects()}
-                    className="text-xs font-bold text-diyar-brown hover:text-[#132624]"
+                    className="cursor-pointer text-xs font-bold text-diyar-brown hover:text-[#132624]"
                   >
-                    إعادة المحاولة
+                    {t('projects.showcase.retry')}
                   </button>
                 </div>
               ) : (projectsData?.items ?? []).length === 0 ? (
                 <div className="bg-white rounded-2xl p-8 text-center text-sm text-gray-500">
-                  لا توجد مشاريع منشورة حالياً.
+                  {t('projects.showcase.empty')}
                 </div>
               ) : (
                 (projectsData?.items ?? []).map((proj) => (
@@ -717,14 +756,17 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                       </div>
                       <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
                         <span className="text-[11px] text-gray-400 font-bold">
-                          {proj.year ? `${proj.year} م • ` : ''}تم التسليم
+                          {proj.year
+                            ? `${proj.year}${t('projects.showcase.yearSuffix') ? ` ${t('projects.showcase.yearSuffix')}` : ''} • `
+                            : ''}
+                          {t('projects.showcase.delivered')}
                         </span>
                         <button
                           type="button"
                           onClick={() => setSelectedProjectSlug(proj.slug)}
-                          className="text-xs font-bold text-diyar-brown hover:text-[#132624] flex items-center gap-1 transition-colors"
+                          className="cursor-pointer text-xs font-bold text-diyar-brown hover:text-[#132624] flex items-center gap-1 transition-colors"
                         >
-                          تفاصيل المخطط <ChevronLeft size={14} />
+                          {t('projects.showcase.viewDetails')} <ChevronLeft size={14} className="rtl:rotate-180" />
                         </button>
                       </div>
                     </div>

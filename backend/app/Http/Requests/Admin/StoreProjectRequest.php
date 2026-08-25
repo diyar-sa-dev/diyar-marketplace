@@ -20,7 +20,7 @@ class StoreProjectRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'slug' => ['sometimes', 'string', 'max:255', 'unique:projects,slug'],
+            'slug' => ['sometimes', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'category' => ['required', 'string', 'max:255'],
             'location' => ['nullable', 'string', 'max:255'],

@@ -1,11 +1,12 @@
 import { useMemo, useRef, useState } from 'react';
-import { Loader2, Upload, X } from 'lucide-react';
+import { Loader2, Plus, Upload, X } from 'lucide-react';
 import { uploadCmsImage } from '../../api/adminCms.ts';
+import { AdminBlogTagPicker } from './AdminBlogTagPicker.tsx';
+import { AdminCmsImageField } from './AdminCmsImageField.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { parseApiError } from '../../utils/errors.ts';
-import { toDatetimeLocalValue } from '../../lib/datetimeLocal.ts';
-import type { BlogArticleStatus, BlogCategory, BlogTag } from '../../types/blog.ts';
+import type { BlogCategory, BlogTag } from '../../types/blog.ts';
 
 export type BlogArticleFormValues = {
   title: string;
@@ -13,16 +14,15 @@ export type BlogArticleFormValues = {
   excerpt: string;
   content: string;
   blog_category_id: string;
+  new_category_name?: string;
   tag_ids: string[];
+  new_tag_names?: string[];
   author_name: string;
   author_role: string;
   hero_image: string;
   author_avatar: string;
-  reading_time_minutes: number | null;
-  published_at: string;
   seo_title: string;
   seo_description: string;
-  status: BlogArticleStatus;
 };
 
 type AdminBlogArticleModalProps = {
@@ -31,8 +31,6 @@ type AdminBlogArticleModalProps = {
   initial?: BlogArticleFormValues;
   categories: BlogCategory[];
   tags: BlogTag[];
-  existingSlugs: string[];
-  currentSlug?: string;
   isSaving: boolean;
   onClose: () => void;
   onSubmit: (values: BlogArticleFormValues) => void;
@@ -48,119 +46,80 @@ function slugifyName(name: string): string {
     .replace(/^-|-$/g, '');
 }
 
-function uniqueSlug(base: string, existing: string[], ignore?: string): string {
-  if (!base) return '';
-  const taken = new Set(existing.filter((s) => s !== ignore));
-  if (!taken.has(base)) return base;
-  let i = 2;
-  while (taken.has(`${base}-${i}`)) i += 1;
-  return `${base}-${i}`;
-}
-
 type BlogArticleFormProps = {
   mode: 'create' | 'edit';
   initial?: BlogArticleFormValues;
   categories: BlogCategory[];
   tags: BlogTag[];
-  existingSlugs: string[];
-  currentSlug?: string;
   isSaving: boolean;
   onClose: () => void;
   onSubmit: (values: BlogArticleFormValues) => void;
 };
+
+function RequiredFieldLabel({ label }: { label: string }) {
+  return (
+    <span className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
+      {label} <span className="text-red-500">*</span>
+    </span>
+  );
+}
 
 function BlogArticleForm({
   mode,
   initial,
   categories,
   tags,
-  existingSlugs,
-  currentSlug,
   isSaving,
   onClose,
   onSubmit,
 }: BlogArticleFormProps) {
-  const { t, locale } = useLocale();
-  const { toast } = useToast();
-  const heroInputRef = useRef<HTMLInputElement>(null);
-  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const { t, dir } = useLocale();
 
   const [title, setTitle] = useState(initial?.title ?? '');
   const [slug, setSlug] = useState(initial?.slug ?? '');
   const [excerpt, setExcerpt] = useState(initial?.excerpt ?? '');
   const [content, setContent] = useState(initial?.content ?? '');
   const [blogCategoryId, setBlogCategoryId] = useState(initial?.blog_category_id ?? '');
+  const [categoryMode, setCategoryMode] = useState<'existing' | 'custom'>(() => {
+    if (initial?.blog_category_id) return 'existing';
+    return categories.length === 0 ? 'custom' : 'existing';
+  });
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [tagIds, setTagIds] = useState<string[]>(initial?.tag_ids ?? []);
-  const [authorName, setAuthorName] = useState(initial?.author_name ?? 'فريق ديار');
+  const [newTagNames, setNewTagNames] = useState<string[]>([]);
+  const [authorName, setAuthorName] = useState(
+    initial?.author_name ?? (mode === 'create' ? t('admin.blogArticles.defaultAuthor') : ''),
+  );
   const [authorRole, setAuthorRole] = useState(initial?.author_role ?? '');
   const [heroImage, setHeroImage] = useState(initial?.hero_image ?? '');
   const [authorAvatar, setAuthorAvatar] = useState(initial?.author_avatar ?? '');
-  const [readingTimeMinutes, setReadingTimeMinutes] = useState<string>(
-    initial?.reading_time_minutes != null ? String(initial.reading_time_minutes) : '',
-  );
-  const [publishedAt, setPublishedAt] = useState(toDatetimeLocalValue(initial?.published_at));
   const [seoTitle, setSeoTitle] = useState(initial?.seo_title ?? '');
   const [seoDescription, setSeoDescription] = useState(initial?.seo_description ?? '');
-  const [status, setStatus] = useState<BlogArticleStatus>(initial?.status ?? 'draft');
   const [slugTouched, setSlugTouched] = useState(false);
   const [uploadingHero, setUploadingHero] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-  const suggestedSlug = useMemo(() => {
-    const base = slugifyName(title);
-    return uniqueSlug(base, existingSlugs, mode === 'edit' ? currentSlug : undefined);
-  }, [title, existingSlugs, mode, currentSlug]);
-
-  const displaySlug = slugTouched ? slug : suggestedSlug;
-
-  const toggleTag = (tagId: string) => {
-    setTagIds((current) =>
-      current.includes(tagId) ? current.filter((id) => id !== tagId) : [...current, tagId],
-    );
-  };
-
-  const handleImageUpload = async (
-    file: File,
-    context: 'blog-hero' | 'blog-author-avatar',
-    onSuccess: (url: string) => void,
-    setUploading: (value: boolean) => void,
-  ) => {
-    setUploading(true);
-    try {
-      const result = await uploadCmsImage(file, context);
-      onSuccess(result.url);
-    } catch (error) {
-      toast.error(parseApiError(error, locale).message || t('admin.blogArticles.uploadError'));
-    } finally {
-      setUploading(false);
-    }
-  };
+  const suggestedSlug = useMemo(() => slugifyName(title), [title]);
+  const displaySlug = slugTouched ? slug : mode === 'edit' ? slug : suggestedSlug;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    const trimmedSlug = displaySlug.trim();
-    const finalSlug = trimmedSlug
-      ? uniqueSlug(trimmedSlug, existingSlugs, mode === 'edit' ? currentSlug : undefined)
-      : suggestedSlug;
 
     onSubmit({
       title: title.trim(),
-      slug: finalSlug,
+      slug: displaySlug.trim(),
       excerpt: excerpt.trim(),
       content: content.trim(),
-      blog_category_id: blogCategoryId,
+      blog_category_id: categoryMode === 'existing' ? blogCategoryId : '',
+      new_category_name: categoryMode === 'custom' ? newCategoryName.trim() : undefined,
       tag_ids: tagIds,
+      new_tag_names: newTagNames.length > 0 ? newTagNames : undefined,
       author_name: authorName.trim(),
       author_role: authorRole.trim(),
       hero_image: heroImage.trim(),
       author_avatar: authorAvatar.trim(),
-      reading_time_minutes: readingTimeMinutes.trim()
-        ? Number.parseInt(readingTimeMinutes, 10)
-        : null,
-      published_at: publishedAt,
       seo_title: seoTitle.trim(),
       seo_description: seoDescription.trim(),
-      status,
     });
   };
 
@@ -173,7 +132,7 @@ function BlogArticleForm({
               ? t('admin.blogArticles.createTitle')
               : t('admin.blogArticles.editTitle')}
           </h3>
-          <p className="mt-1 text-sm text-gray-500">{t('admin.categories.modalHint')}</p>
+          <p className="mt-1 text-sm text-gray-500">{t('admin.blogArticles.slugHint')}</p>
         </div>
         <button
           type="button"
@@ -184,17 +143,17 @@ function BlogArticleForm({
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4" data-testid="blog-article-modal">
+      <form onSubmit={handleSubmit} className="space-y-4" data-testid="blog-article-modal" dir={dir}>
         <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-            {t('admin.tables.title')}
-          </label>
+          <RequiredFieldLabel label={t('admin.tables.title')} />
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
+            placeholder={t('admin.blogArticles.placeholders.title')}
             data-testid="blog-article-title"
             className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+            dir={dir}
           />
         </div>
 
@@ -208,7 +167,7 @@ function BlogArticleForm({
               setSlugTouched(true);
               setSlug(e.target.value);
             }}
-            placeholder={suggestedSlug || t('admin.categories.slugAuto')}
+            placeholder={suggestedSlug || t('admin.blogArticles.placeholders.slug')}
             data-testid="blog-article-slug"
             className="w-full rounded-xl border border-gray-200 px-3 py-2.5 font-mono text-sm outline-none focus:border-diyar-brown"
             dir="ltr"
@@ -223,30 +182,55 @@ function BlogArticleForm({
             value={excerpt}
             onChange={(e) => setExcerpt(e.target.value)}
             rows={2}
+            placeholder={t('admin.blogArticles.placeholders.excerpt')}
             className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+            dir={dir}
           />
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-            {t('admin.blogArticles.content')}
-          </label>
+          <RequiredFieldLabel label={t('admin.blogArticles.content')} />
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             required
             rows={6}
+            placeholder={t('admin.blogArticles.placeholders.content')}
             data-testid="blog-article-content"
             className="w-full rounded-xl border border-gray-200 px-3 py-2.5 font-mono text-sm outline-none focus:border-diyar-brown"
             dir="ltr"
           />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.blogArticles.category')}
-            </label>
+        <div>
+          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
+            {t('admin.blogArticles.category')}
+          </label>
+          <div className="mb-2 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setCategoryMode('existing')}
+              className={`rounded-lg px-2.5 py-1 text-xs font-semibold cursor-pointer ${
+                categoryMode === 'existing'
+                  ? 'bg-diyar-dark text-white'
+                  : 'border border-gray-200 text-gray-600 hover:border-diyar-brown'
+              }`}
+            >
+              {t('admin.blogArticles.useExistingCategory')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setCategoryMode('custom')}
+              className={`rounded-lg px-2.5 py-1 text-xs font-semibold cursor-pointer ${
+                categoryMode === 'custom'
+                  ? 'bg-diyar-dark text-white'
+                  : 'border border-gray-200 text-gray-600 hover:border-diyar-brown'
+              }`}
+            >
+              {t('admin.blogArticles.createCategory')}
+            </button>
+          </div>
+          {categoryMode === 'existing' ? (
             <select
               value={blogCategoryId}
               onChange={(e) => setBlogCategoryId(e.target.value)}
@@ -259,61 +243,36 @@ function BlogArticleForm({
                 </option>
               ))}
             </select>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.tables.status')}
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as BlogArticleStatus)}
-              data-testid="blog-article-status"
+          ) : (
+            <input
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder={t('admin.blogArticles.placeholders.categoryName')}
               className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
-            >
-              <option value="draft">{t('admin.status.draft')}</option>
-              <option value="published">{t('admin.status.published')}</option>
-              <option value="archived">{t('admin.status.archived')}</option>
-            </select>
-          </div>
+              dir={dir}
+            />
+          )}
         </div>
 
-        <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-            {t('admin.blogArticles.tags')}
-          </label>
-          <div className="flex flex-wrap gap-2 rounded-xl border border-gray-200 p-3">
-            {tags.length === 0 ? (
-              <p className="text-xs text-gray-500">{t('admin.blogArticles.noTags')}</p>
-            ) : (
-              tags.map((tag) => (
-                <label
-                  key={tag.id}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-100 px-2.5 py-1.5 text-xs font-semibold text-gray-700"
-                >
-                  <input
-                    type="checkbox"
-                    checked={tagIds.includes(tag.id)}
-                    onChange={() => toggleTag(tag.id)}
-                    className="rounded border-gray-300 text-diyar-brown focus:ring-diyar-brown"
-                  />
-                  {tag.name}
-                </label>
-              ))
-            )}
-          </div>
-        </div>
+        <AdminBlogTagPicker
+          tags={tags}
+          selectedIds={tagIds}
+          pendingNames={newTagNames}
+          onSelectedIdsChange={setTagIds}
+          onPendingNamesChange={setNewTagNames}
+        />
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.blogArticles.authorName')}
-            </label>
+            <RequiredFieldLabel label={t('admin.blogArticles.authorName')} />
             <input
               value={authorName}
               onChange={(e) => setAuthorName(e.target.value)}
               required
+              placeholder={t('admin.blogArticles.defaultAuthor')}
               data-testid="blog-article-author"
               className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+              dir={dir}
             />
           </div>
           <div>
@@ -323,116 +282,30 @@ function BlogArticleForm({
             <input
               value={authorRole}
               onChange={(e) => setAuthorRole(e.target.value)}
+              placeholder={t('admin.blogArticles.placeholders.authorRole')}
               className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+              dir={dir}
             />
           </div>
         </div>
 
-        <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-            {t('admin.blogArticles.heroImage')}
-          </label>
-          <div className="flex gap-2">
-            <input
-              value={heroImage}
-              onChange={(e) => setHeroImage(e.target.value)}
-              placeholder="https://"
-              className="min-w-0 flex-1 rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
-              dir="ltr"
-            />
-            <input
-              ref={heroInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) {
-                  void handleImageUpload(file, 'blog-hero', setHeroImage, setUploadingHero);
-                }
-                event.target.value = '';
-              }}
-            />
-            <button
-              type="button"
-              disabled={uploadingHero}
-              onClick={() => heroInputRef.current?.click()}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-2.5 text-xs font-semibold text-gray-600 cursor-pointer"
-            >
-              {uploadingHero ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-              {t('admin.blogArticles.upload')}
-            </button>
-          </div>
-        </div>
+        <AdminCmsImageField
+          label={t('admin.blogArticles.heroImage')}
+          value={heroImage}
+          onChange={setHeroImage}
+          context="blog_hero"
+          uploading={uploadingHero}
+          onUploadingChange={setUploadingHero}
+        />
 
-        <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-            {t('admin.blogArticles.authorAvatar')}
-          </label>
-          <div className="flex gap-2">
-            <input
-              value={authorAvatar}
-              onChange={(e) => setAuthorAvatar(e.target.value)}
-              placeholder="https://"
-              className="min-w-0 flex-1 rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
-              dir="ltr"
-            />
-            <input
-              ref={avatarInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) {
-                  void handleImageUpload(file, 'blog-author-avatar', setAuthorAvatar, setUploadingAvatar);
-                }
-                event.target.value = '';
-              }}
-            />
-            <button
-              type="button"
-              disabled={uploadingAvatar}
-              onClick={() => avatarInputRef.current?.click()}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-2.5 text-xs font-semibold text-gray-600 cursor-pointer"
-            >
-              {uploadingAvatar ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : (
-                <Upload size={14} />
-              )}
-              {t('admin.blogArticles.upload')}
-            </button>
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.blogArticles.readingTime')}
-            </label>
-            <input
-              type="number"
-              min={1}
-              value={readingTimeMinutes}
-              onChange={(e) => setReadingTimeMinutes(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
-              dir="ltr"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.blogArticles.publishedAt')}
-            </label>
-            <input
-              type="datetime-local"
-              value={publishedAt}
-              onChange={(e) => setPublishedAt(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
-              dir="ltr"
-            />
-          </div>
-        </div>
+        <AdminCmsImageField
+          label={t('admin.blogArticles.authorAvatar')}
+          value={authorAvatar}
+          onChange={setAuthorAvatar}
+          context="blog_avatar"
+          uploading={uploadingAvatar}
+          onUploadingChange={setUploadingAvatar}
+        />
 
         <div>
           <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
@@ -441,7 +314,9 @@ function BlogArticleForm({
           <input
             value={seoTitle}
             onChange={(e) => setSeoTitle(e.target.value)}
+            placeholder={t('admin.blogArticles.placeholders.seoTitle')}
             className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+            dir={dir}
           />
         </div>
 
@@ -453,7 +328,9 @@ function BlogArticleForm({
             value={seoDescription}
             onChange={(e) => setSeoDescription(e.target.value)}
             rows={2}
+            placeholder={t('admin.blogArticles.placeholders.seoDescription')}
             className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+            dir={dir}
           />
         </div>
 
@@ -486,20 +363,18 @@ export function AdminBlogArticleModal({
   initial,
   categories,
   tags,
-  existingSlugs,
-  currentSlug,
   isSaving,
   onClose,
   onSubmit,
 }: AdminBlogArticleModalProps) {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
 
   if (!open) return null;
 
-  const formKey = `${mode}-${currentSlug ?? initial?.slug ?? 'new'}`;
+  const formKey = `${mode}-${initial?.slug ?? 'new'}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" dir={dir}>
       <button
         type="button"
         className="absolute inset-0 bg-black/45"
@@ -513,8 +388,6 @@ export function AdminBlogArticleModal({
           initial={initial}
           categories={categories}
           tags={tags}
-          existingSlugs={existingSlugs}
-          currentSlug={currentSlug}
           isSaving={isSaving}
           onClose={onClose}
           onSubmit={onSubmit}

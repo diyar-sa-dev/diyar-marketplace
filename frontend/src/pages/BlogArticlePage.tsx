@@ -1,19 +1,23 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ChevronLeft,
+  ChevronRight,
   Calendar,
   Clock,
-  Facebook,
-  Twitter,
-  Linkedin,
-  Link as LinkIcon,
   Bookmark,
+  Share2,
+  Loader2,
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import NotFoundPage from './errors/NotFoundPage.tsx';
+import { AuthPromptModal } from '../components/product/AuthPromptModal.tsx';
+import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
 import { useBlogArticle } from '../hooks/blog/useBlogArticle.ts';
+import { useBlogWishlistMutation } from '../hooks/blog/useBlogEngagement.ts';
+import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { useToast } from '../hooks/useToast.ts';
 import { formatBlogReadingTime } from '../lib/formatBlogReadingTime.ts';
 import { formatLocaleDate } from '../lib/intlLocale.ts';
 import { sanitizeHtml } from '../utils/sanitizeHtml.ts';
@@ -26,12 +30,47 @@ const FALLBACK_CARD_IMAGE =
 
 export default function BlogArticlePage() {
   const { slug } = useParams<{ slug: string }>();
-  const { locale } = useLocale();
+  const { t, locale, dir } = useLocale();
+  const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
   const { data, isPending, isError, error, refetch } = useBlogArticle(slug);
+  const wishlist = useBlogWishlistMutation(slug);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const BreadcrumbChevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
+
+  useEffect(() => {
+    setIsSaved(data?.article.user_saved ?? false);
+  }, [data?.article.user_saved]);
+
+  const requireAuth = useCallback(
+    (action: () => void) => {
+      if (!isAuthenticated) {
+        setAuthOpen(true);
+        return;
+      }
+      action();
+    },
+    [isAuthenticated],
+  );
+
+  const handleSave = () => {
+    requireAuth(() => {
+      void wishlist
+        .mutateAsync()
+        .then((result) => {
+          setIsSaved(result.saved);
+        })
+        .catch(() => {
+          toast.error(t('blog.article.saveError'));
+        });
+    });
+  };
 
   if (isPending) {
     return (
-      <div className="bg-gray-50 min-h-screen pb-24 md:pb-12 font-sans">
+      <div className="bg-gray-50 min-h-screen pb-24 md:pb-12 font-sans" dir={dir}>
         <div className="max-w-4xl mx-auto px-4 py-8 md:py-12 animate-pulse space-y-6">
           <div className="h-4 w-64 bg-gray-200 rounded" />
           <div className="h-10 w-full bg-gray-200 rounded" />
@@ -52,12 +91,8 @@ export default function BlogArticlePage() {
 
   if (isError || !data) {
     return (
-      <div className="bg-gray-50 min-h-screen pb-24 md:pb-12 font-sans">
-        <ErrorState
-          error={error}
-          onRetry={() => void refetch()}
-          title={locale === 'ar' ? 'تعذر تحميل المقال' : 'Unable to load article'}
-        />
+      <div className="bg-gray-50 min-h-screen pb-24 md:pb-12 font-sans" dir={dir}>
+        <ErrorState error={error} onRetry={() => void refetch()} title={t('blog.article.loadError')} />
       </div>
     );
   }
@@ -75,20 +110,21 @@ export default function BlogArticlePage() {
     article.author_avatar ??
     `https://ui-avatars.com/api/?name=${encodeURIComponent(article.author_name ?? 'Diyar')}&background=F3F4F6&color=4B5563`;
   const tags = article.tags ?? [];
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-24 md:pb-12 font-sans">
+    <div className="bg-gray-50 min-h-screen pb-24 md:pb-12 font-sans" dir={dir}>
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
-            <Link to="/" className="hover:text-diyar-dark transition">
-              الرئيسية
+            <Link to="/" className="hover:text-diyar-dark transition cursor-pointer">
+              {t('layout.nav.home')}
             </Link>
-            <ChevronLeft size={16} />
-            <Link to="/blog" className="hover:text-diyar-dark transition">
-              مدونة ديار
+            <BreadcrumbChevron size={16} />
+            <Link to="/blog" className="hover:text-diyar-dark transition cursor-pointer">
+              {t('home.blog.badge')}
             </Link>
-            <ChevronLeft size={16} />
+            <BreadcrumbChevron size={16} />
             <span className="font-bold text-diyar-dark line-clamp-1 truncate max-w-xs">
               {article.title}
             </span>
@@ -100,12 +136,13 @@ export default function BlogArticlePage() {
         <header className="mb-8 md:mb-12">
           <div className="flex flex-wrap gap-2 mb-4">
             {tags.slice(0, 2).map((tag) => (
-              <span
+              <Link
                 key={tag.id}
-                className="bg-diyar-brown/10 text-diyar-brown text-xs font-bold px-3 py-1.5 rounded-full"
+                to={`/blog/tag/${tag.slug}`}
+                className="cursor-pointer bg-diyar-brown/10 text-diyar-brown text-xs font-bold px-3 py-1.5 rounded-full hover:bg-diyar-brown/20 transition-colors"
               >
                 {tag.name}
-              </span>
+              </Link>
             ))}
           </div>
 
@@ -117,12 +154,16 @@ export default function BlogArticlePage() {
             <div className="flex items-center gap-4">
               <img
                 src={authorAvatar}
-                alt={article.author_name ?? 'Diyar'}
+                alt={article.author_name ?? t('blog.article.defaultAuthor')}
                 className="w-12 h-12 rounded-full bg-gray-100 border border-gray-200"
               />
               <div>
-                <h3 className="font-bold text-gray-900">{article.author_name ?? 'فريق ديار'}</h3>
-                <p className="text-xs text-gray-500">{article.author_role ?? 'خبراء التصميم والمفروشات'}</p>
+                <h3 className="font-bold text-gray-900">
+                  {article.author_name ?? t('blog.article.defaultAuthor')}
+                </h3>
+                <p className="text-xs text-gray-500">
+                  {article.author_role ?? t('blog.article.defaultAuthorRole')}
+                </p>
               </div>
             </div>
 
@@ -143,6 +184,7 @@ export default function BlogArticlePage() {
             src={article.hero_image ?? FALLBACK_COVER}
             alt={article.title}
             referrerPolicy="no-referrer"
+            loading="lazy"
             className="w-full max-h-[500px] object-cover"
             onError={(e) => {
               (e.target as HTMLImageElement).src = FALLBACK_COVER;
@@ -157,43 +199,53 @@ export default function BlogArticlePage() {
               dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content ?? '') }}
             />
 
-            <div className="mt-12 pt-6 border-t border-gray-200 flex flex-wrap gap-2">
-              <span className="text-gray-500 text-sm py-1.5 font-medium ml-2">الإشارات:</span>
-              {tags.map((tag) => (
-                <Link
-                  key={tag.id}
-                  to={`/blog/tag/${tag.slug}`}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-4 py-1.5 rounded-full transition-colors"
-                >
-                  {tag.name}
-                </Link>
-              ))}
-            </div>
+            {tags.length > 0 ? (
+              <div className="mt-12 pt-6 border-t border-gray-200 flex flex-wrap gap-2 items-center">
+                <span className="text-gray-500 text-sm py-1.5 font-medium">{t('blog.article.tagsLabel')}</span>
+                {tags.map((tag) => (
+                  <Link
+                    key={tag.id}
+                    to={`/blog/tag/${tag.slug}`}
+                    className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-4 py-1.5 rounded-full transition-colors"
+                  >
+                    {tag.name}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           <div className="lg:w-1/3 space-y-8">
             <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm sticky top-24">
-              <h3 className="font-bold text-diyar-dark mb-4 text-lg">شارك المقال</h3>
-              <div className="flex gap-2 mb-6">
-                <button className="flex-1 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 text-gray-500 h-10 rounded-xl flex items-center justify-center transition-colors">
-                  <Facebook size={18} />
-                </button>
-                <button className="flex-1 bg-gray-50 hover:bg-sky-50 hover:text-sky-500 text-gray-500 h-10 rounded-xl flex items-center justify-center transition-colors">
-                  <Twitter size={18} />
-                </button>
-                <button className="flex-1 bg-gray-50 hover:bg-indigo-50 hover:text-indigo-600 text-gray-500 h-10 rounded-xl flex items-center justify-center transition-colors">
-                  <Linkedin size={18} />
-                </button>
-                <button className="flex-1 bg-gray-50 hover:bg-gray-200 text-gray-800 h-10 rounded-xl flex items-center justify-center transition-colors">
-                  <LinkIcon size={18} />
-                </button>
-              </div>
+              <h3 className="font-bold text-diyar-dark mb-4 text-lg">{t('blog.article.shareTitle')}</h3>
+              <button
+                type="button"
+                onClick={() => setShareOpen(true)}
+                className="cursor-pointer w-full mb-6 flex items-center justify-center gap-2 rounded-xl bg-diyar-dark text-white font-bold py-3 hover:bg-black transition-colors"
+              >
+                <Share2 size={18} />
+                {t('blog.article.shareAction')}
+              </button>
 
               <h3 className="font-bold text-diyar-dark mb-4 text-lg border-t border-gray-100 pt-6">
-                تفاعلات
+                {t('blog.article.interactionsTitle')}
               </h3>
-              <button className="w-full border-2 border-gray-100 text-gray-600 hover:border-diyar-brown hover:text-diyar-brown font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
-                <Bookmark size={20} /> حفظ المقال
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={wishlist.isPending}
+                className={`cursor-pointer w-full border-2 font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-60 ${
+                  isSaved
+                    ? 'border-diyar-brown bg-diyar-brown/5 text-diyar-brown'
+                    : 'border-gray-100 text-gray-600 hover:border-diyar-brown hover:text-diyar-brown'
+                }`}
+              >
+                {wishlist.isPending ? (
+                  <Loader2 size={20} className="animate-spin" />
+                ) : (
+                  <Bookmark size={20} fill={isSaved ? 'currentColor' : 'none'} />
+                )}
+                {isSaved ? t('blog.article.savedLabel') : t('blog.article.saveAction')}
               </button>
             </div>
           </div>
@@ -204,12 +256,12 @@ export default function BlogArticlePage() {
         <div className="bg-white border-t border-gray-200 py-16">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-diyar-dark">مقالات ذات صلة</h2>
+              <h2 className="text-2xl font-bold text-diyar-dark">{t('blog.article.relatedTitle')}</h2>
               <Link
                 to="/blog"
-                className="text-diyar-brown font-bold hover:text-diyar-dark transition-colors text-sm"
+                className="cursor-pointer text-diyar-brown font-bold hover:text-diyar-dark transition-colors text-sm"
               >
-                عرض المدونة
+                {t('blog.article.viewBlog')}
               </Link>
             </div>
 
@@ -218,7 +270,7 @@ export default function BlogArticlePage() {
                 <Link
                   key={relatedArticle.id}
                   to={`/blog/${relatedArticle.slug}`}
-                  className="group bg-gray-50 rounded-3xl overflow-hidden border border-gray-100 hover:shadow-md transition-all"
+                  className="group cursor-pointer bg-gray-50 rounded-3xl overflow-hidden border border-gray-100 hover:shadow-md transition-all"
                 >
                   <div className="h-48 overflow-hidden relative">
                     {relatedArticle.category?.name ? (
@@ -230,6 +282,7 @@ export default function BlogArticlePage() {
                       src={relatedArticle.hero_image ?? FALLBACK_CARD_IMAGE}
                       alt={relatedArticle.title}
                       referrerPolicy="no-referrer"
+                      loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = FALLBACK_CARD_IMAGE;
@@ -259,6 +312,15 @@ export default function BlogArticlePage() {
           </div>
         </div>
       ) : null}
+
+      <ProductShareSheet
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        url={shareUrl}
+        title={article.title}
+        context="blog"
+      />
+      <AuthPromptModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </div>
   );
 }

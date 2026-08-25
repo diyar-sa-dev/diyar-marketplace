@@ -41,6 +41,7 @@ use App\Http\Controllers\Api\V1\Affiliate\AffiliateReferralController;
 use App\Http\Controllers\Api\V1\Assistant\AssistantChatController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Blog\BlogArticleController;
+use App\Http\Controllers\Api\V1\Blog\BlogEngagementController;
 use App\Http\Controllers\Api\V1\Blog\BlogCategoryController;
 use App\Http\Controllers\Api\V1\Blog\BlogTagController;
 use App\Http\Controllers\Api\V1\Cart\CartController;
@@ -620,6 +621,8 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::post('/products/{id}/wishlist', [ProductEngagementController::class, 'toggleWishlist'])
             ->middleware('throttle:wishlist-toggle');
         Route::post('/services/{identifier}/wishlist', [ServiceEngagementController::class, 'toggleWishlist'])
+            ->middleware('throttle:wishlist-toggle');
+        Route::post('/blog/articles/{slug}/wishlist', [BlogEngagementController::class, 'toggleWishlist'])
             ->middleware('throttle:wishlist-toggle');
         Route::post('/products/{id}/preorder', [ProductPreorderController::class, 'store']);
         Route::get('/products/{id}/preorder', [ProductPreorderController::class, 'status']);

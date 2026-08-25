@@ -21,7 +21,7 @@ class StoreBlogArticleRequest extends FormRequest
         return [
             'blog_category_id' => ['nullable', 'uuid', 'exists:blog_categories,id'],
             'title' => ['required', 'string', 'max:255'],
-            'slug' => ['sometimes', 'string', 'max:255', 'unique:blog_articles,slug'],
+            'slug' => ['sometimes', 'string', 'max:255'],
             'excerpt' => ['nullable', 'string'],
             'content' => ['required', 'string'],
             'hero_image' => ['nullable', 'string', 'max:2048'],

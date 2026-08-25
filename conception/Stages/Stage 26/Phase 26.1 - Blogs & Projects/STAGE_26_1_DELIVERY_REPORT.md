@@ -2,7 +2,7 @@
 
 ## Status
 
-**SUPERSEDED** — see [STAGE_26_1_FINAL_REPORT.md](./STAGE_26_1_FINAL_REPORT.md) for COMPLETE status after production hardening pass.
+**SUPERSEDED** — see [STAGE_26_1.md](./STAGE_26_1.md) (phase plan) and [STAGE_26_1_FINAL_REPORT.md](./STAGE_26_1_FINAL_REPORT.md) for COMPLETE status.
 
 ---
 

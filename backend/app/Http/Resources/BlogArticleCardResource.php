@@ -33,6 +33,10 @@ class BlogArticleCardResource extends JsonResource
             'tags' => BlogTagResource::collection($this->whenLoaded('tags')),
         ];
 
+        if (array_key_exists('user_saved', $this->resource->getAttributes())) {
+            $data['user_saved'] = (bool) $this->user_saved;
+        }
+
         if ($request->is('api/v1/admin/*')) {
             $data['status'] = $this->status->value;
         }

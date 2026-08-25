@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\V1\Profile;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BlogArticleCardResource;
 use App\Http\Resources\ProductCardResource;
 use App\Http\Resources\ServiceCardResource;
+use App\Services\Blog\BlogEngagementService;
 use App\Services\Catalog\ProductEngagementService;
 use App\Services\ServiceMarketplace\ServiceEngagementService;
 use App\Support\Api\ApiResponse;
@@ -17,6 +19,7 @@ class WishlistController extends Controller
     public function __construct(
         private readonly ProductEngagementService $engagement,
         private readonly ServiceEngagementService $serviceEngagement,
+        private readonly BlogEngagementService $blogEngagement,
     ) {}
 
     public function summary(Request $request): JsonResponse
@@ -24,11 +27,13 @@ class WishlistController extends Controller
         $user = $request->user();
         $products = $this->engagement->countForUser($user);
         $services = $this->serviceEngagement->countForUser($user);
+        $articles = $this->blogEngagement->countForUser($user);
 
         return ApiResponse::success(data: [
             'products' => $products,
             'services' => $services,
-            'total' => $products + $services,
+            'articles' => $articles,
+            'total' => $products + $services + $articles,
         ]);
     }
 
@@ -54,6 +59,31 @@ class WishlistController extends Controller
             return ApiResponse::success(data: [
                 'kind' => 'services',
                 'items' => ServiceCardResource::collection($services)->resolve(),
+                'pagination' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                ],
+            ]);
+        }
+
+        if ($kind === 'articles') {
+            $paginator = $this->blogEngagement->paginateWishlist($request->user(), $page, $perPage);
+            $articles = $paginator->getCollection()
+                ->map(function ($item) {
+                    $article = $item->article;
+                    if ($article !== null) {
+                        $article->setAttribute('user_saved', true);
+                    }
+
+                    return $article;
+                })
+                ->filter();
+
+            return ApiResponse::success(data: [
+                'kind' => 'articles',
+                'items' => BlogArticleCardResource::collection($articles)->resolve(),
                 'pagination' => [
                     'current_page' => $paginator->currentPage(),
                     'last_page' => $paginator->lastPage(),
@@ -98,8 +128,9 @@ class WishlistController extends Controller
             $user = $request->user();
             $removedProducts = $this->engagement->clearWishlist($user);
             $removedServices = $this->serviceEngagement->clearWishlist($user);
+            $removedArticles = $this->blogEngagement->clearWishlist($user);
 
-            return $removedProducts + $removedServices;
+            return $removedProducts + $removedServices + $removedArticles;
         });
 
         return ApiResponse::success(

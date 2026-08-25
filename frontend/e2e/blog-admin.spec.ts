@@ -16,7 +16,6 @@ test.describe('Admin blog journey', () => {
     await page.getByTestId('blog-article-slug').fill(adminArticleSlug);
     await page.getByTestId('blog-article-content').fill('<p>E2E admin flow article body.</p>');
     await page.getByTestId('blog-article-author').fill('E2E Admin');
-    await page.getByTestId('blog-article-status').selectOption('draft');
     await page.getByTestId('blog-article-submit').click();
 
     await expect(page.getByRole('cell', { name: adminArticleSlug, exact: true })).toBeVisible({

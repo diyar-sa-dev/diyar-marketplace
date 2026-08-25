@@ -61,7 +61,7 @@ final class BlogService
 
     private function slugExists(string $slug, ?string $ignoreId = null): bool
     {
-        $query = BlogArticle::query()->where('slug', $slug);
+        $query = BlogArticle::query()->withTrashed()->where('slug', $slug);
 
         if ($ignoreId !== null) {
             $query->where('id', '!=', $ignoreId);

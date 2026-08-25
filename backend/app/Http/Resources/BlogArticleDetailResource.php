@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\BlogArticle;
+use App\Services\Blog\BlogEngagementService;
 use App\Support\Media\CmsImageUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -30,6 +31,7 @@ class BlogArticleDetailResource extends JsonResource
             'status' => $this->status->value,
             'seo_title' => $this->seo_title,
             'seo_description' => $this->seo_description,
+            'user_saved' => $this->resolveUserSaved($request),
             'category' => $this->when(
                 $this->relationLoaded('category') && $this->category !== null,
                 fn () => new BlogCategoryResource($this->category),
@@ -38,5 +40,14 @@ class BlogArticleDetailResource extends JsonResource
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];
+    }
+
+    private function resolveUserSaved(Request $request): bool
+    {
+        if (array_key_exists('user_saved', $this->resource->getAttributes())) {
+            return (bool) $this->user_saved;
+        }
+
+        return app(BlogEngagementService::class)->userSaved($request->user(), $this->resource);
     }
 }

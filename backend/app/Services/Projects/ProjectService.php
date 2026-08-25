@@ -36,7 +36,7 @@ final class ProjectService
 
     private function slugExists(string $slug, ?string $ignoreId = null): bool
     {
-        $query = Project::query()->where('slug', $slug);
+        $query = Project::query()->withTrashed()->where('slug', $slug);
 
         if ($ignoreId !== null) {
             $query->where('id', '!=', $ignoreId);
