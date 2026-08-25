@@ -94,6 +94,22 @@ class B2bContentSeeder extends Seeder
                 'services' => ['توريد بالجملة للمصانع', 'عقود توريد طويلة الأمد', 'شحن وتوصيل للمشاريع', 'عيّنات مجانية للعملاء'],
                 'featured' => true,
             ],
+            [
+                'slug' => 'smart-home-co',
+                'name' => 'شركة المنزل الذكي',
+                'custom_category' => 'تكامل المنزل الذكي',
+                'location' => 'الرياض، حي العليا',
+                'description' => 'حلول تكامل المنزل الذكي للمشاريع التجارية والسكنية الفاخرة.',
+                'about' => 'نصمّم وننفّذ أنظمة المنزل الذكي المتكاملة للفلل والفنادق والمكاتب.',
+                'cover' => 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&q=80&w=1600',
+                'years' => 6,
+                'team' => 18,
+                'projects' => 42,
+                'rating' => 4.6,
+                'reviews' => 31,
+                'tag_slugs' => [],
+                'services' => ['تكامل أنظمة الإضاءة والتحكم', 'أتمتة المباني', 'صيانة وتشغيل الأنظمة'],
+            ],
         ];
 
         $draftCompany = [
@@ -123,7 +139,8 @@ class B2bContentSeeder extends Seeder
             $company = B2bCompany::query()->updateOrCreate(
                 ['slug' => $data['slug']],
                 [
-                    'b2b_category_id' => $data['category']->id,
+                    'b2b_category_id' => isset($data['category']) ? $data['category']->id : null,
+                    'custom_category' => $data['custom_category'] ?? null,
                     'name' => $data['name'],
                     'description' => $data['description'],
                     'about' => $data['about'],

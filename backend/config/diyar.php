@@ -401,6 +401,12 @@ return [
                 'roles' => ['customer', 'vendor', 'provider', 'admin'],
                 'channels' => ['in_app', 'email', 'push'],
             ],
+            'b2b' => [
+                'label' => 'diyar.notifications.categories.b2b',
+                'policy' => 'optional',
+                'roles' => ['customer', 'vendor', 'provider'],
+                'channels' => ['in_app', 'email', 'push'],
+            ],
         ],
         'type_category_map' => [
             'auth.registration' => 'auth',
@@ -437,6 +443,10 @@ return [
             'chat.message_received' => 'chat',
             'affiliate.commission_available' => 'payouts',
             'affiliate.payout_requested' => 'payouts',
+            'b2b.company_published' => 'b2b',
+            'b2b.lead_received' => 'b2b',
+            'b2b.lead_accepted' => 'b2b',
+            'b2b.lead_rejected' => 'b2b',
         ],
     ],
 

@@ -15,7 +15,6 @@ import { useDeleteAvatar, useProfile, useUploadAvatar } from '../../hooks/profil
 import { useAuth } from '../../hooks/auth/useAuth.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
-import { hasCustomerRole } from '../../lib/auth/roles.ts';
 import { normalizeIban, saudiIbanValidationMessage } from '../../lib/iban.ts';
 import { isValidOptionalUrl } from '../../lib/vendorFormValidation.ts';
 import { parseApiError } from '../../utils/errors.ts';
@@ -106,7 +105,6 @@ export default function AffiliateSettings() {
 
   const displayName = profile?.name ?? user?.name ?? '';
   const displayAvatarUrl = profile?.avatar_url ?? user?.avatar_url;
-  const showCustomerProfileLink = hasCustomerRole(user?.roles);
 
   const saveSettings = async (payload: AffiliateSettingsPayload) => {
     try {
@@ -274,19 +272,17 @@ export default function AffiliateSettings() {
                       }}
                     />
                     <div className="flex-1">
-                      <p className="text-sm text-gray-500 leading-relaxed mb-3">
-                        {t('affiliate.settings.account.avatarHint')}
+                      <p className="text-sm text-gray-500 leading-relaxed">
+                        {t('affiliate.settings.account.avatarFormats')}
                       </p>
-                      {showCustomerProfileLink && (
-                        <Link
-                          to="/profile/personal-info"
-                          className={`text-sm font-bold ${theme.link} transition inline-flex items-center gap-2 cursor-pointer`}
-                        >
-                          {t('affiliate.settings.account.manageProfile')}
-                        </Link>
-                      )}
                     </div>
                   </div>
+                  <Link
+                    to="/profile"
+                    className={`mt-4 text-sm font-bold ${theme.outline} px-5 py-2.5 rounded-xl transition inline-block cursor-pointer`}
+                  >
+                    {t('affiliate.settings.account.manageProfile')}
+                  </Link>
                 </div>
 
                 <hr className="border-gray-100" />

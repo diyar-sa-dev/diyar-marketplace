@@ -21,7 +21,8 @@ export default function CustomerReviewDetailPage() {
   const { user } = useAuth();
   const accountBackPath = resolveAccountSettingsBackPath(user?.roles);
 
-  const reviewType = type === 'store' ? 'store' : 'product';
+  const reviewType =
+    type === 'store' ? 'store' : type === 'service' ? 'service' : 'product';
   const {
     data: review,
     isLoading,
@@ -47,18 +48,31 @@ export default function CustomerReviewDetailPage() {
   }
 
   const isProduct = review.type === 'product';
-  const title = isProduct ? review.product?.name : review.store?.name;
+  const isService = review.type === 'service';
+  const title = isProduct ? review.product?.name : isService ? review.service?.title : review.store?.name;
   const subjectImage = isProduct
     ? resolveMediaUrl(review.product?.image_url)
-    : resolveMediaUrl(review.store?.logo_url);
-  const storeLogo = resolveMediaUrl(review.store?.logo_url);
+    : isService
+      ? resolveMediaUrl(review.provider?.logo_url)
+      : resolveMediaUrl(review.store?.logo_url);
+  const storeLogo = resolveMediaUrl(isService ? review.provider?.logo_url : review.store?.logo_url);
   const subjectLink = isProduct
     ? review.product?.id && review.product.available
       ? `/products/${review.product.id}`
       : null
-    : review.store?.slug
-      ? `/store/${review.store.slug}`
-      : null;
+    : isService
+      ? review.service?.slug
+        ? `/service/${review.service.slug}`
+        : null
+      : review.store?.slug
+        ? `/store/${review.store.slug}`
+        : null;
+
+  const replyText = isService ? review.provider_response : review.vendor_reply;
+  const replyAuthor = isService
+    ? review.provider_responded_by ?? review.provider?.name
+    : review.vendor_replied_by ?? review.store?.name;
+  const replyAt = isService ? review.provider_responded_at : review.vendor_replied_at;
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24 md:pb-12" dir={dir}>
@@ -81,7 +95,9 @@ export default function CustomerReviewDetailPage() {
           <h1 className="font-bold text-lg">
             {isProduct
               ? t('customerReviews.productReviewTitle')
-              : t('customerReviews.storeReviewTitle')}
+              : isService
+                ? t('customerReviews.serviceReviewTitle')
+                : t('customerReviews.storeReviewTitle')}
           </h1>
         </div>
 
@@ -99,7 +115,11 @@ export default function CustomerReviewDetailPage() {
             )}
             <div>
               <p className="text-xs text-gray-500">
-                {isProduct ? t('customerReviews.typeProduct') : t('customerReviews.typeStore')}
+                {isProduct
+                  ? t('customerReviews.typeProduct')
+                  : isService
+                    ? t('customerReviews.typeService')
+                    : t('customerReviews.typeStore')}
               </p>
               <p className="font-bold text-diyar-dark">{title}</p>
             </div>
@@ -138,20 +158,19 @@ export default function CustomerReviewDetailPage() {
           )}
         </article>
 
-        {review.vendor_reply ? (
+        {replyText ? (
           <VendorReplyBlock
-            reply={review.vendor_reply}
-            repliedBy={
-              review.vendor_replied_by ?? (isProduct ? review.store?.name : review.store?.name)
-            }
-            repliedAt={review.vendor_replied_at}
+            reply={replyText}
+            repliedBy={replyAuthor}
+            repliedAt={replyAt}
             avatarUrl={storeLogo ?? subjectImage}
             locale={locale}
             t={t}
+            variant={isService ? 'provider' : 'vendor'}
           />
         ) : (
           <p className="text-sm text-gray-500 text-center py-8 bg-white rounded-2xl border border-dashed border-gray-200">
-            {t('customerReviews.noVendorReply')}
+            {isService ? t('customerReviews.noProviderReply') : t('customerReviews.noVendorReply')}
           </p>
         )}
       </div>

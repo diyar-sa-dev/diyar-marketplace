@@ -145,7 +145,7 @@ export default function ReviewsPage() {
         : typeFilter === 'store'
           ? t('customerReviews.emptyPendingStore')
           : typeFilter === 'service'
-            ? t('customerReviews.emptyService')
+            ? t('customerReviews.emptyPendingService')
             : t('customerReviews.emptyPending');
 
   const emptyDescription =
@@ -214,8 +214,7 @@ export default function ReviewsPage() {
               key={type}
               type="button"
               onClick={() => handleTypeChange(type)}
-              disabled={type === 'service'}
-              className={`px-4 py-2 rounded-xl text-sm font-bold border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`px-4 py-2 rounded-xl text-sm font-bold border transition-colors cursor-pointer ${
                 typeFilter === type
                   ? 'bg-diyar-brown text-white border-diyar-brown'
                   : 'bg-white text-gray-600 border-gray-200 hover:border-diyar-brown/40'
@@ -233,11 +232,6 @@ export default function ReviewsPage() {
             message={t('customerReviews.loadError')}
             error={error as Error}
             onRetry={() => void refetch()}
-          />
-        ) : typeFilter === 'service' ? (
-          <EmptyState
-            title={t('customerReviews.emptyService')}
-            description={t('customerReviews.serviceComingSoon')}
           />
         ) : allPendingSkipped ? (
           <EmptyState

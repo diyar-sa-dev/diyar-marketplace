@@ -4,6 +4,7 @@ namespace App\Services\B2b;
 
 use App\Enums\B2bPublicationStatus;
 use App\Enums\B2bVerificationStatus;
+use App\Events\Domain\B2bCompanyPublished;
 use App\Models\B2bCategory;
 use App\Models\B2bCompany;
 use App\Models\B2bCompanyService;
@@ -345,6 +346,7 @@ final class AdminB2bService
     ): B2bCompany {
         return DB::transaction(function () use ($company, $actor, $status, $action, $extra): B2bCompany {
             $before = $this->companySnapshot($company);
+            $wasPublished = $company->publication_status === B2bPublicationStatus::Published;
             $company->fill(array_merge(['publication_status' => $status], $extra))->save();
             $company->load(['category', 'tags']);
 
@@ -357,6 +359,10 @@ final class AdminB2bService
             );
 
             $this->cache->forget();
+
+            if ($status === B2bPublicationStatus::Published && ! $wasPublished) {
+                DB::afterCommit(fn () => event(new B2bCompanyPublished($company->fresh())));
+            }
 
             return $company;
         });

@@ -27,20 +27,38 @@ class B2bCompanyCardResource extends JsonResource
             'reviews_count' => (int) $this->reviews_count,
             'verified' => $this->verification_status === B2bVerificationStatus::Verified,
             'featured' => (bool) $this->featured,
-            'category' => $this->when(
-                $this->relationLoaded('category') && $this->category !== null,
-                fn () => new B2bCategoryResource($this->category),
-            ),
+            'category' => $this->resolveCategory(),
             'tags' => B2bTagResource::collection($this->whenLoaded('tags')),
         ];
 
         if ($request->is('api/v1/admin/*')) {
             $data['id'] = $this->id;
+            $data['custom_category'] = $this->custom_category;
             $data['publication_status'] = $this->publication_status->value;
             $data['verification_status'] = $this->verification_status->value;
             $data['published_at'] = $this->published_at?->toIso8601String();
         }
 
         return $data;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function resolveCategory(): ?array
+    {
+        if ($this->custom_category) {
+            return [
+                'id' => null,
+                'slug' => 'other',
+                'name' => $this->custom_category,
+            ];
+        }
+
+        if ($this->relationLoaded('category') && $this->category !== null) {
+            return (new B2bCategoryResource($this->category))->resolve();
+        }
+
+        return null;
     }
 }

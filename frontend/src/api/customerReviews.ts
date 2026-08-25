@@ -28,13 +28,29 @@ export interface CustomerReviewStoreSubject {
   logo_url: string | null;
 }
 
-export interface PublishedCustomerReview {
-  type: Exclude<CustomerReviewType, 'service'>;
+export interface CustomerReviewServiceSubject {
+  id: string;
+  title: string;
+  slug: string;
+}
+
+export interface CustomerReviewProviderSubject {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+}
+
+interface BasePublishedCustomerReview {
   id: string;
   rating: number;
   comment: string | null;
   created_at: string | null;
   updated_at?: string | null;
+}
+
+export interface PublishedProductCustomerReview extends BasePublishedCustomerReview {
+  type: 'product';
   vendor_reply?: string | null;
   vendor_replied_at?: string | null;
   vendor_replied_by?: string | null;
@@ -44,17 +60,67 @@ export interface PublishedCustomerReview {
   order_number?: string | null;
 }
 
-export interface PendingCustomerReview {
-  type: Exclude<CustomerReviewType, 'service'>;
+export interface PublishedStoreCustomerReview extends BasePublishedCustomerReview {
+  type: 'store';
+  vendor_reply?: string | null;
+  vendor_replied_at?: string | null;
+  vendor_replied_by?: string | null;
+  store?: CustomerReviewStoreSubject | null;
+  order_id?: string | null;
+  order_number?: string | null;
+}
+
+export interface PublishedServiceCustomerReview extends BasePublishedCustomerReview {
+  type: 'service';
+  title?: string | null;
+  provider_response?: string | null;
+  provider_responded_at?: string | null;
+  provider_responded_by?: string | null;
+  service?: CustomerReviewServiceSubject | null;
+  provider?: CustomerReviewProviderSubject | null;
+  booking_id?: string | null;
+  booking_reference?: string | null;
+}
+
+export type PublishedCustomerReview =
+  | PublishedProductCustomerReview
+  | PublishedStoreCustomerReview
+  | PublishedServiceCustomerReview;
+
+export interface PendingProductCustomerReview {
+  type: 'product';
   pending_key: string;
   sort_at?: string | null;
   order_id?: string | null;
   order_number?: string | null;
   order_item_id?: string;
-  vendor_order_id?: string;
   product?: CustomerReviewProductSubject | null;
+}
+
+export interface PendingStoreCustomerReview {
+  type: 'store';
+  pending_key: string;
+  sort_at?: string | null;
+  order_id?: string | null;
+  order_number?: string | null;
+  vendor_order_id?: string;
   store?: CustomerReviewStoreSubject | null;
 }
+
+export interface PendingServiceCustomerReview {
+  type: 'service';
+  pending_key: string;
+  sort_at?: string | null;
+  booking_id?: string | null;
+  booking_reference?: string | null;
+  service?: CustomerReviewServiceSubject | null;
+  provider?: CustomerReviewProviderSubject | null;
+}
+
+export type PendingCustomerReview =
+  | PendingProductCustomerReview
+  | PendingStoreCustomerReview
+  | PendingServiceCustomerReview;
 
 export type CustomerReviewItem = PublishedCustomerReview | PendingCustomerReview;
 
@@ -89,7 +155,7 @@ export async function fetchCustomerReviews(
 }
 
 export async function fetchCustomerReviewDetail(
-  type: Exclude<CustomerReviewType, 'service'>,
+  type: CustomerReviewType,
   id: string,
 ): Promise<PublishedCustomerReview> {
   const { data } = await apiClient.get<ApiSuccessResponse<{ review: PublishedCustomerReview }>>(

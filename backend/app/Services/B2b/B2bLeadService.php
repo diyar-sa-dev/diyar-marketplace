@@ -3,6 +3,8 @@
 namespace App\Services\B2b;
 
 use App\Enums\B2bLeadBudgetRange;
+use App\Enums\B2bLeadStatus;
+use App\Events\Domain\B2bLeadReceived;
 use App\Models\B2bCompany;
 use App\Models\B2bLead;
 use App\Models\User;
@@ -24,15 +26,19 @@ final class B2bLeadService
         $this->assertNotDuplicate($company, $user, (string) $attributes['project_type']);
 
         return DB::transaction(function () use ($company, $user, $attributes): B2bLead {
-            return B2bLead::query()->create([
+            $lead = B2bLead::query()->create([
                 'b2b_company_id' => $company->id,
                 'user_id' => $user->id,
                 'project_type' => $attributes['project_type'],
                 'estimated_quantity' => $attributes['estimated_quantity'] ?? null,
                 'details' => $attributes['details'],
                 'budget_range' => $attributes['budget_range'] ?? B2bLeadBudgetRange::Unspecified->value,
-                'status' => 'new',
+                'status' => B2bLeadStatus::New,
             ]);
+
+            DB::afterCommit(fn () => event(new B2bLeadReceived($lead)));
+
+            return $lead;
         });
     }
 

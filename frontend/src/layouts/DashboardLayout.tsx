@@ -21,6 +21,7 @@ import {
   MessageSquare,
   MessagesSquare,
   Tag,
+  Building2,
 } from 'lucide-react';
 import { NotificationBellDropdown } from '../components/notifications/NotificationBellDropdown.tsx';
 import { ChatMessagesLink } from '../components/chat/ChatMessagesLink.tsx';
@@ -161,6 +162,11 @@ export default function DashboardLayout() {
         permission: 'finance',
       },
       {
+        name: t('vendor.nav.b2b'),
+        path: '/dashboard/vendor/b2b',
+        icon: Building2,
+      },
+      {
         name: t('vendor.nav.settings'),
         path: '/dashboard/vendor/settings',
         icon: Settings,
@@ -198,6 +204,11 @@ export default function DashboardLayout() {
         name: t('providerDashboard.nav.finance'),
         path: '/dashboard/service/finance',
         icon: Wallet,
+      },
+      {
+        name: t('providerDashboard.nav.b2b'),
+        path: '/dashboard/service/b2b',
+        icon: Building2,
       },
       {
         name: t('providerDashboard.nav.settings'),

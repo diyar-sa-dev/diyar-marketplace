@@ -9,6 +9,7 @@ import { resolveMediaUrl } from '../../lib/media.ts';
 import { validateStoreReviewInput, MAX_COMMENT_LENGTH } from '../../lib/storeReviewValidation.ts';
 import { updateProductReview, deleteProductReview } from '../../api/productEngagement.ts';
 import { updateStoreReview, deleteStoreReview } from '../../api/storeReviews.ts';
+import { updateProviderReview } from '../../api/providerReviews.ts';
 import { showErrorAlert, showSuccessToast } from '../../lib/confirmDialog.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
 import type { PublishedCustomerReview } from '../../api/customerReviews.ts';
@@ -29,20 +30,34 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
   const [deleting, setDeleting] = useState(false);
 
   const isProduct = review.type === 'product';
-  const title = isProduct ? review.product?.name : review.store?.name;
+  const isService = review.type === 'service';
+  const title = isProduct
+    ? review.product?.name
+    : isService
+      ? review.service?.title
+      : review.store?.name;
   const imageUrl = isProduct
     ? resolveMediaUrl(review.product?.image_url)
-    : resolveMediaUrl(review.store?.logo_url);
+    : isService
+      ? resolveMediaUrl(review.provider?.logo_url)
+      : resolveMediaUrl(review.store?.logo_url);
   const linkTarget = isProduct
     ? review.product?.id && review.product.available
       ? `/products/${review.product.id}`
       : null
-    : review.store?.slug
-      ? `/store/${review.store.slug}`
-      : null;
+    : isService
+      ? review.service?.slug
+        ? `/service/${review.service.slug}`
+        : null
+      : review.store?.slug
+        ? `/store/${review.store.slug}`
+        : null;
 
   const canEdit =
-    (isProduct && review.product?.id) || (!isProduct && review.store?.slug && review.id);
+    (isProduct && review.product?.id) ||
+    (isService && review.id) ||
+    (!isProduct && !isService && review.store?.slug && review.id);
+  const canDelete = !isService;
 
   const handleUpdate = async () => {
     const trimmed = comment.trim();
@@ -56,6 +71,11 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
     try {
       if (isProduct && review.product?.id) {
         await updateProductReview(review.product.id, {
+          rating,
+          comment: trimmed || undefined,
+        });
+      } else if (isService) {
+        await updateProviderReview(review.id, {
           rating,
           comment: trimmed || undefined,
         });
@@ -84,7 +104,7 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
     try {
       if (isProduct && review.product?.id) {
         await deleteProductReview(review.product.id);
-      } else if (!isProduct) {
+      } else if (!isProduct && !isService) {
         await deleteStoreReview(review.id);
       }
       await showSuccessToast(t, 'customerReviews.deleteSuccess');
@@ -101,6 +121,13 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
     setComment(review.comment ?? '');
     setEditOpen(true);
   };
+
+  const replyText = isService ? review.provider_response : review.vendor_reply;
+  const replyAuthor = isService
+    ? review.provider_responded_by ?? review.provider?.name
+    : review.vendor_replied_by ?? review.store?.name;
+  const replyAt = isService ? review.provider_responded_at : review.vendor_replied_at;
+  const replyAvatar = isService ? review.provider?.logo_url : review.store?.logo_url;
 
   return (
     <>
@@ -162,21 +189,28 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
             </p>
           )}
 
-          {review.vendor_reply && (
+          {replyText && (
             <VendorReplyBlock
-              reply={review.vendor_reply}
-              repliedBy={review.vendor_replied_by ?? review.store?.name}
-              repliedAt={review.vendor_replied_at}
-              avatarUrl={review.store?.logo_url}
+              reply={replyText}
+              repliedBy={replyAuthor}
+              repliedAt={replyAt}
+              avatarUrl={replyAvatar}
               locale={locale}
               t={t}
               compact
+              variant={isService ? 'provider' : 'vendor'}
             />
           )}
 
-          {!isProduct && review.order_number && (
+          {!isProduct && !isService && review.order_number && (
             <p className="text-xs text-gray-400 mt-2">
               {t('orders.orderNumber')}: {review.order_number}
+            </p>
+          )}
+
+          {isService && review.booking_reference && (
+            <p className="text-xs text-gray-400 mt-2">
+              {t('customerReviews.bookingReference')}: {review.booking_reference}
             </p>
           )}
 
@@ -191,15 +225,17 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
                   <Pencil size={14} />
                   {t('customerReviews.editReview')}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => void handleDelete()}
-                  disabled={deleting}
-                  className={`${vendorButtonClass} inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border border-red-200 text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-60`}
-                >
-                  <Trash2 size={14} />
-                  {deleting ? '…' : t('customerReviews.deleteReview')}
-                </button>
+                {canDelete && (
+                  <button
+                    type="button"
+                    onClick={() => void handleDelete()}
+                    disabled={deleting}
+                    className={`${vendorButtonClass} inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border border-red-200 text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-60`}
+                  >
+                    <Trash2 size={14} />
+                    {deleting ? '…' : t('customerReviews.deleteReview')}
+                  </button>
+                )}
               </div>
             )}
             <Link

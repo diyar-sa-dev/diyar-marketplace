@@ -8,9 +8,10 @@ interface AuthPromptModalProps {
   onClose: () => void;
   title?: string;
   message?: string;
+  testId?: string;
 }
 
-export function AuthPromptModal({ open, onClose, title, message }: AuthPromptModalProps) {
+export function AuthPromptModal({ open, onClose, title, message, testId = 'auth-prompt-modal' }: AuthPromptModalProps) {
   const { t, dir } = useLocale();
   const location = useLocation();
 
@@ -22,6 +23,7 @@ export function AuthPromptModal({ open, onClose, title, message }: AuthPromptMod
     <div
       className="fixed inset-0 z-300 bg-black/50 flex items-center justify-center p-4 animate-in fade-in duration-200"
       dir={dir}
+      data-testid={testId}
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative text-right">
         <button
@@ -51,6 +53,7 @@ export function AuthPromptModal({ open, onClose, title, message }: AuthPromptMod
           <Link
             to="/auth"
             state={{ from: location.pathname }}
+            data-testid="auth-prompt-login"
             className={`${vendorButtonClass} px-5 py-2.5 text-sm bg-diyar-brown text-white rounded-xl hover:bg-[#A67B5B]/90`}
           >
             {t('catalog.productDetail.authLogin')}

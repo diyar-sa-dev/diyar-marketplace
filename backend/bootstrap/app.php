@@ -69,7 +69,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
-                return ApiResponse::error(__('diyar.auth.not_found'), 404);
+                $message = trim((string) $e->getMessage());
+
+                return ApiResponse::error(
+                    $message !== '' ? $message : __('diyar.errors.not_found'),
+                    404,
+                );
             }
         });
 

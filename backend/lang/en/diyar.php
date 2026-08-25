@@ -44,6 +44,7 @@ return [
     'errors' => [
         'unexpected' => 'Something went wrong. Please try again.',
         'conflict' => 'This action conflicts with existing data.',
+        'not_found' => 'Resource not found.',
     ],
 
     'maintenance' => [
@@ -129,11 +130,23 @@ return [
 
     'b2b' => [
         'company_not_found' => 'B2B company not found.',
+        'company_created' => 'B2B company profile created. It will be reviewed before publishing.',
+        'company_updated' => 'B2B company profile updated.',
+        'company_already_linked' => 'You already have a linked B2B company profile.',
+        'company_manage_denied' => 'You are not allowed to manage this B2B company profile.',
+        'vendor_account_required' => 'A vendor account is required.',
+        'provider_account_required' => 'A provider account is required.',
         'lead_not_found' => 'B2B lead not found.',
         'lead_duplicate' => 'You already submitted a similar request recently. Please try again later.',
         'lead_daily_limit' => 'Daily lead submission limit reached. Please try again tomorrow.',
         'lead_invalid' => 'Invalid lead request.',
+        'lead_status_updated' => 'Quote request status updated.',
+        'lead_status_locked' => 'This quote request has already been reviewed.',
+        'leads_require_published' => 'Quote requests are available after your B2B profile is published.',
         'category_has_companies' => 'Cannot delete a category that has companies.',
+        'portfolio_max_reached' => 'You can upload up to :max portfolio images.',
+        'portfolio_image_not_found' => 'Portfolio image not found.',
+        'other_category' => 'Other',
     ],
 
     'services' => [
@@ -579,6 +592,7 @@ return [
             'system' => 'System',
             'auth' => 'Account & Security',
             'chat' => 'Chat',
+            'b2b' => 'B2B directory',
         ],
         'channels' => [
             'in_app' => 'In-App',
@@ -688,6 +702,22 @@ return [
         'affiliate_payout_requested' => [
             'title' => 'Payout request submitted',
             'body' => 'Your payout request for :amount :currency was received. Reference: :reference.',
+        ],
+        'b2b_company_published' => [
+            'title' => 'B2B profile published',
+            'body' => 'Your company profile :company_name is now live in the B2B directory.',
+        ],
+        'b2b_lead_received' => [
+            'title' => 'New quote request',
+            'body' => ':requester_name sent a quote request for :project_type to :company_name.',
+        ],
+        'b2b_lead_accepted' => [
+            'title' => 'Quote request accepted',
+            'body' => ':company_name accepted your quote request for :project_type.',
+        ],
+        'b2b_lead_rejected' => [
+            'title' => 'Quote request declined',
+            'body' => ':company_name declined your quote request for :project_type.',
         ],
     ],
 

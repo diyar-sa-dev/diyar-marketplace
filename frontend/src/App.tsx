@@ -106,6 +106,7 @@ import VendorMessages from './pages/dashboard/VendorMessages.tsx';
 import VendorFinance from './pages/dashboard/VendorFinance.tsx';
 import VendorCoupons from './pages/dashboard/VendorCoupons.tsx';
 import VendorSettings from './pages/dashboard/VendorSettings.tsx';
+import PartnerB2bProfilePage from './pages/dashboard/PartnerB2bProfilePage.tsx';
 import ServiceDashboard from './pages/dashboard/ServiceDashboard.tsx';
 import ServiceBookings from './pages/dashboard/ServiceBookings.tsx';
 import ServiceReviewsInbox from './pages/dashboard/ServiceReviewsInbox.tsx';
@@ -891,6 +892,14 @@ export default function App() {
               }
             />
             <Route
+              path="vendor/b2b"
+              element={
+                <ProtectedRoute roles={[RoleName.Vendor]}>
+                  <PartnerB2bProfilePage portal="vendor" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="vendor/notifications"
               element={
                 <ProtectedRoute roles={[RoleName.Vendor]}>
@@ -968,6 +977,14 @@ export default function App() {
               element={
                 <ProtectedRoute roles={[RoleName.Provider]}>
                   <ServiceSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="service/b2b"
+              element={
+                <ProtectedRoute roles={[RoleName.Provider]}>
+                  <PartnerB2bProfilePage portal="provider" />
                 </ProtectedRoute>
               }
             />

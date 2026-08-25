@@ -44,6 +44,7 @@ return [
     'errors' => [
         'unexpected' => 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.',
         'conflict' => 'يتعارض هذا الإجراء مع بيانات موجودة.',
+        'not_found' => 'المورد غير موجود.',
     ],
 
     'maintenance' => [
@@ -129,11 +130,23 @@ return [
 
     'b2b' => [
         'company_not_found' => 'الشركة غير موجودة.',
+        'company_created' => 'تم إنشاء ملف الشركة في دليل B2B. سيتم مراجعته قبل النشر.',
+        'company_updated' => 'تم تحديث ملف الشركة في دليل B2B.',
+        'company_already_linked' => 'لديك بالفعل ملف شركة مرتبط في دليل B2B.',
+        'company_manage_denied' => 'غير مسموح لك بإدارة ملف هذه الشركة.',
+        'vendor_account_required' => 'يلزم حساب تاجر.',
+        'provider_account_required' => 'يلزم حساب مزود خدمة.',
         'lead_not_found' => 'طلب عرض السعر غير موجود.',
         'lead_duplicate' => 'لقد أرسلت طلباً مشابهاً مؤخراً. يرجى المحاولة لاحقاً.',
         'lead_daily_limit' => 'تم الوصول إلى الحد اليومي لطلبات عروض الأسعار. يرجى المحاولة غداً.',
         'lead_invalid' => 'طلب غير صالح.',
+        'lead_status_updated' => 'تم تحديث حالة طلب عرض السعر.',
+        'lead_status_locked' => 'تمت مراجعة هذا الطلب مسبقاً.',
+        'leads_require_published' => 'طلبات عروض الأسعار متاحة بعد نشر ملف B2B.',
         'category_has_companies' => 'لا يمكن حذف تصنيف مرتبط بشركات.',
+        'portfolio_max_reached' => 'يمكنك رفع :max صور كحد أقصى في معرض الأعمال.',
+        'portfolio_image_not_found' => 'صورة المعرض غير موجودة.',
+        'other_category' => 'أخرى',
     ],
 
     'services' => [
@@ -579,6 +592,7 @@ return [
             'system' => 'النظام',
             'auth' => 'الحساب والأمان',
             'chat' => 'المحادثات',
+            'b2b' => 'دليل B2B',
         ],
         'channels' => [
             'in_app' => 'داخل التطبيق',
@@ -688,6 +702,22 @@ return [
         'affiliate_payout_requested' => [
             'title' => 'تم تقديم طلب سحب',
             'body' => 'تم استلام طلب سحب بقيمة :amount :currency. المرجع: :reference.',
+        ],
+        'b2b_company_published' => [
+            'title' => 'تم نشر ملف B2B',
+            'body' => 'أصبح ملف شركتك :company_name منشوراً في دليل B2B.',
+        ],
+        'b2b_lead_received' => [
+            'title' => 'طلب عرض سعر جديد',
+            'body' => 'أرسل :requester_name طلب عرض سعر لـ :project_type إلى :company_name.',
+        ],
+        'b2b_lead_accepted' => [
+            'title' => 'تم قبول طلب عرض السعر',
+            'body' => 'قبلت :company_name طلب عرض السعر الخاص بـ :project_type.',
+        ],
+        'b2b_lead_rejected' => [
+            'title' => 'تم رفض طلب عرض السعر',
+            'body' => 'رفضت :company_name طلب عرض السعر الخاص بـ :project_type.',
         ],
     ],
 

@@ -12,7 +12,7 @@ Stage 26.2 delivers a production-ready B2B business directory integrated with th
 
 | Gate | Status |
 |------|--------|
-| Backend feature tests (`tests/Feature/Api/V1/B2b/`) | Pass (17 tests) |
+| Backend feature tests (`tests/Feature/Api/V1/B2b/`) | Pass (29 tests) |
 | Pint formatting | Pass |
 | Frontend unit tests (B2B pages) | Pass |
 | ESLint | Pass |
@@ -48,9 +48,12 @@ Stage 26.2 delivers a production-ready B2B business directory integrated with th
 
 ## Known limitations
 
-- Vendor/provider self-service editing not in V1.1 scope.
 - SQL LIKE search (no Elasticsearch).
-- “سجّل شركتك” button is still a product placeholder.
+- Redemption catalog deferred to Stage 26.3+.
+
+## Addendum (2026-08-25 follow-up)
+
+Partner self-service B2B profiles (vendor/provider dashboards), quote-request inbox, B2B notifications, and customer quote tracking (`/orders?tab=b2b`) were added in the same phase scope.
 
 ## Files changed (representative)
 

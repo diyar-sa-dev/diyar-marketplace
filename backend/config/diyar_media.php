@@ -19,7 +19,7 @@ return [
         'project_cover' => 'cms/projects/cover',
         'project_gallery' => 'cms/projects/gallery',
         'b2b_logo' => 'cms/b2b/logo',
-        'b2b_cover' => 'cms/b2b/cover',
+        'b2b_portfolio' => 'cms/b2b/portfolio',
     ],
     'default_cms_directory' => 'cms/misc',
 ];

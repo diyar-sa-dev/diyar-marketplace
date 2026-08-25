@@ -32,6 +32,7 @@ import {
   validateServiceRequestFile,
 } from '../../lib/serviceRequestValidation.ts';
 import { parseApiError } from '../../utils/errors.ts';
+import { AuthPromptModal } from '../product/AuthPromptModal.tsx';
 
 export type RequestServiceModalContext = {
   serviceId?: string;
@@ -85,6 +86,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
   const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceInputRef = useRef<HTMLInputElement>(null);
   const replacingAttachmentId = useRef<string | null>(null);
@@ -116,8 +118,6 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
     setErrors({});
     setIsSubmitted(false);
   }, [isOpen, context?.defaultCategoryIds, context?.defaultDescription]);
-
-  if (!isOpen) return null;
 
   const toggleCategory = (categoryId: string) => {
     setSelectedCategoryIds((prev) =>
@@ -242,8 +242,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
     e.preventDefault();
 
     if (!user) {
-      toast.error(t('serviceMarketplace.requestModal.loginRequired'));
-      navigate('/login');
+      setAuthOpen(true);
       return;
     }
 
@@ -332,6 +331,8 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
   const canAddMoreAttachments = pendingAttachments.length < MAX_SERVICE_REQUEST_ATTACHMENTS;
 
   return (
+    <>
+      {isOpen ? (
     <div
       className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-0 md:p-4 backdrop-blur-sm cursor-pointer"
       dir={dir}
@@ -704,5 +705,14 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
         </div>
       </div>
     </div>
+      ) : null}
+
+      <AuthPromptModal
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+        title={t('catalog.productDetail.authRequiredTitle')}
+        message={t('serviceMarketplace.requestModal.loginRequired')}
+      />
+    </>
   );
 }

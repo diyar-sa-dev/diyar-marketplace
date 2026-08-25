@@ -18,7 +18,7 @@ test.describe('B2B directory journey', () => {
 
     const card = page.getByTestId(`b2b-company-card-${PUBLISHED_B2B_SLUG}`);
     if (await card.isVisible().catch(() => false)) {
-      await card.getByRole('link', { name: 'زيارة ملف الشركة' }).click();
+      await card.getByRole('link').click();
     } else {
       await page.goto(`/b2b/${PUBLISHED_B2B_SLUG}`);
     }
@@ -36,6 +36,7 @@ test.describe('B2B directory journey', () => {
     await page.goto(`/b2b/${PUBLISHED_B2B_SLUG}`, { waitUntil: 'networkidle' });
     await expect(page.getByTestId('b2b-rfq-open')).toBeVisible({ timeout: 30_000 });
     await page.getByTestId('b2b-rfq-open').click();
-    await expect(page).toHaveURL(/\/login/, { timeout: 30_000 });
+    await expect(page.getByTestId('auth-prompt-modal')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('auth-prompt-login')).toHaveAttribute('href', '/auth');
   });
 });

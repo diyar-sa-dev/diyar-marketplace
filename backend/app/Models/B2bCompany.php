@@ -22,6 +22,7 @@ class B2bCompany extends Model
 
     protected $fillable = [
         'b2b_category_id',
+        'custom_category',
         'owner_user_id',
         'vendor_account_id',
         'provider_account_id',
@@ -36,6 +37,7 @@ class B2bCompany extends Model
         'phone',
         'email',
         'website',
+        'business_hours',
         'years_experience',
         'team_size',
         'completed_projects',
@@ -103,6 +105,11 @@ class B2bCompany extends Model
     public function services(): HasMany
     {
         return $this->hasMany(B2bCompanyService::class, 'b2b_company_id')->orderBy('sort_order');
+    }
+
+    public function portfolioImages(): HasMany
+    {
+        return $this->hasMany(B2bCompanyPortfolioImage::class, 'b2b_company_id')->orderBy('sort_order');
     }
 
     public function testimonials(): HasMany

@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LocaleProvider } from '../../lib/i18n/LocaleProvider.tsx';
@@ -8,6 +8,25 @@ import B2BPage from '../B2BPage.tsx';
 
 const mockUseB2bCompanies = vi.fn();
 const mockUseB2bCategories = vi.fn();
+const mockNavigate = vi.fn();
+const mockUseAuth = vi.fn();
+const mockUsePartnerB2bCompany = vi.fn();
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
+vi.mock('../../hooks/auth/useAuth.ts', () => ({
+  useAuth: (...args: unknown[]) => mockUseAuth(...args),
+}));
+
+vi.mock('../../hooks/b2b/usePartnerB2bCompany.ts', () => ({
+  usePartnerB2bCompany: (...args: unknown[]) => mockUsePartnerB2bCompany(...args),
+}));
 
 vi.mock('../../hooks/b2b/useB2bCompanies.ts', () => ({
   useB2bCompanies: (...args: unknown[]) => mockUseB2bCompanies(...args),
@@ -35,6 +54,17 @@ function renderPage() {
 
 describe('B2BPage', () => {
   beforeEach(() => {
+    mockNavigate.mockReset();
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: false,
+      user: null,
+    });
+    mockUsePartnerB2bCompany.mockReturnValue({
+      data: null,
+      isPending: false,
+      isError: false,
+    });
+
     mockUseB2bCategories.mockReturnValue({
       data: [{ id: '1', slug: 'furniture-manufacturing', name: 'تصنيع أثاث', published_companies_count: 2 }],
     });
@@ -75,6 +105,48 @@ describe('B2BPage', () => {
     expect(screen.getByTestId('b2b-page-title')).toHaveTextContent('بوابة الأعمال (B2B)');
     expect(screen.getByTestId('b2b-company-card-modernwood')).toBeInTheDocument();
     expect(screen.getByText('Modern Wood')).toBeInTheDocument();
+    expect(screen.queryByTestId('b2b-register-company')).not.toBeInTheDocument();
+  });
+
+  it('shows vendor CTA and navigates to vendor B2B dashboard', () => {
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: true,
+      user: { roles: [{ name: 'vendor', status: 'active' }] },
+    });
+
+    renderPage();
+
+    expect(screen.getByTestId('b2b-register-company')).toHaveTextContent('سجّل شركتك');
+    fireEvent.click(screen.getByTestId('b2b-register-company'));
+    expect(mockNavigate).toHaveBeenCalledWith('/dashboard/vendor/b2b');
+  });
+
+  it('shows manage label when vendor already has linked company', () => {
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: true,
+      user: { roles: [{ name: 'vendor', status: 'active' }] },
+    });
+    mockUsePartnerB2bCompany.mockReturnValue({
+      data: { id: '1', slug: 'my-co', name: 'My Co', stats: { completed_projects: 0 } },
+      isPending: false,
+      isError: false,
+    });
+
+    renderPage();
+
+    expect(screen.getByTestId('b2b-register-company')).toHaveTextContent('إدارة ملف B2B');
+  });
+
+  it('navigates providers to provider B2B dashboard', () => {
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: true,
+      user: { roles: [{ name: 'provider', status: 'active' }] },
+    });
+
+    renderPage();
+
+    fireEvent.click(screen.getByTestId('b2b-register-company'));
+    expect(mockNavigate).toHaveBeenCalledWith('/dashboard/service/b2b');
   });
 
   it('shows loading skeletons while companies are pending', () => {
@@ -87,10 +159,10 @@ describe('B2BPage', () => {
       data: undefined,
     });
 
-    const { container } = renderPage();
+    renderPage();
 
     expect(screen.getByTestId('b2b-page-title')).toBeInTheDocument();
-    expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0);
+    expect(screen.getByTestId('b2b-company-grid-skeleton')).toBeInTheDocument();
   });
 
   it('shows empty state when no companies match filters', () => {

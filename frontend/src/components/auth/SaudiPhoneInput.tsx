@@ -9,6 +9,7 @@ type SaudiPhoneInputProps = {
   onChange: (value: string) => void;
   autoComplete?: string;
   id?: string;
+  required?: boolean;
 };
 
 export function SaudiPhoneInput({
@@ -16,6 +17,7 @@ export function SaudiPhoneInput({
   onChange,
   autoComplete = 'tel',
   id,
+  required = true,
 }: SaudiPhoneInputProps) {
   const nationalPhone = toSaudiPhoneNationalInput(value);
 
@@ -29,7 +31,7 @@ export function SaudiPhoneInput({
         type="tel"
         inputMode="numeric"
         pattern="5[0-9]{8}"
-        required
+        required={required}
         value={nationalPhone}
         onChange={(e) => onChange(sanitizeSaudiPhoneInput(e.target.value))}
         autoComplete={autoComplete}

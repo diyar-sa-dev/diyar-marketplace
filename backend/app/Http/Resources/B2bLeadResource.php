@@ -20,7 +20,7 @@ class B2bLeadResource extends JsonResource
             'estimated_quantity' => $this->estimated_quantity,
             'details' => $this->details,
             'budget_range' => $this->budget_range->value,
-            'status' => $this->status,
+            'status' => $this->status instanceof \BackedEnum ? $this->status->value : (string) $this->status,
             'created_at' => $this->created_at?->toIso8601String(),
             'company' => $this->when(
                 $this->relationLoaded('company') && $this->company !== null,

@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, ChevronLeft, ChevronRight, FolderHeart, ShoppingBag } from 'lucide-react';
+import { Bookmark, BookOpen, ChevronLeft, ChevronRight, FolderHeart, ShoppingBag } from 'lucide-react';
 import ProductCard from '../components/cards/ProductCard.tsx';
 import ServiceCard from '../components/cards/ServiceCard.tsx';
+import { BlogArticleCardLink } from '../components/blog/BlogArticleCardLink.tsx';
 import { PaginationBar } from '../components/catalog/PaginationBar.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { LoadingState } from '../components/common/LoadingState.tsx';
@@ -12,24 +13,27 @@ import { resolveAccountHubPath } from '../lib/auth/roles.ts';
 import { useLocale } from '../lib/i18n/localeContext.ts';
 import { mapProductCard } from '../lib/catalogMappers.ts';
 import { confirmClearWishlist, showSuccessToast } from '../lib/confirmDialog.ts';
+import type { BlogArticleCard } from '../types/blog.ts';
 import type { ProductCard as ProductCardType } from '../types/catalog.ts';
 import type { ServiceCard as ServiceCardType } from '../types/services.ts';
 
 const PER_PAGE_DEFAULT = 12;
 
 export default function WishlistPage() {
-  const { t, dir } = useLocale();
+  const { t, dir, locale } = useLocale();
   const { user } = useAuth();
   const accountHubPath = resolveAccountHubPath(user?.roles);
-  const [filterTab, setFilterTab] = useState<'all' | 'products' | 'services'>('all');
+  const [filterTab, setFilterTab] = useState<'all' | 'products' | 'services' | 'articles'>('all');
   const [productsPage, setProductsPage] = useState(1);
   const [servicesPage, setServicesPage] = useState(1);
+  const [articlesPage, setArticlesPage] = useState(1);
   const [perPage, setPerPage] = useState(PER_PAGE_DEFAULT);
   const perPageOptions = [10, 12, 15, 20, 24, 50] as const;
 
   const resetWishlistPages = () => {
     setProductsPage(1);
     setServicesPage(1);
+    setArticlesPage(1);
   };
 
   const handlePerPageChange = (nextPerPage: number) => {
@@ -40,6 +44,7 @@ export default function WishlistPage() {
   const summaryQuery = useWishlistSummary();
   const productsQuery = useWishlist(productsPage, perPage, 'products');
   const servicesQuery = useWishlist(servicesPage, perPage, 'services');
+  const articlesQuery = useWishlist(articlesPage, perPage, 'articles');
   const clearWishlist = useClearWishlist();
 
   const BreadcrumbChevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
@@ -49,20 +54,26 @@ export default function WishlistPage() {
     [productsQuery.data?.items],
   );
   const savedServices = (servicesQuery.data?.items ?? []) as ServiceCardType[];
+  const savedArticles = (articlesQuery.data?.items ?? []) as BlogArticleCard[];
   const productCount = summaryQuery.data?.products ?? productsQuery.data?.pagination.total ?? 0;
   const savedServicesCount =
     summaryQuery.data?.services ?? servicesQuery.data?.pagination.total ?? 0;
-  const totalCount = summaryQuery.data?.total ?? productCount + savedServicesCount;
+  const savedArticlesCount =
+    summaryQuery.data?.articles ?? articlesQuery.data?.pagination.total ?? 0;
+  const totalCount =
+    summaryQuery.data?.total ?? productCount + savedServicesCount + savedArticlesCount;
 
   const isLoading =
     summaryQuery.isLoading ||
     ((filterTab === 'all' || filterTab === 'products') && productsQuery.isLoading) ||
-    ((filterTab === 'all' || filterTab === 'services') && servicesQuery.isLoading);
+    ((filterTab === 'all' || filterTab === 'services') && servicesQuery.isLoading) ||
+    ((filterTab === 'all' || filterTab === 'articles') && articlesQuery.isLoading);
 
   const isError =
     summaryQuery.isError ||
     ((filterTab === 'all' || filterTab === 'products') && productsQuery.isError) ||
-    ((filterTab === 'all' || filterTab === 'services') && servicesQuery.isError);
+    ((filterTab === 'all' || filterTab === 'services') && servicesQuery.isError) ||
+    ((filterTab === 'all' || filterTab === 'articles') && articlesQuery.isError);
 
   const handleClearAll = async () => {
     const confirmed = await confirmClearWishlist(t);
@@ -76,7 +87,7 @@ export default function WishlistPage() {
   };
 
   const tabClass = (active: boolean) =>
-    `flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 cursor-pointer ${
+    `shrink-0 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all duration-200 cursor-pointer whitespace-nowrap ${
       active
         ? 'bg-diyar-dark text-white shadow-sm scale-[1.01]'
         : 'text-gray-500 hover:text-diyar-brown hover:bg-gray-50 active:scale-[0.99]'
@@ -84,6 +95,7 @@ export default function WishlistPage() {
 
   const showProductsSection = filterTab === 'all' || filterTab === 'products';
   const showServicesSection = filterTab === 'all' || filterTab === 'services';
+  const showArticlesSection = filterTab === 'all' || filterTab === 'articles';
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24 md:pb-12 animate-in fade-in duration-300">
@@ -128,7 +140,7 @@ export default function WishlistPage() {
           )}
         </div>
 
-        <div className="flex bg-white p-1.5 rounded-2xl border border-gray-100 shadow-sm max-w-md mb-8">
+        <div className="inline-flex w-fit max-w-full bg-white p-1.5 rounded-2xl border border-gray-100 shadow-sm mb-8 overflow-x-auto gap-1">
           <button
             type="button"
             onClick={() => setFilterTab('all')}
@@ -156,18 +168,29 @@ export default function WishlistPage() {
           >
             {t('profile.wishlistPage.tabServices')} ({savedServicesCount})
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              setFilterTab('articles');
+              resetWishlistPages();
+            }}
+            className={tabClass(filterTab === 'articles')}
+          >
+            {t('profile.wishlistPage.tabArticles')} ({savedArticlesCount})
+          </button>
         </div>
 
         {isLoading ? (
           <LoadingState className="min-h-60" />
         ) : isError ? (
           <ErrorState
-            error={(productsQuery.error ?? servicesQuery.error ?? summaryQuery.error) as Error}
+            error={(productsQuery.error ?? servicesQuery.error ?? articlesQuery.error ?? summaryQuery.error) as Error}
             title={t('profile.wishlistPage.loadError')}
             onRetry={() => {
               void summaryQuery.refetch();
               void productsQuery.refetch();
               void servicesQuery.refetch();
+              void articlesQuery.refetch();
             }}
           />
         ) : totalCount === 0 ? (
@@ -191,6 +214,12 @@ export default function WishlistPage() {
                 className="bg-diyar-brown text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-700 transition-all duration-200 cursor-pointer active:scale-[0.98]"
               >
                 {t('profile.wishlistPage.exploreServices')}
+              </Link>
+              <Link
+                to="/blog"
+                className="bg-white text-diyar-dark border border-gray-200 px-8 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all duration-200 cursor-pointer active:scale-[0.98]"
+              >
+                {t('profile.wishlistPage.exploreBlog')}
               </Link>
             </div>
           </div>
@@ -254,7 +283,7 @@ export default function WishlistPage() {
             )}
 
             {showServicesSection && (
-              <div>
+              <div className={showArticlesSection && filterTab === 'all' ? 'mb-10' : undefined}>
                 {filterTab === 'all' && savedServices.length > 0 && (
                   <h2 className="text-lg font-bold text-diyar-dark mb-4 flex items-center gap-2">
                     <span className="w-1.5 h-6 bg-diyar-brown rounded-full" />
@@ -301,6 +330,57 @@ export default function WishlistPage() {
                     )}
                   </>
                 ) : filterTab === 'all' && savedServicesCount === 0 ? null : null}
+              </div>
+            )}
+
+            {showArticlesSection && (
+              <div>
+                {filterTab === 'all' && savedArticles.length > 0 && (
+                  <h2 className="text-lg font-bold text-diyar-dark mb-4 flex items-center gap-2">
+                    <span className="w-1.5 h-6 bg-diyar-brown rounded-full" />
+                    {t('profile.wishlistPage.savedArticles')} ({savedArticlesCount})
+                  </h2>
+                )}
+
+                {filterTab === 'articles' && savedArticles.length === 0 ? (
+                  <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 flex flex-col items-center animate-in fade-in duration-300">
+                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-300">
+                      <BookOpen size={28} />
+                    </div>
+                    <h3 className="text-lg font-bold text-diyar-dark mb-1">
+                      {t('profile.wishlistPage.noArticlesTitle')}
+                    </h3>
+                    <p className="text-gray-500 text-sm max-w-sm mb-4">
+                      {t('profile.wishlistPage.noArticlesBody')}
+                    </p>
+                    <Link
+                      to="/blog"
+                      className="bg-diyar-brown text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-orange-700 transition-all duration-200 cursor-pointer active:scale-[0.98]"
+                    >
+                      {t('profile.wishlistPage.exploreBlog')}
+                    </Link>
+                  </div>
+                ) : savedArticles.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {savedArticles.map((article) => (
+                        <BlogArticleCardLink key={article.id} article={article} locale={locale} />
+                      ))}
+                    </div>
+                    {articlesQuery.data?.pagination && filterTab !== 'all' && (
+                      <PaginationBar
+                        pagination={articlesQuery.data.pagination}
+                        page={articlesPage}
+                        perPage={perPage}
+                        perPageOptions={[...perPageOptions]}
+                        onPageChange={setArticlesPage}
+                        onPerPageChange={handlePerPageChange}
+                        alwaysShow={articlesQuery.data.pagination.total > 0}
+                        className="mt-10"
+                      />
+                    )}
+                  </>
+                ) : filterTab === 'all' && savedArticlesCount === 0 ? null : null}
               </div>
             )}
           </div>

@@ -13,6 +13,8 @@ type RetryableConfig = InternalAxiosRequestConfig & { _csrfRetry?: boolean };
 function createApiClient(): AxiosInstance {
   return axios.create({
     baseURL: env.apiUrl,
+    // Avoid browser extensions that patch XMLHttpRequest (e.g. M_ID errors in injected scripts).
+    adapter: 'fetch',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -64,9 +66,11 @@ function shouldNotifyUnauthorized(url: string | undefined): boolean {
     '/admin/auth/login',
     '/auth/register',
     '/auth/verify-otp',
+    '/auth/verify-email-otp',
     '/auth/verify-password-reset-otp',
     '/auth/forgot-password',
     '/auth/reset-password',
+    '/cart/merge',
   ];
 
   return !ignored.some((segment) => url.includes(segment));

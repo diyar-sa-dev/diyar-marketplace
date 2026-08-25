@@ -126,6 +126,32 @@ describe('GuestRoute', () => {
     expect(screen.getByText('Home')).toBeInTheDocument();
   });
 
+  it('redirects authenticated vendors away from partner registration auth links', () => {
+    mockAuth.mockReturnValue({
+      status: 'authenticated',
+      isAuthenticated: true,
+      user: { status: 'active', roles: [{ name: 'vendor', status: 'active' }] },
+    });
+
+    renderWithLocale(
+      <MemoryRouter initialEntries={['/auth?role=merchant']}>
+        <Routes>
+          <Route
+            path="/auth"
+            element={
+              <GuestRoute>
+                <div>Register Form</div>
+              </GuestRoute>
+            }
+          />
+          <Route path="/dashboard/vendor/b2b" element={<div>Vendor B2B</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Vendor B2B')).toBeInTheDocument();
+  });
+
   it('redirects pending users to pending account page', () => {
     mockAuth.mockReturnValue({
       status: 'authenticated',

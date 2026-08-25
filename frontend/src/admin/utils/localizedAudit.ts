@@ -54,6 +54,20 @@ const ACTION_KEYS: Record<string, string> = {
   'project.publish': 'admin.audit.actions.projectPublish',
   'project.unpublish': 'admin.audit.actions.projectUnpublish',
   'project.archive': 'admin.audit.actions.projectArchive',
+  'b2b_company.create': 'admin.audit.actions.b2bCompanyCreate',
+  'b2b_company.update': 'admin.audit.actions.b2bCompanyUpdate',
+  'b2b_company.delete': 'admin.audit.actions.b2bCompanyDelete',
+  'b2b_company.publish': 'admin.audit.actions.b2bCompanyPublish',
+  'b2b_company.unpublish': 'admin.audit.actions.b2bCompanyUnpublish',
+  'b2b_company.archive': 'admin.audit.actions.b2bCompanyArchive',
+  'b2b_company.verify': 'admin.audit.actions.b2bCompanyVerify',
+  'b2b_company.reject_verification': 'admin.audit.actions.b2bCompanyRejectVerification',
+  'b2b_company.feature': 'admin.audit.actions.b2bCompanyFeature',
+  'b2b_company.unfeature': 'admin.audit.actions.b2bCompanyUnfeature',
+  'b2b_category.create': 'admin.audit.actions.b2bCategoryCreate',
+  'b2b_category.update': 'admin.audit.actions.b2bCategoryUpdate',
+  'b2b_category.delete': 'admin.audit.actions.b2bCategoryDelete',
+  'b2b_tag.create': 'admin.audit.actions.b2bTagCreate',
 };
 
 const RESOURCE_KEYS: Record<string, string> = {
@@ -76,16 +90,24 @@ const RESOURCE_KEYS: Record<string, string> = {
   'App\\Models\\BlogCategory': 'admin.audit.resources.blogCategory',
   'App\\Models\\BlogTag': 'admin.audit.resources.blogTag',
   'App\\Models\\Project': 'admin.audit.resources.project',
+  'App\\Models\\B2bCompany': 'admin.audit.resources.b2bCompany',
+  'App\\Models\\B2bCategory': 'admin.audit.resources.b2bCategory',
+  'App\\Models\\B2bTag': 'admin.audit.resources.b2bTag',
 };
 
 export const AUDIT_ACTION_FILTER_OPTIONS = Object.keys(ACTION_KEYS);
+
+function normalizeAuditAction(action: string): string {
+  return action.trim().toLowerCase().replace(/\s+/g, '_');
+}
 
 export function localizedAuditAction(action: string | null | undefined, t: TranslateFn): string {
   if (!action) {
     return '—';
   }
 
-  const key = ACTION_KEYS[action];
+  const normalized = normalizeAuditAction(action);
+  const key = ACTION_KEYS[normalized] ?? ACTION_KEYS[action.trim()];
   return key ? t(key as never) : action.replace(/[._]/g, ' ');
 }
 

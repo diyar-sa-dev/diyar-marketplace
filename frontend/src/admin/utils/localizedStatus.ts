@@ -13,6 +13,7 @@ const STATUS_KEYS: Record<string, string> = {
   draft: 'admin.status.draft',
   published: 'admin.status.published',
   archived: 'admin.status.archived',
+  verified: 'admin.b2b.verification.verified',
   shipped: 'admin.status.shipped',
   delivered: 'admin.status.delivered',
   completed: 'admin.status.completed',

@@ -42,7 +42,7 @@ class B2bCompanyTest extends TestCase
                 ],
             ]);
 
-        $this->assertSame(3, $response->json('data.pagination.total'));
+        $this->assertSame(4, $response->json('data.pagination.total'));
 
         foreach ($response->json('data.items') as $item) {
             $this->assertNotSame('draft-b2b-company', $item['slug']);
@@ -78,6 +78,24 @@ class B2bCompanyTest extends TestCase
 
         $this->assertSame(1, $response->json('data.pagination.total'));
         $this->assertSame('rowad-decor', $response->json('data.items.0.slug'));
+    }
+
+    #[Test]
+    public function filters_companies_by_other_custom_category(): void
+    {
+        $categories = $this->getJson('/api/v1/b2b/categories')
+            ->assertOk()
+            ->json('data.categories');
+
+        $other = collect($categories)->firstWhere('slug', 'other');
+        $this->assertNotNull($other);
+
+        $response = $this->getJson('/api/v1/b2b/companies?category=other')
+            ->assertOk();
+
+        $this->assertSame(1, $response->json('data.pagination.total'));
+        $this->assertSame('smart-home-co', $response->json('data.items.0.slug'));
+        $this->assertSame('تكامل المنزل الذكي', $response->json('data.items.0.category.name'));
     }
 
     #[Test]

@@ -39,7 +39,6 @@ import type {
 } from '../../api/vendorSettings.ts';
 import type { Locale } from '../../lib/i18n/types.ts';
 import { PLACEHOLDER_STORE_COVER, PLACEHOLDER_STORE_LOGO } from '../../lib/storeMediaDefaults.ts';
-import { hasCustomerRole } from '../../lib/auth/roles.ts';
 import { SaudiPhoneInput } from '../../components/auth/SaudiPhoneInput.tsx';
 import { isValidSaudiPhoneNational, toSaudiPhoneNationalInput } from '../../lib/auth/validation.ts';
 import { digitsOnly, isValidOptionalUrl } from '../../lib/vendorFormValidation.ts';
@@ -245,7 +244,6 @@ export default function VendorSettings() {
   const ibanMasked = settings?.bank_account?.iban_masked;
   const displayName = profile?.name ?? user?.name ?? '';
   const displayAvatarUrl = profile?.avatar_url ?? user?.avatar_url;
-  const showCustomerProfileLink = hasCustomerRole(user?.roles);
 
   const isSavingStore = updateSettings.isPending || updateWorkingHours.isPending;
   const isSavingBusiness = updateLegal.isPending || updateBank.isPending;
@@ -1129,19 +1127,17 @@ export default function VendorSettings() {
                       }}
                     />
                     <div className="flex-1">
-                      <p className="text-sm text-gray-500 leading-relaxed mb-3">
+                      <p className="text-sm text-gray-500 leading-relaxed">
                         {t('vendor.settings.account.avatarFormats')}
                       </p>
-                      {showCustomerProfileLink && (
-                        <Link
-                          to="/profile/personal-info"
-                          className="text-sm font-bold text-diyar-brown hover:text-diyar-dark transition inline-flex items-center gap-2"
-                        >
-                          {t('vendor.settings.account.manageProfile')}
-                        </Link>
-                      )}
                     </div>
                   </div>
+                  <Link
+                    to="/profile"
+                    className="mt-4 text-sm font-bold text-diyar-brown border border-diyar-brown px-5 py-2.5 rounded-xl hover:bg-amber-50 transition inline-block"
+                  >
+                    {t('vendor.settings.account.manageProfile')}
+                  </Link>
                   <FieldError message={fieldErrors.avatar} />
                 </div>
 

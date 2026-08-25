@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\B2bLeadBudgetRange;
+use App\Enums\B2bLeadStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,6 +30,7 @@ class B2bLead extends Model
     {
         return [
             'budget_range' => B2bLeadBudgetRange::class,
+            'status' => B2bLeadStatus::class,
         ];
     }
 

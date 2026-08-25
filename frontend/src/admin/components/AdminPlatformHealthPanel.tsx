@@ -130,7 +130,7 @@ export function AdminPlatformHealthPanel() {
       <div className="grid gap-3 p-6 sm:grid-cols-2">
         {isPending ? (
           [...Array(4)].map((_, index) => (
-            <div key={index} className="h-[72px] animate-pulse rounded-2xl bg-gray-100" />
+            <div key={index} className="h-18 animate-pulse rounded-2xl bg-gray-100" />
           ))
         ) : isError || !data ? (
           <p className="col-span-full text-sm text-gray-500">{t('admin.health.unavailable')}</p>

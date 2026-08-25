@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshUser = useCallback(async (): Promise<AuthUser | null> => {
-    setStatus('loading');
+    setStatus((current) => (current === 'authenticated' ? 'authenticated' : 'loading'));
 
     try {
       const currentUser = await authApi.fetchCurrentUser();

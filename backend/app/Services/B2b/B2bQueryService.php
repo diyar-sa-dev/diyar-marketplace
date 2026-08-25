@@ -15,10 +15,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class B2bQueryService
 {
+    public const OTHER_CATEGORY_SLUG = 'other';
+
     /** @var list<string> */
     private const LISTING_COLUMNS = [
         'id',
         'b2b_category_id',
+        'custom_category',
         'slug',
         'name',
         'description',
@@ -74,12 +77,13 @@ final class B2bQueryService
                     'tags',
                     'services',
                     'testimonials',
+                    'portfolioImages',
                     'projects' => fn ($q) => $q->published()->with('images'),
                 ])
                 ->where('slug', $slug)
                 ->first(),
             B2bCompany::class,
-            ['category', 'tags', 'services', 'testimonials', 'projects'],
+            ['category', 'tags', 'services', 'testimonials', 'portfolioImages', 'projects'],
         );
 
         if ($company === null) {
@@ -99,12 +103,33 @@ final class B2bQueryService
         return CachesQueryResults::rememberCollection(
             $cacheKey,
             $this->cache->ttl(),
-            fn () => B2bCategory::query()
-                ->orderBy('name')
-                ->withCount(['companies as published_companies_count' => fn (Builder $q) => $q->published()])
-                ->get(),
+            function () {
+                $categories = B2bCategory::query()
+                    ->orderBy('name')
+                    ->withCount(['companies as published_companies_count' => fn (Builder $q) => $q->published()])
+                    ->get();
+
+                $otherCount = $this->publishedCustomCategoryCount();
+                $other = new B2bCategory([
+                    'slug' => self::OTHER_CATEGORY_SLUG,
+                    'name' => __('diyar.b2b.other_category'),
+                ]);
+                $other->published_companies_count = $otherCount;
+                $categories->push($other);
+
+                return $categories;
+            },
             B2bCategory::class,
         );
+    }
+
+    public function publishedCustomCategoryCount(): int
+    {
+        return B2bCompany::query()
+            ->published()
+            ->whereNotNull('custom_category')
+            ->where('custom_category', '!=', '')
+            ->count();
     }
 
     /**
@@ -172,7 +197,15 @@ final class B2bQueryService
     {
         if (! empty($filters['category'])) {
             $categorySlug = (string) $filters['category'];
-            $query->whereHas('category', fn (Builder $q) => $q->where('slug', $categorySlug));
+
+            if ($categorySlug === self::OTHER_CATEGORY_SLUG) {
+                $query->whereNotNull('custom_category')->where('custom_category', '!=', '');
+            } else {
+                $query->whereHas('category', fn (Builder $q) => $q->where('slug', $categorySlug))
+                    ->where(function (Builder $q): void {
+                        $q->whereNull('custom_category')->orWhere('custom_category', '');
+                    });
+            }
         }
 
         if (! empty($filters['location'])) {

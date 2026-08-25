@@ -101,14 +101,29 @@ describe('B2BCompanyPage', () => {
     expect(screen.getByTestId('b2b-rfq-open')).toBeInTheDocument();
   });
 
-  it('redirects guest to login when opening RFQ', async () => {
+  it('shows page skeleton while loading', () => {
+    mockUseB2bCompany.mockReturnValue({
+      isPending: true,
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+      data: undefined,
+    });
+
+    renderPage();
+
+    expect(screen.getByTestId('b2b-company-page-skeleton')).toBeInTheDocument();
+  });
+
+  it('shows auth modal when guest opens RFQ', async () => {
     mockUseAuth.mockReturnValue({ isAuthenticated: false });
     renderPage();
 
     fireEvent.click(screen.getByTestId('b2b-rfq-open'));
 
-    expect(mockToast.warning).toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalledWith('/login', { state: { from: '/b2b/modernwood' } });
+    expect(await screen.findByTestId('auth-prompt-modal')).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(mockToast.warning).not.toHaveBeenCalled();
   });
 
   it('submits RFQ when authenticated and shows success', async () => {

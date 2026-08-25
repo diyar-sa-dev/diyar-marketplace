@@ -50,6 +50,11 @@ enum NotificationType: string
     case AffiliateCommissionAvailable = 'affiliate.commission_available';
     case AffiliatePayoutRequested = 'affiliate.payout_requested';
 
+    case B2bCompanyPublished = 'b2b.company_published';
+    case B2bLeadReceived = 'b2b.lead_received';
+    case B2bLeadAccepted = 'b2b.lead_accepted';
+    case B2bLeadRejected = 'b2b.lead_rejected';
+
     public function category(): string
     {
         return explode('.', $this->value)[0];

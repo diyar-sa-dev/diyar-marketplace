@@ -185,7 +185,7 @@ export default function BlogArticlePage() {
             alt={article.title}
             referrerPolicy="no-referrer"
             loading="lazy"
-            className="w-full max-h-[500px] object-cover"
+            className="w-full max-h-125 object-cover"
             onError={(e) => {
               (e.target as HTMLImageElement).src = FALLBACK_COVER;
             }}
