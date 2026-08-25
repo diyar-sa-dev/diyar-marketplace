@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Eye, ExternalLink } from 'lucide-react';
+import { Eye, ExternalLink, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PaginationBar } from '../catalog/PaginationBar.tsx';
 import { EmptyState } from '../common/EmptyState.tsx';
@@ -137,6 +137,16 @@ function LeadDetailModal({
               >
                 <ExternalLink size={16} />
                 {t('b2b.customerLeads.viewCompany')}
+              </Link>
+            ) : null}
+
+            {lead.status === 'accepted' ? (
+              <Link
+                to="/profile/reviews"
+                className="inline-flex items-center gap-2 text-sm font-bold text-diyar-dark bg-diyar-cream/40 hover:bg-diyar-cream px-4 py-2 rounded-xl"
+              >
+                <Star size={16} />
+                {t('b2b.customerLeads.rateCompany')}
               </Link>
             ) : null}
           </div>

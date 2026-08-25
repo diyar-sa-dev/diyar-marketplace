@@ -72,6 +72,16 @@ export interface B2bCompanyStats {
   completed_projects: number;
 }
 
+export interface B2bCompanyCustomerReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+  author_name?: string;
+  author_avatar_url?: string | null;
+  project_type?: string | null;
+  created_at?: string | null;
+}
+
 export interface B2bCompanyDetail extends B2bCompanyCard {
   about?: string | null;
   phone?: string | null;
@@ -82,6 +92,7 @@ export interface B2bCompanyDetail extends B2bCompanyCard {
   services?: B2bCompanyService[];
   portfolio_gallery?: B2bCompanyPortfolioImage[];
   testimonials?: B2bCompanyTestimonial[];
+  customer_reviews?: B2bCompanyCustomerReview[];
   portfolio?: ProjectCard[];
 }
 

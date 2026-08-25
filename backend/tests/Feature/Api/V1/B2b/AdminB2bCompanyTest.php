@@ -125,7 +125,7 @@ class AdminB2bCompanyTest extends TestCase
         $queryCount = count(DB::getQueryLog());
         DB::disableQueryLog();
 
-        $this->assertLessThanOrEqual(18, $queryCount);
+        $this->assertLessThanOrEqual(22, $queryCount);
     }
 
     #[Test]

@@ -87,9 +87,12 @@ class CartController extends Controller
     public function merge(Request $request): JsonResponse
     {
         $user = $request->user();
-        $sessionId = (string) $request->session()->getId();
+        $session = $request->session();
+        $guestSessionId = $this->carts->resolveGuestSessionIdForMerge($session);
 
-        $result = $this->merge->mergeGuestIntoUser($user, $sessionId);
+        $result = $this->merge->mergeGuestIntoUser($user, $guestSessionId);
+
+        $session->forget(CartService::GUEST_SESSION_FOR_MERGE_KEY);
 
         return ApiResponse::success(data: [
             'cart' => new CartResource($result['cart']),

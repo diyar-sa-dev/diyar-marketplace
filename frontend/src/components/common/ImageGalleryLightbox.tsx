@@ -28,7 +28,7 @@ export function ImageGalleryLightbox({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex flex-col justify-center bg-black/95 animate-in fade-in duration-300"
+      className="fixed inset-0 z-200 flex flex-col justify-center bg-black/95 animate-in fade-in duration-300"
       dir={dir}
       role="dialog"
       aria-modal="true"
@@ -47,7 +47,7 @@ export function ImageGalleryLightbox({
         className="relative mx-auto w-full max-w-5xl p-4 md:p-12"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-black shadow-2xl md:aspect-video">
+        <div className="relative flex aspect-4/3 items-center justify-center overflow-hidden rounded-2xl bg-black shadow-2xl md:aspect-video">
           <img
             src={images[safeIndex]}
             alt={`${altPrefix} ${safeIndex + 1}`}

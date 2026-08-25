@@ -429,6 +429,51 @@ export default function B2BCompanyPage() {
                 </div>
               </div>
             ) : null}
+
+            {company.customer_reviews && company.customer_reviews.length > 0 ? (
+              <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
+                <h2 className="text-lg font-bold text-diyar-dark mb-5 flex items-center gap-2">
+                  <Star size={20} className="text-amber-400 fill-amber-400" /> {t('b2b.company.customerReviews')}
+                </h2>
+                <div className="flex flex-col gap-4">
+                  {company.customer_reviews.map((review) => (
+                    <div key={review.id} className="bg-gray-50/70 rounded-2xl p-4 md:p-5">
+                      <div className="flex items-center justify-between mb-2 gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-full bg-diyar-brown/10 text-diyar-brown flex items-center justify-center font-bold text-sm shrink-0 border border-diyar-brown/20">
+                            {(review.author_name ?? '?').charAt(0)}
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-diyar-dark text-sm truncate">
+                              {review.author_name ?? t('storeReviews.anonymous')}
+                            </h4>
+                            {review.project_type ? (
+                              <span className="text-[11px] text-gray-500">{review.project_type}</span>
+                            ) : null}
+                          </div>
+                        </div>
+                        <div className="flex gap-0.5 shrink-0">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star
+                              key={s}
+                              size={12}
+                              className={
+                                s <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
+                              }
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      {review.comment ? (
+                        <p className="text-gray-600 text-sm leading-relaxed">{review.comment}</p>
+                      ) : (
+                        <p className="text-sm text-gray-400 italic">{t('customerReviews.noComment')}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-6">

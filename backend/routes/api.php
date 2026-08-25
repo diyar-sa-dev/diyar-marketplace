@@ -43,6 +43,7 @@ use App\Http\Controllers\Api\V1\Affiliate\AffiliateReferralController;
 use App\Http\Controllers\Api\V1\Assistant\AssistantChatController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\B2b\B2bCompanyController;
+use App\Http\Controllers\Api\V1\B2b\B2bCompanyReviewController;
 use App\Http\Controllers\Api\V1\B2b\B2bLeadController;
 use App\Http\Controllers\Api\V1\Blog\BlogArticleController;
 use App\Http\Controllers\Api\V1\Blog\BlogCategoryController;
@@ -72,6 +73,7 @@ use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateReportController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateSettingsController;
 use App\Http\Controllers\Api\V1\Dashboard\PartnerB2bCompanyController;
 use App\Http\Controllers\Api\V1\Dashboard\PartnerB2bLeadController;
+use App\Http\Controllers\Api\V1\Dashboard\PartnerB2bReviewController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorCouponController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorDashboardController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorFinanceController;
@@ -124,7 +126,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes â€” Version 1
+| API Routes  Version 1
 |--------------------------------------------------------------------------
 |
 | All V1 endpoints are prefixed with /api/v1 (see bootstrap/app.php).
@@ -187,6 +189,7 @@ Route::get('/projects/{slug}', [ProjectController::class, 'show']);
 Route::prefix('b2b')->group(function () {
     Route::get('/companies', [B2bCompanyController::class, 'index']);
     Route::get('/companies/{slug}', [B2bCompanyController::class, 'show']);
+    Route::get('/companies/{slug}/reviews', [B2bCompanyReviewController::class, 'index']);
     Route::get('/categories', [B2bCompanyController::class, 'categories']);
 });
 
@@ -683,6 +686,7 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::prefix('b2b')->group(function () {
             Route::post('/companies/{slug}/leads', [B2bLeadController::class, 'store'])
                 ->middleware('throttle:b2b-leads');
+            Route::post('/companies/{slug}/reviews', [B2bCompanyReviewController::class, 'store']);
             Route::get('/leads', [B2bLeadController::class, 'index']);
             Route::get('/leads/{lead}', [B2bLeadController::class, 'show']);
         });
@@ -731,6 +735,7 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::get('/b2b/leads', [PartnerB2bLeadController::class, 'indexVendor']);
             Route::get('/b2b/leads/{lead}', [PartnerB2bLeadController::class, 'showVendor']);
             Route::patch('/b2b/leads/{lead}', [PartnerB2bLeadController::class, 'updateVendor']);
+            Route::get('/b2b/reviews', [PartnerB2bReviewController::class, 'indexVendor']);
             Route::get('/shipping-settings', [VendorShippingSettingsController::class, 'show']);
             Route::put('/shipping-settings', [VendorShippingSettingsController::class, 'update']);
             Route::get('/return-policy', [VendorReturnPolicyController::class, 'show']);
@@ -835,6 +840,7 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::get('/b2b/leads', [PartnerB2bLeadController::class, 'indexProvider']);
             Route::get('/b2b/leads/{lead}', [PartnerB2bLeadController::class, 'showProvider']);
             Route::patch('/b2b/leads/{lead}', [PartnerB2bLeadController::class, 'updateProvider']);
+            Route::get('/b2b/reviews', [PartnerB2bReviewController::class, 'indexProvider']);
         });
     });
 });

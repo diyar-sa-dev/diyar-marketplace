@@ -276,7 +276,7 @@ function AdminB2bPreviewModal({
                     {company.portfolio_gallery.map((image, index) => (
                       <div
                         key={image.id}
-                        className="aspect-[4/3] overflow-hidden rounded-2xl border border-gray-100 bg-gray-50"
+                        className="aspect-4/3 overflow-hidden rounded-2xl border border-gray-100 bg-gray-50"
                       >
                         <img
                           src={image.url}

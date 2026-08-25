@@ -502,7 +502,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                       errors.budget ? 'border-red-300 bg-red-50/40' : 'border-gray-200'
                     }`}
                   />
-                  <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">
+                  <span className="absolute inset-s-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">
                     {t('providerDashboard.common.currency')}
                   </span>
                 </div>
@@ -563,7 +563,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                                 type="button"
                                 disabled={submitting}
                                 onClick={() => removeAttachment(item.id)}
-                                className="absolute top-1.5 start-1.5 cursor-pointer w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center opacity-90 hover:opacity-100 disabled:opacity-50"
+                                className="absolute top-1.5 inset-s-1.5 cursor-pointer w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center opacity-90 hover:opacity-100 disabled:opacity-50"
                                 aria-label={t('serviceMarketplace.requestModal.deleteFile')}
                               >
                                 <X size={14} />
@@ -582,7 +582,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                             </>
                           )}
 
-                          <span className="absolute top-1.5 end-1.5 text-[9px] bg-black/55 text-white px-1.5 py-0.5 rounded flex items-center gap-1">
+                          <span className="absolute top-1.5 inset-e-1.5 text-[9px] bg-black/55 text-white px-1.5 py-0.5 rounded flex items-center gap-1">
                             <File size={10} />
                             {formatFileSize(item.file.size)}
                           </span>

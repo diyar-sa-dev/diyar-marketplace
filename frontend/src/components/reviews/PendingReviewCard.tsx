@@ -7,6 +7,7 @@ import { validateStoreReviewInput, MAX_COMMENT_LENGTH } from '../../lib/storeRev
 import { submitProductReview } from '../../api/productEngagement.ts';
 import { submitStoreReview } from '../../api/storeReviews.ts';
 import { submitProviderReview } from '../../api/providerReviews.ts';
+import { submitB2bCompanyReview } from '../../api/b2bReviews.ts';
 import { showErrorAlert, showSuccessToast } from '../../lib/confirmDialog.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
 import type { PendingCustomerReview } from '../../api/customerReviews.ts';
@@ -26,22 +27,29 @@ export function PendingReviewCard({ item, t, onSkipped, onSubmitted }: PendingRe
 
   const isProduct = item.type === 'product';
   const isService = item.type === 'service';
+  const isB2b = item.type === 'b2b';
   const title = isProduct
     ? item.product?.name
     : isService
       ? item.service?.title
-      : item.store?.name;
+      : isB2b
+        ? item.company?.name
+        : item.store?.name;
   const imageUrl = isProduct
     ? resolveMediaUrl(item.product?.image_url)
     : isService
       ? resolveMediaUrl(item.provider?.logo_url)
-      : resolveMediaUrl(item.store?.logo_url);
+      : isB2b
+        ? resolveMediaUrl(item.company?.logo_url)
+        : resolveMediaUrl(item.store?.logo_url);
 
   const rateLabel = isProduct
     ? t('customerReviews.rateProduct')
     : isService
       ? t('customerReviews.rateService')
-      : t('customerReviews.rateStore');
+      : isB2b
+        ? t('customerReviews.rateB2b')
+        : t('customerReviews.rateStore');
 
   const handleSubmit = async () => {
     const trimmed = comment.trim();
@@ -63,7 +71,13 @@ export function PendingReviewCard({ item, t, onSkipped, onSubmitted }: PendingRe
           rating,
           comment: trimmed || undefined,
         });
-      } else if (!isProduct && !isService && item.store?.slug && item.order_id) {
+      } else if (isB2b && item.company?.slug && item.b2b_lead_id) {
+        await submitB2bCompanyReview(item.company.slug, {
+          b2b_lead_id: item.b2b_lead_id,
+          rating,
+          comment: trimmed || undefined,
+        });
+      } else if (!isProduct && !isService && !isB2b && item.store?.slug && item.order_id) {
         await submitStoreReview(item.store.slug, {
           order_id: item.order_id,
           rating,
@@ -111,6 +125,11 @@ export function PendingReviewCard({ item, t, onSkipped, onSubmitted }: PendingRe
                 {t('customerReviews.bookingReference')}: {item.booking_reference}
               </p>
             )}
+            {isB2b && item.project_type ? (
+              <p className="text-xs text-gray-500">
+                {t('b2b.company.projectType')}: {item.project_type}
+              </p>
+            ) : null}
           </div>
         </div>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto shrink-0">

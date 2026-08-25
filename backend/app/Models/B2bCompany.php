@@ -121,4 +121,9 @@ class B2bCompany extends Model
     {
         return $this->hasMany(B2bLead::class, 'b2b_company_id');
     }
+
+    public function customerReviews(): HasMany
+    {
+        return $this->hasMany(B2bCompanyReview::class, 'b2b_company_id');
+    }
 }

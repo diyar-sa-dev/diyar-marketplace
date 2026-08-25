@@ -5,6 +5,7 @@ import { SaudiPhoneInput } from '../../components/auth/SaudiPhoneInput.tsx';
 import { PartnerB2bFormSection } from '../../components/dashboard/b2b/PartnerB2bFormSection.tsx';
 import { PartnerB2bImageField } from '../../components/dashboard/b2b/PartnerB2bImageField.tsx';
 import { PartnerB2bLeadsPanel } from '../../components/dashboard/b2b/PartnerB2bLeadsPanel.tsx';
+import { PartnerB2bReviewsPanel } from '../../components/dashboard/b2b/PartnerB2bReviewsPanel.tsx';
 import { PartnerB2bPortfolioGallery } from '../../components/dashboard/b2b/PartnerB2bPortfolioGallery.tsx';
 import { PartnerB2bTagPicker } from '../../components/dashboard/b2b/PartnerB2bTagPicker.tsx';
 import { ErrorState } from '../../components/common/ErrorState.tsx';
@@ -39,9 +40,9 @@ type ServiceDraft = {
 
 const TEAM_SIZE_VALUES = [10, 20, 50, 100, 150] as const;
 
-type PartnerTab = 'leads' | 'profile';
+type PartnerTab = 'leads' | 'reviews' | 'profile';
 
-const TAB_IDS: PartnerTab[] = ['leads', 'profile'];
+const TAB_IDS: PartnerTab[] = ['leads', 'reviews', 'profile'];
 
 const inputClassName =
   'w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-diyar-brown/30';
@@ -128,6 +129,7 @@ export default function PartnerB2bProfilePage({ portal }: PartnerB2bProfilePageP
   const activeTab = useMemo<PartnerTab>(() => {
     const tab = searchParams.get('tab');
     if (tab === 'profile') return 'profile';
+    if (isPublished && tab === 'reviews') return 'reviews';
     if (isPublished && tab === 'leads') return 'leads';
     return isPublished ? 'leads' : 'profile';
   }, [isPublished, searchParams]);
@@ -306,6 +308,8 @@ export default function PartnerB2bProfilePage({ portal }: PartnerB2bProfilePageP
         </div>
       ) : isPublished && activeTab === 'leads' ? (
         <PartnerB2bLeadsPanel portal={portal} />
+      ) : isPublished && activeTab === 'reviews' ? (
+        <PartnerB2bReviewsPanel portal={portal} />
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
           <PartnerB2bFormSection
@@ -452,7 +456,12 @@ export default function PartnerB2bProfilePage({ portal }: PartnerB2bProfilePageP
                 <label className="block text-sm font-bold text-diyar-dark mb-2">
                   {t('b2b.partner.fields.phone')}
                 </label>
-                <SaudiPhoneInput id="partner-b2b-phone" value={phone} onChange={setPhone} required={false} />
+                <SaudiPhoneInput
+                  id="partner-b2b-phone"
+                  value={phone}
+                  onChange={setPhone}
+                  required={false}
+                />
                 {fieldErrors.phone ? (
                   <p className="text-xs text-red-600 mt-1">{fieldErrors.phone}</p>
                 ) : (

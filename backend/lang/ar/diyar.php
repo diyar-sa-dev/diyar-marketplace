@@ -147,6 +147,14 @@ return [
         'portfolio_max_reached' => 'يمكنك رفع :max صور كحد أقصى في معرض الأعمال.',
         'portfolio_image_not_found' => 'صورة المعرض غير موجودة.',
         'other_category' => 'أخرى',
+        'review' => [
+            'saved' => 'تم إرسال تقييم الشركة بنجاح.',
+            'lead_not_found' => 'طلب عرض السعر غير موجود لهذه الشركة.',
+            'lead_not_owned' => 'يمكنك تقييم الشركات التي طلبت عرض سعر منها فقط.',
+            'lead_not_eligible' => 'يمكنك تقييم هذه الشركة بعد قبول طلب عرض السعر.',
+            'cannot_review_own_company' => 'لا يمكنك تقييم ملف شركتك الخاص.',
+            'already_submitted' => 'لقد قمت بتقييم طلب عرض السعر هذا مسبقاً.',
+        ],
     ],
 
     'services' => [

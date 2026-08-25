@@ -13,8 +13,13 @@ type ChatConnectionStatusProps = {
 export function ChatConnectionStatus({ state, compact = false }: ChatConnectionStatusProps) {
   const { t } = useLocale();
   const styles = connectionStatusStyles(state as ChatConnectionState);
+  const browserOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
 
   const label = (() => {
+    if (browserOffline) {
+      return t('chat.offline');
+    }
+
     switch (state) {
       case 'connected':
         return t('chat.connected');

@@ -138,7 +138,7 @@ export function PartnerB2bPortfolioGallery({
           {visibleImages.map((image, index) => (
             <div
               key={image.id}
-              className="group relative aspect-[4/3] overflow-hidden rounded-2xl border border-gray-100 bg-white"
+              className="group relative aspect-4/3 overflow-hidden rounded-2xl border border-gray-100 bg-white"
             >
               <button
                 type="button"

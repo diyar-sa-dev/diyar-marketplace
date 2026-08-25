@@ -243,6 +243,9 @@ class AppServiceProvider extends ServiceProvider
             if (in_array('package:discover', $argv, true)) {
                 return false;
             }
+            if (in_array('diyar:validate-environment', $argv, true)) {
+                return false;
+            }
         }
 
         return in_array($this->app->environment(), ['production', 'staging'], true);

@@ -2,9 +2,13 @@
 
 namespace App\Services\Profile;
 
+use App\Enums\B2bLeadStatus;
 use App\Enums\ProviderReviewStatus;
 use App\Enums\ServiceBookingPaymentStatus;
 use App\Enums\ServiceBookingStatus;
+use App\Models\B2bCompany;
+use App\Models\B2bCompanyReview;
+use App\Models\B2bLead;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductReview;
@@ -19,6 +23,7 @@ use App\Models\VendorOrder;
 use App\Services\Media\MediaUploadService;
 use App\Services\Review\OrderFulfillmentReviewEligibility;
 use App\Services\Review\ProductReviewEligibilityService;
+use App\Support\Media\CmsImageUrl;
 use App\Support\Vendor\VendorOwnership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -45,7 +50,7 @@ final class CustomerReviewHistoryService
     public function list(User $user, string $status, string $type, int $page, int $perPage): array
     {
         $status = in_array($status, ['published', 'pending'], true) ? $status : 'published';
-        $type = in_array($type, ['all', 'product', 'store', 'service'], true) ? $type : 'all';
+        $type = in_array($type, ['all', 'product', 'store', 'service', 'b2b'], true) ? $type : 'all';
         $page = max($page, 1);
         $perPage = min(max($perPage, 1), 20);
 
@@ -103,6 +108,18 @@ final class CustomerReviewHistoryService
                 : null;
         }
 
+        if ($type === 'b2b') {
+            $review = B2bCompanyReview::query()
+                ->where('user_id', $user->id)
+                ->whereKey($id)
+                ->with(['company', 'lead:id,project_type'])
+                ->first();
+
+            return $review !== null
+                ? $this->hydratePublishedB2bReviews(collect([$review]))->first()
+                : null;
+        }
+
         return null;
     }
 
@@ -117,22 +134,26 @@ final class CustomerReviewHistoryService
             ->where('user_id', $user->id)
             ->where('status', ProviderReviewStatus::Published)
             ->count();
+        $publishedB2b = B2bCompanyReview::query()->where('user_id', $user->id)->count();
         $pendingProduct = $this->pendingProductOpportunities($user)->count();
         $pendingStore = $this->pendingStoreOpportunities($user)->count();
         $pendingService = $this->pendingServiceOpportunities($user)->count();
+        $pendingB2b = $this->pendingB2bOpportunities($user)->count();
 
         return [
-            'published_count' => $publishedProduct + $publishedStore + $publishedService,
-            'pending_count' => $pendingProduct + $pendingStore + $pendingService,
+            'published_count' => $publishedProduct + $publishedStore + $publishedService + $publishedB2b,
+            'pending_count' => $pendingProduct + $pendingStore + $pendingService + $pendingB2b,
             'published_by_type' => [
                 'product' => $publishedProduct,
                 'store' => $publishedStore,
                 'service' => $publishedService,
+                'b2b' => $publishedB2b,
             ],
             'pending_by_type' => [
                 'product' => $pendingProduct,
                 'store' => $pendingStore,
                 'service' => $pendingService,
+                'b2b' => $pendingB2b,
             ],
         ];
     }
@@ -189,6 +210,20 @@ final class CustomerReviewHistoryService
             );
         }
 
+        if ($type === 'b2b') {
+            $paginator = B2bCompanyReview::query()
+                ->where('user_id', $user->id)
+                ->with(['company', 'lead:id,project_type'])
+                ->latest()
+                ->paginate(perPage: $perPage, page: $page);
+
+            return $this->formatPublishedPage(
+                $summary,
+                $this->hydratePublishedB2bReviews($paginator->getCollection()),
+                $paginator,
+            );
+        }
+
         $union = DB::query()->fromSub(
             ProductReview::query()
                 ->selectRaw("id, 'product' as review_type, created_at")
@@ -203,6 +238,11 @@ final class CustomerReviewHistoryService
                         ->selectRaw("id, 'service' as review_type, created_at")
                         ->where('user_id', $user->id)
                         ->where('status', ProviderReviewStatus::Published->value),
+                )
+                ->unionAll(
+                    B2bCompanyReview::query()
+                        ->selectRaw("id, 'b2b' as review_type, created_at")
+                        ->where('user_id', $user->id),
                 ),
             'customer_reviews',
         );
@@ -216,19 +256,25 @@ final class CustomerReviewHistoryService
         $productIds = $rows->where('review_type', 'product')->pluck('id')->all();
         $storeIds = $rows->where('review_type', 'store')->pluck('id')->all();
         $serviceIds = $rows->where('review_type', 'service')->pluck('id')->all();
+        $b2bIds = $rows->where('review_type', 'b2b')->pluck('id')->all();
 
         $productsById = $this->loadPublishedProductReviews($productIds)->keyBy('id');
         $storesById = $this->loadPublishedStoreReviews($storeIds)->keyBy('id');
         $servicesById = $this->loadPublishedServiceReviews($serviceIds)->keyBy('id');
+        $b2bById = $this->loadPublishedB2bReviews($b2bIds)->keyBy('id');
 
         $items = $rows
-            ->map(function ($row) use ($productsById, $storesById, $servicesById) {
+            ->map(function ($row) use ($productsById, $storesById, $servicesById, $b2bById) {
                 if ($row->review_type === 'product') {
                     return $productsById->get($row->id);
                 }
 
                 if ($row->review_type === 'store') {
                     return $storesById->get($row->id);
+                }
+
+                if ($row->review_type === 'b2b') {
+                    return $b2bById->get($row->id);
                 }
 
                 return $servicesById->get($row->id);
@@ -252,9 +298,11 @@ final class CustomerReviewHistoryService
             'product' => $this->pendingProductOpportunities($user),
             'store' => $this->pendingStoreOpportunities($user),
             'service' => $this->pendingServiceOpportunities($user),
+            'b2b' => $this->pendingB2bOpportunities($user),
             default => $this->pendingProductOpportunities($user)
                 ->concat($this->pendingStoreOpportunities($user))
                 ->concat($this->pendingServiceOpportunities($user))
+                ->concat($this->pendingB2bOpportunities($user))
                 ->sortByDesc('sort_at')
                 ->values(),
         };
@@ -393,6 +441,98 @@ final class CustomerReviewHistoryService
                 ->with(['service', 'providerAccount', 'serviceBooking:id,reference'])
                 ->get(),
         );
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function pendingB2bOpportunities(User $user): Collection
+    {
+        return B2bLead::query()
+            ->where('user_id', $user->id)
+            ->where('status', B2bLeadStatus::Accepted)
+            ->whereDoesntHave('review')
+            ->with(['company'])
+            ->latest('updated_at')
+            ->get()
+            ->filter(function (B2bLead $lead) use ($user) {
+                return $lead->company !== null && $lead->company->owner_user_id !== $user->id;
+            })
+            ->map(fn (B2bLead $lead) => $this->mapPendingB2bItem($lead))
+            ->values();
+    }
+
+    /**
+     * @param  list<string>  $ids
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function loadPublishedB2bReviews(array $ids): Collection
+    {
+        if ($ids === []) {
+            return collect();
+        }
+
+        return $this->hydratePublishedB2bReviews(
+            B2bCompanyReview::query()
+                ->whereIn('id', $ids)
+                ->with(['company', 'lead:id,project_type'])
+                ->get(),
+        );
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function hydratePublishedB2bReviews(Collection $reviews): Collection
+    {
+        return $reviews->map(fn (B2bCompanyReview $review) => [
+            'type' => 'b2b',
+            'id' => $review->id,
+            'rating' => $review->rating,
+            'comment' => $review->comment,
+            'created_at' => $review->created_at?->toIso8601String(),
+            'updated_at' => $review->updated_at?->toIso8601String(),
+            'company_reply' => $review->company_reply,
+            'company_replied_at' => $review->company_replied_at?->toIso8601String(),
+            'company_replied_by' => $review->company_reply !== null
+                ? $review->company?->name
+                : null,
+            'company' => $this->mapB2bCompanySubject($review->company),
+            'b2b_lead_id' => $review->b2b_lead_id,
+            'project_type' => $review->lead?->project_type,
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mapPendingB2bItem(B2bLead $lead): array
+    {
+        return [
+            'type' => 'b2b',
+            'pending_key' => 'b2b:'.$lead->id,
+            'sort_at' => $lead->updated_at?->toIso8601String() ?? $lead->created_at?->toIso8601String(),
+            'b2b_lead_id' => $lead->id,
+            'project_type' => $lead->project_type,
+            'company' => $this->mapB2bCompanySubject($lead->company),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function mapB2bCompanySubject(?B2bCompany $company): ?array
+    {
+        if ($company === null) {
+            return null;
+        }
+
+        return [
+            'id' => $company->id,
+            'name' => $company->name,
+            'slug' => $company->slug,
+            'logo_url' => CmsImageUrl::resolve($company->logo),
+        ];
     }
 
     /**

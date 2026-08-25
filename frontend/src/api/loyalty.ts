@@ -60,8 +60,9 @@ export async function fetchLoyaltyTransactions(
 }
 
 export async function fetchLoyaltyRewards(): Promise<{ items: unknown[]; available: boolean }> {
-  const { data } = await apiClient.get<
-    ApiSuccessResponse<{ items: unknown[]; available: boolean }>
-  >('/loyalty/rewards');
+  const { data } =
+    await apiClient.get<ApiSuccessResponse<{ items: unknown[]; available: boolean }>>(
+      '/loyalty/rewards',
+    );
   return data.data;
 }

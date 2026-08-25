@@ -31,16 +31,21 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
 
   const isProduct = review.type === 'product';
   const isService = review.type === 'service';
+  const isB2b = review.type === 'b2b';
   const title = isProduct
     ? review.product?.name
     : isService
       ? review.service?.title
-      : review.store?.name;
+      : isB2b
+        ? review.company?.name
+        : review.store?.name;
   const imageUrl = isProduct
     ? resolveMediaUrl(review.product?.image_url)
     : isService
       ? resolveMediaUrl(review.provider?.logo_url)
-      : resolveMediaUrl(review.store?.logo_url);
+      : isB2b
+        ? resolveMediaUrl(review.company?.logo_url)
+        : resolveMediaUrl(review.store?.logo_url);
   const linkTarget = isProduct
     ? review.product?.id && review.product.available
       ? `/products/${review.product.id}`
@@ -49,15 +54,20 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
       ? review.service?.slug
         ? `/service/${review.service.slug}`
         : null
-      : review.store?.slug
-        ? `/store/${review.store.slug}`
-        : null;
+      : isB2b
+        ? review.company?.slug
+          ? `/b2b/${review.company.slug}`
+          : null
+        : review.store?.slug
+          ? `/store/${review.store.slug}`
+          : null;
 
   const canEdit =
     (isProduct && review.product?.id) ||
     (isService && review.id) ||
-    (!isProduct && !isService && review.store?.slug && review.id);
-  const canDelete = !isService;
+    (isB2b && false) ||
+    (!isProduct && !isService && !isB2b && review.store?.slug && review.id);
+  const canDelete = !isService && !isB2b;
 
   const handleUpdate = async () => {
     const trimmed = comment.trim();
@@ -122,12 +132,26 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
     setEditOpen(true);
   };
 
-  const replyText = isService ? review.provider_response : review.vendor_reply;
+  const replyText = isService
+    ? review.provider_response
+    : isB2b
+      ? review.company_reply
+      : review.vendor_reply;
   const replyAuthor = isService
     ? review.provider_responded_by ?? review.provider?.name
-    : review.vendor_replied_by ?? review.store?.name;
-  const replyAt = isService ? review.provider_responded_at : review.vendor_replied_at;
-  const replyAvatar = isService ? review.provider?.logo_url : review.store?.logo_url;
+    : isB2b
+      ? review.company_replied_by ?? review.company?.name
+      : review.vendor_replied_by ?? review.store?.name;
+  const replyAt = isService
+    ? review.provider_responded_at
+    : isB2b
+      ? review.company_replied_at
+      : review.vendor_replied_at;
+  const replyAvatar = isService
+    ? review.provider?.logo_url
+    : isB2b
+      ? review.company?.logo_url
+      : review.store?.logo_url;
 
   return (
     <>
@@ -202,7 +226,7 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
             />
           )}
 
-          {!isProduct && !isService && review.order_number && (
+          {!isProduct && !isService && !isB2b && review.order_number && (
             <p className="text-xs text-gray-400 mt-2">
               {t('orders.orderNumber')}: {review.order_number}
             </p>

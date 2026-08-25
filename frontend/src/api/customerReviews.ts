@@ -2,7 +2,7 @@ import { apiClient } from './client.ts';
 import type { ApiSuccessResponse } from '../types/api.ts';
 import type { PaginationMeta } from '../types/catalog.ts';
 
-export type CustomerReviewType = 'product' | 'store' | 'service';
+export type CustomerReviewType = 'product' | 'store' | 'service' | 'b2b';
 export type CustomerReviewStatus = 'published' | 'pending';
 export type CustomerReviewFilterType = 'all' | CustomerReviewType;
 
@@ -32,6 +32,13 @@ export interface CustomerReviewServiceSubject {
   id: string;
   title: string;
   slug: string;
+}
+
+export interface CustomerReviewB2bSubject {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
 }
 
 export interface CustomerReviewProviderSubject {
@@ -82,10 +89,21 @@ export interface PublishedServiceCustomerReview extends BasePublishedCustomerRev
   booking_reference?: string | null;
 }
 
+export interface PublishedB2bCustomerReview extends BasePublishedCustomerReview {
+  type: 'b2b';
+  company_reply?: string | null;
+  company_replied_at?: string | null;
+  company_replied_by?: string | null;
+  company?: CustomerReviewB2bSubject | null;
+  b2b_lead_id?: string | null;
+  project_type?: string | null;
+}
+
 export type PublishedCustomerReview =
   | PublishedProductCustomerReview
   | PublishedStoreCustomerReview
-  | PublishedServiceCustomerReview;
+  | PublishedServiceCustomerReview
+  | PublishedB2bCustomerReview;
 
 export interface PendingProductCustomerReview {
   type: 'product';
@@ -117,10 +135,20 @@ export interface PendingServiceCustomerReview {
   provider?: CustomerReviewProviderSubject | null;
 }
 
+export interface PendingB2bCustomerReview {
+  type: 'b2b';
+  pending_key: string;
+  sort_at?: string | null;
+  b2b_lead_id?: string | null;
+  project_type?: string | null;
+  company?: CustomerReviewB2bSubject | null;
+}
+
 export type PendingCustomerReview =
   | PendingProductCustomerReview
   | PendingStoreCustomerReview
-  | PendingServiceCustomerReview;
+  | PendingServiceCustomerReview
+  | PendingB2bCustomerReview;
 
 export type CustomerReviewItem = PublishedCustomerReview | PendingCustomerReview;
 

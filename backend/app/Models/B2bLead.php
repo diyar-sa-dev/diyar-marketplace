@@ -7,6 +7,7 @@ use App\Enums\B2bLeadStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class B2bLead extends Model
 {
@@ -42,5 +43,10 @@ class B2bLead extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function review(): HasOne
+    {
+        return $this->hasOne(B2bCompanyReview::class, 'b2b_lead_id');
     }
 }

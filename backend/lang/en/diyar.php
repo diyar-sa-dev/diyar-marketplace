@@ -147,6 +147,14 @@ return [
         'portfolio_max_reached' => 'You can upload up to :max portfolio images.',
         'portfolio_image_not_found' => 'Portfolio image not found.',
         'other_category' => 'Other',
+        'review' => [
+            'saved' => 'Your B2B company review was submitted successfully.',
+            'lead_not_found' => 'Quote request not found for this company.',
+            'lead_not_owned' => 'You can only review companies you requested a quote from.',
+            'lead_not_eligible' => 'You can review this company after your quote request is accepted.',
+            'cannot_review_own_company' => 'You cannot review your own company profile.',
+            'already_submitted' => 'You already reviewed this quote request.',
+        ],
     ],
 
     'services' => [

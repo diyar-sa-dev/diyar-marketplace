@@ -77,13 +77,14 @@ final class B2bQueryService
                     'tags',
                     'services',
                     'testimonials',
+                    'customerReviews' => fn ($q) => $q->with('user:id,name,avatar_path')->latest()->limit(6),
                     'portfolioImages',
                     'projects' => fn ($q) => $q->published()->with('images'),
                 ])
                 ->where('slug', $slug)
                 ->first(),
             B2bCompany::class,
-            ['category', 'tags', 'services', 'testimonials', 'portfolioImages', 'projects'],
+            ['category', 'tags', 'services', 'testimonials', 'customerReviews', 'portfolioImages', 'projects'],
         );
 
         if ($company === null) {

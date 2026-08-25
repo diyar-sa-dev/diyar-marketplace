@@ -57,7 +57,7 @@ export function AdminResourceTable({
           <label className="relative flex-1">
             <Search
               size={16}
-              className="pointer-events-none absolute top-1/2 -translate-y-1/2 text-gray-400 start-3"
+              className="pointer-events-none absolute top-1/2 -translate-y-1/2 text-gray-400 inset-s-3"
             />
             <input
               type="search"

@@ -298,7 +298,8 @@ export const en = {
       uploadError: 'Unable to upload image.',
       requiredField: 'Required',
       defaultAuthor: 'Diyar team',
-      slugHint: 'Slug is auto-generated from the title when empty. Uniqueness is enforced in the database on save.',
+      slugHint:
+        'Slug is auto-generated from the title when empty. Uniqueness is enforced in the database on save.',
       useExistingCategory: 'Choose existing',
       createCategory: 'Create new',
       categoryCreateError: 'Unable to create category.',
@@ -341,7 +342,8 @@ export const en = {
         open: 'Preview profile',
         badge: 'B2B profile preview',
         loadingTitle: 'Loading company…',
-        draftNotice: 'This profile is still a draft and is not visible in the public B2B directory.',
+        draftNotice:
+          'This profile is still a draft and is not visible in the public B2B directory.',
         stats: 'Experience & scale',
       },
       addService: 'Add service',
@@ -413,7 +415,8 @@ export const en = {
       imageAlt: 'Alt text',
       upload: 'Upload',
       uploadError: 'Unable to upload image.',
-      slugHint: 'Slug is auto-generated from the title when empty. Uniqueness is enforced in the database on save.',
+      slugHint:
+        'Slug is auto-generated from the title when empty. Uniqueness is enforced in the database on save.',
       placeholders: {
         title: 'e.g. Luxury majlis — Riyadh',
         slug: 'luxury-majlis-riyadh',
@@ -742,7 +745,8 @@ export const en = {
         commerce_cart_max_quantity_per_item: 'Maximum quantity per cart line item.',
         commerce_loyalty_sar_per_point: 'SAR spent required to earn one loyalty point.',
         commerce_loyalty_points_per_unit: 'Points awarded per configured SAR threshold.',
-        commerce_loyalty_enabled: 'When disabled, no new points are earned. Existing balances remain.',
+        commerce_loyalty_enabled:
+          'When disabled, no new points are earned. Existing balances remain.',
         orders_inventory_reservation_timeout_minutes:
           'Minutes inventory stays reserved during checkout.',
         shipping_default_carrier_flat_rate:
@@ -2720,6 +2724,7 @@ export const en = {
       manageOwnProfile: 'Manage your B2B profile',
       portfolio: 'Portfolio',
       testimonials: 'Business partner reviews',
+      customerReviews: 'Customer reviews',
       projectCtaTitle: 'Have a project?',
       projectCtaBody: 'Get a custom quote from :name within 24 hours.',
       services: 'Services offered',
@@ -2763,6 +2768,7 @@ export const en = {
       detailSubtitle: 'Track your request status and review what you sent to the company.',
       submittedAt: 'Submitted on',
       viewCompany: 'View company profile',
+      rateCompany: 'Rate your experience',
     },
     partner: {
       title: 'B2B company profile',
@@ -2797,14 +2803,23 @@ export const en = {
       },
       tabs: {
         leads: 'Quote requests',
+        reviews: 'Reviews',
         profile: 'B2B profile settings',
+      },
+      reviews: {
+        loading: 'Loading reviews…',
+        loadError: 'Could not load reviews.',
+        emptyTitle: 'No reviews yet',
+        emptyDescription:
+          'Customer reviews will appear here after you accept quote requests and customers rate your company.',
       },
       leads: {
         title: 'Quote requests',
         subtitle: 'Review customer requests submitted from your public B2B company page.',
         searchPlaceholder: 'Search by project type, customer name, or details…',
         emptyTitle: 'No requests yet',
-        emptyDescription: 'Customer quote requests from your published B2B profile will appear here.',
+        emptyDescription:
+          'Customer quote requests from your published B2B profile will appear here.',
         loadError: 'Could not load quote requests.',
         viewDetail: 'View details',
         detailTitle: 'Quote request details',
@@ -2847,7 +2862,8 @@ export const en = {
         },
         portfolio: {
           title: 'Portfolio gallery',
-          description: 'Upload up to 6 photos of your work. Visible on your public profile after publishing.',
+          description:
+            'Upload up to 6 photos of your work. Visible on your public profile after publishing.',
         },
       },
       portfolio: {
@@ -2858,7 +2874,8 @@ export const en = {
         saveProfileFirst: 'Save your company profile first, then upload portfolio images.',
         publishedOnlyHint:
           'Portfolio gallery appears on your public B2B profile after an admin publishes your company.',
-        formats: ':count / :max images · JPG, PNG or WebP · up to 5 MB each · multi-select supported',
+        formats:
+          ':count / :max images · JPG, PNG or WebP · up to 5 MB each · multi-select supported',
         maxReached: 'Maximum of :max portfolio images reached.',
         uploadedMany: ':count portfolio images added.',
         tooManySelected: 'You selected :selected files but only :allowed can be added (max :max).',
@@ -3035,8 +3052,7 @@ export const en = {
     category: {
       clearFilters: 'Clear search filters',
       allTitle: 'All categories',
-      allSubtitle:
-        'Browse all product and service sections offered by the Diyar platform.',
+      allSubtitle: 'Browse all product and service sections offered by the Diyar platform.',
       productCategories: 'Product categories',
       verifiedStores: 'Verified stores',
       productCount: ':count products',
@@ -3049,8 +3065,7 @@ export const en = {
       sectionAllProducts: 'All products',
       emptyProductsTitle: 'No products',
       emptyProductsDescription: 'Try changing filters or check back later.',
-      serviceCategoryDescription:
-        'Browse :category services from verified providers on Diyar.',
+      serviceCategoryDescription: 'Browse :category services from verified providers on Diyar.',
       productCategoryDescription:
         'Browse the latest products in :category. We offer a wide selection from top stores.',
       subcategoryAll: 'All',
@@ -3665,7 +3680,7 @@ export const en = {
   },
   customerReviews: {
     title: 'My reviews',
-    subtitle: 'Your review history for products and services you have experienced.',
+    subtitle: 'Your review history for products, services, and B2B companies you have experienced.',
     publishedTab: 'Published reviews (:count)',
     pendingTab: 'Awaiting review (:count)',
     filter: {
@@ -3673,13 +3688,16 @@ export const en = {
       product: 'Products',
       store: 'Stores',
       service: 'Services',
+      b2b: 'B2B companies',
     },
     typeProduct: 'Product',
     typeStore: 'Store',
     typeService: 'Service',
+    typeB2b: 'B2B company',
     rateProduct: 'Rate product',
     rateStore: 'Rate store',
     rateService: 'Rate service',
+    rateB2b: 'Rate company',
     submitSuccess: 'Review submitted successfully',
     submitError: 'Unable to submit review. Please try again.',
     loadError: 'Unable to load your reviews.',
@@ -3693,6 +3711,9 @@ export const en = {
     emptyPendingStore: 'No stores awaiting review.',
     emptyService: 'No service reviews yet.',
     emptyPendingService: 'No services awaiting review.',
+    emptyPendingB2b: 'No B2B companies awaiting review.',
+    emptyPublishedB2b: 'No B2B company reviews yet.',
+    b2bReviewTitle: 'B2B company review',
     bookingReference: 'Booking reference',
     allPendingSkipped:
       'You skipped all current review prompts. They will reappear on your next visit.',
@@ -4653,7 +4674,8 @@ export const en = {
     noMoreMessages: 'Beginning of conversation',
     sending: 'Sending…',
     retry: 'Retry',
-    disconnected: 'You are offline',
+    disconnected: 'Live connection lost',
+    offline: 'You are offline',
     failed: 'Connection failed',
     isTyping: '{{name}} is typing…',
     removeAttachment: 'Remove',

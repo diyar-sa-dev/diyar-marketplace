@@ -6,6 +6,7 @@ use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Enums\UserStatus;
 use App\Models\User;
+use App\Services\Cart\CartService;
 use App\Support\Identity\MarketplaceAccess;
 use App\Support\User\UserNotificationPreferences;
 use Illuminate\Auth\Events\Lockout;
@@ -32,6 +33,8 @@ final class AuthService
     public function establishMarketplaceSession(User $user, bool $remember = false): User
     {
         $guard = Auth::guard('web');
+
+        $this->rememberGuestCartSessionBeforeLogin();
 
         if (! $guard->check() || (string) $guard->id() !== (string) $user->getAuthIdentifier()) {
             $guard->login($user, remember: $remember);
@@ -74,7 +77,23 @@ final class AuthService
             return;
         }
 
+        $session->put(CartService::GUEST_SESSION_FOR_MERGE_KEY, $session->getId());
         $session->regenerate();
+    }
+
+    private function rememberGuestCartSessionBeforeLogin(): void
+    {
+        if (! request()->hasSession()) {
+            return;
+        }
+
+        $session = request()->session();
+
+        if (! $session->isStarted() || Auth::guard('web')->check()) {
+            return;
+        }
+
+        $session->put(CartService::GUEST_SESSION_FOR_MERGE_KEY, $session->getId());
     }
 
     public function loginWithPhone(string $phoneRaw, string $password, bool $remember = false): User
@@ -216,6 +235,8 @@ final class AuthService
     private function attempt(array $credentials, string $key, string $identifier, bool $remember = false): User
     {
         $this->ensureIsNotRateLimited($key, $identifier);
+
+        $this->rememberGuestCartSessionBeforeLogin();
 
         if (! Auth::guard('web')->attempt($credentials, remember: $remember)) {
             RateLimiter::hit($this->throttleKey($key, $identifier), decaySeconds: $this->decaySeconds());

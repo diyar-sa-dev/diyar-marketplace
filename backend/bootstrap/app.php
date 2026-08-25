@@ -71,10 +71,11 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->is('api/*') || $request->expectsJson()) {
                 $message = trim((string) $e->getMessage());
 
-                return ApiResponse::error(
-                    $message !== '' ? $message : __('diyar.errors.not_found'),
-                    404,
-                );
+                if ($message === '' || str_starts_with($message, 'The route ')) {
+                    $message = __('diyar.errors.not_found');
+                }
+
+                return ApiResponse::error($message, 404);
             }
         });
 

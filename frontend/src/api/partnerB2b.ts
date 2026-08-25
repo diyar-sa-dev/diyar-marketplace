@@ -22,9 +22,7 @@ function partnerBasePath(portal: PartnerB2bPortal): string {
   return `${partnerPortalPath(portal)}/company`;
 }
 
-function multipartUploadConfig(
-  onProgress?: (percent: number) => void,
-): AxiosRequestConfig {
+function multipartUploadConfig(onProgress?: (percent: number) => void): AxiosRequestConfig {
   return {
     adapter: 'xhr',
     transformRequest: [
@@ -139,9 +137,9 @@ export async function uploadPartnerB2bPortfolioImage(
 
 export async function deletePartnerB2bPortfolioImage(portal: PartnerB2bPortal, imageId: string) {
   const { data } = await withCsrf(() =>
-    apiClient.delete<ApiSuccessResponse<{ company: import('../types/b2b.ts').PartnerB2bCompanyDetail }>>(
-      `${partnerBasePath(portal)}/portfolio/${imageId}`,
-    ),
+    apiClient.delete<
+      ApiSuccessResponse<{ company: import('../types/b2b.ts').PartnerB2bCompanyDetail }>
+    >(`${partnerBasePath(portal)}/portfolio/${imageId}`),
   );
 
   return data.data;
@@ -178,10 +176,9 @@ export async function updatePartnerB2bLeadStatus(
   status: Exclude<PartnerB2bLeadStatus, 'new'>,
 ) {
   const { data } = await withCsrf(() =>
-    apiClient.patch<PartnerB2bLeadDetailResponse>(
-      `${partnerPortalPath(portal)}/leads/${leadId}`,
-      { status },
-    ),
+    apiClient.patch<PartnerB2bLeadDetailResponse>(`${partnerPortalPath(portal)}/leads/${leadId}`, {
+      status,
+    }),
   );
   return data.data.lead;
 }

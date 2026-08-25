@@ -43,7 +43,7 @@ function persistSkippedKeys(keys: Set<string>) {
   sessionStorage.setItem(SKIPPED_STORAGE_KEY, JSON.stringify([...keys]));
 }
 
-const TYPE_FILTERS: CustomerReviewFilterType[] = ['all', 'product', 'store', 'service'];
+const TYPE_FILTERS: CustomerReviewFilterType[] = ['all', 'product', 'store', 'service', 'b2b'];
 
 export default function ReviewsPage() {
   const { t, locale, dir } = useLocale();
@@ -146,7 +146,9 @@ export default function ReviewsPage() {
           ? t('customerReviews.emptyPendingStore')
           : typeFilter === 'service'
             ? t('customerReviews.emptyPendingService')
-            : t('customerReviews.emptyPending');
+            : typeFilter === 'b2b'
+              ? t('customerReviews.emptyPendingB2b')
+              : t('customerReviews.emptyPending');
 
   const emptyDescription =
     activeTab === 'published'

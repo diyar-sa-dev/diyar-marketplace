@@ -51,6 +51,7 @@ class B2bCompanyDetailResource extends JsonResource
             'services' => B2bCompanyServiceResource::collection($this->whenLoaded('services')),
             'portfolio_gallery' => B2bCompanyPortfolioImageResource::collection($this->whenLoaded('portfolioImages')),
             'testimonials' => B2bCompanyTestimonialResource::collection($this->whenLoaded('testimonials')),
+            'customer_reviews' => B2bCompanyReviewResource::collection($this->whenLoaded('customerReviews')),
             'portfolio' => ProjectCardResource::collection($this->whenLoaded('projects')),
         ];
 

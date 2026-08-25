@@ -22,7 +22,13 @@ export default function CustomerReviewDetailPage() {
   const accountBackPath = resolveAccountSettingsBackPath(user?.roles);
 
   const reviewType =
-    type === 'store' ? 'store' : type === 'service' ? 'service' : 'product';
+    type === 'store'
+      ? 'store'
+      : type === 'service'
+        ? 'service'
+        : type === 'b2b'
+          ? 'b2b'
+          : 'product';
   const {
     data: review,
     isLoading,
@@ -49,13 +55,28 @@ export default function CustomerReviewDetailPage() {
 
   const isProduct = review.type === 'product';
   const isService = review.type === 'service';
-  const title = isProduct ? review.product?.name : isService ? review.service?.title : review.store?.name;
+  const isB2b = review.type === 'b2b';
+  const title = isProduct
+    ? review.product?.name
+    : isService
+      ? review.service?.title
+      : isB2b
+        ? review.company?.name
+        : review.store?.name;
   const subjectImage = isProduct
     ? resolveMediaUrl(review.product?.image_url)
     : isService
       ? resolveMediaUrl(review.provider?.logo_url)
-      : resolveMediaUrl(review.store?.logo_url);
-  const storeLogo = resolveMediaUrl(isService ? review.provider?.logo_url : review.store?.logo_url);
+      : isB2b
+        ? resolveMediaUrl(review.company?.logo_url)
+        : resolveMediaUrl(review.store?.logo_url);
+  const storeLogo = resolveMediaUrl(
+    isService
+      ? review.provider?.logo_url
+      : isB2b
+        ? review.company?.logo_url
+        : review.store?.logo_url,
+  );
   const subjectLink = isProduct
     ? review.product?.id && review.product.available
       ? `/products/${review.product.id}`
@@ -64,15 +85,29 @@ export default function CustomerReviewDetailPage() {
       ? review.service?.slug
         ? `/service/${review.service.slug}`
         : null
-      : review.store?.slug
-        ? `/store/${review.store.slug}`
-        : null;
+      : isB2b
+        ? review.company?.slug
+          ? `/b2b/${review.company.slug}`
+          : null
+        : review.store?.slug
+          ? `/store/${review.store.slug}`
+          : null;
 
-  const replyText = isService ? review.provider_response : review.vendor_reply;
+  const replyText = isService
+    ? review.provider_response
+    : isB2b
+      ? review.company_reply
+      : review.vendor_reply;
   const replyAuthor = isService
     ? review.provider_responded_by ?? review.provider?.name
-    : review.vendor_replied_by ?? review.store?.name;
-  const replyAt = isService ? review.provider_responded_at : review.vendor_replied_at;
+    : isB2b
+      ? review.company_replied_by ?? review.company?.name
+      : review.vendor_replied_by ?? review.store?.name;
+  const replyAt = isService
+    ? review.provider_responded_at
+    : isB2b
+      ? review.company_replied_at
+      : review.vendor_replied_at;
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24 md:pb-12" dir={dir}>
@@ -97,7 +132,9 @@ export default function CustomerReviewDetailPage() {
               ? t('customerReviews.productReviewTitle')
               : isService
                 ? t('customerReviews.serviceReviewTitle')
-                : t('customerReviews.storeReviewTitle')}
+                : isB2b
+                  ? t('customerReviews.b2bReviewTitle')
+                  : t('customerReviews.storeReviewTitle')}
           </h1>
         </div>
 

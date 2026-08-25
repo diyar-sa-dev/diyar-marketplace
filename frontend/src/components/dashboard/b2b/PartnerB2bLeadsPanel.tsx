@@ -267,7 +267,7 @@ export function PartnerB2bLeadsPanel({ portal }: PartnerB2bLeadsPanelProps) {
       <div className="relative">
         <Search
           size={18}
-          className="absolute top-1/2 -translate-y-1/2 start-4 text-gray-400 pointer-events-none"
+          className="absolute top-1/2 -translate-y-1/2 inset-s-4 text-gray-400 pointer-events-none"
         />
         <input
           value={searchInput}

@@ -1,6 +1,8 @@
 import type { B2bCompanyListFilters, PartnerB2bLeadListFilters } from '../../types/b2b.ts';
 
-function serializeFilters(filters: B2bCompanyListFilters = {}): readonly (string | number | boolean)[] {
+function serializeFilters(
+  filters: B2bCompanyListFilters = {},
+): readonly (string | number | boolean)[] {
   return [
     filters.page ?? 1,
     filters.per_page ?? 12,
@@ -23,8 +25,7 @@ export const b2bKeys = {
     [...b2bKeys.all, 'partner-company', portal] as const,
   partnerCategories: (portal: 'vendor' | 'provider') =>
     [...b2bKeys.all, 'partner-categories', portal] as const,
-  partnerTags: (portal: 'vendor' | 'provider') =>
-    [...b2bKeys.all, 'partner-tags', portal] as const,
+  partnerTags: (portal: 'vendor' | 'provider') => [...b2bKeys.all, 'partner-tags', portal] as const,
   partnerLeads: (portal: 'vendor' | 'provider', filters: PartnerB2bLeadListFilters = {}) =>
     [
       ...b2bKeys.all,
@@ -37,6 +38,8 @@ export const b2bKeys = {
     ] as const,
   partnerLead: (portal: 'vendor' | 'provider', leadId: string) =>
     [...b2bKeys.all, 'partner-lead', portal, leadId] as const,
+  partnerReviews: (portal: 'vendor' | 'provider') =>
+    [...b2bKeys.all, 'partner-reviews', portal] as const,
   customerLeads: (page = 1, perPage = 10) =>
     [...b2bKeys.all, 'customer-leads', page, perPage] as const,
   customerLead: (leadId: string) => [...b2bKeys.all, 'customer-lead', leadId] as const,
