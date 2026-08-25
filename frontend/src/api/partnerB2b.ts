@@ -6,7 +6,6 @@ import type {
   B2bTag,
   PartnerB2bCompanyPayload,
   PartnerB2bCompanyResponse,
-  PartnerB2bLead,
   PartnerB2bLeadDetailResponse,
   PartnerB2bLeadListFilters,
   PartnerB2bLeadListResponse,

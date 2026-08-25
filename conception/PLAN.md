@@ -1944,23 +1944,24 @@ See: `conception/Stages/Stage 26/Phase 26.2 - B2B Directory/COMPLETION_REPORT.md
 
 ---
 
-## Phase 26.3 — Loyalty
+## Phase 26.3 — Loyalty 
 
-Wire loyalty rewards UI to production accrual and redemption.
+**Status:** Complete (Stage 26.3)
 
-Implement:
+Database-backed loyalty with ledger, configurable earn rules, payment accrual, refund reversals, admin adjustments, customer history UI, and honest empty rewards state.
 
-* loyalty account balance per customer
-* transaction history (earn / redeem / adjust)
-* accrual rules on order completion
-* checkout redemption hooks (if prototype supports it)
-* admin visibility and manual adjustments
+Delivered:
 
-Special attention:
+* `loyalty_accounts` + `loyalty_transactions` schema
+* Config: `commerce.loyalty_enabled`, `loyalty_sar_per_point`, `loyalty_points_per_unit`
+* Accrual on `PaymentSucceeded`; reversal on refunded returns
+* Customer `/loyalty` page (real API, filters, pagination)
+* Admin user loyalty tab + manual adjust
+* Docs: `conception/Stages/Stage 26/Phase 26.3 - Loyalty/`
 
-* points vs currency conversion rules
-* refund/reversal impact on earned points
-* abuse prevention on redemption
+Deferred to later phase:
+
+* Redeemable reward products and checkout redemption
 
 ---
 

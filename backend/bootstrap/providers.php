@@ -10,6 +10,7 @@ return [
     AffiliateServiceProvider::class,
     AppServiceProvider::class,
     ChatServiceProvider::class,
+    LoyaltyServiceProvider::class,
     NotificationServiceProvider::class,
     SettingsServiceProvider::class,
 ];

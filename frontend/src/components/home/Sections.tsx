@@ -14,6 +14,7 @@ import { validateNewsletterEmail } from '../../lib/platformForms.ts';
 import { parseApiError } from '../../utils/errors.ts';
 import { subscribeNewsletter } from '../../api/platform.ts';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
+import { useLoyaltySummary } from '../../hooks/loyalty/useLoyalty.ts';
 import { skipDashboardTutorial } from '../../lib/dashboardTutorialStorage.ts';
 import { isValidStoreSlug, storePath } from '../../lib/storePath.ts';
 import { StarRating } from '../product/StarRating.tsx';
@@ -1219,7 +1220,9 @@ export function FastOffersSlider() {
 }
 
 export function LoyaltyPromo() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const { isAuthenticated } = useAuth();
+  const { data: loyaltySummary } = useLoyaltySummary(isAuthenticated);
 
   return (
     <div className="max-w-7xl mx-auto px-4 my-8 md:my-12">
@@ -1241,8 +1244,23 @@ export function LoyaltyPromo() {
               {t('home.loyalty.titleLine1')} <br /> {t('home.loyalty.titleLine2')}
             </h2>
             <p className="text-gray-600 text-lg mb-10 max-w-lg leading-relaxed">
-              {t('home.loyalty.body')}
+              {isAuthenticated && loyaltySummary
+                ? t('home.loyalty.authenticatedBody', {
+                    balance: loyaltySummary.balance.toLocaleString(locale),
+                  })
+                : t('home.loyalty.body')}
             </p>
+
+            {isAuthenticated && loyaltySummary ? (
+              <div className="mb-8 inline-flex items-center gap-3 rounded-2xl border border-amber-200 bg-white px-5 py-3 shadow-sm">
+                <Star size={20} className="text-amber-500 fill-amber-500" />
+                <span className="font-bold text-[#3D2E1F]">
+                  {t('home.loyalty.currentBalance', {
+                    balance: loyaltySummary.balance.toLocaleString(locale),
+                  })}
+                </span>
+              </div>
+            ) : null}
 
             <div className="flex flex-col gap-5 mb-10">
               <div className="flex items-start gap-4">

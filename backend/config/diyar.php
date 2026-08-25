@@ -87,6 +87,8 @@ return [
         'currency' => env('DIYAR_COMMERCE_CURRENCY', env('DIYAR_PAYMENT_CURRENCY', 'SAR')),
         'cart_max_quantity_per_item' => (int) env('DIYAR_CART_MAX_QUANTITY_PER_ITEM', 99),
         'loyalty_sar_per_point' => (int) env('DIYAR_LOYALTY_SAR_PER_POINT', 50),
+        'loyalty_points_per_unit' => (int) env('DIYAR_LOYALTY_POINTS_PER_UNIT', 1),
+        'loyalty_enabled' => filter_var(env('DIYAR_LOYALTY_ENABLED', true), FILTER_VALIDATE_BOOL),
     ],
 
     /*

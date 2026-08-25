@@ -753,6 +753,16 @@ return [
         'contact_failed' => 'We could not send your request right now. Please try again later.',
     ],
 
+    'loyalty' => [
+        'adjustment_zero' => 'Adjustment points cannot be zero.',
+        'adjustment_reason_required' => 'A reason is required for manual adjustments.',
+        'insufficient_balance' => 'Insufficient loyalty balance for this adjustment.',
+        'reasons' => [
+            'order_earn' => 'Points earned from order :order_number.',
+            'order_reversal' => 'Points reversed for order :order_number refund/return.',
+        ],
+    ],
+
     'affiliate' => [
         'invalid_referral_code' => 'This referral link is invalid or inactive.',
         'profile_suspended' => 'Your affiliate account is suspended. Contact support for help.',

@@ -174,6 +174,22 @@ return [
             'is_public' => true,
             'validation' => ['required', 'integer', 'min:1', 'max:10000'],
         ],
+        'commerce.loyalty_points_per_unit' => [
+            'group' => 'commerce',
+            'key' => 'loyalty_points_per_unit',
+            'type' => 'integer',
+            'config_path' => 'diyar.commerce.loyalty_points_per_unit',
+            'is_public' => true,
+            'validation' => ['required', 'integer', 'min:1', 'max:1000'],
+        ],
+        'commerce.loyalty_enabled' => [
+            'group' => 'commerce',
+            'key' => 'loyalty_enabled',
+            'type' => 'boolean',
+            'config_path' => 'diyar.commerce.loyalty_enabled',
+            'is_public' => true,
+            'validation' => ['required', 'boolean'],
+        ],
 
         // Orders
         'orders.inventory_reservation_timeout_minutes' => [

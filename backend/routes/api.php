@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\AdminFinanceController;
 use App\Http\Controllers\Api\V1\Admin\AdminFinancialTransactionController;
 use App\Http\Controllers\Api\V1\Admin\AdminInventoryController;
+use App\Http\Controllers\Api\V1\Admin\AdminLoyaltyController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 use App\Http\Controllers\Api\V1\Admin\AdminOrderController;
 use App\Http\Controllers\Api\V1\Admin\AdminPaymentController;
@@ -88,6 +89,7 @@ use App\Http\Controllers\Api\V1\Dashboard\VendorTeamController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorTeamInviteController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Identity\OwnershipController;
+use App\Http\Controllers\Api\V1\Loyalty\LoyaltyController;
 use App\Http\Controllers\Api\V1\Order\OrderController;
 use App\Http\Controllers\Api\V1\Order\OrderStoreReviewController;
 use App\Http\Controllers\Api\V1\Payment\PaymentController;
@@ -526,6 +528,13 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
         Route::get('/leads/{lead}', [AdminB2bCompanyController::class, 'showLead'])
             ->middleware('admin.permission:b2b.leads.view');
     });
+
+    Route::prefix('loyalty')->group(function () {
+        Route::get('/customers/{user}', [AdminLoyaltyController::class, 'showCustomer'])
+            ->middleware('admin.permission:loyalty.view');
+        Route::post('/customers/{user}/adjust', [AdminLoyaltyController::class, 'adjust'])
+            ->middleware('admin.permission:loyalty.adjust');
+    });
 });
 
 Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
@@ -677,6 +686,13 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::get('/leads', [B2bLeadController::class, 'index']);
             Route::get('/leads/{lead}', [B2bLeadController::class, 'show']);
         });
+
+        Route::prefix('loyalty')->group(function () {
+            Route::get('/', [LoyaltyController::class, 'show']);
+            Route::get('/transactions', [LoyaltyController::class, 'transactions']);
+            Route::get('/rewards', [LoyaltyController::class, 'rewards']);
+        });
+
         Route::post('/products/{id}/preorder', [ProductPreorderController::class, 'store']);
         Route::get('/products/{id}/preorder', [ProductPreorderController::class, 'status']);
 

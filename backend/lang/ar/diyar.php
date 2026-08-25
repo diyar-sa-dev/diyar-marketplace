@@ -753,6 +753,16 @@ return [
         'contact_failed' => 'تعذر إرسال طلبك حالياً. يرجى المحاولة لاحقاً.',
     ],
 
+    'loyalty' => [
+        'adjustment_zero' => 'لا يمكن أن تكون نقاط التعديل صفراً.',
+        'adjustment_reason_required' => 'سبب التعديل مطلوب.',
+        'insufficient_balance' => 'رصيد النقاط غير كافٍ لهذا التعديل.',
+        'reasons' => [
+            'order_earn' => 'نقاط مكتسبة من الطلب :order_number.',
+            'order_reversal' => 'استرجاع نقاط للطلب :order_number بسبب إرجاع/استرداد.',
+        ],
+    ],
+
     'affiliate' => [
         'invalid_referral_code' => 'رابط الإحالة غير صالح أو غير نشط.',
         'profile_suspended' => 'تم تعليق حساب المسوق. تواصل مع الدعم للمساعدة.',

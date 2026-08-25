@@ -64,6 +64,10 @@ enum AdminPermission: string
     case B2bManage = 'b2b.manage';
     case B2bLeadsView = 'b2b.leads.view';
 
+    case LoyaltyView = 'loyalty.view';
+    case LoyaltyManage = 'loyalty.manage';
+    case LoyaltyAdjust = 'loyalty.adjust';
+
     /** @return list<self> */
     public static function all(): array
     {
@@ -88,6 +92,7 @@ enum AdminPermission: string
             self::BlogView, self::BlogManage => 'blog',
             self::ProjectsView, self::ProjectsManage => 'projects',
             self::B2bView, self::B2bManage, self::B2bLeadsView => 'b2b',
+            self::LoyaltyView, self::LoyaltyManage, self::LoyaltyAdjust => 'loyalty',
         };
     }
 
