@@ -1922,23 +1922,25 @@ See: `conception/Stages/Stage 26/Phase 26.1 - Blogs & Projects/STAGE_26_1.md` an
 
 ---
 
-## Phase 26.2 — B2B
+## Phase 26.2 — B2B ✅ COMPLETE
 
 Wire B2B company directory and company detail pages to backend.
 
-Implement:
+Delivered:
 
-* B2B company profiles (listing + detail)
-* portfolio / project references on company pages
-* admin management of B2B listings (if separate from vendor/provider model)
-* public read APIs with pagination and filters
-* preserve existing `/b2b` and `/b2b/:id` UI patterns
+* B2B company profiles (listing + detail) wired to `/api/v1/b2b/*`
+* portfolio / project references via `b2b_company_project` pivot (no duplicate projects)
+* admin management at `/admin/b2b/companies` (list, create/edit modal, publish, verify, feature, archive)
+* public read APIs with pagination, search, category filter, featured sort
+* customer RFQ leads (`POST /b2b/companies/{slug}/leads`) with auth + rate limiting
+* permissions: `b2b.view`, `b2b.manage`, `b2b.leads.view`
+* `B2bCache` layer with mutation invalidation
+* backend + frontend unit tests + Playwright E2E
+* preserved existing `/b2b` and `/b2b/:slug` UI patterns (RTL, responsive)
 
-Special attention:
+Domain boundary: B2B Company ≠ Vendor ≠ Provider ≠ Customer (optional FK links only).
 
-* separate B2B entity vs vendor/provider overlap
-* listing visibility rules (published / featured)
-* contact and lead flows (if in scope)
+See: `conception/Stages/Stage 26/Phase 26.2 - B2B Directory/COMPLETION_REPORT.md`
 
 ---
 

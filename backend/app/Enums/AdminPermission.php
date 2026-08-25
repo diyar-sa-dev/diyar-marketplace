@@ -60,6 +60,10 @@ enum AdminPermission: string
     case ProjectsView = 'projects.view';
     case ProjectsManage = 'projects.manage';
 
+    case B2bView = 'b2b.view';
+    case B2bManage = 'b2b.manage';
+    case B2bLeadsView = 'b2b.leads.view';
+
     /** @return list<self> */
     public static function all(): array
     {
@@ -83,6 +87,7 @@ enum AdminPermission: string
             self::SettingsView, self::SettingsUpdate => 'settings',
             self::BlogView, self::BlogManage => 'blog',
             self::ProjectsView, self::ProjectsManage => 'projects',
+            self::B2bView, self::B2bManage, self::B2bLeadsView => 'b2b',
         };
     }
 

@@ -141,6 +141,7 @@ const AdminProviderDetailPage = lazy(() => import('./admin/pages/AdminProviderDe
 const AdminCategoriesPage = lazy(() => import('./admin/pages/AdminCategoriesPage.tsx'));
 const AdminBlogArticlesPage = lazy(() => import('./admin/pages/AdminBlogArticlesPage.tsx'));
 const AdminProjectsPage = lazy(() => import('./admin/pages/AdminProjectsPage.tsx'));
+const AdminB2bCompaniesPage = lazy(() => import('./admin/pages/AdminB2bCompaniesPage.tsx'));
 const AdminFinancePage = lazy(() => import('./admin/pages/AdminFinancePage.tsx'));
 const AdminAffiliateHubPage = lazy(() => import('./admin/pages/AdminAffiliateHubPage.tsx'));
 const AdminAuditPage = lazy(() => import('./admin/pages/AdminAuditPage.tsx'));
@@ -598,6 +599,7 @@ export default function App() {
             <Route path="categories" element={<Suspense fallback={<AdminRouteFallback />}><AdminCategoriesPage /></Suspense>} />
             <Route path="blog/articles" element={<Suspense fallback={<AdminRouteFallback />}><AdminBlogArticlesPage /></Suspense>} />
             <Route path="projects" element={<Suspense fallback={<AdminRouteFallback />}><AdminProjectsPage /></Suspense>} />
+            <Route path="b2b/companies" element={<Suspense fallback={<AdminRouteFallback />}><AdminB2bCompaniesPage /></Suspense>} />
             <Route path="finance" element={<Suspense fallback={<AdminRouteFallback />}><AdminFinancePage /></Suspense>} />
             <Route path="payouts" element={<Navigate to="/admin/finance" replace />} />
             <Route path="transactions" element={<Navigate to="/admin/finance" replace />} />

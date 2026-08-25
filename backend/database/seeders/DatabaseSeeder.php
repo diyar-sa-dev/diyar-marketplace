@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             BlogContentSeeder::class,
             BlogE2eSeeder::class,
             ProjectContentSeeder::class,
+            B2bContentSeeder::class,
+            B2bE2eSeeder::class,
         ]);
     }
 }

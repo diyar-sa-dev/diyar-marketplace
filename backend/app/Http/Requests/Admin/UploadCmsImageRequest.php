@@ -28,7 +28,7 @@ class UploadCmsImageRequest extends FormRequest
             ],
             'context' => [
                 'nullable',
-                Rule::in(['blog_hero', 'blog_avatar', 'project_cover', 'project_gallery']),
+                Rule::in(['blog_hero', 'blog_avatar', 'project_cover', 'project_gallery', 'b2b_logo', 'b2b_cover']),
             ],
         ];
     }

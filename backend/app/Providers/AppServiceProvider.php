@@ -97,6 +97,13 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for('b2b-leads', function (Request $request) {
+            $limit = (int) config('diyar.rate_limits.b2b_leads_per_minute', 5);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
         RateLimiter::for('notification-devices', function (Request $request) {
             return Limit::perMinute(20)
                 ->by($request->user()?->id ?: $request->ip());
@@ -206,6 +213,7 @@ class AppServiceProvider extends ServiceProvider
             'auth',
             'otp',
             'wishlist-toggle',
+            'b2b-leads',
             'notification-devices',
             'notification-preferences',
             'chat-messages',

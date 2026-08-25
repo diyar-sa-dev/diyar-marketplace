@@ -1,11 +1,8 @@
-import { useMemo, useRef, useState } from 'react';
-import { Loader2, Plus, Upload, X } from 'lucide-react';
-import { uploadCmsImage } from '../../api/adminCms.ts';
+import { useMemo, useState } from 'react';
+import { Loader2, X } from 'lucide-react';
 import { AdminBlogTagPicker } from './AdminBlogTagPicker.tsx';
 import { AdminCmsImageField } from './AdminCmsImageField.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
-import { useToast } from '../../hooks/useToast.ts';
-import { parseApiError } from '../../utils/errors.ts';
 import type { BlogCategory, BlogTag } from '../../types/blog.ts';
 
 export type BlogArticleFormValues = {

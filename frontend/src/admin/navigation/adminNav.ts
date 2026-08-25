@@ -3,6 +3,7 @@ import {
   ExternalLink,
   FileText,
   FolderGit2,
+  Building2,
   FolderTree,
   LayoutDashboard,
   Percent,
@@ -56,6 +57,12 @@ export const adminNavItems: AdminNavItem[] = [
     icon: FolderGit2,
     labelKey: 'admin.nav.projects',
     permission: 'projects.view',
+  },
+  {
+    to: '/admin/b2b/companies',
+    icon: Building2,
+    labelKey: 'admin.nav.b2b',
+    permission: 'b2b.view',
   },
   { to: '/admin/finance', icon: Wallet, labelKey: 'admin.nav.finance', permission: 'payouts.view' },
   {

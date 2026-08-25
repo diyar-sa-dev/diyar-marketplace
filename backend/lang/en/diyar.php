@@ -127,6 +127,15 @@ return [
         'not_found' => 'Project not found.',
     ],
 
+    'b2b' => [
+        'company_not_found' => 'B2B company not found.',
+        'lead_not_found' => 'B2B lead not found.',
+        'lead_duplicate' => 'You already submitted a similar request recently. Please try again later.',
+        'lead_daily_limit' => 'Daily lead submission limit reached. Please try again tomorrow.',
+        'lead_invalid' => 'Invalid lead request.',
+        'category_has_companies' => 'Cannot delete a category that has companies.',
+    ],
+
     'services' => [
         'not_found' => 'Service not found.',
         'provider_not_found' => 'Service provider not found.',

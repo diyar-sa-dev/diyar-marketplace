@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminAffiliatePayoutController;
 use App\Http\Controllers\Api\V1\Admin\AdminAffiliateProfileController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuthController;
+use App\Http\Controllers\Api\V1\Admin\AdminB2bCompanyController;
 use App\Http\Controllers\Api\V1\Admin\AdminBlogArticleController;
 use App\Http\Controllers\Api\V1\Admin\AdminBlogCategoryController;
 use App\Http\Controllers\Api\V1\Admin\AdminBlogTagController;
@@ -40,9 +41,11 @@ use App\Http\Controllers\Api\V1\Admin\CategoryController as AdminCategoryControl
 use App\Http\Controllers\Api\V1\Affiliate\AffiliateReferralController;
 use App\Http\Controllers\Api\V1\Assistant\AssistantChatController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\B2b\B2bCompanyController;
+use App\Http\Controllers\Api\V1\B2b\B2bLeadController;
 use App\Http\Controllers\Api\V1\Blog\BlogArticleController;
-use App\Http\Controllers\Api\V1\Blog\BlogEngagementController;
 use App\Http\Controllers\Api\V1\Blog\BlogCategoryController;
+use App\Http\Controllers\Api\V1\Blog\BlogEngagementController;
 use App\Http\Controllers\Api\V1\Blog\BlogTagController;
 use App\Http\Controllers\Api\V1\Cart\CartController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchController;
@@ -176,6 +179,12 @@ Route::prefix('blog')->group(function () {
 
 Route::get('/projects', [ProjectController::class, 'index']);
 Route::get('/projects/{slug}', [ProjectController::class, 'show']);
+
+Route::prefix('b2b')->group(function () {
+    Route::get('/companies', [B2bCompanyController::class, 'index']);
+    Route::get('/companies/{slug}', [B2bCompanyController::class, 'show']);
+    Route::get('/categories', [B2bCompanyController::class, 'categories']);
+});
 
 Route::post('/affiliate/referrals/click', [AffiliateReferralController::class, 'trackClick'])
     ->middleware('throttle:affiliate-click')
@@ -480,6 +489,41 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
         Route::post('/{project}/archive', [AdminProjectController::class, 'archive'])
             ->middleware('admin.permission:projects.manage');
     });
+
+    Route::prefix('b2b')->group(function () {
+        Route::get('/companies', [AdminB2bCompanyController::class, 'index'])
+            ->middleware('admin.permission:b2b.view');
+        Route::post('/companies', [AdminB2bCompanyController::class, 'store'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::get('/companies/{company}', [AdminB2bCompanyController::class, 'show'])
+            ->middleware('admin.permission:b2b.view');
+        Route::patch('/companies/{company}', [AdminB2bCompanyController::class, 'update'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::delete('/companies/{company}', [AdminB2bCompanyController::class, 'destroy'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/publish', [AdminB2bCompanyController::class, 'publish'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/unpublish', [AdminB2bCompanyController::class, 'unpublish'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/archive', [AdminB2bCompanyController::class, 'archive'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/verify', [AdminB2bCompanyController::class, 'verify'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/reject-verification', [AdminB2bCompanyController::class, 'rejectVerification'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/feature', [AdminB2bCompanyController::class, 'feature'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/unfeature', [AdminB2bCompanyController::class, 'unfeature'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::get('/categories', [AdminB2bCompanyController::class, 'categories'])
+            ->middleware('admin.permission:b2b.view');
+        Route::get('/tags', [AdminB2bCompanyController::class, 'tags'])
+            ->middleware('admin.permission:b2b.view');
+        Route::get('/leads', [AdminB2bCompanyController::class, 'leads'])
+            ->middleware('admin.permission:b2b.leads.view');
+        Route::get('/leads/{lead}', [AdminB2bCompanyController::class, 'showLead'])
+            ->middleware('admin.permission:b2b.leads.view');
+    });
 });
 
 Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
@@ -624,6 +668,13 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             ->middleware('throttle:wishlist-toggle');
         Route::post('/blog/articles/{slug}/wishlist', [BlogEngagementController::class, 'toggleWishlist'])
             ->middleware('throttle:wishlist-toggle');
+
+        Route::prefix('b2b')->group(function () {
+            Route::post('/companies/{slug}/leads', [B2bLeadController::class, 'store'])
+                ->middleware('throttle:b2b-leads');
+            Route::get('/leads', [B2bLeadController::class, 'index']);
+            Route::get('/leads/{lead}', [B2bLeadController::class, 'show']);
+        });
         Route::post('/products/{id}/preorder', [ProductPreorderController::class, 'store']);
         Route::get('/products/{id}/preorder', [ProductPreorderController::class, 'status']);
 

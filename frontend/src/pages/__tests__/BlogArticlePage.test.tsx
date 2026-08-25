@@ -4,12 +4,17 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LocaleProvider } from '../../lib/i18n/LocaleProvider.tsx';
+import { ToastProvider } from '../../components/common/ToastProvider.tsx';
 import BlogArticlePage from '../BlogArticlePage.tsx';
 
 const mockUseBlogArticle = vi.fn();
 
 vi.mock('../../hooks/blog/useBlogArticle.ts', () => ({
   useBlogArticle: (...args: unknown[]) => mockUseBlogArticle(...args),
+}));
+
+vi.mock('../../hooks/auth/useAuth.ts', () => ({
+  useAuth: () => ({ isAuthenticated: false }),
 }));
 
 function renderPage(slug = 'sample-article') {
@@ -20,11 +25,13 @@ function renderPage(slug = 'sample-article') {
   return render(
     <QueryClientProvider client={queryClient}>
       <LocaleProvider>
-        <MemoryRouter initialEntries={[`/blog/${slug}`]}>
-          <Routes>
-            <Route path="/blog/:slug" element={<BlogArticlePage />} />
-          </Routes>
-        </MemoryRouter>
+        <ToastProvider>
+          <MemoryRouter initialEntries={[`/blog/${slug}`]}>
+            <Routes>
+              <Route path="/blog/:slug" element={<BlogArticlePage />} />
+            </Routes>
+          </MemoryRouter>
+        </ToastProvider>
       </LocaleProvider>
     </QueryClientProvider>,
   );

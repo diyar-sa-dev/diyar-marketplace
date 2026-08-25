@@ -18,6 +18,8 @@ return [
         'blog_avatar' => 'cms/blog/avatar',
         'project_cover' => 'cms/projects/cover',
         'project_gallery' => 'cms/projects/gallery',
+        'b2b_logo' => 'cms/b2b/logo',
+        'b2b_cover' => 'cms/b2b/cover',
     ],
     'default_cms_directory' => 'cms/misc',
 ];
