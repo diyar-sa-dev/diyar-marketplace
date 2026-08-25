@@ -117,6 +117,16 @@ return [
         'category_has_products' => 'لا يمكن حذف تصنيف يحتوي على منتجات.',
     ],
 
+    'blog' => [
+        'article_not_found' => 'المقال غير موجود.',
+        'tag_not_found' => 'الوسم غير موجود.',
+        'category_has_articles' => 'لا يمكن حذف تصنيف يحتوي على مقالات.',
+    ],
+
+    'projects' => [
+        'not_found' => 'المشروع غير موجود.',
+    ],
+
     'services' => [
         'not_found' => 'الخدمة غير موجودة.',
         'provider_not_found' => 'مزود الخدمة غير موجود.',

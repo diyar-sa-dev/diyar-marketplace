@@ -117,6 +117,16 @@ return [
         'category_has_products' => 'Cannot delete a category that has products.',
     ],
 
+    'blog' => [
+        'article_not_found' => 'Blog article not found.',
+        'tag_not_found' => 'Blog tag not found.',
+        'category_has_articles' => 'Cannot delete a category that has articles.',
+    ],
+
+    'projects' => [
+        'not_found' => 'Project not found.',
+    ],
+
     'services' => [
         'not_found' => 'Service not found.',
         'provider_not_found' => 'Service provider not found.',

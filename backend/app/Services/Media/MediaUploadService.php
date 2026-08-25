@@ -163,6 +163,23 @@ final class MediaUploadService
         return $path;
     }
 
+    public function storeCmsImage(User $user, UploadedFile $file, string $directory): string
+    {
+        $this->validateImage($file);
+
+        $extension = $this->resolveExtension($file);
+        $directory = trim($directory, '/');
+        $filename = Str::uuid()->toString().'.'.$extension;
+        $path = $directory.'/'.$filename;
+
+        $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
+        if ($stored === false) {
+            throw new RuntimeException(__('diyar.media.upload_failed'));
+        }
+
+        return $path;
+    }
+
     public function storeProductImage(User $user, string $productId, UploadedFile $file): MediaFile
     {
         $this->validateImage($file);

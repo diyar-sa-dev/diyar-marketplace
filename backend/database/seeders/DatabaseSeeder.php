@@ -20,6 +20,9 @@ class DatabaseSeeder extends Seeder
             CommissionRuleSeeder::class,
             SystemSettingSeeder::class,
             HomeEngagementSeeder::class,
+            BlogContentSeeder::class,
+            BlogE2eSeeder::class,
+            ProjectContentSeeder::class,
         ]);
     }
 }

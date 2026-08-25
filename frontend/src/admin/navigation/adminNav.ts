@@ -1,6 +1,8 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   ExternalLink,
+  FileText,
+  FolderGit2,
   FolderTree,
   LayoutDashboard,
   Percent,
@@ -42,6 +44,18 @@ export const adminNavItems: AdminNavItem[] = [
     icon: FolderTree,
     labelKey: 'admin.nav.categories',
     permission: 'categories.view',
+  },
+  {
+    to: '/admin/blog/articles',
+    icon: FileText,
+    labelKey: 'admin.nav.blog',
+    permission: 'blog.view',
+  },
+  {
+    to: '/admin/projects',
+    icon: FolderGit2,
+    labelKey: 'admin.nav.projects',
+    permission: 'projects.view',
   },
   { to: '/admin/finance', icon: Wallet, labelKey: 'admin.nav.finance', permission: 'payouts.view' },
   {

@@ -28,6 +28,8 @@ class PlatformDemoSeeder extends Seeder
             return;
         }
 
+        $this->call(RoleSeeder::class);
+
         $password = $this->demoPassword();
 
         $this->seedCustomer($password);

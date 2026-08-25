@@ -8,6 +8,10 @@ use App\Http\Controllers\Api\V1\Admin\AdminAffiliatePayoutController;
 use App\Http\Controllers\Api\V1\Admin\AdminAffiliateProfileController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuthController;
+use App\Http\Controllers\Api\V1\Admin\AdminBlogArticleController;
+use App\Http\Controllers\Api\V1\Admin\AdminBlogCategoryController;
+use App\Http\Controllers\Api\V1\Admin\AdminBlogTagController;
+use App\Http\Controllers\Api\V1\Admin\AdminCmsMediaController;
 use App\Http\Controllers\Api\V1\Admin\AdminCouponController;
 use App\Http\Controllers\Api\V1\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\AdminFinanceController;
@@ -19,6 +23,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminPaymentController;
 use App\Http\Controllers\Api\V1\Admin\AdminPayoutController;
 use App\Http\Controllers\Api\V1\Admin\AdminPermissionController;
 use App\Http\Controllers\Api\V1\Admin\AdminProductController;
+use App\Http\Controllers\Api\V1\Admin\AdminProjectController;
 use App\Http\Controllers\Api\V1\Admin\AdminProviderAccountController;
 use App\Http\Controllers\Api\V1\Admin\AdminReportController;
 use App\Http\Controllers\Api\V1\Admin\AdminReturnController;
@@ -35,6 +40,9 @@ use App\Http\Controllers\Api\V1\Admin\CategoryController as AdminCategoryControl
 use App\Http\Controllers\Api\V1\Affiliate\AffiliateReferralController;
 use App\Http\Controllers\Api\V1\Assistant\AssistantChatController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\Blog\BlogArticleController;
+use App\Http\Controllers\Api\V1\Blog\BlogCategoryController;
+use App\Http\Controllers\Api\V1\Blog\BlogTagController;
 use App\Http\Controllers\Api\V1\Cart\CartController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchSuggestionsController;
@@ -87,6 +95,7 @@ use App\Http\Controllers\Api\V1\Profile\NotificationController;
 use App\Http\Controllers\Api\V1\Profile\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\Profile\WishlistController;
+use App\Http\Controllers\Api\V1\Projects\ProjectController;
 use App\Http\Controllers\Api\V1\ReadinessController;
 use App\Http\Controllers\Api\V1\Return\ReturnController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\DirectServiceBookingController;
@@ -156,6 +165,16 @@ Route::get('/providers/{slug}', [ServiceProviderController::class, 'show']);
 Route::get('/providers/{slug}/services', [ServiceProviderController::class, 'services']);
 Route::get('/providers/{slug}/portfolio', [ServiceProviderController::class, 'portfolio']);
 Route::get('/providers/{slug}/reviews', [ProviderReviewController::class, 'index']);
+
+Route::prefix('blog')->group(function () {
+    Route::get('/articles', [BlogArticleController::class, 'index']);
+    Route::get('/articles/{slug}', [BlogArticleController::class, 'show']);
+    Route::get('/categories', [BlogCategoryController::class, 'index']);
+    Route::get('/tags/{slug}', [BlogTagController::class, 'show']);
+});
+
+Route::get('/projects', [ProjectController::class, 'index']);
+Route::get('/projects/{slug}', [ProjectController::class, 'show']);
 
 Route::post('/affiliate/referrals/click', [AffiliateReferralController::class, 'trackClick'])
     ->middleware('throttle:affiliate-click')
@@ -368,6 +387,8 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
     Route::get('/reports/summary', [AdminReportController::class, 'summary'])
         ->middleware('admin.permission:panel.access');
 
+    Route::post('/cms/media/image', [AdminCmsMediaController::class, 'uploadImage']);
+
     Route::get('/affiliate/profiles', [AdminAffiliateProfileController::class, 'index'])
         ->middleware('admin.permission:affiliate.view');
     Route::get('/affiliate/profiles/{affiliateProfile}', [AdminAffiliateProfileController::class, 'show'])
@@ -398,6 +419,66 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
         ->middleware('admin.permission:commissions.view');
     Route::get('/affiliate/commissions/{affiliateCommission}', [AdminAffiliateCommissionController::class, 'show'])
         ->middleware('admin.permission:commissions.view');
+
+    Route::prefix('blog')->group(function () {
+        Route::get('/articles', [AdminBlogArticleController::class, 'index'])
+            ->middleware('admin.permission:blog.view');
+        Route::post('/articles', [AdminBlogArticleController::class, 'store'])
+            ->middleware('admin.permission:blog.manage');
+        Route::get('/articles/{article}', [AdminBlogArticleController::class, 'show'])
+            ->middleware('admin.permission:blog.view');
+        Route::patch('/articles/{article}', [AdminBlogArticleController::class, 'update'])
+            ->middleware('admin.permission:blog.manage');
+        Route::delete('/articles/{article}', [AdminBlogArticleController::class, 'destroy'])
+            ->middleware('admin.permission:blog.manage');
+        Route::post('/articles/{article}/publish', [AdminBlogArticleController::class, 'publish'])
+            ->middleware('admin.permission:blog.manage');
+        Route::post('/articles/{article}/unpublish', [AdminBlogArticleController::class, 'unpublish'])
+            ->middleware('admin.permission:blog.manage');
+        Route::post('/articles/{article}/archive', [AdminBlogArticleController::class, 'archive'])
+            ->middleware('admin.permission:blog.manage');
+
+        Route::get('/categories', [AdminBlogCategoryController::class, 'index'])
+            ->middleware('admin.permission:blog.view');
+        Route::post('/categories', [AdminBlogCategoryController::class, 'store'])
+            ->middleware('admin.permission:blog.manage');
+        Route::get('/categories/{category}', [AdminBlogCategoryController::class, 'show'])
+            ->middleware('admin.permission:blog.view');
+        Route::patch('/categories/{category}', [AdminBlogCategoryController::class, 'update'])
+            ->middleware('admin.permission:blog.manage');
+        Route::delete('/categories/{category}', [AdminBlogCategoryController::class, 'destroy'])
+            ->middleware('admin.permission:blog.manage');
+
+        Route::get('/tags', [AdminBlogTagController::class, 'index'])
+            ->middleware('admin.permission:blog.view');
+        Route::post('/tags', [AdminBlogTagController::class, 'store'])
+            ->middleware('admin.permission:blog.manage');
+        Route::get('/tags/{tag}', [AdminBlogTagController::class, 'show'])
+            ->middleware('admin.permission:blog.view');
+        Route::patch('/tags/{tag}', [AdminBlogTagController::class, 'update'])
+            ->middleware('admin.permission:blog.manage');
+        Route::delete('/tags/{tag}', [AdminBlogTagController::class, 'destroy'])
+            ->middleware('admin.permission:blog.manage');
+    });
+
+    Route::prefix('projects')->group(function () {
+        Route::get('/', [AdminProjectController::class, 'index'])
+            ->middleware('admin.permission:projects.view');
+        Route::post('/', [AdminProjectController::class, 'store'])
+            ->middleware('admin.permission:projects.manage');
+        Route::get('/{project}', [AdminProjectController::class, 'show'])
+            ->middleware('admin.permission:projects.view');
+        Route::patch('/{project}', [AdminProjectController::class, 'update'])
+            ->middleware('admin.permission:projects.manage');
+        Route::delete('/{project}', [AdminProjectController::class, 'destroy'])
+            ->middleware('admin.permission:projects.manage');
+        Route::post('/{project}/publish', [AdminProjectController::class, 'publish'])
+            ->middleware('admin.permission:projects.manage');
+        Route::post('/{project}/unpublish', [AdminProjectController::class, 'unpublish'])
+            ->middleware('admin.permission:projects.manage');
+        Route::post('/{project}/archive', [AdminProjectController::class, 'archive'])
+            ->middleware('admin.permission:projects.manage');
+    });
 });
 
 Route::middleware(['auth:sanctum', 'account.active'])->group(function () {

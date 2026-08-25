@@ -82,6 +82,6 @@ final class AdminPermissionService
 
     private function cacheKey(User $user): string
     {
-        return 'admin.permissions.v2.'.$user->id;
+        return 'admin.permissions.v3.'.$user->id;
     }
 }

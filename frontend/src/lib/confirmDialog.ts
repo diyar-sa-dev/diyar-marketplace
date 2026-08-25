@@ -299,6 +299,48 @@ export async function confirmDeleteCategory(
   return result.isConfirmed;
 }
 
+export async function confirmDeleteBlogArticle(
+  t: TranslateFn,
+  articleTitle?: string,
+): Promise<boolean> {
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.blogArticles.deleteTitle'),
+    text: articleTitle
+      ? t('admin.blogArticles.deleteConfirmNamed', { name: articleTitle })
+      : t('admin.blogArticles.deleteConfirm'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.blogArticles.deleteAction'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
+export async function confirmDeleteProject(
+  t: TranslateFn,
+  projectTitle?: string,
+): Promise<boolean> {
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.projects.deleteTitle'),
+    text: projectTitle
+      ? t('admin.projects.deleteConfirmNamed', { name: projectTitle })
+      : t('admin.projects.deleteConfirm'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.projects.deleteAction'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
 export async function showShareLinkDialog(t: TranslateFn, url: string): Promise<boolean> {
   const result = await Swal.fire({
     ...modalOptions,

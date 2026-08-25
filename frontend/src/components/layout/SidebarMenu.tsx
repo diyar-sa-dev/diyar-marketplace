@@ -79,7 +79,8 @@ const CATEGORIES = {
   },
 };
 
-import { DEFERRED_SIDEBAR_PROJECTS } from '../../data/deferred/sidebarDemoProjects.ts';
+import { useProjects } from '../../hooks/projects/useProjects.ts';
+import { useProject } from '../../hooks/projects/useProject.ts';
 
 const ROOM_BACKGROUNDS = [
   {
@@ -149,6 +150,12 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
   // Dialog / Subview states
   const [isProjectsOpen, setIsProjectsOpen] = useState(false);
+  const [selectedProjectSlug, setSelectedProjectSlug] = useState<string | null>(null);
+  const { data: projectsData, isLoading: projectsLoading, isError: projectsError, refetch: refetchProjects } =
+    useProjects({ per_page: 20 }, { enabled: isProjectsOpen });
+  const { data: selectedProject, isLoading: selectedProjectLoading } = useProject(selectedProjectSlug ?? undefined, {
+    enabled: isProjectsOpen && Boolean(selectedProjectSlug),
+  });
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [isAiStudioOpen, setIsAiStudioOpen] = useState(false);
 
@@ -435,7 +442,10 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
             {/* المشاريع */}
             <button
-              onClick={() => setIsProjectsOpen(true)}
+              onClick={() => {
+                setSelectedProjectSlug(null);
+                setIsProjectsOpen(true);
+              }}
               className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-right group animate-in slide-in-from-right duration-75 cursor-pointer"
             >
               <FolderGit2
@@ -571,7 +581,10 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         <div className="fixed inset-0 bg-black/80 z-100 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-250">
           <div className="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
             <button
-              onClick={() => setIsProjectsOpen(false)}
+              onClick={() => {
+                setIsProjectsOpen(false);
+                setSelectedProjectSlug(null);
+              }}
               className="absolute top-4 right-4 bg-white/90 hover:bg-white text-gray-500 hover:text-black p-2.5 rounded-full shadow-md z-10 transition-all border border-gray-200"
               title="إغلاق"
             >
@@ -591,46 +604,133 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-hide bg-gray-50">
-              {DEFERRED_SIDEBAR_PROJECTS.map((proj) => (
-                <div
-                  key={proj.id}
-                  className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col md:flex-row gap-5 hover:shadow-md transition-shadow"
-                >
-                  <div className="w-full md:w-2/5 h-44 md:h-auto relative shrink-0">
+              {selectedProjectSlug && selectedProject ? (
+                <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                  <div className="w-full h-56 md:h-72 relative">
                     <img
-                      src={proj.img}
-                      alt={proj.title}
+                      src={
+                        selectedProject.cover_image ??
+                        'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=800'
+                      }
+                      alt={selectedProject.title}
                       className="w-full h-full object-cover"
                       referrerPolicy="no-referrer"
                     />
-                    <span className="absolute bottom-3 right-3 bg-[#132624] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md">
-                      {proj.category}
-                    </span>
-                  </div>
-                  <div className="p-5 md:py-6 flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center gap-1.5 text-gray-400 text-xs mb-1">
-                        <MapPin size={12} className="text-diyar-brown" />
-                        <span>{proj.location}</span>
-                      </div>
-                      <h4 className="text-base font-bold text-diyar-dark mb-2.5 leading-snug">
-                        {proj.title}
-                      </h4>
-                      <p className="text-xs text-gray-500 leading-relaxed font-normal">
-                        {proj.desc}
-                      </p>
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
-                      <span className="text-[11px] text-gray-400 font-bold">
-                        2026 م • تم التسليم
+                    {selectedProject.category ? (
+                      <span className="absolute bottom-3 right-3 bg-[#132624] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md">
+                        {selectedProject.category}
                       </span>
-                      <button className="text-xs font-bold text-diyar-brown hover:text-[#132624] flex items-center gap-1 transition-colors">
-                        تفاصيل المخطط <ChevronLeft size={14} />
-                      </button>
+                    ) : null}
+                  </div>
+                  <div className="p-5 md:p-6 space-y-4">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedProjectSlug(null)}
+                      className="text-xs font-bold text-diyar-brown hover:text-[#132624] flex items-center gap-1 transition-colors"
+                    >
+                      <ChevronLeft size={14} /> العودة للمعرض
+                    </button>
+                    <div className="flex items-center gap-1.5 text-gray-400 text-xs">
+                      <MapPin size={12} className="text-diyar-brown" />
+                      <span>{selectedProject.location ?? '—'}</span>
+                    </div>
+                    <h4 className="text-lg font-bold text-diyar-dark leading-snug">{selectedProject.title}</h4>
+                    <p className="text-sm text-gray-500 leading-relaxed">{selectedProject.description}</p>
+                    {selectedProject.images && selectedProject.images.length > 0 ? (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+                        {selectedProject.images.map((image) => (
+                          <img
+                            key={image.id}
+                            src={image.image_url}
+                            alt={image.alt ?? selectedProject.title}
+                            className="w-full h-28 object-cover rounded-xl border border-gray-100"
+                            referrerPolicy="no-referrer"
+                          />
+                        ))}
+                      </div>
+                    ) : null}
+                    <div className="pt-4 border-t border-gray-50 text-[11px] text-gray-400 font-bold">
+                      {selectedProject.year ? `${selectedProject.year} م • ` : ''}تم التسليم
                     </div>
                   </div>
                 </div>
-              ))}
+              ) : selectedProjectSlug && selectedProjectLoading ? (
+                <div className="bg-white rounded-2xl p-8 text-center text-sm text-gray-500 animate-pulse">
+                  جاري تحميل تفاصيل المشروع...
+                </div>
+              ) : projectsLoading ? (
+                [...Array(3)].map((_, index) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 h-44 animate-pulse"
+                  />
+                ))
+              ) : projectsError ? (
+                <div className="bg-white rounded-2xl p-8 text-center">
+                  <p className="text-sm text-gray-500 mb-4">تعذر تحميل المشاريع.</p>
+                  <button
+                    type="button"
+                    onClick={() => void refetchProjects()}
+                    className="text-xs font-bold text-diyar-brown hover:text-[#132624]"
+                  >
+                    إعادة المحاولة
+                  </button>
+                </div>
+              ) : (projectsData?.items ?? []).length === 0 ? (
+                <div className="bg-white rounded-2xl p-8 text-center text-sm text-gray-500">
+                  لا توجد مشاريع منشورة حالياً.
+                </div>
+              ) : (
+                (projectsData?.items ?? []).map((proj) => (
+                  <div
+                    key={proj.id}
+                    className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col md:flex-row gap-5 hover:shadow-md transition-shadow"
+                  >
+                    <div className="w-full md:w-2/5 h-44 md:h-auto relative shrink-0">
+                      <img
+                        src={
+                          proj.cover_image ??
+                          'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=800'
+                        }
+                        alt={proj.title}
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                      {proj.category ? (
+                        <span className="absolute bottom-3 right-3 bg-[#132624] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md">
+                          {proj.category}
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="p-5 md:py-6 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-1.5 text-gray-400 text-xs mb-1">
+                          <MapPin size={12} className="text-diyar-brown" />
+                          <span>{proj.location ?? '—'}</span>
+                        </div>
+                        <h4 className="text-base font-bold text-diyar-dark mb-2.5 leading-snug">
+                          {proj.title}
+                        </h4>
+                        <p className="text-xs text-gray-500 leading-relaxed font-normal line-clamp-3">
+                          {proj.description}
+                        </p>
+                      </div>
+                      <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
+                        <span className="text-[11px] text-gray-400 font-bold">
+                          {proj.year ? `${proj.year} م • ` : ''}تم التسليم
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedProjectSlug(proj.slug)}
+                          className="text-xs font-bold text-diyar-brown hover:text-[#132624] flex items-center gap-1 transition-colors"
+                        >
+                          تفاصيل المخطط <ChevronLeft size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

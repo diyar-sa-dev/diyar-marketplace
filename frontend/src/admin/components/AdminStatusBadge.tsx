@@ -17,6 +17,8 @@ const STATUS_STYLES: Record<string, string> = {
   processing: 'bg-sky-50 text-sky-700 border-sky-100',
   cancelled: 'bg-gray-50 text-gray-600 border-gray-100',
   draft: 'bg-gray-50 text-gray-600 border-gray-100',
+  published: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+  archived: 'bg-amber-50 text-amber-700 border-amber-100',
   shipped: 'bg-indigo-50 text-indigo-700 border-indigo-100',
   delivered: 'bg-emerald-50 text-emerald-700 border-emerald-100',
 };

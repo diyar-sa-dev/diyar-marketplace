@@ -4,6 +4,9 @@ import { useQueries } from '@tanstack/react-query';
 import ProductCard from '../cards/ProductCard.tsx';
 import ServiceCard from '../cards/ServiceCard.tsx';
 import { useCategories, useProducts, useVendors } from '../../hooks/catalog/useCatalog.ts';
+import { useBlogArticles } from '../../hooks/blog/useBlogArticles.ts';
+import { formatBlogReadingTime } from '../../lib/formatBlogReadingTime.ts';
+import { formatLocaleDate } from '../../lib/intlLocale.ts';
 import { serviceKeys } from '../../hooks/services/queryKeys.ts';
 import { fetchServices } from '../../api/services.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
@@ -986,27 +989,11 @@ export function WhyChooseDiyar() {
 }
 
 export function DesignBlog() {
-  const { t, dir } = useLocale();
-  const posts = [
-    {
-      titleKey: 'home.blog.post1Title',
-      categoryKey: 'home.blog.post1Category',
-      dateKey: 'home.blog.post1Date',
-      img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=600',
-    },
-    {
-      titleKey: 'home.blog.post2Title',
-      categoryKey: 'home.blog.post2Category',
-      dateKey: 'home.blog.post2Date',
-      img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=600',
-    },
-    {
-      titleKey: 'home.blog.post3Title',
-      categoryKey: 'home.blog.post3Category',
-      dateKey: 'home.blog.post3Date',
-      img: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=600',
-    },
-  ] as const;
+  const { t, dir, locale } = useLocale();
+  const { data, isLoading } = useBlogArticles({ per_page: 3 });
+  const posts = data?.items ?? [];
+  const showEmpty = !isLoading && posts.length === 0;
+  const ViewAllIcon = dir === 'rtl' ? ChevronLeft : ArrowLeft;
 
   return (
     <div className="py-8 md:py-12 max-w-7xl mx-auto px-4 relative" dir={dir}>
@@ -1014,53 +1001,80 @@ export function DesignBlog() {
         <div className="text-center sm:text-start">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
             <span className="text-diyar-brown text-sm font-bold">{t('home.blog.badge')}</span>
-            <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-800">
-              {t('home.blog.comingSoon')}
-            </span>
           </div>
           <h2 className="text-2xl md:text-4xl font-sans font-bold text-diyar-dark">
             {t('home.blog.title')}
           </h2>
         </div>
-        <button
-          type="button"
-          disabled
-          className="inline-flex items-center justify-center gap-2 self-center rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-bold text-gray-400 cursor-not-allowed opacity-80"
+        <Link
+          to="/blog"
+          className="inline-flex items-center justify-center gap-2 self-center rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-diyar-brown hover:text-diyar-dark hover:border-diyar-brown transition-colors"
         >
           {t('home.blog.allArticles')}
-          <ArrowLeft size={18} className="rtl:-scale-x-100" />
-        </button>
+          <ViewAllIcon size={18} className="rtl:-scale-x-100" />
+        </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 opacity-85 pointer-events-none select-none">
-        {posts.map((post) => (
-          <article key={post.titleKey} className="group">
-            <div className="w-full h-56 md:h-60 rounded-2xl overflow-hidden mb-5 relative shadow-sm border border-gray-100">
-              <img
-                src={post.img}
-                alt={t(post.titleKey)}
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=60&w=600';
-                }}
-              />
-              <div className="absolute top-4 inset-e-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-diyar-brown shadow-sm">
-                {t(post.categoryKey)}
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-400 mb-3">
-              <span>{t(post.dateKey)}</span>
-              <span className="w-1.5 h-1.5 bg-gray-300 rounded-full" />
-              <span>{t('home.blog.readTime')}</span>
-            </div>
-            <h3 className="text-lg md:text-2xl font-bold font-sans text-diyar-dark leading-snug">
-              {t(post.titleKey)}
-            </h3>
-          </article>
-        ))}
-      </div>
+      {showEmpty ? (
+        <SectionEmptyState
+          title={t('blog.emptyTitle')}
+          description={t('blog.emptyDescription')}
+          browseLabel={t('home.blog.allArticles')}
+          browseTo="/blog"
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          {isLoading
+            ? [...Array(3)].map((_, index) => (
+                <div key={index} className="rounded-2xl overflow-hidden border border-gray-100">
+                  <div className="h-56 md:h-60 bg-gray-100 animate-pulse" />
+                  <div className="p-4 space-y-3">
+                    <div className="h-3 w-24 bg-gray-100 animate-pulse rounded" />
+                    <div className="h-6 w-full bg-gray-100 animate-pulse rounded" />
+                  </div>
+                </div>
+              ))
+            : posts.map((post) => (
+                <Link key={post.id} to={`/blog/${post.slug}`} className="group">
+                  <div className="w-full h-56 md:h-60 rounded-2xl overflow-hidden mb-5 relative shadow-sm border border-gray-100">
+                    <img
+                      src={
+                        post.hero_image ??
+                        'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=60&w=600'
+                      }
+                      alt={post.title}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=60&w=600';
+                      }}
+                    />
+                    {post.category?.name ? (
+                      <div className="absolute top-4 inset-e-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-diyar-brown shadow-sm">
+                        {post.category.name}
+                      </div>
+                    ) : null}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400 mb-3">
+                    <span>
+                      {post.published_at
+                        ? formatLocaleDate(post.published_at, locale, {
+                            month: 'long',
+                            day: 'numeric',
+                          })
+                        : '—'}
+                    </span>
+                    <span className="w-1.5 h-1.5 bg-gray-300 rounded-full" />
+                    <span>{formatBlogReadingTime(post.reading_time_minutes, locale)}</span>
+                  </div>
+                  <h3 className="text-lg md:text-2xl font-bold font-sans text-diyar-dark leading-snug group-hover:text-diyar-brown transition-colors">
+                    {post.title}
+                  </h3>
+                </Link>
+              ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -64,6 +64,7 @@ import LoyaltyPage from './pages/LoyaltyPage.tsx';
 import SearchPage from './pages/SearchPage.tsx';
 import { SearchAutocomplete } from './components/search/SearchAutocomplete.tsx';
 import BlogArticlePage from './pages/BlogArticlePage.tsx';
+import BlogPage from './pages/BlogPage.tsx';
 import ProfilePage from './pages/ProfilePage.tsx';
 import ServiceRequestsPage from './pages/ServiceRequestsPage.tsx';
 import ServiceBookingsPage from './pages/ServiceBookingsPage.tsx';
@@ -138,6 +139,8 @@ const AdminVendorDetailPage = lazy(() => import('./admin/pages/AdminVendorDetail
 const AdminProvidersPage = lazy(() => import('./admin/pages/AdminProvidersPage.tsx'));
 const AdminProviderDetailPage = lazy(() => import('./admin/pages/AdminProviderDetailPage.tsx'));
 const AdminCategoriesPage = lazy(() => import('./admin/pages/AdminCategoriesPage.tsx'));
+const AdminBlogArticlesPage = lazy(() => import('./admin/pages/AdminBlogArticlesPage.tsx'));
+const AdminProjectsPage = lazy(() => import('./admin/pages/AdminProjectsPage.tsx'));
 const AdminFinancePage = lazy(() => import('./admin/pages/AdminFinancePage.tsx'));
 const AdminAffiliateHubPage = lazy(() => import('./admin/pages/AdminAffiliateHubPage.tsx'));
 const AdminAuditPage = lazy(() => import('./admin/pages/AdminAuditPage.tsx'));
@@ -593,6 +596,8 @@ export default function App() {
             <Route path="providers/:providerId" element={<Suspense fallback={<AdminRouteFallback />}><AdminProviderDetailPage /></Suspense>} />
             <Route path="affiliate" element={<Suspense fallback={<AdminRouteFallback />}><AdminAffiliateHubPage /></Suspense>} />
             <Route path="categories" element={<Suspense fallback={<AdminRouteFallback />}><AdminCategoriesPage /></Suspense>} />
+            <Route path="blog/articles" element={<Suspense fallback={<AdminRouteFallback />}><AdminBlogArticlesPage /></Suspense>} />
+            <Route path="projects" element={<Suspense fallback={<AdminRouteFallback />}><AdminProjectsPage /></Suspense>} />
             <Route path="finance" element={<Suspense fallback={<AdminRouteFallback />}><AdminFinancePage /></Suspense>} />
             <Route path="payouts" element={<Navigate to="/admin/finance" replace />} />
             <Route path="transactions" element={<Navigate to="/admin/finance" replace />} />
@@ -682,7 +687,9 @@ export default function App() {
           />
           <Route path="/loyalty" element={<LoyaltyPage />} />
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/blog/:id" element={<BlogArticlePage />} />
+          <Route path="/blog/tag/:tagSlug" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogArticlePage />} />
+          <Route path="/blog" element={<BlogPage />} />
           <Route
             path="/profile"
             element={

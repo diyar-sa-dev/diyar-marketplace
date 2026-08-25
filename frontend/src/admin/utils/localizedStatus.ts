@@ -11,6 +11,8 @@ const STATUS_KEYS: Record<string, string> = {
   cancelled: 'admin.tables.cancelled',
   processing: 'admin.status.processing',
   draft: 'admin.status.draft',
+  published: 'admin.status.published',
+  archived: 'admin.status.archived',
   shipped: 'admin.status.shipped',
   delivered: 'admin.status.delivered',
   completed: 'admin.status.completed',

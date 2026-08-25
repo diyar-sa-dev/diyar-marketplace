@@ -186,8 +186,11 @@ class AppServiceProvider extends ServiceProvider
         if (extension_loaded('swoole') && class_exists(Octane::class)) {
             DevCommands::artisan(
                 'octane:start --server=swoole --host=127.0.0.1 --port=8000 --workers=4 --max-requests=500',
-                'octane',
+                'server',
             );
+        } else {
+            // Octane package registers `octane:start --watch` as `server`; override when Swoole is unavailable (Windows).
+            DevCommands::artisan('serve --host=127.0.0.1 --port=8000', 'server');
         }
     }
 
