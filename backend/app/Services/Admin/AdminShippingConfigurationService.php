@@ -7,15 +7,53 @@ use App\Models\ShippingMethod;
 use App\Models\ShippingRateRule;
 use App\Models\ShippingZone;
 use App\Models\VendorShippingProfile;
+use App\Services\Shipping\ShippingConfigCache;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 final class AdminShippingConfigurationService
 {
+    public function __construct(
+        private readonly ShippingConfigCache $configCache,
+    ) {}
+
     public function listCarriers(int $page, int $perPage): LengthAwarePaginator
     {
         return ShippingCarrier::query()->orderBy('sort_order')->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    public function listZones(int $page, int $perPage, ?string $carrierId = null): LengthAwarePaginator
+    {
+        return ShippingZone::query()
+            ->when($carrierId !== null, fn ($query) => $query->where('carrier_id', $carrierId))
+            ->orderByDesc('priority')
+            ->orderBy('name')
+            ->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    public function listMethods(int $page, int $perPage, ?string $carrierId = null): LengthAwarePaginator
+    {
+        return ShippingMethod::query()
+            ->when($carrierId !== null, fn ($query) => $query->where('carrier_id', $carrierId))
+            ->orderBy('name')
+            ->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    public function listRateRules(int $page, int $perPage, ?string $methodId = null): LengthAwarePaginator
+    {
+        return ShippingRateRule::query()
+            ->when($methodId !== null, fn ($query) => $query->where('shipping_method_id', $methodId))
+            ->orderBy('sort_order')
+            ->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    public function listVendorProfiles(int $page, int $perPage, ?string $vendorAccountId = null): LengthAwarePaginator
+    {
+        return VendorShippingProfile::query()
+            ->when($vendorAccountId !== null, fn ($query) => $query->where('vendor_account_id', $vendorAccountId))
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->paginate($perPage, ['*'], 'page', $page);
     }
 
     /**
@@ -29,7 +67,7 @@ final class AdminShippingConfigurationService
             'is_active' => $payload['is_active'] ?? true,
             'sort_order' => $payload['sort_order'] ?? 0,
         ]);
-        $this->flushShippingCache();
+        $this->bumpCache();
 
         return $carrier;
     }
@@ -42,9 +80,15 @@ final class AdminShippingConfigurationService
         $carrier->update(collect($payload)->only([
             'code', 'name', 'is_active', 'sort_order',
         ])->filter(fn ($v) => $v !== null)->all());
-        $this->flushShippingCache();
+        $this->bumpCache();
 
         return $carrier->fresh();
+    }
+
+    public function deleteCarrier(ShippingCarrier $carrier): void
+    {
+        $carrier->delete();
+        $this->bumpCache();
     }
 
     /**
@@ -62,7 +106,7 @@ final class AdminShippingConfigurationService
             'priority' => $payload['priority'] ?? 0,
             'is_active' => $payload['is_active'] ?? true,
         ]);
-        $this->flushShippingCache();
+        $this->bumpCache();
 
         return $zone;
     }
@@ -70,15 +114,50 @@ final class AdminShippingConfigurationService
     /**
      * @param  array<string, mixed>  $payload
      */
+    public function updateZone(ShippingZone $zone, array $payload): ShippingZone
+    {
+        $zone->update(collect($payload)->only([
+            'name', 'country_code', 'region', 'city', 'postal_prefix', 'priority', 'is_active',
+        ])->filter(fn ($v) => $v !== null)->all());
+        $this->bumpCache();
+
+        return $zone->fresh();
+    }
+
+    public function deleteZone(ShippingZone $zone): void
+    {
+        $zone->delete();
+        $this->bumpCache();
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
     public function createMethod(array $payload): ShippingMethod
     {
-        return ShippingMethod::query()->create([
+        $method = ShippingMethod::query()->create([
             'carrier_id' => $payload['carrier_id'],
             'code' => Str::slug((string) $payload['code']),
             'name' => $payload['name'],
             'method_type' => $payload['method_type'] ?? 'weight_tier',
             'is_active' => $payload['is_active'] ?? true,
         ]);
+        $this->bumpCache();
+
+        return $method;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    public function updateMethod(ShippingMethod $method, array $payload): ShippingMethod
+    {
+        $method->update(collect($payload)->only([
+            'code', 'name', 'method_type', 'is_active',
+        ])->filter(fn ($v) => $v !== null)->all());
+        $this->bumpCache();
+
+        return $method->fresh();
     }
 
     /**
@@ -102,7 +181,7 @@ final class AdminShippingConfigurationService
             'sort_order' => $payload['sort_order'] ?? 0,
             'is_active' => $payload['is_active'] ?? true,
         ]);
-        $this->flushShippingCache();
+        $this->bumpCache();
 
         return $rule;
     }
@@ -110,9 +189,30 @@ final class AdminShippingConfigurationService
     /**
      * @param  array<string, mixed>  $payload
      */
+    public function updateRateRule(ShippingRateRule $rule, array $payload): ShippingRateRule
+    {
+        $rule->update(collect($payload)->only([
+            'zone_id', 'vendor_account_id', 'min_weight_kg', 'max_weight_kg', 'min_subtotal',
+            'max_subtotal', 'rate', 'handling_fee', 'free_shipping_threshold', 'volumetric_divisor',
+            'delivery_estimate_days', 'sort_order', 'is_active',
+        ])->filter(fn ($v) => $v !== null)->all());
+        $this->bumpCache();
+
+        return $rule->fresh();
+    }
+
+    public function deleteRateRule(ShippingRateRule $rule): void
+    {
+        $rule->delete();
+        $this->bumpCache();
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
     public function createVendorProfile(array $payload): VendorShippingProfile
     {
-        return VendorShippingProfile::query()->create([
+        $profile = VendorShippingProfile::query()->create([
             'vendor_account_id' => $payload['vendor_account_id'],
             'shipping_method_id' => $payload['shipping_method_id'] ?? null,
             'name' => $payload['name'],
@@ -123,10 +223,33 @@ final class AdminShippingConfigurationService
             'free_shipping_threshold' => $payload['free_shipping_threshold'] ?? null,
             'delivery_estimate_days' => $payload['delivery_estimate_days'] ?? null,
         ]);
+        $this->bumpCache();
+
+        return $profile;
     }
 
-    private function flushShippingCache(): void
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    public function updateVendorProfile(VendorShippingProfile $profile, array $payload): VendorShippingProfile
     {
-        Cache::flush();
+        $profile->update(collect($payload)->only([
+            'shipping_method_id', 'name', 'is_default', 'is_active', 'volumetric_divisor',
+            'handling_fee', 'free_shipping_threshold', 'delivery_estimate_days',
+        ])->filter(fn ($v) => $v !== null)->all());
+        $this->bumpCache();
+
+        return $profile->fresh();
+    }
+
+    public function deleteVendorProfile(VendorShippingProfile $profile): void
+    {
+        $profile->delete();
+        $this->bumpCache();
+    }
+
+    private function bumpCache(): void
+    {
+        $this->configCache->bump();
     }
 }

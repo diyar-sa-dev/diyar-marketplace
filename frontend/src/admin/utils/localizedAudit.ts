@@ -68,6 +68,9 @@ const ACTION_KEYS: Record<string, string> = {
   'b2b_category.update': 'admin.audit.actions.b2bCategoryUpdate',
   'b2b_category.delete': 'admin.audit.actions.b2bCategoryDelete',
   'b2b_tag.create': 'admin.audit.actions.b2bTagCreate',
+  'chat.reports.list': 'admin.audit.actions.chatReportsList',
+  'chat.report.view': 'admin.audit.actions.chatReportView',
+  'chat.report.resolve': 'admin.audit.actions.chatReportResolve',
 };
 
 const RESOURCE_KEYS: Record<string, string> = {
@@ -93,6 +96,7 @@ const RESOURCE_KEYS: Record<string, string> = {
   'App\\Models\\B2bCompany': 'admin.audit.resources.b2bCompany',
   'App\\Models\\B2bCategory': 'admin.audit.resources.b2bCategory',
   'App\\Models\\B2bTag': 'admin.audit.resources.b2bTag',
+  'App\\Models\\ChatMessageReport': 'admin.audit.resources.chatMessageReport',
 };
 
 export const AUDIT_ACTION_FILTER_OPTIONS = Object.keys(ACTION_KEYS);

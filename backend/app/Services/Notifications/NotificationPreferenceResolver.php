@@ -28,12 +28,23 @@ final class NotificationPreferenceResolver
             return false;
         }
 
+        if ($channel === NotificationChannel::Sms) {
+            if (! config('diyar.notifications.sms.enabled', false)) {
+                return false;
+            }
+
+            $phone = $user->phone ?? null;
+
+            return is_string($phone) && trim($phone) !== '';
+        }
+
         if ($this->catalog->overridesPreferences($type)) {
             return match ($channel) {
                 NotificationChannel::Email => $type !== NotificationType::AuthOtp
                     || UserNotificationPreferences::emailEnabled($user),
                 NotificationChannel::InApp => true,
                 NotificationChannel::Push => $this->globalPushEnabled($user),
+                NotificationChannel::Sms => config('diyar.notifications.sms.enabled', false),
             };
         }
 
@@ -53,6 +64,7 @@ final class NotificationPreferenceResolver
             NotificationChannel::InApp => true,
             NotificationChannel::Email => UserNotificationPreferences::emailEnabled($user),
             NotificationChannel::Push => $this->globalPushEnabled($user),
+            NotificationChannel::Sms => config('diyar.notifications.sms.enabled', false),
         };
     }
 

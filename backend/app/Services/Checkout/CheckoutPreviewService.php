@@ -5,14 +5,18 @@ namespace App\Services\Checkout;
 use App\Enums\ShippingMethod;
 use App\Models\Address;
 use App\Models\Cart;
+use App\Models\ShippingRateRule;
 use App\Models\User;
 use App\Services\Cart\CartService;
 use App\Services\Cart\CartValidationService;
 use App\Services\Coupon\CheckoutCouponService;
+use App\Services\Coupon\CouponFreeShippingService;
 use App\Services\Profile\AddressService;
 use App\Services\Shipping\DTO\ShippingQuoteContext;
 use App\Services\Shipping\ShippingQuoteService;
+use App\Services\Shipping\ShippingRuleCatalog;
 use App\Services\Shipping\VendorShippingSettingsService;
+use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 final class CheckoutPreviewService
@@ -27,6 +31,8 @@ final class CheckoutPreviewService
         private readonly VatCalculator $vat,
         private readonly AssemblyCalculator $assembly,
         private readonly CheckoutCouponService $coupons,
+        private readonly CouponFreeShippingService $freeShippingCoupons,
+        private readonly ShippingRuleCatalog $shippingRules,
     ) {}
 
     /**
@@ -69,11 +75,14 @@ final class CheckoutPreviewService
         }
         $appliedCoupons = $this->coupons->resolveForVendorGroups($couponMap, $vendorSubtotals, $cartItemsByVendor, $user);
 
+        $rulesByMethod = $this->preloadShippingRules($groups);
+
         $vendorGroupResults = [];
         $orderSubtotal = '0.00';
         $orderShipping = '0.00';
         $orderAssembly = '0.00';
         $orderDiscount = '0.00';
+        $orderShippingDiscount = '0.00';
         $vendorVatAmounts = [];
 
         foreach ($groups as $vendorAccountId => $items) {
@@ -94,21 +103,50 @@ final class CheckoutPreviewService
                 $settings,
                 $method,
                 $subtotal,
-                new ShippingQuoteContext($address, $items, $vendorAccountId),
+                new ShippingQuoteContext(
+                    $address,
+                    $items,
+                    $vendorAccountId,
+                    $this->rulesForSettings($settings, $rulesByMethod),
+                ),
             );
             $assemblyCost = $this->assembly->calculate($subtotal, $items->count());
             $couponData = $appliedCoupons[$vendorAccountId] ?? null;
             $discount = $couponData['discount'] ?? '0.00';
             $coupon = $couponData['coupon'] ?? null;
-            $vatAmount = $this->vat->calculateForVendor($subtotal, $quote->shippingCost, $discount);
-            $vendorTotal = bcadd(bcadd(bcadd($subtotal, $quote->shippingCost, 2), $assemblyCost, 2), $vatAmount, 2);
+
+            $shippingCost = $quote->shippingCost;
+            $shippingDiscount = '0.00';
+            $freeShippingApplied = $quote->freeShippingApplied;
+
+            if ($coupon !== null) {
+                try {
+                    $freeShippingResult = $this->freeShippingCoupons->applyToVendorShipping(
+                        $coupon,
+                        $method,
+                        $quote->shippingCost,
+                    );
+                } catch (\InvalidArgumentException $exception) {
+                    throw new UnprocessableEntityHttpException($exception->getMessage());
+                }
+
+                $shippingCost = $freeShippingResult['shipping_cost'];
+                $shippingDiscount = $freeShippingResult['shipping_discount'];
+                if ($freeShippingResult['free_shipping_from_coupon']) {
+                    $freeShippingApplied = true;
+                }
+            }
+
+            $vatAmount = $this->vat->calculateForVendor($subtotal, $shippingCost, $discount);
+            $vendorTotal = bcadd(bcadd(bcadd($subtotal, $shippingCost, 2), $assemblyCost, 2), $vatAmount, 2);
             $vendorTotal = bcsub($vendorTotal, $discount, 2);
 
             $orderDiscount = bcadd($orderDiscount, $discount, 2);
+            $orderShippingDiscount = bcadd($orderShippingDiscount, $shippingDiscount, 2);
 
             $vendorVatAmounts[] = $vatAmount;
             $orderSubtotal = bcadd($orderSubtotal, $subtotal, 2);
-            $orderShipping = bcadd($orderShipping, $quote->shippingCost, 2);
+            $orderShipping = bcadd($orderShipping, $shippingCost, 2);
             $orderAssembly = bcadd($orderAssembly, $assemblyCost, 2);
 
             $vendorGroupResults[] = [
@@ -131,8 +169,9 @@ final class CheckoutPreviewService
                 'selected_method' => $method->value,
                 'shipping' => [
                     'method' => $quote->method->value,
-                    'cost' => $quote->shippingCost,
-                    'free_shipping_applied' => $quote->freeShippingApplied,
+                    'cost' => $shippingCost,
+                    'shipping_discount' => $shippingDiscount,
+                    'free_shipping_applied' => $freeShippingApplied,
                     'pickup_location_label' => $quote->pickupLocationLabel,
                     'delivery_estimate_days' => $quote->deliveryEstimateDays,
                     'billable_weight_kg' => $quote->billableWeightKg,
@@ -169,6 +208,7 @@ final class CheckoutPreviewService
             'totals' => [
                 'subtotal' => $orderSubtotal,
                 'shipping' => $orderShipping,
+                'shipping_discount' => $orderShippingDiscount,
                 'assembly' => $orderAssembly,
                 'discount' => $orderDiscount,
                 'vat' => $orderVat,
@@ -261,5 +301,37 @@ final class CheckoutPreviewService
                 'total' => null,
             ],
         ];
+    }
+
+    /**
+     * @param  Collection<string, Collection>  $groups
+     * @return Collection<string, Collection<int, ShippingRateRule>>
+     */
+    private function preloadShippingRules($groups)
+    {
+        $settings = $this->shippingSettings->batchForVendors($groups->keys()->map(fn ($id) => (string) $id)->all());
+        $methodIds = $settings
+            ->pluck('shippingProfile.shipping_method_id')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return $this->shippingRules->rulesForMethods($methodIds);
+    }
+
+    /**
+     * @param  Collection<string, Collection<int, ShippingRateRule>>  $rulesByMethod
+     */
+    private function rulesForSettings($settings, $rulesByMethod)
+    {
+        $settings->loadMissing('shippingProfile');
+        $methodId = $settings->shippingProfile?->shipping_method_id;
+
+        if ($methodId === null) {
+            return null;
+        }
+
+        return $rulesByMethod->get($methodId);
     }
 }

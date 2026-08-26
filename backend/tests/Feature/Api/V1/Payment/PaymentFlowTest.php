@@ -86,6 +86,7 @@ class PaymentFlowTest extends TestCase
         $response = $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment/submit", [
             'session_id' => FakePaymentGateway::$sessionId,
             'idempotency_key' => 'submit-key-1',
+            'payment_method' => 'mada',
         ]);
 
         $response->assertOk()
@@ -96,6 +97,23 @@ class PaymentFlowTest extends TestCase
             'status' => PaymentAttemptStatus::Submitted->value,
             'gateway_payment_url' => FakePaymentGateway::$paymentUrl,
         ]);
+    }
+
+    #[Test]
+    public function submit_rejects_invalid_payment_method(): void
+    {
+        $this->fakePaymentGateway();
+        [$customer, $order] = $this->createPayableOrder();
+
+        $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment", [
+            'idempotency_key' => 'invalid-method',
+        ])->assertOk();
+
+        $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment/submit", [
+            'session_id' => FakePaymentGateway::$sessionId,
+            'idempotency_key' => 'invalid-method',
+            'payment_method' => 'bitcoin',
+        ])->assertUnprocessable();
     }
 
     #[Test]
@@ -111,11 +129,13 @@ class PaymentFlowTest extends TestCase
         $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment/submit", [
             'session_id' => FakePaymentGateway::$sessionId,
             'idempotency_key' => 'replay-key',
+            'payment_method' => 'mada',
         ]);
 
         $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment/submit", [
             'session_id' => FakePaymentGateway::$sessionId,
             'idempotency_key' => 'replay-key',
+            'payment_method' => 'mada',
         ])->assertOk()->assertJsonPath('data.payment_url', FakePaymentGateway::$paymentUrl);
     }
 
@@ -144,6 +164,7 @@ class PaymentFlowTest extends TestCase
         $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment/submit", [
             'session_id' => FakePaymentGateway::$sessionId,
             'idempotency_key' => 'no-suppliers',
+            'payment_method' => 'mada',
         ]);
 
         $this->assertCount(1, $fake::$creationRequests);
@@ -236,6 +257,7 @@ class PaymentFlowTest extends TestCase
         $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment/submit", [
             'session_id' => FakePaymentGateway::$sessionId,
             'idempotency_key' => 'multi-vendor',
+            'payment_method' => 'mada',
         ])->assertOk();
 
         $this->assertSame([], $fake::$creationRequests[0]->suppliers);
@@ -243,6 +265,71 @@ class PaymentFlowTest extends TestCase
             number_format((float) $order->grand_total, 2, '.', ''),
             $fake::$creationRequests[0]->amount,
         );
+    }
+
+    #[Test]
+    public function customer_can_simulate_failed_then_success_after_submit(): void
+    {
+        $this->fakePaymentGateway();
+        [$customer, $order] = $this->createPayableOrder();
+
+        $init = $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment", [
+            'idempotency_key' => 'simulate-retry',
+        ])->assertOk();
+
+        $attemptId = $init->json('data.attempt_id');
+
+        $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment/submit", [
+            'session_id' => FakePaymentGateway::$sessionId,
+            'idempotency_key' => 'simulate-retry',
+            'payment_method' => 'mada',
+        ])->assertOk();
+
+        $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment/simulate", [
+            'attempt_id' => $attemptId,
+            'outcome' => 'failed',
+        ])->assertOk()
+            ->assertJsonPath('data.status', PaymentStatus::Pending->value);
+
+        $this->assertSame(PaymentStatus::Pending, $order->payment->fresh()->status);
+
+        $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment/simulate", [
+            'attempt_id' => $attemptId,
+            'outcome' => 'success',
+        ])->assertOk()
+            ->assertJsonPath('data.status', PaymentStatus::Paid->value);
+
+        $this->assertSame(PaymentStatus::Paid, $order->payment->fresh()->status);
+        $this->assertSame(OrderStatus::Confirmed, $order->fresh()->status);
+    }
+
+    #[Test]
+    public function simulate_success_recovers_from_stuck_failed_payment_state(): void
+    {
+        $this->fakePaymentGateway();
+        [$customer, $order] = $this->createPayableOrder();
+
+        $init = $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment", [
+            'idempotency_key' => 'stuck-failed',
+        ])->assertOk();
+
+        $attemptId = $init->json('data.attempt_id');
+
+        $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment/submit", [
+            'session_id' => FakePaymentGateway::$sessionId,
+            'idempotency_key' => 'stuck-failed',
+            'payment_method' => 'mada',
+        ])->assertOk();
+
+        $order->payment->update(['status' => PaymentStatus::Failed]);
+
+        $this->actingAs($customer)->postJson("/api/v1/orders/{$order->id}/payment/simulate", [
+            'attempt_id' => $attemptId,
+            'outcome' => 'success',
+        ])->assertOk()
+            ->assertJsonPath('data.status', PaymentStatus::Paid->value);
+
+        $this->assertSame(PaymentStatus::Paid, $order->payment->fresh()->status);
     }
 
     #[Test]

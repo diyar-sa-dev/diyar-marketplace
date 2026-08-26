@@ -51,6 +51,8 @@ export interface ProductCard {
   reviews_count?: number;
   user_saved?: boolean;
   is_own_store?: boolean;
+  /** Server-computed estimate from admin loyalty rules */
+  loyalty_points_estimate?: number;
 }
 
 export interface ProductColor {

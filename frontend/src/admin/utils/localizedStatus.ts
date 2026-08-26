@@ -17,8 +17,20 @@ const STATUS_KEYS: Record<string, string> = {
   shipped: 'admin.status.shipped',
   delivered: 'admin.status.delivered',
   completed: 'admin.status.completed',
+  failed: 'admin.status.failed',
+  expired: 'admin.status.expired',
+  refunded: 'admin.status.refunded',
+  partially_refunded: 'admin.status.partiallyRefunded',
+  refunding: 'admin.status.refunding',
+  authorized: 'admin.status.authorized',
+  requires_action: 'admin.status.requiresAction',
+  unknown: 'admin.status.unknown',
   open: 'admin.status.open',
   closed: 'admin.status.closed',
+  under_review: 'admin.chat.statuses.underReview',
+  dismissed: 'admin.chat.statuses.dismissed',
+  actioned: 'admin.chat.statuses.actioned',
+  resolved: 'admin.chat.statuses.resolved',
 };
 
 export function localizedStatusLabel(status: string | null | undefined, t: TranslateFn): string {

@@ -15,7 +15,7 @@ export const env = {
   reverb: {
     key: import.meta.env.VITE_REVERB_APP_KEY ?? '',
     host: import.meta.env.VITE_REVERB_HOST ?? 'localhost',
-    port: Number(import.meta.env.VITE_REVERB_PORT ?? 8080),
+    port: Number(import.meta.env.VITE_REVERB_PORT ?? 8090),
     scheme: import.meta.env.VITE_REVERB_SCHEME ?? 'http',
   },
 } as const;

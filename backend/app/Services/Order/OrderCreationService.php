@@ -2,6 +2,7 @@
 
 namespace App\Services\Order;
 
+use App\Enums\AnalyticsEventType;
 use App\Enums\CartStatus;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
@@ -19,6 +20,7 @@ use App\Models\Shipment;
 use App\Models\User;
 use App\Models\VendorOrder;
 use App\Services\Affiliate\AffiliateAttributionService;
+use App\Services\Analytics\AnalyticsEventRecorder;
 use App\Services\Cart\CartService;
 use App\Services\Catalog\InventoryService;
 use App\Services\Checkout\CheckoutPreviewService;
@@ -37,6 +39,7 @@ final class OrderCreationService
         private readonly InventoryService $inventory,
         private readonly SelfPurchaseGuard $selfPurchase,
         private readonly AffiliateAttributionService $affiliateAttribution,
+        private readonly AnalyticsEventRecorder $analyticsEvents,
     ) {}
 
     /**
@@ -168,6 +171,7 @@ final class OrderCreationService
                 'subtotal' => $group['subtotal'],
                 'shipping_method' => $group['shipping']['method'],
                 'shipping_cost' => $group['shipping']['cost'],
+                'shipping_discount_amount' => $group['shipping']['shipping_discount'] ?? '0.00',
                 'pickup_location_label' => $group['shipping']['pickup_location_label'],
                 'free_shipping_applied' => $group['shipping']['free_shipping_applied'],
                 'assembly_cost' => $group['assembly'],
@@ -235,8 +239,18 @@ final class OrderCreationService
 
         $this->reconciliation->assertOrderInvariants($order);
 
+        $order->loadMissing('user');
+
         DB::afterCommit(function () use ($order): void {
             event(new OrderCreated($order));
+
+            $this->analyticsEvents->record(
+                AnalyticsEventType::CheckoutCompleted,
+                user: $order->user,
+                subjectType: 'order',
+                subjectId: $order->id,
+                payload: ['order_number' => $order->order_number],
+            );
 
             foreach ($order->vendorOrders as $vendorOrder) {
                 event(new VendorOrderReceived($vendorOrder));

@@ -11,14 +11,12 @@ final class NotificationService
     public function __construct(
         private readonly NotificationRealtimeBroadcaster $realtime,
         private readonly NotificationCategoryRegistry $registry,
+        private readonly NotificationUnreadCounterService $unreadCounter,
     ) {}
 
     public function unreadCount(User $user): int
     {
-        return UserNotification::query()
-            ->where('user_id', $user->id)
-            ->whereNull('read_at')
-            ->count();
+        return $this->unreadCounter->get($user);
     }
 
     /**
@@ -61,12 +59,15 @@ final class NotificationService
         $notification = $this->findOwned($user, $notificationId);
         if ($notification->read_at === null) {
             $notification->update(['read_at' => now()]);
+            $unread = $this->unreadCounter->decrement($user);
+        } else {
+            $unread = $this->unreadCounter->get($user);
         }
 
         $fresh = $notification->fresh();
         $this->realtime->readStateChanged(
             $user->id,
-            $this->unreadCount($user),
+            $unread,
             'read',
             $fresh?->id,
         );
@@ -81,6 +82,7 @@ final class NotificationService
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
+        $this->unreadCounter->markAllRead($user);
         $this->realtime->readStateChanged($user->id, 0, 'read_all');
 
         return $count;
@@ -95,7 +97,7 @@ final class NotificationService
         if ($wasUnread) {
             $this->realtime->readStateChanged(
                 $user->id,
-                $this->unreadCount($user),
+                $this->unreadCounter->decrement($user),
                 'deleted',
                 $notificationId,
             );
@@ -108,6 +110,7 @@ final class NotificationService
             ->where('user_id', $user->id)
             ->delete();
 
+        $this->unreadCounter->markAllRead($user);
         $this->realtime->readStateChanged($user->id, 0, 'deleted_all');
 
         return $count;

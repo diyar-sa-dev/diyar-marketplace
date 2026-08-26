@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Log;
 
 final class NotificationRealtimeBroadcaster
 {
+    public function __construct(
+        private readonly NotificationUnreadCounterService $unreadCounter,
+    ) {}
+
     public function notificationCreated(UserNotification $notification): void
     {
         if (! config('diyar.notifications.realtime_enabled', true)) {
@@ -20,10 +24,10 @@ final class NotificationRealtimeBroadcaster
         }
 
         try {
-            $unreadCount = UserNotification::query()
-                ->where('user_id', $notification->user_id)
-                ->whereNull('read_at')
-                ->count();
+            $user = $notification->user;
+            $unreadCount = $user !== null
+                ? $this->unreadCounter->get($user)
+                : $this->unreadCounter->reconcile((string) $notification->user_id);
 
             broadcast(new UserNotificationCreated($notification, $unreadCount));
             Log::info('notifications.realtime.created', [

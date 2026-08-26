@@ -1154,7 +1154,7 @@ export function AppPromo() {
 
         <div className="w-full md:w-1/2 relative min-h-57.5 md:min-h-65 flex justify-center items-end mt-4 md:mt-0">
           <img
-            src="/app mockup.png"
+            src="/app-mockup.png"
             alt={t('home.appPromo.mockupAlt')}
             referrerPolicy="no-referrer"
             className="w-[62%] sm:w-[46%] md:w-auto md:h-[120%] md:absolute md:bottom-0 md:left-1/2 md:-translate-x-1/2 max-w-105 h-auto object-contain z-20 drop-shadow-2xl hover:scale-[1.02] transition-transform duration-500"

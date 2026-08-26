@@ -2,6 +2,7 @@
 
 namespace App\Services\Payments;
 
+use App\Enums\AnalyticsEventType;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentAttemptStatus;
 use App\Enums\PaymentStatus;
@@ -14,9 +15,11 @@ use App\Models\Payment;
 use App\Models\PaymentAttempt;
 use App\Services\Catalog\InventoryService;
 use App\Services\Coupon\VendorCouponUsageService;
+use App\Services\Analytics\AnalyticsEventRecorder;
 use App\Services\Finance\FinancialPostingService;
 use App\Services\Order\OrderStateService;
 use App\Services\Order\PaymentStateService;
+use App\Services\Payments\PaymentOutboxService;
 use Illuminate\Support\Facades\DB;
 
 final class PaymentFinalizationService
@@ -28,6 +31,8 @@ final class PaymentFinalizationService
         private readonly PaymentAllocationSnapshotService $allocations,
         private readonly FinancialPostingService $financialPosting,
         private readonly VendorCouponUsageService $couponUsages,
+        private readonly PaymentOutboxService $paymentOutbox,
+        private readonly AnalyticsEventRecorder $analyticsEvents,
     ) {}
 
     public function finalizePaid(Payment $payment, ?string $gatewayPaymentId, ?string $gatewayInvoiceId): Payment
@@ -45,13 +50,15 @@ final class PaymentFinalizationService
             $this->paymentStates->transition($payment, PaymentStatus::Paid, array_filter([
                 'gateway_payment_id' => $gatewayPaymentId,
                 'gateway_invoice_id' => $gatewayInvoiceId,
-            ]));
+            ]), source: 'finalization');
 
             $this->syncAttempts($payment, PaymentAttemptStatus::Paid);
 
             if ($order->status === OrderStatus::Pending) {
                 $this->orderStates->confirm($order);
             }
+
+            $order->loadMissing('user');
 
             $this->finalizeInventory($order);
 
@@ -60,7 +67,26 @@ final class PaymentFinalizationService
             $this->couponUsages->recordForPaidOrder($order->fresh(['vendorOrders']));
 
             $payment = $payment->fresh();
-            DB::afterCommit(fn () => event(new PaymentSucceeded($payment)));
+            DB::afterCommit(function () use ($payment, $order): void {
+                $this->paymentOutbox->publish(
+                    'payment.paid',
+                    (string) $payment->id,
+                    [
+                        'payment_id' => $payment->id,
+                        'order_id' => $payment->order_id,
+                        'status' => PaymentStatus::Paid->value,
+                    ],
+                    idempotencyKey: 'payment.paid:'.$payment->id,
+                );
+                $this->analyticsEvents->record(
+                    AnalyticsEventType::PaymentCompleted,
+                    user: $order->user,
+                    subjectType: 'payment',
+                    subjectId: $payment->id,
+                    payload: ['order_id' => $payment->order_id],
+                );
+                event(new PaymentSucceeded($payment));
+            });
 
             return $payment;
         });
@@ -80,7 +106,7 @@ final class PaymentFinalizationService
 
         $payment = $this->paymentStates->transition($payment, $target, array_filter([
             'failure_reason' => $reason,
-        ]));
+        ]), source: 'finalization');
 
         $this->syncAttempts($payment, match ($target) {
             PaymentStatus::Expired => PaymentAttemptStatus::Expired,
@@ -99,7 +125,20 @@ final class PaymentFinalizationService
         }
 
         $payment = $payment->fresh();
-        DB::afterCommit(fn () => event(new PaymentFailed($payment, $reason)));
+        DB::afterCommit(function () use ($payment, $reason): void {
+            $this->paymentOutbox->publish(
+                'payment.failed',
+                (string) $payment->id,
+                [
+                    'payment_id' => $payment->id,
+                    'order_id' => $payment->order_id,
+                    'status' => $payment->status->value,
+                    'reason' => $reason,
+                ],
+                idempotencyKey: 'payment.failed:'.$payment->id.':'.$payment->status->value,
+            );
+            event(new PaymentFailed($payment, $reason));
+        });
 
         return $payment;
     }

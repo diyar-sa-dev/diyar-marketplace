@@ -143,11 +143,19 @@ return [
             $explicit = env('DIYAR_PAYMENT_USE_FAKE_GATEWAY');
 
             if ($explicit === null || $explicit === '') {
+                $provider = strtolower((string) env('DIYAR_PAYMENT_PROVIDER', ''));
+
+                if ($provider === 'fake') {
+                    return true;
+                }
+
                 return in_array(env('APP_ENV', 'production'), ['local', 'testing'], true);
             }
 
             return filter_var($explicit, FILTER_VALIDATE_BOOL);
         })(),
+        'fake_scenario' => env('DIYAR_FAKE_PAYMENT_SCENARIO', 'success'),
+        'webhook_async' => filter_var(env('DIYAR_PAYMENT_WEBHOOK_ASYNC', true), FILTER_VALIDATE_BOOL),
     ],
 
     'coupons' => [
@@ -299,6 +307,25 @@ return [
             'max_time' => (int) env('DIYAR_NOTIFICATIONS_WORKER_MAX_TIME', 3600),
             'memory' => (int) env('DIYAR_NOTIFICATIONS_WORKER_MEMORY', 128),
             'sleep' => (int) env('DIYAR_NOTIFICATIONS_WORKER_SLEEP', 3),
+        ],
+        'retention' => [
+            'enabled' => filter_var(env('DIYAR_NOTIFICATIONS_RETENTION_ENABLED', true), FILTER_VALIDATE_BOOL),
+            'read_days' => (int) env('DIYAR_NOTIFICATIONS_READ_RETENTION_DAYS', 120),
+            'delivery_days' => (int) env('DIYAR_NOTIFICATIONS_DELIVERY_RETENTION_DAYS', 180),
+            'chunk_size' => (int) env('DIYAR_NOTIFICATIONS_PRUNE_CHUNK', 500),
+        ],
+        'cache' => [
+            'prefix' => 'diyar:notifications:',
+            'unread_ttl' => (int) env('DIYAR_NOTIFICATIONS_UNREAD_CACHE_TTL', 300),
+        ],
+        'aggregation' => [
+            'window_hours' => (int) env('DIYAR_NOTIFICATIONS_AGGREGATION_HOURS', 24),
+            'types' => [
+                'review.created',
+            ],
+        ],
+        'sms' => [
+            'enabled' => filter_var(env('DIYAR_NOTIFICATIONS_SMS_ENABLED', false), FILTER_VALIDATE_BOOL),
         ],
         'push' => [
             'driver' => env('DIYAR_PUSH_DRIVER', 'log'),
@@ -457,6 +484,8 @@ return [
             'system.alert' => 'system',
             'system.promotion' => 'promotions',
             'chat.message_received' => 'chat',
+            'chat.report_resolved' => 'chat',
+            'chat.moderation_action_taken' => 'chat',
             'affiliate.commission_available' => 'payouts',
             'affiliate.payout_requested' => 'payouts',
             'b2b.company_published' => 'b2b',
@@ -468,12 +497,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Domain outbox (Stage 26.6)
+    |--------------------------------------------------------------------------
+    */
+
+    'outbox' => [
+        'enabled' => filter_var(env('DIYAR_OUTBOX_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'max_attempts' => (int) env('DIYAR_OUTBOX_MAX_ATTEMPTS', 8),
+        'backoff' => [5, 15, 30, 60, 120, 300, 600, 1200],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Chat (Stage 17)
     |--------------------------------------------------------------------------
     */
 
     'chat' => [
         'realtime_enabled' => filter_var(env('DIYAR_CHAT_REALTIME', true), FILTER_VALIDATE_BOOL),
+        'queues' => [
+            'realtime' => env('DIYAR_CHAT_QUEUE', 'chat'),
+            'typing' => env('DIYAR_CHAT_QUEUE_LOW', 'chat-low'),
+        ],
         'cache' => [
             'prefix' => env('DIYAR_CHAT_CACHE_PREFIX', 'diyar:chat:'),
             'unread_ttl' => (int) env('DIYAR_CHAT_UNREAD_CACHE_TTL', 300),
@@ -575,6 +620,16 @@ return [
         'reviews_enabled' => filter_var(env('DIYAR_FEATURE_REVIEWS_ENABLED', true), FILTER_VALIDATE_BOOL),
         'services_enabled' => filter_var(env('DIYAR_FEATURE_SERVICES_ENABLED', true), FILTER_VALIDATE_BOOL),
         'coupons_enabled' => filter_var(env('DIYAR_FEATURE_COUPONS_ENABLED', true), FILTER_VALIDATE_BOOL),
+        // Stage 26.8 — Admin control plane
+        'admin_operational_dashboard_enabled' => filter_var(env('DIYAR_ADMIN_OPERATIONAL_DASHBOARD_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'admin_health_center_enabled' => filter_var(env('DIYAR_ADMIN_HEALTH_CENTER_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'bulk_exports_enabled' => filter_var(env('DIYAR_BULK_EXPORTS_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'bulk_actions_enabled' => filter_var(env('DIYAR_BULK_ACTIONS_ENABLED', false), FILTER_VALIDATE_BOOL),
+        // Stage 26.9 — Advanced search
+        'advanced_search_enabled' => filter_var(env('DIYAR_ADVANCED_SEARCH_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'search_engine_enabled' => filter_var(env('DIYAR_SEARCH_ENGINE_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'search_fallback_enabled' => filter_var(env('DIYAR_SEARCH_FALLBACK_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'search_analytics_enabled' => filter_var(env('DIYAR_SEARCH_ANALYTICS_ENABLED', true), FILTER_VALIDATE_BOOL),
     ],
 
     /*
@@ -614,5 +669,19 @@ return [
     'loadtest' => [
         'enabled' => filter_var(env('DIYAR_LOADTEST_MODE', false), FILTER_VALIDATE_BOOL),
         'health_probe_cache_seconds' => (int) env('DIYAR_HEALTH_PROBE_CACHE_SECONDS', 0),
+    ],
+
+    'analytics' => [
+        'events_enabled' => filter_var(env('DIYAR_ANALYTICS_EVENTS_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'view_dedupe_seconds' => (int) env('DIYAR_ANALYTICS_VIEW_DEDUPE_SECONDS', 1800),
+        'checkout_dedupe_seconds' => (int) env('DIYAR_ANALYTICS_CHECKOUT_DEDUPE_SECONDS', 3600),
+        'cache' => [
+            'kpi_seconds' => (int) env('DIYAR_ANALYTICS_CACHE_KPI_SECONDS', 60),
+            'chart_seconds' => (int) env('DIYAR_ANALYTICS_CACHE_CHART_SECONDS', 180),
+            'platform_seconds' => (int) env('DIYAR_ANALYTICS_CACHE_PLATFORM_SECONDS', 180),
+            'funnel_seconds' => (int) env('DIYAR_ANALYTICS_CACHE_FUNNEL_SECONDS', 300),
+            'cohort_seconds' => (int) env('DIYAR_ANALYTICS_CACHE_COHORT_SECONDS', 900),
+            'search_seconds' => (int) env('DIYAR_ANALYTICS_CACHE_SEARCH_SECONDS', 300),
+        ],
     ],
 ];

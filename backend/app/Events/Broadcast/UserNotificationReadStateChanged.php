@@ -4,11 +4,11 @@ namespace App\Events\Broadcast;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-final class UserNotificationReadStateChanged implements ShouldBroadcastNow
+final class UserNotificationReadStateChanged implements ShouldBroadcast
 {
     use Dispatchable;
     use InteractsWithSockets;
@@ -34,6 +34,11 @@ final class UserNotificationReadStateChanged implements ShouldBroadcastNow
     public function broadcastAs(): string
     {
         return 'notification.read_state';
+    }
+
+    public function broadcastQueue(): string
+    {
+        return (string) config('diyar.notifications.queues.high', 'notifications-high');
     }
 
     /**

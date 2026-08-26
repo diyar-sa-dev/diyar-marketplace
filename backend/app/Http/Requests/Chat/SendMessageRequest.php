@@ -18,7 +18,7 @@ class SendMessageRequest extends FormRequest
     {
         return [
             'body' => ['nullable', 'string', 'max:4000'],
-            'idempotency_key' => ['nullable', 'string', 'max:128'],
+            'idempotency_key' => ['required', 'string', 'max:128'],
             'reply_to_message_id' => ['nullable', 'uuid'],
             'attachment' => ['nullable', 'file', 'max:5120', 'mimes:jpg,jpeg,png,webp'],
         ];

@@ -5,6 +5,7 @@ namespace App\Events\Domain;
 use App\Contracts\Notifications\TriggersNotification;
 use App\Enums\NotificationType;
 use App\Models\Payment;
+use App\Support\Notifications\NotificationUrlSupport;
 use App\Services\Notifications\NotificationContextBuilder;
 use App\Services\Notifications\NotificationIntent;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -32,10 +33,11 @@ final class PaymentSucceeded implements TriggersNotification
             recipients: array_filter([$order?->user]),
             payload: [
                 'order_number' => $order?->order_number,
+                'order_id' => $this->payment->order_id,
                 'amount' => (string) $this->payment->amount,
                 'products' => $products,
                 'detail_lines' => $order !== null ? $builder->orderDetailLines($order) : [],
-                'action_url' => rtrim((string) config('diyar.frontend_url'), '/').'/orders/'.$this->payment->order_id,
+                'action_url' => NotificationUrlSupport::orderUrl((string) $this->payment->order_id, 'paid'),
             ],
             entityType: 'payment',
             entityId: $this->payment->id,

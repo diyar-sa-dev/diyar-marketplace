@@ -47,6 +47,10 @@ export function isApiErrorDetail(error: unknown): error is ApiErrorDetail {
 }
 
 export function parseApiError(error: unknown, locale: Locale = readStoredLocale()): ApiErrorDetail {
+  if (error == null) {
+    return { message: clientMessage(locale, 'errors.unexpected'), status: 0 };
+  }
+
   if (isApiErrorDetail(error)) {
     return error;
   }
@@ -145,6 +149,10 @@ export function isNotFound(error: ApiErrorDetail): boolean {
 }
 
 export function isNotFoundError(error: unknown, locale: Locale = readStoredLocale()): boolean {
+  if (error == null) {
+    return false;
+  }
+
   return isNotFound(parseApiError(error, locale));
 }
 

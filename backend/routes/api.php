@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminB2bCompanyController;
 use App\Http\Controllers\Api\V1\Admin\AdminBlogArticleController;
 use App\Http\Controllers\Api\V1\Admin\AdminBlogCategoryController;
 use App\Http\Controllers\Api\V1\Admin\AdminBlogTagController;
+use App\Http\Controllers\Api\V1\Admin\AdminChatController;
 use App\Http\Controllers\Api\V1\Admin\AdminCmsMediaController;
 use App\Http\Controllers\Api\V1\Admin\AdminCouponController;
 use App\Http\Controllers\Api\V1\Admin\AdminDashboardController;
@@ -19,7 +20,9 @@ use App\Http\Controllers\Api\V1\Admin\AdminFinanceController;
 use App\Http\Controllers\Api\V1\Admin\AdminFinancialTransactionController;
 use App\Http\Controllers\Api\V1\Admin\AdminInventoryController;
 use App\Http\Controllers\Api\V1\Admin\AdminLoyaltyController;
+use App\Http\Controllers\Api\V1\Admin\AdminNotificationBroadcastController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
+use App\Http\Controllers\Api\V1\Admin\AdminOperationalHealthController;
 use App\Http\Controllers\Api\V1\Admin\AdminOrderController;
 use App\Http\Controllers\Api\V1\Admin\AdminPaymentController;
 use App\Http\Controllers\Api\V1\Admin\AdminPayoutController;
@@ -27,6 +30,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminPermissionController;
 use App\Http\Controllers\Api\V1\Admin\AdminProductController;
 use App\Http\Controllers\Api\V1\Admin\AdminProjectController;
 use App\Http\Controllers\Api\V1\Admin\AdminProviderAccountController;
+use App\Http\Controllers\Api\V1\Admin\AdminAnalyticsController;
 use App\Http\Controllers\Api\V1\Admin\AdminReportController;
 use App\Http\Controllers\Api\V1\Admin\AdminReturnController;
 use App\Http\Controllers\Api\V1\Admin\AdminReviewController;
@@ -76,6 +80,7 @@ use App\Http\Controllers\Api\V1\Dashboard\PartnerB2bCompanyController;
 use App\Http\Controllers\Api\V1\Dashboard\PartnerB2bLeadController;
 use App\Http\Controllers\Api\V1\Dashboard\PartnerB2bReviewController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorCouponController;
+use App\Http\Controllers\Api\V1\Dashboard\VendorAnalyticsController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorDashboardController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorFinanceController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorInventoryController;
@@ -91,11 +96,13 @@ use App\Http\Controllers\Api\V1\Dashboard\VendorShippingSettingsController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorTeamController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorTeamInviteController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\LiveHealthController;
 use App\Http\Controllers\Api\V1\Identity\OwnershipController;
 use App\Http\Controllers\Api\V1\Loyalty\LoyaltyController;
 use App\Http\Controllers\Api\V1\Order\OrderController;
 use App\Http\Controllers\Api\V1\Order\OrderStoreReviewController;
 use App\Http\Controllers\Api\V1\Payment\PaymentController;
+use App\Http\Controllers\Api\V1\Payment\FakePaymentWebhookController;
 use App\Http\Controllers\Api\V1\Payment\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\Platform\PlatformCommerceController;
 use App\Http\Controllers\Api\V1\Platform\PlatformContactController;
@@ -111,6 +118,7 @@ use App\Http\Controllers\Api\V1\ReadinessController;
 use App\Http\Controllers\Api\V1\Return\ReturnController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\DirectServiceBookingController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderController as ServiceProviderController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderAnalyticsController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderFinanceController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderFollowController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderReviewController;
@@ -127,13 +135,15 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes  Version 1
+| API Routes Â Version 1
 |--------------------------------------------------------------------------
 |
 | All V1 endpoints are prefixed with /api/v1 (see bootstrap/app.php).
 |
 */
 
+Route::get('/health/live', LiveHealthController::class)->name('api.v1.health.live');
+Route::get('/health/ready', ReadinessController::class)->name('api.v1.health.ready');
 Route::get('/health', HealthController::class)->name('api.v1.health');
 Route::get('/readiness', ReadinessController::class)->name('api.v1.readiness');
 
@@ -154,6 +164,10 @@ Route::get('/platform/commerce', [PlatformCommerceController::class, 'show'])
 Route::post('/webhooks/payments/myfatoorah', [PaymentWebhookController::class, 'myfatoorah'])
     ->middleware('throttle:webhooks')
     ->name('api.v1.webhooks.payments.myfatoorah');
+
+Route::post('/webhooks/payments/fake', FakePaymentWebhookController::class)
+    ->middleware('throttle:webhooks')
+    ->name('api.v1.webhooks.payments.fake');
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{slug}', [CategoryController::class, 'show']);
@@ -233,6 +247,9 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
 
     Route::get('/dashboard', [AdminDashboardController::class, 'show'])
         ->middleware('admin.permission:panel.access');
+
+    Route::get('/system/health', [AdminOperationalHealthController::class, 'show'])
+        ->middleware('admin.permission:system.health.view');
 
     Route::get('/users', [AdminUserController::class, 'index'])
         ->middleware('admin.permission:users.view');
@@ -393,21 +410,67 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
         ->middleware('admin.permission:shipping.manage');
     Route::patch('/shipping/carriers/{carrier}', [AdminShippingConfigurationController::class, 'updateCarrier'])
         ->middleware('admin.permission:shipping.manage');
+    Route::delete('/shipping/carriers/{carrier}', [AdminShippingConfigurationController::class, 'destroyCarrier'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::get('/shipping/zones', [AdminShippingConfigurationController::class, 'zones'])
+        ->middleware('admin.permission:shipping.view');
     Route::post('/shipping/zones', [AdminShippingConfigurationController::class, 'storeZone'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::patch('/shipping/zones/{zone}', [AdminShippingConfigurationController::class, 'updateZone'])
         ->middleware('admin.permission:shipping.manage');
     Route::delete('/shipping/zones/{zone}', [AdminShippingConfigurationController::class, 'destroyZone'])
         ->middleware('admin.permission:shipping.manage');
+    Route::get('/shipping/methods', [AdminShippingConfigurationController::class, 'methods'])
+        ->middleware('admin.permission:shipping.view');
+    Route::post('/shipping/methods', [AdminShippingConfigurationController::class, 'storeMethod'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::patch('/shipping/methods/{method}', [AdminShippingConfigurationController::class, 'updateMethod'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::get('/shipping/rate-rules', [AdminShippingConfigurationController::class, 'rateRules'])
+        ->middleware('admin.permission:shipping.view');
     Route::post('/shipping/rate-rules', [AdminShippingConfigurationController::class, 'storeRateRule'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::patch('/shipping/rate-rules/{rateRule}', [AdminShippingConfigurationController::class, 'updateRateRule'])
         ->middleware('admin.permission:shipping.manage');
     Route::delete('/shipping/rate-rules/{rateRule}', [AdminShippingConfigurationController::class, 'destroyRateRule'])
         ->middleware('admin.permission:shipping.manage');
+    Route::get('/shipping/vendor-profiles', [AdminShippingConfigurationController::class, 'vendorProfiles'])
+        ->middleware('admin.permission:shipping.view');
     Route::post('/shipping/vendor-profiles', [AdminShippingConfigurationController::class, 'storeVendorProfile'])
         ->middleware('admin.permission:shipping.manage');
+    Route::patch('/shipping/vendor-profiles/{profile}', [AdminShippingConfigurationController::class, 'updateVendorProfile'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::delete('/shipping/vendor-profiles/{profile}', [AdminShippingConfigurationController::class, 'destroyVendorProfile'])
+        ->middleware('admin.permission:shipping.manage');
 
+    Route::get('/notifications/deliveries', [AdminNotificationController::class, 'deliveries'])
+        ->middleware('admin.permission:notifications.view');
+    Route::post('/notifications/deliveries/{delivery}/retry', [AdminNotificationController::class, 'retryDelivery'])
+        ->middleware('admin.permission:notifications.manage');
+    Route::get('/notifications/broadcasts', [AdminNotificationBroadcastController::class, 'index'])
+        ->middleware('admin.permission:notifications.view');
+    Route::post('/notifications/broadcasts', [AdminNotificationBroadcastController::class, 'store'])
+        ->middleware('admin.permission:notifications.manage')
+        ->middleware('throttle:admin-broadcasts');
+    Route::get('/notifications/broadcasts/{broadcast}', [AdminNotificationBroadcastController::class, 'show'])
+        ->middleware('admin.permission:notifications.view');
     Route::get('/notifications', [AdminNotificationController::class, 'index'])
         ->middleware('admin.permission:notifications.view');
     Route::get('/notifications/{notification}', [AdminNotificationController::class, 'show'])
         ->middleware('admin.permission:notifications.view');
+
+    Route::get('/chat/conversations', [AdminChatController::class, 'indexConversations'])
+        ->middleware('admin.permission:chat.view');
+    Route::get('/chat/conversations/{conversation}', [AdminChatController::class, 'showConversation'])
+        ->middleware('admin.permission:chat.view');
+    Route::get('/chat/conversations/{conversation}/messages', [AdminChatController::class, 'indexMessages'])
+        ->middleware('admin.permission:chat.view');
+    Route::get('/chat/reports', [AdminChatController::class, 'indexReports'])
+        ->middleware('admin.permission:chat.view');
+    Route::get('/chat/reports/{report}', [AdminChatController::class, 'showReport'])
+        ->middleware('admin.permission:chat.view');
+    Route::patch('/chat/reports/{report}', [AdminChatController::class, 'updateReport'])
+        ->middleware('admin.permission:chat.moderate');
 
     Route::get('/transactions', [AdminFinancialTransactionController::class, 'index'])
         ->middleware('admin.permission:balances.view');
@@ -421,6 +484,21 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
 
     Route::get('/reports/summary', [AdminReportController::class, 'summary'])
         ->middleware('admin.permission:panel.access');
+
+    Route::prefix('analytics')->group(function () {
+        Route::get('/overview', [AdminAnalyticsController::class, 'overview'])
+            ->middleware('admin.permission:analytics.view');
+        Route::get('/sales', [AdminAnalyticsController::class, 'sales'])
+            ->middleware('admin.permission:analytics.view');
+        Route::get('/funnel', [AdminAnalyticsController::class, 'funnel'])
+            ->middleware('admin.permission:analytics.view');
+        Route::get('/cohorts', [AdminAnalyticsController::class, 'cohorts'])
+            ->middleware('admin.permission:analytics.view');
+        Route::get('/search', [AdminAnalyticsController::class, 'search'])
+            ->middleware('admin.permission:search.analytics.view');
+        Route::get('/export', [AdminAnalyticsController::class, 'export'])
+            ->middleware(['admin.permission:analytics.export', 'throttle:analytics-export']);
+    });
 
     Route::post('/cms/media/image', [AdminCmsMediaController::class, 'uploadImage']);
 
@@ -670,6 +748,7 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::patch('/notification-preferences', [NotificationPreferenceController::class, 'update'])
                 ->middleware('throttle:notification-preferences');
 
+            Route::get('/chat/report-reasons', [MessageController::class, 'reportReasons']);
             Route::get('/conversations/unread-count', [ConversationController::class, 'unreadCount']);
             Route::get('/conversations', [ConversationController::class, 'index']);
             Route::post('/conversations', [ConversationController::class, 'store'])
@@ -685,6 +764,8 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::patch('/conversations/{conversationId}/messages/{messageId}', [MessageController::class, 'update'])
                 ->middleware('throttle:chat-messages');
             Route::delete('/conversations/{conversationId}/messages/{messageId}', [MessageController::class, 'destroy'])
+                ->middleware('throttle:chat-messages');
+            Route::post('/conversations/{conversationId}/messages/{messageId}/report', [MessageController::class, 'report'])
                 ->middleware('throttle:chat-messages');
             Route::get('/conversations/{conversationId}/attachments/{attachmentId}', [AttachmentController::class, 'show'])
                 ->middleware('throttle:chat-attachments');
@@ -800,6 +881,11 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::get('/finance/payouts', [VendorFinanceController::class, 'payouts']);
             Route::post('/finance/payouts', [VendorFinanceController::class, 'requestPayout']);
             Route::post('/finance/payouts/{payout}/cancel', [VendorFinanceController::class, 'cancelPayout']);
+            Route::get('/analytics/overview', [VendorAnalyticsController::class, 'overview']);
+            Route::get('/analytics/sales', [VendorAnalyticsController::class, 'sales']);
+            Route::get('/analytics/products', [VendorAnalyticsController::class, 'products']);
+            Route::get('/analytics/export', [VendorAnalyticsController::class, 'export'])
+                ->middleware('throttle:analytics-export');
         });
 
         Route::middleware('role:marketer')->prefix('dashboard/affiliate')->group(function () {
@@ -835,6 +921,11 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::get('/finance/analytics', [ProviderFinanceController::class, 'analytics']);
             Route::get('/finance/export', [ProviderFinanceController::class, 'exportReport']);
             Route::post('/finance/payouts', [ProviderFinanceController::class, 'requestPayout']);
+            Route::get('/analytics/overview', [ProviderAnalyticsController::class, 'overview']);
+            Route::get('/analytics/bookings', [ProviderAnalyticsController::class, 'bookings']);
+            Route::get('/analytics/services', [ProviderAnalyticsController::class, 'services']);
+            Route::get('/analytics/export', [ProviderAnalyticsController::class, 'export'])
+                ->middleware('throttle:analytics-export');
             Route::get('/settings', [ProviderSettingsController::class, 'show']);
             Route::patch('/settings/profile', [ProviderSettingsController::class, 'updateProfile']);
             Route::put('/settings/working-hours', [ProviderSettingsController::class, 'updateWorkingHours']);

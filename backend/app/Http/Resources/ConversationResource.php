@@ -47,9 +47,11 @@ class ConversationResource extends JsonResource
             'provider_slug' => $this->providerAccount?->slug,
             'last_message' => $this->lastMessage ? [
                 'id' => $this->lastMessage->id,
-                'body' => $this->lastMessage->body,
+                'body' => $this->lastMessage->deleted_at !== null ? null : $this->lastMessage->body,
                 'sender_id' => $this->lastMessage->sender_id,
                 'message_type' => $this->lastMessage->message_type->value,
+                'is_deleted' => $this->lastMessage->deleted_at !== null,
+                'deleted_at' => $this->lastMessage->deleted_at?->toIso8601String(),
                 'created_at' => $this->lastMessage->created_at?->toIso8601String(),
             ] : null,
             'last_message_at' => $this->last_message_at?->toIso8601String(),

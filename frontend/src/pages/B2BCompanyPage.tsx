@@ -92,11 +92,22 @@ export default function B2BCompanyPage() {
     e.preventDefault();
     if (!slug) return;
 
+    const trimmedDetails = details.trim();
+    if (trimmedDetails.length < 10) {
+      toast.error(t('b2b.company.detailsTooShort'));
+      return;
+    }
+
+    if (!projectType.trim()) {
+      toast.error(t('b2b.company.projectTypeRequired'));
+      return;
+    }
+
     try {
       await submitLead.mutateAsync({
-        project_type: projectType,
+        project_type: projectType.trim(),
         estimated_quantity: estimatedQuantity || undefined,
-        details,
+        details: trimmedDetails,
         budget_range: budgetRange || 'unspecified',
       });
       setQuoteSent(true);
@@ -639,11 +650,13 @@ export default function B2BCompanyPage() {
                       data-testid="b2b-rfq-details"
                       rows={4}
                       required
+                      minLength={10}
                       value={details}
                       onChange={(e) => setDetails(e.target.value)}
                       placeholder={t('b2b.company.detailsPlaceholder')}
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:bg-white focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown transition resize-none"
                     />
+                    <p className="mt-1 text-xs text-gray-400">{t('b2b.company.detailsHint')}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1.5">
@@ -665,7 +678,7 @@ export default function B2BCompanyPage() {
                   <div className="mt-2 flex gap-3">
                     <button
                       type="submit"
-                      disabled={submitLead.isPending}
+                      disabled={submitLead.isPending || details.trim().length < 10 || !projectType.trim()}
                       data-testid="b2b-rfq-submit"
                       className="flex-1 bg-diyar-brown text-white py-3 rounded-xl font-bold hover:bg-diyar-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
                     >

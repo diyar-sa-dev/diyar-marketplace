@@ -39,6 +39,7 @@ jobs:
           php artisan migrate:fresh --seed --seeder=DatabaseSeeder --force
           php artisan config:cache
           php artisan route:cache
+          grep -q '^SANCTUM_STATEFUL_DOMAINS=' .env && sed -i 's|^SANCTUM_STATEFUL_DOMAINS=.*|SANCTUM_STATEFUL_DOMAINS=127.0.0.1:8000,localhost:8000|' .env || echo 'SANCTUM_STATEFUL_DOMAINS=127.0.0.1:8000,localhost:8000' >> .env
           nohup php artisan octane:start --server=swoole --host=127.0.0.1 --port=8000 --workers=2 --max-requests=500 > /tmp/octane.log 2>&1 &
           sleep 8
           curl -sf http://127.0.0.1:8000/api/v1/health
@@ -61,6 +62,19 @@ jobs:
         run: k6 run scripts/performance/smoke.js
         env:
           BASE_URL: http://127.0.0.1:8000/api/v1
+
+      - name: Run k6 analytics (5→20 VUs)
+        run: k6 run scripts/performance/analytics.js
+        env:
+          ORIGIN_URL: http://127.0.0.1:8000
+          BASE_URL: http://127.0.0.1:8000/api/v1
+          E2E_DEMO_PASSWORD: Password123!
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k6-analytics-summary
+          path: k6-analytics-summary.json
 
       - name: Upload k6 summary
         if: always()

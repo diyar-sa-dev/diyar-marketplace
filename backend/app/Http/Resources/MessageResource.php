@@ -29,6 +29,7 @@ class MessageResource extends JsonResource
             'edited_at' => $this->edited_at?->toIso8601String(),
             'deleted_at' => $this->deleted_at?->toIso8601String(),
             'is_deleted' => $isDeleted,
+            'reported_by_me' => (bool) ($this->reported_by_me ?? false),
             'attachments' => $isDeleted
                 ? []
                 : $this->attachments->map(fn ($attachment) => $this->attachmentPayload($attachment))->values(),

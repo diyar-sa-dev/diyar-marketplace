@@ -13,8 +13,6 @@ type RetryableConfig = InternalAxiosRequestConfig & { _csrfRetry?: boolean };
 function createApiClient(): AxiosInstance {
   return axios.create({
     baseURL: env.apiUrl,
-    // Avoid browser extensions that patch XMLHttpRequest (e.g. M_ID errors in injected scripts).
-    adapter: 'fetch',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -24,6 +22,15 @@ function createApiClient(): AxiosInstance {
     xsrfHeaderName: 'X-XSRF-TOKEN',
     timeout: 30_000,
   });
+}
+
+function prepareRequestBody(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
+  if (config.data instanceof FormData) {
+    // Let the browser set multipart boundaries; the default JSON header breaks uploads.
+    config.headers.delete('Content-Type');
+  }
+
+  return config;
 }
 
 function attachLocaleHeader(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
@@ -78,7 +85,9 @@ function shouldNotifyUnauthorized(url: string | undefined): boolean {
 
 function attachInterceptors(client: AxiosInstance): AxiosInstance {
   client.interceptors.request.use((config) =>
-    attachCsrfHeader(attachAffiliateSessionHeader(attachLocaleHeader(config))),
+    prepareRequestBody(
+      attachCsrfHeader(attachAffiliateSessionHeader(attachLocaleHeader(config))),
+    ),
   );
 
   client.interceptors.response.use(

@@ -18,6 +18,7 @@ final class ShippingRuleEngine
     ) {}
 
     /**
+     * @param  Collection<int, ShippingRateRule>|null  $preloadedRules
      * @return array{rate: string, handling_fee: string, free_threshold: ?string, delivery_estimate_days: ?int, billable_weight_kg: string}
      */
     public function resolveRate(
@@ -26,6 +27,7 @@ final class ShippingRuleEngine
         ShippingZone $zone,
         Collection $cartItems,
         VendorShippingProfile $profile,
+        ?Collection $preloadedRules = null,
     ): array {
         $profile->loadMissing('shippingMethod');
         $method = $profile->shippingMethod;
@@ -41,7 +43,7 @@ final class ShippingRuleEngine
         $divisor = $profile->volumetric_divisor ?? (int) config('diyar.shipping.default_volumetric_divisor', 5000);
         $billableWeight = $this->weights->calculateBillableWeight($cartItems, $divisor);
 
-        $rules = ShippingRateRule::query()
+        $rules = $preloadedRules ?? ShippingRateRule::query()
             ->where('shipping_method_id', $method->id)
             ->where('is_active', true)
             ->where(function ($query) use ($zone): void {
@@ -51,12 +53,31 @@ final class ShippingRuleEngine
                 $query->whereNull('vendor_account_id')
                     ->orWhere('vendor_account_id', $settings->vendor_account_id);
             })
-            ->orderBy('sort_order')
             ->get();
 
-        $matched = $rules->first(function (ShippingRateRule $rule) use ($billableWeight, $vendorSubtotal) {
-            return $this->matchesRule($rule, $billableWeight, $vendorSubtotal);
-        });
+        if ($preloadedRules !== null) {
+            $rules = $preloadedRules
+                ->filter(fn (ShippingRateRule $rule) => $rule->is_active
+                    && ($rule->zone_id === null || $rule->zone_id === $zone->id)
+                    && ($rule->vendor_account_id === null || $rule->vendor_account_id === $settings->vendor_account_id));
+        }
+
+        $matched = $rules
+            ->filter(fn (ShippingRateRule $rule) => $this->matchesRule($rule, $billableWeight, $vendorSubtotal))
+            ->sort(function (ShippingRateRule $a, ShippingRateRule $b): int {
+                $scoreCompare = $this->ruleSpecificityScore($b) <=> $this->ruleSpecificityScore($a);
+                if ($scoreCompare !== 0) {
+                    return $scoreCompare;
+                }
+
+                $priorityCompare = ((int) $a->sort_order) <=> ((int) $b->sort_order);
+                if ($priorityCompare !== 0) {
+                    return $priorityCompare;
+                }
+
+                return strcmp((string) $a->id, (string) $b->id);
+            })
+            ->first();
 
         if ($matched === null) {
             Log::warning('shipping_quote_failed', [
@@ -128,5 +149,43 @@ final class ShippingRuleEngine
         }
 
         return true;
+    }
+
+    private function ruleSpecificityScore(ShippingRateRule $rule): int
+    {
+        $score = 0;
+
+        if ($rule->vendor_account_id !== null) {
+            $score += 100;
+        }
+
+        if ($rule->zone_id !== null) {
+            $score += 50;
+        }
+
+        $score += $this->bandNarrownessScore($rule);
+
+        return $score;
+    }
+
+    private function bandNarrownessScore(ShippingRateRule $rule): int
+    {
+        $score = 0;
+
+        if ($rule->max_weight_kg !== null) {
+            $range = bcsub((string) $rule->max_weight_kg, (string) $rule->min_weight_kg, 3);
+            if (bccomp($range, '0', 3) > 0 && bccomp($range, '1000', 3) < 0) {
+                $score += max(0, 20 - (int) bcmul($range, '1', 0));
+            }
+        }
+
+        if ($rule->max_subtotal !== null) {
+            $range = bcsub((string) $rule->max_subtotal, (string) $rule->min_subtotal, 2);
+            if (bccomp($range, '0', 2) > 0 && bccomp($range, '1000000', 2) < 0) {
+                $score += max(0, 10 - (int) bcdiv($range, '1000', 0));
+            }
+        }
+
+        return $score;
     }
 }

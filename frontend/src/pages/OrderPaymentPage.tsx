@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2, ShieldCheck } from 'lucide-react';
 import { LoadingState } from '../components/common/LoadingState.tsx';
@@ -14,8 +14,11 @@ import { useToast } from '../hooks/useToast.ts';
 import { parseApiError } from '../utils/errors.ts';
 import {
   CHECKOUT_PAYMENT_METHODS,
+  isApplePayDeviceAvailable,
+  isCheckoutMethodAvailableFromApi,
   readStoredPaymentMethod,
-  resolveApiCodeForPaymentMethod,
+  storePaymentMethod,
+  type CheckoutPaymentMethod,
   type CheckoutPaymentMethodId,
 } from '../lib/paymentMethods.ts';
 
@@ -75,29 +78,42 @@ export default function OrderPaymentPage() {
 
   const payableAmount = useMemo(() => payment?.amount ?? '—', [payment?.amount]);
 
-  const displayMethods = useMemo(() => {
-    if (availableApiCodes.length === 0) {
-      return CHECKOUT_PAYMENT_METHODS;
-    }
+  const isMethodDisabled = useCallback(
+    (method: CheckoutPaymentMethod): boolean => {
+      if (method.requiresApplePay && !isApplePayDeviceAvailable()) {
+        return true;
+      }
 
-    return CHECKOUT_PAYMENT_METHODS.filter((method) =>
-      method.apiCodes.some((code) =>
-        availableApiCodes.map((entry) => entry.toLowerCase()).includes(code),
-      ),
-    );
-  }, [availableApiCodes]);
+      if (availableApiCodes.length === 0) {
+        return false;
+      }
+
+      return !isCheckoutMethodAvailableFromApi(method, availableApiCodes);
+    },
+    [availableApiCodes],
+  );
+
+  const disabledMethodIds = useMemo(
+    () => CHECKOUT_PAYMENT_METHODS.filter(isMethodDisabled).map((method) => method.id),
+    [isMethodDisabled],
+  );
+
+  const selectableMethods = useMemo(
+    () => CHECKOUT_PAYMENT_METHODS.filter((method) => !isMethodDisabled(method)),
+    [isMethodDisabled],
+  );
 
   useEffect(() => {
-    if (displayMethods.length === 0) {
+    if (selectableMethods.length === 0) {
       return;
     }
 
-    if (!displayMethods.some((method) => method.id === selectedMethod)) {
-      setSelectedMethod(displayMethods[0].id);
+    if (!selectableMethods.some((method) => method.id === selectedMethod)) {
+      setSelectedMethod(selectableMethods[0].id);
     }
-  }, [displayMethods, selectedMethod]);
+  }, [selectableMethods, selectedMethod]);
 
-  const selectedApiCode = resolveApiCodeForPaymentMethod(selectedMethod, availableApiCodes);
+  const selectedMethodAvailable = selectableMethods.some((method) => method.id === selectedMethod);
 
   const handleRetryInitiate = () => {
     setIdempotencyKey(newIdempotencyKey());
@@ -110,16 +126,18 @@ export default function OrderPaymentPage() {
       return;
     }
 
-    if (availableApiCodes.length > 0 && !selectedApiCode) {
+    if (!selectedMethodAvailable) {
       toast.error(t('checkout.paymentMethodUnavailable'));
       return;
     }
 
     try {
+      storePaymentMethod(selectedMethod);
+
       const result = await submit.mutateAsync({
         sessionId: session.session_id,
         idempotencyKey,
-        paymentMethod: selectedApiCode,
+        paymentMethod: selectedMethod,
       });
 
       if (result.payment_url) {
@@ -197,8 +215,13 @@ export default function OrderPaymentPage() {
 
           <div className="space-y-3">
             <p className="text-sm font-bold text-gray-700">{t('checkout.choosePaymentMethod')}</p>
-            {displayMethods.length > 0 ? (
-              <CheckoutPaymentMethods selected={selectedMethod} onChange={setSelectedMethod} />
+            {CHECKOUT_PAYMENT_METHODS.length > 0 ? (
+              <CheckoutPaymentMethods
+                methods={CHECKOUT_PAYMENT_METHODS}
+                disabledMethodIds={disabledMethodIds}
+                selected={selectedMethod}
+                onChange={setSelectedMethod}
+              />
             ) : (
               <p className="text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
                 {t('checkout.paymentMethodsUnavailable')}
@@ -214,7 +237,12 @@ export default function OrderPaymentPage() {
 
           <button
             type="button"
-            disabled={displayMethods.length === 0 || !session?.session_id || submit.isPending}
+            disabled={
+              selectableMethods.length === 0 ||
+              !selectedMethodAvailable ||
+              !session?.session_id ||
+              submit.isPending
+            }
             onClick={() => void handlePay()}
             className="w-full bg-diyar-dark text-white py-4 rounded-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 hover:bg-black transition"
           >

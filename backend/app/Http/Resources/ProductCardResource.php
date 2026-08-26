@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Product;
 use App\Services\Catalog\ProductEngagementService;
+use App\Services\Loyalty\LoyaltyRuleService;
 use App\Services\Media\MediaUploadService;
 use App\Support\Vendor\VendorOwnership;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ class ProductCardResource extends JsonResource
     {
         $media = app(MediaUploadService::class);
         $engagement = app(ProductEngagementService::class);
+        $loyaltyRules = app(LoyaltyRuleService::class);
         $vendorOwnership = app(VendorOwnership::class);
         $viewer = $request->user();
         $firstImage = $this->relationLoaded('images') ? $this->images->first() : null;
@@ -62,6 +64,7 @@ class ProductCardResource extends JsonResource
             ]),
             'rating_avg' => $engagement->ratingAverage($this->resource),
             'reviews_count' => $engagement->reviewsCount($this->resource),
+            'loyalty_points_estimate' => $loyaltyRules->calculatePoints($salePrice),
             'user_saved' => $this->resolveUserSaved($request, $engagement),
         ];
     }

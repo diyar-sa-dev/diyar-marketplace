@@ -1,5 +1,5 @@
 import { ChatAvatar } from './ChatAvatar.tsx';
-import { formatConversationPreviewTime } from '../../lib/chat/conversationHelpers.ts';
+import { formatConversationPreviewTime, getConversationListPreview, type MessagePreviewLabels } from '../../lib/chat/conversationHelpers.ts';
 import type { ChatParticipant, Conversation } from '../../types/chat.ts';
 
 type ChatConversationListItemProps = {
@@ -8,6 +8,7 @@ type ChatConversationListItemProps = {
   isActive: boolean;
   locale: string;
   noMessagesLabel: string;
+  previewLabels: MessagePreviewLabels;
   fallbackTitle: string;
   onSelect: () => void;
 };
@@ -18,11 +19,12 @@ export function ChatConversationListItem({
   isActive,
   locale,
   noMessagesLabel,
+  previewLabels,
   fallbackTitle,
   onSelect,
 }: ChatConversationListItemProps) {
   const title = conversation.display_name ?? conversation.subject ?? fallbackTitle;
-  const preview = conversation.last_message?.body?.trim() || noMessagesLabel;
+  const preview = getConversationListPreview(conversation.last_message, previewLabels, noMessagesLabel);
   const timeLabel = formatConversationPreviewTime(
     conversation.last_message_at ?? conversation.created_at,
     locale,

@@ -1,6 +1,7 @@
 /**
  * Shared k6 helpers for DIYAR performance scripts.
  */
+import http from 'k6/http';
 
 export function apiParams(tag = 'catalog') {
   return {
@@ -28,4 +29,74 @@ export function safeJson(response, path) {
 
 export function checkOk(response) {
   return response && response.status >= 200 && response.status < 300;
+}
+
+function decodeXsrfToken(rawValue) {
+  if (!rawValue) {
+    return '';
+  }
+
+  try {
+    return decodeURIComponent(rawValue);
+  } catch {
+    return rawValue;
+  }
+}
+
+function cookieHeader(jar, originUrl) {
+  const cookies = jar.cookiesForURL(originUrl) || [];
+  return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
+}
+
+function xsrfFromJar(jar, originUrl) {
+  const cookies = jar.cookiesForURL(originUrl) || [];
+  const token = cookies.find((cookie) => cookie.name === 'XSRF-TOKEN');
+  return decodeXsrfToken(token?.value);
+}
+
+/**
+ * Session login for k6 — returns Cookie header string for authenticated API calls.
+ */
+export function loginSession(originUrl, apiBaseUrl, loginPath, credentials, tag = 'auth') {
+  const jar = http.cookieJar();
+
+  const csrfResponse = http.get(`${originUrl}/sanctum/csrf-cookie`, {
+    jar,
+    tags: { name: `${tag}-csrf` },
+    timeout: '30s',
+  });
+
+  if (!checkOk(csrfResponse)) {
+    throw new Error(`CSRF bootstrap failed (${csrfResponse.status})`);
+  }
+
+  const xsrf = xsrfFromJar(jar, originUrl);
+  const loginResponse = http.post(`${apiBaseUrl}${loginPath}`, JSON.stringify(credentials), {
+    jar,
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-XSRF-TOKEN': xsrf,
+    },
+    tags: { name: `${tag}-login` },
+    timeout: '30s',
+  });
+
+  if (!checkOk(loginResponse)) {
+    throw new Error(`Login failed (${loginResponse.status}): ${loginResponse.body}`);
+  }
+
+  return cookieHeader(jar, originUrl);
+}
+
+export function authedParams(cookieHeaderValue, tag = 'analytics') {
+  return {
+    headers: {
+      Accept: 'application/json',
+      Cookie: cookieHeaderValue,
+      'X-Forwarded-For': `10.${200 + (__VU % 50)}.${__VU % 255}.${__ITER % 255}`,
+    },
+    tags: { name: tag },
+    timeout: '60s',
+  };
 }

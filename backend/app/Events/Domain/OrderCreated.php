@@ -5,6 +5,7 @@ namespace App\Events\Domain;
 use App\Contracts\Notifications\TriggersNotification;
 use App\Enums\NotificationType;
 use App\Models\Order;
+use App\Support\Notifications\NotificationUrlSupport;
 use App\Services\Notifications\NotificationContextBuilder;
 use App\Services\Notifications\NotificationIntent;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -36,7 +37,7 @@ final class OrderCreated implements TriggersNotification
                 'products' => $products,
                 'customer_name' => (string) ($this->order->user?->name ?? ''),
                 'detail_lines' => $detailLines,
-                'action_url' => rtrim((string) config('diyar.frontend_url'), '/').'/orders/'.$this->order->id,
+                'action_url' => NotificationUrlSupport::orderUrl((string) $this->order->id),
             ],
             entityType: 'order',
             entityId: $this->order->id,

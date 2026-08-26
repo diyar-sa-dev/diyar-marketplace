@@ -22,9 +22,17 @@ final class NotificationRenderer
             $key = str_replace('.', '_', $type->value);
             $translationPayload = $this->translationPayload($payload, $locale);
 
+            $title = isset($payload['title']) && is_string($payload['title']) && trim($payload['title']) !== ''
+                ? trim($payload['title'])
+                : (string) __("diyar.notifications.{$key}.title", $translationPayload);
+
+            $body = isset($payload['body']) && is_string($payload['body']) && trim($payload['body']) !== ''
+                ? trim($payload['body'])
+                : (string) __("diyar.notifications.{$key}.body", $translationPayload);
+
             return [
-                'title' => (string) __("diyar.notifications.{$key}.title", $translationPayload),
-                'body' => (string) __("diyar.notifications.{$key}.body", $translationPayload),
+                'title' => $title,
+                'body' => $body,
             ];
         } finally {
             app()->setLocale($previous);

@@ -5,19 +5,24 @@ namespace App\Jobs\Notifications;
 use App\Channels\Notifications\EmailNotificationChannel;
 use App\Channels\Notifications\InAppChannel;
 use App\Channels\Notifications\PushNotificationChannel;
+use App\Channels\Notifications\SmsNotificationChannel;
 use App\Enums\NotificationChannel;
 use App\Enums\NotificationDeliveryStatus;
+use App\Enums\NotificationFailureCategory;
 use App\Enums\NotificationType;
-use App\Infrastructure\Notifications\PushProviderException;
 use App\Models\NotificationDelivery;
 use App\Models\User;
 use App\Services\Chat\ChatPresenceService;
+use App\Services\Notifications\NotificationCircuitBreaker;
+use App\Services\Notifications\NotificationBroadcastProgressService;
+use App\Services\Notifications\NotificationDeliveryStateMachine;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-final class DeliverNotificationChannelJob implements ShouldQueue
+final class DeliverNotificationChannelJob implements ShouldQueue, ShouldBeUnique
 {
     use Queueable;
 
@@ -41,10 +46,19 @@ final class DeliverNotificationChannelJob implements ShouldQueue
         $this->timeout = (int) ($worker['timeout'] ?? 120);
     }
 
+    public function uniqueId(): string
+    {
+        return $this->deliveryId;
+    }
+
     public function handle(
         InAppChannel $inApp,
         EmailNotificationChannel $email,
         PushNotificationChannel $push,
+        SmsNotificationChannel $sms,
+        NotificationDeliveryStateMachine $stateMachine,
+        NotificationCircuitBreaker $circuitBreaker,
+        NotificationBroadcastProgressService $broadcastProgress,
     ): void {
         $delivery = NotificationDelivery::query()->with(['notification', 'user'])->find($this->deliveryId);
 
@@ -52,18 +66,31 @@ final class DeliverNotificationChannelJob implements ShouldQueue
             return;
         }
 
-        if ($delivery->status === NotificationDeliveryStatus::Delivered) {
+        if ($delivery->status->isTerminal()) {
             return;
         }
 
+        $claimed = $stateMachine->claimProcessing($delivery, $this->timeout);
+
+        if ($claimed === null) {
+            return;
+        }
+
+        $delivery = $claimed;
+
         $recipient = $delivery->user;
         $notification = $delivery->notification;
+        $broadcastId = $this->resolveBroadcastId(
+            is_array($notification?->data) ? $notification->data : null,
+            $this->payload,
+        );
 
         if (! $recipient instanceof User || $notification === null) {
-            $delivery->update([
-                'status' => NotificationDeliveryStatus::Failed,
-                'last_error' => 'Missing recipient or notification.',
-            ]);
+            $stateMachine->markFailed(
+                $delivery,
+                'Missing recipient or notification.',
+                NotificationFailureCategory::Permanent,
+            );
 
             return;
         }
@@ -79,66 +106,121 @@ final class DeliverNotificationChannelJob implements ShouldQueue
                 $presence->shouldSuppressChatNotifications($recipient, $conversationId)
                 || $presence->hasReadConversation($recipient, $conversationId)
             )) {
-                $delivery->update([
-                    'status' => NotificationDeliveryStatus::Skipped,
-                    'delivered_at' => now(),
-                    'attempts' => $delivery->attempts + 1,
-                    'last_error' => null,
-                ]);
+                $stateMachine->markSkipped($delivery, 'Chat notification suppressed by presence/read state.');
+                $broadcastProgress->recordDeliveryOutcome($broadcastId, NotificationDeliveryStatus::Skipped);
 
                 return;
             }
         }
+
+        $providerKey = $delivery->channel->value;
 
         $channel = match ($delivery->channel) {
             NotificationChannel::InApp => $inApp,
             NotificationChannel::Email => $email,
             NotificationChannel::Push => $push,
+            NotificationChannel::Sms => $sms,
         };
 
         try {
             $channel->deliver($recipient, $notification, $delivery, $this->payload);
-            $delivery->update([
-                'status' => NotificationDeliveryStatus::Delivered,
-                'delivered_at' => now(),
-                'attempts' => $delivery->attempts + 1,
-                'last_error' => null,
-            ]);
+            $stateMachine->markDelivered($delivery, provider: $providerKey);
+            $broadcastProgress->recordDeliveryOutcome($broadcastId, NotificationDeliveryStatus::Delivered);
+            $circuitBreaker->recordSuccess($providerKey);
         } catch (Throwable $exception) {
-            $delivery->update([
-                'status' => NotificationDeliveryStatus::Failed,
-                'attempts' => $delivery->attempts + 1,
-                'last_error' => $exception->getMessage(),
-            ]);
+            $category = $circuitBreaker->classifyFailure($exception);
+            $attemptNumber = $delivery->attempts;
+            $isLastAttempt = $attemptNumber >= $this->tries;
+
+            if ($category !== NotificationFailureCategory::CircuitOpen) {
+                $circuitBreaker->recordFailure($providerKey);
+            }
 
             Log::warning('notifications.delivery.failed', [
                 'delivery_id' => $delivery->id,
                 'channel' => $delivery->channel->value,
+                'attempt' => $attemptNumber,
+                'failure_category' => $category->value,
                 'error' => $exception->getMessage(),
+                'correlation_id' => $delivery->correlation_id,
             ]);
 
-            if ($this->isPermanentFailure($exception)) {
+            if ($category === NotificationFailureCategory::CircuitOpen) {
+                $cooldown = (int) config('diyar.notifications.circuit_breaker.cooldown_seconds', 120);
+                $stateMachine->markRetrying(
+                    $delivery,
+                    $exception->getMessage(),
+                    $category,
+                    now()->addSeconds($cooldown),
+                );
+                $this->release($cooldown);
+
+                return;
+            }
+
+            if (! $category->isRetryable() || $isLastAttempt) {
+                $stateMachine->markFailed(
+                    $delivery,
+                    $exception->getMessage(),
+                    $category,
+                    provider: $providerKey,
+                );
+                $broadcastProgress->recordDeliveryOutcome($broadcastId, NotificationDeliveryStatus::Failed);
                 $this->fail($exception);
 
                 return;
             }
 
+            $backoffIndex = max(0, min($attemptNumber - 1, count($this->backoff) - 1));
+            $delaySeconds = $this->backoff[$backoffIndex] ?? 60;
+
+            $stateMachine->markRetrying(
+                $delivery,
+                $exception->getMessage(),
+                $category,
+                now()->addSeconds($delaySeconds),
+            );
+
             throw $exception;
         }
     }
 
-    private function isPermanentFailure(Throwable $exception): bool
+    public function failed(Throwable $exception): void
     {
-        if ($exception instanceof PushProviderException && $exception->permanent) {
-            return true;
+        $delivery = NotificationDelivery::query()->find($this->deliveryId);
+
+        if ($delivery === null || $delivery->status->isTerminal()) {
+            return;
         }
 
-        $message = strtolower($exception->getMessage());
+        app(NotificationDeliveryStateMachine::class)->markFailed(
+            $delivery,
+            $exception->getMessage(),
+            NotificationFailureCategory::Transient,
+        );
 
-        return str_contains($message, 'no email')
-            || str_contains($message, 'email notifications are disabled')
-            || str_contains($message, 'no active push')
-            || str_contains($message, 'not configured')
-            || str_contains($message, 'credentials');
+        $notification = $delivery->notification;
+        $broadcastId = $this->resolveBroadcastId(
+            is_array($notification?->data) ? $notification->data : null,
+            $this->payload,
+        );
+        app(NotificationBroadcastProgressService::class)
+            ->recordDeliveryOutcome($broadcastId, NotificationDeliveryStatus::Failed);
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $notificationData
+     * @param  array<string, mixed>  $payload
+     */
+    private function resolveBroadcastId(?array $notificationData, array $payload): ?string
+    {
+        $fromPayload = $payload['broadcast_id'] ?? null;
+        if (is_string($fromPayload) && $fromPayload !== '') {
+            return $fromPayload;
+        }
+
+        $fromNotification = $notificationData['broadcast_id'] ?? null;
+
+        return is_string($fromNotification) && $fromNotification !== '' ? $fromNotification : null;
     }
 }

@@ -5,6 +5,7 @@ namespace Tests\Feature\Notifications;
 use App\Channels\Notifications\EmailNotificationChannel;
 use App\Channels\Notifications\InAppChannel;
 use App\Channels\Notifications\PushNotificationChannel;
+use App\Channels\Notifications\SmsNotificationChannel;
 use App\Contracts\Notifications\PushProviderInterface;
 use App\Enums\NotificationChannel;
 use App\Enums\NotificationType;
@@ -14,6 +15,9 @@ use App\Jobs\Notifications\DeliverNotificationChannelJob;
 use App\Models\NotificationDelivery;
 use App\Models\NotificationDevice;
 use App\Models\UserNotification;
+use App\Services\Notifications\NotificationBroadcastProgressService;
+use App\Services\Notifications\NotificationCircuitBreaker;
+use App\Services\Notifications\NotificationDeliveryStateMachine;
 use App\Services\Notifications\NotificationDispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
@@ -64,6 +68,10 @@ class NotificationPushDeliveryTest extends TestCase
             app(InAppChannel::class),
             app(EmailNotificationChannel::class),
             app(PushNotificationChannel::class),
+            app(SmsNotificationChannel::class),
+            app(NotificationDeliveryStateMachine::class),
+            app(NotificationCircuitBreaker::class),
+            app(NotificationBroadcastProgressService::class),
         );
 
         $this->assertFalse($device->fresh()->active);

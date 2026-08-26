@@ -14,6 +14,7 @@ import {
   fetchMessages,
   hideConversation,
   markConversationRead,
+  reportMessage,
   sendMessage,
   sendTypingState,
   updateMessage,
@@ -25,6 +26,7 @@ import {
   mergeIncomingMessage,
   markMessageFailed,
   replaceOptimisticMessage,
+  markMessageReportedByMe,
   upsertMessageInInfiniteData,
   type MessagesInfiniteData,
 } from '../../lib/chat/messageCache.ts';
@@ -49,6 +51,11 @@ function bumpPreviewIfLastMessage(
   conversationId: string,
   message: ChatMessage,
 ) {
+  if (message.is_deleted || message.deleted_at) {
+    void queryClient.invalidateQueries({ queryKey: chatKeys.conversations() });
+    return;
+  }
+
   const existing = queryClient.getQueryData<MessagesInfiniteData>(
     chatKeys.messages(conversationId),
   );
@@ -65,6 +72,8 @@ function bumpPreviewIfLastMessage(
       body: message.body,
       sender_id: message.sender_id,
       message_type: message.message_type,
+      is_deleted: message.is_deleted,
+      deleted_at: message.deleted_at ?? null,
       created_at: message.created_at,
     },
     false,
@@ -94,6 +103,7 @@ export function useConversation(id: string | null) {
     queryKey: chatKeys.conversation(id ?? 'none'),
     queryFn: () => fetchConversation(id!),
     enabled: Boolean(id),
+    staleTime: 15_000,
   });
 }
 
@@ -289,6 +299,23 @@ export function useDeleteMessage(conversationId: string) {
       );
       bumpPreviewIfLastMessage(queryClient, conversationId, message);
       publishMessageUpdateCrossTab(conversationId, message);
+    },
+  });
+}
+
+export function useReportMessage(conversationId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: { messageId: string; reason: string; details?: string }) =>
+      reportMessage(conversationId, input.messageId, {
+        reason: input.reason,
+        details: input.details,
+      }),
+    onSuccess: (_report, input) => {
+      queryClient.setQueryData<MessagesInfiniteData>(chatKeys.messages(conversationId), (current) =>
+        markMessageReportedByMe(current, input.messageId),
+      );
     },
   });
 }

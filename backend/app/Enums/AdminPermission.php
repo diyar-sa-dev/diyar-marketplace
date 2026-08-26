@@ -31,6 +31,7 @@ enum AdminPermission: string
     case RefundsView = 'refunds.view';
     case RefundsApprove = 'refunds.approve';
     case ShippingView = 'shipping.view';
+    case ShippingManage = 'shipping.manage';
 
     case CommissionsView = 'commissions.view';
     case BalancesView = 'balances.view';
@@ -47,6 +48,18 @@ enum AdminPermission: string
     case ServiceRequestsView = 'service_requests.view';
     case BookingsView = 'bookings.view';
     case NotificationsView = 'notifications.view';
+    case NotificationsManage = 'notifications.manage';
+
+    case ChatView = 'chat.view';
+    case ChatModerate = 'chat.moderate';
+
+    case SystemHealthView = 'system.health.view';
+    case ExportsCreate = 'exports.create';
+    case ExportsDownload = 'exports.download';
+    case SearchAnalyticsView = 'search.analytics.view';
+    case AnalyticsView = 'analytics.view';
+    case AnalyticsViewFinancial = 'analytics.view_financial';
+    case AnalyticsExport = 'analytics.export';
 
     case AffiliateView = 'affiliate.view';
     case AffiliateManage = 'affiliate.manage';
@@ -81,12 +94,16 @@ enum AdminPermission: string
             self::UsersView, self::UsersUpdate, self::UsersSuspend, self::RolesView, self::RolesManage => 'identity',
             self::VendorsView, self::VendorsSuspend, self::ProvidersView, self::ProvidersSuspend => 'people',
             self::CategoriesView, self::CategoriesManage, self::ProductsView, self::ProductsUpdate, self::InventoryView, self::InventoryAdjust => 'catalog',
-            self::OrdersView, self::OrdersAction, self::PaymentsView, self::RefundsView, self::RefundsApprove, self::ShippingView => 'commerce',
+            self::OrdersView, self::OrdersAction, self::PaymentsView, self::RefundsView, self::RefundsApprove, self::ShippingView, self::ShippingManage => 'commerce',
             self::CommissionsView, self::BalancesView, self::PayoutsView, self::PayoutsApprove, self::PayoutsProcess => 'finance',
             self::CouponsView, self::CouponsManage => 'coupons',
             self::ReviewsView, self::ReviewsModerate => 'reviews',
             self::ServicesView, self::ServiceRequestsView, self::BookingsView => 'services',
-            self::NotificationsView => 'notifications',
+            self::NotificationsView, self::NotificationsManage => 'notifications',
+            self::ChatView, self::ChatModerate => 'chat',
+            self::SystemHealthView => 'system',
+            self::ExportsCreate, self::ExportsDownload => 'exports',
+            self::SearchAnalyticsView, self::AnalyticsView, self::AnalyticsViewFinancial, self::AnalyticsExport => 'analytics',
             self::AffiliateView, self::AffiliateManage, self::AffiliatePayoutsProcess => 'affiliate',
             self::SettingsView, self::SettingsUpdate => 'settings',
             self::BlogView, self::BlogManage => 'blog',

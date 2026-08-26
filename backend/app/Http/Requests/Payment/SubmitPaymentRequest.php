@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Payment;
 
+use App\Enums\PaymentMethod;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SubmitPaymentRequest extends FormRequest
 {
@@ -19,7 +21,7 @@ class SubmitPaymentRequest extends FormRequest
         return [
             'session_id' => ['required', 'string', 'max:128'],
             'idempotency_key' => ['required', 'string', 'max:128'],
-            'payment_method' => ['nullable', 'string', 'max:64'],
+            'payment_method' => ['required', 'string', Rule::enum(PaymentMethod::class)],
         ];
     }
 }

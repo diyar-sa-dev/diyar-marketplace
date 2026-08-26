@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { usePlatformThemeQuery } from '../../hooks/usePlatformTheme.ts';
 import type { PlatformThemeTokens } from '../../api/platformTheme.ts';
@@ -32,7 +33,9 @@ function applyPlatformTheme(theme: PlatformThemeTokens, locale: string): void {
 
 export function PlatformThemeProvider({ children }: { children: ReactNode }) {
   const { locale } = useLocale();
-  const { data } = usePlatformThemeQuery();
+  const { pathname } = useLocation();
+  const isAdminArea = pathname.startsWith('/admin');
+  const { data } = usePlatformThemeQuery(!isAdminArea);
 
   useEffect(() => {
     applyPlatformTheme(data ?? {}, locale);

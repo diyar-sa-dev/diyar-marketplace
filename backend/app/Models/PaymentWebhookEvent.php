@@ -24,6 +24,9 @@ class PaymentWebhookEvent extends Model
         'payload',
         'processing_status',
         'payment_id',
+        'processing_attempts',
+        'processing_leased_until',
+        'correlation_id',
         'processed_at',
     ];
 

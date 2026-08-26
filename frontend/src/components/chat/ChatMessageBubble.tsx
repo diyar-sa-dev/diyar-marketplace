@@ -28,10 +28,12 @@ type ChatMessageBubbleProps = {
   replyActionLabel: string;
   editActionLabel: string;
   deleteActionLabel: string;
+  reportActionLabel: string;
   onRetry: () => void;
   onReply: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onReport: () => void;
 };
 
 export function ChatMessageBubble({
@@ -56,10 +58,12 @@ export function ChatMessageBubble({
   replyActionLabel,
   editActionLabel,
   deleteActionLabel,
+  reportActionLabel,
   onRetry,
   onReply,
   onEdit,
   onDelete,
+  onReport,
 }: ChatMessageBubbleProps) {
   const isPending = message.send_status === 'pending';
   const isFailed = message.send_status === 'failed';
@@ -68,6 +72,7 @@ export function ChatMessageBubble({
   const canEdit = isMine && !isDeleted && !isPending && !isFailed;
   const canDelete = isMine && !isDeleted && !isPending && !isFailed;
   const canReply = !isDeleted && !isPending && !isFailed;
+  const canReport = !isMine && canReply && !message.reported_by_me;
 
   const avatar = (
     <ChatAvatar
@@ -82,12 +87,15 @@ export function ChatMessageBubble({
       canReply={canReply}
       canEdit={canEdit}
       canDelete={canDelete}
+      canReport={canReport}
       replyLabel={replyActionLabel}
       editLabel={editActionLabel}
       deleteLabel={deleteActionLabel}
+      reportLabel={reportActionLabel}
       onReply={onReply}
       onEdit={onEdit}
       onDelete={onDelete}
+      onReport={onReport}
     />
   );
 

@@ -76,6 +76,8 @@ export function useAdminListQuery<TItem>({
     },
     enabled,
     placeholderData: (previous) => previous,
+    staleTime: 120_000,
+    gcTime: 300_000,
   });
 
   const resetPageOnFilter = useMemo(

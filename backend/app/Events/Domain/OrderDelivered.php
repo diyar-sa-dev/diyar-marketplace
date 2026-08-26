@@ -5,6 +5,7 @@ namespace App\Events\Domain;
 use App\Contracts\Notifications\TriggersNotification;
 use App\Enums\NotificationType;
 use App\Models\VendorOrder;
+use App\Support\Notifications\NotificationUrlSupport;
 use App\Services\Notifications\NotificationContextBuilder;
 use App\Services\Notifications\NotificationIntent;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -34,7 +35,7 @@ final class OrderDelivered implements TriggersNotification
                 'store_name' => $this->vendorOrder->vendorAccount?->business_name,
                 'products' => $builder->summarizeVendorOrderItems($this->vendorOrder),
                 'detail_lines' => $builder->vendorOrderDetailLines($this->vendorOrder),
-                'action_url' => rtrim((string) config('diyar.frontend_url'), '/').'/orders/'.$this->vendorOrder->order_id,
+                'action_url' => NotificationUrlSupport::orderUrl((string) $this->vendorOrder->order_id),
             ],
             entityType: 'vendor_order',
             entityId: $this->vendorOrder->id,

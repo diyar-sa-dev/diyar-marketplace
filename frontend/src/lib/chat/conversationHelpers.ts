@@ -35,6 +35,26 @@ export function getMessagePreviewContent(
   return labels.empty;
 }
 
+export function getConversationListPreview(
+  lastMessage: Conversation['last_message'],
+  labels: MessagePreviewLabels,
+  noMessagesLabel: string,
+): string {
+  if (!lastMessage) {
+    return noMessagesLabel;
+  }
+
+  if (lastMessage.is_deleted || lastMessage.deleted_at) {
+    return labels.deleted;
+  }
+
+  if (lastMessage.body?.trim()) {
+    return lastMessage.body.trim();
+  }
+
+  return labels.empty;
+}
+
 export function resolveMessageSenderName(
   message: ChatMessage,
   conversation: Conversation | null | undefined,
@@ -50,7 +70,7 @@ export function resolveMessageSenderName(
     return message.sender_name.trim();
   }
 
-  const participant = conversation?.participants.find((item) => item.user_id === message.sender_id);
+  const participant = conversation?.participants?.find((item) => item.user_id === message.sender_id);
 
   return participant?.name?.trim() || fallbackLabel;
 }
@@ -108,6 +128,12 @@ export function resolveConversationProfilePath(
   return null;
 }
 
+export function getConversationParticipants(
+  conversation: Conversation | null | undefined,
+): ChatParticipant[] {
+  return conversation?.participants ?? [];
+}
+
 export function getOtherParticipant(
   conversation: Conversation | null | undefined,
   currentUserId: string | undefined,
@@ -117,7 +143,9 @@ export function getOtherParticipant(
   }
 
   return (
-    conversation.participants.find((participant) => participant.user_id !== currentUserId) ?? null
+    getConversationParticipants(conversation).find(
+      (participant) => participant.user_id !== currentUserId,
+    ) ?? null
   );
 }
 

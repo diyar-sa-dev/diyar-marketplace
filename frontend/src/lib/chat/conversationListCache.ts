@@ -10,6 +10,8 @@ type ConversationPreview = {
     body: string | null;
     sender_id: string;
     message_type: string;
+    is_deleted?: boolean;
+    deleted_at?: string | null;
     created_at: string;
   } | null;
 };
@@ -22,6 +24,8 @@ export function bumpConversationPreview(
     body: string | null;
     sender_id: string;
     message_type: string;
+    is_deleted?: boolean;
+    deleted_at?: string | null;
     created_at: string;
   },
   incrementUnread: boolean,

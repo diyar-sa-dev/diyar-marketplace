@@ -32,6 +32,14 @@ export function notificationVisual(
     };
   }
 
+  if (type === 'payment.success') {
+    return {
+      icon: <CreditCard size={iconSize} />,
+      color: 'text-emerald-600',
+      bgColor: 'bg-emerald-50',
+    };
+  }
+
   if (type.startsWith('payment.')) {
     return {
       icon: <CreditCard size={iconSize} />,
@@ -111,6 +119,28 @@ export function notificationVisual(
   };
 }
 
+function normalizeNotificationPath(path: string): string | null {
+  const trimmed = path.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const orderDetailMatch = trimmed.match(/^\/orders\/([0-9a-f-]{36})$/i);
+  if (orderDetailMatch) {
+    return `/orders?highlight=${orderDetailMatch[1]}`;
+  }
+
+  if (/^\/service-bookings\//i.test(trimmed)) {
+    return '/profile/service-bookings';
+  }
+
+  if (/^\/returns\//i.test(trimmed)) {
+    return '/orders?tab=returns';
+  }
+
+  return trimmed;
+}
+
 export function resolveNotificationLink(
   notification: Notification,
   roles?: UserRoleLike[],
@@ -120,14 +150,14 @@ export function resolveNotificationLink(
   if (typeof actionUrl === 'string' && actionUrl.startsWith('http')) {
     try {
       const url = new URL(actionUrl);
-      return `${url.pathname}${url.search}`;
+      return normalizeNotificationPath(`${url.pathname}${url.search}`);
     } catch {
-      return actionUrl;
+      return null;
     }
   }
 
   if (typeof actionUrl === 'string' && actionUrl.startsWith('/')) {
-    return actionUrl;
+    return normalizeNotificationPath(actionUrl);
   }
 
   if (notification.entity_type === 'conversation' && notification.entity_id) {
@@ -135,12 +165,22 @@ export function resolveNotificationLink(
     return resolveChatConversationPath(roles, notification.entity_id, portal);
   }
 
+  if (notification.entity_type === 'chat_message_report' && notification.data.conversation_id) {
+    const conversationId = String(notification.data.conversation_id);
+    const portal = pathname ? getPortalFromPath(pathname) : null;
+    return resolveChatConversationPath(roles, conversationId, portal);
+  }
+
   if (notification.entity_type === 'order' && notification.entity_id) {
-    return `/orders/${notification.entity_id}`;
+    return `/orders?highlight=${notification.entity_id}`;
+  }
+
+  if (notification.entity_type === 'payment' && notification.data.order_id) {
+    return `/orders?highlight=${String(notification.data.order_id)}`;
   }
 
   if (notification.entity_type === 'service_booking' && notification.entity_id) {
-    return `/service-bookings/${notification.entity_id}`;
+    return '/profile/service-bookings';
   }
 
   return null;

@@ -26,6 +26,8 @@ class Address extends Model
         'phone',
         'city',
         'district',
+        'country_code',
+        'postal_code',
         'street',
         'building',
         'apartment',

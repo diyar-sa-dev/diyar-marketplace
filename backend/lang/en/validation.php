@@ -28,5 +28,7 @@ return [
         'scheduled_date' => 'scheduled date',
         'scheduled_time' => 'scheduled time',
         'expected_available_at' => 'expected availability date',
+        'details' => 'details',
+        'project_type' => 'project type',
     ],
 ];

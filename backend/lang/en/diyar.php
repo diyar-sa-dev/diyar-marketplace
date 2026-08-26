@@ -316,6 +316,8 @@ return [
         'not_stackable' => 'These coupons cannot be combined.',
         'exclusive_conflict' => 'An exclusive coupon is already applied.',
         'disabled' => 'Coupons are currently unavailable.',
+        'duplicate_vendor_entry' => 'Only one coupon may be applied per store.',
+        'free_shipping_requires_carrier' => 'Free shipping coupons require carrier delivery.',
     ],
 
     'provider_review' => [
@@ -395,6 +397,12 @@ return [
         'order_not_payable' => 'This order is not payable.',
         'already_processed' => 'Payment has already been processed.',
         'invalid_session' => 'Invalid or expired payment session.',
+        'invalid_payment_method' => 'Invalid payment method.',
+        'payment_method_unavailable' => 'The selected payment method is not available for this order.',
+        'checkout_method_mada' => 'Mada',
+        'checkout_method_card' => 'Credit / debit card',
+        'checkout_method_apple_pay' => 'Apple Pay',
+        'checkout_method_tabby' => 'Tabby',
         'callback_informational' => 'Payment status is confirmed by the server webhook only.',
         'simulation_unavailable' => 'Payment simulation is only available in local dev mode.',
         'simulated_failed' => 'Simulated payment failure (dev).',
@@ -413,6 +421,17 @@ return [
         'method_failed' => 'Payment failed',
         'method_refunded' => 'Refunded',
         'refund_not_implemented' => 'Gateway refunds are not implemented for this provider yet.',
+    ],
+
+    'analytics' => [
+        'funnel' => [
+            'product_views' => 'Product views',
+            'add_to_cart' => 'Add to cart',
+            'checkout_started' => 'Checkout started',
+            'order_created' => 'Orders created',
+            'payment_initiated' => 'Payments initiated',
+            'payment_completed' => 'Payments completed',
+        ],
     ],
 
     'finance' => [
@@ -591,6 +610,7 @@ return [
 
     'notifications' => [
         'deleted' => 'Notification deleted.',
+        'delivery_already_delivered' => 'This delivery has already been completed.',
         'categories' => [
             'orders' => 'Orders',
             'payments' => 'Payments',
@@ -615,6 +635,13 @@ return [
             'in_app' => 'In-App',
             'email' => 'Email',
             'push' => 'Push',
+            'sms' => 'SMS',
+        ],
+        'aggregation' => [
+            'someone' => 'Someone',
+            'generic_title' => ':name and :count others',
+            'reviews_title' => ':name and :count others reviewed your product',
+            'reviews_body' => ':count new reviews on :product_name',
         ],
         'order_created' => [
             'title' => 'Order placed',
@@ -712,6 +739,39 @@ return [
             'title' => '💬 New message',
             'body' => 'You have a new message from :sender_name.',
         ],
+        'chat_report_resolved' => [
+            'title' => 'Your report was reviewed',
+            'title_under_review' => 'Your report is being reviewed',
+            'body' => 'Your report about :reason_label was :status_label.:note_line',
+            'status' => [
+                'under_review' => 'confirmed and under active review',
+                'dismissed' => 'dismissed — no violation found',
+                'actioned' => 'reviewed and action was taken',
+                'resolved' => 'resolved and closed',
+            ],
+            'note_line' => ' Note: :resolution_note',
+        ],
+        'chat_moderation_action_taken' => [
+            'title' => 'Chat moderation notice',
+            'body' => 'An action was taken on one of your messages: :action_label.:note_line',
+            'actions' => [
+                'delete_message' => 'your message was removed',
+                'warn_sender' => 'you received a warning',
+                'suspend_account' => 'your account was suspended',
+                'escalate' => 'your account was suspended',
+                'moderated' => 'moderation action was applied',
+            ],
+            'note_line' => ' Note: :resolution_note',
+        ],
+        'chat_report_reasons' => [
+            'spam' => 'spam',
+            'harassment' => 'harassment',
+            'inappropriate' => 'inappropriate content',
+            'scam' => 'scam',
+            'hate_speech' => 'hate speech',
+            'impersonation' => 'impersonation',
+            'other' => 'other',
+        ],
         'affiliate_commission_available' => [
             'title' => 'Commission available',
             'body' => ':amount :currency commission for :product_name is now available in your balance.',
@@ -754,6 +814,16 @@ return [
         'cannot_edit_message' => 'You cannot edit this message.',
         'cannot_delete_message' => 'You cannot delete this message.',
         'message_deleted' => 'This message was deleted.',
+        'message_already_reported' => 'You already reported this message.',
+        'report_reasons' => [
+            'spam' => 'Spam',
+            'harassment' => 'Harassment or bullying',
+            'inappropriate' => 'Inappropriate content',
+            'scam' => 'Scam or fraud',
+            'hate_speech' => 'Hate speech',
+            'impersonation' => 'Impersonation',
+            'other' => 'Other',
+        ],
     ],
 
     'assistant' => [

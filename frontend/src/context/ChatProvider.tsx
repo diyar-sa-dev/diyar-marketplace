@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { fetchMessages, markConversationRead } from '../api/chat.ts';
-import type { ChatCrossTabPayload, MessageCreatedPayload, MessageUpdatedPayload, TypingUpdatedPayload } from '../types/chat.ts';
+import type { ChatCrossTabPayload, ChatTypingEntry, MessageCreatedPayload, MessageUpdatedPayload, TypingUpdatedPayload } from '../types/chat.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { isRealtimeEnabled } from '../lib/env.ts';
 import { bumpConversationPreview } from '../lib/chat/conversationListCache.ts';
@@ -21,15 +21,17 @@ import {
   upsertMessageInInfiniteData,
   type MessagesInfiniteData,
 } from '../lib/chat/messageCache.ts';
-import { createEcho, type RealtimeConnectionState } from '../lib/realtime/echo.ts';
+import { RealtimeEventRouter, subscribeRealtimeConnection, prepareRealtimeConnection, type RealtimeConnectionState } from '../lib/realtime/echo.ts';
 import { chatKeys } from '../hooks/chat/useChat.ts';
 
 const CROSS_TAB_CHANNEL = 'diyar-chat';
+const TYPING_INDICATOR_TTL_MS = 5000;
 
 type ChatContextValue = {
   connectionState: RealtimeConnectionState;
   activeConversationId: string | null;
-  typingUsers: Record<string, string[]>;
+  typingUsers: Record<string, ChatTypingEntry[]>;
+  counterpartyActivityAt: Record<string, number>;
   setActiveConversationId: (id: string | null) => void;
   subscribeConversation: (conversationId: string) => void;
   unsubscribeConversation: () => void;
@@ -61,11 +63,49 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [connectionState, setConnectionState] = useState<RealtimeConnectionState>('idle');
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
-  const [typingUsers, setTypingUsers] = useState<Record<string, string[]>>({});
-  const channelRef = useRef<ReturnType<ReturnType<typeof createEcho>['private']> | null>(null);
+  const [typingUsers, setTypingUsers] = useState<Record<string, ChatTypingEntry[]>>({});
+  const [counterpartyActivityAt, setCounterpartyActivityAt] = useState<Record<string, number>>({});
+  const channelUnsubsRef = useRef<Array<() => void>>([]);
   const subscribedIdRef = useRef<string | null>(null);
   const crossTabRef = useRef<BroadcastChannel | null>(null);
   const lastKnownMessageIdRef = useRef<Record<string, string>>({});
+  const previousConnectionStateRef = useRef<RealtimeConnectionState>('idle');
+  const typingExpiryRef = useRef<Record<string, number>>({});
+
+  const clearConversationTyping = useCallback((conversationId: string, userId: string) => {
+    const expiryKey = `${conversationId}:${userId}`;
+    window.clearTimeout(typingExpiryRef.current[expiryKey]);
+    delete typingExpiryRef.current[expiryKey];
+
+    setTypingUsers((current) => {
+      const existing = current[conversationId] ?? [];
+      const next = existing.filter((entry) => entry.userId !== userId);
+      if (next.length === existing.length) {
+        return current;
+      }
+
+      return { ...current, [conversationId]: next };
+    });
+  }, []);
+
+  const touchCounterpartyActivity = useCallback((conversationId: string) => {
+    setCounterpartyActivityAt((current) => ({
+      ...current,
+      [conversationId]: Date.now(),
+    }));
+  }, []);
+
+  const scheduleTypingExpiry = useCallback(
+    (conversationId: string, userId: string) => {
+      const expiryKey = `${conversationId}:${userId}`;
+      window.clearTimeout(typingExpiryRef.current[expiryKey]);
+      typingExpiryRef.current[expiryKey] = window.setTimeout(() => {
+        delete typingExpiryRef.current[expiryKey];
+        clearConversationTyping(conversationId, userId);
+      }, TYPING_INDICATOR_TTL_MS);
+    },
+    [clearConversationTyping],
+  );
 
   const publishCrossTab = useCallback((payload: ChatCrossTabPayload) => {
     crossTabRef.current?.postMessage(payload);
@@ -73,6 +113,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const mergeMessage = useCallback(
     (payload: MessageCreatedPayload, fromCrossTab = false) => {
+      clearConversationTyping(payload.conversation_id, payload.sender_id);
+
+      if (payload.sender_id !== user?.id) {
+        touchCounterpartyActivity(payload.conversation_id);
+      }
+
       if (payload.sender_id === user?.id) {
         bumpConversationPreview(
           queryClient,
@@ -156,7 +202,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         publishCrossTab({ type: 'message', conversation_id: payload.conversation_id, message });
       }
     },
-    [publishCrossTab, queryClient, user?.id],
+    [clearConversationTyping, publishCrossTab, queryClient, touchCounterpartyActivity, user?.id],
   );
 
   const applyMessageUpdate = useCallback(
@@ -172,18 +218,24 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       const flattened = flattenMessages(existing ?? queryClient.getQueryData<MessagesInfiniteData>(cacheKey));
       const lastMessage = flattened.at(-1);
       if (lastMessage?.id === message.id) {
-        bumpConversationPreview(
-          queryClient,
-          payload.conversation_id,
-          {
-            id: message.id,
-            body: message.body,
-            sender_id: message.sender_id,
-            message_type: message.message_type,
-            created_at: message.created_at,
-          },
-          false,
-        );
+        if (message.is_deleted || message.deleted_at) {
+          void queryClient.invalidateQueries({ queryKey: chatKeys.conversations() });
+        } else {
+          bumpConversationPreview(
+            queryClient,
+            payload.conversation_id,
+            {
+              id: message.id,
+              body: message.body,
+              sender_id: message.sender_id,
+              message_type: message.message_type,
+              is_deleted: message.is_deleted,
+              deleted_at: message.deleted_at ?? null,
+              created_at: message.created_at,
+            },
+            false,
+          );
+        }
       }
 
       if (!fromCrossTab) {
@@ -218,13 +270,26 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
   }, [queryClient]);
 
+  useEffect(() => {
+    const previous = previousConnectionStateRef.current;
+    previousConnectionStateRef.current = connectionState;
+
+    if (
+      connectionState === 'connected'
+      && (previous === 'disconnected' || previous === 'reconnecting' || previous === 'failed')
+    ) {
+      void reconcileActiveConversation();
+      void queryClient.invalidateQueries({ queryKey: chatKeys.conversations() });
+      void queryClient.invalidateQueries({ queryKey: chatKeys.unreadCount() });
+    }
+  }, [connectionState, queryClient, reconcileActiveConversation]);
+
   const unsubscribeConversation = useCallback(() => {
+    channelUnsubsRef.current.forEach((unsub) => unsub());
+    channelUnsubsRef.current = [];
+
     if (subscribedIdRef.current) {
-      createEcho().leave(`private-conversations.${subscribedIdRef.current}`);
-      channelRef.current?.stopListening('.message.created');
-      channelRef.current?.stopListening('.message.updated');
-      channelRef.current?.stopListening('.typing.updated');
-      channelRef.current = null;
+      RealtimeEventRouter.leaveChannel(`conversations.${subscribedIdRef.current}`);
       subscribedIdRef.current = null;
     }
   }, []);
@@ -235,7 +300,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (subscribedIdRef.current === conversationId && channelRef.current) {
+      if (subscribedIdRef.current === conversationId && channelUnsubsRef.current.length > 0) {
         return;
       }
 
@@ -243,37 +308,49 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       setActiveConversationId(conversationId);
       subscribedIdRef.current = conversationId;
 
-      const channel = createEcho().private(`conversations.${conversationId}`);
-      channel.listen('.message.created', (payload: MessageCreatedPayload) => {
-        mergeMessage(payload);
-      });
-      channel.listen('.message.updated', (payload: MessageUpdatedPayload) => {
-        applyMessageUpdate(payload);
-      });
-      channel.listen('.typing.updated', (payload: TypingUpdatedPayload) => {
-        if (payload.user_id === user?.id) {
-          return;
-        }
-
-        setTypingUsers((current) => {
-          const existing = current[conversationId] ?? [];
-          const withoutUser = existing.filter((name) => name !== (payload.name ?? ''));
-
-          if (!payload.typing) {
-            return { ...current, [conversationId]: withoutUser };
+      const channelName = `conversations.${conversationId}`;
+      channelUnsubsRef.current = [
+        RealtimeEventRouter.subscribePrivateChannel(channelName, '.message.created', (payload) => {
+          mergeMessage(payload as MessageCreatedPayload);
+        }),
+        RealtimeEventRouter.subscribePrivateChannel(channelName, '.message.updated', (payload) => {
+          applyMessageUpdate(payload as MessageUpdatedPayload);
+        }),
+        RealtimeEventRouter.subscribePrivateChannel(channelName, '.typing.updated', (payload) => {
+          const typingPayload = payload as TypingUpdatedPayload;
+          if (typingPayload.user_id === user?.id) {
+            return;
           }
 
-          return {
-            ...current,
-            [conversationId]: payload.name ? [...withoutUser, payload.name] : withoutUser,
-          };
-        });
-      });
-      channelRef.current = channel;
+          if (!typingPayload.typing) {
+            clearConversationTyping(conversationId, typingPayload.user_id);
+            return;
+          }
+
+          touchCounterpartyActivity(conversationId);
+          scheduleTypingExpiry(conversationId, typingPayload.user_id);
+
+          setTypingUsers((current) => {
+            const existing = current[conversationId] ?? [];
+            const previous = existing.find((entry) => entry.userId === typingPayload.user_id);
+            const withoutUser = existing.filter((entry) => entry.userId !== typingPayload.user_id);
+            const name = typingPayload.name?.trim() || previous?.name;
+
+            if (!name) {
+              return { ...current, [conversationId]: withoutUser };
+            }
+
+            return {
+              ...current,
+              [conversationId]: [...withoutUser, { userId: typingPayload.user_id, name }],
+            };
+          });
+        }),
+      ];
 
       void markConversationRead(conversationId).catch(() => undefined);
     },
-    [applyMessageUpdate, isAuthenticated, mergeMessage, unsubscribeConversation, user?.id],
+    [applyMessageUpdate, clearConversationTyping, isAuthenticated, mergeMessage, scheduleTypingExpiry, touchCounterpartyActivity, unsubscribeConversation, user?.id],
   );
 
   useEffect(() => {
@@ -343,43 +420,33 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const echo = createEcho();
-    setConnectionState('connecting');
+    let active = true;
+    let releaseConnection: (() => void) | null = null;
+    let unsubscribeState: (() => void) | null = null;
 
-    const connector = echo.connector.pusher.connection;
-    const onConnected = () => {
-      setConnectionState('connected');
-      if (subscribedIdRef.current) {
-        subscribeConversation(subscribedIdRef.current);
+    void prepareRealtimeConnection().then(() => {
+      if (!active) {
+        return;
       }
-      void reconcileActiveConversation();
-    };
-    const onDisconnected = () => setConnectionState('disconnected');
-    const onFailed = () => setConnectionState('failed');
 
-    connector.bind('connected', onConnected);
-    connector.bind('disconnected', onDisconnected);
-    connector.bind('failed', onFailed);
-    connector.bind('unavailable', onFailed);
-
-    if (connector.state === 'connected') {
-      setConnectionState('connected');
-    }
+      releaseConnection = RealtimeEventRouter.retain();
+      unsubscribeState = subscribeRealtimeConnection(setConnectionState);
+    });
 
     return () => {
-      connector.unbind('connected', onConnected);
-      connector.unbind('disconnected', onDisconnected);
-      connector.unbind('failed', onFailed);
-      connector.unbind('unavailable', onFailed);
+      active = false;
+      unsubscribeState?.();
+      releaseConnection?.();
       unsubscribeConversation();
     };
-  }, [isAuthenticated, reconcileActiveConversation, subscribeConversation, unsubscribeConversation]);
+  }, [isAuthenticated, unsubscribeConversation]);
 
   const value = useMemo(
     () => ({
       connectionState,
       activeConversationId,
       typingUsers,
+      counterpartyActivityAt,
       setActiveConversationId,
       subscribeConversation,
       unsubscribeConversation,
@@ -389,6 +456,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       connectionState,
       activeConversationId,
       typingUsers,
+      counterpartyActivityAt,
       subscribeConversation,
       unsubscribeConversation,
       reconcileActiveConversation,

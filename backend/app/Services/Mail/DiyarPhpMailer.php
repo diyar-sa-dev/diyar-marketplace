@@ -22,13 +22,19 @@ final class DiyarPhpMailer
         string $title,
         string $bodyHtml,
         array $templateProps = [],
+        bool $strict = false,
     ): void {
         $html = $this->templates->render($locale, $title, $bodyHtml, $templateProps);
 
         if (! config('diyar.mail.enabled', false)) {
+            if ($strict) {
+                throw new \RuntimeException('Mail delivery is disabled. Set DIYAR_MAIL_ENABLED=true.');
+            }
+
             Log::info('diyar.mail.skipped', [
                 'to' => $toEmail,
                 'subject' => $subject,
+                'reason' => 'disabled',
             ]);
 
             return;
@@ -75,11 +81,9 @@ final class DiyarPhpMailer
                 'error' => $exception->getMessage(),
             ]);
 
-            if (config('diyar.mail.fail_silently', true)) {
-                return;
+            if ($strict || ! config('diyar.mail.fail_silently', true)) {
+                throw $exception;
             }
-
-            throw $exception;
         }
     }
 

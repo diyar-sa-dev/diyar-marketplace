@@ -31,6 +31,7 @@ final class PlatformHealthService
             'database' => $database,
             'cache' => $cache,
             'queue' => $queue,
+            'payments' => $this->probePayments(),
         ];
 
         $allOk = collect($checks)->every(fn (array $check) => ($check['ok'] ?? false) === true);
@@ -171,5 +172,22 @@ final class PlatformHealthService
         } catch (Throwable) {
             return null;
         }
+    }
+
+    /**
+     * @return array{ok: bool, status: string, metrics: array<string, mixed>}
+     */
+    private function probePayments(): array
+    {
+        return $this->rememberProbe('payments', function (): array {
+            $metrics = app(\App\Services\Payments\PaymentHealthService::class)->snapshot();
+            $status = (string) ($metrics['status'] ?? 'ok');
+
+            return [
+                'ok' => $status === 'ok',
+                'status' => $status,
+                'metrics' => $metrics,
+            ];
+        });
     }
 }

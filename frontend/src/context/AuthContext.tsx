@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -84,35 +85,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [status, setStatus] = useState<AuthState>('loading');
   const [error, setError] = useState<string | null>(null);
+  const refreshInFlightRef = useRef<Promise<AuthUser | null> | null>(null);
   const { toast } = useToast();
 
   const clearSession = useCallback(() => {
-    setUser(null);
-    setStatus('unauthenticated');
-    resetCsrfCookie();
-    invalidateUserScopedQueries();
-    queryClient.removeQueries({
-      predicate: (query) => shouldRemoveQueryOnSessionClear(query.queryKey),
+    setUser((current) => {
+      if (current === null) {
+        return current;
+      }
+
+      resetCsrfCookie();
+      invalidateUserScopedQueries();
+      queryClient.removeQueries({
+        predicate: (query) => shouldRemoveQueryOnSessionClear(query.queryKey),
+      });
+
+      return null;
     });
+    setStatus('unauthenticated');
   }, []);
 
   const refreshUser = useCallback(async (): Promise<AuthUser | null> => {
-    setStatus((current) => (current === 'authenticated' ? 'authenticated' : 'loading'));
+    if (refreshInFlightRef.current) {
+      return refreshInFlightRef.current;
+    }
 
-    try {
-      const currentUser = await authApi.fetchCurrentUser();
+    const run = (async (): Promise<AuthUser | null> => {
+      setStatus((current) => {
+        if (current === 'authenticated' || current === 'unauthenticated') {
+          return current;
+        }
 
-      if (currentUser === null) {
+        return 'loading';
+      });
+
+      try {
+        const currentUser = await authApi.fetchCurrentUser();
+
+        if (currentUser === null) {
+          setUser((current) => {
+            if (current === null) {
+              setStatus('unauthenticated');
+              return current;
+            }
+
+            resetCsrfCookie();
+            invalidateUserScopedQueries();
+            queryClient.removeQueries({
+              predicate: (query) => shouldRemoveQueryOnSessionClear(query.queryKey),
+            });
+            setStatus('unauthenticated');
+            return null;
+          });
+
+          return null;
+        }
+
+        setUser(currentUser);
+        setStatus('authenticated');
+        return currentUser;
+      } catch (err) {
+        const parsed = parseApiError(err);
+        const isTransientNetworkFailure = parsed.status === 0;
+
+        if (isTransientNetworkFailure) {
+          setStatus((current) => (current === 'authenticated' ? 'authenticated' : 'unauthenticated'));
+          return null;
+        }
+
         clearSession();
         return null;
       }
+    })();
 
-      setUser(currentUser);
-      setStatus('authenticated');
-      return currentUser;
-    } catch {
-      clearSession();
-      return null;
+    refreshInFlightRef.current = run;
+
+    try {
+      return await run;
+    } finally {
+      refreshInFlightRef.current = null;
     }
   }, [clearSession]);
 

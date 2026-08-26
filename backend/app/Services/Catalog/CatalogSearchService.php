@@ -80,6 +80,8 @@ final class CatalogSearchService
      */
     private function productFilters(array $filters): array
     {
+        $colors = $this->normalizeColorFilters($filters);
+
         return array_filter([
             'q' => $filters['q'] ?? null,
             'category_slug' => $filters['category_slug'] ?? null,
@@ -87,7 +89,7 @@ final class CatalogSearchService
             'vendor_slug' => $filters['vendor_slug'] ?? null,
             'min_price' => $filters['min_price'] ?? null,
             'max_price' => $filters['max_price'] ?? null,
-            'color' => $filters['color'] ?? null,
+            'colors' => $colors !== [] ? $colors : null,
             'material' => $filters['material'] ?? null,
             'availability_mode' => $filters['availability_mode'] ?? null,
             'discounted' => $filters['discounted'] ?? null,
@@ -95,6 +97,29 @@ final class CatalogSearchService
             'page' => $filters['page'] ?? 1,
             'per_page' => $filters['per_page'] ?? 24,
         ], fn ($value) => $value !== null && $value !== '');
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return list<string>
+     */
+    private function normalizeColorFilters(array $filters): array
+    {
+        if (! empty($filters['colors'])) {
+            $raw = $filters['colors'];
+            $values = is_array($raw) ? $raw : explode(',', (string) $raw);
+
+            return array_values(array_filter(array_map(
+                static fn (mixed $color): string => trim((string) $color),
+                $values,
+            )));
+        }
+
+        if (! empty($filters['color'])) {
+            return [trim((string) $filters['color'])];
+        }
+
+        return [];
     }
 
     /**
@@ -224,7 +249,7 @@ final class CatalogSearchService
     private function colorFacets(array $filters): array
     {
         $facetFilters = $filters;
-        unset($facetFilters['color'], $facetFilters['page']);
+        unset($facetFilters['color'], $facetFilters['colors'], $facetFilters['page']);
 
         $productIds = Product::query()
             ->publiclyVisible()

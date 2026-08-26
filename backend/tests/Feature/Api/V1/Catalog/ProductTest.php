@@ -74,6 +74,31 @@ class ProductTest extends TestCase
             ->assertJsonCount(1, 'data.items');
     }
 
+    public function test_product_list_includes_loyalty_points_estimate_from_admin_rules(): void
+    {
+        config([
+            'diyar.commerce.loyalty_enabled' => true,
+            'diyar.commerce.loyalty_sar_per_point' => 50,
+            'diyar.commerce.loyalty_points_per_unit' => 1,
+        ]);
+
+        Product::factory()->create(['sale_price' => 1100.00]);
+        Product::factory()->create(['sale_price' => 3200.00]);
+        Product::factory()->create(['sale_price' => 2499.00]);
+
+        $response = $this->getJson('/api/v1/products');
+
+        $response->assertOk();
+
+        $estimates = collect($response->json('data.items'))
+            ->pluck('loyalty_points_estimate')
+            ->sort()
+            ->values()
+            ->all();
+
+        $this->assertSame([22, 49, 64], $estimates);
+    }
+
     public function test_search_endpoint_returns_matching_products(): void
     {
         Product::factory()->create(['name' => 'Wooden Bed Frame']);

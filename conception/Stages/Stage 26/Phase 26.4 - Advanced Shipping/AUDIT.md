@@ -123,3 +123,20 @@ V1 shipping is **flat-rate + pickup per vendor** with server-side quotes in chec
 ## Verdict
 
 **Ready to implement.** V1 baseline is stable; extension is additive with explicit fallback.
+
+---
+
+## Hardening pass (post `aa6843c`)
+
+**Date:** 2026-08-26
+
+| Gap found | Resolution | Status |
+|-----------|------------|--------|
+| Zone resolver picked first DB row | Specificity scoring + priority + id tie-break | ✅ FIXED |
+| Cache key used address ID | Location-scoped v2 cache key | ✅ FIXED |
+| Rate rule ambiguity | Vendor/zone specificity before sort_order | ✅ FIXED |
+| No admin shipping security tests | `AdminShippingSecurityTest` | ✅ FIXED |
+| Admin zones list missing | `GET /admin/shipping/zones` | ✅ FIXED |
+| Admin UI incomplete | Carriers only — zones/rules UI deferred | ⚠️ DEFERRED |
+| Postal zone matching | Resolver supports prefix; Address lacks postal_code | ⚠️ DEFERRED |
+| Query-count performance gate | Not measured | ⚠️ DEFERRED |

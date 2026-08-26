@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import { ErrorState } from '../../components/common/ErrorState.tsx';
 import { LoadingState } from '../../components/common/LoadingState.tsx';
+import { AnalyticsEmptyState } from '../../components/dashboard/analytics/AnalyticsEmptyState.tsx';
 import {
   useProviderBookings,
   useProviderFinanceAnalytics,
@@ -54,7 +55,7 @@ export default function ServiceDashboard() {
             name: formatFinanceAnalyticsLabel(point, locale),
             earnings: point.net,
           }))
-        : base.chartData;
+        : [];
 
     return {
       ...base,
@@ -150,6 +151,12 @@ export default function ServiceDashboard() {
           <h3 className="font-bold text-diyar-dark mb-6">
             {t('providerDashboard.home.earningsChart')}
           </h3>
+          {stats.chartData.length === 0 ? (
+            <AnalyticsEmptyState
+              title={t('providerDashboard.home.chartEmptyTitle')}
+              description={t('providerDashboard.home.chartEmptyDescription')}
+            />
+          ) : (
           <div className="h-72 w-full min-w-0" dir="ltr">
             <ResponsiveContainer width="100%" height={288}>
               <AreaChart data={stats.chartData}>
@@ -189,6 +196,7 @@ export default function ServiceDashboard() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
+          )}
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">

@@ -35,7 +35,7 @@ final class LocalPaymentGateway implements PaymentGatewayInterface
     {
         return [
             new PaymentMethodCapability(code: 'mada', available: true, label: 'Mada'),
-            new PaymentMethodCapability(code: 'visa_master', available: true, label: 'Visa/Mastercard'),
+            new PaymentMethodCapability(code: 'card', available: true, label: 'Visa/Mastercard'),
             new PaymentMethodCapability(code: 'apple_pay', available: true, label: 'Apple Pay'),
             new PaymentMethodCapability(code: 'tabby', available: true, label: 'Tabby'),
         ];

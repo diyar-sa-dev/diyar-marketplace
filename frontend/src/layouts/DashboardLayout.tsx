@@ -162,6 +162,12 @@ export default function DashboardLayout() {
         permission: 'finance',
       },
       {
+        name: t('vendor.nav.analytics'),
+        path: '/dashboard/vendor/analytics',
+        icon: BarChart,
+        permission: 'dashboard',
+      },
+      {
         name: t('vendor.nav.b2b'),
         path: '/dashboard/vendor/b2b',
         icon: Building2,
@@ -204,6 +210,11 @@ export default function DashboardLayout() {
         name: t('providerDashboard.nav.finance'),
         path: '/dashboard/service/finance',
         icon: Wallet,
+      },
+      {
+        name: t('providerDashboard.nav.analytics'),
+        path: '/dashboard/service/analytics',
+        icon: BarChart,
       },
       {
         name: t('providerDashboard.nav.b2b'),

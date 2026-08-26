@@ -87,6 +87,8 @@ describe('AuthContext', () => {
     await waitFor(() => {
       expect(result.current.status).toBe('unauthenticated');
     });
+
+    expect(authApi.fetchCurrentUser).toHaveBeenCalledTimes(1);
   });
 
   it('sets authenticated user after login', async () => {

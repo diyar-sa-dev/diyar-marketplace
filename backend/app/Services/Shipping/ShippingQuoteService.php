@@ -96,6 +96,7 @@ final class ShippingQuoteService
             $zone,
             $context->cartItems,
             $profile,
+            $context->preloadedRules,
         );
 
         $freeApplied = bccomp($resolved['rate'], '0.00', 2) === 0

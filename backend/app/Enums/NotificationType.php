@@ -46,6 +46,8 @@ enum NotificationType: string
     case SystemPromotion = 'system.promotion';
 
     case ChatMessageReceived = 'chat.message_received';
+    case ChatReportResolved = 'chat.report_resolved';
+    case ChatModerationActionTaken = 'chat.moderation_action_taken';
 
     case AffiliateCommissionAvailable = 'affiliate.commission_available';
     case AffiliatePayoutRequested = 'affiliate.payout_requested';

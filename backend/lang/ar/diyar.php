@@ -331,6 +331,8 @@ return [
         'not_stackable' => 'لا يمكن الجمع بين هذه الكوبونات.',
         'exclusive_conflict' => 'كوبون حصري مطبّق بالفعل.',
         'disabled' => 'الكوبونات غير متاحة حالياً.',
+        'duplicate_vendor_entry' => 'يمكن تطبيق كوبون واحد فقط لكل متجر.',
+        'free_shipping_requires_carrier' => 'كوبونات الشحن المجاني تتطلب التوصيل عبر الناقل.',
     ],
 
     'store_review' => [
@@ -395,6 +397,12 @@ return [
         'order_not_payable' => 'لا يمكن دفع هذا الطلب.',
         'already_processed' => 'تمت معالجة الدفع مسبقاً.',
         'invalid_session' => 'جلسة دفع غير صالحة أو منتهية.',
+        'invalid_payment_method' => 'طريقة دفع غير صالحة.',
+        'payment_method_unavailable' => 'طريقة الدفع المحددة غير متاحة لهذا الطلب.',
+        'checkout_method_mada' => 'مدى',
+        'checkout_method_card' => 'البطاقة الائتمانية',
+        'checkout_method_apple_pay' => 'Apple Pay',
+        'checkout_method_tabby' => 'تابي',
         'callback_informational' => 'يتم تأكيد حالة الدفع عبر webhook الخادم فقط.',
         'simulation_unavailable' => 'محاكاة الدفع متاحة فقط في بيئة التطوير المحلية.',
         'simulated_failed' => 'فشل دفع تجريبي (تطوير).',
@@ -413,6 +421,17 @@ return [
         'method_failed' => 'فشل الدفع',
         'method_refunded' => 'مسترد',
         'refund_not_implemented' => 'استرداد بوابة الدفع غير متاح لهذا المزود بعد.',
+    ],
+
+    'analytics' => [
+        'funnel' => [
+            'product_views' => 'مشاهدات المنتج',
+            'add_to_cart' => 'إضافة إلى السلة',
+            'checkout_started' => 'بدء الدفع',
+            'order_created' => 'الطلبات المُنشأة',
+            'payment_initiated' => 'محاولات الدفع',
+            'payment_completed' => 'المدفوعات المكتملة',
+        ],
     ],
 
     'finance' => [
@@ -591,6 +610,7 @@ return [
 
     'notifications' => [
         'deleted' => 'تم حذف الإشعار.',
+        'delivery_already_delivered' => 'تم تسليم هذا الإشعار مسبقاً.',
         'categories' => [
             'orders' => 'الطلبات',
             'payments' => 'المدفوعات',
@@ -615,6 +635,13 @@ return [
             'in_app' => 'داخل التطبيق',
             'email' => 'البريد الإلكتروني',
             'push' => 'الإشعارات الفورية',
+            'sms' => 'رسائل SMS',
+        ],
+        'aggregation' => [
+            'someone' => 'شخص ما',
+            'generic_title' => ':name و :count آخرين',
+            'reviews_title' => ':name و :count آخرين قيّموا منتجك',
+            'reviews_body' => ':count تقييمات جديدة على :product_name',
         ],
         'order_created' => [
             'title' => 'تم استلام الطلب',
@@ -712,6 +739,39 @@ return [
             'title' => '💬 رسالة جديدة',
             'body' => 'لديك رسالة جديدة من :sender_name.',
         ],
+        'chat_report_resolved' => [
+            'title' => 'تمت مراجعة بلاغك',
+            'title_under_review' => 'بلاغك قيد المراجعة',
+            'body' => 'بلاغك بخصوص :reason_label: :status_label.:note_line',
+            'status' => [
+                'under_review' => 'تم تأكيده وهو قيد المراجعة النشطة',
+                'dismissed' => 'تم رفضه — لا مخالفة',
+                'actioned' => 'تمت مراجعته واتُخذ إجراء',
+                'resolved' => 'تم حله وإغلاقه',
+            ],
+            'note_line' => ' ملاحظة: :resolution_note',
+        ],
+        'chat_moderation_action_taken' => [
+            'title' => 'إشعار إدارة المحادثة',
+            'body' => 'تم اتخاذ إجراء على إحدى رسائلك: :action_label.:note_line',
+            'actions' => [
+                'delete_message' => 'تم حذف رسالتك',
+                'warn_sender' => 'تلقيت تحذيراً',
+                'suspend_account' => 'تم تعليق حسابك',
+                'escalate' => 'تم تعليق حسابك',
+                'moderated' => 'تم تطبيق إجراء moderation',
+            ],
+            'note_line' => ' ملاحظة: :resolution_note',
+        ],
+        'chat_report_reasons' => [
+            'spam' => 'رسائل مزعجة',
+            'harassment' => 'تحرش أو تنمر',
+            'inappropriate' => 'محتوى غير لائق',
+            'scam' => 'احتيال',
+            'hate_speech' => 'خطاب كراهية',
+            'impersonation' => 'انتحال شخصية',
+            'other' => 'سبب آخر',
+        ],
         'affiliate_commission_available' => [
             'title' => 'عمولة متاحة للسحب',
             'body' => 'أصبحت عمولة :amount :currency للمنتج :product_name متاحة في رصيدك.',
@@ -754,6 +814,16 @@ return [
         'cannot_edit_message' => 'لا يمكنك تعديل هذه الرسالة.',
         'cannot_delete_message' => 'لا يمكنك حذف هذه الرسالة.',
         'message_deleted' => 'تم حذف هذه الرسالة.',
+        'message_already_reported' => 'لقد أبلغت عن هذه الرسالة مسبقاً.',
+        'report_reasons' => [
+            'spam' => 'رسائل مزعجة',
+            'harassment' => 'تحرش أو تنمر',
+            'inappropriate' => 'محتوى غير لائق',
+            'scam' => 'احتيال أو نصب',
+            'hate_speech' => 'خطاب كراهية',
+            'impersonation' => 'انتحال شخصية',
+            'other' => 'سبب آخر',
+        ],
     ],
 
     'assistant' => [

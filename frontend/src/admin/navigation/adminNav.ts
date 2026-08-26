@@ -6,11 +6,13 @@ import {
   Building2,
   FolderTree,
   LayoutDashboard,
+  MessageSquare,
   Percent,
   ScrollText,
+  BarChart3,
+  Users,
   Settings,
   Store,
-  Users,
   Wallet,
   Wrench,
 } from 'lucide-react';
@@ -21,6 +23,7 @@ export type AdminNavItem = {
   icon: LucideIcon;
   labelKey: string;
   permission?: string;
+  permissionAny?: string[];
 };
 
 /** Flat admin sidebar — no section groups. */
@@ -46,6 +49,7 @@ export const adminNavItems: AdminNavItem[] = [
     labelKey: 'admin.nav.categories',
     permission: 'categories.view',
   },
+  { to: '/admin/payments', icon: Wallet, labelKey: 'admin.nav.payments', permission: 'payments.view' },
   {
     to: '/admin/blog/articles',
     icon: FileText,
@@ -65,6 +69,18 @@ export const adminNavItems: AdminNavItem[] = [
     permission: 'b2b.view',
   },
   { to: '/admin/finance', icon: Wallet, labelKey: 'admin.nav.finance', permission: 'payouts.view' },
+  {
+    to: '/admin/chat',
+    icon: MessageSquare,
+    labelKey: 'admin.nav.chat',
+    permission: 'chat.view',
+  },
+  {
+    to: '/admin/analytics',
+    icon: BarChart3,
+    labelKey: 'admin.nav.analytics',
+    permissionAny: ['analytics.view', 'search.analytics.view'],
+  },
   {
     to: '/admin/affiliate',
     icon: Percent,
@@ -90,5 +106,11 @@ export function filterAdminNavItems(
   items: AdminNavItem[],
   hasPermission: (permission: string) => boolean,
 ): AdminNavItem[] {
-  return items.filter((item) => !item.permission || hasPermission(item.permission));
+  return items.filter((item) => {
+    if (item.permissionAny?.length) {
+      return item.permissionAny.some((permission) => hasPermission(permission));
+    }
+
+    return !item.permission || hasPermission(item.permission);
+  });
 }

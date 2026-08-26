@@ -111,4 +111,9 @@ describe('parseApiError', () => {
     expect(sanitizeErrorMessage(raw, 'en')).toContain('unexpected');
     expect(isUnexpectedServerError({ message: raw, status: 500 })).toBe(true);
   });
+
+  it('handles null and undefined without throwing', () => {
+    expect(parseApiError(null).status).toBe(0);
+    expect(parseApiError(undefined).status).toBe(0);
+  });
 });

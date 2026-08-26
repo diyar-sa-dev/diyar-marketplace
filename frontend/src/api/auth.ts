@@ -57,6 +57,7 @@ export async function verifyEmailOtp(payload: VerifyEmailOtpPayload): Promise<Au
     marketplaceApi.post<UserResponse>('/auth/verify-email-otp', payload),
   );
   resetCsrfCookie();
+  await ensureCsrfCookie();
   return {
     user: response.data.data.user,
     message: extractMessage(response),
@@ -73,6 +74,7 @@ export async function resendEmailOtp(email: string): Promise<AuthActionResult> {
 export async function login(payload: LoginPayload): Promise<AuthUserResult> {
   const response = await withCsrf(() => marketplaceApi.post<UserResponse>('/auth/login', payload));
   resetCsrfCookie();
+  await ensureCsrfCookie();
   return {
     user: response.data.data.user,
     message: extractMessage(response),

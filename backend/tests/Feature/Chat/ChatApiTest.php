@@ -86,6 +86,7 @@ class ChatApiTest extends TestCase
 
         $this->postJsonAsUser("/api/v1/profile/conversations/{$conversationId}/messages", $intruder, [
             'body' => 'Intrusion attempt',
+            'idempotency_key' => 'intruder-attempt-1',
         ])->assertForbidden();
     }
 
@@ -175,6 +176,30 @@ class ChatApiTest extends TestCase
         $this->assertSame('💬 رسالة جديدة', $notification->title);
         $this->assertStringContainsString('لديك رسالة جديدة من', $notification->body);
         $this->assertSame($customer->name, $notification->data['sender_name'] ?? null);
+    }
+
+    public function test_each_chat_message_creates_a_distinct_notification(): void
+    {
+        $customer = $this->createUserWithRole(RoleName::Customer);
+        $vendor = $this->createUserWithRole(RoleName::Vendor);
+        $vendorAccount = VendorAccount::query()->where('user_id', $vendor->id)->firstOrFail();
+
+        $conversationId = (string) $this->postJsonAsUser('/api/v1/profile/conversations', $customer, [
+            'type' => 'customer_vendor',
+            'vendor_account_id' => $vendorAccount->id,
+        ])->json('data.conversation.id');
+
+        $this->postJsonAsUser("/api/v1/profile/conversations/{$conversationId}/messages", $customer, [
+            'body' => 'First ping',
+            'idempotency_key' => 'notify-multi-1',
+        ])->assertCreated();
+
+        $this->postJsonAsUser("/api/v1/profile/conversations/{$conversationId}/messages", $customer, [
+            'body' => 'Second ping',
+            'idempotency_key' => 'notify-multi-2',
+        ])->assertCreated();
+
+        $this->assertSame(2, UserNotification::query()->where('user_id', $vendor->id)->count());
     }
 
     public function test_message_created_skips_in_app_notification_when_recipient_is_viewing_conversation(): void

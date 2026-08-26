@@ -117,3 +117,18 @@ Category/product scope requires **eligible subtotal** computed from cart line it
 ## Verdict
 
 **Ready to implement.** Extend existing services; do not replace checkout coupon contract.
+
+---
+
+## Hardening pass (post `aa6843c`)
+
+**Date:** 2026-08-26
+
+| Gap found | Resolution | Status |
+|-----------|------------|--------|
+| Free shipping coupon did not zero shipping | `CouponFreeShippingService` + checkout integration | ✅ FIXED |
+| Pickup + free shipping abuse | Rejected with 422 | ✅ FIXED |
+| Prior report marked free shipping deferred | Corrected in docs + tests | ✅ FIXED |
+| Parallel concurrency stress test | Not implemented | ⚠️ DEFERRED |
+| Vendor create API advanced fields | Still percentage-only on vendor create | ⚠️ DEFERRED |
+| Full admin coupon editor | List/detail only | ⚠️ DEFERRED |
