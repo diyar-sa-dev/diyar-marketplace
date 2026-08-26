@@ -103,6 +103,9 @@ return [
 
     'shipping' => [
         'default_carrier_flat_rate' => env('DIYAR_SHIPPING_DEFAULT_CARRIER_FLAT_RATE', '30.00'),
+        'default_volumetric_divisor' => (int) env('DIYAR_SHIPPING_VOLUMETRIC_DIVISOR', 5000),
+        'default_product_weight_kg' => env('DIYAR_SHIPPING_DEFAULT_PRODUCT_WEIGHT_KG', '1.000'),
+        'max_supported_weight_kg' => env('DIYAR_SHIPPING_MAX_WEIGHT_KG', '1000'),
     ],
 
     /*
@@ -150,6 +153,7 @@ return [
     'coupons' => [
         'percentage_min' => 5,
         'percentage_max' => 90,
+        'max_stackable_per_vendor' => (int) env('DIYAR_COUPON_MAX_STACKABLE', 1),
     ],
 
     /*

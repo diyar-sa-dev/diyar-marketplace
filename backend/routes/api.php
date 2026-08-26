@@ -35,6 +35,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminServiceBookingController;
 use App\Http\Controllers\Api\V1\Admin\AdminServiceRequestController;
 use App\Http\Controllers\Api\V1\Admin\AdminSessionController;
 use App\Http\Controllers\Api\V1\Admin\AdminShipmentController;
+use App\Http\Controllers\Api\V1\Admin\AdminShippingConfigurationController;
 use App\Http\Controllers\Api\V1\Admin\AdminSystemSettingController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Admin\AdminVendorAccountController;
@@ -126,7 +127,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes  Version 1
+| API Routes Â Version 1
 |--------------------------------------------------------------------------
 |
 | All V1 endpoints are prefixed with /api/v1 (see bootstrap/app.php).
@@ -385,6 +386,23 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
         ->middleware('admin.permission:shipping.view');
     Route::get('/shipments/{shipment}', [AdminShipmentController::class, 'show'])
         ->middleware('admin.permission:shipping.view');
+
+    Route::get('/shipping/carriers', [AdminShippingConfigurationController::class, 'carriers'])
+        ->middleware('admin.permission:shipping.view');
+    Route::post('/shipping/carriers', [AdminShippingConfigurationController::class, 'storeCarrier'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::patch('/shipping/carriers/{carrier}', [AdminShippingConfigurationController::class, 'updateCarrier'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::post('/shipping/zones', [AdminShippingConfigurationController::class, 'storeZone'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::delete('/shipping/zones/{zone}', [AdminShippingConfigurationController::class, 'destroyZone'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::post('/shipping/rate-rules', [AdminShippingConfigurationController::class, 'storeRateRule'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::delete('/shipping/rate-rules/{rateRule}', [AdminShippingConfigurationController::class, 'destroyRateRule'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::post('/shipping/vendor-profiles', [AdminShippingConfigurationController::class, 'storeVendorProfile'])
+        ->middleware('admin.permission:shipping.manage');
 
     Route::get('/notifications', [AdminNotificationController::class, 'index'])
         ->middleware('admin.permission:notifications.view');

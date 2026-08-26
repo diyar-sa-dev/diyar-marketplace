@@ -874,6 +874,16 @@ export const en = {
       updateError: 'Unable to update coupon.',
       loadError: 'Unable to load coupon.',
     },
+    shipping: {
+      title: 'Shipping configuration',
+      subtitle: 'Manage carriers, zones, and weight-based rate rules.',
+      empty: 'No carriers configured yet.',
+      carrierName: 'Carrier name',
+      carrierCode: 'Carrier code',
+      addCarrier: 'Add carrier',
+      created: 'Shipping configuration saved.',
+      createError: 'Unable to save shipping configuration.',
+    },
     payments: {
       subtitle: 'Inspect marketplace payment activity.',
       empty: 'No payments match your filters.',

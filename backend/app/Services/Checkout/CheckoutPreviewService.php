@@ -10,6 +10,7 @@ use App\Services\Cart\CartService;
 use App\Services\Cart\CartValidationService;
 use App\Services\Coupon\CheckoutCouponService;
 use App\Services\Profile\AddressService;
+use App\Services\Shipping\DTO\ShippingQuoteContext;
 use App\Services\Shipping\ShippingQuoteService;
 use App\Services\Shipping\VendorShippingSettingsService;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -62,7 +63,11 @@ final class CheckoutPreviewService
         }
 
         $couponMap = $this->normalizeCoupons($vendorCoupons);
-        $appliedCoupons = $this->coupons->resolveForVendorGroups($couponMap, $vendorSubtotals);
+        $cartItemsByVendor = [];
+        foreach ($groups as $vendorAccountId => $items) {
+            $cartItemsByVendor[(string) $vendorAccountId] = $items;
+        }
+        $appliedCoupons = $this->coupons->resolveForVendorGroups($couponMap, $vendorSubtotals, $cartItemsByVendor, $user);
 
         $vendorGroupResults = [];
         $orderSubtotal = '0.00';
@@ -85,7 +90,12 @@ final class CheckoutPreviewService
                 throw new UnprocessableEntityHttpException(__('diyar.shipping.method_not_available'));
             }
 
-            $quote = $this->shippingQuotes->quoteVendorGroup($settings, $method, $subtotal);
+            $quote = $this->shippingQuotes->quoteVendorGroup(
+                $settings,
+                $method,
+                $subtotal,
+                new ShippingQuoteContext($address, $items, $vendorAccountId),
+            );
             $assemblyCost = $this->assembly->calculate($subtotal, $items->count());
             $couponData = $appliedCoupons[$vendorAccountId] ?? null;
             $discount = $couponData['discount'] ?? '0.00';
@@ -124,6 +134,8 @@ final class CheckoutPreviewService
                     'cost' => $quote->shippingCost,
                     'free_shipping_applied' => $quote->freeShippingApplied,
                     'pickup_location_label' => $quote->pickupLocationLabel,
+                    'delivery_estimate_days' => $quote->deliveryEstimateDays,
+                    'billable_weight_kg' => $quote->billableWeightKg,
                 ],
                 'assembly' => $assemblyCost,
                 'discount' => $discount,

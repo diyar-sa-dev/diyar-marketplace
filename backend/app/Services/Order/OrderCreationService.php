@@ -162,6 +162,8 @@ final class OrderCreationService
                 'vendor_coupon_id' => $coupon['id'] ?? null,
                 'coupon_code' => $coupon['code'] ?? null,
                 'coupon_percent_snapshot' => $coupon['value'] ?? null,
+                'coupon_discount_snapshot' => $group['discount'],
+                'coupon_type_snapshot' => $coupon['type'] ?? null,
                 'status' => VendorOrderStatus::Pending,
                 'subtotal' => $group['subtotal'],
                 'shipping_method' => $group['shipping']['method'],

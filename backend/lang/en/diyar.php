@@ -270,6 +270,11 @@ return [
         'carrier_rate_required' => 'Carrier flat rate is required when carrier delivery is enabled.',
         'free_threshold_required' => 'Free shipping threshold is required when free shipping is enabled.',
         'pickup_label_required' => 'Pickup location label is required when pickup is enabled.',
+        'unsupported_zone' => 'Shipping is not available for this destination.',
+        'missing_weight' => 'Unable to calculate shipping weight for cart items.',
+        'weight_exceeds_max' => 'Cart weight exceeds the maximum supported limit.',
+        'invalid_volumetric_divisor' => 'Invalid volumetric divisor configuration.',
+        'profile_not_configured' => 'Advanced shipping profile is not configured for this vendor.',
         'methods' => [
             'carrier' => 'Carrier delivery',
             'pickup' => 'Store pickup',
@@ -307,6 +312,10 @@ return [
         'minimum_not_met' => 'Order subtotal does not meet the coupon minimum.',
         'store_mismatch' => 'This coupon does not apply to this store.',
         'cannot_edit_after_use' => 'This field cannot be changed after the coupon has been used.',
+        'user_limit_exhausted' => 'You have reached the usage limit for this coupon.',
+        'not_stackable' => 'These coupons cannot be combined.',
+        'exclusive_conflict' => 'An exclusive coupon is already applied.',
+        'disabled' => 'Coupons are currently unavailable.',
     ],
 
     'provider_review' => [

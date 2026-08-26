@@ -147,6 +147,11 @@ const AdminFinancePage = lazy(() => import('./admin/pages/AdminFinancePage.tsx')
 const AdminAffiliateHubPage = lazy(() => import('./admin/pages/AdminAffiliateHubPage.tsx'));
 const AdminAuditPage = lazy(() => import('./admin/pages/AdminAuditPage.tsx'));
 const AdminSettingsPage = lazy(() => import('./admin/pages/AdminSettingsPage.tsx'));
+const AdminCouponsPage = lazy(() => import('./admin/pages/AdminCouponsPage.tsx'));
+const AdminCouponDetailPage = lazy(() => import('./admin/pages/AdminCouponDetailPage.tsx'));
+const AdminShippingConfigurationPage = lazy(
+  () => import('./admin/pages/AdminShippingConfigurationPage.tsx'),
+);
 
 function AdminRouteFallback() {
   return <AdminPageSkeleton />;
@@ -606,12 +611,14 @@ export default function App() {
             <Route path="transactions" element={<Navigate to="/admin/finance" replace />} />
             <Route path="audit" element={<Suspense fallback={<AdminRouteFallback />}><AdminAuditPage /></Suspense>} />
             <Route path="settings" element={<Suspense fallback={<AdminRouteFallback />}><AdminSettingsPage /></Suspense>} />
+            <Route path="coupons" element={<Suspense fallback={<AdminRouteFallback />}><AdminCouponsPage /></Suspense>} />
+            <Route path="coupons/:couponId" element={<Suspense fallback={<AdminRouteFallback />}><AdminCouponDetailPage /></Suspense>} />
+            <Route path="shipping" element={<Suspense fallback={<AdminRouteFallback />}><AdminShippingConfigurationPage /></Suspense>} />
             <Route path="services/*" element={<Navigate to="/admin" replace />} />
             <Route path="products/*" element={<Navigate to="/admin" replace />} />
             <Route path="orders/*" element={<Navigate to="/admin" replace />} />
             <Route path="payments/*" element={<Navigate to="/admin" replace />} />
             <Route path="refunds/*" element={<Navigate to="/admin" replace />} />
-            <Route path="coupons/*" element={<Navigate to="/admin" replace />} />
             <Route path="reviews" element={<Navigate to="/admin" replace />} />
             <Route path="operations" element={<Navigate to="/admin" replace />} />
             <Route path="roles" element={<Navigate to="/admin" replace />} />
