@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { apiBaseUrl } from './helpers/api.ts';
 
 const E2E_BLOG_SLUG = 'e2e-blog-article';
 
 test.describe('Blog journey', () => {
   test('blog listing loads and opens article detail with related section', async ({ page }) => {
-    const articleApi = await page.request.get(`/api/v1/blog/articles/${E2E_BLOG_SLUG}`);
+    const articleApi = await page.request.get(`${apiBaseUrl()}/blog/articles/${E2E_BLOG_SLUG}`);
     expect(articleApi.ok()).toBeTruthy();
     const articlePayload = await articleApi.json();
     const articleTitle = articlePayload?.data?.article?.title as string;

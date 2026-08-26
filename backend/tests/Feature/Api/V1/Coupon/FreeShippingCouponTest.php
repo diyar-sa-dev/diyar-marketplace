@@ -29,6 +29,9 @@ class FreeShippingCouponTest extends TestCase
         $product = Product::factory()->create([
             'sale_price' => 250.00,
             'weight_kg' => 1.0,
+            'width' => null,
+            'height' => null,
+            'depth' => null,
         ]);
 
         $carrier = ShippingCarrier::query()->create([

@@ -13,6 +13,7 @@ import {
   Users,
   Settings,
   Store,
+  Truck,
   Wallet,
   Wrench,
 } from 'lucide-react';
@@ -48,6 +49,12 @@ export const adminNavItems: AdminNavItem[] = [
     icon: FolderTree,
     labelKey: 'admin.nav.categories',
     permission: 'categories.view',
+  },
+  {
+    to: '/admin/shipping',
+    icon: Truck,
+    labelKey: 'admin.nav.shipping',
+    permission: 'shipping.view',
   },
   {
     to: '/admin/payments',

@@ -25,6 +25,9 @@ const AdminAnalyticsPage = lazy(() => import('./pages/AdminAnalyticsPage.tsx'));
 const AdminSettingsPage = lazy(() => import('./pages/AdminSettingsPage.tsx'));
 const AdminPaymentsPage = lazy(() => import('./pages/AdminPaymentsPage.tsx'));
 const AdminPaymentDetailPage = lazy(() => import('./pages/AdminPaymentDetailPage.tsx'));
+const AdminShippingConfigurationPage = lazy(
+  () => import('./pages/AdminShippingConfigurationPage.tsx'),
+);
 
 function AdminRouteFallback() {
   return <AdminPageSkeleton />;
@@ -134,6 +137,14 @@ export default function AdminShell() {
           element={
             <Suspense fallback={<AdminRouteFallback />}>
               <AdminPaymentDetailPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="shipping"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminShippingConfigurationPage />
             </Suspense>
           }
         />

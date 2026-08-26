@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { demoUsers, E2E_PASSWORD } from './fixtures/credentials.ts';
 import { apiBaseUrl } from './helpers/api.ts';
+import { ensureDraftB2bCompanyHidden } from './helpers/b2b-reset.ts';
 import { loginAdminUi, loginMarketplaceUi } from './helpers/ui-auth.ts';
 
 const PUBLISHED_B2B_SLUG = 'modernwood';
@@ -9,6 +10,10 @@ const DRAFT_B2B_SLUG = 'draft-b2b-company';
 test.describe.configure({ mode: 'serial' });
 
 test.describe('B2B admin journey', () => {
+  test.beforeEach(async ({ request }) => {
+    await ensureDraftB2bCompanyHidden(request);
+  });
+
   test('draft company is hidden from public but visible in admin list filter', async ({ page, request }) => {
     const draftPublic = await request.get(`${apiBaseUrl()}/b2b/companies/${DRAFT_B2B_SLUG}`, {
       failOnStatusCode: false,
@@ -18,7 +23,7 @@ test.describe('B2B admin journey', () => {
     await loginAdminUi(page, demoUsers.admin.phoneNational);
     await page.goto('/admin/b2b/companies', { waitUntil: 'networkidle' });
     await page.locator('select').first().selectOption('draft');
-    await expect(page.getByText(DRAFT_B2B_SLUG)).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId(`b2b-preview-${DRAFT_B2B_SLUG}`)).toBeVisible({ timeout: 60_000 });
   });
 
   test('admin publishes and verifies a draft company for public visibility', async ({ page, request }) => {
@@ -31,7 +36,7 @@ test.describe('B2B admin journey', () => {
     await page.goto('/admin/b2b/companies', { waitUntil: 'networkidle' });
 
     await page.locator('select').first().selectOption('draft');
-    await expect(page.getByText(DRAFT_B2B_SLUG)).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId(`b2b-preview-${DRAFT_B2B_SLUG}`)).toBeVisible({ timeout: 60_000 });
 
     await page.getByTestId(`b2b-publish-${DRAFT_B2B_SLUG}`).click();
     await expect(page.getByTestId(`b2b-unpublish-${DRAFT_B2B_SLUG}`)).toBeVisible({

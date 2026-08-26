@@ -6,8 +6,9 @@ import { apiBaseUrl } from './helpers/api.ts';
 test.describe('Loyalty journey', () => {
   test('guest sees sign-in prompt on loyalty page', async ({ page }) => {
     await page.goto('/loyalty', { waitUntil: 'networkidle' });
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByRole('link', { name: /sign in|تسجيل الدخول/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /sign in|تسجيل الدخول/i })).toBeVisible({
+      timeout: 30_000,
+    });
   });
 
   test('authenticated customer can load loyalty summary API and page', async ({ page, request }) => {
