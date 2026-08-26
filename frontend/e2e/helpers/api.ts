@@ -1,4 +1,4 @@
-import type { APIRequestContext } from '@playwright/test';
+import type { APIRequestContext, Page } from '@playwright/test';
 import { E2E_PASSWORD } from '../fixtures/credentials.ts';
 
 export function apiBaseUrl(): string {
@@ -100,4 +100,14 @@ export async function adminRequestHeaders(
     ...(cookie ? { Cookie: cookie } : {}),
     ...(xsrf ? { 'X-XSRF-TOKEN': decodeURIComponent(xsrf) } : {}),
   };
+}
+
+export async function applyRequestSessionToPage(
+  request: APIRequestContext,
+  page: Page,
+): Promise<void> {
+  const state = await request.storageState();
+  if (state.cookies.length > 0) {
+    await page.context().addCookies(state.cookies);
+  }
 }

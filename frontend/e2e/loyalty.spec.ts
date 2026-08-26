@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { demoUsers } from './fixtures/credentials.ts';
-import { loginMarketplaceUi } from './helpers/ui-auth.ts';
-import { apiBaseUrl } from './helpers/api.ts';
+import { apiBaseUrl, applyRequestSessionToPage, loginMarketplaceApi } from './helpers/api.ts';
 
 test.describe('Loyalty journey', () => {
   test('guest sees sign-in prompt on loyalty page', async ({ page }) => {
@@ -11,10 +10,10 @@ test.describe('Loyalty journey', () => {
     });
   });
 
-  test('authenticated customer can load loyalty summary API and page', async ({ page }) => {
-    await loginMarketplaceUi(page, demoUsers.customer.phoneNational);
+  test('authenticated customer can load loyalty summary API and page', async ({ page, request }) => {
+    await loginMarketplaceApi(request, demoUsers.customer.phoneNational);
 
-    const summary = await page.request.get(`${apiBaseUrl()}/loyalty`, {
+    const summary = await request.get(`${apiBaseUrl()}/loyalty`, {
       headers: {
         Accept: 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
@@ -27,6 +26,7 @@ test.describe('Loyalty journey', () => {
       enabled: expect.any(Boolean),
     });
 
+    await applyRequestSessionToPage(request, page);
     await page.goto('/loyalty', { waitUntil: 'networkidle' });
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText(/no rewards available|لا توجد مكافآت/i)).toBeVisible();

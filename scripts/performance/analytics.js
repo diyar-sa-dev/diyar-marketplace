@@ -9,6 +9,51 @@ const originUrl = __ENV.ORIGIN_URL || 'http://127.0.0.1:8000';
 const baseUrl = __ENV.BASE_URL || 'http://127.0.0.1:8000/api/v1';
 const demoPassword = __ENV.E2E_DEMO_PASSWORD || 'Password123!';
 
+/** @type {Record<number, { adminCookie: string, vendorCookie: string, providerCookie: string }>} */
+const vuSessions = {};
+
+function sessionsForVu() {
+  if (!vuSessions[__VU]) {
+    vuSessions[__VU] = {
+      adminCookie: loginSession(
+        originUrl,
+        baseUrl,
+        '/admin/auth/login',
+        {
+          method: 'phone',
+          identifier: '500000001',
+          password: demoPassword,
+        },
+        'admin',
+      ),
+      vendorCookie: loginSession(
+        originUrl,
+        baseUrl,
+        '/auth/login',
+        {
+          method: 'phone',
+          identifier: '500000002',
+          password: demoPassword,
+        },
+        'vendor',
+      ),
+      providerCookie: loginSession(
+        originUrl,
+        baseUrl,
+        '/auth/login',
+        {
+          method: 'phone',
+          identifier: '500000101',
+          password: demoPassword,
+        },
+        'provider',
+      ),
+    };
+  }
+
+  return vuSessions[__VU];
+}
+
 export const options = {
   stages: [
     { duration: '15s', target: 5 },
@@ -23,47 +68,8 @@ export const options = {
   },
 };
 
-export function setup() {
-  const adminCookie = loginSession(
-    originUrl,
-    baseUrl,
-    '/admin/auth/login',
-    {
-      method: 'phone',
-      identifier: '500000001',
-      password: demoPassword,
-    },
-    'admin',
-  );
-
-  const vendorCookie = loginSession(
-    originUrl,
-    baseUrl,
-    '/auth/login',
-    {
-      method: 'phone',
-      identifier: '500000002',
-      password: demoPassword,
-    },
-    'vendor',
-  );
-
-  const providerCookie = loginSession(
-    originUrl,
-    baseUrl,
-    '/auth/login',
-    {
-      method: 'phone',
-      identifier: '500000101',
-      password: demoPassword,
-    },
-    'provider',
-  );
-
-  return { adminCookie, vendorCookie, providerCookie };
-}
-
-export default function analytics(data) {
+export default function analytics() {
+  const data = sessionsForVu();
   const adminParams = authedParams(data.adminCookie, 'admin-funnel');
   const vendorParams = authedParams(data.vendorCookie, 'vendor-overview');
   const providerParams = authedParams(data.providerCookie, 'provider-overview');
