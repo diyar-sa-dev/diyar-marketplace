@@ -3,11 +3,12 @@
 namespace Tests\Feature\Outbox;
 
 use App\Enums\DomainOutboxEventStatus;
-use App\Enums\NotificationChannel;
 use App\Enums\NotificationType;
 use App\Enums\RoleName;
 use App\Jobs\Notifications\DeliverNotificationChannelJob;
 use App\Models\DomainOutboxEvent;
+use App\Services\Notifications\NotificationDispatcher;
+use App\Services\Outbox\DomainOutboxPublisher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
@@ -33,7 +34,7 @@ class DomainOutboxIntegrationTest extends TestCase
 
         $user = $this->createUserWithRole(RoleName::Customer);
 
-        app(\App\Services\Notifications\NotificationDispatcher::class)->dispatch(
+        app(NotificationDispatcher::class)->dispatch(
             NotificationType::OrderCreated,
             [$user],
             ['order_number' => 'DYR-900', 'total' => '10.00'],
@@ -57,7 +58,7 @@ class DomainOutboxIntegrationTest extends TestCase
 
     public function test_outbox_idempotency_prevents_duplicate_events(): void
     {
-        $publisher = app(\App\Services\Outbox\DomainOutboxPublisher::class);
+        $publisher = app(DomainOutboxPublisher::class);
 
         $first = $publisher->publish(
             'notification.delivery.dispatch',

@@ -9,6 +9,7 @@ use App\Channels\Notifications\SmsNotificationChannel;
 use App\Enums\NotificationChannel;
 use App\Enums\NotificationType;
 use App\Jobs\Notifications\DeliverNotificationChannelJob;
+use App\Models\DomainOutboxEvent;
 use App\Models\NotificationDelivery;
 use App\Models\User;
 use App\Services\Notifications\NotificationBroadcastProgressService;
@@ -89,7 +90,7 @@ final class NotificationMailTestCommand extends Command
         $this->line("Correlation ID: {$delivery->correlation_id}");
 
         if ((bool) config('diyar.outbox.enabled', true)) {
-            $outbox = \App\Models\DomainOutboxEvent::query()
+            $outbox = DomainOutboxEvent::query()
                 ->where('aggregate_id', $delivery->id)
                 ->latest('created_at')
                 ->first();
@@ -137,7 +138,7 @@ final class NotificationMailTestCommand extends Command
             $latencyMs = (int) round((microtime(true) - $startedAt) * 1000);
 
             $this->line("Final status: {$delivery->status->value}");
-            $this->line("Provider: SMTP (DiyarPhpMailer)");
+            $this->line('Provider: SMTP (DiyarPhpMailer)');
             $this->line("Latency: {$latencyMs}ms");
 
             if ($delivery->status->value !== 'delivered') {

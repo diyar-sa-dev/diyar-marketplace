@@ -5,9 +5,9 @@ namespace App\Events\Domain;
 use App\Contracts\Notifications\TriggersNotification;
 use App\Enums\NotificationType;
 use App\Models\Payment;
-use App\Support\Notifications\NotificationUrlSupport;
 use App\Services\Notifications\NotificationContextBuilder;
 use App\Services\Notifications\NotificationIntent;
+use App\Support\Notifications\NotificationUrlSupport;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 

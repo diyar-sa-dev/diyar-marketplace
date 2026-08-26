@@ -6,6 +6,7 @@ use App\Enums\NotificationType;
 use App\Enums\RoleName;
 use App\Jobs\Admin\RecordAdminAuditLogJob;
 use App\Models\ChatMessageReport;
+use App\Models\Message;
 use App\Models\Permission;
 use App\Models\UserNotification;
 use App\Models\VendorAccount;
@@ -268,7 +269,7 @@ class AdminChatOversightTest extends TestCase
             ->assertJsonPath('data.report.status', 'actioned');
 
         $this->assertNotNull(
-            \App\Models\Message::query()->find($messageId)?->deleted_at,
+            Message::query()->find($messageId)?->deleted_at,
         );
         $this->assertSame(
             1,
@@ -322,7 +323,7 @@ class AdminChatOversightTest extends TestCase
 
         $this->assertSame('suspended', $vendor->status->value);
         $this->assertSame('suspended', $vendorAccount->status->value);
-        $this->assertNotNull(\App\Models\Message::query()->find($messageId)?->deleted_at);
+        $this->assertNotNull(Message::query()->find($messageId)?->deleted_at);
 
         $senderNotification = UserNotification::query()
             ->where('user_id', $vendor->id)
@@ -371,7 +372,7 @@ class AdminChatOversightTest extends TestCase
             ->assertJsonPath('data.report.action_taken', 'delete_message');
 
         $this->assertNotNull(
-            \App\Models\Message::query()->find($messageId)?->deleted_at,
+            Message::query()->find($messageId)?->deleted_at,
         );
     }
 

@@ -4,7 +4,9 @@ namespace App\Services\Analytics;
 
 use App\Enums\AnalyticsEventType;
 use App\Enums\PaymentStatus;
+use App\Enums\PayoutStatus;
 use App\Models\AffiliateCommission;
+use App\Models\AffiliatePayout;
 use App\Models\AnalyticsEvent;
 use App\Models\CartItem;
 use App\Models\Order;
@@ -13,8 +15,6 @@ use App\Models\Product;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorPayout;
-use App\Enums\PayoutStatus;
-use App\Models\AffiliatePayout;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;

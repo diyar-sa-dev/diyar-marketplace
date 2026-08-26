@@ -13,8 +13,8 @@ use App\Enums\NotificationType;
 use App\Models\NotificationDelivery;
 use App\Models\User;
 use App\Services\Chat\ChatPresenceService;
-use App\Services\Notifications\NotificationCircuitBreaker;
 use App\Services\Notifications\NotificationBroadcastProgressService;
+use App\Services\Notifications\NotificationCircuitBreaker;
 use App\Services\Notifications\NotificationDeliveryStateMachine;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -22,7 +22,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-final class DeliverNotificationChannelJob implements ShouldQueue, ShouldBeUnique
+final class DeliverNotificationChannelJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 

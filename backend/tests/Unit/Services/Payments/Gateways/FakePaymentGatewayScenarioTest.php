@@ -5,6 +5,7 @@ namespace Tests\Unit\Services\Payments\Gateways;
 use App\Enums\FakePaymentScenario;
 use App\Enums\PaymentStatus;
 use App\Services\Payments\DTO\PaymentDetailsRequest;
+use App\Services\Payments\DTO\PaymentSessionRequest;
 use App\Services\Payments\Exceptions\PaymentGatewayException;
 use App\Services\Payments\Gateways\FakePaymentGateway;
 use PHPUnit\Framework\Attributes\Test;
@@ -72,7 +73,7 @@ class FakePaymentGatewayScenarioTest extends TestCase
         $gateway = new FakePaymentGateway;
 
         $this->expectException(PaymentGatewayException::class);
-        $gateway->createSession(new \App\Services\Payments\DTO\PaymentSessionRequest(
+        $gateway->createSession(new PaymentSessionRequest(
             paymentReference: 'REF-TMO',
             orderNumber: 'ORD-1',
             amount: '10.00',

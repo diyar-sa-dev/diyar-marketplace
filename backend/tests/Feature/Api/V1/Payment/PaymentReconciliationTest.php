@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Api\V1\Payment;
 
-use App\Enums\PaymentAttemptStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\RoleName;
 use App\Models\Order;
 use App\Models\PaymentAttempt;
 use App\Models\Product;
+use App\Models\User;
 use App\Services\Payments\PaymentReconciliationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -65,7 +65,7 @@ class PaymentReconciliationTest extends TestCase
     }
 
     /**
-     * @return array{0: \App\Models\User, 1: Order}
+     * @return array{0: User, 1: Order}
      */
     private function createPayableOrder(): array
     {

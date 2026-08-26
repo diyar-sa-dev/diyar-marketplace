@@ -8,9 +8,9 @@ use App\Enums\RoleName;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentStateTransition;
-use App\Models\User;
 use App\Services\Order\PaymentStateService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\InteractsWithCheckout;
@@ -89,7 +89,7 @@ class PaymentStateMachineTest extends TestCase
             'discount_total' => '0.00',
             'vat_amount' => '0.00',
             'grand_total' => '100.00',
-            'idempotency_key' => (string) \Illuminate\Support\Str::uuid(),
+            'idempotency_key' => (string) Str::uuid(),
             'idempotency_payload_hash' => hash('sha256', 'test'),
         ]);
 

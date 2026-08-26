@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateChatReportRequest;
 use App\Http\Resources\AdminChatMessageReportResource;
 use App\Http\Resources\AdminConversationResource;
 use App\Http\Resources\AdminMessageResource;
@@ -112,7 +113,7 @@ final class AdminChatController extends Controller
     }
 
     public function updateReport(
-        \App\Http\Requests\Admin\UpdateChatReportRequest $request,
+        UpdateChatReportRequest $request,
         ChatMessageReport $report,
     ): JsonResponse {
         $updated = $this->oversight->resolveReport(

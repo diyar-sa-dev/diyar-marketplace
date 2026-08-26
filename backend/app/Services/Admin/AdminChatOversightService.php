@@ -21,6 +21,7 @@ final class AdminChatOversightService
         private readonly ChatReportNotificationService $reportNotifications,
         private readonly ChatModerationEnforcementService $enforcement,
     ) {}
+
     /**
      * @param  array{type?: string, user_id?: string, q?: string, has_reports?: bool}  $filters
      * @return LengthAwarePaginator<int, Conversation>

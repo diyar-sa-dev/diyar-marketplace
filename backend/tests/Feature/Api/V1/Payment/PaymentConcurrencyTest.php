@@ -3,9 +3,13 @@
 namespace Tests\Feature\Api\V1\Payment;
 
 use App\Enums\PaymentAttemptStatus;
-use App\Enums\PaymentStatus;
+use App\Enums\RoleName;
+use App\Models\Order;
 use App\Models\PaymentAttempt;
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\InteractsWithCheckout;
 use Tests\Concerns\InteractsWithFinance;
@@ -78,16 +82,16 @@ class PaymentConcurrencyTest extends TestCase
     }
 
     /**
-     * @return array{0: \App\Models\User, 1: \App\Models\Order}
+     * @return array{0: User, 1: Order}
      */
     private function createPayableOrder(): array
     {
-        $customer = $this->createUserWithRole(\App\Enums\RoleName::Customer);
+        $customer = $this->createUserWithRole(RoleName::Customer);
         $address = $this->createCustomerAddress($customer);
-        $vendor = $this->createUserWithRole(\App\Enums\RoleName::Vendor);
+        $vendor = $this->createUserWithRole(RoleName::Vendor);
         $this->createVendorShippingSettings($vendor->vendorAccount);
 
-        $product = \App\Models\Product::factory()->create([
+        $product = Product::factory()->create([
             'vendor_account_id' => $vendor->vendorAccount->id,
             'sale_price' => '100.00',
         ]);
@@ -98,10 +102,10 @@ class PaymentConcurrencyTest extends TestCase
             '/api/v1/orders',
             $customer,
             $this->checkoutPayload($address, $product),
-            ['Idempotency-Key' => (string) \Illuminate\Support\Str::uuid()],
+            ['Idempotency-Key' => (string) Str::uuid()],
         )->assertCreated();
 
-        $order = \App\Models\Order::query()->with('payment')->findOrFail($response->json('data.order.id'));
+        $order = Order::query()->with('payment')->findOrFail($response->json('data.order.id'));
 
         return [$customer, $order];
     }

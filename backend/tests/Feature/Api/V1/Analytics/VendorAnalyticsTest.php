@@ -4,6 +4,7 @@ namespace Tests\Feature\Api\V1\Analytics;
 
 use App\Enums\RoleName;
 use App\Services\Analytics\AnalyticsCache;
+use App\Services\Payments\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
@@ -39,7 +40,7 @@ class VendorAnalyticsTest extends TestCase
         $vendorB = $this->createUserWithRole(RoleName::Vendor);
 
         [, $orderA] = $this->createPayableOrderForVendor($vendorA);
-        app(\App\Services\Payments\PaymentFinalizationService::class)->finalizePaid(
+        app(PaymentFinalizationService::class)->finalizePaid(
             $orderA->payment,
             FakePaymentGateway::$gatewayPaymentId,
             '12345',

@@ -2,6 +2,7 @@
 
 namespace App\Services\Infrastructure;
 
+use App\Services\Payments\PaymentHealthService;
 use App\Services\Settings\EffectiveConfigService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -180,7 +181,7 @@ final class PlatformHealthService
     private function probePayments(): array
     {
         return $this->rememberProbe('payments', function (): array {
-            $metrics = app(\App\Services\Payments\PaymentHealthService::class)->snapshot();
+            $metrics = app(PaymentHealthService::class)->snapshot();
             $status = (string) ($metrics['status'] ?? 'ok');
 
             return [

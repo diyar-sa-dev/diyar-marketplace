@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1\Checkout;
 
+use App\Enums\AnalyticsEventType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Checkout\CheckoutPreviewRequest;
 use App\Http\Resources\CheckoutPreviewResource;
-use App\Enums\AnalyticsEventType;
 use App\Services\Analytics\AnalyticsEventRecorder;
 use App\Services\Checkout\CheckoutPreviewService;
 use App\Support\Api\ApiResponse;

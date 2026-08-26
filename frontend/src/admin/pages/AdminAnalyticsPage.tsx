@@ -53,7 +53,8 @@ export default function AdminAnalyticsPage() {
   const [funnelPeriod, setFunnelPeriod] = useState<AnalyticsPeriodPreset>('30d');
   const [searchPeriod, setSearchPeriod] = useState<AnalyticsPeriodPreset>('30d');
   const [cohortMonths, setCohortMonths] = useState<number>(6);
-  const [activeSection, setActiveSection] = useState<AnalyticsSectionId | null>(null);
+  const [scrollSpySection, setScrollSpySection] = useState<AnalyticsSectionId | null>(null);
+  const [trackedHash, setTrackedHash] = useState(location.hash);
 
   const funnelQuery = useAdminFunnelAnalytics(funnelPeriod, { enabled: canViewFunnel });
   const cohortQuery = useAdminCohortAnalytics(cohortMonths, { enabled: canViewCohorts });
@@ -74,9 +75,21 @@ export default function AdminAnalyticsPage() {
     [canViewFunnel, canViewCohorts, canViewSearch],
   );
 
+  const hashSection = location.hash.replace('#', '') as AnalyticsSectionId;
+  const sectionFromHash = visibleSections.includes(hashSection)
+    ? hashSection
+    : (visibleSections[0] ?? null);
+
+  if (trackedHash !== location.hash) {
+    setTrackedHash(location.hash);
+    setScrollSpySection(null);
+  }
+
+  const activeSection = scrollSpySection ?? sectionFromHash;
+
   const scrollToSection = useCallback(
     (section: AnalyticsSectionId) => {
-      setActiveSection(section);
+      setScrollSpySection(section);
       const element = document.getElementById(section);
       element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       navigate({ hash: section }, { replace: true });
@@ -85,22 +98,17 @@ export default function AdminAnalyticsPage() {
   );
 
   useEffect(() => {
-    const hash = location.hash.replace('#', '') as AnalyticsSectionId;
-    if (!hash || !visibleSections.includes(hash)) {
-      if (visibleSections.length > 0) {
-        setActiveSection(visibleSections[0]);
-      }
+    if (!hashSection || !visibleSections.includes(hashSection)) {
       return;
     }
 
-    setActiveSection(hash);
-    const element = document.getElementById(hash);
+    const element = document.getElementById(hashSection);
     if (element) {
       window.requestAnimationFrame(() => {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     }
-  }, [location.hash, visibleSections]);
+  }, [hashSection, visibleSections]);
 
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
@@ -114,7 +122,7 @@ export default function AdminAnalyticsPage() {
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
-            setActiveSection(section);
+            setScrollSpySection(section);
           }
         },
         { rootMargin: '-30% 0px -55% 0px', threshold: 0.1 },

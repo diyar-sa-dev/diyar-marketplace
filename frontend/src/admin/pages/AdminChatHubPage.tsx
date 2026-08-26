@@ -455,7 +455,6 @@ export default function AdminChatHubPage() {
                 <AdminChatReportActionPanel
                   key={`${selectedReportId}-${panelRevision}`}
                   mode={showInitialPanel ? 'initial' : 'continuation'}
-                  revisionKey={panelRevision}
                   isSubmitting={resolveReportMutation.isPending}
                   onDismiss={(note) => submitDecision('dismissed', note, 'none')}
                   onMarkValid={(note) => submitDecision('under_review', note, 'none')}

@@ -3,8 +3,8 @@
 namespace App\Services\Search;
 
 use App\Contracts\Search\SearchEngineInterface;
-use App\Services\Catalog\CatalogSearchService;
 use App\Models\User;
+use App\Services\Catalog\CatalogSearchService;
 
 /** Default search engine — delegates to existing CatalogSearchService (SQL LIKE). */
 final class MysqlCatalogSearchEngine implements SearchEngineInterface

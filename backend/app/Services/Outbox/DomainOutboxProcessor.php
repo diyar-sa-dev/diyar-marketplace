@@ -83,7 +83,7 @@ final class DomainOutboxProcessor
         $now = now();
         $leaseUntil = $now->copy()->addSeconds($leaseSeconds);
 
-        return DB::transaction(function () use ($limit, $workerId, $now, $leaseUntil) {
+        return DB::transaction(function () use ($limit, $workerId, $now) {
             $events = DomainOutboxEvent::query()
                 ->where('status', DomainOutboxEventStatus::Pending)
                 ->where('available_at', '<=', $now)

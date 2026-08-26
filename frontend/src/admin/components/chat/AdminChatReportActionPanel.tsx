@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   AlertTriangle,
   BadgeCheck,
@@ -15,7 +15,6 @@ export type ReportDecision = 'dismissed' | 'actioned' | 'resolved' | 'under_revi
 
 type AdminChatReportActionPanelProps = {
   mode?: 'initial' | 'continuation';
-  revisionKey?: string;
   isSubmitting: boolean;
   onDismiss: (note: string) => void;
   onResolve: (note: string) => void;
@@ -35,7 +34,6 @@ const ACTION_OPTIONS: Array<{
 
 export function AdminChatReportActionPanel({
   mode = 'initial',
-  revisionKey = 'initial',
   isSubmitting,
   onDismiss,
   onResolve,
@@ -51,10 +49,6 @@ export function AdminChatReportActionPanel({
     setActiveDecision(null);
     setResolutionNote('');
   };
-
-  useEffect(() => {
-    resetDecision();
-  }, [revisionKey]);
 
   const actionPreview = useMemo(
     () => t(`admin.chat.actions.previews.${selectedAction}` as never),
