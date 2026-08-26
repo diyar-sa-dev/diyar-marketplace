@@ -43,15 +43,21 @@ function decodeXsrfToken(rawValue) {
   }
 }
 
+function cookiesForUrl(jar, originUrl) {
+  return jar.cookiesForURL(originUrl) || {};
+}
+
 function cookieHeader(jar, originUrl) {
-  const cookies = jar.cookiesForURL(originUrl) || [];
-  return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
+  const cookies = cookiesForUrl(jar, originUrl);
+
+  return Object.entries(cookies)
+    .map(([name, values]) => `${name}=${values[0]}`)
+    .join('; ');
 }
 
 function xsrfFromJar(jar, originUrl) {
-  const cookies = jar.cookiesForURL(originUrl) || [];
-  const token = cookies.find((cookie) => cookie.name === 'XSRF-TOKEN');
-  return decodeXsrfToken(token?.value);
+  const cookies = cookiesForUrl(jar, originUrl);
+  return decodeXsrfToken(cookies['XSRF-TOKEN']?.[0]);
 }
 
 /**
@@ -76,6 +82,7 @@ export function loginSession(originUrl, apiBaseUrl, loginPath, credentials, tag 
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
       'X-XSRF-TOKEN': xsrf,
     },
     tags: { name: `${tag}-login` },
@@ -94,6 +101,7 @@ export function authedParams(cookieHeaderValue, tag = 'analytics') {
     headers: {
       Accept: 'application/json',
       Cookie: cookieHeaderValue,
+      'X-Requested-With': 'XMLHttpRequest',
       'X-Forwarded-For': `10.${200 + (__VU % 50)}.${__VU % 255}.${__ITER % 255}`,
     },
     tags: { name: tag },

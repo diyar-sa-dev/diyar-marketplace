@@ -38,7 +38,17 @@ test.describe('B2B admin journey', () => {
     await page.locator('select').first().selectOption('draft');
     await expect(page.getByTestId(`b2b-preview-${DRAFT_B2B_SLUG}`)).toBeVisible({ timeout: 60_000 });
 
-    await page.getByTestId(`b2b-publish-${DRAFT_B2B_SLUG}`).click();
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes('/admin/b2b/companies/') &&
+          response.url().includes('/publish') &&
+          response.ok(),
+      ),
+      page.getByTestId(`b2b-publish-${DRAFT_B2B_SLUG}`).click(),
+    ]);
+
+    await page.locator('select').first().selectOption('published');
     await expect(page.getByTestId(`b2b-unpublish-${DRAFT_B2B_SLUG}`)).toBeVisible({
       timeout: 30_000,
     });

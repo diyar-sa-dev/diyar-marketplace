@@ -86,3 +86,18 @@ export async function logoutAdminApi(request: APIRequestContext): Promise<void> 
     },
   });
 }
+
+export async function adminRequestHeaders(
+  request: APIRequestContext,
+): Promise<Record<string, string>> {
+  const state = await request.storageState();
+  const xsrf = state.cookies.find((cookie) => cookie.name === 'XSRF-TOKEN')?.value;
+  const cookie = state.cookies.map((entry) => `${entry.name}=${entry.value}`).join('; ');
+
+  return {
+    Accept: 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
+    ...(cookie ? { Cookie: cookie } : {}),
+    ...(xsrf ? { 'X-XSRF-TOKEN': decodeURIComponent(xsrf) } : {}),
+  };
+}

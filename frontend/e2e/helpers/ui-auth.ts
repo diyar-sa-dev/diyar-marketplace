@@ -10,7 +10,13 @@ export async function loginMarketplaceUi(
   await page.goto('/auth');
   await page.locator('#login-phone').fill(phoneNational);
   await page.locator('input[type="password"]').first().fill(password);
-  await page.locator('[data-testid="marketplace-login-submit"]').click();
+  await Promise.all([
+    page.waitForResponse(
+      (response) => response.url().includes('/auth/login') && response.ok(),
+      { timeout: 30_000 },
+    ),
+    page.locator('[data-testid="marketplace-login-submit"]').click(),
+  ]);
   await page.waitForURL((url) => !url.pathname.startsWith('/auth'), { timeout: 30_000 });
 }
 
@@ -22,7 +28,13 @@ export async function loginAdminUi(
   await page.goto('/admin/login');
   await page.locator('#admin-login-phone').fill(phoneNational);
   await page.locator('#admin-login-password').fill(password);
-  await page.locator('[data-testid="admin-login-submit"]').click();
+  await Promise.all([
+    page.waitForResponse(
+      (response) => response.url().includes('/admin/auth/login') && response.ok(),
+      { timeout: 30_000 },
+    ),
+    page.locator('[data-testid="admin-login-submit"]').click(),
+  ]);
   await page.waitForURL(/\/admin(?!\/login)/, { timeout: 30_000 });
 }
 

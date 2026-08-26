@@ -11,11 +11,14 @@ test.describe('Loyalty journey', () => {
     });
   });
 
-  test('authenticated customer can load loyalty summary API and page', async ({ page, request }) => {
+  test('authenticated customer can load loyalty summary API and page', async ({ page }) => {
     await loginMarketplaceUi(page, demoUsers.customer.phoneNational);
 
-    const summary = await request.get(`${apiBaseUrl()}/loyalty`, {
-      headers: { cookie: (await page.context().cookies()).map((c) => `${c.name}=${c.value}`).join('; ') },
+    const summary = await page.request.get(`${apiBaseUrl()}/loyalty`, {
+      headers: {
+        Accept: 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
     });
     expect(summary.ok()).toBeTruthy();
     const body = await summary.json();
