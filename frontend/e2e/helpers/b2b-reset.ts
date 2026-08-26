@@ -1,6 +1,6 @@
 import type { APIRequestContext } from '@playwright/test';
 import { demoUsers } from '../fixtures/credentials.ts';
-import { adminRequestHeaders, apiBaseUrl, loginAdminApi } from './api.ts';
+import { sessionRequestHeaders, apiBaseUrl, loginAdminApi } from './api.ts';
 
 const DRAFT_B2B_SLUG = 'draft-b2b-company';
 
@@ -14,7 +14,7 @@ export async function ensureDraftB2bCompanyHidden(request: APIRequestContext): P
   }
 
   await loginAdminApi(request, demoUsers.admin.phoneNational);
-  const headers = await adminRequestHeaders(request);
+  const headers = await sessionRequestHeaders(request);
 
   const listRes = await request.get(
     `${apiBaseUrl()}/admin/b2b/companies?q=${encodeURIComponent(DRAFT_B2B_SLUG)}&per_page=20`,

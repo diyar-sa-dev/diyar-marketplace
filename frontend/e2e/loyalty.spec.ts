@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { demoUsers } from './fixtures/credentials.ts';
-import { apiBaseUrl, applyRequestSessionToPage, loginMarketplaceApi } from './helpers/api.ts';
+import { apiBaseUrl, applyRequestSessionToPage, loginMarketplaceApi, sessionRequestHeaders } from './helpers/api.ts';
 
 test.describe('Loyalty journey', () => {
   test('guest sees sign-in prompt on loyalty page', async ({ page }) => {
@@ -14,10 +14,7 @@ test.describe('Loyalty journey', () => {
     await loginMarketplaceApi(request, demoUsers.customer.phoneNational);
 
     const summary = await request.get(`${apiBaseUrl()}/loyalty`, {
-      headers: {
-        Accept: 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
+      headers: await sessionRequestHeaders(request),
     });
     expect(summary.ok()).toBeTruthy();
     const body = await summary.json();

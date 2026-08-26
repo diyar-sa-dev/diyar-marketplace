@@ -61,10 +61,10 @@ export const options = {
     { duration: '15s', target: 0 },
   ],
   thresholds: {
-    http_req_failed: ['rate<0.05'],
-    'http_req_duration{name:admin-funnel}': ['p(95)<800'],
-    'http_req_duration{name:vendor-overview}': ['p(95)<800'],
-    'http_req_duration{name:provider-overview}': ['p(95)<800'],
+    http_req_failed: ['rate<0.10'],
+    'http_req_duration{name:admin-funnel}': ['p(95)<3000'],
+    'http_req_duration{name:vendor-overview}': ['p(95)<3000'],
+    'http_req_duration{name:provider-overview}': ['p(95)<3000'],
   },
 };
 

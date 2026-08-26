@@ -3,6 +3,15 @@
  */
 import http from 'k6/http';
 
+const frontendOrigin = __ENV.FRONTEND_ORIGIN || 'http://127.0.0.1:3000';
+
+function statefulHeaders() {
+  return {
+    Origin: frontendOrigin,
+    Referer: `${frontendOrigin}/`,
+  };
+}
+
 export function apiParams(tag = 'catalog') {
   return {
     headers: {
@@ -68,6 +77,7 @@ export function loginSession(originUrl, apiBaseUrl, loginPath, credentials, tag 
 
   const csrfResponse = http.get(`${originUrl}/sanctum/csrf-cookie`, {
     jar,
+    headers: statefulHeaders(),
     tags: { name: `${tag}-csrf` },
     timeout: '30s',
   });
@@ -84,6 +94,7 @@ export function loginSession(originUrl, apiBaseUrl, loginPath, credentials, tag 
       'Content-Type': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
       'X-XSRF-TOKEN': xsrf,
+      ...statefulHeaders(),
     },
     tags: { name: `${tag}-login` },
     timeout: '30s',
@@ -103,6 +114,7 @@ export function authedParams(cookieHeaderValue, tag = 'analytics') {
       Cookie: cookieHeaderValue,
       'X-Requested-With': 'XMLHttpRequest',
       'X-Forwarded-For': `10.${200 + (__VU % 50)}.${__VU % 255}.${__ITER % 255}`,
+      ...statefulHeaders(),
     },
     tags: { name: tag },
     timeout: '60s',

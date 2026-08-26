@@ -121,6 +121,7 @@ jobs:
       E2E_DEMO_PASSWORD: Password123!
       ORIGIN_URL: http://127.0.0.1:8000
       BASE_URL: http://127.0.0.1:8000/api/v1
+      FRONTEND_ORIGIN: http://127.0.0.1:3000
     steps:
       - uses: actions/checkout@v4
 
