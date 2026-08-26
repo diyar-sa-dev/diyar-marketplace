@@ -42,7 +42,7 @@ class ShippingRulePrecedenceTest extends TestCase
             'shipping_method_id' => $method->id,
             'zone_id' => $zone->id,
             'rate' => '99.00',
-            'sort_order' => 0,
+            'sort_order' => 100,
             'is_active' => true,
         ]);
 
@@ -51,7 +51,7 @@ class ShippingRulePrecedenceTest extends TestCase
             'zone_id' => $zone->id,
             'vendor_account_id' => $settingsVendorId,
             'rate' => '25.00',
-            'sort_order' => 5,
+            'sort_order' => 0,
             'is_active' => true,
         ]);
 

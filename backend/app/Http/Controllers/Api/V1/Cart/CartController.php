@@ -61,7 +61,7 @@ class CartController extends Controller
         $this->analyticsEvents->record(
             AnalyticsEventType::AddToCart,
             user: $request->user(),
-            sessionId: (string) $request->session()->getId(),
+            sessionId: $request->hasSession() ? (string) $request->session()->getId() : null,
             subjectType: 'product',
             subjectId: $product?->id,
             vendorAccountId: $product?->vendor_account_id,
