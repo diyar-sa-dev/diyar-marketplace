@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { availabilityLabel, estimateLoyaltyPoints, formatCompactProductSize, mapProductCard } from './catalogMappers.ts';
+import {
+  availabilityLabel,
+  estimateLoyaltyPoints,
+  formatCompactProductSize,
+  mapProductCard,
+} from './catalogMappers.ts';
 import type { ProductCard } from '../types/catalog.ts';
 
 const baseProduct: ProductCard = {

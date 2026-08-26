@@ -50,44 +50,47 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     resetCsrfCookie();
   }, []);
 
-  const refreshSession = useCallback(async (options?: { silent?: boolean }): Promise<AuthUser | null> => {
-    if (refreshInFlightRef.current) {
-      return refreshInFlightRef.current;
-    }
+  const refreshSession = useCallback(
+    async (options?: { silent?: boolean }): Promise<AuthUser | null> => {
+      if (refreshInFlightRef.current) {
+        return refreshInFlightRef.current;
+      }
 
-    const promise = (async (): Promise<AuthUser | null> => {
-      setStatus((current) => {
-        if (options?.silent || current === 'authenticated') {
-          return current;
-        }
+      const promise = (async (): Promise<AuthUser | null> => {
+        setStatus((current) => {
+          if (options?.silent || current === 'authenticated') {
+            return current;
+          }
 
-        return 'loading';
-      });
+          return 'loading';
+        });
 
-      try {
-        const session = await adminAuthApi.fetchAdminSession();
+        try {
+          const session = await adminAuthApi.fetchAdminSession();
 
-        if (session === null) {
+          if (session === null) {
+            clearSession();
+            return null;
+          }
+
+          setUserState(session.user);
+          setPermissions(session.permissions);
+          setStatus('authenticated');
+          return session.user;
+        } catch {
           clearSession();
           return null;
+        } finally {
+          refreshInFlightRef.current = null;
         }
+      })();
 
-        setUserState(session.user);
-        setPermissions(session.permissions);
-        setStatus('authenticated');
-        return session.user;
-      } catch {
-        clearSession();
-        return null;
-      } finally {
-        refreshInFlightRef.current = null;
-      }
-    })();
+      refreshInFlightRef.current = promise;
 
-    refreshInFlightRef.current = promise;
-
-    return promise;
-  }, [clearSession]);
+      return promise;
+    },
+    [clearSession],
+  );
 
   useEffect(() => {
     if (applicationContext !== 'admin') {

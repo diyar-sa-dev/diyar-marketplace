@@ -111,7 +111,8 @@ export const en = {
           stageBreakdown: 'Stage breakdown',
           stageBreakdownHint: 'Detailed counts and drop-off between each funnel step.',
           emptyTitle: 'No funnel activity yet',
-          emptyDescription: 'Funnel metrics will populate once shoppers browse products and place orders.',
+          emptyDescription:
+            'Funnel metrics will populate once shoppers browse products and place orders.',
           periods: {
             '7d': '7 days',
             '30d': '30 days',
@@ -145,7 +146,8 @@ export const en = {
           baselinePercent: 'Baseline',
           retentionOfBaseline: 'of new',
           retentionChart: 'Retention trend',
-          retentionChartHint: 'Percentage of cohort customers who placed an order in each month after signup.',
+          retentionChartHint:
+            'Percentage of cohort customers who placed an order in each month after signup.',
           retentionTable: 'Retention matrix',
           retentionTableHint:
             'Month 0 is the new-customer baseline (100%). Later months show how many returned and their % of that baseline.',
@@ -154,7 +156,8 @@ export const en = {
           customersShort: 'customers',
           tooltipOffset: '{{label}}',
           chartEmpty: 'Not enough cohort data to draw a trend yet.',
-          retentionNote: 'Retention counts distinct customers with at least one order in offset month.',
+          retentionNote:
+            'Retention counts distinct customers with at least one order in offset month.',
           sqliteNote:
             'Cohort retention requires MySQL in production; SQLite returns an empty matrix in local/CI.',
           emptyTitle: 'No cohort data yet',
@@ -174,7 +177,8 @@ export const en = {
           searches: 'Searches',
           avgResults: 'Avg. results',
           emptyTitle: 'No search activity yet',
-          emptyDescription: 'Search analytics will appear once customers start searching the catalog.',
+          emptyDescription:
+            'Search analytics will appear once customers start searching the catalog.',
           periods: {
             '7d': '7 days',
             '30d': '30 days',
@@ -1204,7 +1208,8 @@ export const en = {
     chat: {
       title: 'Chat reports',
       subtitle: 'Read-only review of reported marketplace messages.',
-      reportsSubtitle: 'Review user-submitted message reports and surrounding conversation context.',
+      reportsSubtitle:
+        'Review user-submitted message reports and surrounding conversation context.',
       conversations: 'Conversations',
       reports: 'Reports',
       conversation: 'Conversation',
@@ -5096,7 +5101,8 @@ export const en = {
     reportFailed: 'Could not submit the report.',
     reportDialog: {
       title: 'Report message',
-      subtitle: 'Tell us why this message should be reviewed. Reports are sent to our moderation team.',
+      subtitle:
+        'Tell us why this message should be reviewed. Reports are sent to our moderation team.',
       chooseReason: 'Reason',
       detailsOptional: 'Additional details (optional)',
       detailsRequired: 'Additional details (required)',

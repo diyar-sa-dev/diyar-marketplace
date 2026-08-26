@@ -70,7 +70,9 @@ export function resolveMessageSenderName(
     return message.sender_name.trim();
   }
 
-  const participant = conversation?.participants?.find((item) => item.user_id === message.sender_id);
+  const participant = conversation?.participants?.find(
+    (item) => item.user_id === message.sender_id,
+  );
 
   return participant?.name?.trim() || fallbackLabel;
 }

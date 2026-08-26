@@ -85,9 +85,7 @@ function shouldNotifyUnauthorized(url: string | undefined): boolean {
 
 function attachInterceptors(client: AxiosInstance): AxiosInstance {
   client.interceptors.request.use((config) =>
-    prepareRequestBody(
-      attachCsrfHeader(attachAffiliateSessionHeader(attachLocaleHeader(config))),
-    ),
+    prepareRequestBody(attachCsrfHeader(attachAffiliateSessionHeader(attachLocaleHeader(config)))),
   );
 
   client.interceptors.response.use(

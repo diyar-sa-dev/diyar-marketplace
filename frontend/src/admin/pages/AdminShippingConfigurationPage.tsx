@@ -37,28 +37,39 @@ type RateRule = {
 };
 
 async function fetchCarriers() {
-  const response = await adminApi.get<ApiSuccessResponse<{ carriers: Carrier[] }>>('/admin/shipping/carriers');
+  const response = await adminApi.get<ApiSuccessResponse<{ carriers: Carrier[] }>>(
+    '/admin/shipping/carriers',
+  );
   return response.data.data.carriers;
 }
 
 async function fetchZones(carrierId: string) {
-  const response = await adminApi.get<ApiSuccessResponse<{ zones: Zone[] }>>('/admin/shipping/zones', {
-    params: carrierId ? { carrier_id: carrierId } : undefined,
-  });
+  const response = await adminApi.get<ApiSuccessResponse<{ zones: Zone[] }>>(
+    '/admin/shipping/zones',
+    {
+      params: carrierId ? { carrier_id: carrierId } : undefined,
+    },
+  );
   return response.data.data.zones;
 }
 
 async function fetchMethods(carrierId: string) {
-  const response = await adminApi.get<ApiSuccessResponse<{ methods: Method[] }>>('/admin/shipping/methods', {
-    params: carrierId ? { carrier_id: carrierId } : undefined,
-  });
+  const response = await adminApi.get<ApiSuccessResponse<{ methods: Method[] }>>(
+    '/admin/shipping/methods',
+    {
+      params: carrierId ? { carrier_id: carrierId } : undefined,
+    },
+  );
   return response.data.data.methods;
 }
 
 async function fetchRateRules(methodId: string) {
-  const response = await adminApi.get<ApiSuccessResponse<{ rate_rules: RateRule[] }>>('/admin/shipping/rate-rules', {
-    params: methodId ? { shipping_method_id: methodId } : undefined,
-  });
+  const response = await adminApi.get<ApiSuccessResponse<{ rate_rules: RateRule[] }>>(
+    '/admin/shipping/rate-rules',
+    {
+      params: methodId ? { shipping_method_id: methodId } : undefined,
+    },
+  );
   return response.data.data.rate_rules;
 }
 
@@ -72,9 +83,20 @@ export default function AdminShippingConfigurationPage() {
   const [selectedMethodId, setSelectedMethodId] = useState('');
 
   const [carrierForm, setCarrierForm] = useState({ name: '', code: '' });
-  const [zoneForm, setZoneForm] = useState({ name: '', city: '', region: '', postal_prefix: '', priority: '0' });
+  const [zoneForm, setZoneForm] = useState({
+    name: '',
+    city: '',
+    region: '',
+    postal_prefix: '',
+    priority: '0',
+  });
   const [methodForm, setMethodForm] = useState({ code: '', name: '' });
-  const [ruleForm, setRuleForm] = useState({ rate: '', min_weight_kg: '0', max_weight_kg: '10', sort_order: '0' });
+  const [ruleForm, setRuleForm] = useState({
+    rate: '',
+    min_weight_kg: '0',
+    max_weight_kg: '10',
+    sort_order: '0',
+  });
 
   const carriersQuery = useQuery({
     queryKey: ['admin', 'shipping', 'carriers'],
@@ -199,7 +221,9 @@ export default function AdminShippingConfigurationPage() {
 
   const carriers = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return (carriersQuery.data ?? []).filter((c) => !q || c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q));
+    return (carriersQuery.data ?? []).filter(
+      (c) => !q || c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q),
+    );
   }, [carriersQuery.data, search]);
 
   const tabs: { id: Tab; label: string }[] = [
@@ -224,7 +248,9 @@ export default function AdminShippingConfigurationPage() {
             type="button"
             onClick={() => setTab(item.id)}
             className={`rounded-xl px-4 py-2 text-sm font-bold ${
-              tab === item.id ? 'bg-diyar-dark text-white' : 'bg-white text-diyar-dark border border-gray-200'
+              tab === item.id
+                ? 'bg-diyar-dark text-white'
+                : 'bg-white text-diyar-dark border border-gray-200'
             }`}
           >
             {item.label}
@@ -234,7 +260,9 @@ export default function AdminShippingConfigurationPage() {
 
       {(tab === 'zones' || tab === 'methods' || tab === 'rules') && (
         <div className="rounded-2xl border border-gray-200 bg-white p-4">
-          <label className="mb-2 block text-sm font-semibold text-diyar-dark">{t('admin.shipping.selectCarrier')}</label>
+          <label className="mb-2 block text-sm font-semibold text-diyar-dark">
+            {t('admin.shipping.selectCarrier')}
+          </label>
           <select
             className="w-full max-w-md rounded-xl border border-gray-200 px-3 py-2 text-sm"
             value={selectedCarrierId}
@@ -255,7 +283,9 @@ export default function AdminShippingConfigurationPage() {
 
       {tab === 'rules' && selectedCarrierId && (
         <div className="rounded-2xl border border-gray-200 bg-white p-4">
-          <label className="mb-2 block text-sm font-semibold text-diyar-dark">{t('admin.shipping.selectMethod')}</label>
+          <label className="mb-2 block text-sm font-semibold text-diyar-dark">
+            {t('admin.shipping.selectMethod')}
+          </label>
           <select
             className="w-full max-w-md rounded-xl border border-gray-200 px-3 py-2 text-sm"
             value={selectedMethodId}
@@ -292,42 +322,140 @@ export default function AdminShippingConfigurationPage() {
                   createCarrier.mutate();
                 }}
               >
-                <input className="rounded-xl border border-gray-200 px-3 py-2 text-sm" placeholder={t('admin.shipping.carrierName')} value={carrierForm.name} onChange={(e) => setCarrierForm({ ...carrierForm, name: e.target.value })} />
-                <input className="rounded-xl border border-gray-200 px-3 py-2 text-sm" placeholder={t('admin.shipping.carrierCode')} value={carrierForm.code} onChange={(e) => setCarrierForm({ ...carrierForm, code: e.target.value })} />
-                <button type="submit" disabled={createCarrier.isPending} className="inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-4 py-2.5 text-sm font-bold text-white">
-                  <Plus size={16} />{t('admin.shipping.addCarrier')}
+                <input
+                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  placeholder={t('admin.shipping.carrierName')}
+                  value={carrierForm.name}
+                  onChange={(e) => setCarrierForm({ ...carrierForm, name: e.target.value })}
+                />
+                <input
+                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  placeholder={t('admin.shipping.carrierCode')}
+                  value={carrierForm.code}
+                  onChange={(e) => setCarrierForm({ ...carrierForm, code: e.target.value })}
+                />
+                <button
+                  type="submit"
+                  disabled={createCarrier.isPending}
+                  className="inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-4 py-2.5 text-sm font-bold text-white"
+                >
+                  <Plus size={16} />
+                  {t('admin.shipping.addCarrier')}
                 </button>
               </form>
             )}
             {tab === 'zones' && selectedCarrierId && (
-              <form className="flex flex-wrap items-center gap-2" onSubmit={(e) => { e.preventDefault(); if (!zoneForm.name.trim()) return; createZone.mutate(); }}>
-                <input className="rounded-xl border border-gray-200 px-3 py-2 text-sm" placeholder={t('admin.shipping.zoneName')} value={zoneForm.name} onChange={(e) => setZoneForm({ ...zoneForm, name: e.target.value })} />
-                <input className="rounded-xl border border-gray-200 px-3 py-2 text-sm" placeholder={t('admin.shipping.zoneCity')} value={zoneForm.city} onChange={(e) => setZoneForm({ ...zoneForm, city: e.target.value })} />
-                <input className="rounded-xl border border-gray-200 px-3 py-2 text-sm" placeholder={t('admin.shipping.zoneRegion')} value={zoneForm.region} onChange={(e) => setZoneForm({ ...zoneForm, region: e.target.value })} />
-                <button type="submit" disabled={createZone.isPending} className="inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-4 py-2.5 text-sm font-bold text-white"><Plus size={16} />{t('admin.shipping.addZone')}</button>
+              <form
+                className="flex flex-wrap items-center gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!zoneForm.name.trim()) return;
+                  createZone.mutate();
+                }}
+              >
+                <input
+                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  placeholder={t('admin.shipping.zoneName')}
+                  value={zoneForm.name}
+                  onChange={(e) => setZoneForm({ ...zoneForm, name: e.target.value })}
+                />
+                <input
+                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  placeholder={t('admin.shipping.zoneCity')}
+                  value={zoneForm.city}
+                  onChange={(e) => setZoneForm({ ...zoneForm, city: e.target.value })}
+                />
+                <input
+                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  placeholder={t('admin.shipping.zoneRegion')}
+                  value={zoneForm.region}
+                  onChange={(e) => setZoneForm({ ...zoneForm, region: e.target.value })}
+                />
+                <button
+                  type="submit"
+                  disabled={createZone.isPending}
+                  className="inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-4 py-2.5 text-sm font-bold text-white"
+                >
+                  <Plus size={16} />
+                  {t('admin.shipping.addZone')}
+                </button>
               </form>
             )}
             {tab === 'methods' && selectedCarrierId && (
-              <form className="flex flex-wrap items-center gap-2" onSubmit={(e) => { e.preventDefault(); if (!methodForm.code.trim() || !methodForm.name.trim()) return; createMethod.mutate(); }}>
-                <input className="rounded-xl border border-gray-200 px-3 py-2 text-sm" placeholder={t('admin.shipping.methodCode')} value={methodForm.code} onChange={(e) => setMethodForm({ ...methodForm, code: e.target.value })} />
-                <input className="rounded-xl border border-gray-200 px-3 py-2 text-sm" placeholder={t('admin.shipping.methodName')} value={methodForm.name} onChange={(e) => setMethodForm({ ...methodForm, name: e.target.value })} />
-                <button type="submit" disabled={createMethod.isPending} className="inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-4 py-2.5 text-sm font-bold text-white"><Plus size={16} />{t('admin.shipping.addMethod')}</button>
+              <form
+                className="flex flex-wrap items-center gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!methodForm.code.trim() || !methodForm.name.trim()) return;
+                  createMethod.mutate();
+                }}
+              >
+                <input
+                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  placeholder={t('admin.shipping.methodCode')}
+                  value={methodForm.code}
+                  onChange={(e) => setMethodForm({ ...methodForm, code: e.target.value })}
+                />
+                <input
+                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  placeholder={t('admin.shipping.methodName')}
+                  value={methodForm.name}
+                  onChange={(e) => setMethodForm({ ...methodForm, name: e.target.value })}
+                />
+                <button
+                  type="submit"
+                  disabled={createMethod.isPending}
+                  className="inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-4 py-2.5 text-sm font-bold text-white"
+                >
+                  <Plus size={16} />
+                  {t('admin.shipping.addMethod')}
+                </button>
               </form>
             )}
             {tab === 'rules' && selectedMethodId && (
-              <form className="flex flex-wrap items-center gap-2" onSubmit={(e) => { e.preventDefault(); if (!ruleForm.rate.trim()) return; createRule.mutate(); }}>
-                <input className="rounded-xl border border-gray-200 px-3 py-2 text-sm" placeholder={t('admin.shipping.ruleRate')} value={ruleForm.rate} onChange={(e) => setRuleForm({ ...ruleForm, rate: e.target.value })} />
-                <input className="rounded-xl border border-gray-200 px-3 py-2 text-sm" placeholder={t('admin.shipping.ruleMaxWeight')} value={ruleForm.max_weight_kg} onChange={(e) => setRuleForm({ ...ruleForm, max_weight_kg: e.target.value })} />
-                <button type="submit" disabled={createRule.isPending} className="inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-4 py-2.5 text-sm font-bold text-white"><Plus size={16} />{t('admin.shipping.addRule')}</button>
+              <form
+                className="flex flex-wrap items-center gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!ruleForm.rate.trim()) return;
+                  createRule.mutate();
+                }}
+              >
+                <input
+                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  placeholder={t('admin.shipping.ruleRate')}
+                  value={ruleForm.rate}
+                  onChange={(e) => setRuleForm({ ...ruleForm, rate: e.target.value })}
+                />
+                <input
+                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  placeholder={t('admin.shipping.ruleMaxWeight')}
+                  value={ruleForm.max_weight_kg}
+                  onChange={(e) => setRuleForm({ ...ruleForm, max_weight_kg: e.target.value })}
+                />
+                <button
+                  type="submit"
+                  disabled={createRule.isPending}
+                  className="inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-4 py-2.5 text-sm font-bold text-white"
+                >
+                  <Plus size={16} />
+                  {t('admin.shipping.addRule')}
+                </button>
               </form>
             )}
           </PermissionGate>
         }
         columns={
           <tr>
-            <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">{t('admin.shipping.colName')}</th>
-            <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">{t('admin.shipping.colDetails')}</th>
-            <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">{t('admin.tables.status')}</th>
+            <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+              {t('admin.shipping.colName')}
+            </th>
+            <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+              {t('admin.shipping.colDetails')}
+            </th>
+            <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+              {t('admin.tables.status')}
+            </th>
             <th className="px-4 py-3" />
           </tr>
         }
@@ -336,11 +464,22 @@ export default function AdminShippingConfigurationPage() {
           carriers.map((carrier) => (
             <tr key={carrier.id} className="hover:bg-[#f7f4f1]/50">
               <td className="px-4 py-3 font-semibold text-diyar-dark">{carrier.name}</td>
-              <td className="px-4 py-3 font-mono text-xs text-gray-500" dir="ltr">{carrier.code}</td>
-              <td className="px-4 py-3"><AdminStatusBadge status={carrier.is_active ? 'active' : 'inactive'} /></td>
+              <td className="px-4 py-3 font-mono text-xs text-gray-500" dir="ltr">
+                {carrier.code}
+              </td>
+              <td className="px-4 py-3">
+                <AdminStatusBadge status={carrier.is_active ? 'active' : 'inactive'} />
+              </td>
               <td className="px-4 py-3 text-end">
                 <PermissionGate permission="shipping.manage">
-                  <button type="button" className="rounded-lg p-2 text-red-600 hover:bg-red-50" onClick={async () => { if (await confirmDeleteCategory(t)) deleteMutation.mutate({ kind: 'carriers', id: carrier.id }); }}>
+                  <button
+                    type="button"
+                    className="rounded-lg p-2 text-red-600 hover:bg-red-50"
+                    onClick={async () => {
+                      if (await confirmDeleteCategory(t))
+                        deleteMutation.mutate({ kind: 'carriers', id: carrier.id });
+                    }}
+                  >
                     <Trash2 size={16} />
                   </button>
                 </PermissionGate>
@@ -351,11 +490,22 @@ export default function AdminShippingConfigurationPage() {
           (zonesQuery.data ?? []).map((zone) => (
             <tr key={zone.id} className="hover:bg-[#f7f4f1]/50">
               <td className="px-4 py-3 font-semibold text-diyar-dark">{zone.name}</td>
-              <td className="px-4 py-3 text-sm text-gray-600">{[zone.city, zone.region, zone.postal_prefix].filter(Boolean).join(' · ') || '—'}</td>
-              <td className="px-4 py-3"><AdminStatusBadge status={zone.is_active ? 'active' : 'inactive'} /></td>
+              <td className="px-4 py-3 text-sm text-gray-600">
+                {[zone.city, zone.region, zone.postal_prefix].filter(Boolean).join(' · ') || '—'}
+              </td>
+              <td className="px-4 py-3">
+                <AdminStatusBadge status={zone.is_active ? 'active' : 'inactive'} />
+              </td>
               <td className="px-4 py-3 text-end">
                 <PermissionGate permission="shipping.manage">
-                  <button type="button" className="rounded-lg p-2 text-red-600 hover:bg-red-50" onClick={async () => { if (await confirmDeleteCategory(t)) deleteMutation.mutate({ kind: 'zones', id: zone.id }); }}>
+                  <button
+                    type="button"
+                    className="rounded-lg p-2 text-red-600 hover:bg-red-50"
+                    onClick={async () => {
+                      if (await confirmDeleteCategory(t))
+                        deleteMutation.mutate({ kind: 'zones', id: zone.id });
+                    }}
+                  >
                     <Trash2 size={16} />
                   </button>
                 </PermissionGate>
@@ -366,8 +516,12 @@ export default function AdminShippingConfigurationPage() {
           (methodsQuery.data ?? []).map((method) => (
             <tr key={method.id} className="hover:bg-[#f7f4f1]/50">
               <td className="px-4 py-3 font-semibold text-diyar-dark">{method.name}</td>
-              <td className="px-4 py-3 font-mono text-xs text-gray-500" dir="ltr">{method.code}</td>
-              <td className="px-4 py-3"><AdminStatusBadge status={method.is_active ? 'active' : 'inactive'} /></td>
+              <td className="px-4 py-3 font-mono text-xs text-gray-500" dir="ltr">
+                {method.code}
+              </td>
+              <td className="px-4 py-3">
+                <AdminStatusBadge status={method.is_active ? 'active' : 'inactive'} />
+              </td>
               <td className="px-4 py-3" />
             </tr>
           ))}
@@ -375,11 +529,22 @@ export default function AdminShippingConfigurationPage() {
           (rulesQuery.data ?? []).map((rule) => (
             <tr key={rule.id} className="hover:bg-[#f7f4f1]/50">
               <td className="px-4 py-3 font-semibold text-diyar-dark">{rule.rate} SAR</td>
-              <td className="px-4 py-3 text-sm text-gray-600">{rule.min_weight_kg}–{rule.max_weight_kg ?? '∞'} kg</td>
-              <td className="px-4 py-3"><AdminStatusBadge status={rule.is_active ? 'active' : 'inactive'} /></td>
+              <td className="px-4 py-3 text-sm text-gray-600">
+                {rule.min_weight_kg}–{rule.max_weight_kg ?? '∞'} kg
+              </td>
+              <td className="px-4 py-3">
+                <AdminStatusBadge status={rule.is_active ? 'active' : 'inactive'} />
+              </td>
               <td className="px-4 py-3 text-end">
                 <PermissionGate permission="shipping.manage">
-                  <button type="button" className="rounded-lg p-2 text-red-600 hover:bg-red-50" onClick={async () => { if (await confirmDeleteCategory(t)) deleteMutation.mutate({ kind: 'rules', id: rule.id }); }}>
+                  <button
+                    type="button"
+                    className="rounded-lg p-2 text-red-600 hover:bg-red-50"
+                    onClick={async () => {
+                      if (await confirmDeleteCategory(t))
+                        deleteMutation.mutate({ kind: 'rules', id: rule.id });
+                    }}
+                  >
                     <Trash2 size={16} />
                   </button>
                 </PermissionGate>

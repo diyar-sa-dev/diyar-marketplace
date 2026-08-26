@@ -138,7 +138,13 @@ export async function reportMessage(
 ) {
   const { data } = await apiClient.post<
     ApiSuccessResponse<{
-      report: { id: string; message_id: string; reason: string; status: string; created_at: string };
+      report: {
+        id: string;
+        message_id: string;
+        reason: string;
+        status: string;
+        created_at: string;
+      };
     }>
   >(`/profile/conversations/${conversationId}/messages/${messageId}/report`, payload);
   return data.data.report;

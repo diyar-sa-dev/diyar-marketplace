@@ -1,15 +1,6 @@
 import { useMemo } from 'react';
 import { Info } from 'lucide-react';
-import {
-  Bar,
-  CartesianGrid,
-  Cell,
-  ComposedChart,
-  Line,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { Bar, CartesianGrid, Cell, ComposedChart, Line, Tooltip, XAxis, YAxis } from 'recharts';
 import type { AdminFunnelStage } from '../../../api/adminAnalytics.ts';
 import { ChartContainer } from '../../../components/common/ChartContainer.tsx';
 import { useLocale } from '../../../hooks/useLocale.ts';
@@ -48,10 +39,7 @@ export function FunnelConversionPanel({
 }: FunnelConversionPanelProps) {
   const { t, locale } = useLocale();
 
-  const maxCount = useMemo(
-    () => Math.max(...stages.map((stage) => stage.count), 1),
-    [stages],
-  );
+  const maxCount = useMemo(() => Math.max(...stages.map((stage) => stage.count), 1), [stages]);
 
   const chartData = useMemo(
     () =>
@@ -122,7 +110,10 @@ export function FunnelConversionPanel({
                 <Tooltip
                   formatter={(value: number, name: string) => {
                     if (name === 'count') {
-                      return [formatLocaleNumber(value, locale), t('admin.analytics.sections.funnel.volume')];
+                      return [
+                        formatLocaleNumber(value, locale),
+                        t('admin.analytics.sections.funnel.volume'),
+                      ];
                     }
                     return [`${value}%`, t('admin.analytics.sections.funnel.conversionRate')];
                   }}
@@ -171,7 +162,10 @@ export function FunnelConversionPanel({
 
           <div className="mt-4 space-y-3">
             {stages.map((stage, index) => {
-              const widthPercent = Math.max((stage.count / maxCount) * 100, stage.count > 0 ? 6 : 2);
+              const widthPercent = Math.max(
+                (stage.count / maxCount) * 100,
+                stage.count > 0 ? 6 : 2,
+              );
               const stageNote = resolveFunnelStageNote(stage.key, stage.note, t);
 
               return (

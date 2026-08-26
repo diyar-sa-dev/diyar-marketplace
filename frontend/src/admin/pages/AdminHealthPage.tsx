@@ -77,7 +77,9 @@ export default function AdminHealthPage() {
               <Activity size={22} />
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold text-diyar-dark">{t('admin.healthCenter.title')}</h1>
+              <h1 className="text-2xl font-extrabold text-diyar-dark">
+                {t('admin.healthCenter.title')}
+              </h1>
               <p className="mt-1 text-sm text-gray-500">{t('admin.healthCenter.subtitle')}</p>
             </div>
           </div>

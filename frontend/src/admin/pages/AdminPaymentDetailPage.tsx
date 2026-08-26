@@ -81,7 +81,9 @@ export default function AdminPaymentDetailPage() {
       </section>
 
       <section className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
-        <h3 className="mb-4 text-base font-bold text-diyar-dark">{t('admin.payments.detailSubtitle')}</h3>
+        <h3 className="mb-4 text-base font-bold text-diyar-dark">
+          {t('admin.payments.detailSubtitle')}
+        </h3>
         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <AdminDetailField label={t('admin.tables.status')} icon={<Receipt size={18} />}>
             <AdminStatusBadge status={payment.status} />
@@ -93,7 +95,10 @@ export default function AdminPaymentDetailPage() {
             </span>
           </AdminDetailField>
 
-          <AdminDetailField label={t('admin.payments.gatewayLabel')} icon={<CreditCard size={18} />}>
+          <AdminDetailField
+            label={t('admin.payments.gatewayLabel')}
+            icon={<CreditCard size={18} />}
+          >
             {payment.gateway ?? '—'}
           </AdminDetailField>
 
@@ -115,7 +120,10 @@ export default function AdminPaymentDetailPage() {
           ) : null}
 
           {orderReference ? (
-            <AdminDetailField label={t('admin.payments.orderReference')} icon={<Package size={18} />}>
+            <AdminDetailField
+              label={t('admin.payments.orderReference')}
+              icon={<Package size={18} />}
+            >
               <span className="font-mono text-xs" dir="ltr">
                 {orderReference}
               </span>

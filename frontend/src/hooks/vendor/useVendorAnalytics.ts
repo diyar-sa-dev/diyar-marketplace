@@ -8,7 +8,8 @@ import {
 
 export const vendorAnalyticsKeys = {
   all: ['vendor-analytics'] as const,
-  overview: (period: AnalyticsPeriodPreset) => [...vendorAnalyticsKeys.all, 'overview', period] as const,
+  overview: (period: AnalyticsPeriodPreset) =>
+    [...vendorAnalyticsKeys.all, 'overview', period] as const,
   sales: (period: AnalyticsPeriodPreset) => [...vendorAnalyticsKeys.all, 'sales', period] as const,
   products: (period: AnalyticsPeriodPreset, page: number) =>
     [...vendorAnalyticsKeys.all, 'products', period, page] as const,

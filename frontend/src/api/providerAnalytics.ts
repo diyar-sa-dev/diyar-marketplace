@@ -52,10 +52,9 @@ export type ProviderServiceAnalyticsRow = {
 export async function fetchProviderAnalyticsOverview(
   period: AnalyticsPeriodPreset = '30d',
 ): Promise<ProviderAnalyticsOverview> {
-  const { data } = await apiClient.get<ApiSuccessResponse<{ analytics: ProviderAnalyticsOverview }>>(
-    '/dashboard/provider/analytics/overview',
-    { params: { period } },
-  );
+  const { data } = await apiClient.get<
+    ApiSuccessResponse<{ analytics: ProviderAnalyticsOverview }>
+  >('/dashboard/provider/analytics/overview', { params: { period } });
   return data.data.analytics;
 }
 

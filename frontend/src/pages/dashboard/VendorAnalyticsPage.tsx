@@ -153,17 +153,28 @@ export default function VendorAnalyticsPage() {
             <ChartContainer height={288}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#9ca3af', fontSize: 12 }}
+                />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
                 <Tooltip
                   formatter={(value: number, name: string) => [
+                    name === 'revenue' ? formatMoney(value, locale, currency) : value,
                     name === 'revenue'
-                      ? formatMoney(value, locale, currency)
-                      : value,
-                    name === 'revenue' ? t('vendor.analytics.revenue') : t('vendor.analytics.orders'),
+                      ? t('vendor.analytics.revenue')
+                      : t('vendor.analytics.orders'),
                   ]}
                 />
-                <Line type="monotone" dataKey="revenue" stroke="#8B4513" strokeWidth={2} dot={false} />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#8B4513"
+                  strokeWidth={2}
+                  dot={false}
+                />
               </LineChart>
             </ChartContainer>
           </div>
@@ -210,16 +221,26 @@ export default function VendorAnalyticsPage() {
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 text-gray-500">
-                    <th className="px-3 py-2 text-start font-semibold">{t('vendor.analytics.table.product')}</th>
-                    <th className="px-3 py-2 text-start font-semibold">{t('vendor.analytics.table.units')}</th>
-                    <th className="px-3 py-2 text-start font-semibold">{t('vendor.analytics.table.orders')}</th>
-                    <th className="px-3 py-2 text-start font-semibold">{t('vendor.analytics.table.revenue')}</th>
+                    <th className="px-3 py-2 text-start font-semibold">
+                      {t('vendor.analytics.table.product')}
+                    </th>
+                    <th className="px-3 py-2 text-start font-semibold">
+                      {t('vendor.analytics.table.units')}
+                    </th>
+                    <th className="px-3 py-2 text-start font-semibold">
+                      {t('vendor.analytics.table.orders')}
+                    </th>
+                    <th className="px-3 py-2 text-start font-semibold">
+                      {t('vendor.analytics.table.revenue')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {productsQuery.data?.products.map((product) => (
                     <tr key={product.product_id} className="border-b border-gray-50">
-                      <td className="px-3 py-3 font-medium text-diyar-dark">{product.product_name}</td>
+                      <td className="px-3 py-3 font-medium text-diyar-dark">
+                        {product.product_name}
+                      </td>
                       <td className="px-3 py-3 tabular-nums" dir="ltr">
                         {product.units_sold}
                       </td>

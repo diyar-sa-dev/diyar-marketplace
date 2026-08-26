@@ -8,8 +8,10 @@ import {
 
 export const providerAnalyticsKeys = {
   all: ['provider-analytics'] as const,
-  overview: (period: AnalyticsPeriodPreset) => [...providerAnalyticsKeys.all, 'overview', period] as const,
-  bookings: (period: AnalyticsPeriodPreset) => [...providerAnalyticsKeys.all, 'bookings', period] as const,
+  overview: (period: AnalyticsPeriodPreset) =>
+    [...providerAnalyticsKeys.all, 'overview', period] as const,
+  bookings: (period: AnalyticsPeriodPreset) =>
+    [...providerAnalyticsKeys.all, 'bookings', period] as const,
   services: (period: AnalyticsPeriodPreset, page: number) =>
     [...providerAnalyticsKeys.all, 'services', period, page] as const,
 };

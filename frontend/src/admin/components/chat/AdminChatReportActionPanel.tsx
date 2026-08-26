@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, BadgeCheck, CheckCircle2, ShieldAlert, ShieldCheck, Trash2, UserX } from 'lucide-react';
+import {
+  AlertTriangle,
+  BadgeCheck,
+  CheckCircle2,
+  ShieldAlert,
+  ShieldCheck,
+  Trash2,
+  UserX,
+} from 'lucide-react';
 import { useLocale } from '../../../hooks/useLocale.ts';
 
 export type ModerationActionType = 'delete_message' | 'warn_sender' | 'suspend_account';
@@ -53,8 +61,7 @@ export function AdminChatReportActionPanel({
     [selectedAction, t],
   );
 
-  const noteTooShortForAction =
-    activeDecision === 'actioned' && resolutionNote.trim().length < 10;
+  const noteTooShortForAction = activeDecision === 'actioned' && resolutionNote.trim().length < 10;
 
   const decisionButtons = [
     {
@@ -124,7 +131,9 @@ export function AdminChatReportActionPanel({
       </div>
 
       {activeDecision === null ? (
-        <div className={`grid gap-2 ${decisionButtons.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
+        <div
+          className={`grid gap-2 ${decisionButtons.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}
+        >
           {decisionButtons.map(({ decision, icon: Icon, tone, title, hint }) => (
             <button
               key={decision}
@@ -173,7 +182,9 @@ export function AdminChatReportActionPanel({
 
           {activeDecision === 'actioned' ? (
             <div className="space-y-2">
-              <p className="text-xs font-medium text-gray-600">{t('admin.chat.actions.chooseAction')}</p>
+              <p className="text-xs font-medium text-gray-600">
+                {t('admin.chat.actions.chooseAction')}
+              </p>
               <div className="grid gap-2">
                 {ACTION_OPTIONS.map(({ id, icon: Icon, tone }) => {
                   const selected = selectedAction === id;
@@ -210,7 +221,9 @@ export function AdminChatReportActionPanel({
                   );
                 })}
               </div>
-              <p className="rounded-xl bg-[#faf9f7] px-3 py-2 text-xs text-gray-600">{actionPreview}</p>
+              <p className="rounded-xl bg-[#faf9f7] px-3 py-2 text-xs text-gray-600">
+                {actionPreview}
+              </p>
             </div>
           ) : null}
 

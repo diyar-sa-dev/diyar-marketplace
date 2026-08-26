@@ -10,7 +10,12 @@ export type OperationalHealthData = {
     notifications?: { status: string; pending?: number; failed?: number; delivered?: number };
     chat?: { status: string; pending_reports?: number; messages_last_hour?: number };
     outbox?: { status: string; available?: boolean; pending?: number; dead_letter?: number };
-    queues?: { status: string; driver?: string; pending_jobs?: number | null; failed_jobs?: number | null };
+    queues?: {
+      status: string;
+      driver?: string;
+      pending_jobs?: number | null;
+      failed_jobs?: number | null;
+    };
   };
   timestamp: string;
 };
@@ -18,7 +23,8 @@ export type OperationalHealthData = {
 export const adminOperationalHealthQueryKey = ['admin', 'system', 'health'] as const;
 
 export async function fetchAdminOperationalHealth(): Promise<OperationalHealthData> {
-  const response = await adminApi.get<ApiSuccessResponse<OperationalHealthData>>('/admin/system/health');
+  const response =
+    await adminApi.get<ApiSuccessResponse<OperationalHealthData>>('/admin/system/health');
   return response.data.data;
 }
 

@@ -157,45 +157,45 @@ export default function ServiceDashboard() {
               description={t('providerDashboard.home.chartEmptyDescription')}
             />
           ) : (
-          <div className="h-72 w-full min-w-0" dir="ltr">
-            <ResponsiveContainer width="100%" height={288}>
-              <AreaChart data={stats.chartData}>
-                <defs>
-                  <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                <XAxis
-                  dataKey="name"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#9ca3af' }}
-                />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af' }} />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: '16px',
-                    border: 'none',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                  }}
-                  formatter={(value: number) => [
-                    `${formatWesternNumber(value)} ${t('providerDashboard.common.currency')}`,
-                    t('providerDashboard.home.earningsLabel'),
-                  ]}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="earnings"
-                  stroke="#3b82f6"
-                  strokeWidth={3}
-                  fillOpacity={1}
-                  fill="url(#colorEarnings)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+            <div className="h-72 w-full min-w-0" dir="ltr">
+              <ResponsiveContainer width="100%" height={288}>
+                <AreaChart data={stats.chartData}>
+                  <defs>
+                    <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#9ca3af' }}
+                  />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af' }} />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: '16px',
+                      border: 'none',
+                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    }}
+                    formatter={(value: number) => [
+                      `${formatWesternNumber(value)} ${t('providerDashboard.common.currency')}`,
+                      t('providerDashboard.home.earningsLabel'),
+                    ]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="earnings"
+                    stroke="#3b82f6"
+                    strokeWidth={3}
+                    fillOpacity={1}
+                    fill="url(#colorEarnings)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           )}
         </div>
 

@@ -1,13 +1,5 @@
 import { useMemo } from 'react';
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
 import { ChartContainer } from '../../../components/common/ChartContainer.tsx';
 import { AnalyticsEmptyState } from '../../../components/dashboard/analytics/AnalyticsEmptyState.tsx';
 import { useLocale } from '../../../hooks/useLocale.ts';

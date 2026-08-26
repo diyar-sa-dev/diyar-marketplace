@@ -10,7 +10,17 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Activity, CalendarCheck, CreditCard, MessageSquare, Package, Store, TrendingUp, Users, Wallet } from 'lucide-react';
+import {
+  Activity,
+  CalendarCheck,
+  CreditCard,
+  MessageSquare,
+  Package,
+  Store,
+  TrendingUp,
+  Users,
+  Wallet,
+} from 'lucide-react';
 import { fetchAdminDashboard } from '../api/adminDashboard.ts';
 import { adminApi } from '../../api/client.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
@@ -73,7 +83,9 @@ function MetricCard({
         <p className="mt-2 text-2xl font-extrabold text-diyar-dark tabular-nums sm:text-3xl">
           {typeof value === 'number' ? formatLocaleNumber(value, locale) : value}
         </p>
-        {hint ? <p className="mt-1 line-clamp-2 text-[11px] text-gray-500 sm:text-xs">{hint}</p> : null}
+        {hint ? (
+          <p className="mt-1 line-clamp-2 text-[11px] text-gray-500 sm:text-xs">{hint}</p>
+        ) : null}
       </div>
       <div className={`shrink-0 rounded-xl p-2.5 ${accent}`}>{icon}</div>
     </div>

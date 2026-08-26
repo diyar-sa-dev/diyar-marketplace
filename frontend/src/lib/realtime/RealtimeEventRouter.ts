@@ -51,7 +51,8 @@ function eventDedupeKey(channelName: string, eventName: string, payload: unknown
   }
 
   const candidate = payload as Record<string, unknown>;
-  const id = candidate.notification_id ?? candidate.message_id ?? candidate.event_id ?? candidate.id;
+  const id =
+    candidate.notification_id ?? candidate.message_id ?? candidate.event_id ?? candidate.id;
 
   if (typeof id === 'string' && id !== '') {
     return `${channelName}:${eventName}:${id}`;

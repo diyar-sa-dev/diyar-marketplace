@@ -59,7 +59,9 @@ export default function ProviderAnalyticsPage() {
     <div className="space-y-6" dir={dir}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-diyar-dark">{t('providerDashboard.analytics.title')}</h1>
+          <h1 className="text-2xl font-bold text-diyar-dark">
+            {t('providerDashboard.analytics.title')}
+          </h1>
           <p className="mt-1 text-sm text-gray-500">{t('providerDashboard.analytics.subtitle')}</p>
         </div>
         <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-600">
@@ -136,7 +138,9 @@ export default function ProviderAnalyticsPage() {
       </div>
 
       <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
-        <h2 className="text-lg font-bold text-diyar-dark">{t('providerDashboard.analytics.bookingsChart')}</h2>
+        <h2 className="text-lg font-bold text-diyar-dark">
+          {t('providerDashboard.analytics.bookingsChart')}
+        </h2>
         {bookingsQuery.isError ? (
           <ErrorState
             className="mt-6"
@@ -150,19 +154,28 @@ export default function ProviderAnalyticsPage() {
             <ChartContainer height={288}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#9ca3af', fontSize: 12 }}
+                />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
                 <Tooltip
                   formatter={(value: number, name: string) => [
-                    name === 'revenue'
-                      ? formatMoney(value, locale, currency)
-                      : value,
+                    name === 'revenue' ? formatMoney(value, locale, currency) : value,
                     name === 'revenue'
                       ? t('providerDashboard.analytics.revenue')
                       : t('providerDashboard.analytics.bookings'),
                   ]}
                 />
-                <Line type="monotone" dataKey="revenue" stroke="#8B4513" strokeWidth={2} dot={false} />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#8B4513"
+                  strokeWidth={2}
+                  dot={false}
+                />
               </LineChart>
             </ChartContainer>
           </div>
@@ -184,7 +197,9 @@ export default function ProviderAnalyticsPage() {
       </section>
 
       <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
-        <h2 className="text-lg font-bold text-diyar-dark">{t('providerDashboard.analytics.topServices')}</h2>
+        <h2 className="text-lg font-bold text-diyar-dark">
+          {t('providerDashboard.analytics.topServices')}
+        </h2>
         {servicesQuery.isError ? (
           <ErrorState
             className="mt-4"
@@ -226,7 +241,9 @@ export default function ProviderAnalyticsPage() {
                 <tbody>
                   {servicesQuery.data?.services.map((service) => (
                     <tr key={service.service_id} className="border-b border-gray-50">
-                      <td className="px-3 py-3 font-medium text-diyar-dark">{service.service_title}</td>
+                      <td className="px-3 py-3 font-medium text-diyar-dark">
+                        {service.service_title}
+                      </td>
                       <td className="px-3 py-3 tabular-nums" dir="ltr">
                         {service.bookings_count}
                       </td>

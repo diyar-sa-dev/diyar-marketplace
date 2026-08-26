@@ -4,10 +4,7 @@ import { useLocale } from '../../../hooks/useLocale.ts';
 
 export type AnalyticsSectionId = 'funnel' | 'cohorts' | 'search';
 
-const SECTION_META: Record<
-  AnalyticsSectionId,
-  { icon: LucideIcon; labelKey: string }
-> = {
+const SECTION_META: Record<AnalyticsSectionId, { icon: LucideIcon; labelKey: string }> = {
   funnel: { icon: Filter, labelKey: 'admin.analytics.sections.funnel.title' },
   cohorts: { icon: Users, labelKey: 'admin.analytics.sections.cohorts.title' },
   search: { icon: Search, labelKey: 'admin.analytics.sections.search.title' },

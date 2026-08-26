@@ -30,15 +30,15 @@ export function hasCatalogSearchContext(
 
   return Boolean(
     normalizedQuery ||
-      filters.category_slug ||
-      filters.vendor_slug ||
-      filters.color ||
-      (filters.colors && filters.colors.length > 0) ||
-      filters.material ||
-      filters.min_price ||
-      filters.max_price ||
-      filters.discounted ||
-      filters.availability_mode,
+    filters.category_slug ||
+    filters.vendor_slug ||
+    filters.color ||
+    (filters.colors && filters.colors.length > 0) ||
+    filters.material ||
+    filters.min_price ||
+    filters.max_price ||
+    filters.discounted ||
+    filters.availability_mode,
   );
 }
 

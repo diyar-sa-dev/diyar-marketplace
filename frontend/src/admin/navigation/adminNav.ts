@@ -49,7 +49,12 @@ export const adminNavItems: AdminNavItem[] = [
     labelKey: 'admin.nav.categories',
     permission: 'categories.view',
   },
-  { to: '/admin/payments', icon: Wallet, labelKey: 'admin.nav.payments', permission: 'payments.view' },
+  {
+    to: '/admin/payments',
+    icon: Wallet,
+    labelKey: 'admin.nav.payments',
+    permission: 'payments.view',
+  },
   {
     to: '/admin/blog/articles',
     icon: FileText,

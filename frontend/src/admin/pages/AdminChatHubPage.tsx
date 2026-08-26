@@ -167,7 +167,9 @@ export default function AdminChatHubPage() {
         },
       );
       void queryClient.invalidateQueries({ queryKey: ['admin-chat-reports'] });
-      void queryClient.invalidateQueries({ queryKey: ['admin-chat-report-detail', variables.reportId] });
+      void queryClient.invalidateQueries({
+        queryKey: ['admin-chat-report-detail', variables.reportId],
+      });
       void queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard', 'activity'] });
       void refetch();
       if (isTerminal) {
@@ -202,8 +204,7 @@ export default function AdminChatHubPage() {
   const showInitialPanel = reportStatus === 'pending';
   const showContinuationPanel = reportStatus === 'under_review';
   const showFinalSummary =
-    reportStatus !== undefined &&
-    ['dismissed', 'actioned', 'resolved'].includes(reportStatus);
+    reportStatus !== undefined && ['dismissed', 'actioned', 'resolved'].includes(reportStatus);
   const panelRevision = `${reportStatus ?? 'none'}-${selectedReport?.reviewed_at ?? ''}-${selectedReport?.resolution_note ?? ''}`;
   const contextMessages = reportDetailQuery.data?.messages ?? [];
 
@@ -287,7 +288,9 @@ export default function AdminChatHubPage() {
             <tr>
               <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.reference')}</th>
               <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.name')}</th>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.chat.table.submittedAt')}</th>
+              <th className="px-4 py-3 text-start font-semibold">
+                {t('admin.chat.table.submittedAt')}
+              </th>
               <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.status')}</th>
             </tr>
           }
@@ -385,7 +388,7 @@ export default function AdminChatHubPage() {
                 <div className="rounded-2xl border-2 border-amber-200 bg-amber-50/60 p-4 text-sm text-gray-700 whitespace-pre-wrap">
                   {selectedReport?.message?.is_deleted
                     ? t('admin.chat.messageDeleted')
-                    : selectedReport?.message?.body ?? '—'}
+                    : (selectedReport?.message?.body ?? '—')}
                 </div>
               </div>
 
@@ -415,9 +418,7 @@ export default function AdminChatHubPage() {
                         <div
                           key={message.id}
                           className={`rounded-xl px-3 py-2 text-sm shadow-sm ${
-                            isReported
-                              ? 'border-2 border-amber-300 bg-amber-50'
-                              : 'bg-white'
+                            isReported ? 'border-2 border-amber-300 bg-amber-50' : 'bg-white'
                           }`}
                         >
                           <div className="mb-1 flex justify-between gap-3 text-xs text-gray-500">
@@ -430,7 +431,9 @@ export default function AdminChatHubPage() {
                             </p>
                           ) : null}
                           <p className="whitespace-pre-wrap text-gray-700">
-                            {message.is_deleted ? t('admin.chat.messageDeleted') : message.body ?? '—'}
+                            {message.is_deleted
+                              ? t('admin.chat.messageDeleted')
+                              : (message.body ?? '—')}
                           </p>
                         </div>
                       );
@@ -463,7 +466,9 @@ export default function AdminChatHubPage() {
                 />
               ) : showFinalSummary ? (
                 <div className="space-y-3 rounded-2xl border border-gray-100 bg-[#faf9f7] px-4 py-4 text-sm text-gray-600">
-                  <p className="font-semibold text-diyar-dark">{t('admin.chat.actions.resolutionSummary')}</p>
+                  <p className="font-semibold text-diyar-dark">
+                    {t('admin.chat.actions.resolutionSummary')}
+                  </p>
                   {selectedReport?.reviewed_at ? (
                     <p className="text-xs text-gray-500">
                       {t('admin.chat.actions.reviewedAt', {

@@ -74,12 +74,15 @@ export default function AdminAnalyticsPage() {
     [canViewFunnel, canViewCohorts, canViewSearch],
   );
 
-  const scrollToSection = useCallback((section: AnalyticsSectionId) => {
-    setActiveSection(section);
-    const element = document.getElementById(section);
-    element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    navigate({ hash: section }, { replace: true });
-  }, [navigate]);
+  const scrollToSection = useCallback(
+    (section: AnalyticsSectionId) => {
+      setActiveSection(section);
+      const element = document.getElementById(section);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      navigate({ hash: section }, { replace: true });
+    },
+    [navigate],
+  );
 
   useEffect(() => {
     const hash = location.hash.replace('#', '') as AnalyticsSectionId;
@@ -166,7 +169,9 @@ export default function AdminAnalyticsPage() {
               <BarChart3 size={24} aria-hidden />
             </span>
             <div>
-              <h1 className="text-2xl font-bold text-diyar-dark sm:text-3xl">{t('admin.analytics.title')}</h1>
+              <h1 className="text-2xl font-bold text-diyar-dark sm:text-3xl">
+                {t('admin.analytics.title')}
+              </h1>
               <p className="mt-1 max-w-2xl text-sm leading-relaxed text-gray-500 sm:text-base">
                 {t('admin.analytics.subtitle')}
               </p>
@@ -208,8 +213,7 @@ export default function AdminAnalyticsPage() {
               />
             ) : funnelQuery.isFetching && !funnelQuery.data ? (
               <div className="h-64 animate-pulse rounded-2xl bg-gray-100" />
-            ) : funnelQuery.data &&
-              !funnelQuery.data.stages.some((stage) => stage.count > 0) ? (
+            ) : funnelQuery.data && !funnelQuery.data.stages.some((stage) => stage.count > 0) ? (
               <AnalyticsEmptyState
                 title={t('admin.analytics.sections.funnel.emptyTitle')}
                 description={t('admin.analytics.sections.funnel.emptyDescription')}

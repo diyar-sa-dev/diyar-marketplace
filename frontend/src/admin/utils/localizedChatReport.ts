@@ -18,7 +18,10 @@ const STATUS_KEYS: Record<string, string> = {
   resolved: 'admin.chat.statuses.resolved',
 };
 
-export function localizedChatReportReason(reason: string | null | undefined, t: TranslateFn): string {
+export function localizedChatReportReason(
+  reason: string | null | undefined,
+  t: TranslateFn,
+): string {
   if (!reason) {
     return '—';
   }
@@ -27,7 +30,10 @@ export function localizedChatReportReason(reason: string | null | undefined, t: 
   return key ? t(key as never) : reason;
 }
 
-export function localizedChatReportStatus(status: string | null | undefined, t: TranslateFn): string {
+export function localizedChatReportStatus(
+  status: string | null | undefined,
+  t: TranslateFn,
+): string {
   if (!status) {
     return '—';
   }
@@ -46,7 +52,10 @@ const ACTION_KEYS: Record<string, string> = {
   moderated: 'admin.chat.actions.types.moderated',
 };
 
-export function localizedChatReportAction(action: string | null | undefined, t: TranslateFn): string {
+export function localizedChatReportAction(
+  action: string | null | undefined,
+  t: TranslateFn,
+): string {
   if (!action) {
     return '—';
   }
