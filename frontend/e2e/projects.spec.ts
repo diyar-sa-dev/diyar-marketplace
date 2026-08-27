@@ -11,6 +11,12 @@ test.describe('Sidebar projects journey', () => {
     expect(firstProject?.slug).toBeTruthy();
 
     await page.goto('/');
+    await page.waitForTimeout(5500);
+    const closeAd = page.getByRole('button', { name: /close|إغلاق/i });
+    if (await closeAd.isVisible().catch(() => false)) {
+      await closeAd.click();
+    }
+
     await page.locator('header button').first().click();
     await page.getByRole('button', { name: /المشاريع|projects/i }).click();
 

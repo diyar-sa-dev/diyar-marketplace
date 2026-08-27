@@ -1,0 +1,72 @@
+﻿
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+
+--- STAGE 10.1 E2E EVIDENCE ---
+{
+ "checkout_preview": {
+ "shipping_total": "40.00",
+ "grand_total": null,
+ "vendor_groups": [
+ {
+ "vendor_account_id": "01a04344-7835-70d7-a8c8-e2b1ead13d81",
+ "shipping_cost": "25.00",
+ "method": "carrier"
+ },
+ {
+ "vendor_account_id": "01a04344-783c-7267-8016-bef673b8f308",
+ "shipping_cost": "15.00",
+ "method": "carrier"
+ }
+ ]
+ },
+ "order_created": {
+ "order_id": "01a04344-7878-7091-ac49-f521eee3146a",
+ "order_number": "DYR-20260827-000001",
+ "shipping_total": "40.00",
+ "grand_total": "563.50",
+ "vendor_orders": [
+ {
+ "id": "01a04344-7879-7059-99d7-320680743e3e",
+ "vendor_account_id": "01a04344-7835-70d7-a8c8-e2b1ead13d81",
+ "shipping_cost": "25.00",
+ "shipping_method": "carrier",
+ "shipment_status": "pending"
+ },
+ {
+ "id": "01a04344-787e-73df-9bab-8a471cf7b4c7",
+ "vendor_account_id": "01a04344-783c-7267-8016-bef673b8f308",
+ "shipping_cost": "15.00",
+ "shipping_method": "carrier",
+ "shipment_status": "pending"
+ }
+ ]
+ },
+ "payment": {
+ "status": "paid",
+ "amount": "563.50",
+ "order_grand_total": "563.50"
+ },
+ "fulfillment": [
+ {
+ "vendor_order_id": "01a04344-7879-7059-99d7-320680743e3e",
+ "status": "delivered",
+ "tracking_number": "E2E-01a04344-7879-7059-99d7-320680743e3e",
+ "shipped_at": "2026-08-27T15:49:16+03:00",
+ "delivered_at": "2026-08-27T15:49:16+03:00"
+ },
+ {
+ "vendor_order_id": "01a04344-787e-73df-9bab-8a471cf7b4c7",
+ "status": "delivered",
+ "tracking_number": "E2E-01a04344-787e-73df-9bab-8a471cf7b4c7",
+ "shipped_at": "2026-08-27T15:49:16+03:00",
+ "delivered_at": "2026-08-27T15:49:16+03:00"
+ }
+ ],
+ "historical_immutability": {
+ "settings_a_carrier_flat_rate_now": "40.00",
+ "order_a_shipping_cost_snapshot": "25.00"
+ }
+}
+{"tool":"phpunit","result":"failed","tests":739,"passed":732,"assertions":3162,"duration_ms":73464,"failed":1,"failures":[{"test":"Tests\\Feature\\Api\\V1\\Shipping\\AdvancedShippingTest::test_advanced_shipping_quote_uses_weight_tier_rules","file":"C:\\Users\\APL TECH\\OneDrive\\Documents\\Web\\Work\\Hamid\\project\\diyar-marketplace\\backend\\tests\\Feature\\Api\\V1\\Shipping\\AdvancedShippingTest.php","line":42,"message":"Expected response status code [200] but received 422.\nFailed asserting that 422 is identical to 200."}],"skipped":6}

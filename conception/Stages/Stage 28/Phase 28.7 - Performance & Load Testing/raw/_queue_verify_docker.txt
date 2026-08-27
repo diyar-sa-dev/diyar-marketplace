@@ -1,0 +1,107 @@
+﻿docker : time="2026-08-27T11:19:57+01:00" level=warning msg="No services to build"
+At C:\Users\APL TECH\AppData\Local\Temp\ps-script-5d84f413-fc62-4987-80a9-99a0cfe2b708.ps1:115 char:411
++ ... oding utf8; docker compose -f docker-compose.loadtest.yml run --rm -- ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (time="2026-08-2...vices to build":String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+time="2026-08-27T11:19:57+01:00" level=warning msg="No services to build"
+ Container diyar-marketplace-api-run-5f76c88e9baf Creating 
+ Container diyar-marketplace-api-run-5f76c88e9baf Created 
+[2026-08-27 13:19:58] local.ERROR: SQLSTATE[HY000] [1045] Access denied for user 'root'@'172.22.0.6' (using password: 
+YES) (Connection: mysql, Host: mysql, Port: 3306, Database: diyar_loadtest, SQL: select count(*) as `aggregate` from 
+`failed_jobs`) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 1045): SQLSTATE[HY000] [1045] Access 
+denied for user 'root'@'172.22.0.6' (using password: YES) (Connection: mysql, Host: mysql, Port: 3306, Database: 
+diyar_loadtest, SQL: select count(*) as `aggregate` from `failed_jobs`) at 
+/var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php:857)
+[stacktrace]
+#0 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1037): 
+Illuminate\\Database\\Connection->runQueryCallback('select count(*)...', Array, Object(Closure))
+#1 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1016): 
+Illuminate\\Database\\Connection->tryAgainIfCausedByLostConnection(Object(Illuminate\\Database\\QueryException), 
+'select count(*)...', Array, Object(Closure))
+#2 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(815): 
+Illuminate\\Database\\Connection->handleQueryException(Object(Illuminate\\Database\\QueryException), 'select 
+count(*)...', Array, Object(Closure))
+#3 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(426): 
+Illuminate\\Database\\Connection->run('select count(*)...', Array, Object(Closure))
+#4 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3573): 
+Illuminate\\Database\\Connection->select('select count(*)...', Array, true, Array)
+#5 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3557): 
+Illuminate\\Database\\Query\\Builder->runSelect()
+#6 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4073): 
+Illuminate\\Database\\Query\\Builder->get(Array)
+#7 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4001): 
+Illuminate\\Database\\Query\\Builder->aggregate('count', Array)
+#8 /var/www/html/scripts/stage28-queue-verify.php(70): Illuminate\\Database\\Query\\Builder->count()
+#9 {main}
+
+[previous exception] [object] (PDOException(code: 1045): SQLSTATE[HY000] [1045] Access denied for user 
+'root'@'172.22.0.6' (using password: YES) at 
+/var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:66)
+[stacktrace]
+#0 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(66): 
+PDO->__construct('mysql:host=mysq...', 'root', Object(SensitiveParameterValue), Array)
+#1 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(85): 
+Illuminate\\Database\\Connectors\\Connector->createPdoConnection('mysql:host=mysq...', 'root', 
+Object(SensitiveParameterValue), Array)
+#2 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(48): 
+Illuminate\\Database\\Connectors\\Connector->tryAgainIfCausedByLostConnection(Object(PDOException), 
+'mysql:host=mysq...', 'root', Object(SensitiveParameterValue), Array)
+#3 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connectors/MySqlConnector.php(24): 
+Illuminate\\Database\\Connectors\\Connector->createConnection('mysql:host=mysq...', Array, Array)
+#4 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connectors/ConnectionFactory.php(220): 
+Illuminate\\Database\\Connectors\\MySqlConnector->connect(Array)
+#5 [internal function]: 
+Illuminate\\Database\\Connectors\\ConnectionFactory->Illuminate\\Database\\Connectors\\{closure}()
+#6 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1297): call_user_func(Object(Closure))
+#7 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1335): 
+Illuminate\\Database\\Connection->getPdo()
+#8 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(542): 
+Illuminate\\Database\\Connection->getReadPdo()
+#9 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(435): 
+Illuminate\\Database\\Connection->getPdoForSelect(true)
+#10 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(846): 
+Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('select count(*)...', Array)
+#11 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1037): 
+Illuminate\\Database\\Connection->runQueryCallback('select count(*)...', Array, Object(Closure))
+#12 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1016): 
+Illuminate\\Database\\Connection->tryAgainIfCausedByLostConnection(Object(Illuminate\\Database\\QueryException), 
+'select count(*)...', Array, Object(Closure))
+#13 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(815): 
+Illuminate\\Database\\Connection->handleQueryException(Object(Illuminate\\Database\\QueryException), 'select 
+count(*)...', Array, Object(Closure))
+#14 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(426): 
+Illuminate\\Database\\Connection->run('select count(*)...', Array, Object(Closure))
+#15 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3573): 
+Illuminate\\Database\\Connection->select('select count(*)...', Array, true, Array)
+#16 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3557): 
+Illuminate\\Database\\Query\\Builder->runSelect()
+#17 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4073): 
+Illuminate\\Database\\Query\\Builder->get(Array)
+#18 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4001): 
+Illuminate\\Database\\Query\\Builder->aggregate('count', Array)
+#19 /var/www/html/scripts/stage28-queue-verify.php(70): Illuminate\\Database\\Query\\Builder->count()
+#20 {main}
+"} 
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[HY000] [1045] Access denied for user 'root'@'172.22.0.6' (using password: YES) (Connection: mysql, Host: mysql, Port: 3306, Database: diyar_loadtest, SQL: select count(*) as `aggregate` from `failed_jobs`)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:857
+    853Γûò             $exceptionType = ($isUniqueConstraintError = $this->isUniqueConstraintError($e))
+    854Γûò                 ? UniqueConstraintViolationException::class
+    855Γûò                 : QueryException::class;
+    856Γûò 
+  Γ₧£ 857Γûò             $exception = new $exceptionType(
+    858Γûò                 $this->getNameWithReadWriteType(),
+    859Γûò                 $query,
+    860Γûò                 $this->prepareBindings($bindings),
+    861Γûò                 $e,
+
+      [2m+20 vendor frames [22m
+
+  21  scripts/stage28-queue-verify.php:70
+      Illuminate\Database\Query\Builder::count()
+

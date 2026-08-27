@@ -40,7 +40,7 @@ export function useProvider(slug: string | undefined) {
     queryKey: serviceKeys.providers.detail(slug ?? ''),
     queryFn: () => servicesApi.fetchProvider(slug!),
     enabled: Boolean(slug),
-    staleTime: 0,
+    staleTime: 60_000,
     retry: (failureCount, error) => {
       if (isNotFoundError(error)) {
         return false;

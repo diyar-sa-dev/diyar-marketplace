@@ -1,0 +1,635 @@
+<meta charset="utf-8">
+<!-- Source of docs/project_status_report_2026-07-06.pdf.
+     Published artifact: https://claude.ai/code/artifact/ffca4715-6a71-4fbb-b0d1-3145ace27c11
+     Recovered from that artifact on 2026-08-27. Print via the toolbar button to regenerate the PDF. -->
+<title>تقرير حالة المشروع — كبسة الهام (يوليو 2026)</title>
+<style>
+  :root {
+    --surround: #e8ecf1;
+    --paper: #ffffff;
+    --ink: #1c2733;
+    --ink-soft: #46586b;
+    --navy: #1f3864;
+    --band: #2e6db4;
+    --band-soft: #eef4fb;
+    --row-alt: #f5f8fc;
+    --line: #dbe4ee;
+    --ok-bg: #e4f3ea;   --ok-fg: #1a7a4c;
+    --part-bg: #fcf1d2; --part-fg: #96660a;
+    --no-bg: #fbe7e7;   --no-fg: #b23330;
+    --shadow: 0 2px 14px rgba(31, 56, 100, .12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --surround: #141a22; --shadow: 0 2px 18px rgba(0,0,0,.5); }
+  }
+  :root[data-theme="dark"] { --surround: #141a22; --shadow: 0 2px 18px rgba(0,0,0,.5); }
+  :root[data-theme="light"] { --surround: #e8ecf1; --shadow: 0 2px 14px rgba(31,56,100,.12); }
+
+  html { background: var(--surround); }
+  body { margin: 0; background: var(--surround); }
+
+  .report {
+    direction: rtl;
+    font-family: "Segoe UI", Tahoma, "Noto Naskh Arabic", Arial, sans-serif;
+    color: var(--ink);
+    max-width: 880px;
+    margin: 24px auto 64px;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+    border-radius: 6px;
+    overflow: hidden;
+    line-height: 1.7;
+  }
+  .inner { padding: 0 40px 48px; }
+
+  .masthead {
+    background: var(--navy);
+    color: #fff;
+    text-align: center;
+    padding: 34px 24px 26px;
+  }
+  .masthead h1 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: .5px; }
+  .subhead {
+    background: var(--band);
+    color: #fff;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 10px 24px;
+    margin-bottom: 32px;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 26px; font-size: 14.5px; }
+  td, th { padding: 9px 14px; vertical-align: top; }
+  tbody tr:nth-child(odd) { background: var(--band-soft); }
+  tbody tr:nth-child(even) { background: var(--paper); }
+  tbody tr { border-bottom: 1px solid var(--line); }
+
+  .meta td:first-child { font-weight: 700; color: var(--navy); width: 130px; white-space: nowrap; }
+
+  .st {
+    width: 128px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+  .ok   { background: var(--ok-bg)   !important; color: var(--ok-fg); }
+  .part { background: var(--part-bg) !important; color: var(--part-fg); }
+  .no   { background: var(--no-bg)   !important; color: var(--no-fg); }
+  td.note-inline { font-size: 12.5px; color: var(--ink-soft); }
+
+  .legend { display: flex; gap: 10px; margin: 8px 0 4px; }
+  .legend span { flex: 1; text-align: center; padding: 8px 0; font-weight: 700; font-size: 13px; border-radius: 3px; }
+
+  .section-band {
+    background: var(--navy);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 800;
+    padding: 12px 40px;
+    margin: 44px -40px 20px;
+  }
+  .section-note {
+    background: var(--ok-bg);
+    color: var(--ok-fg);
+    font-weight: 700;
+    font-size: 14px;
+    text-align: center;
+    padding: 9px 16px;
+    border-radius: 4px;
+    margin: 0 0 18px;
+  }
+  .section-note.part-note { background: var(--part-bg); color: var(--part-fg); }
+  h3 { color: var(--band); font-size: 15.5px; margin: 26px 0 4px; font-weight: 800; }
+  .fine { font-size: 12.5px; color: var(--ink-soft); margin: -14px 0 22px; }
+
+  .highlights {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 22px 10px;
+    margin: 0 0 10px;
+    background: var(--band-soft);
+  }
+  .highlights h3 { margin-top: 0; }
+  .highlights ul { margin: 6px 0 12px; padding-right: 20px; }
+  .highlights li { margin-bottom: 5px; font-size: 14px; }
+
+  .closing {
+    text-align: center;
+    margin-top: 54px;
+    border-top: 1px solid var(--line);
+    padding-top: 26px;
+  }
+  .closing .thanks { color: var(--navy); font-weight: 700; }
+  .closing .sig { color: var(--band); font-weight: 800; margin-top: 10px; }
+  .closing .date { color: var(--ink-soft); font-size: 13.5px; }
+
+  .toolbar { max-width: 880px; margin: 18px auto -8px; text-align: left; direction: ltr; padding: 0 4px; }
+  .toolbar button {
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    background: var(--navy); color: #fff; border: 0; border-radius: 5px;
+    padding: 8px 16px; cursor: pointer;
+  }
+  .toolbar button:focus-visible { outline: 3px solid var(--band); outline-offset: 2px; }
+
+  @media print {
+    html, body { background: #fff; }
+    .toolbar { display: none; }
+    .report { box-shadow: none; margin: 0; max-width: none; border-radius: 0; }
+    .section-band { break-after: avoid; }
+    tr { break-inside: avoid; }
+    .page-break { break-before: page; }
+  }
+  @media (max-width: 640px) {
+    .inner { padding: 0 16px 32px; }
+    .section-band { margin: 36px -16px 16px; padding: 10px 16px; }
+    .table-wrap { overflow-x: auto; }
+  }
+</style>
+
+<div class="toolbar"><button onclick="window.print()">🖨 Print / PDF</button></div>
+
+<div class="report" lang="ar">
+  <div class="masthead"><h1>تقرير حالة المشروع</h1></div>
+  <div class="subhead">منصة كبسة الهام — منصة إلكترونية شاملة مع لوحة تحكم</div>
+
+  <div class="inner">
+    <table class="meta">
+      <tbody>
+        <tr><td>العميل:</td><td>مهندس سامر — كبسة الهام</td></tr>
+        <tr><td>المورد:</td><td>فاطمة إبراهيم خليل علي</td></tr>
+        <tr><td>تاريخ العقد:</td><td>21/12/2025 (01/07/1447)</td></tr>
+        <tr><td>تاريخ التقرير:</td><td>06/07/2026</td></tr>
+        <tr><td>التقرير السابق:</td><td>25/03/2026</td></tr>
+      </tbody>
+    </table>
+
+    <p style="font-weight:700; color:var(--navy); margin-bottom:6px;">دلالة الألوان في هذا التقرير:</p>
+    <div class="legend">
+      <span class="ok">منجز</span>
+      <span class="part">جزئي</span>
+      <span class="no">غير منجز</span>
+    </div>
+
+    <div class="section-band">أبرز ما أنجز منذ التقرير السابق (25/03/2026)</div>
+    <div class="highlights">
+      <ul>
+        <li><b>تطبيق Mini POS للكاشير (Flutter):</b> منجز بالكامل — استقبال الطلبات مع تنبيه صوتي، إنشاء الطلبات، الخصومات، الدفع النقدي/الشبكة/QR، الطباعة الحرارية، والتقارير.</li>
+        <li><b>تطبيق التوصيل (Flutter):</b> منجز بالكامل — الطلبات المتاحة، الخريطة والملاحة، تحديث الحالات، الأرباح، وتسوية النقد.</li>
+        <li><b>تطبيق الهاتف للطلبات:</b> منجز — تطبيق يقدم تجربة الطلب الكاملة مع إشعارات فورية وتحديد الموقع.</li>
+        <li><b>الدردشة الحية والشات بوت بالذكاء الاصطناعي:</b> دردشة فورية مع فريق الدعم، روبوت محادثة بقاعدة معرفية، تحويل تلقائي للموظف، إرفاق الملفات، تقييم تجربة الدعم، ولوحة تحليلات للمحادثات.</li>
+        <li><b>استقبال طلبات واتساب:</b> ربط رسمي مع واتساب (Meta) مع تحليل الرسائل بالذكاء الاصطناعي وتأكيد الطلب وإرساله للفرع.</li>
+        <li><b>ربط بوابات الدفع:</b> MyFatoorah وTap Payments وTamara مع معالجة Webhooks وضمان عدم تكرار معالجة العمليات، والاسترداد الآلي واليدوي.</li>
+        <li><b>ربط مزودي الرسائل SMS:</b> ثلاثة مزودين (Unifonic، Twilio، Msegat) مع رموز التحقق OTP.</li>
+        <li><b>أعمال إضافية فوق النطاق المتفق عليه:</b> حملات تسويقية وشرائح عملاء، إدارة مخزون بتنبيهات، حجوزات وطاولات الصالة، بطاقات الهدايا، ونحو 300 ملف اختبار آلي.</li>
+      </ul>
+    </div>
+
+    <div class="section-band">ملخص حالة التسليم</div>
+    <div class="table-wrap">
+    <table>
+      <tbody>
+        <tr><td>لوحة الإدارة</td><td class="st ok">منجزة بالكامل — شاملة الدردشة الحية والبوت</td></tr>
+        <tr><td>الموقع الإلكتروني</td><td class="st ok">منجز بالكامل</td></tr>
+        <tr><td>موقع الطلبات (ويب)</td><td class="st ok">منجز بالكامل</td></tr>
+        <tr><td>تطبيق الهاتف للطلبات (Flutter)</td><td class="st ok">منجز — إصدار 1.2.2</td></tr>
+        <tr><td>نظام نقطة البيع (Mini POS) — موجه لفريق الفرع (المدير، المطبخ، الكاشير)</td><td class="st ok">منجز بالكامل + ميزات إضافية</td></tr>
+        <tr><td>تطبيق التوصيل (Flutter)</td><td class="st ok">منجز بالكامل</td></tr>
+        <tr><td>تطبيق الهاتف — Mini POS للكاشير (Flutter)</td><td class="st ok">منجز بالكامل</td></tr>
+        <tr><td>ربط بوابات الدفع</td><td class="st ok">منجز — 3 بوابات + الاسترداد</td></tr>
+        <tr><td>واتساب + شات بوت الذكاء الاصطناعي</td><td class="st ok">منجز بالكامل</td></tr>
+        <tr><td>تصاميم واجهات المستخدم</td><td class="st part">%65 — متبقي: تطبيق مدير الفرع + تطبيق التوصيل</td></tr>
+        <tr><td>التجريب</td><td class="st part">اختبارات آلية شاملة — التجريب النهائي جار</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="section-band page-break">أولا: لوحة الإدارة (Admin Panel)</div>
+    <div class="section-note">منجزة بالكامل — بما في ذلك الدردشة الحية والشات بوت وربط المزودين</div>
+
+    <h3>١. إدارة المستخدمين</h3>
+    <table><tbody>
+      <tr><td>إضافة مستخدم جديد يدويا أو عن طريق التسجيل التلقائي</td><td class="st ok">منجز</td></tr>
+      <tr><td>تعديل معلومات العملاء (الاسم، البريد الإلكتروني، رقم الهاتف، العنوان)</td><td class="st ok">منجز</td></tr>
+      <tr><td>حظر أو إلغاء حظر العملاء في حال وجود نشاط مشبوه أو مخالف للسياسات</td><td class="st ok">منجز</td></tr>
+      <tr><td>تصنيف المستخدمين: الزبائن — فريق الدعم — مدراء الفروع — الموصلين</td><td class="st ok">منجز</td></tr>
+      <tr><td>إرسال إشعارات أو رسائل بريد إلكتروني جماعية أو فردية للمستخدمين</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٢. إدارة قائمة الطعام (إضافة، تعديل، حذف)</h3>
+    <table><tbody>
+      <tr><td>إضافة عنصر جديد: الاسم، الوصف، الفئة، الصور، السعر الأساسي</td><td class="st ok">منجز</td></tr>
+      <tr><td>إضافة الإضافات الخاصة بكل عنصر مع تحديد السعر لكل إضافة</td><td class="st ok">منجز</td></tr>
+      <tr><td>تحديد الفروع التي يظهر فيها العنصر</td><td class="st ok">منجز</td></tr>
+      <tr><td>تعديل بيانات العنصر الموجود (الاسم، الوصف، الصور، السعر، الإضافات، الفروع)</td><td class="st ok">منجز</td></tr>
+      <tr><td>حذف العناصر غير المرغوبة أو غير المتوفرة مع أرشفة البيانات للرجوع إليها</td><td class="st ok">منجز</td></tr>
+      <tr><td>إدارة الإضافات: إضافة أو تعديل أو حذف الإضافات المرتبطة بكل عنصر</td><td class="st ok">منجز</td></tr>
+      <tr><td>تنظيم القائمة: ترتيب الأصناف حسب الفئة أو ترتيب مخصص لعرضها بشكل منسق</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٣. إدارة الفئات</h3>
+    <table><tbody>
+      <tr><td>إضافة فئة جديدة: الاسم، الوصف، الصورة، وتحديد الفروع التي تظهر فيها</td><td class="st ok">منجز</td></tr>
+      <tr><td>ربط عناصر (أكلات) بالفئة مباشرة عند إنشائها</td><td class="st ok">منجز</td></tr>
+      <tr><td>تعديل بيانات الفئة (الاسم، الوصف، الصورة، ترتيب الظهور داخل المنيو)</td><td class="st ok">منجز</td></tr>
+      <tr><td>حذف الفئات غير المستخدمة أو التي لم تعد مطلوبة</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٤. إدارة الفروع (إضافة، تعديل، حذف)</h3>
+    <table><tbody>
+      <tr><td>إضافة فرع جديد: الاسم، العنوان، رقم الهاتف، البريد الإلكتروني</td><td class="st ok">منجز</td></tr>
+      <tr><td>تحديث ساعات العمل وموقع الفرع على الخريطة ومعلومات الاتصال</td><td class="st ok">منجز</td></tr>
+      <tr><td>تعديل حالة الفرع (متاح / غير متاح) حسب ساعات العمل أو الإغلاق المؤقت</td><td class="st ok">منجز</td></tr>
+      <tr><td>حذف الفروع غير النشطة مع أرشفة بياناتها</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٥. إدارة الطلبات ومتابعة حالتها</h3>
+    <table><tbody>
+      <tr><td>عرض قائمة الطلبات الحالية (جديدة، قيد التحضير، في الطريق، تم التوصيل)</td><td class="st ok">منجز</td></tr>
+      <tr><td>عرض تفاصيل كل طلب: الزبون، العناصر، المبلغ الكلي، عنوان التوصيل، الموصل</td><td class="st ok">منجز</td></tr>
+      <tr><td>عرض تقييمات الموصلين من قبل الزبائن وإمكانية تعديل الطلب</td><td class="st ok">منجز</td></tr>
+      <tr><td>إنشاء الطلبات من قبل فريق الدعم: تصفح العناصر، تحديد العميل والخصومات</td><td class="st ok">منجز</td></tr>
+      <tr><td>ارسال رابط الدفع للعميل عبر SMS أو البريد الإلكتروني</td><td class="st ok">منجز</td></tr>
+      <tr><td>متابعة حالة الطلبات في الوقت الفعلي مع التتبع الجغرافي</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٦. إدارة الإشعارات</h3>
+    <table><tbody>
+      <tr><td>إرسال إشعارات فورية للزبائن حول حالة طلباتهم (تأكيد، تجهيز، في الطريق)</td><td class="st ok">منجز</td></tr>
+      <tr><td>إرسال إشعارات لنظام Mini POS عند استلام طلب جديد</td><td class="st ok">منجز</td></tr>
+      <tr><td>إشعارات للموصلين عند توفر طلب توصيل</td><td class="st ok">منجز</td></tr>
+      <tr><td>إرسال إشعارات ترويجية للزبائن حول العروض والخصومات الجديدة</td><td class="st ok">منجز</td></tr>
+      <tr><td>حملات تسويقية مجدولة مع شرائح عملاء ذكية وتتبع النقرات <span class="note-inline">(إضافة جديدة)</span></td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٧. إدارة المحتوى (التعريف بالشركة، الأسئلة الشائعة، فريق الدعم)</h3>
+    <table><tbody>
+      <tr><td>إدارة صفحة التعريف بالشركة: نبذة، الرسالة والرؤية، روابط التطبيقات، الشركاء، العروض</td><td class="st ok">منجز</td></tr>
+      <tr><td>معلومات التواصل والتواصل الاجتماعي</td><td class="st ok">منجز</td></tr>
+      <tr><td>إدارة قسم الأسئلة الشائعة FAQ: إنشاء وتعديل الأسئلة مع إجاباتها</td><td class="st ok">منجز</td></tr>
+      <tr><td>دردشة مباشرة (Live Chat) للتواصل الفوري مع فريق الدعم — صندوق وارد للموظفين مع التحويل والإشراف</td><td class="st ok">منجز</td></tr>
+      <tr><td>روبوت محادثة (ChatBot) بالذكاء الاصطناعي للأسئلة الشائعة — مع قاعدة معرفية قابلة للإدارة</td><td class="st ok">منجز</td></tr>
+      <tr><td>استلام طلبات العملاء من الواتساب وتحليلها بالذكاء الاصطناعي وإرسالها للفروع</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٨. التقارير والإحصائيات</h3>
+    <table><tbody>
+      <tr><td>التقارير المالية: يومية، أسبوعية، شهرية — إجمالي المبيعات لكل فرع، عدد الطلبات، المتوسط اليومي</td><td class="st ok">منجز</td></tr>
+      <tr><td>إحصائيات المستخدمين الجدد، الطلبات المتكررة، تقييمات المستخدمين</td><td class="st ok">منجز</td></tr>
+      <tr><td>عرض الطلبات المتروكة</td><td class="st ok">منجز</td></tr>
+      <tr><td>إحصائيات أداء التوصيل: عدد الطلبات الموصلة، نسب التقييمات الإيجابية والسلبية</td><td class="st ok">منجز</td></tr>
+      <tr><td>تقرير توزيع طرق الدفع (نقدا / شبكة / QR / بطاقات هدايا) <span class="note-inline">(إضافة جديدة)</span></td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٩. إدارة الشكاوى والمشاكل</h3>
+    <table><tbody>
+      <tr><td>نظام لإدارة الشكاوى الواردة من الزبائن (طلبات غير صحيحة، مشاكل توصيل)</td><td class="st ok">منجز</td></tr>
+      <tr><td>إمكانية التواصل مع الزبائن لحل المشاكل بشكل فوري</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>١٠. إدارة العروض والترويج والخصومات</h3>
+    <table><tbody>
+      <tr><td>إضافة وتحديث العروض الترويجية والخصومات الخاصة لكل مطعم</td><td class="st ok">منجز</td></tr>
+      <tr><td>مراقبة أداء العروض من خلال عدد الطلبات المحجوزة بواسطتها</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>١١. إدارة الكوبونات ونقاط الولاء</h3>
+    <table><tbody>
+      <tr><td>إنشاء وتعديل وحذف الكوبونات مع تحديد قيمة الخصم، تاريخ الصلاحية، والفروع المتاحة</td><td class="st ok">منجز</td></tr>
+      <tr><td>تفعيل أو إيقاف الكوبونات في أي وقت</td><td class="st ok">منجز</td></tr>
+      <tr><td>نظام نقاط الولاء: منح العملاء نقاطا عند كل طلب مع إمكانية استبدالها بخصومات أو عروض</td><td class="st ok">منجز</td></tr>
+      <tr><td>متابعة استخدام الكوبونات وحركة نقاط الولاء من خلال تقارير مبسطة</td><td class="st ok">منجز</td></tr>
+      <tr><td>بطاقات الهدايا: إصدارها وبيعها واستخدامها عند الدفع <span class="note-inline">(إضافة جديدة)</span></td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>١٢. الإعدادات</h3>
+    <table><tbody>
+      <tr><td>إعدادات عامة: تعديل شعار المنصة وتخصيص الرسائل والإشعارات</td><td class="st ok">منجز</td></tr>
+      <tr><td>إعدادات الدفع: تفعيل بوابات الدفع المتعددة وإدارة بيانات الربط من لوحة التحكم</td><td class="st ok">منجز</td></tr>
+      <tr><td>إعدادات اللغة: دعم اللغات المتعددة مع ترجمة آلية بالذكاء الاصطناعي</td><td class="st ok">منجز</td></tr>
+      <tr><td>إعدادات السوشيال ميديا: روابط الحسابات، Meta Pixel، TikTok Pixel</td><td class="st ok">منجز</td></tr>
+      <tr><td>إعدادات Google: ربط Google Analytics و Google Tag Manager</td><td class="st ok">منجز</td></tr>
+      <tr><td>ربط مزودي الرسائل SMS (Unifonic، Twilio، Msegat)</td><td class="st ok">منجز</td></tr>
+      <tr><td>ربط مزودي خدمات الذكاء الاصطناعي (OpenAI ChatGPT، Anthropic Claude، Azure) مع إعدادات البوت من لوحة التحكم</td><td class="st ok">منجز</td></tr>
+      <tr><td>ربط مزودي خدمات الدفع (MyFatoorah، Tap، Tamara)</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band page-break">ثانيا: الموقع الإلكتروني</div>
+    <div class="section-note">الجزء الإعلامي والتعريفي من المنصة — منجز بالكامل شاملا خدمة العملاء</div>
+
+    <h3>مكونات الموقع الإلكتروني</h3>
+    <table><tbody>
+      <tr><td>صفحة التعريف بالشركة: نبذة عن المنصة، الرسالة والرؤية</td><td class="st ok">منجز</td></tr>
+      <tr><td>معلومات التواصل والتواصل الاجتماعي وروابط التطبيقات</td><td class="st ok">منجز</td></tr>
+      <tr><td>عرض الشركاء وأبرز العروض</td><td class="st ok">منجز</td></tr>
+      <tr><td>صفحة الأسئلة الشائعة (FAQ) مع دليل المستخدم والتحديثات المستمرة</td><td class="st ok">منجز</td></tr>
+      <tr><td>خدمة العملاء: دردشة مباشرة Live Chat مع فريق الدعم</td><td class="st ok">منجز</td></tr>
+      <tr><td>خدمة العملاء: روبوت محادثة ChatBot بالذكاء الاصطناعي</td><td class="st ok">منجز</td></tr>
+      <tr><td>إرفاق صور وملفات عند إرسال مشكلة أو استفسار</td><td class="st ok">منجز</td></tr>
+      <tr><td>سجل كامل للرسائل والتنبيهات مع حالة الإرسال وتقييم تجربة الدعم</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band page-break">ثالثا: موقع الطلبات (ويب)</div>
+    <div class="section-note">تجربة الطلب الكاملة عبر المتصفح — منجزة بالكامل</div>
+
+    <h3>١. تسجيل الدخول وإنشاء الحساب</h3>
+    <table><tbody>
+      <tr><td>إنشاء حساب جديد وتسجيل الدخول بالبريد الإلكتروني أو رقم الهاتف وكلمة المرور</td><td class="st ok">منجز</td></tr>
+      <tr><td>استعادة كلمة المرور عبر رمز تحقق OTP</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٢. تصفح قوائم الطعام في الفرع القريب</h3>
+    <table><tbody>
+      <tr><td>عرض الفرع الأقرب تلقائيا باستخدام خدمة الموقع GPS مع إمكانية تحديد الفرع يدويا</td><td class="st ok">منجز</td></tr>
+      <tr><td>عرض معلومات الفرع: أوقات العمل، الموقع على الخريطة</td><td class="st ok">منجز</td></tr>
+      <tr><td>عرض قائمة الطعام بشكل منسق يحتوي على الصور والوصف والأسعار</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٣. إدارة عناوين التوصيل</h3>
+    <table><tbody>
+      <tr><td>إضافة عنوان جديد مع تحديد الموقع على الخريطة</td><td class="st ok">منجز</td></tr>
+      <tr><td>تعديل أو حذف العناوين المسجلة في أي وقت</td><td class="st ok">منجز</td></tr>
+      <tr><td>تحديد عنوان افتراضي للطلبات السريعة</td><td class="st ok">منجز</td></tr>
+      <tr><td>حفظ عدة عناوين (المنزل، العمل...) لاستخدامها دون إعادة الإدخال</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٤. اختيار العناصر وإضافتها إلى السلة</h3>
+    <table><tbody>
+      <tr><td>اختيار العناصر من قائمة الطعام وإضافتها إلى السلة</td><td class="st ok">منجز</td></tr>
+      <tr><td>تخصيص الطلب: إضافة مكونات أو إزالة مكونات غير مرغوبة</td><td class="st ok">منجز</td></tr>
+      <tr><td>عرض السلة مع ملخص للأسعار وإمكانية تعديل الكميات أو الحذف قبل التأكيد</td><td class="st ok">منجز</td></tr>
+      <tr><td>حساب الإجمالي فوريا مع الضريبة ورسوم التوصيل</td><td class="st ok">منجز</td></tr>
+      <tr><td>الاستفادة من الخصومات الموسمية والكوبونات ونقاط الولاء</td><td class="st ok">منجز</td></tr>
+      <tr><td>اختيار عنوان التوصيل وحساب سعر التوصيل وإختيار طريقة الدفع</td><td class="st ok">منجز</td></tr>
+      <tr><td>إتمام الدفع وإرسال الطلب لنظام Mini POS في الفرع</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٥. متابعة الطلبات ومعرفة وقت التوصيل المتوقع</h3>
+    <table><tbody>
+      <tr><td>متابعة حالة الطلب: جديد — قيد التحضير — في الطريق — تم التوصيل</td><td class="st ok">منجز</td></tr>
+      <tr><td>عرض الوقت المتوقع للوصول مع تحديث مستمر لحالة الطلب</td><td class="st ok">منجز</td></tr>
+      <tr><td>إمكانية إعادة نسخ طلب وإرسال طلب جديد</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٦. تتبع الطلب عبر الخريطة</h3>
+    <table><tbody>
+      <tr><td>متابعة حركة الموصل على الخريطة في الوقت الفعلي باستخدام GPS</td><td class="st ok">منجز</td></tr>
+      <tr><td>عرض اسم الموصل ورقم هاتفه في حال وجود مشكلة أو استفسار</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٧. خيارات الدفع المتاحة</h3>
+    <table><tbody>
+      <tr><td>الدفع الإلكتروني بواسطة البطاقة البنكية (Visa, MasterCard) والمحافظ الرقمية</td><td class="st ok">منجز</td></tr>
+      <tr><td>الشراء الآن والدفع لاحقا عبر Tamara <span class="note-inline">(إضافة جديدة)</span></td><td class="st ok">منجز</td></tr>
+      <tr><td>الدفع عند الاستلام (نقدا)</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٨. تقييم الطلب وخدمة التوصيل</h3>
+    <table><tbody>
+      <tr><td>نافذة تقييم التجربة بعد تسليم الطلب: الطعام، خدمة التوصيل، ملاحظات</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٩. نظام الإشعارات الفورية</h3>
+    <table><tbody>
+      <tr><td>إشعارات لحظية حول حالة الطلب والعروض الترويجية والخصومات الخاصة</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>١٠. حفظ الطلبات المفضلة</h3>
+    <table><tbody>
+      <tr><td>إمكانية حفظ الأصناف المفضلة في قائمة مفضلة لسهولة الوصول إليها</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>١١. صفحة الأسئلة الشائعة وخدمة العملاء</h3>
+    <table><tbody>
+      <tr><td>صفحة FAQ مع دليل المستخدم وتحديثات مستمرة</td><td class="st ok">منجز</td></tr>
+      <tr><td>دردشة مباشرة (Live Chat) مع فريق الدعم</td><td class="st ok">منجز</td></tr>
+      <tr><td>روبوت محادثة (ChatBot) بالذكاء الاصطناعي</td><td class="st ok">منجز</td></tr>
+      <tr><td>إرفاق صور وملفات عند إرسال مشكلة أو استفسار</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>١٢. صفحة الملف الشخصي للعميل</h3>
+    <table><tbody>
+      <tr><td>تفاصيل الحساب ومعرفة نقاط الولاء، وتعديل المعلومات الشخصية</td><td class="st ok">منجز</td></tr>
+      <tr><td>إعدادات اللغة: تحديد لغة الموقع</td><td class="st ok">منجز</td></tr>
+      <tr><td>تسجيل الخروج</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band page-break">رابعا: تطبيق الهاتف للطلبات (iOS &amp; Android)</div>
+    <div class="section-note">منجز — تطبيق Flutter (الإصدار 1.2.2) يقدم تجربة الطلب الكاملة داخل التطبيق مع إشعارات فورية أصلية (FCM) وربط خدمة الموقع GPS</div>
+
+    <h3>ميزات التطبيق</h3>
+    <table><tbody>
+      <tr><td>تسجيل الدخول وإنشاء حساب — بريد إلكتروني أو رقم هاتف + OTP</td><td class="st ok">منجز</td></tr>
+      <tr><td>تصفح قوائم الطعام وعرض الفرع الأقرب باستخدام GPS</td><td class="st ok">منجز</td></tr>
+      <tr><td>إدارة عناوين التوصيل (إضافة، تعديل، افتراضي)</td><td class="st ok">منجز</td></tr>
+      <tr><td>اختيار العناصر وتخصيص الطلب وإضافتها إلى السلة</td><td class="st ok">منجز</td></tr>
+      <tr><td>الاستفادة من الكوبونات ونقاط الولاء والخصومات</td><td class="st ok">منجز</td></tr>
+      <tr><td>اختيار طريقة الدفع (إلكتروني / عند الاستلام) وإتمام الطلب</td><td class="st ok">منجز</td></tr>
+      <tr><td>متابعة حالة الطلب وعرض وقت التوصيل المتوقع</td><td class="st ok">منجز</td></tr>
+      <tr><td>تتبع موقع الموصل على الخريطة في الوقت الفعلي (GPS)</td><td class="st ok">منجز</td></tr>
+      <tr><td>نظام الإشعارات الفورية (Push Notifications) عبر Firebase</td><td class="st ok">منجز</td></tr>
+      <tr><td>حفظ الأصناف المفضلة</td><td class="st ok">منجز</td></tr>
+      <tr><td>تقييم الطلب وخدمة التوصيل بعد الاستلام</td><td class="st ok">منجز</td></tr>
+      <tr><td>Live Chat وChatBot للتواصل مع فريق الدعم</td><td class="st ok">منجز</td></tr>
+      <tr><td>صفحة الملف الشخصي: بيانات الحساب، نقاط الولاء، إعدادات اللغة</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+    <p class="fine">ملاحظة: النشر على متجري Google Play وApp Store يتطلب حسابات مطور باسم العميل.</p>
+
+    <div class="section-band page-break">خامسا: نظام نقطة البيع (Mini POS) — موجه لفريق الفرع (المدير، المطبخ، الكاشير)</div>
+    <div class="section-note">منجز بالكامل — مع ميزات إضافية أنجزت فوق النطاق المتفق عليه</div>
+
+    <h3>١. تسجيل الدخول</h3>
+    <table><tbody>
+      <tr><td>تسجيل الدخول باستخدام البريد الإلكتروني أو رقم الهاتف وكلمة المرور</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٢. إدارة القائمة</h3>
+    <table><tbody>
+      <tr><td>تفعيل أو تعطيل أي عنصر من القائمة حسب التوفر في الوقت الفعلي</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٣. عرض وإدارة الطلبات الواردة</h3>
+    <table><tbody>
+      <tr><td>عرض قائمة الطلبات الواردة حسب حالتها (جديد، قيد التحضير، جاهز للتوصيل)</td><td class="st ok">منجز</td></tr>
+      <tr><td>عرض تفاصيل كل طلب: الأصناف المطلوبة مع الكمية والأسعار</td><td class="st ok">منجز</td></tr>
+      <tr><td>تغيير حالة الطلب (من قيد التحضير إلى جاهز للتوصيل)</td><td class="st ok">منجز</td></tr>
+      <tr><td>قبول أو رفض الطلبات أو تعطيل استقبال الطلبات عند ازدحام المطبخ</td><td class="st ok">منجز</td></tr>
+      <tr><td>الوصول لمعلومات الزبون في حال وجود مشكلة في الطلب</td><td class="st ok">منجز</td></tr>
+      <tr><td>عند قبول الطلب: طباعته وارساله للمطبخ مع تحديد الوقت المحتمل للتجهيز</td><td class="st ok">منجز</td></tr>
+      <tr><td>عند جهوزية الطلب: إشعار للموصلين المتاحين أو تحديد الموصل يدويا</td><td class="st ok">منجز</td></tr>
+      <tr><td>إرسال الطلب لفريق الدعم مع وصف المشكلة عند الحاجة</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٤. نقطة بيع POS</h3>
+    <table><tbody>
+      <tr><td>إضافة العناصر مباشرة للسلة بطريقة سريعة وسهلة</td><td class="st ok">منجز</td></tr>
+      <tr><td>تعديل الكميات، الإضافات، والأحجام من داخل السلة</td><td class="st ok">منجز</td></tr>
+      <tr><td>تطبيق الخصومات والكوبونات فورا داخل واجهة المنيو</td><td class="st ok">منجز</td></tr>
+      <tr><td>حساب الإجمالي النهائي تلقائيا مع الضرائب ورسوم التوصيل</td><td class="st ok">منجز</td></tr>
+      <tr><td>اختيار طريقة الدفع (نقدا / إلكترونيا) قبل تأكيد الطلب</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٥. تتبع مبيعات الفرع والإحصائيات</h3>
+    <table><tbody>
+      <tr><td>تقارير المبيعات: يومية، أسبوعية، شهرية — عدد الطلبات، الإجمالي، أكثر الأصناف طلبا</td><td class="st ok">منجز</td></tr>
+      <tr><td>إحصائيات الأداء: عدد التقييمات، متوسط تقييم الزبائن</td><td class="st ok">منجز</td></tr>
+      <tr><td>تصدير البيانات والتقارير بصيغة Excel أو PDF</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٦. التواصل مع الموصلين عند وجود مشكلة</h3>
+    <table><tbody>
+      <tr><td>عرض اسم الموصل ورقم هاتفه للتواصل في حال التأخر أو وجود مشكلة في العنوان</td><td class="st ok">منجز</td></tr>
+      <tr><td>إرسال إشعارات فورية للموصلين عند جهوزية الطلب</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٧. الإعدادات</h3>
+    <table><tbody>
+      <tr><td>إمكانية تعطيل استقبال الطلبات الخارجية</td><td class="st ok">منجز</td></tr>
+      <tr><td>تسجيل الخروج</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٨. ميزات إضافية أنجزت فوق النطاق</h3>
+    <table><tbody>
+      <tr><td>الدفع عبر رمز QR على الكاشير (فاتورة إلكترونية فورية) مع التحقق المزدوج من البوابة</td><td class="st ok">منجز</td></tr>
+      <tr><td>محطات العمل (كاشير / مطبخ / تجهيز) مع شاشة عرض المطبخ KDS والطباعة المحلية للتذاكر</td><td class="st ok">منجز</td></tr>
+      <tr><td>طاولات الصالة وحجوزات العملاء (Dine-in) مع ربط الحجز بالطلب</td><td class="st ok">منجز</td></tr>
+      <tr><td>بطاقات الهدايا واستخدامها عند إتمام الدفع</td><td class="st ok">منجز</td></tr>
+      <tr><td>إدارة المخزون لكل فرع مع تنبيهات النقص وإخفاء الأصناف غير المتوفرة تلقائيا</td><td class="st ok">منجز</td></tr>
+      <tr><td>الطلبات المجدولة مع إرسالها للمطبخ في الوقت المناسب</td><td class="st ok">منجز</td></tr>
+      <tr><td>تسوية نقد الموصلين (COD) وسجل الصندوق اليومي</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band page-break">سادسا: تطبيق الهاتف — Mini POS للكاشير</div>
+    <div class="section-note">منجز بالكامل — تطبيق Flutter أصلي (Android وiOS) يغطي الكاشير ومدير الفرع معا</div>
+
+    <h3>ميزات التطبيق</h3>
+    <table><tbody>
+      <tr><td>استقبال الطلبات الواردة من الموقع والتطبيق مع إشعارات فورية (FCM) وتنبيه صوتي متكرر حتى الاستجابة</td><td class="st ok">منجز</td></tr>
+      <tr><td>عرض تفاصيل كل طلب: الأصناف، الكميات، ملاحظات الزبون</td><td class="st ok">منجز</td></tr>
+      <tr><td>قبول أو رفض الطلبات الواردة (مع تحديد وقت التجهيز وسبب الرفض)</td><td class="st ok">منجز</td></tr>
+      <tr><td>إنشاء طلب جديد مباشرة من التطبيق (طلبات الحضور أو الهاتف أو التوصيل أو الطاولات)</td><td class="st ok">منجز</td></tr>
+      <tr><td>تصفح قائمة الطعام واختيار الأصناف وتخصيص الطلب (إضافات، أحجام، وجبات مجمعة)</td><td class="st ok">منجز</td></tr>
+      <tr><td>تطبيق الخصومات والكوبونات على الطلب (كوبونات + خصومات يدوية على الطلب أو الصنف)</td><td class="st ok">منجز</td></tr>
+      <tr><td>اختيار طريقة الدفع (نقدا / شبكة / QR / بطاقة هدايا) وتأكيد الطلب</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>ميزات إضافية أنجزت فوق النطاق</h3>
+    <table><tbody>
+      <tr><td>تفعيل أو تعطيل أصناف القائمة (لكل صنف أو لكل فئة دفعة واحدة)</td><td class="st ok">منجز</td></tr>
+      <tr><td>الطباعة الحرارية للفواتير وتذاكر المطبخ (طابعات شبكة وأجهزة Sunmi)</td><td class="st ok">منجز</td></tr>
+      <tr><td>تعيين الموصلين وتسوية نقدهم، وسجل الصندوق، والتقرير اليومي</td><td class="st ok">منجز</td></tr>
+      <tr><td>إدارة الطاولات والحجوزات من التطبيق</td><td class="st ok">منجز</td></tr>
+      <tr><td>واجهة ثنائية اللغة (عربي / إنجليزي) مع دعم كامل للعمل أثناء ضعف الاتصال</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+    <p class="fine">ملاحظة: تسجيل الدخول يتم برقم الجوال + رمز تحقق OTP بدلا من كلمة المرور (أكثر أمانا لأجهزة الفرع المشتركة). إشعارات iOS تتطلب استكمال ملف إعداد Firebase الخاص بحساب Apple للعميل.</p>
+
+    <div class="section-band page-break">سابعا: تطبيق التوصيل</div>
+    <div class="section-note">منجز بالكامل — تطبيق Flutter أصلي يغطي مسار التوصيل من استلام الطلب حتى التسليم</div>
+
+    <h3>١. تسجيل الدخول</h3>
+    <table><tbody>
+      <tr><td>تسجيل الدخول باستخدام رقم الهاتف + رمز تحقق OTP</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٢. عرض الطلبات المتاحة للتوصيل</h3>
+    <table><tbody>
+      <tr><td>قائمة الطلبات المتاحة مع اسم الفرع، الموقع، المسافة، وسعر التوصيلة</td><td class="st ok">منجز</td></tr>
+      <tr><td>تصفية الطلبات حسب الموقع أو الأولوية لاختيار الطلبات القريبة</td><td class="st no">غير منجز</td></tr>
+      <tr><td>عرض تفاصيل الطلب الكامل: الأصناف، عنوان الزبون، وقت التوصيل المتوقع، سعر التوصيلة</td><td class="st ok">منجز</td></tr>
+      <tr><td>تنبيهات فورية عند توفر طلب جديد للتوصيل (إشعارات FCM + تنبيه صوتي داخل التطبيق)</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٣. قبول الطلب وتتبع مسار التوصيل</h3>
+    <table><tbody>
+      <tr><td>قبول الطلب بضغطة زر مع تحديث الحالة تلقائيا إلى "في الطريق"</td><td class="st ok">منجز</td></tr>
+      <tr><td>إشعار للفرع والزبون بأن الموصل في طريقه لاستلام الطلب</td><td class="st ok">منجز</td></tr>
+      <tr><td>تأكيد استلام الطلب من الفرع وتحديث الحالة إلى "الطلب مستلم"</td><td class="st part">جزئي — يتم ضمن خطوة القبول</td></tr>
+      <tr><td>تتبع المسار باستخدام GPS (بث موقع الموصل كل 10 ثوان لعرضه للزبون والإدارة)</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٤. خريطة مدمجة لتوجيه الموصل إلى عنوان الزبون</h3>
+    <table><tbody>
+      <tr><td>خريطة تفاعلية مدمجة (خرائط جوجل) مع مواقع الفرع والزبون والمسار بينهما</td><td class="st ok">منجز</td></tr>
+      <tr><td>توجيهات الطريق خطوة بخطوة</td><td class="st part">جزئي — عبر فتح تطبيق الخرائط للملاحة</td></tr>
+      <tr><td>إمكانية الاتصال بالزبون (وبالفرع) مباشرة في حال وجود مشكلة في العنوان</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٥. إدارة الحالة (في الطريق، تم التوصيل)</h3>
+    <table><tbody>
+      <tr><td>تغيير حالة الطلب عند كل مرحلة مع إشعارات فورية للزبون</td><td class="st ok">منجز</td></tr>
+      <tr><td>تأكيد توصيل الطلب من خلال زر "تم التوصيل" ليتمكن الزبون من التقييم (مع دعم العمل دون اتصال)</td><td class="st ok">منجز</td></tr>
+      <tr><td>الإبلاغ عن مشاكل التوصيل وإرسالها لفريق الدعم (أسباب جاهزة + ملاحظة)</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>٦. تقييم الزبائن بعد توصيل الطلب</h3>
+    <table><tbody>
+      <tr><td>عرض معلومات الزبون مع حالته (الطلبات المكتملة وغير المكتملة)</td><td class="st part">جزئي — عرض المعلومات وتقييمات الزبائن في السجل</td></tr>
+      <tr><td>تقييم الزبون بعد التوصيل بناء على تجربة التوصيل</td><td class="st no">غير منجز</td></tr>
+    </tbody></table>
+
+    <h3>٧. نظام المكافآت</h3>
+    <table><tbody>
+      <tr><td>نظام مكافآت للموصلين بناء على الأداء (عدد الطلبات اليومية والتقييمات العالية)</td><td class="st no">غير منجز</td></tr>
+    </tbody></table>
+
+    <h3>٨. التقارير والإحصائيات</h3>
+    <table><tbody>
+      <tr><td>تقارير يومية، أسبوعية، شهرية: عدد الطلبات الموصلة، قيمة التوصيلات الإجمالية (مع رسم بياني)</td><td class="st ok">منجز</td></tr>
+      <tr><td>إحصائيات الأداء: عدد التقييمات، متوسط تقييم الزبائن</td><td class="st ok">منجز</td></tr>
+      <tr><td>تصدير البيانات والتقارير بصيغة Excel أو PDF</td><td class="st no">غير منجز</td></tr>
+    </tbody></table>
+
+    <h3>٩. الإعدادات</h3>
+    <table><tbody>
+      <tr><td>تعديل معلومات الحساب الشخصية (الاسم والبريد الإلكتروني) + تفضيلات الإشعارات واللغة</td><td class="st ok">منجز</td></tr>
+      <tr><td>تعديل معلومات المركبة</td><td class="st part">جزئي — عرض بيانات المركبة دون تعديل</td></tr>
+      <tr><td>تسجيل الخروج</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>ميزات إضافية أنجزت فوق النطاق</h3>
+    <table><tbody>
+      <tr><td>تسوية النقد المحصل (الدفع عند الاستلام) مع تسليمه للفرع وتتبع الرصيد</td><td class="st ok">منجز</td></tr>
+      <tr><td>العمل دون اتصال: طوابير مزامنة للحالات والمواقع تعاد إرسالها تلقائيا عند عودة الشبكة</td><td class="st ok">منجز</td></tr>
+      <tr><td>واجهة ثنائية اللغة (عربي / إنجليزي)</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band page-break">ثامنا: التكاملات الخارجية</div>
+
+    <h3>ربط بوابات الدفع</h3>
+    <table><tbody>
+      <tr><td>ربط بوابة MyFatoorah — البطاقات البنكية والمحافظ الرقمية وفواتير QR</td><td class="st ok">منجز</td></tr>
+      <tr><td>ربط بوابة Tap Payments — دعم البطاقات البنكية والمحافظ الرقمية</td><td class="st ok">منجز</td></tr>
+      <tr><td>ربط بوابة Tamara — الشراء الآن والدفع لاحقا (BNPL)</td><td class="st ok">منجز</td></tr>
+      <tr><td>ربط مزودي خدمات دفع أخرى (PayPal، إلخ...)</td><td class="st part">جزئي — تضاف عند الحاجة عبر نفس البنية</td></tr>
+      <tr><td>معالجة ردود الفعل (Webhooks) وتأكيد المعاملات تلقائيا مع ضمان عدم تكرار المعالجة</td><td class="st ok">منجز</td></tr>
+      <tr><td>دعم عمليات الاسترداد (Refund) عبر البوابات المربوطة — استرداد تلقائي عند الإلغاء وأداة معالجة يدوية للحالات المتعثرة</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>ربط واتساب + شات بوت الذكاء الاصطناعي</h3>
+    <table><tbody>
+      <tr><td>استلام طلبات العملاء من خلال واتساب وتحليلها بالذكاء الاصطناعي وإرسالها للفروع</td><td class="st ok">منجز</td></tr>
+      <tr><td>روبوت محادثة (ChatBot) بالذكاء الاصطناعي — إجابة تلقائية على الأسئلة الشائعة مع قاعدة معرفية قابلة للإدارة</td><td class="st ok">منجز</td></tr>
+      <tr><td>دردشة مباشرة (Live Chat) للتواصل الفوري مع فريق الدعم عند الحاجة — مع تحويل تلقائي من البوت للموظف</td><td class="st ok">منجز</td></tr>
+      <tr><td>ربط مزودي خدمات الرسائل SMS لإرسال رمز OTP والإشعارات (Unifonic، Twilio، Msegat)</td><td class="st ok">منجز</td></tr>
+      <tr><td>ربط مزودي خدمات الذكاء الاصطناعي LLM (OpenAI ChatGPT، Anthropic Claude، Azure OpenAI)</td><td class="st ok">منجز</td></tr>
+      <tr><td>سجل كامل للرسائل والتنبيهات مع تقييم تجربة الدعم بعد إغلاق التذكرة (CSAT) وتصدير المحادثات</td><td class="st ok">منجز</td></tr>
+      <tr><td>تحليلات الدردشة: أشهر الأسئلة والمشاكل المتكررة لتحسين جودة الخدمة</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band">تاسعا: متطلبات متبقية لإطلاق النسخة النهائية</div>
+    <table><tbody>
+      <tr><td>حسابات مطور على متجري Google Play وApp Store باسم العميل لنشر التطبيقات الأربعة</td><td class="st part">في الإعداد</td></tr>
+      <tr><td>ملفات إعداد Firebase لنظام iOS (تتطلب حساب Apple Developer الخاص بالعميل)</td><td class="st part">في الإعداد</td></tr>
+      <tr><td>بيانات الربط الإنتاجية لبوابات الدفع ومزود الرسائل SMS ومفاتيح الذكاء الاصطناعي</td><td class="st part">في الإعداد</td></tr>
+      <tr><td>تحسينات في تجربة المستخدم (تطبيق مدير الفرع + تطبيق التوصيل)</td><td class="st part">جزئي</td></tr>
+      <tr><td>التجريب النهائي مع العميل (تم إنجاز نحو 300 ملف اختبار آلي تغطي الطلبات والدفع والتوصيل)</td><td class="st part">جار التنفيذ</td></tr>
+    </tbody></table>
+
+    <div class="closing">
+      <p class="thanks">نشكركم على ثقتكم الكريمة ونتطلع إلى إنجاح هذا المشروع معا.</p>
+      <p class="sig">فاطمة إبراهيم خليل علي</p>
+      <p class="date">06/07/2026</p>
+    </div>
+  </div>
+</div>

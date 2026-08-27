@@ -1,11 +1,5 @@
-import { ar } from './locales/ar.ts';
-import { en } from './locales/en.ts';
+import { getLocaleCatalog } from './localeCatalog.ts';
 import type { Locale, TranslateParams } from './types.ts';
-
-const catalogs: Record<Locale, Record<string, unknown>> = {
-  ar,
-  en,
-};
 
 function resolvePath(catalog: Record<string, unknown>, key: string): unknown {
   return key.split('.').reduce<unknown>((current, part) => {
@@ -31,7 +25,12 @@ function interpolate(template: string, params?: TranslateParams): string {
 }
 
 export function translate(locale: Locale, key: string, params?: TranslateParams): string {
-  const value = resolvePath(catalogs[locale], key);
+  const catalog = getLocaleCatalog(locale);
+  if (!catalog) {
+    return key;
+  }
+
+  const value = resolvePath(catalog, key);
 
   if (typeof value !== 'string') {
     return key;

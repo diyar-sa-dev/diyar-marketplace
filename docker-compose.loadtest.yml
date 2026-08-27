@@ -9,6 +9,8 @@
 services:
   redis:
     image: redis:7-alpine
+    ports:
+      - '6379:6379'
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
@@ -51,7 +53,7 @@ services:
       DB_USERNAME: root
       DB_PASSWORD: loadtest
       CACHE_STORE: redis
-      QUEUE_CONNECTION: sync
+      QUEUE_CONNECTION: redis
       SESSION_DRIVER: redis
       SESSION_CONNECTION: default
       REDIS_HOST: redis

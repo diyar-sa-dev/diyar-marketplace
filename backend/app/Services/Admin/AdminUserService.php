@@ -110,7 +110,7 @@ final class AdminUserService
                 after: ['role' => $roleName->value],
             );
 
-            app(AdminPermissionService::class)->forget($user);
+            app(AdminPermissionService::class)->forgetAfterCommit($user);
 
             return $user->fresh(['roles']);
         });
@@ -133,7 +133,7 @@ final class AdminUserService
                 after: ['role' => $roleName->value],
             );
 
-            app(AdminPermissionService::class)->forget($user);
+            app(AdminPermissionService::class)->forgetAfterCommit($user);
 
             return $user->fresh(['roles']);
         });

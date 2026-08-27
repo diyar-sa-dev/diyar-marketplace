@@ -1,0 +1,13 @@
+{
+    "timestamp_utc": "2026-08-27T08:31:51+00:00",
+    "environment": "MySQL 8 staging",
+    "db": {
+        "host": "127.0.0.1",
+        "port": "3307",
+        "database": "diyar_staging"
+    },
+    "filter": "AuthenticationTest|OrderAuthorizationTest|OwnershipAuthorizationTest|ProductIdorTest|PaymentConcurrencyTest|RefundIdempotencyTest|RateLimitingTest|HealthEndpointTest",
+    "exit_code": 1,
+    "stdout": "\nWarning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\\php\\ext\\sodium (The specified module could not be found), C:\\php\\ext\\php_sodium.dll (The specified module could not be found)) in Unknown on line 0\n\r\nIn WindowsPipes.php line 62:\r\n                                                                               \r\n  A temporary file could not be opened to write the process output: fopen(C:\\  \r\n  Windows\\sf_proc_00.out.lock): Failed to open stream: Permission denied       \r\n                                                                               \r\n\r\n",
+    "stderr": "'DOSKEY' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n"
+}

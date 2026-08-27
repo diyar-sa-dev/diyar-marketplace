@@ -156,6 +156,7 @@ final class CheckoutPreviewService
                     'item_id' => $item->id,
                     'product_id' => $item->product_id,
                     'product_name' => $item->product->name,
+                    'product_slug' => $item->product->slug,
                     'quantity' => $item->quantity,
                     'unit_price' => (string) $item->unit_price_snapshot,
                     'line_subtotal' => $this->vendorGroups->lineSubtotal($item),

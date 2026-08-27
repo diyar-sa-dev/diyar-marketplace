@@ -90,11 +90,20 @@ final class CartService
 
     public function loadCart(Cart $cart): Cart
     {
+        $user = $cart->user_id !== null
+            ? User::query()->find($cart->user_id)
+            : null;
+
         return $cart->load([
-            'items.product.vendorAccount',
-            'items.product.category',
-            'items.product.images.mediaFile',
-            'items.product.inventory',
+            'items.product' => function ($query) use ($user) {
+                $query->with([
+                    'vendorAccount',
+                    'category',
+                    'images.mediaFile',
+                    'inventory',
+                ]);
+                $query->withUserSaved($user);
+            },
         ]);
     }
 

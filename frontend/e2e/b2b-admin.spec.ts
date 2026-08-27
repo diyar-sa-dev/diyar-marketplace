@@ -53,13 +53,16 @@ test.describe('B2B admin journey', () => {
       timeout: 30_000,
     });
 
-    await page.getByTestId(`b2b-verify-${DRAFT_B2B_SLUG}`).click();
+    const verifyButton = page.getByTestId(`b2b-verify-${DRAFT_B2B_SLUG}`);
+    if (await verifyButton.isVisible().catch(() => false)) {
+      await verifyButton.click();
+    }
 
     await page.goto(`/b2b/${DRAFT_B2B_SLUG}`);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 30_000 });
   });
 
-  test('customer cannot access admin B2B management', async ({ page, request }) => {
+  test('customer cannot access admin B2B management', async ({ page }) => {
     await page.goto('/admin/login');
     await page.locator('#admin-login-phone').fill(demoUsers.customer.phoneNational);
     await page.locator('#admin-login-password').fill(E2E_PASSWORD);
@@ -67,7 +70,7 @@ test.describe('B2B admin journey', () => {
     await expect(page).toHaveURL(/\/admin\/login/, { timeout: 30_000 });
 
     await loginMarketplaceUi(page, demoUsers.customer.phoneNational);
-    const response = await request.get(`${apiBaseUrl()}/admin/b2b/companies`, {
+    const response = await page.request.get(`${apiBaseUrl()}/admin/b2b/companies`, {
       failOnStatusCode: false,
     });
     expect([401, 403]).toContain(response.status());

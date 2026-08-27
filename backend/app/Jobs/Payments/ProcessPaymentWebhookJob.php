@@ -4,12 +4,13 @@ namespace App\Jobs\Payments;
 
 use App\Services\Payments\PaymentWebhookEventProcessor;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-final class ProcessPaymentWebhookJob implements ShouldQueue
+final class ProcessPaymentWebhookJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -25,6 +26,11 @@ final class ProcessPaymentWebhookJob implements ShouldQueue
         public readonly string $webhookEventId,
         public readonly ?string $correlationId = null,
     ) {}
+
+    public function uniqueId(): string
+    {
+        return $this->webhookEventId;
+    }
 
     public function handle(PaymentWebhookEventProcessor $processor): void
     {

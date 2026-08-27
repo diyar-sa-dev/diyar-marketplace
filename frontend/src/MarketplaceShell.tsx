@@ -6,22 +6,16 @@ import React, { Suspense, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ShoppingCart,
-  Bookmark,
   User,
   Search,
   Menu,
   SlidersHorizontal,
-  Home as HomeIcon,
-  Grid,
-  Camera,
-  LogOut,
   Bell,
-  Sparkles,
-  ChevronDown,
 } from 'lucide-react';
 import { Footer } from './components/layout/Footer.tsx';
 import { AnnouncementBar } from './components/layout/AnnouncementBar.tsx';
 import { FloatingContactBar } from './components/layout/FloatingContactBar.tsx';
+import { MobileBottomNav } from './components/layout/MobileBottomNav.tsx';
 import { UserAvatar } from './components/profile/UserAvatar.tsx';
 import { SearchAutocomplete } from './components/search/SearchAutocomplete.tsx';
 import StorefrontRoutes from './marketplace/StorefrontRoutes.tsx';
@@ -54,85 +48,6 @@ import { shouldHideMarketplaceCommerce } from './lib/marketplaceCommerce.ts';
 
 function HeaderWidgetFallback() {
   return <span className="inline-block w-8 h-8" aria-hidden />;
-}
-
-function MobileBottomNav({
-  onOpenCart,
-  isLoggedIn,
-  accountHubHref,
-  accountHubIsExternal,
-  isAccountActive,
-}: {
-  onOpenCart: () => void;
-  isLoggedIn: boolean;
-  accountHubHref: string;
-  accountHubIsExternal: boolean;
-  isAccountActive: boolean;
-}) {
-  const location = useLocation();
-  const { count } = useCart();
-  const { t } = useLocale();
-  const isHome = location.pathname === '/';
-  const isCategory = location.pathname.startsWith('/category');
-
-  if (['/auth', '/dashboard'].some((path) => location.pathname.startsWith(path))) return null;
-
-  return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white flex justify-around items-center h-17.5 z-50 px-2 pb-safe shadow-[0_-5px_15px_rgba(0,0,0,0.08)]">
-      <Link
-        to="/"
-        className={`flex flex-col items-center justify-center flex-1 h-full cursor-pointer transition ${isHome ? 'text-diyar-dark' : 'text-gray-400 hover:text-diyar-dark'}`}
-      >
-        <HomeIcon size={22} className="mb-1" />
-        <span className="text-[11px] font-bold">{t('layout.nav.home')}</span>
-      </Link>
-      <Link
-        to="/category/all"
-        className={`flex flex-col items-center justify-center flex-1 h-full cursor-pointer transition ${isCategory ? 'text-diyar-dark' : 'text-gray-400 hover:text-diyar-dark'}`}
-      >
-        <Grid size={22} className="mb-1" />
-        <span className="text-[11px] font-medium">{t('layout.nav.categories')}</span>
-      </Link>
-      <div
-        className="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition"
-        onClick={onOpenCart}
-      >
-        <div className="relative">
-          <ShoppingCart size={22} className="mb-1" />
-          {count > 0 && (
-            <span className="absolute -top-1.5 -right-2 bg-diyar-dark text-diyar-cream text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-              {count}
-            </span>
-          )}
-        </div>
-        <span className="text-[11px] font-medium">{t('layout.nav.cart')}</span>
-      </div>
-      <Link
-        to="/wishlist"
-        className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${location.pathname === '/wishlist' ? 'text-diyar-dark' : ''}`}
-      >
-        <Bookmark size={22} className="mb-1" />
-        <span className="text-[11px] font-medium">{t('layout.nav.wishlist')}</span>
-      </Link>
-      {isLoggedIn && accountHubIsExternal ? (
-        <a
-          href={accountHubHref}
-          className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${isAccountActive ? 'text-diyar-dark' : ''}`}
-        >
-          <User size={22} className="mb-1" />
-          <span className="text-[11px] font-medium">{t('layout.nav.myAccount')}</span>
-        </a>
-      ) : (
-        <Link
-          to={isLoggedIn ? accountHubHref : '/auth'}
-          className={`flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-diyar-dark cursor-pointer transition ${isAccountActive ? 'text-diyar-dark' : ''}`}
-        >
-          <User size={22} className="mb-1" />
-          <span className="text-[11px] font-medium">{t('layout.nav.myAccount')}</span>
-        </Link>
-      )}
-    </div>
-  );
 }
 
 export default function MarketplaceShell() {

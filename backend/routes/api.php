@@ -148,7 +148,7 @@ Route::get('/health', HealthController::class)->name('api.v1.health');
 Route::get('/readiness', ReadinessController::class)->name('api.v1.readiness');
 
 Route::post('/assistant/chat', AssistantChatController::class)
-    ->middleware('throttle:30,1')
+    ->middleware('throttle:assistant-chat')
     ->name('api.v1.assistant.chat');
 
 Route::post('/platform/consultation', [PlatformContactController::class, 'consultation'])

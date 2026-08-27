@@ -10,9 +10,11 @@ use App\Models\ProductColor;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Services\ServiceMarketplace\ServiceCatalogService;
+use App\Support\Cache\CacheKeys;
+use App\Support\Cache\StampedeSafeCache;
+use App\Support\Cache\VersionedCache;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Cache;
 
 final class CatalogSearchService
 {
@@ -63,15 +65,21 @@ final class CatalogSearchService
      */
     public function facets(array $filters): array
     {
-        $cacheKey = 'catalog.search.facets.'.md5(json_encode($this->facetCacheKey($filters)));
+        $facetFilters = $this->facetCacheKey($filters);
+        $version = VersionedCache::version(CacheKeys::CATALOG_VERSION);
+        $cacheKey = CacheKeys::catalogSearchFacets($facetFilters, $version);
+        $ttlSeconds = (int) config('diyar.catalog.cache.search_facets_seconds', 300);
 
-        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($filters) {
-            return [
+        return StampedeSafeCache::remember(
+            $cacheKey,
+            $ttlSeconds,
+            fn (): array => [
                 'vendors' => $this->vendorFacets($filters),
                 'categories' => $this->categoryFacets($filters),
                 'colors' => $this->colorFacets($filters),
-            ];
-        });
+            ],
+            'lock:'.$cacheKey,
+        );
     }
 
     /**

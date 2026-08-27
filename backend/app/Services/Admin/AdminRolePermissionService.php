@@ -65,7 +65,7 @@ final class AdminRolePermissionService
                 ->pluck('id');
 
             $role->permissions()->sync($permissionIds);
-            $this->permissions->forgetAll();
+            $this->permissions->forgetAllAfterCommit();
 
             $this->audit->record(
                 actor: $actor,

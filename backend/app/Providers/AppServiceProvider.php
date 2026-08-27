@@ -179,6 +179,13 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for('assistant-chat', function (Request $request) {
+            $limit = (int) config('diyar.rate_limits.assistant_chat_per_minute', 30);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
         if (config('diyar.loadtest.enabled')) {
             $this->configureLoadTestRateLimits();
         }

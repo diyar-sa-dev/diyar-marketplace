@@ -1,8 +1,8 @@
-import Swal from 'sweetalert2';
 import type { TranslateFn } from './i18n/types.ts';
 import type { Locale } from './i18n/types.ts';
 import { parseApiError, isValidationError } from '../utils/errors.ts';
 import { translate } from './i18n/translate.ts';
+import { getSwal } from './swalLoader.ts';
 
 const swalCustomClass = {
   popup: 'diyar-swal',
@@ -29,6 +29,7 @@ export async function confirmArchiveProduct(
   t: TranslateFn,
   productName?: string,
 ): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('vendor.dialog.archiveTitle'),
@@ -47,6 +48,7 @@ export async function confirmArchiveProduct(
 }
 
 export async function confirmDeleteImage(t: TranslateFn): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('vendor.dialog.deleteImageTitle'),
@@ -63,6 +65,7 @@ export async function confirmDeleteImage(t: TranslateFn): Promise<boolean> {
 }
 
 export async function showSuccessToast(t: TranslateFn, titleKey: string): Promise<void> {
+  const Swal = await getSwal();
   await Swal.fire({
     ...toastOptions,
     toast: true,
@@ -81,6 +84,7 @@ export async function showErrorAlert(
   titleKey: string,
   textKey?: string,
 ): Promise<void> {
+  const Swal = await getSwal();
   await Swal.fire({
     ...modalOptions,
     title: t(titleKey),
@@ -100,6 +104,7 @@ export async function showApiErrorAlert(
   const parsed = parseApiError(error, locale);
   const unexpectedMessage = translate(locale, 'errors.unexpected');
 
+  const Swal = await getSwal();
   await Swal.fire({
     ...modalOptions,
     title: isValidationError(parsed) ? parsed.message : t(fallbackTitleKey),
@@ -115,6 +120,7 @@ export async function showApiErrorAlert(
 }
 
 export async function confirmClearWishlist(t: TranslateFn): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('profile.wishlistPage.clearTitle'),
@@ -131,6 +137,7 @@ export async function confirmClearWishlist(t: TranslateFn): Promise<boolean> {
 }
 
 export async function confirmDeleteReview(t: TranslateFn): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('catalog.productDetail.deleteReviewTitle'),
@@ -147,6 +154,7 @@ export async function confirmDeleteReview(t: TranslateFn): Promise<boolean> {
 }
 
 export async function confirmDeleteAllNotifications(t: TranslateFn): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('notifications.deleteAllTitle'),
@@ -163,6 +171,7 @@ export async function confirmDeleteAllNotifications(t: TranslateFn): Promise<boo
 }
 
 export async function confirmRemoveConversation(t: TranslateFn): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('chat.removeConversationTitle'),
@@ -179,6 +188,7 @@ export async function confirmRemoveConversation(t: TranslateFn): Promise<boolean
 }
 
 export async function confirmSuspendUser(t: TranslateFn, userName?: string): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.users.suspend'),
@@ -197,6 +207,7 @@ export async function confirmSuspendUser(t: TranslateFn, userName?: string): Pro
 }
 
 export async function confirmSuspendVendor(t: TranslateFn, storeName?: string): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.detail.vendor.suspend'),
@@ -218,6 +229,7 @@ export async function confirmSuspendProvider(
   t: TranslateFn,
   providerName?: string,
 ): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.detail.provider.suspend'),
@@ -236,6 +248,7 @@ export async function confirmSuspendProvider(
 }
 
 export async function confirmActivateUser(t: TranslateFn, userName?: string): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.users.activate'),
@@ -254,6 +267,7 @@ export async function confirmActivateUser(t: TranslateFn, userName?: string): Pr
 }
 
 export async function confirmRejectPayout(t: TranslateFn): Promise<string | null> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.payouts.rejectTitle'),
@@ -282,6 +296,7 @@ export async function confirmDeleteCategory(
   t: TranslateFn,
   categoryName?: string,
 ): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.categories.deleteTitle'),
@@ -303,6 +318,7 @@ export async function confirmDeleteBlogArticle(
   t: TranslateFn,
   articleTitle?: string,
 ): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.blogArticles.deleteTitle'),
@@ -324,6 +340,7 @@ export async function confirmDeleteProject(
   t: TranslateFn,
   projectTitle?: string,
 ): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.projects.deleteTitle'),
@@ -342,6 +359,7 @@ export async function confirmDeleteProject(
 }
 
 export async function showShareLinkDialog(t: TranslateFn, url: string): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('catalog.productDetail.share'),
@@ -383,6 +401,7 @@ export async function confirmLoyaltyAdjustment(
           balance: Math.max(0, options.currentBalance - options.points),
         });
 
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.loyalty.confirmAdjustTitle'),

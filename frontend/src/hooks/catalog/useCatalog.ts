@@ -55,6 +55,7 @@ export function useSearchProducts(filters: ProductListFilters = {}) {
     queryKey: productKeys.search(filters),
     queryFn: () => catalogApi.searchProducts(filters),
     enabled: Boolean(filters.q?.trim()),
+    staleTime: 30_000,
   });
 }
 
@@ -63,7 +64,7 @@ export function useVendor(slug: string | undefined) {
     queryKey: vendorKeys.detail(slug ?? ''),
     queryFn: () => catalogApi.fetchVendor(slug!),
     enabled: isValidStoreSlug(slug),
-    staleTime: 0,
+    staleTime: 60_000,
     retry: (failureCount, error) => {
       if (isNotFoundError(error)) {
         return false;

@@ -7,8 +7,11 @@ use App\Enums\RoleName;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Cache\CacheKeys;
+use App\Support\Cache\VersionedCache;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 final class AdminPermissionService
 {
@@ -57,9 +60,25 @@ final class AdminPermissionService
         Cache::forget($this->cacheKey($user));
     }
 
+    public function forgetAfterCommit(User $user): void
+    {
+        if (DB::transactionLevel() > 0) {
+            DB::afterCommit(fn () => $this->forget($user));
+
+            return;
+        }
+
+        $this->forget($user);
+    }
+
     public function forgetAll(): void
     {
-        Cache::flush();
+        VersionedCache::bump(CacheKeys::ADMIN_PERMISSIONS_VERSION);
+    }
+
+    public function forgetAllAfterCommit(): void
+    {
+        VersionedCache::bumpAfterCommit(CacheKeys::ADMIN_PERMISSIONS_VERSION);
     }
 
     /** @return Collection<int, string> */
@@ -82,6 +101,9 @@ final class AdminPermissionService
 
     private function cacheKey(User $user): string
     {
-        return 'admin.permissions.v3.'.$user->id;
+        return CacheKeys::adminPermissions(
+            (string) $user->id,
+            VersionedCache::version(CacheKeys::ADMIN_PERMISSIONS_VERSION),
+        );
     }
 }

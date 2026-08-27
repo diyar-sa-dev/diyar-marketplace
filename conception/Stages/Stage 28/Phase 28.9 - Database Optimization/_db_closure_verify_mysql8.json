@@ -1,0 +1,232 @@
+{
+    "timestamp_utc": "2026-08-27T12:38:51+00:00",
+    "engine": "8.0.46",
+    "database": "diyar_staging",
+    "targets": {
+        "products": 10000,
+        "orders": 10000,
+        "analytics_events": 100000
+    },
+    "seed": {
+        "ok": true,
+        "scale": 100,
+        "duration_ms": 312.63
+    },
+    "row_counts": {
+        "products": 10000,
+        "orders": 10000,
+        "analytics_events": 150000
+    },
+    "optimizations": {
+        "OPT-DB-001": {
+            "explain": {
+                "type": "ref",
+                "key": "products_status_created_at_index",
+                "rows": 4717,
+                "extra": "Using where; Backward index scan"
+            },
+            "analyze_ms": 0.0652,
+            "timing": {
+                "row_count": 20,
+                "duration_ms": 1.369
+            },
+            "pass": true
+        },
+        "OPT-DB-004": {
+            "explain": {
+                "type": "ref",
+                "key": "products_category_status_created_at_index",
+                "rows": 4717,
+                "extra": "Using where; Backward index scan"
+            },
+            "analyze_ms": 0.0731,
+            "timing": {
+                "row_count": 20,
+                "duration_ms": 1.351
+            },
+            "pass": true
+        },
+        "OPT-DB-005": {
+            "explain": {
+                "type": "ref",
+                "key": "products_vendor_status_created_at_index",
+                "rows": 4717,
+                "extra": "Using where; Backward index scan"
+            },
+            "analyze_ms": 0.0497,
+            "timing": {
+                "row_count": 20,
+                "duration_ms": 1.323
+            },
+            "pass": true
+        },
+        "OPT-DB-006": {
+            "explain": {
+                "type": "ref",
+                "key": "orders_user_created_at_index",
+                "rows": 1,
+                "extra": "Backward index scan; Using index"
+            },
+            "analyze_ms": 0.0118,
+            "timing": {
+                "row_count": 1,
+                "duration_ms": 1.15
+            },
+            "pass": true
+        },
+        "OPT-DB-007": {
+            "explain": {
+                "type": "ref",
+                "key": "orders_status_created_at_index",
+                "rows": 4998,
+                "extra": "Backward index scan; Using index"
+            },
+            "analyze_ms": 0.0223,
+            "timing": {
+                "row_count": 20,
+                "duration_ms": 1.195
+            },
+            "pass": true
+        },
+        "OPT-DB-007b": {
+            "explain": {
+                "type": "index",
+                "key": "orders_created_at_index",
+                "rows": 20,
+                "extra": "Backward index scan; Using index"
+            },
+            "analyze_ms": 0.0201,
+            "timing": {
+                "row_count": 20,
+                "duration_ms": 1.251
+            },
+            "pass": true
+        }
+    },
+    "pagination": [
+        {
+            "page": 1,
+            "offset": 0,
+            "products_in_db": 10000,
+            "explain": {
+                "type": "ref",
+                "key": "products_status_created_at_index",
+                "rows": 4717,
+                "extra": "Using where; Backward index scan"
+            },
+            "duration_ms": 1.219,
+            "analyze_ms": 0.0433,
+            "acceptable": true
+        },
+        {
+            "page": 5,
+            "offset": 80,
+            "products_in_db": 10000,
+            "explain": {
+                "type": "ref",
+                "key": "products_status_created_at_index",
+                "rows": 4717,
+                "extra": "Using where; Backward index scan"
+            },
+            "duration_ms": 1.261,
+            "analyze_ms": 0.119,
+            "acceptable": true
+        },
+        {
+            "page": 10,
+            "offset": 180,
+            "products_in_db": 10000,
+            "explain": {
+                "type": "ref",
+                "key": "products_status_created_at_index",
+                "rows": 4717,
+                "extra": "Using where; Backward index scan"
+            },
+            "duration_ms": 1.579,
+            "analyze_ms": 0.231,
+            "acceptable": true
+        },
+        {
+            "page": 25,
+            "offset": 480,
+            "products_in_db": 10000,
+            "explain": {
+                "type": "ref",
+                "key": "products_status_created_at_index",
+                "rows": 4717,
+                "extra": "Using where; Backward index scan"
+            },
+            "duration_ms": 1.781,
+            "analyze_ms": 0.626,
+            "acceptable": true
+        },
+        {
+            "page": 50,
+            "offset": 980,
+            "products_in_db": 10000,
+            "explain": {
+                "type": "ref",
+                "key": "products_status_created_at_index",
+                "rows": 4717,
+                "extra": "Using where; Backward index scan"
+            },
+            "duration_ms": 2.387,
+            "analyze_ms": 1.23,
+            "acceptable": true
+        },
+        {
+            "page": 100,
+            "offset": 1980,
+            "products_in_db": 10000,
+            "explain": {
+                "type": "ref",
+                "key": "products_status_created_at_index",
+                "rows": 4717,
+                "extra": "Using where; Backward index scan"
+            },
+            "duration_ms": 3.551,
+            "analyze_ms": 2.44,
+            "acceptable": true
+        }
+    ],
+    "analytics": {
+        "OPT-DB-002": {
+            "row_count": 150000,
+            "explain": {
+                "type": "index",
+                "key": "analytics_events_event_type_created_at_index",
+                "rows": 146184,
+                "extra": "Using where; Using index"
+            },
+            "duration_ms": 44.978,
+            "analyze_ms": 58.1
+        }
+    },
+    "admin_orders": {
+        "OPT-DB-003": {
+            "orders_in_db": 10000,
+            "list_explain": {
+                "type": "index",
+                "key": "orders_created_at_index",
+                "rows": 20,
+                "extra": "Backward index scan; Using index"
+            },
+            "list_ms": 1.214,
+            "status_explain": {
+                "type": "ref",
+                "key": "orders_status_created_at_index",
+                "rows": 4998,
+                "extra": "Backward index scan; Using index"
+            },
+            "status_ms": 1.369,
+            "deep_offset_500": {
+                "type": "index",
+                "key": "orders_created_at_index",
+                "rows": 520,
+                "extra": "Backward index scan; Using index",
+                "row_count": 20,
+                "duration_ms": 1.241
+            }
+        }
+    }
+}

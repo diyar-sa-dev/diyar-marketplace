@@ -1,0 +1,38 @@
+﻿
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+{
+    "timestamp_utc": "2026-08-27T13:58:02+00:00",
+    "iterations": 50,
+    "note": "First sample in each series includes Laravel bootstrap (already loaded). Raw ping after bootstrap reflects warm PHP process.",
+    "series": {
+        "redis_ping_first_after_bootstrap_ms": 8.901119232177734,
+        "redis_ping_warm_ms": {
+            "min": 0.48,
+            "median": 0.53,
+            "p95": 0.7,
+            "max": 2.33,
+            "samples": 50
+        },
+        "redis_raw_set_get_del_ms": {
+            "min": 1.48,
+            "median": 1.6,
+            "p95": 2.29,
+            "max": 4.52,
+            "samples": 50
+        },
+        "laravel_cache_roundtrip_ms": {
+            "min": 1.56,
+            "median": 1.68,
+            "p95": 2.29,
+            "max": 5.08,
+            "samples": 50
+        },
+        "laravel_queue_size_ms": {
+            "min": 0.53,
+            "median": 0.56,
+            "p95": 0.73,
+            "max": 5.77,
+            "samples": 50
+        }
+    }
+}

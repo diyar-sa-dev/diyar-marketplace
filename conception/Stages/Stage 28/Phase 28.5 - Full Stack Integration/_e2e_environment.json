@@ -1,0 +1,35 @@
+{
+  "date": "2026-08-27",
+  "phase": "28.5",
+  "ci_parity_stack": {
+    "database_engine": "sqlite",
+    "database_file": "backend/database/database.sqlite",
+    "seed_command": "php artisan migrate:fresh --seed --force",
+    "seed_source": "DatabaseSeeder (includes BlogE2eSeeder, B2bContentSeeder, B2bE2eSeeder)",
+    "backend_url": "http://127.0.0.1:8000",
+    "frontend_url": "http://127.0.0.1:3000",
+    "frontend_mode": "vite preview (production build, /api proxy → :8000)",
+    "redis": "127.0.0.1:6379",
+    "cache_store": "redis",
+    "queue_connection": "sync",
+    "session_driver": "database",
+    "payment_gateway": "fake (DIYAR_PAYMENT_USE_FAKE_GATEWAY=true)",
+    "browser": "Chromium (Playwright 1.62)",
+    "node": "v23.11.0",
+    "php": "8.4.0"
+  },
+  "local_dev_stack": {
+    "database_engine": "mysql/mariadb",
+    "database_name": "diyar",
+    "backend_url": "http://127.0.0.1:8000",
+    "frontend_url": "http://127.0.0.1:3000",
+    "frontend_mode": "vite dev (composer dev)",
+    "seed_state": "partial — missing e2e-blog-article slug"
+  },
+  "ci_github_actions": {
+    "database": "sqlite via scripts/e2e/bootstrap-backend.sh",
+    "node": "22",
+    "php": "8.3",
+    "redis_service": "redis:7-alpine"
+  }
+}

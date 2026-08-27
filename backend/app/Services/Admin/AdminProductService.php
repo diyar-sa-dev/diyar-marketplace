@@ -5,12 +5,14 @@ namespace App\Services\Admin;
 use App\Enums\ProductStatus;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\Catalog\CatalogCacheInvalidator;
 use Illuminate\Support\Facades\DB;
 
 final class AdminProductService
 {
     public function __construct(
         private readonly AdminAuditService $audit,
+        private readonly CatalogCacheInvalidator $catalogCache,
     ) {}
 
     public function activate(Product $product, User $actor, ?string $reason = null): Product
@@ -32,6 +34,8 @@ final class AdminProductService
                 after: ['status' => ProductStatus::Active->value],
                 reason: $reason,
             );
+
+            $this->catalogCache->invalidateSearchCachesAfterCommit();
 
             return $fresh;
         });
@@ -56,6 +60,8 @@ final class AdminProductService
                 after: ['status' => ProductStatus::Draft->value],
                 reason: $reason,
             );
+
+            $this->catalogCache->invalidateSearchCachesAfterCommit();
 
             return $fresh;
         });
@@ -92,6 +98,8 @@ final class AdminProductService
                 ],
                 reason: $reason,
             );
+
+            $this->catalogCache->invalidateSearchCachesAfterCommit();
 
             return $fresh;
         });

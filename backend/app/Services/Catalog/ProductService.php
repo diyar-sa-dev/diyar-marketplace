@@ -169,6 +169,8 @@ final class ProductService
                 $this->attachImages($user, $product, $images);
             }
 
+            app(CatalogCacheInvalidator::class)->invalidateSearchCachesAfterCommit();
+
             return $product->fresh(['vendorAccount', 'category', 'colors', 'images.mediaFile', 'inventory']);
         });
     }
@@ -209,6 +211,8 @@ final class ProductService
 
             $this->syncReturnPolicy($product, $attributes);
 
+            app(CatalogCacheInvalidator::class)->invalidateSearchCachesAfterCommit();
+
             return $product->fresh(['vendorAccount', 'category', 'colors', 'images.mediaFile', 'inventory']);
         });
     }
@@ -219,6 +223,8 @@ final class ProductService
 
         $product->forceFill(['status' => ProductStatus::Archived])->save();
         $product->delete();
+
+        app(CatalogCacheInvalidator::class)->invalidateSearchCachesAfterCommit();
 
         return $product->fresh();
     }
@@ -547,12 +553,15 @@ final class ProductService
      */
     private function attachImages(User $user, Product $product, array $files): void
     {
-        $currentCount = $product->images()->count();
+        $imageStats = $product->images()
+            ->selectRaw('COUNT(*) as image_count, COALESCE(MAX(sort_order), 0) as max_sort_order')
+            ->first();
+        $currentCount = (int) ($imageStats->image_count ?? 0);
         if ($currentCount + count($files) > self::MAX_IMAGES) {
             throw new InvalidArgumentException(__('diyar.catalog.max_images_exceeded'));
         }
 
-        $sortOrder = (int) $product->images()->max('sort_order');
+        $sortOrder = (int) ($imageStats->max_sort_order ?? 0);
 
         foreach ($files as $file) {
             $sortOrder++;

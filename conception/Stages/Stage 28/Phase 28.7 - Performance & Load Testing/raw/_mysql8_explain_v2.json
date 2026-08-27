@@ -1,0 +1,15 @@
+﻿docker : time="2026-08-27T11:14:22+01:00" level=warning msg="No services to build"
+At C:\Users\APL TECH\AppData\Local\Temp\ps-script-098a037e-612c-4199-bc8a-58e37d7ff5bb.ps1:115 char:344
++ ... oding utf8; docker compose -f docker-compose.loadtest.yml run --rm -- ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (time="2026-08-2...vices to build":String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+time="2026-08-27T11:14:23+01:00" level=warning msg="No services to build"
+ Container diyar-marketplace-api-run-709fb1317126 Creating 
+ Container diyar-marketplace-api-run-709fb1317126 Created 
+{
+    "timestamp_utc": "2026-08-27T10:14:24+00:00",
+    "engine_version": "8.0.46",
+    "queries": []
+}

@@ -42,6 +42,18 @@ export default defineConfig({
             return 'vendor-realtime';
           }
 
+          if (id.includes('recharts')) {
+            return 'vendor-recharts';
+          }
+
+          if (id.includes('sweetalert2')) {
+            return 'vendor-sweetalert2';
+          }
+
+          if (id.includes('framer-motion')) {
+            return 'vendor-motion';
+          }
+
           return undefined;
         },
       },

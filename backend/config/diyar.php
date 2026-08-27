@@ -56,6 +56,7 @@ return [
         'catalog_search_per_minute' => (int) env('DIYAR_CATALOG_SEARCH_RATE_LIMIT', 60),
         'catalog_search_suggestions_per_minute' => (int) env('DIYAR_CATALOG_SEARCH_SUGGESTIONS_RATE_LIMIT', 90),
         'webhooks_per_minute' => (int) env('DIYAR_WEBHOOKS_RATE_LIMIT', 120),
+        'assistant_chat_per_minute' => (int) env('DIYAR_ASSISTANT_CHAT_RATE_LIMIT', 30),
     ],
 
     /*
@@ -70,6 +71,13 @@ return [
 
     'cart' => [
         'max_quantity_per_item' => (int) env('DIYAR_CART_MAX_QUANTITY_PER_ITEM', 99),
+    ],
+
+    'catalog' => [
+        'cache' => [
+            'search_facets_seconds' => (int) env('DIYAR_CATALOG_SEARCH_FACETS_CACHE_SECONDS', 300),
+            'search_suggestions_seconds' => (int) env('DIYAR_CATALOG_SEARCH_SUGGESTIONS_CACHE_SECONDS', 45),
+        ],
     ],
 
     'tax' => [

@@ -94,7 +94,7 @@ export function useConversations(page = 1, perPage = 20) {
     queryFn: () => fetchConversations(page, perPage),
     staleTime: 15_000,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
   });
 }
 

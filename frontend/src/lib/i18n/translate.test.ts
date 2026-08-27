@@ -1,8 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, beforeAll } from 'vitest';
+import { ensureLocaleCatalog } from './localeCatalog.ts';
 import { translate } from './translate.ts';
 import { localeDirection } from './types.ts';
 
 describe('i18n translate', () => {
+  beforeAll(async () => {
+    await ensureLocaleCatalog('ar');
+    await ensureLocaleCatalog('en');
+  });
   it('returns Arabic strings by default catalog', () => {
     expect(translate('ar', 'auth.titles.login')).toBe('تسجيل الدخول');
   });

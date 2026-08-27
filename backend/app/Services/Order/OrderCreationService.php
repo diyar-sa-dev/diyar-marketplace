@@ -126,6 +126,9 @@ final class OrderCreationService
         $cart->loadMissing('items.product');
         $this->selfPurchase->assertCartItemsNotSelfPurchase($user, $cart->items);
 
+        $productsById = $cart->items
+            ->mapWithKeys(fn ($item) => [$item->product_id => $item->product]);
+
         $preview = $this->checkoutPreview->preview($user, $shippingAddressId, $deliverySelections, $vendorCoupons);
 
         if (! $preview['valid']) {
@@ -193,7 +196,7 @@ final class OrderCreationService
                     'vendor_order_id' => $vendorOrder->id,
                     'product_id' => $line['product_id'],
                     'product_name' => $line['product_name'],
-                    'product_slug' => Product::query()->whereKey($line['product_id'])->value('slug'),
+                    'product_slug' => $line['product_slug'],
                     'unit_price' => $line['unit_price'],
                     'quantity' => $line['quantity'],
                     'line_subtotal' => $line['line_subtotal'],
@@ -202,7 +205,8 @@ final class OrderCreationService
                     ...$affiliateSnapshot,
                 ]);
 
-                $product = Product::query()->findOrFail($line['product_id']);
+                $product = $productsById[$line['product_id']]
+                    ?? Product::query()->findOrFail($line['product_id']);
                 $this->inventory->reserve(
                     product: $product,
                     user: $user,

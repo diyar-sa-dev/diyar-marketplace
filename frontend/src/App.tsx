@@ -2,13 +2,14 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
+import { lazyWithRetry } from './lib/lazyWithRetry.ts';
 import { AdminAuthProvider } from './admin/auth/AdminAuthContext.tsx';
 import { AdminPageSkeleton } from './admin/components/AdminPageSkeleton.tsx';
 
-const AdminShell = lazy(() => import('./admin/AdminShell.tsx'));
-const MarketplaceShell = lazy(() => import('./MarketplaceShell.tsx'));
+const AdminShell = lazyWithRetry(() => import('./admin/AdminShell.tsx'), 'admin-shell');
+const MarketplaceShell = lazyWithRetry(() => import('./MarketplaceShell.tsx'), 'marketplace-shell');
 
 function MarketplaceBootFallback() {
   return (

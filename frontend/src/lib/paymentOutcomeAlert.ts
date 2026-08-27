@@ -1,5 +1,5 @@
-import Swal from 'sweetalert2';
 import type { TranslateFn } from './i18n/types.ts';
+import { getSwal } from './swalLoader.ts';
 
 export type PaymentOutcome = 'paid' | 'failed' | 'expired';
 
@@ -83,6 +83,7 @@ export async function showPaymentOutcomeAlert(
   orderNumber?: string,
 ): Promise<void> {
   const config = outcomeConfig[outcome];
+  const Swal = await getSwal();
 
   await Swal.fire({
     customClass: {

@@ -203,26 +203,36 @@ final class AdminAnalyticsService
         $ordersQuery = Order::query()->whereBetween('created_at', [$from, $to]);
         $paymentsQuery = Payment::query()->whereBetween('created_at', [$from, $to]);
 
-        $orders = (clone $ordersQuery)->count();
-        $grossSales = number_format((float) (clone $ordersQuery)->sum('grand_total'), 2, '.', '');
-        $discountTotal = number_format((float) (clone $ordersQuery)->sum('discount_total'), 2, '.', '');
-        $refunds = number_format((float) DB::table('refunds')->whereBetween('created_at', [$from, $to])->sum('total_amount'), 2, '.', '');
+        $orderStats = (clone $ordersQuery)->selectRaw(
+            'COUNT(*) as orders_count,
+            COALESCE(SUM(grand_total), 0) as gross_sales,
+            COALESCE(SUM(discount_total), 0) as discount_total,
+            COALESCE(AVG(grand_total), 0) as average_order_value'
+        )->first();
 
         $payments = (clone $paymentsQuery)->count();
         $paidPayments = (clone $paymentsQuery)->where('status', PaymentStatus::Paid->value)->count();
         $paymentVolume = number_format((float) (clone $paymentsQuery)->whereNotNull('paid_at')->sum('amount'), 2, '.', '');
+
+        $orders = (int) ($orderStats->orders_count ?? 0);
+        $grossSales = number_format((float) ($orderStats->gross_sales ?? 0), 2, '.', '');
+        $discountTotal = number_format((float) ($orderStats->discount_total ?? 0), 2, '.', '');
+        $refunds = number_format((float) DB::table('refunds')->whereBetween('created_at', [$from, $to])->sum('total_amount'), 2, '.', '');
         $successRate = $payments > 0
             ? number_format(($paidPayments / $payments) * 100, 1, '.', '')
             : '0.0';
 
-        $averageOrderValue = '0.00';
-        if ($orders > 0) {
-            $averageOrderValue = number_format((float) (clone $ordersQuery)->avg('grand_total'), 2, '.', '');
-        }
+        $averageOrderValue = $orders > 0
+            ? number_format((float) ($orderStats->average_order_value ?? 0), 2, '.', '')
+            : '0.00';
 
         $previousRange = $this->ranges->previousPeriod($from, $to);
-        $previousOrders = Order::query()->whereBetween('created_at', [$previousRange['from'], $previousRange['to']])->count();
-        $previousGross = Order::query()->whereBetween('created_at', [$previousRange['from'], $previousRange['to']])->sum('grand_total');
+        $previousStats = Order::query()
+            ->whereBetween('created_at', [$previousRange['from'], $previousRange['to']])
+            ->selectRaw('COUNT(*) as orders_count, COALESCE(SUM(grand_total), 0) as gross_sales')
+            ->first();
+        $previousOrders = (int) ($previousStats->orders_count ?? 0);
+        $previousGross = (float) ($previousStats->gross_sales ?? 0);
 
         $payload = [
             'period' => [
@@ -279,23 +289,23 @@ final class AdminAnalyticsService
      */
     private function buildFunnel(CarbonImmutable $from, CarbonImmutable $to): array
     {
-        $productViews = AnalyticsEvent::query()
-            ->where('event_type', AnalyticsEventType::ProductViewed->value)
+        $eventCounts = AnalyticsEvent::query()
             ->whereBetween('created_at', [$from, $to])
-            ->count();
+            ->whereIn('event_type', [
+                AnalyticsEventType::ProductViewed->value,
+                AnalyticsEventType::AddToCart->value,
+                AnalyticsEventType::CheckoutStarted->value,
+            ])
+            ->groupBy('event_type')
+            ->selectRaw('event_type, COUNT(*) as aggregate')
+            ->pluck('aggregate', 'event_type');
 
-        $addToCartEvents = AnalyticsEvent::query()
-            ->where('event_type', AnalyticsEventType::AddToCart->value)
-            ->whereBetween('created_at', [$from, $to])
-            ->count();
+        $productViews = (int) ($eventCounts[AnalyticsEventType::ProductViewed->value] ?? 0);
+        $addToCartEvents = (int) ($eventCounts[AnalyticsEventType::AddToCart->value] ?? 0);
+        $checkoutStartedEvents = (int) ($eventCounts[AnalyticsEventType::CheckoutStarted->value] ?? 0);
 
         $addToCartFallback = CartItem::query()->whereBetween('created_at', [$from, $to])->count();
         $addToCart = max($addToCartEvents, $addToCartFallback);
-
-        $checkoutStartedEvents = AnalyticsEvent::query()
-            ->where('event_type', AnalyticsEventType::CheckoutStarted->value)
-            ->whereBetween('created_at', [$from, $to])
-            ->count();
 
         $ordersCreated = Order::query()->whereBetween('created_at', [$from, $to])->count();
         $paymentsInitiated = Payment::query()->whereBetween('created_at', [$from, $to])->count();

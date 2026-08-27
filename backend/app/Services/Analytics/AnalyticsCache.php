@@ -2,9 +2,11 @@
 
 namespace App\Services\Analytics;
 
+use App\Support\Cache\VersionedCache;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
+use Throwable;
 
 final class AnalyticsCache
 {
@@ -20,9 +22,13 @@ final class AnalyticsCache
         $filtersWithVersion = array_merge($filters, ['_v' => $version]);
         $key = $this->key($scope, $scopeId, $metric, $from, $to, $filtersWithVersion);
 
-        $cached = Cache::get($key);
-        if ($cached !== null) {
-            return $cached;
+        try {
+            $cached = Cache::get($key);
+            if ($cached !== null) {
+                return $cached;
+            }
+        } catch (Throwable) {
+            return $callback();
         }
 
         $lock = Cache::lock('analytics:lock:'.md5($key), 30);
@@ -41,6 +47,8 @@ final class AnalyticsCache
             return $value;
         } catch (LockTimeoutException) {
             return $callback();
+        } catch (Throwable) {
+            return $callback();
         } finally {
             optional($lock)->release();
         }
@@ -48,9 +56,7 @@ final class AnalyticsCache
 
     public function invalidateScope(string $scope, string $scopeId): void
     {
-        $versionKey = $this->versionKey($scope, $scopeId);
-        $current = (int) Cache::get($versionKey, 0);
-        Cache::forever($versionKey, $current + 1);
+        VersionedCache::bump($this->versionKey($scope, $scopeId));
     }
 
     /**
