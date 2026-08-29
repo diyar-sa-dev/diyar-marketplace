@@ -14,9 +14,30 @@ trait DiyarMyFatoorahHttp
      */
     public function callAPI($url, $postFields = null, $orderId = null, $function = null)
     {
+        $previousPrecision = ini_get('precision');
+        $previousSerializePrecision = ini_get('serialize_precision');
         ini_set('precision', '14');
         ini_set('serialize_precision', '-1');
 
+        try {
+            return $this->diyarExecuteCurlRequest($url, $postFields, $orderId, $function);
+        } finally {
+            if ($previousPrecision !== false) {
+                ini_set('precision', (string) $previousPrecision);
+            }
+            if ($previousSerializePrecision !== false) {
+                ini_set('serialize_precision', (string) $previousSerializePrecision);
+            }
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $postFields
+     *
+     * @throws Exception
+     */
+    private function diyarExecuteCurlRequest($url, $postFields = null, $orderId = null, $function = null)
+    {
         $request = isset($postFields) ? 'POST' : 'GET';
         $fields = empty($postFields)
             ? json_encode($postFields, JSON_FORCE_OBJECT)

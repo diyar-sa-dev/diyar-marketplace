@@ -1,0 +1,27 @@
+Optimization audit evidence — 2026-08-29
+
+Baseline: dev @ badbb6e
+
+FIXES IMPLEMENTED:
+- OPT-002: frontend/src/context/AuthContext.tsx — dedupe /me on navigation
+- OPT-003: backend/app/Services/Assistant/AssistantChatService.php — EffectiveConfig
+- scripts/test-phpunit-mysql.ps1
+- scripts/test-redis-integration.ps1
+
+TESTS AFTER FIXES:
+AssistantChatTest: 6/6 PASS
+AuthContext.test.tsx: 7/7 PASS
+
+PRIOR EVIDENCE (28.15 re-audit):
+PHPUnit: 764/770 PASS
+Playwright: 72/72 PASS
+Vitest: 128/128 (126 + 2 new auth tests)
+Main JS gzip: 37.15 KB
+MySQL EXPLAIN: 6/6 PASS (separate mysql run)
+
+CONTRADICTIONS FOUND:
+- KI-028-037 obsolete (AssistantChatTest exists)
+- Assistant admin toggle was broken (now fixed)
+
+NOT VERIFIED (environment):
+- Redis live integration (Docker offline)

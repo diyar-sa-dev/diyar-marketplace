@@ -86,6 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthState>('loading');
   const [error, setError] = useState<string | null>(null);
   const refreshInFlightRef = useRef<Promise<AuthUser | null> | null>(null);
+  const marketplaceBootstrapDoneRef = useRef(false);
+  const wasInAdminRef = useRef(false);
   const { toast } = useToast();
 
   const clearSession = useCallback(() => {
@@ -168,12 +170,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clearSession]);
 
   useEffect(() => {
-    if (isAdminArea(location.pathname)) {
+    const inAdmin = isAdminArea(location.pathname);
+
+    if (inAdmin) {
+      wasInAdminRef.current = true;
       setStatus('unauthenticated');
       setUser(null);
       return;
     }
 
+    const shouldBootstrap =
+      !marketplaceBootstrapDoneRef.current || wasInAdminRef.current;
+
+    if (!shouldBootstrap) {
+      return;
+    }
+
+    marketplaceBootstrapDoneRef.current = true;
+    wasInAdminRef.current = false;
     void refreshUser();
   }, [location.pathname, refreshUser]);
 

@@ -1,0 +1,18 @@
+﻿{
+    "timestamp_utc":  "2026-08-29T12:00:02.4250027Z",
+    "hostname":  "YACINE",
+    "os":  "Windows 10.0.19045",
+    "cpu_logical":  12,
+    "cpu_model":  "AMD Ryzen 5 5600G with Radeon Graphics         ",
+    "ram_gb":  29.8,
+    "php_host":  [
+                     "",
+                     "Warning: PHP Startup: Unable to load dynamic library \u0027sodium\u0027 (tried: C:\\php\\ext\\sodium (The specified module could not be found), C:\\php\\ext\\php_sodium.dll (The specified module could not be found)) in Unknown on line 0",
+                     "8.4.0"
+                 ],
+    "node":  "v23.11.0",
+    "docker":  "29.1.3",
+    "benchmark_stack":  "docker-compose.loadtest.yml (Octane+MySQL8+Redis7)",
+    "octane_workers":  8,
+    "note":  "Dev workstation — not production VPS"
+}

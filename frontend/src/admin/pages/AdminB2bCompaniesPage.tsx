@@ -19,6 +19,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useState, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { adminApi } from '../../api/client.ts';
+import { sanitizeHtml } from '../../utils/sanitizeHtml.ts';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
@@ -393,7 +394,7 @@ function PreviewField({
         {html ? (
           <div
             className="prose prose-sm max-w-none"
-            dangerouslySetInnerHTML={{ __html: String(value) }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(String(value)) }}
           />
         ) : (
           value

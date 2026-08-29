@@ -1,67 +1,33 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useQueries } from '@tanstack/react-query';
-import ProductCard from '../../cards/ProductCard.tsx';
-import ServiceCard from '../../cards/ServiceCard.tsx';
-import { useCategories, useProducts, useVendors } from '../../../hooks/catalog/useCatalog.ts';
-import { useBlogArticles } from '../../../hooks/blog/useBlogArticles.ts';
-import { formatBlogReadingTime } from '../../../lib/formatBlogReadingTime.ts';
-import { formatLocaleDate } from '../../../lib/intlLocale.ts';
-import { serviceKeys } from '../../../hooks/services/queryKeys.ts';
-import { fetchServices } from '../../../api/services.ts';
+import { useState } from 'react';
+import { Smartphone, Scan, Box } from 'lucide-react';
 import { useLocale } from '../../../hooks/useLocale.ts';
-import { validateNewsletterEmail } from '../../../lib/platformForms.ts';
-import { parseApiError } from '../../../utils/errors.ts';
-import { subscribeNewsletter } from '../../../api/platform.ts';
-import { useAuth } from '../../../hooks/auth/useAuth.ts';
-import { useLoyaltySummary } from '../../../hooks/loyalty/useLoyalty.ts';
-import { skipDashboardTutorial } from '../../../lib/dashboardTutorialStorage.ts';
-import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
-import { StarRating } from '../../product/StarRating.tsx';
-import { mapProductCard } from '../../../lib/catalogMappers.ts';
-import SectionEmptyState from '../SectionEmptyState.tsx';
-import { RailArrows } from './RailArrows.tsx';
-import {
-  Star,
-  Quote,
-  ArrowLeft,
-  Send,
-  Sparkles,
-  UploadCloud,
-  Store,
-  Briefcase,
-  Paintbrush,
-  Smartphone,
-  Scan,
-  Box,
-  BellRing,
-  Wrench,
-  ShieldCheck,
-  Truck,
-  HeadphonesIcon,
-  CreditCard,
-  PenTool,
-  Twitter,
-  Instagram,
-  MessageCircle,
-  Heart,
-  Bookmark,
-  Eye,
-  Gift,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+
+/** Avoid `/app*.png` — Vite Reverb proxy prefix is `/app/`. */
+const APP_MOCKUP_SRC = '/diyar-phone-mockup.png';
+const APP_MOCKUP_FALLBACK = '/laptop.png';
 
 export function AppPromo() {
   const { t } = useLocale();
+  const [mockupSrc, setMockupSrc] = useState(APP_MOCKUP_SRC);
+
+  const handleMockupError = () => {
+    setMockupSrc((current) => {
+      if (current === APP_MOCKUP_FALLBACK) {
+        return current;
+      }
+      if (current === APP_MOCKUP_SRC) {
+        return '/app-mockup.png';
+      }
+      return APP_MOCKUP_FALLBACK;
+    });
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 pt-16 md:pt-28 pb-8 md:pb-12">
-      <div className="bg-linear-to-br from-diyar-dark to-[#342D25] rounded-3xl relative flex flex-col md:flex-row items-stretch shadow-md">
-        {/* Abstract shapes (clipped to the rounded box) */}
+      <div className="bg-linear-to-br from-diyar-dark to-[#342D25] rounded-3xl relative flex flex-col md:flex-row items-stretch shadow-md overflow-hidden">
         <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-diyar-brown/30 rounded-full mix-blend-color-dodge filter blur-[80px] translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-600/20 rounded-full mix-blend-color-dodge filter blur-[100px] -translate-x-1/3 translate-y-1/3"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-diyar-brown/30 rounded-full mix-blend-color-dodge filter blur-[80px] translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-600/20 rounded-full mix-blend-color-dodge filter blur-[100px] -translate-x-1/3 translate-y-1/3" />
         </div>
 
         <div className="w-full md:w-1/2 p-6 md:p-10 relative z-10 text-center md:text-start flex flex-col justify-center">
@@ -87,9 +53,7 @@ export function AppPromo() {
                 <Box size={16} />
               </div>
               <div>
-                <h4 className="text-white text-sm font-bold mb-0.5">
-                  {t('home.appPromo.arTitle')}
-                </h4>
+                <h4 className="text-white text-sm font-bold mb-0.5">{t('home.appPromo.arTitle')}</h4>
                 <p className="text-white/60 text-[10px]">{t('home.appPromo.arDesc')}</p>
               </div>
             </div>
@@ -107,14 +71,14 @@ export function AppPromo() {
           </div>
 
           <div className="flex flex-row items-center justify-center md:justify-start gap-3">
-            <button className="transition-transform hover:scale-105 active:scale-95">
+            <button type="button" className="transition-transform hover:scale-105 active:scale-95">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
                 alt="App Store"
                 className="h-10 md:h-12 w-auto"
               />
             </button>
-            <button className="transition-transform hover:scale-105 active:scale-95">
+            <button type="button" className="transition-transform hover:scale-105 active:scale-95">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
                 alt="Google Play"
@@ -124,12 +88,14 @@ export function AppPromo() {
           </div>
         </div>
 
-        <div className="w-full md:w-1/2 relative min-h-57.5 md:min-h-65 flex justify-center items-end mt-4 md:mt-0">
+        <div className="w-full md:w-1/2 relative flex justify-center items-end pt-2 pb-0 md:py-0 min-h-64 md:min-h-80">
           <img
-            src="/app-mockup.png"
+            src={mockupSrc}
             alt={t('home.appPromo.mockupAlt')}
-            referrerPolicy="no-referrer"
-            className="w-[62%] sm:w-[46%] md:w-auto md:h-[120%] md:absolute md:bottom-0 md:left-1/2 md:-translate-x-1/2 max-w-105 h-auto object-contain z-20 drop-shadow-2xl hover:scale-[1.02] transition-transform duration-500"
+            width={420}
+            height={840}
+            className="relative z-20 w-[min(72%,280px)] sm:w-[min(58%,320px)] md:w-[min(85%,360px)] h-auto max-h-[420px] md:max-h-none md:absolute md:bottom-0 md:start-1/2 md:-translate-x-1/2 object-contain drop-shadow-2xl hover:scale-[1.02] transition-transform duration-500"
+            onError={handleMockupError}
           />
         </div>
       </div>

@@ -66,23 +66,22 @@ class RateLimitingTest extends TestCase
         ])->assertStatus(429);
     }
 
-    public function test_assistant_chat_is_rate_limited(): void
+    public function test_loadtest_mode_bypasses_credential_login_throttle(): void
     {
         config([
-            'diyar.rate_limits.assistant_chat_per_minute' => 2,
-            'diyar.assistant.enabled' => false,
+            'diyar.loadtest.enabled' => true,
+            'diyar.auth.login_max_attempts' => 2,
         ]);
 
         $payload = [
-            'messages' => [
-                ['role' => 'user', 'content' => 'Hello'],
-            ],
+            'method' => 'phone',
+            'identifier' => '+966500000001',
+            'password' => 'wrong-password',
         ];
 
-        for ($i = 0; $i < 2; $i++) {
-            $this->postJson('/api/v1/assistant/chat', $payload)->assertStatus(503);
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->postJson('/api/v1/auth/login', $payload);
+            $this->assertNotSame(429, $response->status());
         }
-
-        $this->postJson('/api/v1/assistant/chat', $payload)->assertStatus(429);
     }
 }

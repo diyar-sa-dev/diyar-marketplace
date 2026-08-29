@@ -5,6 +5,7 @@ namespace App\Services\Catalog;
 use App\Enums\ProductStatus;
 use App\Models\VendorAccount;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Support\Pagination\PaginationBounds;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class VendorService
@@ -35,9 +36,10 @@ final class VendorService
             });
         }
 
-        $perPage = min((int) ($filters['per_page'] ?? 20), 100);
+        $perPage = PaginationBounds::perPage((int) ($filters['per_page'] ?? 20), 100);
+        $page = PaginationBounds::page((int) ($filters['page'] ?? 1));
 
-        return $query->orderBy('business_name')->paginate($perPage);
+        return $query->orderBy('business_name')->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function findActiveBySlug(string $slug): VendorAccount

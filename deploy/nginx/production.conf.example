@@ -1,10 +1,40 @@
-# DIYAR production reverse proxy (example)
-# Marketplace SPA: diyar.com / admin.diyar.com
-# API: api.diyar.com
+# DIYAR production reverse proxy (Phase 28.13 example)
+#
+# Models:
+#   - Marketplace SPA: diyar.com / www.diyar.com
+#   - Admin SPA:       admin.diyar.com (same dist, separate host)
+#   - API:             api.diyar.com
+#   - WebSocket:       ws via Reverb/Pusher (adjust path)
+#
+# CDN optional: point DIYAR_CDN_ASSETS_URL to CDN origin; Nginx still serves fallback.
 
 upstream diyar_api {
     server 127.0.0.1:8000;
     keepalive 32;
+}
+
+# --- gzip (enable brotli module separately if available) ---
+gzip on;
+gzip_vary on;
+gzip_proxied any;
+gzip_comp_level 5;
+gzip_min_length 256;
+gzip_types
+    application/javascript
+    application/json
+    application/xml
+    text/css
+    text/javascript
+    text/plain
+    image/svg+xml;
+
+map $sent_http_content_type $diyar_static_cache {
+    default                                 "public, max-age=86400";
+    "text/html"                               "no-cache";
+    "application/javascript"                  "public, max-age=31536000, immutable";
+    "text/css"                                "public, max-age=31536000, immutable";
+    "image/svg+xml"                           "public, max-age=31536000, immutable";
+    "font/woff2"                              "public, max-age=31536000, immutable";
 }
 
 server {
@@ -18,51 +48,90 @@ server {
     add_header X-Content-Type-Options nosniff always;
     add_header X-Frame-Options DENY always;
     add_header Referrer-Policy strict-origin-when-cross-origin always;
+    server_tokens off;
+
+    # Block sensitive paths (defense in depth — app root should not be web-accessible)
+    location ~ /\.(env|git|ht) {
+        deny all;
+        return 404;
+    }
+
+    location ~* \.(sql|bak|log|ini|sh)$ {
+        deny all;
+        return 404;
+    }
 
     client_max_body_size 12m;
+
+    # Public media (product/vendor uploads) — long cache; URLs should be content-addressed or versioned
+    location /storage/ {
+        alias /var/www/diyar/backend/storage/app/public/;
+        add_header Cache-Control "public, max-age=604800";
+        add_header X-Content-Type-Options nosniff always;
+        try_files $uri =404;
+    }
 
     location / {
         proxy_pass http://diyar_api;
         proxy_http_version 1.1;
+        proxy_set_header Connection "";
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Request-Id $request_id;
-    }
 
-    # Never cache authenticated API responses at the edge
-    location ~ ^/api/v1/(health|readiness)$ {
-        proxy_pass http://diyar_api;
-        add_header Cache-Control "no-store";
+        # Respect Laravel ApplyHttpCachePolicy — do not override Cache-Control here
+        proxy_buffering on;
     }
 }
 
 server {
     listen 443 ssl http2;
-    server_name diyar.com www.diyar.com;
+    server_name diyar.com www.diyar.com admin.diyar.com;
 
     root /var/www/diyar/frontend/dist;
     index index.html;
 
+    ssl_certificate     /etc/letsencrypt/live/diyar.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/diyar.com/privkey.pem;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    server_tokens off;
+
+    location ~ /\.(env|git|ht) {
+        deny all;
+        return 404;
+    }
+
+    location ~* \.(sql|bak|log|ini|sh|php)$ {
+        deny all;
+        return 404;
+    }
+
+    # Hashed Vite assets — immutable long TTL
     location /assets/ {
         add_header Cache-Control "public, max-age=31536000, immutable";
+        add_header X-Content-Type-Options nosniff always;
+        try_files $uri =404;
+    }
+
+    # Root static files (favicon, manifest, robots)
+    location ~* \.(svg|png|webp|ico|txt|xml|webmanifest)$ {
+        add_header Cache-Control "public, max-age=604800";
+        try_files $uri =404;
+    }
+
+    # SPA shell — never immutable; enables safe post-deploy index refresh
+    location = /index.html {
+        add_header Cache-Control "no-cache, must-revalidate";
         try_files $uri =404;
     }
 
     location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
-
-server {
-    listen 443 ssl http2;
-    server_name admin.diyar.com;
-
-    root /var/www/diyar/frontend/dist;
-    index index.html;
-
-    location / {
+        add_header Cache-Control "no-cache, must-revalidate";
         try_files $uri $uri/ /index.html;
     }
 }

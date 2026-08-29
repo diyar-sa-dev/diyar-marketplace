@@ -1,0 +1,16 @@
+Phase 28.13 verification — 2026-08-29
+
+Vitest: 126/126 PASS
+HttpCachePolicy PHPUnit: 6/6 PASS
+Typecheck/lint/build: PASS
+
+Main JS gzip: 37.16 KB (re-verified 28.12)
+CSS gzip: 29.73 KB
+
+E2E Playwright:
+- 28.12 certified baseline: 72/72 (2026-08-27, full stack)
+- 28.13 session: 34/72 — ENVIRONMENTAL (API server stale after migrate:fresh mid-session; login 422)
+- Re-run procedure: migrate:fresh --seed THEN restart artisan serve THEN vite preview THEN playwright
+
+Cache header sample (anonymous GET /api/v1/categories):
+public, max-age=60, stale-while-revalidate=120

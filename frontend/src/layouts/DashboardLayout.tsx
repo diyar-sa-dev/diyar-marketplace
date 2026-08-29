@@ -22,6 +22,7 @@ import {
   MessagesSquare,
   Tag,
   Building2,
+  X,
 } from 'lucide-react';
 import { NotificationBellDropdown } from '../components/notifications/NotificationBellDropdown.tsx';
 import { ChatMessagesLink } from '../components/chat/ChatMessagesLink.tsx';
@@ -52,7 +53,21 @@ export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const location = useLocation();
+
+  useEffect(() => {
+    const onResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setIsSidebarOpen(true);
+      }
+    };
+
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -263,18 +278,34 @@ export default function DashboardLayout() {
             : `w-64 md:w-20 ${sidebarHiddenTransform} md:translate-x-0`
         }`}
       >
-        <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 shrink-0">
-          {isSidebarOpen && (
-            <span className="font-bold text-xl text-diyar-cream truncate">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 shrink-0 gap-2">
+          {isSidebarOpen ? (
+            <span className="font-bold text-lg md:text-xl text-diyar-cream truncate flex-1">
               {t('dashboard.title')}
             </span>
+          ) : (
+            <span className="flex-1" />
           )}
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-          >
-            <Menu size={20} />
-          </button>
+
+          {isMobile && isSidebarOpen ? (
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(false)}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer shrink-0"
+              aria-label={t('common.close')}
+            >
+              <X size={20} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer shrink-0"
+              aria-label={isSidebarOpen ? t('common.close') : t('dashboard.openMenu')}
+            >
+              <Menu size={20} />
+            </button>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto py-4">
@@ -328,15 +359,16 @@ export default function DashboardLayout() {
       </aside>
 
       <main className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 md:px-6 shrink-0">
-          <div className="flex items-center gap-3 md:gap-4">
+        <header className="h-14 sm:h-16 bg-white border-b border-gray-100 flex items-center justify-between px-3 sm:px-4 md:px-6 shrink-0 gap-2">
+          <div className="flex items-center gap-2 md:gap-4 min-w-0">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer -ms-2"
+              className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer shrink-0"
+              aria-label={t('dashboard.openMenu')}
             >
               <Menu size={20} />
             </button>
-            <h1 className="text-lg md:text-xl font-bold text-diyar-dark truncate max-w-37.5 md:max-w-none">
+            <h1 className="text-base sm:text-lg md:text-xl font-bold text-diyar-dark truncate">
               {role ? t(`dashboard.portals.${role}.headerTitle`) : t('dashboard.selectPortal')}
             </h1>
           </div>
@@ -411,7 +443,7 @@ export default function DashboardLayout() {
           </div>
         </header>
 
-        <div className="flex-1 overflow-auto p-6">
+        <div className="flex-1 overflow-auto p-4 sm:p-5 md:p-6">
           {isVendorPortal ? (
             <VendorPortalGuard>
               <Outlet />

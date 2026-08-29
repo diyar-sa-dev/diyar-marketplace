@@ -74,6 +74,10 @@ return [
     ],
 
     'catalog' => [
+        'pagination' => [
+            'max_page' => (int) env('DIYAR_CATALOG_MAX_PAGE', 200),
+            'max_per_page' => (int) env('DIYAR_CATALOG_MAX_PER_PAGE', 50),
+        ],
         'cache' => [
             'search_facets_seconds' => (int) env('DIYAR_CATALOG_SEARCH_FACETS_CACHE_SECONDS', 300),
             'search_suggestions_seconds' => (int) env('DIYAR_CATALOG_SEARCH_SUGGESTIONS_CACHE_SECONDS', 45),
@@ -677,6 +681,10 @@ return [
     'loadtest' => [
         'enabled' => filter_var(env('DIYAR_LOADTEST_MODE', false), FILTER_VALIDATE_BOOL),
         'health_probe_cache_seconds' => (int) env('DIYAR_HEALTH_PROBE_CACHE_SECONDS', 0),
+    ],
+
+    'storefront' => [
+        'home_section_cache_seconds' => (int) env('DIYAR_STOREFRONT_HOME_CACHE_SECONDS', 120),
     ],
 
     'analytics' => [

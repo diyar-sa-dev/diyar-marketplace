@@ -58,7 +58,7 @@
 | **KI-028-034** | P3 | API/Admin | TEST GAP | OPEN | NO | 167 admin routes not per-route | Permission tests exist | Accept |
 | **KI-028-035** | P3 | API | NOT VERIFIED | OPEN | NO | Booking idempotency | Add test | 28.9+ |
 | **KI-028-036** | P3 | API/Chat | NOT VERIFIED | OPEN | NO | Chat idempotency | Add test | 28.9+ |
-| **KI-028-037** | P2 | API | TEST GAP | OPEN | NO | No assistant Feature test | KI-028-057 | 28.9 |
+| **KI-028-037** | P2 | API | TEST GAP | **RESOLVED 28.15+opt** | NO | AssistantChatTest.php (6 tests) | — | — |
 | **KI-028-038** | P2 | Tooling | DOCUMENTATION | OPEN | NO | Route inventory unclassified | Script improvement | 28.14 |
 | **KI-028-039** | P4 | API | DOCUMENTATION | DOCUMENTATION | NO | Login 422 not 401 | Intentional | — |
 | **KI-028-040** | P4 | CI/Perf | DOCUMENTATION | DOCUMENTATION | NO | MySQL8 subset slow | CI tuning | 28.11 |
@@ -76,7 +76,7 @@
 | **KI-028-052** | P3 | E2E/Upload | TEST GAP | OPEN | NO | Logo upload not E2E verified | Harden upload spec | 28.9 |
 | **KI-028-053** | P2 | Security/API | SECURITY HARDENING | OPEN | **YES** | Public `/assistant/chat` 30/min | Auth or product accept + monitor | 28.9 |
 | **KI-028-054** | P3 | Security/CI | TEST GAP | OPEN | NO | RateLimit tests fail in 28.6 audit | Fix test payloads; no bypass proven | 28.9 |
-| **KI-028-055** | P3 | Security/FE | SECURITY HARDENING | OPEN | **CONDITIONAL** | Admin B2B dangerouslySetInnerHTML | sanitizeHtml before render | 28.9 |
+| **KI-028-055** | P3→**CLOSED** | Security/FE | SECURITY HARDENING | **FIXED 28.15** | PASS | Admin B2B dangerouslySetInnerHTML | sanitizeHtml before render | 28.15 |
 | **KI-028-056** | P3 | Security/Infra | SECURITY HARDENING | DEFERRED | NO | No CSP header | nginx/middleware CSP | 28.11 |
 | **KI-028-057** | P3 | Security/API | TEST GAP | OPEN | NO | Assistant security tests missing | Feature tests | 28.9 |
 | **KI-028-058** | P3 | Security/API | TEST GAP | OPEN | NO | Notification IDOR matrix | Extend tests | 28.9 |

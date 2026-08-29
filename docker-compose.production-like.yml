@@ -1,0 +1,96 @@
+# DIYAR — production-like local stack (Phase 28.14)
+# Approximates: Nginx + PHP-FPM + MySQL 8 + Redis 7
+#
+# Usage:
+#   docker compose -f docker-compose.production-like.yml up -d --build
+#   docker compose -f docker-compose.production-like.yml exec app php artisan migrate --force
+#
+# NOT for production deployment — validates infra wiring only.
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: prodlike_root
+      MYSQL_DATABASE: diyar_staging_like
+      MYSQL_USER: diyar
+      MYSQL_PASSWORD: prodlike_secret
+    volumes:
+      - diyar_prodlike_mysql:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '-pprodlike_root']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks:
+      - diyar_internal
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes', '--maxmemory', '256mb', '--maxmemory-policy', 'allkeys-lru']
+    volumes:
+      - diyar_prodlike_redis:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - diyar_internal
+
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.fpm
+    restart: unless-stopped
+    environment:
+      APP_ENV: staging
+      APP_DEBUG: 'false'
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: diyar_staging_like
+      DB_USERNAME: diyar
+      DB_PASSWORD: prodlike_secret
+      CACHE_STORE: redis
+      QUEUE_CONNECTION: redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PREFIX: diyar-staging-prodlike-
+      DIYAR_ENFORCE_REDIS_IN_PRODUCTION: 'false'
+      APP_KEY: base64:2fl+KtvkblFZiGZtacP1ZAwJfvyIZxSzUI/qpgQHoW0=
+      DIYAR_LOADTEST_MODE: 'false'
+      DIYAR_PAYMENT_USE_FAKE_GATEWAY: 'true'
+    volumes:
+      - ./backend:/var/www/diyar/backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - diyar_internal
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    volumes:
+      - ./deploy/nginx/production-like.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend/dist:/var/www/diyar/frontend/dist:ro
+      - ./backend/public:/var/www/diyar/backend/public:ro
+    depends_on:
+      - app
+    networks:
+      - diyar_internal
+
+volumes:
+  diyar_prodlike_mysql:
+  diyar_prodlike_redis:
+
+networks:
+  diyar_internal:
+    driver: bridge

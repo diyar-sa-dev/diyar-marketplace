@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\VendorAccount;
 use App\Services\Media\MediaUploadService;
 use App\Services\Vendor\VendorAccessService;
+use App\Support\Pagination\PaginationBounds;
 use App\Support\SlugGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,9 +44,10 @@ final class ProductService
 
         $this->applyFilters($query, $filters);
 
-        $perPage = min(max((int) ($filters['per_page'] ?? 20), 1), 50);
+        $perPage = PaginationBounds::perPage((int) ($filters['per_page'] ?? 20));
+        $page = PaginationBounds::page((int) ($filters['page'] ?? 1));
 
-        return $query->paginate($perPage);
+        return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
     /**
@@ -151,6 +153,11 @@ final class ProductService
                 'description' => $attributes['description'] ?? null,
                 'sale_price' => $attributes['sale_price'],
                 'compare_price' => $attributes['compare_price'] ?? null,
+                'promotion_ends_at' => $this->resolvePromotionEndsAt(
+                    $attributes['compare_price'] ?? null,
+                    $attributes['sale_price'],
+                    $attributes['promotion_ends_at'] ?? null,
+                ),
                 'width' => $attributes['width'] ?? null,
                 'height' => $attributes['height'] ?? null,
                 'depth' => $attributes['depth'] ?? null,
@@ -193,6 +200,7 @@ final class ProductService
                 'description' => array_key_exists('description', $attributes) ? $attributes['description'] : $product->description,
                 'sale_price' => $attributes['sale_price'] ?? $product->sale_price,
                 'compare_price' => array_key_exists('compare_price', $attributes) ? $attributes['compare_price'] : $product->compare_price,
+                'promotion_ends_at' => $this->resolvePromotionEndsAtForUpdate($product, $attributes),
                 'width' => array_key_exists('width', $attributes) ? $attributes['width'] : $product->width,
                 'height' => array_key_exists('height', $attributes) ? $attributes['height'] : $product->height,
                 'depth' => array_key_exists('depth', $attributes) ? $attributes['depth'] : $product->depth,
@@ -384,8 +392,16 @@ final class ProductService
         }
 
         if (! empty($filters['vendor_slug'])) {
-            $query->whereHas('vendorAccount', fn (Builder $vendorQuery) => $vendorQuery
-                ->where('slug', (string) $filters['vendor_slug']));
+            $vendorId = VendorAccount::query()
+                ->where('slug', (string) $filters['vendor_slug'])
+                ->where('status', 'active')
+                ->value('id');
+
+            if ($vendorId !== null) {
+                $query->where('vendor_account_id', $vendorId);
+            } else {
+                $query->whereRaw('0 = 1');
+            }
         }
 
         $colorList = $this->normalizeColorFilter($filters);
@@ -417,8 +433,7 @@ final class ProductService
         }
 
         if ($this->isTruthy($filters['discounted'] ?? null)) {
-            $query->whereNotNull('compare_price')
-                ->whereColumn('compare_price', '>', 'sale_price');
+            $query->withActiveDiscount();
         }
 
         if (isset($filters['min_price'])) {
@@ -576,5 +591,38 @@ final class ProductService
     private function requireVendorAccount(User $user): VendorAccount
     {
         return $this->access->requireVendorAccount($user);
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private function resolvePromotionEndsAtForUpdate(Product $product, array $attributes): mixed
+    {
+        $comparePrice = array_key_exists('compare_price', $attributes)
+            ? $attributes['compare_price']
+            : $product->compare_price;
+        $salePrice = $attributes['sale_price'] ?? $product->sale_price;
+        $promotionEndsAt = array_key_exists('promotion_ends_at', $attributes)
+            ? $attributes['promotion_ends_at']
+            : $product->promotion_ends_at;
+
+        return $this->resolvePromotionEndsAt($comparePrice, $salePrice, $promotionEndsAt);
+    }
+
+    private function resolvePromotionEndsAt(mixed $comparePrice, mixed $salePrice, mixed $promotionEndsAt): mixed
+    {
+        if ($comparePrice === null || $comparePrice === '') {
+            return null;
+        }
+
+        if ((float) $comparePrice <= (float) $salePrice) {
+            return null;
+        }
+
+        if ($promotionEndsAt === null || $promotionEndsAt === '') {
+            return null;
+        }
+
+        return $promotionEndsAt;
     }
 }

@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
 
 async function dismissHomeAdIfVisible(page: import('@playwright/test').Page) {
-  const closeAd = page.getByRole('button', { name: /close|إغلاق/i });
-  if (await closeAd.isVisible().catch(() => false)) {
-    await closeAd.click();
+  const popup = page.getByTestId('home-ad-popup');
+  if (await popup.isVisible().catch(() => false)) {
+    await popup.getByRole('button', { name: /close|إغلاق/i }).click();
+    await expect(popup).toBeHidden({ timeout: 10_000 });
   }
 }
 

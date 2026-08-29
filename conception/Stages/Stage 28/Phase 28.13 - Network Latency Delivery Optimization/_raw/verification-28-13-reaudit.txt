@@ -1,0 +1,49 @@
+Phase 28.13 — Senior QA Re-Audit Evidence
+Date: 2026-08-29
+Environment: Local Windows / sqlite / vite preview :3000 / artisan serve :8000
+
+=== Phase 28.12 Re-verification ===
+Main JS (index-*.js): 111.87 KB raw / 37.16 KB gzip
+Main CSS (index-*.css): 218.80 KB raw / 29.73 KB gzip
+Largest lazy chunk: vendor-recharts 385.74 KB raw / 113.06 KB gzip (admin-only)
+Locales: dynamic (ar/en separate chunks, not in initial bundle)
+SweetAlert2: deferred via swalLoader (vendor-sweetalert2 chunk)
+Recharts: vendor-recharts manual chunk, route-level only
+
+=== Frontend static checks ===
+Typecheck: PASS
+Vitest: 126/126 PASS
+ESLint: PASS
+Production build: PASS
+
+=== Backend targeted tests ===
+HttpCachePolicyTest: 9/9 PASS
+RateLimitingTest (loadtest bypass): PASS
+RateLimitingTest (3 middleware throttle cases): ENV flake when DIYAR_LOADTEST_MODE leaks — production throttle logic unchanged
+
+=== E2E (proper bootstrap) ===
+Order: delete sqlite → migrate:fresh --seed → start API → vite preview → playwright --workers=1
+DIYAR_LOADTEST_MODE=true on API server
+Playwright: 72/72 PASS (3.2m, serial workers)
+
+=== HTTP cache header capture (live API) ===
+GET /api/v1/categories (anonymous):
+  Cache-Control: max-age=60, public, stale-while-revalidate=120
+
+GET /api/v1/categories + Authorization: Bearer x:
+  Cache-Control: private, no-store, no-cache, must-revalidate
+  Vary: Cookie, Authorization, Accept-Language, Origin
+
+GET /api/v1/platform/theme (anonymous):
+  Cache-Control: public, max-age=300, stale-while-revalidate=120
+
+=== CDN build verification ===
+VITE_CDN_BASE_URL=https://cdn.example.com npm run build
+dist/index.html script src: https://cdn.example.com/assets/index-*.js ✓
+Default build (no CDN): relative /assets/* ✓
+
+=== Bundle summary (non-CDN build) ===
+index.html gzip: 0.83 KB
+Initial CSS gzip: 29.73 KB
+Initial JS gzip (entry): 37.16 KB
+vendor-react gzip: 60.73 KB (parallel modulepreload)

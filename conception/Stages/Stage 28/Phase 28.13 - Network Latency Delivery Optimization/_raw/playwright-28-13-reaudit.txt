@@ -1,0 +1,10 @@
+Playwright E2E — Phase 28.13 Senior Re-Audit
+Date: 2026-08-29
+Command: npx playwright test --workers=1 --reporter=line
+Bootstrap: sqlite fresh seed → API :8000 (DIYAR_LOADTEST_MODE=true) → vite preview :3000
+
+Result: 72 passed (3.2m)
+Skipped: 2
+Did not run: 0 (full suite completed)
+
+Exit code: 0

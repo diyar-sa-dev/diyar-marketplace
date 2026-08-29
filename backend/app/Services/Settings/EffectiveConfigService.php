@@ -10,7 +10,8 @@ final class EffectiveConfigService
 {
     public function get(string $fullKey, mixed $default = null): mixed
     {
-        if (app()->environment('testing')) {
+        // PHPUnit may run with APP_ENV=local from shell .env; runningUnitTests() tracks testing env.
+        if (app()->runningUnitTests()) {
             return $this->resolve($fullKey, $default);
         }
 

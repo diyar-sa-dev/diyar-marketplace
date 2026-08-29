@@ -39,6 +39,7 @@ export interface ProductCard {
   slug: string;
   sale_price: string | number;
   compare_price?: string | number | null;
+  promotion_ends_at?: string | null;
   discount_percent?: number | null;
   availability_mode: 'in_stock' | 'out_of_stock' | 'preorder';
   product_type?: 'single' | 'bundle';
@@ -73,6 +74,7 @@ export interface ProductDetail {
   description: string | null;
   sale_price: string | number;
   compare_price?: string | number | null;
+  promotion_ends_at?: string | null;
   product_type: 'single' | 'bundle';
   availability_mode: 'in_stock' | 'out_of_stock' | 'preorder';
   expected_available_at?: string | null;

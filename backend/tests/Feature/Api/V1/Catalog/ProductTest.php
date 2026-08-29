@@ -124,4 +124,15 @@ class ProductTest extends TestCase
             ->assertOk()
             ->assertJsonCount(2, 'data.items');
     }
+
+    public function test_public_product_list_caps_deep_page_requests(): void
+    {
+        config(['diyar.catalog.pagination.max_page' => 200]);
+
+        Product::factory()->count(3)->create();
+
+        $this->getJson('/api/v1/products?page=9999')
+            ->assertOk()
+            ->assertJsonPath('data.pagination.current_page', 200);
+    }
 }

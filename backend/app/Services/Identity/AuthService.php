@@ -239,7 +239,7 @@ final class AuthService
         $this->rememberGuestCartSessionBeforeLogin();
 
         if (! Auth::guard('web')->attempt($credentials, remember: $remember)) {
-            RateLimiter::hit($this->throttleKey($key, $identifier), decaySeconds: $this->decaySeconds());
+            $this->hitRateLimiter($key, $identifier);
             throw ValidationException::withMessages([
                 'credentials' => [__('auth.failed')],
             ]);
@@ -292,7 +292,7 @@ final class AuthService
         $this->ensureIsNotRateLimited($key, $identifier);
 
         if (! Auth::guard('admin')->attempt($credentials, remember: $remember)) {
-            RateLimiter::hit($this->throttleKey($key, $identifier), decaySeconds: $this->decaySeconds());
+            $this->hitRateLimiter($key, $identifier);
             throw ValidationException::withMessages([
                 'credentials' => [__('auth.failed')],
             ]);
@@ -430,6 +430,10 @@ final class AuthService
 
     private function ensureIsNotRateLimited(string $key, string $identifier): void
     {
+        if ($this->shouldBypassLoginRateLimit()) {
+            return;
+        }
+
         $throttleKey = $this->throttleKey($key, $identifier);
 
         if (! RateLimiter::tooManyAttempts($throttleKey, $this->maxAttempts())) {
@@ -447,7 +451,16 @@ final class AuthService
 
     private function hitRateLimiter(string $key, string $identifier): void
     {
+        if ($this->shouldBypassLoginRateLimit()) {
+            return;
+        }
+
         RateLimiter::hit($this->throttleKey($key, $identifier), decaySeconds: $this->decaySeconds());
+    }
+
+    private function shouldBypassLoginRateLimit(): bool
+    {
+        return (bool) config('diyar.loadtest.enabled', false);
     }
 
     private function throttleKey(string $key, string $identifier): string

@@ -49,6 +49,7 @@ use Laravel\Octane\Listeners\FlushOnce;
 use Laravel\Octane\Listeners\FlushTemporaryContainerInstances;
 use Laravel\Octane\Listeners\FlushUploadedFiles;
 use Laravel\Octane\Listeners\ReportException;
+use App\Listeners\Octane\FlushOctaneDevState;
 use Laravel\Octane\Listeners\StopWorkerIfNecessary;
 use Laravel\Octane\Octane;
 
@@ -92,6 +93,7 @@ return [
             FlushTemporaryContainerInstances::class,
             DisconnectFromDatabases::class,
             CollectGarbage::class,
+            FlushOctaneDevState::class,
         ],
 
         WorkerErrorOccurred::class => [

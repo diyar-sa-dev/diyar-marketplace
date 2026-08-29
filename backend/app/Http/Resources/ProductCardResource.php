@@ -36,6 +36,7 @@ class ProductCardResource extends JsonResource
             'slug' => $this->slug,
             'sale_price' => $this->sale_price,
             'compare_price' => $this->compare_price,
+            'promotion_ends_at' => $this->promotion_ends_at?->toIso8601String(),
             'discount_percent' => $discountPercent,
             'availability_mode' => $this->availability_mode->value,
             'product_type' => $this->product_type->value,

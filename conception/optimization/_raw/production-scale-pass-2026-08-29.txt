@@ -1,0 +1,57 @@
+Production-Scale Deep Optimization Pass — 2026-08-29
+=====================================================
+
+## Implementations (this pass)
+
+1. PaginationBounds — cap public catalog page at 200 (ENT-PAG-001)
+   - backend/app/Support/Pagination/PaginationBounds.php
+   - ProductService.listPublic, VendorService.listPublic
+   - config: diyar.catalog.pagination.max_page, max_per_page
+
+2. External HTTP timeouts (ENT-HTTP-001/002)
+   - FcmPushProvider: connect 5s, request 15s (push + OAuth)
+   - AssistantChatService: connectTimeout 10s
+
+3. CI MySQL index EXPLAIN job (ENT-CI-001)
+   - .github/workflows/ci.yml → backend-mysql job
+   - scripts/test-phpunit-mysql.sh
+
+## Test matrix
+
+| Suite | Result |
+|-------|--------|
+| PHPUnit | 774/774 PASS (+3 new tests) |
+| Vitest | 128/128 PASS |
+| Typecheck | PASS |
+| Production build | PASS (index gzip 37.19 KB) |
+| Playwright E2E | 72/72 PASS (prior session, not re-run this pass) |
+| MySQL EXPLAIN CI | Added to GitHub Actions |
+| Redis integration | SKIPPED (Docker offline locally) |
+| k6 load test | NOT RUN locally (CI weekly workflow exists) |
+
+## New documentation
+
+- SCALABILITY_MASTER_PLAN.md
+- PERFORMANCE_MASTER_AUDIT.md
+- PRODUCTION_RISK_REGISTER.md
+- LATENCY_BUDGET.md
+- SCALE_MODEL.md
+
+## 1M request capacity summary
+
+| Window | Avg RPS | Tier | Rigor |
+|--------|---------|------|-------|
+| 24 hours | ~12 | Medium VPS | PROJECTED |
+| 1 hour | ~278 | Horizontal 2-3 nodes | PROJECTED |
+| 10 minutes | ~1667 | WAF + horizontal | NOT YET TESTED |
+
+## Open items
+
+- P0: none
+- P1: none
+- P2 conditional: public assistant (KI-028-053), homepage fan-out (OPT-004)
+- P2 open: nginx CSP, staging k6 evidence, Redis live test
+
+## Production verdict
+
+READY WITH CONDITIONS

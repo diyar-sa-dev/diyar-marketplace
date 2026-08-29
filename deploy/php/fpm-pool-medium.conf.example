@@ -1,0 +1,30 @@
+; DIYAR PHP-FPM pool — MEDIUM VPS profile (Phase 28.14)
+; Assumptions: 4 GB RAM VPS, 1.5 GB MySQL, 512 MB Redis, 6 queue workers
+; Available for PHP: ~1.2 GB → ~18–24 workers @ ~64 MB each
+
+[diyar]
+user = www-data
+group = www-data
+listen = /run/php/php8.2-fpm-diyar.sock
+listen.owner = www-data
+listen.group = www-data
+listen.mode = 0660
+
+pm = dynamic
+pm.max_children = 20
+pm.start_servers = 4
+pm.min_spare_servers = 4
+pm.max_spare_servers = 8
+pm.max_requests = 1000
+
+request_terminate_timeout = 120s
+request_slowlog_timeout = 10s
+slowlog = /var/log/php8.2-fpm-diyar-slow.log
+
+php_admin_value[memory_limit] = 256M
+php_admin_value[upload_max_filesize] = 12M
+php_admin_value[post_max_size] = 14M
+php_admin_value[max_execution_time] = 120
+
+catch_workers_output = yes
+clear_env = no

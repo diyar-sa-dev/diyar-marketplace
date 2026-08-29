@@ -2,6 +2,7 @@
 
 namespace App\Services\Assistant;
 
+use App\Services\Settings\EffectiveConfigService;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -9,12 +10,16 @@ use RuntimeException;
 
 class AssistantChatService
 {
+    public function __construct(
+        private readonly EffectiveConfigService $config,
+    ) {}
+
     /**
      * @param  array<int, array{role: string, content: string}>  $messages
      */
     public function chat(array $messages, ?string $catalogContext, string $locale = 'ar'): string
     {
-        if (! config('diyar.assistant.enabled')) {
+        if (! $this->isEnabled()) {
             throw new RuntimeException('assistant_disabled');
         }
 
@@ -36,7 +41,9 @@ class AssistantChatService
             ),
         ];
 
-        $request = Http::withToken($apiKey)->timeout(45);
+        $request = Http::withToken($apiKey)
+            ->connectTimeout(10)
+            ->timeout(45);
 
         if (! config('diyar.assistant.verify_ssl')) {
             $request = $request->withOptions(['verify' => false]);
@@ -73,6 +80,14 @@ class AssistantChatService
         }
 
         return trim($content);
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->config->boolean(
+            'platform.assistant_enabled',
+            (bool) config('diyar.assistant.enabled', false),
+        );
     }
 
     private function buildSystemPrompt(?string $catalogContext, string $locale): string

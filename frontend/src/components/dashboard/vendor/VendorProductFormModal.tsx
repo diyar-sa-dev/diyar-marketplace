@@ -118,6 +118,7 @@ export function VendorProductFormModal({
   const [name, setName] = useState('');
   const [salePrice, setSalePrice] = useState('');
   const [comparePrice, setComparePrice] = useState('');
+  const [promotionEndsAt, setPromotionEndsAt] = useState('');
   const [stock, setStock] = useState('10');
   const [stockAdjust, setStockAdjust] = useState('');
   const [preorderEnabled, setPreorderEnabled] = useState(false);
@@ -198,6 +199,9 @@ export function VendorProductFormModal({
           ? sanitizeDecimalInput(String(productDetail.compare_price))
           : '',
       );
+      setPromotionEndsAt(
+        productDetail.promotion_ends_at ? productDetail.promotion_ends_at.slice(0, 16) : '',
+      );
       setStock(sanitizeIntegerInput(String(productDetail.inventory?.stock_quantity ?? 0)));
       setStockAdjust(sanitizeIntegerInput(String(productDetail.inventory?.stock_quantity ?? 0)));
       setPreorderEnabled(productDetail.availability_mode === 'preorder');
@@ -245,6 +249,7 @@ export function VendorProductFormModal({
       setName('');
       setSalePrice('');
       setComparePrice('');
+      setPromotionEndsAt('');
       setStock('10');
       setStockAdjust('');
       setPreorderEnabled(false);
@@ -305,6 +310,12 @@ export function VendorProductFormModal({
     return `${now.getFullYear()}-${month}-${day}`;
   })();
 
+  const minPromotionDateTime = (() => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  })();
+
   const showError = (field: keyof VendorProductFormErrors) => {
     const code = touched[field] || touched.form ? errors[field] : undefined;
     return translateVendorFormError(code, t);
@@ -335,6 +346,10 @@ export function VendorProductFormModal({
       description: description.trim() || null,
       sale_price: Number(salePrice),
       compare_price: comparePrice ? Number(comparePrice) : null,
+      promotion_ends_at:
+        comparePrice && promotionEndsAt.trim()
+          ? new Date(promotionEndsAt).toISOString()
+          : null,
       stock_quantity: editingId ? 0 : Number(stock || 0),
       width: width ? Number(width) : null,
       height: height ? Number(height) : null,
@@ -735,6 +750,21 @@ export function VendorProductFormModal({
                       />
                       <FieldError message={showError('comparePrice')} />
                     </div>
+                    {comparePrice.trim() ? (
+                      <div className="space-y-1.5 text-right sm:col-span-3">
+                        <label className="text-xs font-bold text-gray-550 block text-right">
+                          {t('vendor.form.promotionEndsAt')}
+                        </label>
+                        <input
+                          type="datetime-local"
+                          value={promotionEndsAt}
+                          min={minPromotionDateTime}
+                          onChange={(e) => setPromotionEndsAt(e.target.value)}
+                          className={`${vendorFieldClass(false)} p-2.5 font-medium text-gray-600`}
+                        />
+                        <p className="text-[11px] text-gray-500">{t('vendor.form.promotionEndsAtHint')}</p>
+                      </div>
+                    ) : null}
                     <div className="space-y-1.5 text-right">
                       {editingId ? (
                         <>

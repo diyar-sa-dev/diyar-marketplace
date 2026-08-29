@@ -186,7 +186,7 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->user()?->id ?: $request->ip());
         });
 
-        if (config('diyar.loadtest.enabled')) {
+        if (config('diyar.loadtest.enabled') && ! $this->app->runningUnitTests()) {
             $this->configureLoadTestRateLimits();
         }
 

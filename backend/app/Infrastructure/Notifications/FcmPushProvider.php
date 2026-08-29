@@ -44,6 +44,8 @@ final class FcmPushProvider implements PushProviderInterface
 
             $response = Http::withToken($accessToken)
                 ->acceptJson()
+                ->connectTimeout(5)
+                ->timeout(15)
                 ->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", [
                     'message' => [
                         'token' => $device->token,
@@ -116,7 +118,10 @@ final class FcmPushProvider implements PushProviderInterface
         openssl_sign($unsigned, $signature, $privateKey, OPENSSL_ALGO_SHA256);
         $jwt = $unsigned.'.'.$this->base64UrlEncode($signature);
 
-        $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+        $response = Http::asForm()
+            ->connectTimeout(5)
+            ->timeout(10)
+            ->post('https://oauth2.googleapis.com/token', [
             'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
             'assertion' => $jwt,
         ]);

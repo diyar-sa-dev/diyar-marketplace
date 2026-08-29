@@ -2,15 +2,41 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 
 const frontendRoot = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(frontendRoot, '..');
+const cdnBase = process.env.VITE_CDN_BASE_URL?.replace(/\/$/, '');
+
+/** Reverb WebSocket lives at `/app/{key}` — proxy only that prefix, not `/app-mockup.png`. */
+function reverbProxyOptions(target: string) {
+  return {
+    target,
+    changeOrigin: true,
+    secure: false,
+    ws: true,
+  };
+}
+
+function deliveryPreconnectPlugin(): Plugin {
+  return {
+    name: 'diyar-delivery-preconnect',
+    transformIndexHtml(html) {
+      const backendOrigin = process.env.VITE_BACKEND_URL?.replace(/\/$/, '') ?? '';
+      const preconnect = backendOrigin
+        ? `<link rel="preconnect" href="${backendOrigin}" crossorigin />\n    <link rel="dns-prefetch" href="${backendOrigin}" />`
+        : '';
+
+      return html.replace('<!-- diyar-preconnect -->', preconnect);
+    },
+  };
+}
 
 export default defineConfig({
   root: frontendRoot,
+  base: cdnBase ? `${cdnBase}/` : '/',
   cacheDir: path.resolve(frontendRoot, 'node_modules/.vite'),
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), deliveryPreconnectPlugin()],
   resolve: {
     dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
   },
@@ -78,12 +104,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      '/app': {
-        target: 'http://localhost:8090',
-        changeOrigin: true,
-        secure: false,
-        ws: true,
-      },
+      '/app/': reverbProxyOptions('http://localhost:8090'),
       '/storage': {
         target: 'http://localhost:8000',
         changeOrigin: true,
@@ -118,12 +139,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      '/app': {
-        target: 'http://localhost:8090',
-        changeOrigin: true,
-        secure: false,
-        ws: true,
-      },
+      '/app/': reverbProxyOptions('http://localhost:8090'),
       '/storage': {
         target: 'http://localhost:8000',
         changeOrigin: true,

@@ -4,7 +4,7 @@ type ModuleLoader<T extends ComponentType> = () => Promise<{ default: T }>;
 
 const CHUNK_RELOAD_KEY = 'diyar-chunk-reload';
 
-function isChunkLoadError(error: unknown): boolean {
+export function isChunkLoadError(error: unknown): boolean {
   if (!(error instanceof Error)) {
     return false;
   }
