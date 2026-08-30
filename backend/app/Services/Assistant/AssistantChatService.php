@@ -12,10 +12,11 @@ class AssistantChatService
 {
     public function __construct(
         private readonly EffectiveConfigService $config,
+        private readonly AssistantSystemPromptBuilder $prompts,
     ) {}
 
     /**
-     * @param  array<int, array{role: string, content: string}>  $messages
+     * @param  array<int, array{role: string, content: string, image?: string|null}>  $messages
      */
     public function chat(array $messages, ?string $catalogContext, string $locale = 'ar'): string
     {
@@ -23,39 +24,52 @@ class AssistantChatService
             throw new RuntimeException('assistant_disabled');
         }
 
-        $apiKey = config('diyar.assistant.api_key');
-        if (! is_string($apiKey) || trim($apiKey) === '') {
+        $apiKey = $this->resolveApiKey();
+        if ($apiKey === null) {
             throw new RuntimeException('assistant_not_configured');
         }
 
-        $systemPrompt = $this->buildSystemPrompt($catalogContext, $locale);
+        $systemPrompt = $this->prompts->build($catalogContext, $locale);
 
+        return match ($this->provider()) {
+            'google', 'gemini' => $this->chatWithGemini($messages, $systemPrompt, $apiKey),
+            default => $this->chatWithOpenAi($messages, $systemPrompt, $apiKey),
+        };
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->config->boolean(
+            'platform.assistant_enabled',
+            (bool) config('diyar.assistant.enabled', false),
+        );
+    }
+
+    /**
+     * @param  array<int, array{role: string, content: string, image?: string|null}>  $messages
+     */
+    private function chatWithOpenAi(array $messages, string $systemPrompt, string $apiKey): string
+    {
         $payloadMessages = [
             ['role' => 'system', 'content' => $systemPrompt],
             ...array_map(
-                static fn (array $message): array => [
+                fn (array $message): array => [
                     'role' => $message['role'],
-                    'content' => $message['content'],
+                    'content' => $this->buildOpenAiContent($message),
                 ],
                 $messages,
             ),
         ];
 
-        $request = Http::withToken($apiKey)
-            ->connectTimeout(10)
-            ->timeout(45);
-
-        if (! config('diyar.assistant.verify_ssl')) {
-            $request = $request->withOptions(['verify' => false]);
-        }
-
         try {
-            $response = $request->post('https://api.openai.com/v1/chat/completions', [
-                'model' => config('diyar.assistant.model'),
-                'messages' => $payloadMessages,
-                'temperature' => 0.7,
-                'max_tokens' => config('diyar.assistant.max_tokens'),
-            ]);
+            $response = $this->httpClient()
+                ->withToken($apiKey)
+                ->post('https://api.openai.com/v1/chat/completions', [
+                    'model' => (string) config('diyar.assistant.openai.model'),
+                    'messages' => $payloadMessages,
+                    'temperature' => (float) config('diyar.assistant.openai.temperature', 0.7),
+                    'max_tokens' => (int) config('diyar.assistant.max_tokens', 700),
+                ]);
         } catch (ConnectionException $exception) {
             Log::warning('assistant.openai_connection_failed', [
                 'message' => $exception->getMessage(),
@@ -75,6 +89,71 @@ class AssistantChatService
 
         $content = data_get($response->json(), 'choices.0.message.content');
 
+        return $this->assertNonEmptyReply($content);
+    }
+
+    /**
+     * @param  array<int, array{role: string, content: string, image?: string|null}>  $messages
+     */
+    private function chatWithGemini(array $messages, string $systemPrompt, string $apiKey): string
+    {
+        $model = (string) config('diyar.assistant.google.model');
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
+
+        $contents = [];
+        foreach ($messages as $message) {
+            $role = $message['role'] === 'assistant' ? 'model' : 'user';
+            $contents[] = [
+                'role' => $role,
+                'parts' => $this->buildGeminiParts($message),
+            ];
+        }
+
+        if ($contents === []) {
+            $contents[] = [
+                'role' => 'user',
+                'parts' => [['text' => 'Hello']],
+            ];
+        }
+
+        try {
+            $response = $this->httpClient()
+                ->post("{$url}?key=".urlencode($apiKey), [
+                    'systemInstruction' => [
+                        'parts' => [
+                            ['text' => $systemPrompt],
+                        ],
+                    ],
+                    'contents' => $contents,
+                    'generationConfig' => [
+                        'temperature' => (float) config('diyar.assistant.google.temperature', 0.7),
+                        'maxOutputTokens' => (int) config('diyar.assistant.max_tokens', 700),
+                    ],
+                ]);
+        } catch (ConnectionException $exception) {
+            Log::warning('assistant.gemini_connection_failed', [
+                'message' => $exception->getMessage(),
+            ]);
+
+            throw new RuntimeException('assistant_upstream_error');
+        }
+
+        if (! $response->successful()) {
+            Log::warning('assistant.gemini_error', [
+                'status' => $response->status(),
+                'body' => $response->json(),
+            ]);
+
+            throw new RuntimeException('assistant_upstream_error');
+        }
+
+        $content = data_get($response->json(), 'candidates.0.content.parts.0.text');
+
+        return $this->assertNonEmptyReply($content);
+    }
+
+    private function assertNonEmptyReply(mixed $content): string
+    {
         if (! is_string($content) || trim($content) === '') {
             throw new RuntimeException('assistant_empty_response');
         }
@@ -82,37 +161,94 @@ class AssistantChatService
         return trim($content);
     }
 
-    public function isEnabled(): bool
+    private function provider(): string
     {
-        return $this->config->boolean(
-            'platform.assistant_enabled',
-            (bool) config('diyar.assistant.enabled', false),
-        );
+        return strtolower((string) config('diyar.assistant.provider', 'openai'));
     }
 
-    private function buildSystemPrompt(?string $catalogContext, string $locale): string
+    /**
+     * @param  array{role: string, content: string, image?: string|null}  $message
+     * @return list<array<string, mixed>>
+     */
+    private function buildGeminiParts(array $message): array
     {
-        $language = $locale === 'en'
-            ? 'Respond in clear, friendly English.'
-            : 'رد بالعربية الفصحى البسيطة والودودة.';
+        $parts = [
+            ['text' => (string) $message['content']],
+        ];
 
-        $catalogBlock = $catalogContext
-            ? "Use ONLY this Diyar marketplace catalog snapshot when recommending products, categories, or services. Do not invent items outside this list:\n\n{$catalogContext}"
-            : 'You have no live catalog snapshot. Give general interior design advice and suggest browsing Diyar categories.';
+        $inlineImage = $this->parseImageDataUrl($message['image'] ?? null);
+        if ($inlineImage !== null) {
+            $parts[] = [
+                'inline_data' => [
+                    'mime_type' => $inlineImage['mime_type'],
+                    'data' => $inlineImage['data'],
+                ],
+            ];
+        }
 
-        return <<<PROMPT
-You are Diyar's personal interior design and furniture expert for Saudi homes.
-Your role: help users choose furniture, coordinate colors, plan room layouts, and find suitable products/services on Diyar.
-Tone: warm, concise, practical, premium but approachable.
-Rules:
-- {$language}
-- Prefer actionable suggestions (colors, materials, layout tips, product types).
-- When mentioning products from the catalog snapshot, include name and approximate price if available.
-- Never claim real-time stock; tell users to verify on the product page.
-- Keep answers under 180 words unless the user asks for more detail.
-- If unsure, ask one clarifying question.
+        return $parts;
+    }
 
-{$catalogBlock}
-PROMPT;
+    /**
+     * @param  array{role: string, content: string, image?: string|null}  $message
+     * @return string|list<array<string, mixed>>
+     */
+    private function buildOpenAiContent(array $message): string|array
+    {
+        $image = $message['image'] ?? null;
+        if (! is_string($image) || trim($image) === '') {
+            return (string) $message['content'];
+        }
+
+        return [
+            ['type' => 'text', 'text' => (string) $message['content']],
+            ['type' => 'image_url', 'image_url' => ['url' => trim($image)]],
+        ];
+    }
+
+    /**
+     * @return array{mime_type: string, data: string}|null
+     */
+    private function parseImageDataUrl(?string $dataUrl): ?array
+    {
+        if (! is_string($dataUrl) || trim($dataUrl) === '') {
+            return null;
+        }
+
+        if (! preg_match('#^data:(image/(?:jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=]+)$#', trim($dataUrl), $matches)) {
+            return null;
+        }
+
+        $mimeType = strtolower($matches[1]) === 'image/jpg' ? 'image/jpeg' : strtolower($matches[1]);
+
+        return [
+            'mime_type' => $mimeType,
+            'data' => $matches[2],
+        ];
+    }
+
+    private function resolveApiKey(): ?string
+    {
+        $key = match ($this->provider()) {
+            'google', 'gemini' => config('diyar.assistant.google.api_key'),
+            default => config('diyar.assistant.openai.api_key'),
+        };
+
+        if (! is_string($key) || trim($key) === '') {
+            return null;
+        }
+
+        return trim($key);
+    }
+
+    private function httpClient(): \Illuminate\Http\Client\PendingRequest
+    {
+        $request = Http::connectTimeout(10)->timeout(45);
+
+        if (! config('diyar.assistant.verify_ssl')) {
+            $request = $request->withOptions(['verify' => false]);
+        }
+
+        return $request;
     }
 }

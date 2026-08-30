@@ -24,7 +24,7 @@ class CategoryController extends Controller
         $tree = $this->categories->listActiveTree($request->query('type'));
 
         return ApiResponse::success(data: [
-            'categories' => CategoryResource::collection($tree),
+            'categories' => CategoryResource::collection($tree)->resolve(),
         ]);
     }
 

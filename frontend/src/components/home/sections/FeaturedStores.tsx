@@ -110,25 +110,37 @@ export function FeaturedStores() {
                       />
                     </div>
                     <h3
-                      className="text-sm md:text-base font-bold text-diyar-dark mb-1 line-clamp-2 w-full leading-snug px-1"
+                      className="text-sm md:text-base font-bold text-diyar-dark mb-2 line-clamp-2 w-full leading-snug px-1"
                       title={store.store_name}
                     >
                       {store.store_name}
                     </h3>
-                    {(store.rating_avg ?? 0) > 0 && (store.reviews_count ?? 0) > 0 && (
-                      <div className="flex items-center justify-center gap-1 mb-1 text-[10px] md:text-xs text-gray-500">
-                        <StarRating value={store.rating_avg ?? 0} readOnly size={11} />
-                        <span className="font-bold text-diyar-dark tabular-nums">
-                          {(store.rating_avg ?? 0).toFixed(1)}
-                        </span>
-                        <span>
-                          {t('storeReviews.overallRatingCount', { count: store.reviews_count ?? 0 })}
-                        </span>
-                      </div>
-                    )}
-                    <span className="text-gray-400 text-[10px] md:text-xs font-normal mb-3">
-                      {t('store.productsCount', { count: store.product_count ?? 0 })}
-                    </span>
+                    <div
+                      className="flex items-center justify-center gap-2 flex-wrap mb-3 w-full text-[10px] md:text-xs text-gray-500"
+                      dir={dir}
+                    >
+                      {(store.rating_avg ?? 0) > 0 ? (
+                        <>
+                          <div className="inline-flex items-center gap-1 shrink-0">
+                            <StarRating
+                              value={store.rating_avg ?? 0}
+                              readOnly
+                              size={12}
+                              className="text-yellow-400"
+                            />
+                            <span className="font-bold text-diyar-dark tabular-nums">
+                              {(store.rating_avg ?? 0).toFixed(1)}
+                            </span>
+                          </div>
+                          <span className="text-gray-300 select-none" aria-hidden="true">
+                            ·
+                          </span>
+                        </>
+                      ) : null}
+                      <span className="text-gray-500 tabular-nums">
+                        {t('store.productsCount', { count: store.product_count ?? 0 })}
+                      </span>
+                    </div>
                     <div className="w-full py-1.5 md:py-2 text-xs md:text-sm rounded-lg border border-gray-200 text-diyar-dark font-medium group-hover:bg-diyar-brown group-hover:text-white group-hover:border-diyar-dark transition mt-auto">
                       {t('home.featuredStores.browseStore')}
                     </div>

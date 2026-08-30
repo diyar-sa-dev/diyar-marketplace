@@ -192,8 +192,7 @@ final class CatalogSearchService
      */
     private function vendorFacets(array $filters): array
     {
-        $facetFilters = $filters;
-        unset($facetFilters['vendor_id'], $facetFilters['vendor_slug'], $facetFilters['page']);
+        $facetFilters = $this->filtersForFacets($filters);
 
         $query = Product::query()->publiclyVisible();
         $this->products->applyPublicFilters($query, $this->productFilters($facetFilters));
@@ -256,8 +255,7 @@ final class CatalogSearchService
      */
     private function colorFacets(array $filters): array
     {
-        $facetFilters = $filters;
-        unset($facetFilters['color'], $facetFilters['colors'], $facetFilters['page']);
+        $facetFilters = $this->filtersForFacets($filters);
 
         $productIds = Product::query()
             ->publiclyVisible()
@@ -284,14 +282,33 @@ final class CatalogSearchService
     }
 
     /**
+     * Facet queries aggregate products; strip sort/pagination/vendor scoping that breaks GROUP BY.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return array<string, mixed>
+     */
+    private function filtersForFacets(array $filters): array
+    {
+        $facetFilters = $filters;
+        unset(
+            $facetFilters['page'],
+            $facetFilters['per_page'],
+            $facetFilters['vendor_id'],
+            $facetFilters['vendor_slug'],
+            $facetFilters['sort'],
+            $facetFilters['color'],
+            $facetFilters['colors'],
+        );
+
+        return $facetFilters;
+    }
+
+    /**
      * @param  array<string, mixed>  $filters
      * @return array<string, mixed>
      */
     private function facetCacheKey(array $filters): array
     {
-        $keyFilters = $filters;
-        unset($keyFilters['page'], $keyFilters['per_page'], $keyFilters['vendor_id'], $keyFilters['vendor_slug']);
-
-        return $keyFilters;
+        return $this->filtersForFacets($filters);
     }
 }

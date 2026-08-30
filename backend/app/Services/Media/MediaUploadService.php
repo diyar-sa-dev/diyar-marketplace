@@ -231,7 +231,13 @@ final class MediaUploadService
             return null;
         }
 
-        return Storage::disk($this->diskName())->url($path);
+        $disk = Storage::disk($this->diskName());
+
+        if (! $disk->exists($path)) {
+            return null;
+        }
+
+        return $disk->url($path);
     }
 
     private function resolveExtension(UploadedFile $file): string

@@ -10,6 +10,7 @@ import {
   resolveAccountHubPath,
   resolveDashboardEntryPath,
 } from '../../lib/auth/roles.ts';
+import { listCategoryChildren } from '../../lib/categoryChildren.ts';
 import { CATEGORIES } from './sidebar/sidebarMenuConstants.ts';
 import { SidebarDrawer } from './sidebar/SidebarDrawer.tsx';
 import { SidebarProjectsModal } from './sidebar/SidebarProjectsModal.tsx';
@@ -48,7 +49,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       return roots.map((category) => ({
         slug: category.slug,
         name: category.name,
-        subcategories: (category.children ?? []).map((child) => ({
+        subcategories: listCategoryChildren(category.children).map((child) => ({
           name: child.name,
           slug: child.slug,
         })),

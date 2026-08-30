@@ -4,6 +4,8 @@ import type { ApiSuccessResponse } from '../types/api.ts';
 export type AssistantChatMessage = {
   role: 'user' | 'assistant';
   content: string;
+  /** Base64 data URL (data:image/jpeg;base64,...) for vision requests */
+  image?: string;
 };
 
 export async function sendAssistantChat(payload: {

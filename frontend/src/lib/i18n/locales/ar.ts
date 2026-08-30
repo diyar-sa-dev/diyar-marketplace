@@ -1391,6 +1391,7 @@ export const ar = {
         'أهلاً بك! نحن فريق خبراء ديار هنا لمساعدتك في تأثيث منزلك، تنسيق الألوان، أو البحث عن قطع أثاث تناسب ذوقك. كيف يمكننا مساعدتك اليوم؟',
       thinking: 'جاري التفكير...',
       error: 'تعذر الرد حالياً. حاول مرة أخرى.',
+      imageTooLarge: 'حجم الصورة كبير جداً. استخدم صورة أصغر من 4 ميغابايت.',
       unavailable: 'المساعد غير متاح حالياً. تواصل معنا عبر الهاتف.',
     },
     aboutModal: {
@@ -1606,6 +1607,7 @@ export const ar = {
       title: 'متاجر مميزة على ديار',
       viewAll: 'عرض كل المتاجر',
       browseStore: 'تصفح المتجر',
+      noRating: '—',
       emptyTitle: 'لا توجد متاجر مميزة بعد',
       emptyDescription: 'جرّب تصفّح المنتجات أو عد لاحقاً عند انضمام تجار جدد.',
       browseAll: 'تصفح كل المنتجات',
@@ -1694,6 +1696,8 @@ export const ar = {
       imageSearchTitle: 'بحث بالصور',
       imageSearchDesc: 'ابحث بعدسة الكاميرا',
       mockupAlt: 'تطبيق ديار',
+      appStoreAlt: 'حمّل من App Store',
+      googlePlayAlt: 'احصل عليه من Google Play',
     },
   },
   footer: {

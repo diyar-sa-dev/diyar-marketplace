@@ -1425,6 +1425,7 @@ export const en = {
         'Welcome! We are Diyar design experts here to help you furnish your home, coordinate colors, or find furniture that matches your taste. How can we help you today?',
       thinking: 'Thinking...',
       error: 'Could not respond right now. Please try again.',
+      imageTooLarge: 'Image is too large. Please use a file under 4 MB.',
       unavailable: 'Assistant is unavailable. Contact us by phone.',
     },
     aboutModal: {
@@ -1643,6 +1644,7 @@ export const en = {
       title: 'Featured stores on Diyar',
       viewAll: 'View all stores',
       browseStore: 'Browse store',
+      noRating: '—',
       emptyTitle: 'No featured stores yet',
       emptyDescription: 'Browse products or check back when new merchants join.',
       browseAll: 'Browse all products',
@@ -1731,6 +1733,8 @@ export const en = {
       imageSearchTitle: 'Visual search',
       imageSearchDesc: 'Search with your camera lens',
       mockupAlt: 'Diyar app mockup',
+      appStoreAlt: 'Download on the App Store',
+      googlePlayAlt: 'Get it on Google Play',
     },
   },
   footer: {

@@ -829,6 +829,7 @@ return [
     'assistant' => [
         'unavailable' => 'The assistant is unavailable right now.',
         'failed' => 'Could not get a response from the assistant.',
+        'off_topic_refusal' => 'I can only help with Diyar furniture, interior design, and marketplace questions. Please ask about products, rooms, or services on Diyar.',
     ],
 
     'platform' => [

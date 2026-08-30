@@ -12,6 +12,17 @@ interface Message {
   image?: string;
 }
 
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ''));
+    reader.onerror = () => reject(reader.error ?? new Error('read_failed'));
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function AIDesignerPage() {
   const { t, locale, dir } = useLocale();
   const BackIcon = dir === 'rtl' ? ArrowRight : ArrowRight;
@@ -40,16 +51,15 @@ export default function AIDesignerPage() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const sendToAssistant = async (userText: string) => {
-    const history = [...messages, { id: `u-${Date.now()}`, type: 'user' as const, content: userText }]
-      .filter((message) => message.id !== 'welcome')
-      .slice(-12);
+  const sendToAssistant = async (conversation: Message[]) => {
+    const history = conversation.filter((message) => message.id !== 'welcome').slice(-12);
 
     try {
       const reply = await sendAssistantChat({
         messages: history.map((message) => ({
           role: message.type,
           content: message.content,
+          ...(message.image ? { image: message.image } : {}),
         })),
         catalog_context: catalogContext,
         locale,
@@ -89,19 +99,47 @@ export default function AIDesignerPage() {
       content: trimmed,
     };
 
-    setMessages((prev) => [...prev, newUserMessage]);
+    const nextConversation = [...messages, newUserMessage];
+    setMessages(nextConversation);
     setInputValue('');
     setIsTyping(true);
-    void sendToAssistant(trimmed);
+    void sendToAssistant(nextConversation);
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) {
+    event.target.value = '';
+    if (!file || isTyping) {
       return;
     }
 
-    const imageUrl = URL.createObjectURL(file);
+    if (file.size > MAX_IMAGE_BYTES) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `a-img-err-${Date.now()}`,
+          type: 'assistant',
+          content: t('layout.assistant.imageTooLarge'),
+        },
+      ]);
+      return;
+    }
+
+    let dataUrl: string;
+    try {
+      dataUrl = await readFileAsDataUrl(file);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `a-img-err-${Date.now()}`,
+          type: 'assistant',
+          content: t('layout.assistant.error'),
+        },
+      ]);
+      return;
+    }
+
     const prompt =
       locale === 'ar'
         ? 'لدي هذه الصورة لغرفة/قطعة أثاث. ساعدني في اقتراح أثاث وألوان متناسقة من ديار.'
@@ -111,13 +149,13 @@ export default function AIDesignerPage() {
       id: Date.now().toString(),
       type: 'user',
       content: prompt,
-      image: imageUrl,
+      image: dataUrl,
     };
 
-    setMessages((prev) => [...prev, newUserMessage]);
+    const nextConversation = [...messages, newUserMessage];
+    setMessages(nextConversation);
     setIsTyping(true);
-    void sendToAssistant(prompt);
-    event.target.value = '';
+    void sendToAssistant(nextConversation);
   };
 
   return (
@@ -147,7 +185,9 @@ export default function AIDesignerPage() {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex items-start gap-4 ${message.type === 'user' ? 'flex-row-reverse' : ''}`}
+            className={`flex items-start gap-4 ${
+              message.type === 'user' ? 'flex-row-reverse ms-auto' : 'me-auto'
+            }`}
           >
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
@@ -158,9 +198,11 @@ export default function AIDesignerPage() {
             </div>
 
             <div
-              className={`max-w-[85%] md:max-w-[75%] ${
-                message.type === 'user' ? 'items-end text-right' : 'items-start text-right'
-              } flex flex-col gap-2`}
+              className={`max-w-[85%] md:max-w-[75%] flex flex-col gap-2 ${
+                message.type === 'user'
+                  ? 'items-end self-end text-end'
+                  : 'items-start self-start text-start'
+              }`}
             >
               {message.image ? (
                 <div className="rounded-2xl overflow-hidden border border-gray-200 w-64 h-64 shadow-sm">
@@ -171,8 +213,8 @@ export default function AIDesignerPage() {
               <div
                 className={`px-5 py-3.5 rounded-2xl text-sm md:text-base leading-relaxed whitespace-pre-wrap ${
                   message.type === 'user'
-                    ? 'bg-diyar-dark text-white rounded-tr-sm'
-                    : 'bg-white border border-gray-100 text-diyar-dark shadow-sm rounded-tl-sm'
+                    ? 'bg-diyar-dark text-white rounded-te-sm'
+                    : 'bg-white border border-gray-100 text-diyar-dark shadow-sm rounded-ts-sm'
                 }`}
               >
                 {message.content}
@@ -186,7 +228,7 @@ export default function AIDesignerPage() {
             <div className="w-10 h-10 rounded-full bg-diyar-brown text-white flex items-center justify-center shrink-0 shadow-sm">
               <Sparkles size={20} />
             </div>
-            <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-5 py-4 flex items-center gap-2 shadow-sm min-h-13">
+            <div className="bg-white border border-gray-100 rounded-2xl rounded-ts-sm px-5 py-4 flex items-center gap-2 shadow-sm min-h-13">
               <Loader2 size={16} className="animate-spin text-diyar-brown" />
               <span className="text-sm text-gray-500">{t('layout.assistant.thinking')}</span>
             </div>
