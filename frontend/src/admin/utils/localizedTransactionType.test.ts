@@ -1,12 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import {
-  ledgerTransactionTone,
-  localizedTransactionType,
-} from './localizedTransactionType.ts';
+import { ledgerTransactionTone, localizedTransactionType } from './localizedTransactionType.ts';
 
 describe('localizedTransactionType', () => {
-  const t = (key: string) =>
-    key === 'admin.finance.transactionTypes.sale' ? 'Sale' : key;
+  const t = (key: string) => (key === 'admin.finance.transactionTypes.sale' ? 'Sale' : key);
 
   it('returns a dash when the type is missing', () => {
     expect(localizedTransactionType(undefined, t)).toBe('—');

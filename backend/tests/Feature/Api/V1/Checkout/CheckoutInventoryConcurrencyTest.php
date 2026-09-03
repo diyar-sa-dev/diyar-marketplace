@@ -51,9 +51,8 @@ class CheckoutInventoryConcurrencyTest extends TestCase
             putenv('DB_DATABASE='.$dbPath);
             $_ENV['DB_CONNECTION'] = 'sqlite';
             $_ENV['DB_DATABASE'] = $dbPath;
-            config(['database.connections.sqlite.database' => $dbPath]);
-            DB::purge('sqlite');
-            DB::reconnect('sqlite');
+            require_once base_path('scripts/concurrency-worker-bootstrap.php');
+            configureConcurrencySqlite($dbPath);
 
             Artisan::call('migrate:fresh', ['--force' => true]);
 
@@ -83,8 +82,18 @@ class CheckoutInventoryConcurrencyTest extends TestCase
             $processes = [];
 
             foreach ($customers as $customer) {
-                $processes[] = new Process([$php, $worker, $dbPath, $product->id, $customer->id]);
+                $process = new Process([
+                    $php,
+                    $worker,
+                    $dbPath,
+                    (string) $product->id,
+                    (string) $customer->id,
+                ]);
+                $process->setWorkingDirectory(base_path());
+                $processes[] = $process;
             }
+
+            DB::disconnect('sqlite');
 
             foreach ($processes as $process) {
                 $process->start();
@@ -92,9 +101,11 @@ class CheckoutInventoryConcurrencyTest extends TestCase
 
             $successes = 0;
             $failures = 0;
+            $workerOutputs = [];
 
             foreach ($processes as $process) {
                 $process->wait();
+                $workerOutputs[] = trim($process->getOutput().$process->getErrorOutput());
                 if ($process->isSuccessful()) {
                     $successes++;
                 } else {
@@ -102,12 +113,10 @@ class CheckoutInventoryConcurrencyTest extends TestCase
                 }
             }
 
-            config(['database.connections.sqlite.database' => $dbPath]);
-            DB::purge('sqlite');
-            DB::reconnect('sqlite');
+            configureConcurrencySqlite($dbPath);
             $inventory = ProductInventory::query()->where('product_id', $product->id)->firstOrFail();
 
-            $this->assertSame(1, $successes, 'Expected exactly one successful reservation');
+            $this->assertSame(1, $successes, 'Expected exactly one successful reservation. Workers: '.implode(' | ', $workerOutputs));
             $this->assertSame(5, $failures, 'Expected five rejected reservations');
             $this->assertSame(1, $inventory->fresh()->reserved_quantity);
             $this->assertSame(0, $inventory->fresh()->available_quantity);

@@ -230,12 +230,8 @@ export function conversationParty(
 
   return {
     name:
-      firstNonEmpty(
-        other?.name,
-        conversation?.display_name,
-        conversation?.subject,
-        fallbackName,
-      ) ?? fallbackName,
+      firstNonEmpty(other?.name, conversation?.display_name, conversation?.subject, fallbackName) ??
+      fallbackName,
     avatarUrl: other?.avatar_url ?? conversation?.display_avatar_url ?? null,
     role: other?.participant_role ?? null,
   };

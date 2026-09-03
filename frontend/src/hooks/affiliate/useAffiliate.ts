@@ -16,8 +16,20 @@ export const affiliateKeys = {
   reports: (period: AffiliateReportPeriod) => [...affiliateKeys.all, 'reports', period] as const,
   payouts: (page: number, perPage: number, period?: AffiliateReportPeriod) =>
     [...affiliateKeys.all, 'payouts', page, perPage, period ?? 'month'] as const,
-  financeTransactions: (page: number, perPage: number, type?: string, period?: AffiliateReportPeriod) =>
-    [...affiliateKeys.all, 'finance-transactions', page, perPage, type ?? 'all', period ?? 'month'] as const,
+  financeTransactions: (
+    page: number,
+    perPage: number,
+    type?: string,
+    period?: AffiliateReportPeriod,
+  ) =>
+    [
+      ...affiliateKeys.all,
+      'finance-transactions',
+      page,
+      perPage,
+      type ?? 'all',
+      period ?? 'month',
+    ] as const,
   settings: () => [...affiliateKeys.all, 'settings'] as const,
   platformConfig: () => [...affiliateKeys.all, 'platform-config'] as const,
   vendorProductAffiliate: (productId: string) =>
@@ -75,7 +87,11 @@ export function useAffiliateReports(period: AffiliateReportPeriod = 'month') {
   });
 }
 
-export function useAffiliatePayouts(page = 1, perPage = 20, period: AffiliateReportPeriod = 'month') {
+export function useAffiliatePayouts(
+  page = 1,
+  perPage = 20,
+  period: AffiliateReportPeriod = 'month',
+) {
   return useQuery({
     queryKey: affiliateKeys.payouts(page, perPage, period),
     queryFn: () => affiliateApi.fetchAffiliatePayouts(page, perPage, period),
@@ -101,7 +117,9 @@ export function useRequestAffiliatePayout() {
       affiliateApi.requestAffiliatePayout(amount, idempotencyKey),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [...affiliateKeys.all, 'payouts'] });
-      void queryClient.invalidateQueries({ queryKey: [...affiliateKeys.all, 'finance-transactions'] });
+      void queryClient.invalidateQueries({
+        queryKey: [...affiliateKeys.all, 'finance-transactions'],
+      });
       void queryClient.invalidateQueries({ queryKey: affiliateKeys.overview() });
       void queryClient.invalidateQueries({ queryKey: affiliateKeys.reports('month') });
     },

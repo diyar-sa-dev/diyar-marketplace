@@ -165,9 +165,7 @@ const CREDIT_ACTION_TOKENS = [
 ];
 
 function actionTokenMatches(lastSegment: string, tokens: string[]): boolean {
-  return tokens.some(
-    (token) => lastSegment === token || lastSegment.startsWith(`${token}_`),
-  );
+  return tokens.some((token) => lastSegment === token || lastSegment.startsWith(`${token}_`));
 }
 
 export function auditActionTone(action: string | null | undefined): AuditActionTone {

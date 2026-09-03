@@ -30,7 +30,12 @@ function conversation(overrides: Partial<Conversation> = {}): Conversation {
     unread_count: 0,
     last_read_at: null,
     participants: [
-      participant({ id: 'p-customer', user_id: 'customer-1', name: 'Sara Customer', participant_role: 'customer' }),
+      participant({
+        id: 'p-customer',
+        user_id: 'customer-1',
+        name: 'Sara Customer',
+        participant_role: 'customer',
+      }),
       participant({
         id: 'p-vendor',
         user_id: 'vendor-1',
@@ -56,7 +61,9 @@ describe('chat counterparty identity', () => {
 
     expect(other?.user_id).toBe('customer-1');
     expect(other?.name).toBe('Sara Customer');
-    expect(conversationParty(conversation(), 'vendor-1', 'Conversation').name).toBe('Sara Customer');
+    expect(conversationParty(conversation(), 'vendor-1', 'Conversation').name).toBe(
+      'Sara Customer',
+    );
     expect(conversationParty(conversation(), 'vendor-1', 'Conversation').role).toBe('customer');
   });
 

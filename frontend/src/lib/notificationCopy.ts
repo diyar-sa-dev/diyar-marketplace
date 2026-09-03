@@ -54,12 +54,7 @@ function flattenNotificationData(data: Record<string, unknown>): Record<string, 
   const lines = data.detail_lines;
   if (Array.isArray(lines)) {
     for (const line of lines) {
-      if (
-        typeof line !== 'object' ||
-        line === null ||
-        !('label' in line) ||
-        !('value' in line)
-      ) {
+      if (typeof line !== 'object' || line === null || !('label' in line) || !('value' in line)) {
         continue;
       }
 
@@ -165,7 +160,8 @@ function buildNotificationParams(
     params.status = params.status_label;
   }
 
-  const products = typeof notification.data?.products === 'string' ? notification.data.products.trim() : '';
+  const products =
+    typeof notification.data?.products === 'string' ? notification.data.products.trim() : '';
   params.products_line =
     products !== '' ? (locale === 'ar' ? ` المنتجات: ${products}.` : ` Items: ${products}.`) : '';
   params.note_line = typeof params.note_line === 'string' ? params.note_line : '';

@@ -337,7 +337,8 @@ function CarrierFields({
 
         if (!trimmedName) nextErrors.name = t('admin.shipping.validation.nameRequired');
         if (!normalizedCode) nextErrors.code = t('admin.shipping.validation.codeRequired');
-        else if (normalizedCode.length > 64) nextErrors.code = t('admin.shipping.validation.codeInvalid');
+        else if (normalizedCode.length > 64)
+          nextErrors.code = t('admin.shipping.validation.codeInvalid');
 
         setErrors(nextErrors);
         if (Object.keys(nextErrors).length > 0) return;
@@ -441,7 +442,12 @@ function ZoneFields({
         <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
           {t('admin.shipping.zoneName')}
         </label>
-        <input value={name} onChange={(event) => setName(event.target.value)} className={fieldClass(errors.name)} autoFocus />
+        <input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          className={fieldClass(errors.name)}
+          autoFocus
+        />
         <FieldError message={errors.name} />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -449,13 +455,21 @@ function ZoneFields({
           <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
             {t('admin.shipping.zoneCity')}
           </label>
-          <input value={city} onChange={(event) => setCity(event.target.value)} className={fieldClass()} />
+          <input
+            value={city}
+            onChange={(event) => setCity(event.target.value)}
+            className={fieldClass()}
+          />
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
             {t('admin.shipping.zoneRegion')}
           </label>
-          <input value={region} onChange={(event) => setRegion(event.target.value)} className={fieldClass()} />
+          <input
+            value={region}
+            onChange={(event) => setRegion(event.target.value)}
+            className={fieldClass()}
+          />
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -533,7 +547,8 @@ function MethodFields({
         const normalizedCode = slugifyShippingCode(displayCode || trimmedName, 'mth');
         if (!trimmedName) nextErrors.name = t('admin.shipping.validation.nameRequired');
         if (!normalizedCode) nextErrors.code = t('admin.shipping.validation.codeRequired');
-        else if (normalizedCode.length > 64) nextErrors.code = t('admin.shipping.validation.codeInvalid');
+        else if (normalizedCode.length > 64)
+          nextErrors.code = t('admin.shipping.validation.codeInvalid');
         setErrors(nextErrors);
         if (Object.keys(nextErrors).length > 0) return;
         onSubmit({ name: trimmedName, code: normalizedCode, is_active: isActive });
@@ -543,7 +558,12 @@ function MethodFields({
         <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
           {t('admin.shipping.methodName')}
         </label>
-        <input value={name} onChange={(event) => setName(event.target.value)} className={fieldClass(errors.name)} autoFocus />
+        <input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          className={fieldClass(errors.name)}
+          autoFocus
+        />
         <FieldError message={errors.name} />
       </div>
       <div>

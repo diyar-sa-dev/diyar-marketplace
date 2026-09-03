@@ -33,10 +33,7 @@ import type { ProviderFinanceTransaction } from '../../types/providerDashboard.t
 import { useLocale } from '../../hooks/useLocale.ts';
 import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import { useToast } from '../../hooks/useToast.ts';
-import {
-  formatProviderMoney,
-  formatWesternNumber,
-} from '../../lib/providerDashboardUi.ts';
+import { formatProviderMoney, formatWesternNumber } from '../../lib/providerDashboardUi.ts';
 import { parseApiError } from '../../utils/errors.ts';
 import type { FinancePeriod } from '../../api/vendorFinance.ts';
 import {

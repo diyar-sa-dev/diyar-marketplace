@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { customerReviewServiceSource, customerReviewSubjectTitle } from './customerReviewSubject.ts';
+import {
+  customerReviewServiceSource,
+  customerReviewSubjectTitle,
+} from './customerReviewSubject.ts';
 import type { PendingCustomerReview } from '../api/customerReviews.ts';
 
 describe('customerReviewSubjectTitle', () => {
@@ -31,9 +34,7 @@ describe('customerReviewSubjectTitle', () => {
     };
 
     expect(customerReviewSubjectTitle(item, 'خدمة')).toBe('إيوان');
-    expect(
-      customerReviewSubjectTitle({ ...item, provider: null }, 'خدمة'),
-    ).toBe('خدمة');
+    expect(customerReviewSubjectTitle({ ...item, provider: null }, 'خدمة')).toBe('خدمة');
   });
 
   it('treats RFQ bookings as custom requests', () => {

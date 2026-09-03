@@ -14,7 +14,12 @@ import {
 } from 'lucide-react';
 import type { Notification } from '../types/notification.ts';
 import type { UserRoleLike } from './auth/roles.ts';
-import { RoleName, getPortalFromPath, hasActiveRole, resolveChatConversationPath } from './auth/roles.ts';
+import {
+  RoleName,
+  getPortalFromPath,
+  hasActiveRole,
+  resolveChatConversationPath,
+} from './auth/roles.ts';
 
 export function notificationVisual(
   type: string,

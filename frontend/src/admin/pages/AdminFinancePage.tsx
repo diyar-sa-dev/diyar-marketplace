@@ -263,8 +263,7 @@ export default function AdminFinancePage() {
   const items = listQuery.data?.items ?? [];
   const meta = listQuery.data?.meta;
   const isLedger = section === 'ledger';
-  const showListSkeleton =
-    listQuery.isLoading || (listQuery.isFetching && items.length === 0);
+  const showListSkeleton = listQuery.isLoading || (listQuery.isFetching && items.length === 0);
   const isSearching = listQuery.isFetching && listQuery.search.trim().length > 0;
   const report = financeReportQuery.data;
   const summary = report?.summary;
@@ -585,9 +584,7 @@ export default function AdminFinancePage() {
                 ? t('admin.finance.providerPayouts')
                 : t('admin.finance.affiliatePayouts')
         }
-        subtitle={
-          isLedger ? t('admin.transactions.subtitle') : t('admin.payouts.subtitle')
-        }
+        subtitle={isLedger ? t('admin.transactions.subtitle') : t('admin.payouts.subtitle')}
         searchValue={listQuery.search}
         onSearchChange={listQuery.setSearch}
         searchPlaceholder={
@@ -689,16 +686,9 @@ export default function AdminFinancePage() {
               const row = tx as Transaction;
               const tone = ledgerTransactionTone(row.transaction_type, row.direction);
               const amountTone =
-                row.direction === 'debit'
-                  ? 'debit'
-                  : row.direction === 'credit'
-                    ? 'credit'
-                    : tone;
+                row.direction === 'debit' ? 'debit' : row.direction === 'credit' ? 'credit' : tone;
               return (
-                <tr
-                  key={row.id}
-                  className="hover:bg-[#f7f4f1]/50 transition-colors"
-                >
+                <tr key={row.id} className="hover:bg-[#f7f4f1]/50 transition-colors">
                   <td
                     className={`px-4 py-3 text-start ${ledgerRowAccentClass(amountTone)}`}
                     title={row.reference ?? row.id}

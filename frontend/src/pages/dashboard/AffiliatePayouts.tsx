@@ -52,7 +52,11 @@ function transactionVisual(type: string, direction: string) {
     };
   }
 
-  if (type === 'platform_commission' || type === 'affiliate_commission_reversal' || direction === 'debit') {
+  if (
+    type === 'platform_commission' ||
+    type === 'affiliate_commission_reversal' ||
+    direction === 'debit'
+  ) {
     return {
       icon: ArrowDownRight,
       iconClass: 'text-red-600',
@@ -78,9 +82,10 @@ export default function AffiliatePayouts() {
   const [typeFilter, setTypeFilter] = useState<TransactionTypeFilter>('all');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } = usePaginationState({
-    initialPerPage: 10,
-  });
+  const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
+    usePaginationState({
+      initialPerPage: 10,
+    });
 
   const payoutsQuery = useAffiliatePayouts(1, 1, period);
   const transactionsQuery = useAffiliateFinanceTransactions(page, perPage, typeFilter, period);
@@ -169,9 +174,7 @@ export default function AffiliatePayouts() {
 
   const handleRequestPayout = async () => {
     if (withdrawBelowMinimum) {
-      toast.error(
-        t('affiliate.payouts.withdrawalMinError', { amount: minimumPayout, currency }),
-      );
+      toast.error(t('affiliate.payouts.withdrawalMinError', { amount: minimumPayout, currency }));
       return;
     }
 
@@ -245,7 +248,9 @@ export default function AffiliatePayouts() {
         <AffiliatePlatformHints platform={platformQuery.data} variant="payout" />
       ) : null}
 
-      <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${platformCommissionActive ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
+      <div
+        className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${platformCommissionActive ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}
+      >
         <div className="bg-green-600 text-white p-6 rounded-2xl shadow-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full translate-x-20 -translate-y-20" />
           <div className="relative z-10 flex flex-col h-full justify-between">
@@ -254,7 +259,9 @@ export default function AffiliatePayouts() {
                 {t('affiliate.payouts.availableBalance')}
               </h3>
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-bold tabular-nums">{balance?.available ?? '0.00'}</span>
+                <span className="text-4xl font-bold tabular-nums">
+                  {balance?.available ?? '0.00'}
+                </span>
                 <span className="text-lg text-white/80 pb-1">{currency}</span>
               </div>
             </div>
@@ -273,9 +280,7 @@ export default function AffiliatePayouts() {
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-gray-500 font-medium">
-                {t('affiliate.payouts.pendingBalance')}
-              </h3>
+              <h3 className="text-gray-500 font-medium">{t('affiliate.payouts.pendingBalance')}</h3>
               <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
                 <Clock size={20} />
               </div>
@@ -399,8 +404,12 @@ export default function AffiliatePayouts() {
         </div>
 
         <div className="bg-linear-to-br from-amber-50 to-orange-50 p-5 sm:p-6 rounded-2xl border border-amber-100 shadow-sm">
-          <h3 className="font-bold text-amber-800 mb-2">{t('affiliate.payouts.upcomingPending')}</h3>
-          <p className="text-sm text-amber-700/80 mb-4">{t('affiliate.payouts.upcomingPendingHint')}</p>
+          <h3 className="font-bold text-amber-800 mb-2">
+            {t('affiliate.payouts.upcomingPending')}
+          </h3>
+          <p className="text-sm text-amber-700/80 mb-4">
+            {t('affiliate.payouts.upcomingPendingHint')}
+          </p>
           <div className="flex items-center justify-between gap-3 bg-white/60 p-4 rounded-xl">
             <span className="text-2xl font-bold text-amber-700 tabular-nums" dir="ltr">
               {balance?.pending ?? '0.00'} {currency}
@@ -483,7 +492,9 @@ export default function AffiliatePayouts() {
             <table className="w-full text-sm" dir={dir}>
               <thead className="bg-gray-50 text-gray-600 border-b border-gray-100 text-xs font-bold">
                 <tr>
-                  <th className="px-6 py-4 text-start">{t('affiliate.payouts.tableTransaction')}</th>
+                  <th className="px-6 py-4 text-start">
+                    {t('affiliate.payouts.tableTransaction')}
+                  </th>
                   <th className="px-6 py-4 text-start">{t('affiliate.payouts.tableAmount')}</th>
                   <th className="px-6 py-4 text-start">{t('affiliate.payouts.tableDate')}</th>
                   <th className="px-6 py-4 text-start">{t('affiliate.payouts.tableStatus')}</th>
@@ -506,7 +517,9 @@ export default function AffiliatePayouts() {
                             <span className="font-bold text-gray-700 block">
                               {transactionTypeLabel(tx.transaction_type)}
                             </span>
-                            <span className="text-xs text-gray-400 block truncate">{tx.description}</span>
+                            <span className="text-xs text-gray-400 block truncate">
+                              {tx.description}
+                            </span>
                           </div>
                         </div>
                       </td>
@@ -516,8 +529,14 @@ export default function AffiliatePayouts() {
                           dir="ltr"
                         >
                           {tx.direction === 'credit'
-                            ? t('affiliate.payouts.signedCredit', { amount: tx.amount, currency: tx.currency })
-                            : t('affiliate.payouts.signedDebit', { amount: tx.amount, currency: tx.currency })}
+                            ? t('affiliate.payouts.signedCredit', {
+                                amount: tx.amount,
+                                currency: tx.currency,
+                              })
+                            : t('affiliate.payouts.signedDebit', {
+                                amount: tx.amount,
+                                currency: tx.currency,
+                              })}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-start text-gray-500 whitespace-nowrap text-xs">

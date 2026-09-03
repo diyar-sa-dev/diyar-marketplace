@@ -56,9 +56,7 @@ describe('i18n translate', () => {
       'مراجعة وإدارة حسابات المسوقين بالعمولة.',
     );
     expect(translate('en', 'admin.detail.backToAffiliates')).toBe('Back to affiliates');
-    expect(translate('ar', 'admin.audit.actions.payoutProviderReject')).toBe(
-      'رفض دفعة مقدم خدمة',
-    );
+    expect(translate('ar', 'admin.audit.actions.payoutProviderReject')).toBe('رفض دفعة مقدم خدمة');
     expect(translate('ar', 'admin.settings.keys.commerce_loyalty_points_per_unit')).toBe(
       'النقاط لكل وحدة كسب',
     );

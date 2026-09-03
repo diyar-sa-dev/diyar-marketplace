@@ -56,9 +56,8 @@ class PayoutConcurrencyTest extends TestCase
             putenv('DB_DATABASE='.$dbPath);
             $_ENV['DB_CONNECTION'] = 'sqlite';
             $_ENV['DB_DATABASE'] = $dbPath;
-            config(['database.connections.sqlite.database' => $dbPath]);
-            DB::purge('sqlite');
-            DB::reconnect('sqlite');
+            require_once base_path('scripts/concurrency-worker-bootstrap.php');
+            configureConcurrencySqlite($dbPath);
 
             Artisan::call('migrate:fresh', ['--force' => true]);
 
@@ -93,8 +92,18 @@ class PayoutConcurrencyTest extends TestCase
             $processes = [];
 
             for ($i = 0; $i < 4; $i++) {
-                $processes[] = new Process([$php, $worker, $dbPath, $vendorAccount->id, $amount]);
+                $process = new Process([
+                    $php,
+                    $worker,
+                    $dbPath,
+                    (string) $vendorAccount->id,
+                    $amount,
+                ]);
+                $process->setWorkingDirectory(base_path());
+                $processes[] = $process;
             }
+
+            DB::disconnect('sqlite');
 
             foreach ($processes as $process) {
                 $process->start();
@@ -102,9 +111,11 @@ class PayoutConcurrencyTest extends TestCase
 
             $successes = 0;
             $failures = 0;
+            $workerOutputs = [];
 
             foreach ($processes as $process) {
                 $process->wait();
+                $workerOutputs[] = trim($process->getOutput().$process->getErrorOutput());
                 if ($process->isSuccessful()) {
                     $successes++;
                 } else {
@@ -112,11 +123,9 @@ class PayoutConcurrencyTest extends TestCase
                 }
             }
 
-            config(['database.connections.sqlite.database' => $dbPath]);
-            DB::purge('sqlite');
-            DB::reconnect('sqlite');
+            configureConcurrencySqlite($dbPath);
 
-            $this->assertSame(1, $successes, 'Expected exactly one successful payout request');
+            $this->assertSame(1, $successes, 'Expected exactly one successful payout request. Workers: '.implode(' | ', $workerOutputs));
             $this->assertSame(3, $failures, 'Expected three rejected payout requests');
             $this->assertSame(1, VendorPayout::query()->where('vendor_account_id', $vendorAccount->id)->count());
             $this->assertSame(

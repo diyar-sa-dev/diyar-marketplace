@@ -207,7 +207,9 @@ export async function fetchProviderFinanceTransactions(
   };
 }
 
-export async function downloadProviderFinanceReport(period: FinancePeriod = 'month'): Promise<Blob> {
+export async function downloadProviderFinanceReport(
+  period: FinancePeriod = 'month',
+): Promise<Blob> {
   const { data } = await apiClient.get<Blob>('/dashboard/provider/finance/export', {
     params: { period },
     responseType: 'blob',

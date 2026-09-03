@@ -93,7 +93,9 @@ export default function AdminServicesHubPage() {
             <td className="px-4 py-3 text-start font-mono text-xs text-gray-600">
               {item.reference ?? item.id.slice(0, 8)}
             </td>
-            <td className="px-4 py-3 text-start font-semibold text-diyar-dark">{item.title ?? '—'}</td>
+            <td className="px-4 py-3 text-start font-semibold text-diyar-dark">
+              {item.title ?? '—'}
+            </td>
             <td className="px-4 py-3 text-start">
               {item.status ? <AdminStatusBadge status={item.status} /> : '—'}
             </td>

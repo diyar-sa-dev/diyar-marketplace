@@ -313,7 +313,9 @@ export default function AdminBlogArticlesPage() {
               </div>
             </td>
             <td className="px-4 py-3 text-start">
-              <TableLtrValue className="font-mono text-xs text-gray-500">{article.slug}</TableLtrValue>
+              <TableLtrValue className="font-mono text-xs text-gray-500">
+                {article.slug}
+              </TableLtrValue>
             </td>
             <td className="px-4 py-3">
               <AdminStatusBadge status={article.status} />

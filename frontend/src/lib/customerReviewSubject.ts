@@ -1,8 +1,5 @@
 import { resolveMediaUrl } from './media.ts';
-import type {
-  PendingCustomerReview,
-  PublishedCustomerReview,
-} from '../api/customerReviews.ts';
+import type { PendingCustomerReview, PublishedCustomerReview } from '../api/customerReviews.ts';
 
 type ReviewCardItem = PublishedCustomerReview | PendingCustomerReview;
 
@@ -22,9 +19,7 @@ export function customerReviewSubjectTitle(item: ReviewCardItem, fallback: strin
   return item.store?.name?.trim() || fallback;
 }
 
-export function customerReviewServiceSource(
-  item: ReviewCardItem,
-): 'rfq' | 'direct' | null {
+export function customerReviewServiceSource(item: ReviewCardItem): 'rfq' | 'direct' | null {
   if (item.type !== 'service') {
     return null;
   }

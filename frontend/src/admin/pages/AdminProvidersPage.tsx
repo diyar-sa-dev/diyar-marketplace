@@ -103,7 +103,9 @@ export default function AdminProvidersPage() {
             </div>
           </td>
           <td className="px-4 py-3 text-start">
-            <TableLtrValue className="font-mono text-xs text-gray-500">{provider.slug}</TableLtrValue>
+            <TableLtrValue className="font-mono text-xs text-gray-500">
+              {provider.slug}
+            </TableLtrValue>
           </td>
           <td className="px-4 py-3 text-sm text-gray-600">{provider.location ?? '—'}</td>
           <td className="px-4 py-3">

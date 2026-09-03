@@ -89,7 +89,10 @@ export function AdminResourceTable({
         ) : null}
 
         {!isLoading && !isError && !isEmpty ? (
-          <div className="overflow-x-auto overflow-y-hidden rounded-2xl border border-gray-100 scrollbar-hide" dir={dir}>
+          <div
+            className="overflow-x-auto overflow-y-hidden rounded-2xl border border-gray-100 scrollbar-hide"
+            dir={dir}
+          >
             <table className="min-w-full text-sm" dir={dir}>
               <thead className="bg-[#f7f4f1]/80 text-gray-500">{columns}</thead>
               <tbody className="divide-y divide-gray-50">{children}</tbody>

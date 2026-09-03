@@ -70,7 +70,7 @@ function CategoryForm({
     return uniqueSlug(base, existingSlugs, mode === 'edit' ? currentSlug : undefined);
   }, [name, existingSlugs, mode, currentSlug]);
 
-  const displaySlug = slugTouched ? slug : (initial?.slug || suggestedSlug);
+  const displaySlug = slugTouched ? slug : initial?.slug || suggestedSlug;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

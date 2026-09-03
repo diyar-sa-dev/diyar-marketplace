@@ -190,10 +190,7 @@ export function AdminInfiniteSelect<TItem extends { id: string }>({
   const selectedLabel = !value ? '' : matchedItem ? getLabel(matchedItem) : pickedLabel;
   const triggerLabel = selectedLabel || placeholder;
   const showPinnedSelected =
-    Boolean(value) &&
-    Boolean(selectedLabel) &&
-    trimmedSearch === '' &&
-    !matchedItem;
+    Boolean(value) && Boolean(selectedLabel) && trimmedSearch === '' && !matchedItem;
 
   const choose = (id: string, label: string) => {
     onChange(id);
@@ -258,7 +255,12 @@ export function AdminInfiniteSelect<TItem extends { id: string }>({
             ) : null}
           </div>
 
-          <div ref={listRef} id={listboxId} role="listbox" className="max-h-56 overflow-y-auto py-1">
+          <div
+            ref={listRef}
+            id={listboxId}
+            role="listbox"
+            className="max-h-56 overflow-y-auto py-1"
+          >
             {allowClear ? (
               <button
                 type="button"

@@ -13,7 +13,8 @@ export const STATUS_PAGE_FALLBACKS: Record<Locale, Record<string, string>> = {
     'status.notFound.title': 'الصفحة غير موجودة',
     'status.notFound.description': 'الصفحة التي تبحث عنها غير موجودة أو تم نقلها أو لم تعد متاحة.',
     'status.unexpected.title': 'حدث خطأ غير متوقع',
-    'status.unexpected.description': 'واجه التطبيق مشكلة مؤقتة. يمكنك إعادة تحميل الصفحة أو العودة للخلف.',
+    'status.unexpected.description':
+      'واجه التطبيق مشكلة مؤقتة. يمكنك إعادة تحميل الصفحة أو العودة للخلف.',
     'status.unexpected.reload': 'إعادة تحميل الصفحة',
     'status.unexpected.goBack': 'العودة للخلف',
     'status.unexpected.retry': 'إعادة المحاولة',
@@ -24,7 +25,8 @@ export const STATUS_PAGE_FALLBACKS: Record<Locale, Record<string, string>> = {
     'status.accountPending.refresh': 'تحديث الحالة',
     'status.accountPending.logout': 'تسجيل الخروج',
     'status.accountSuspended.title': 'الحساب موقوف',
-    'status.accountSuspended.description': 'تم إيقاف حسابك. لا يمكنك استخدام المنصة حتى يتم استعادته.',
+    'status.accountSuspended.description':
+      'تم إيقاف حسابك. لا يمكنك استخدام المنصة حتى يتم استعادته.',
     'status.accountSuspended.refresh': 'تحديث الحالة',
     'status.accountSuspended.logout': 'تسجيل الخروج',
     'common.home': 'الرئيسية',

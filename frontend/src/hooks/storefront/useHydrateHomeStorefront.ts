@@ -13,8 +13,14 @@ export function hydrateHomeStorefrontCache(
   queryClient: ReturnType<typeof useQueryClient>,
   sections: HomeStorefrontSections,
 ): void {
-  queryClient.setQueryData([...categoryKeys.list(), 'product'], sections.product_categories.categories);
-  queryClient.setQueryData([...categoryKeys.list(), 'service'], sections.service_categories.categories);
+  queryClient.setQueryData(
+    [...categoryKeys.list(), 'product'],
+    sections.product_categories.categories,
+  );
+  queryClient.setQueryData(
+    [...categoryKeys.list(), 'service'],
+    sections.service_categories.categories,
+  );
 
   queryClient.setQueryData(
     productKeys.list({ per_page: 6, sort: '-popular' }),
@@ -44,10 +50,10 @@ export function hydrateHomeStorefrontCache(
     if (!slug) {
       continue;
     }
-    queryClient.setQueryData(
-      serviceKeys.list({ category: slug, per_page: 3, sort: 'latest' }),
-      { items: block.items, pagination: { current_page: 1, last_page: 1, per_page: 3, total: block.items.length } },
-    );
+    queryClient.setQueryData(serviceKeys.list({ category: slug, per_page: 3, sort: 'latest' }), {
+      items: block.items,
+      pagination: { current_page: 1, last_page: 1, per_page: 3, total: block.items.length },
+    });
   }
 }
 

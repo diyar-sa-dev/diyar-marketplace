@@ -15,8 +15,12 @@ export const vendorFinanceKeys = {
   all: ['vendor-finance'] as const,
   report: (period: FinancePeriod) => [...vendorFinanceKeys.all, 'report', period] as const,
   analytics: (period: FinancePeriod) => [...vendorFinanceKeys.all, 'analytics', period] as const,
-  transactions: (page: number, type: TransactionTypeFilter, perPage: number, period: FinancePeriod) =>
-    [...vendorFinanceKeys.all, 'transactions', page, type, perPage, period] as const,
+  transactions: (
+    page: number,
+    type: TransactionTypeFilter,
+    perPage: number,
+    period: FinancePeriod,
+  ) => [...vendorFinanceKeys.all, 'transactions', page, type, perPage, period] as const,
   payouts: (page: number) => [...vendorFinanceKeys.all, 'payouts', page] as const,
   overview: () => ['vendor-dashboard-overview'] as const,
 };

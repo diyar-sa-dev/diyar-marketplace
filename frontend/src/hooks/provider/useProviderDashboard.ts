@@ -161,7 +161,8 @@ export function useProviderFinanceTransactions(
 ) {
   return useQuery({
     queryKey: providerDashboardKeys.financeTransactions(page, perPage, type, period),
-    queryFn: () => providerDashboardApi.fetchProviderFinanceTransactions(page, perPage, type, period),
+    queryFn: () =>
+      providerDashboardApi.fetchProviderFinanceTransactions(page, perPage, type, period),
     refetchOnMount: 'always',
   });
 }

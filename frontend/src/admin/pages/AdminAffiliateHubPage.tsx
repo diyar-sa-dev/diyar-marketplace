@@ -65,7 +65,9 @@ export default function AdminAffiliateHubPage() {
       columns={
         <tr>
           <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.name')}</th>
-          <th className="px-4 py-3 text-start font-semibold">{t('admin.affiliate.referralCode')}</th>
+          <th className="px-4 py-3 text-start font-semibold">
+            {t('admin.affiliate.referralCode')}
+          </th>
           <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.contact')}</th>
           <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.status')}</th>
           <th className="px-4 py-3 text-end font-semibold">{t('admin.tables.actions')}</th>

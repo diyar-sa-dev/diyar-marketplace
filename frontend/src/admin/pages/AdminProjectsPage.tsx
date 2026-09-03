@@ -252,7 +252,9 @@ export default function AdminProjectsPage() {
               </div>
             </td>
             <td className="px-4 py-3 text-start">
-              <TableLtrValue className="font-mono text-xs text-gray-500">{project.slug}</TableLtrValue>
+              <TableLtrValue className="font-mono text-xs text-gray-500">
+                {project.slug}
+              </TableLtrValue>
             </td>
             <td className="px-4 py-3 text-sm text-gray-600">{project.location ?? '—'}</td>
             <td className="px-4 py-3">

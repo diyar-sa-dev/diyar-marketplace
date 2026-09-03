@@ -372,7 +372,10 @@ export default function AdminShippingConfigurationPage() {
         kind={tab}
         mode={editing ? 'edit' : 'create'}
         isSaving={saveMutation.isPending}
-        zoneOptions={(zoneOptionsQuery.data ?? []).map((zone) => ({ id: zone.id, name: zone.name }))}
+        zoneOptions={(zoneOptionsQuery.data ?? []).map((zone) => ({
+          id: zone.id,
+          name: zone.name,
+        }))}
         initialCarrier={
           editing && isCarrier(editing)
             ? {
@@ -483,7 +486,9 @@ export default function AdminShippingConfigurationPage() {
             <tr key={carrier.id} className="hover:bg-[#f7f4f1]/50">
               <td className="px-4 py-3 font-semibold text-diyar-dark">{carrier.name}</td>
               <td className="px-4 py-3 text-start">
-                <TableLtrValue className="font-mono text-xs text-gray-500">{carrier.code}</TableLtrValue>
+                <TableLtrValue className="font-mono text-xs text-gray-500">
+                  {carrier.code}
+                </TableLtrValue>
               </td>
               <td className="px-4 py-3">
                 <AdminStatusBadge status={carrier.is_active ? 'active' : 'inactive'} />
@@ -523,7 +528,9 @@ export default function AdminShippingConfigurationPage() {
             <tr key={method.id} className="hover:bg-[#f7f4f1]/50">
               <td className="px-4 py-3 font-semibold text-diyar-dark">{method.name}</td>
               <td className="px-4 py-3 text-start">
-                <TableLtrValue className="font-mono text-xs text-gray-500">{method.code}</TableLtrValue>
+                <TableLtrValue className="font-mono text-xs text-gray-500">
+                  {method.code}
+                </TableLtrValue>
               </td>
               <td className="px-4 py-3">
                 <AdminStatusBadge status={method.is_active ? 'active' : 'inactive'} />

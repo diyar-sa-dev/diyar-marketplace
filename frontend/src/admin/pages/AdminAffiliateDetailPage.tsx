@@ -233,7 +233,10 @@ export default function AdminAffiliateDetailPage() {
               </span>
             </AdminDetailField>
             {profile.user.phone ? (
-              <AdminDetailField label={t('admin.detail.vendor.supportPhone')} icon={<Phone size={18} />}>
+              <AdminDetailField
+                label={t('admin.detail.vendor.supportPhone')}
+                icon={<Phone size={18} />}
+              >
                 <span dir="ltr">{formatPhoneDisplay(profile.user.phone)}</span>
               </AdminDetailField>
             ) : null}
