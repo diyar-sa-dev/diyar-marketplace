@@ -6,14 +6,14 @@ use App\Enums\RoleName;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;
 
 /**
  * Verifies private channel authorization for Reverb/Pusher clients.
- *
- * @group broadcast-integration
  */
+#[Group('broadcast-integration')]
 class BroadcastChannelAuthorizationTest extends TestCase
 {
     use InteractsWithIdentity;

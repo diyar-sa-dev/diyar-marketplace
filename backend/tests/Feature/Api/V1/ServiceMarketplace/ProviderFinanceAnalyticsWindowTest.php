@@ -15,6 +15,7 @@ use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;
@@ -232,7 +233,7 @@ class ProviderFinanceAnalyticsWindowTest extends TestCase
         $providerUser = $this->createUserWithRole(RoleName::Provider);
 
         $this->app['auth']->forgetGuards();
-        \Laravel\Sanctum\Sanctum::actingAs($providerUser);
+        Sanctum::actingAs($providerUser);
 
         $csv = $this->withHeaders(['Accept-Language' => 'ar'])
             ->get('/api/v1/dashboard/provider/finance/export')

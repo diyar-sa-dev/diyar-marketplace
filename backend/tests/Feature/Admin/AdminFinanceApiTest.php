@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Enums\PayoutStatus;
 use App\Enums\RoleName;
+use App\Models\ProviderPayout;
 use Database\Seeders\AdminPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithIdentity;
@@ -53,12 +55,12 @@ class AdminFinanceApiTest extends TestCase
         $providerUser = $this->createUserWithRole(RoleName::Provider);
         $provider = $providerUser->providerAccount()->firstOrFail();
 
-        $payout = \App\Models\ProviderPayout::query()->create([
+        $payout = ProviderPayout::query()->create([
             'reference' => 'PO-TEST-PROVIDER-1',
             'provider_account_id' => $provider->id,
             'amount' => '150.00',
             'currency' => 'SAR',
-            'status' => \App\Enums\PayoutStatus::Pending,
+            'status' => PayoutStatus::Pending,
             'requested_at' => now(),
         ]);
 

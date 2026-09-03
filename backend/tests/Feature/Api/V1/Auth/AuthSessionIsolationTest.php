@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Testing\TestResponse;
 use Laravel\Octane\Events\RequestReceived;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\InteractsWithIdentity;
@@ -138,7 +139,7 @@ class AuthSessionIsolationTest extends TestCase
     /**
      * @return array{name: string, value: string}|null
      */
-    private function extractRememberCookie(\Illuminate\Testing\TestResponse $response): ?array
+    private function extractRememberCookie(TestResponse $response): ?array
     {
         foreach ($response->headers->getCookies() as $cookie) {
             if (str_starts_with($cookie->getName(), 'remember_web_')) {
@@ -152,7 +153,7 @@ class AuthSessionIsolationTest extends TestCase
         return null;
     }
 
-    private function extractCookieValue(\Illuminate\Testing\TestResponse $response, string $name): ?string
+    private function extractCookieValue(TestResponse $response, string $name): ?string
     {
         foreach ($response->headers->getCookies() as $cookie) {
             if ($cookie->getName() === $name) {

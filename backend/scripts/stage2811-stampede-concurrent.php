@@ -68,6 +68,7 @@ $failures = 0;
 foreach ($processes as $proc) {
     if (! is_resource($proc)) {
         $failures++;
+
         continue;
     }
     $code = proc_close($proc);

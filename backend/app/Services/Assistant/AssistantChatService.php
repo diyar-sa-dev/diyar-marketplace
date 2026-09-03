@@ -4,6 +4,7 @@ namespace App\Services\Assistant;
 
 use App\Services\Settings\EffectiveConfigService;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -241,7 +242,7 @@ class AssistantChatService
         return trim($key);
     }
 
-    private function httpClient(): \Illuminate\Http\Client\PendingRequest
+    private function httpClient(): PendingRequest
     {
         $request = Http::connectTimeout(10)->timeout(45);
 

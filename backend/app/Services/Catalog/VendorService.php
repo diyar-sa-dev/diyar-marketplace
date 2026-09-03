@@ -4,8 +4,8 @@ namespace App\Services\Catalog;
 
 use App\Enums\ProductStatus;
 use App\Models\VendorAccount;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Support\Pagination\PaginationBounds;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class VendorService

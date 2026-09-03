@@ -8,7 +8,6 @@ declare(strict_types=1);
  * Usage:
  *   php scripts/stage2817-octane-auth-isolation.php --base=http://127.0.0.1:8000 [--rounds=5] [--concurrency=40]
  */
-
 $base = 'http://127.0.0.1:8000';
 $rounds = 3;
 $concurrency = 24;

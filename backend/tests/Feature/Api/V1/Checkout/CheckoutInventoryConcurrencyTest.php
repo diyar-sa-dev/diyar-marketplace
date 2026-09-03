@@ -5,7 +5,6 @@ namespace Tests\Feature\Api\V1\Checkout;
 use App\Enums\RoleName;
 use App\Models\Product;
 use App\Models\ProductInventory;
-use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

@@ -7,14 +7,14 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redis;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
 /**
  * Requires Redis queue backend and worker process.
- *
- * @group queue-integration
  */
+#[Group('queue-integration')]
 class QueueWorkerIntegrationTest extends TestCase
 {
     use RefreshDatabase;

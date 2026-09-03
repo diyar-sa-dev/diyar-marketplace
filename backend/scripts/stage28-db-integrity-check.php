@@ -34,7 +34,7 @@ function check(array &$result, string $name, callable $fn): void
     }
 }
 
-check($result, 'orphan_order_items', function () use ($schema) {
+check($result, 'orphan_order_items', function () {
     if (! Schema::hasTable('order_items')) {
         return ['skipped' => true];
     }

@@ -12,7 +12,6 @@ declare(strict_types=1);
  *   php scripts/stage2817-hosting-capacity-audit.php --profile=octane-multinode
  *   php scripts/stage2817-hosting-capacity-audit.php --profile=fpm
  */
-
 $profiles = [
     'octane-multinode' => [
         'label' => 'octane-multinode',
@@ -244,7 +243,7 @@ $saturationSweep = [
 
 echo "=== DIYAR Hosting Capacity Audit ===\n";
 echo "profile={$profile['label']} base={$base}\n";
-echo "timestamp=".date('c')."\n\n";
+echo 'timestamp='.date('c')."\n\n";
 
 $report = [
     'profile' => $profile['label'],

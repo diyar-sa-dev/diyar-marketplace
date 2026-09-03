@@ -7,8 +7,15 @@ declare(strict_types=1);
  * Usage: php scripts/stage28-db-query-profile.php
  */
 
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\VendorOrder;
+use App\Services\Analytics\VendorAnalyticsService;
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Tests\TestCase;
 
 require __DIR__.'/../vendor/autoload.php';
 
@@ -62,24 +69,24 @@ function profileWorkflow(array &$result, string $name, callable $setup, callable
 }
 
 // Bootstrap schema once
-Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+Artisan::call('migrate', ['--force' => true]);
 
 profileWorkflow($result, 'list_products', function () {}, function () {
-    \App\Models\Product::query()->with(['category', 'inventory'])->limit(20)->get();
+    Product::query()->with(['category', 'inventory'])->limit(20)->get();
 });
 
 profileWorkflow($result, 'list_orders_with_items', function () {
-    \Tests\TestCase::class; // ensure autoload
+    TestCase::class; // ensure autoload
 }, function () {
-    if (\Illuminate\Support\Facades\Schema::hasTable('orders')) {
-        \App\Models\Order::query()->with(['items', 'user'])->limit(10)->get();
+    if (Schema::hasTable('orders')) {
+        Order::query()->with(['items', 'user'])->limit(10)->get();
     }
 });
 
 profileWorkflow($result, 'vendor_analytics_aggregate', function () {}, function () {
-    if (class_exists(\App\Services\Analytics\VendorAnalyticsService::class)) {
+    if (class_exists(VendorAnalyticsService::class)) {
         // No-op if no vendor data — still measures empty query path
-        \App\Models\VendorOrder::query()->selectRaw('COUNT(*) as c')->value('c');
+        VendorOrder::query()->selectRaw('COUNT(*) as c')->value('c');
     }
 });
 

@@ -7,7 +7,6 @@ declare(strict_types=1);
  *
  * Usage: php scripts/stage2817-node-rotation-check.php --base=http://127.0.0.1:8088 [--requests=40]
  */
-
 $base = 'http://127.0.0.1:8088';
 $requests = 40;
 
@@ -53,6 +52,6 @@ $pass = $unique >= 2;
 
 echo $pass
     ? "RESULT: PASS (saw {$unique} distinct nodes)\n"
-    : "RESULT: FAIL (only one node: ".implode(', ', array_keys($nodes)).")\n";
+    : 'RESULT: FAIL (only one node: '.implode(', ', array_keys($nodes)).")\n";
 
 exit($pass ? 0 : 1);

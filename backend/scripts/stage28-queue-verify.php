@@ -10,6 +10,7 @@ declare(strict_types=1);
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redis;
 
@@ -67,7 +68,7 @@ try {
 }
 
 $results['failed_jobs_table'] = [
-    'count' => \Illuminate\Support\Facades\DB::table('failed_jobs')->count(),
+    'count' => DB::table('failed_jobs')->count(),
 ];
 
 $allOk = collect($results['checks'])->every(fn (array $c) => ($c['ok'] ?? false) === true);

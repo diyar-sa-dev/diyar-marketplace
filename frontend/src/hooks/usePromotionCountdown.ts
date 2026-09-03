@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 import type { TranslateFn } from '../lib/i18n/types.ts';
 
 const SECONDS_PER_HOUR = 3600;
@@ -74,28 +74,23 @@ export function usePromotionCountdown(endsAt: string | null | undefined): number
     return Number.isNaN(timestamp) ? null : timestamp;
   }, [endsAt]);
 
-  const [secondsLeft, setSecondsLeft] = useState<number | null>(() => {
-    if (targetMs === null) {
-      return null;
-    }
+  const nowMs = useSyncExternalStore(
+    (callback) => {
+      if (targetMs === null) {
+        return () => {};
+      }
 
-    return Math.max(0, Math.floor((targetMs - Date.now()) / 1000));
-  });
+      const timer = window.setInterval(callback, 1000);
 
-  useEffect(() => {
-    if (targetMs === null) {
-      setSecondsLeft(null);
-      return;
-    }
+      return () => window.clearInterval(timer);
+    },
+    () => Date.now(),
+    () => Date.now(),
+  );
 
-    const tick = () => {
-      setSecondsLeft(Math.max(0, Math.floor((targetMs - Date.now()) / 1000)));
-    };
+  if (targetMs === null) {
+    return null;
+  }
 
-    tick();
-    const timer = window.setInterval(tick, 1000);
-    return () => window.clearInterval(timer);
-  }, [targetMs]);
-
-  return secondsLeft;
+  return Math.max(0, Math.floor((targetMs - nowMs) / 1000));
 }

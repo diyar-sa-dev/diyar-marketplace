@@ -6,7 +6,6 @@ declare(strict_types=1);
  * Lightweight concurrent HTTP probe (no k6 required).
  * Usage: php scripts/certification-concurrent-probe.php [--url=...] [--concurrency=50]
  */
-
 $url = 'http://127.0.0.1:8000/api/v1/products?per_page=12';
 $concurrency = 50;
 foreach ($argv as $arg) {

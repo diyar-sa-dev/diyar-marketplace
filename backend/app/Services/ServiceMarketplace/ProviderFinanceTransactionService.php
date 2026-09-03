@@ -28,8 +28,7 @@ final class ProviderFinanceTransactionService
         ?string $type = null,
         ?DateTimeInterface $from = null,
         ?DateTimeInterface $to = null,
-    ): LengthAwarePaginator
-    {
+    ): LengthAwarePaginator {
         $items = $this->collect($provider, $type, $from, $to);
         $total = $items->count();
         $page = max($page, 1);
@@ -53,8 +52,7 @@ final class ProviderFinanceTransactionService
         ?string $type = null,
         ?DateTimeInterface $from = null,
         ?DateTimeInterface $to = null,
-    ): Collection
-    {
+    ): Collection {
         $rate = $this->finance->commissionRate();
         $currency = $this->finance->currency();
         $rows = collect();

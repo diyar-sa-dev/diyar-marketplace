@@ -58,6 +58,7 @@ $result['table_count'] = count($tableNames);
 foreach ($critical as $table) {
     if (! Schema::hasTable($table)) {
         $result['tables'][$table] = ['exists' => false];
+
         continue;
     }
 

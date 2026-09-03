@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Schema;
 require __DIR__.'/../vendor/autoload.php';
 
 $app = require __DIR__.'/../bootstrap/app.php';
-$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $isolatedPath = $app->databasePath('stage28_migration_test.sqlite');
 if (file_exists($isolatedPath)) {
@@ -35,7 +35,7 @@ $config = $app->make('config');
 $config->set('database.default', 'sqlite');
 $config->set('database.connections.sqlite.database', $isolatedPath);
 
-$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $result = [
     'timestamp_utc' => gmdate('c'),

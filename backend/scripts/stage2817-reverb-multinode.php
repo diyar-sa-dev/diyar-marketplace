@@ -94,6 +94,7 @@ function wsReadPayload(mixed $fp, int $timeoutSec): ?string
         $chunk = fread($fp, 8192);
         if ($chunk === false || $chunk === '') {
             usleep(50_000);
+
             continue;
         }
         $buffer .= $chunk;

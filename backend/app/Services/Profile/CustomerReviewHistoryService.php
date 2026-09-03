@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 final class CustomerReviewHistoryService
 {
@@ -797,7 +798,7 @@ final class CustomerReviewHistoryService
         foreach ($candidates as $candidate) {
             $value = trim((string) $candidate);
             if ($value !== '') {
-                return \Illuminate\Support\Str::limit($value, 80, '…');
+                return Str::limit($value, 80, '…');
             }
         }
 

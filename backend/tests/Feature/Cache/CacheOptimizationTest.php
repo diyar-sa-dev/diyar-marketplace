@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Cache;
 
+use App\Enums\RoleName;
 use App\Services\Admin\AdminPermissionService;
 use App\Services\Catalog\CatalogCacheInvalidator;
 use App\Support\Cache\CacheKeys;
@@ -28,7 +29,7 @@ class CacheOptimizationTest extends TestCase
     {
         Cache::put('unrelated:key', 'keep-me', 3600);
 
-        $admin = $this->createUserWithRole(\App\Enums\RoleName::Admin);
+        $admin = $this->createUserWithRole(RoleName::Admin);
         $service = app(AdminPermissionService::class);
 
         $beforeKey = CacheKeys::adminPermissions((string) $admin->id, VersionedCache::version(CacheKeys::ADMIN_PERMISSIONS_VERSION));

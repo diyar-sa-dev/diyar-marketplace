@@ -9,6 +9,10 @@ declare(strict_types=1);
  * Requires APP running against MySQL — not SQLite.
  */
 
+use App\Models\VendorAccount;
+use App\Services\Analytics\AdminAnalyticsService;
+use App\Services\Analytics\AnalyticsDateRangeResolver;
+use App\Services\Analytics\VendorAnalyticsService;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -95,9 +99,9 @@ foreach ($endpoints as $item) {
 }
 
 try {
-    $rangeResolver = app(\App\Services\Analytics\AnalyticsDateRangeResolver::class);
+    $rangeResolver = app(AnalyticsDateRangeResolver::class);
     $range = $rangeResolver->resolve(['period' => '30d']);
-    $admin = app(\App\Services\Analytics\AdminAnalyticsService::class);
+    $admin = app(AdminAnalyticsService::class);
     foreach (['funnel' => fn () => $admin->funnel($range), 'cohorts' => fn () => $admin->cohorts(6)] as $name => $fn) {
         DB::flushQueryLog();
         DB::enableQueryLog();
@@ -112,9 +116,9 @@ try {
         ];
     }
 
-    $vendor = \App\Models\VendorAccount::query()->first();
+    $vendor = VendorAccount::query()->first();
     if ($vendor !== null) {
-        $vendorAnalytics = app(\App\Services\Analytics\VendorAnalyticsService::class);
+        $vendorAnalytics = app(VendorAnalyticsService::class);
         DB::flushQueryLog();
         DB::enableQueryLog();
         $started = microtime(true);

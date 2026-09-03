@@ -7,7 +7,6 @@ declare(strict_types=1);
  *
  * Usage: php scripts/stage2817-http-payout-concurrency.php --base=http://127.0.0.1:8088 --fixture=path.json
  */
-
 $base = 'http://127.0.0.1:8088';
 $fixturePath = '';
 

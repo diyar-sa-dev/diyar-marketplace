@@ -29,6 +29,10 @@ if (! class_exists(Octane::class)) {
     ];
 }
 
+use App\Listeners\Octane\FlushAuthAndSessionState;
+use App\Listeners\Octane\FlushOctaneDevState;
+use App\Listeners\Octane\PersistApplicationSession;
+use App\Listeners\Octane\ResetRequestScopedState;
 use Laravel\Octane\Contracts\OperationTerminated;
 use Laravel\Octane\Events\RequestHandled;
 use Laravel\Octane\Events\RequestReceived;
@@ -46,13 +50,10 @@ use Laravel\Octane\Listeners\DisconnectFromDatabases;
 use Laravel\Octane\Listeners\EnsureUploadedFilesAreValid;
 use Laravel\Octane\Listeners\EnsureUploadedFilesCanBeMoved;
 use Laravel\Octane\Listeners\FlushOnce;
+use Laravel\Octane\Listeners\FlushSessionState;
 use Laravel\Octane\Listeners\FlushTemporaryContainerInstances;
 use Laravel\Octane\Listeners\FlushUploadedFiles;
 use Laravel\Octane\Listeners\ReportException;
-use App\Listeners\Octane\FlushAuthAndSessionState;
-use App\Listeners\Octane\FlushOctaneDevState;
-use App\Listeners\Octane\PersistApplicationSession;
-use App\Listeners\Octane\ResetRequestScopedState;
 use Laravel\Octane\Listeners\StopWorkerIfNecessary;
 use Laravel\Octane\Octane;
 
@@ -77,7 +78,7 @@ return [
             FlushAuthAndSessionState::class,
             ...array_values(array_filter(
                 Octane::prepareApplicationForNextRequest(),
-                static fn (string $listener): bool => $listener !== \Laravel\Octane\Listeners\FlushSessionState::class,
+                static fn (string $listener): bool => $listener !== FlushSessionState::class,
             )),
         ],
 

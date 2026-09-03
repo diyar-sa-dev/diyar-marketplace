@@ -8,7 +8,6 @@ declare(strict_types=1);
  * Usage:
  *   php scripts/stage2817-http-webhook-concurrency.php --base=http://127.0.0.1:8088 --payment-id=<uuid>
  */
-
 $base = 'http://127.0.0.1:8088';
 $paymentId = '';
 

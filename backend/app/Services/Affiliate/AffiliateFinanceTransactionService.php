@@ -28,8 +28,7 @@ final class AffiliateFinanceTransactionService
         ?string $type = null,
         ?DateTimeInterface $from = null,
         ?DateTimeInterface $to = null,
-    ): LengthAwarePaginator
-    {
+    ): LengthAwarePaginator {
         $items = $this->collect($profile, $type, $from, $to);
         $total = $items->count();
         $page = max($page, 1);
@@ -53,8 +52,7 @@ final class AffiliateFinanceTransactionService
         ?string $type = null,
         ?DateTimeInterface $from = null,
         ?DateTimeInterface $to = null,
-    ): Collection
-    {
+    ): Collection {
         $rows = collect();
 
         $commissions = AffiliateCommission::query()

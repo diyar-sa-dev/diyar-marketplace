@@ -5,8 +5,8 @@
          colors="true"
 >
     <testsuites>
-        <testsuite name="RedisIntegration">
-            <directory>tests/Integration/Redis</directory>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
         </testsuite>
     </testsuites>
     <php>

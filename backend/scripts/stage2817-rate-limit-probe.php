@@ -10,7 +10,6 @@ declare(strict_types=1);
  *   php scripts/stage2817-rate-limit-probe.php --base=http://127.0.0.1:8088 --endpoint=search
  *   php scripts/stage2817-rate-limit-probe.php --base=http://127.0.0.1:8088 --endpoint=auth
  */
-
 $base = 'http://127.0.0.1:8088';
 $endpoint = 'search';
 

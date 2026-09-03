@@ -6,7 +6,6 @@ declare(strict_types=1);
  * Stage 28.2 — Static scan for database-specific SQL constructs.
  * Usage: php scripts/stage28-db-compatibility-scan.php
  */
-
 $root = dirname(__DIR__);
 $patterns = [
     'DB::raw' => '/DB::raw\s*\(/',

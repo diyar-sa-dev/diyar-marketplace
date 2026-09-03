@@ -297,7 +297,7 @@ jobs:
           php artisan key:generate
 
       - name: Redis integration tests
-        run: php artisan test --group=redis-integration
+        run: php artisan test --configuration=phpunit.redis.xml --group=redis-integration
 
   queue-integration:
     name: Backend — Queue worker integration
@@ -335,7 +335,7 @@ jobs:
           php artisan key:generate
 
       - name: Queue integration tests
-        run: php artisan test --group=queue-integration
+        run: php artisan test --configuration=phpunit.redis.xml --group=queue-integration
 
   broadcast-integration:
     name: Backend — Broadcast channel auth

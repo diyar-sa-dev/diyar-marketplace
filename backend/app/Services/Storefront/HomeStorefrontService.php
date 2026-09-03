@@ -7,6 +7,7 @@ use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductCardResource;
 use App\Http\Resources\ServiceCardResource;
 use App\Http\Resources\VendorCardResource;
+use App\Models\Product;
 use App\Models\User;
 use App\Services\Blog\BlogQueryService;
 use App\Services\Catalog\CategoryService;
@@ -198,7 +199,7 @@ final class HomeStorefrontService
     }
 
     /**
-     * @param  Collection<int, \App\Models\Product>  $products
+     * @param  Collection<int, Product>  $products
      */
     private function earliestPromotionEndsAt(Collection $products): ?string
     {

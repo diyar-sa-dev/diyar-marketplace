@@ -8,7 +8,6 @@ declare(strict_types=1);
  * Args: db_path product_id user_id
  * Exit 0 = reserved, 1 = rejected
  */
-
 $dbPath = $argv[1] ?? '';
 $productId = $argv[2] ?? '';
 $userId = $argv[3] ?? '';
@@ -27,11 +26,12 @@ $_ENV['DB_DATABASE'] = $dbPath;
 
 require __DIR__.'/../vendor/autoload.php';
 $app = require __DIR__.'/../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 use App\Models\Product;
 use App\Models\User;
 use App\Services\Catalog\InventoryService;
+use Illuminate\Contracts\Console\Kernel;
 
 try {
     $product = Product::query()->findOrFail($productId);

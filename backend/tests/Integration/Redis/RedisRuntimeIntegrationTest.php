@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Redis;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 /**
  * Requires reachable Redis (Docker: REDIS_HOST=127.0.0.1:6379).
- *
- * @group redis-integration
  */
+#[Group('redis-integration')]
 class RedisRuntimeIntegrationTest extends TestCase
 {
     protected function setUp(): void

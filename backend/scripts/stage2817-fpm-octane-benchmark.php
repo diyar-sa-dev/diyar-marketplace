@@ -8,7 +8,6 @@ declare(strict_types=1);
  * Usage:
  *   php scripts/stage2817-fpm-octane-benchmark.php --fpm=http://127.0.0.1:8092 --octane=http://127.0.0.1:8088
  */
-
 $fpm = 'http://127.0.0.1:8092';
 $octane = 'http://127.0.0.1:8088';
 $duration = 15;

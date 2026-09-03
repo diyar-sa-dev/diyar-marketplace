@@ -46,6 +46,7 @@ $counts = [];
 foreach ($tables as $table) {
     if (! Schema::hasTable($table)) {
         $counts[$table] = ['exists' => false, 'count' => null];
+
         continue;
     }
 

@@ -7,10 +7,12 @@ declare(strict_types=1);
  * Usage: php scripts/stage28-performance-mysql-explain.php
  */
 
+use App\Models\VendorAccount;
 use App\Services\Analytics\AdminAnalyticsService;
 use App\Services\Analytics\AnalyticsDateRangeResolver;
 use App\Services\Analytics\VendorAnalyticsService;
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 require __DIR__.'/../vendor/autoload.php';
@@ -78,7 +80,7 @@ if ($isMysql) {
 
     try {
         $rangeResolver = app(AnalyticsDateRangeResolver::class);
-        $range = $rangeResolver->resolveFromRequest(\Illuminate\Http\Request::create('/', 'GET', ['period' => '30d']));
+        $range = $rangeResolver->resolveFromRequest(Request::create('/', 'GET', ['period' => '30d']));
         $admin = app(AdminAnalyticsService::class);
         DB::enableQueryLog();
         $started = microtime(true);
@@ -95,10 +97,10 @@ if ($isMysql) {
     }
 
     try {
-        $vendor = \App\Models\VendorAccount::query()->first();
+        $vendor = VendorAccount::query()->first();
         if ($vendor !== null) {
             $rangeResolver = app(AnalyticsDateRangeResolver::class);
-            $range = $rangeResolver->resolveFromRequest(\Illuminate\Http\Request::create('/', 'GET', ['period' => '30d']));
+            $range = $rangeResolver->resolveFromRequest(Request::create('/', 'GET', ['period' => '30d']));
             $vendorAnalytics = app(VendorAnalyticsService::class);
             DB::enableQueryLog();
             $started = microtime(true);

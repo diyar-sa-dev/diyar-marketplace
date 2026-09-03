@@ -8,7 +8,6 @@ declare(strict_types=1);
  * Usage:
  *   php scripts/stage2817-adversarial-probes.php --base=http://127.0.0.1:8093
  */
-
 $base = 'http://127.0.0.1:8093';
 
 foreach ($argv as $arg) {

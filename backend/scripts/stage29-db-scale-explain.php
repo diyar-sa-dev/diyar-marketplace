@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 require __DIR__.'/../vendor/autoload.php';
 
@@ -115,7 +116,7 @@ $result = [
 
 $json = json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 if ($output !== null) {
-    Illuminate\Support\Facades\File::ensureDirectoryExists(dirname($output));
-    Illuminate\Support\Facades\File::put($output, $json);
+    File::ensureDirectoryExists(dirname($output));
+    File::put($output, $json);
 }
 echo $json.PHP_EOL;

@@ -8,7 +8,6 @@ declare(strict_types=1);
  * Usage:
  *   php scripts/stage2817-controlled-load.php --base=http://127.0.0.1:8088 --endpoint=/api/v1/categories --concurrency=25 --duration=15
  */
-
 $base = 'http://127.0.0.1:8088';
 $endpoint = '/api/v1/categories';
 $concurrency = 10;

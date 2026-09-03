@@ -9,6 +9,8 @@ declare(strict_types=1);
  * Requires SQLite or MySQL; uses in-memory/sqlite by default from phpunit env when unset.
  */
 
+use App\Services\Catalog\CatalogSearchService;
+use App\Services\Catalog\ProductService;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -69,9 +71,9 @@ try {
 }
 
 $profiles = [
-    'products_list' => fn () => app(\App\Services\Catalog\ProductService::class)
+    'products_list' => fn () => app(ProductService::class)
         ->listPublic(['per_page' => 8]),
-    'catalog_search' => fn () => app(\App\Services\Catalog\CatalogSearchService::class)
+    'catalog_search' => fn () => app(CatalogSearchService::class)
         ->search(['q' => 'chair', 'type' => 'products', 'per_page' => 8]),
 ];
 

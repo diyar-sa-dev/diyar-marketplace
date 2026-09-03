@@ -7,6 +7,7 @@ use App\Enums\RoleName;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\User;
 use App\Services\Order\OrderCancellationService;
 use App\Services\Payments\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -88,7 +89,7 @@ class PaymentFinalizationRaceTest extends TestCase
     }
 
     /**
-     * @return array{0: \App\Models\User, 1: Order}
+     * @return array{0: User, 1: Order}
      */
     private function createPayableOrder(): array
     {

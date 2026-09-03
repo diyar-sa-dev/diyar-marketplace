@@ -1,10 +1,11 @@
 <?php
 
+use App\Http\Middleware\ApplyHttpCachePolicy;
 use App\Http\Middleware\AssignRequestCorrelationId;
 use App\Http\Middleware\EnsureAccountIsActive;
-use App\Http\Middleware\EnsureCleanAuthState;
 use App\Http\Middleware\EnsureAdminPermission;
 use App\Http\Middleware\EnsureAdminUserIsActive;
+use App\Http\Middleware\EnsureCleanAuthState;
 use App\Http\Middleware\EnsureMarketplaceAccess;
 use App\Http\Middleware\EnsureMarketplaceNotInMaintenance;
 use App\Http\Middleware\EnsureUserHasRole;
@@ -64,7 +65,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->append([
             SecurityHeaders::class,
-            \App\Http\Middleware\ApplyHttpCachePolicy::class,
+            ApplyHttpCachePolicy::class,
         ]);
 
         $middleware->alias([

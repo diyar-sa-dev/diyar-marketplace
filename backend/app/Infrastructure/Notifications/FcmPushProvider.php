@@ -122,9 +122,9 @@ final class FcmPushProvider implements PushProviderInterface
             ->connectTimeout(5)
             ->timeout(10)
             ->post('https://oauth2.googleapis.com/token', [
-            'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            'assertion' => $jwt,
-        ]);
+                'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                'assertion' => $jwt,
+            ]);
 
         if (! $response->successful()) {
             throw new PushProviderException('Unable to obtain FCM access token.');

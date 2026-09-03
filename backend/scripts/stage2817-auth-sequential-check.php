@@ -7,7 +7,6 @@ declare(strict_types=1);
  *
  * Usage: php scripts/stage2817-auth-sequential-check.php [base_url]
  */
-
 $base = rtrim($argv[1] ?? 'http://127.0.0.1:8000', '/');
 $jar = sys_get_temp_dir().DIRECTORY_SEPARATOR.'diyar_seq_check_'.getmypid().'.cookies';
 @unlink($jar);

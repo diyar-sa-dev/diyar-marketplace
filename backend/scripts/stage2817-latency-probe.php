@@ -8,7 +8,6 @@ declare(strict_types=1);
  * Usage:
  *   php scripts/stage2817-latency-probe.php --base=http://127.0.0.1:8088 --label=octane-multinode --iterations=20
  */
-
 $base = 'http://127.0.0.1:8088';
 $label = 'runtime';
 $iterations = 20;
@@ -71,6 +70,7 @@ foreach ($endpoints as $name => $path) {
 
     if ($samples === []) {
         echo "{$name}: FAILED\n";
+
         continue;
     }
 

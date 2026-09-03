@@ -129,10 +129,10 @@ use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceBookingController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceBookingPaymentController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceCategoryController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceController;
-use App\Http\Controllers\Api\V1\Storefront\HomeStorefrontController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceEngagementController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceOfferController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceRequestController;
+use App\Http\Controllers\Api\V1\Storefront\HomeStorefrontController;
 use Illuminate\Support\Facades\Route;
 
 /*

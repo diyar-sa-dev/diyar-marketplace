@@ -1,12 +1,14 @@
 <?php
 
 declare(strict_types=1);
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Support\Facades\Redis;
 
 require __DIR__.'/../vendor/autoload.php';
 $app = require __DIR__.'/../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
-$redis = Illuminate\Support\Facades\Redis::connection(config('session.connection'));
+$redis = Redis::connection(config('session.connection'));
 $prefix = config('database.redis.options.prefix', '').config('session.prefix', '');
 
 echo "session prefix={$prefix}\n";

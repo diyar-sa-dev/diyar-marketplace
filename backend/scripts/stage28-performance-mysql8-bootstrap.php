@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 require __DIR__.'/../vendor/autoload.php';
 
@@ -75,6 +76,6 @@ try {
 }
 
 $result['database'] = config('database.connections.mysql.database');
-$result['engine'] = \Illuminate\Support\Facades\DB::selectOne('SELECT VERSION() AS v')?->v;
+$result['engine'] = DB::selectOne('SELECT VERSION() AS v')?->v;
 
 echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL;
