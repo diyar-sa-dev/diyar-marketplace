@@ -362,4 +362,4 @@ jobs:
           php artisan key:generate
 
       - name: Broadcast integration tests
-        run: php artisan test --group=broadcast-integration
+        run: vendor/bin/phpunit --configuration phpunit.integration.xml --group=broadcast-integration
