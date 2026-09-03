@@ -1,0 +1,1027 @@
+{
+    "profile": "octane-multinode",
+    "base": "http://127.0.0.1:8088",
+    "timestamp": "2026-09-03T11:57:22+00:00",
+    "environment_note": "Local Windows Docker \u2014 NOT Hostinger VPS. Used to measure relative stack footprint and scaling behavior.",
+    "hostinger_plans": {
+        "kvm2": {
+            "vcpu": 2,
+            "ram_gib": 8,
+            "nvme_gib": 100
+        },
+        "kvm4": {
+            "vcpu": 4,
+            "ram_gib": 16,
+            "nvme_gib": 200
+        }
+    },
+    "idle_stats": {
+        "diyar-multinode-nginx-1": {
+            "cpu_percent": 0,
+            "mem_used_mib": 4.4,
+            "mem_percent": 0.04,
+            "raw_mem": "4.449MiB / 11.68GiB"
+        },
+        "diyar-multinode-api-a-1": {
+            "cpu_percent": 0.93,
+            "mem_used_mib": 139.9,
+            "mem_percent": 1.17,
+            "raw_mem": "139.9MiB / 11.68GiB"
+        },
+        "diyar-multinode-api-b-1": {
+            "cpu_percent": 1.04,
+            "mem_used_mib": 140.1,
+            "mem_percent": 1.17,
+            "raw_mem": "140.1MiB / 11.68GiB"
+        },
+        "diyar-multinode-mysql-1": {
+            "cpu_percent": 0.53,
+            "mem_used_mib": 580.2,
+            "mem_percent": 4.85,
+            "raw_mem": "580.2MiB / 11.68GiB"
+        },
+        "diyar-multinode-redis-1": {
+            "cpu_percent": 0.44,
+            "mem_used_mib": 4.5,
+            "mem_percent": 0.04,
+            "raw_mem": "4.469MiB / 11.68GiB"
+        },
+        "diyar-multinode-queue-worker-1-1": {
+            "cpu_percent": 0.1,
+            "mem_used_mib": 38,
+            "mem_percent": 0.32,
+            "raw_mem": "38.04MiB / 11.68GiB"
+        },
+        "diyar-multinode-queue-worker-2-1": {
+            "cpu_percent": 0.13,
+            "mem_used_mib": 37.8,
+            "mem_percent": 0.32,
+            "raw_mem": "37.79MiB / 11.68GiB"
+        },
+        "diyar-multinode-scheduler-a-1": {
+            "cpu_percent": 0,
+            "mem_used_mib": 2.5,
+            "mem_percent": 0.02,
+            "raw_mem": "2.484MiB / 11.68GiB"
+        }
+    },
+    "idle_mysql": {
+        "Max_used_connections": "8",
+        "Questions": "18526",
+        "Slow_queries": "2",
+        "Threads_connected": "3",
+        "Uptime": "4362",
+        "max_connections": "151"
+    },
+    "idle_redis": {
+        "used_memory_human": "1.50M",
+        "used_memory_rss_human": "8.84M",
+        "maxmemory_human": "0B",
+        "mem_fragmentation_ratio": "6.06",
+        "ping": "PONG"
+    },
+    "workloads": [
+        {
+            "endpoint": "/api/v1/health",
+            "concurrency": 50,
+            "duration_sec": 10,
+            "http": {
+                "completed": 3450,
+                "rps": 345,
+                "errors": 0,
+                "status5xx": 0,
+                "p50_ms": 130,
+                "p95_ms": 270,
+                "p99_ms": 318,
+                "max_ms": 318,
+                "avg_ms": 143,
+                "success_samples": 3450
+            },
+            "stats_before": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.4,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.449MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 0.96,
+                    "mem_used_mib": 140.2,
+                    "mem_percent": 1.17,
+                    "raw_mem": "140.2MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 0.95,
+                    "mem_used_mib": 140.4,
+                    "mem_percent": 1.17,
+                    "raw_mem": "140.4MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 0.56,
+                    "mem_used_mib": 580.8,
+                    "mem_percent": 4.85,
+                    "raw_mem": "580.8MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 0.41,
+                    "mem_used_mib": 4.4,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.363MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.11,
+                    "mem_used_mib": 38,
+                    "mem_percent": 0.32,
+                    "raw_mem": "38.04MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.5,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.484MiB / 11.68GiB"
+                }
+            },
+            "stats_after": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 5.6,
+                    "mem_percent": 0.05,
+                    "raw_mem": "5.574MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 0.94,
+                    "mem_used_mib": 146.7,
+                    "mem_percent": 1.23,
+                    "raw_mem": "146.7MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 0.88,
+                    "mem_used_mib": 147,
+                    "mem_percent": 1.23,
+                    "raw_mem": "147MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 0.74,
+                    "mem_used_mib": 580.9,
+                    "mem_percent": 4.86,
+                    "raw_mem": "580.9MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 2.42,
+                    "mem_used_mib": 4.1,
+                    "mem_percent": 0.03,
+                    "raw_mem": "4.145MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.08,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "mysql": {
+                "Max_used_connections": "8",
+                "Questions": "39269",
+                "Slow_queries": "2",
+                "Threads_connected": "5",
+                "Uptime": "4377",
+                "max_connections": "151"
+            },
+            "redis": {
+                "used_memory_human": "1.59M",
+                "used_memory_rss_human": "8.84M",
+                "maxmemory_human": "0B",
+                "mem_fragmentation_ratio": "5.68",
+                "ping": "PONG"
+            }
+        },
+        {
+            "endpoint": "/api/v1/categories",
+            "concurrency": 10,
+            "duration_sec": 10,
+            "http": {
+                "completed": 3240,
+                "rps": 324,
+                "errors": 0,
+                "status5xx": 0,
+                "p50_ms": 26,
+                "p95_ms": 44,
+                "p99_ms": 159,
+                "max_ms": 187,
+                "avg_ms": 30,
+                "success_samples": 3240
+            },
+            "stats_before": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 5.5,
+                    "mem_percent": 0.05,
+                    "raw_mem": "5.477MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 0.98,
+                    "mem_used_mib": 146.5,
+                    "mem_percent": 1.22,
+                    "raw_mem": "146.5MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 0.94,
+                    "mem_used_mib": 147.2,
+                    "mem_percent": 1.23,
+                    "raw_mem": "147.2MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 0.58,
+                    "mem_used_mib": 580.9,
+                    "mem_percent": 4.86,
+                    "raw_mem": "580.9MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 0.47,
+                    "mem_used_mib": 4.3,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.273MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.12,
+                    "mem_used_mib": 38,
+                    "mem_percent": 0.32,
+                    "raw_mem": "38.04MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.09,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "stats_after": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 6.3,
+                    "mem_percent": 0.05,
+                    "raw_mem": "6.289MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 1.01,
+                    "mem_used_mib": 147.2,
+                    "mem_percent": 1.23,
+                    "raw_mem": "147.2MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 0.85,
+                    "mem_used_mib": 145.2,
+                    "mem_percent": 1.21,
+                    "raw_mem": "145.2MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 0.51,
+                    "mem_used_mib": 580.9,
+                    "mem_percent": 4.86,
+                    "raw_mem": "580.9MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 2.23,
+                    "mem_used_mib": 4.5,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.457MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 37.5,
+                    "mem_percent": 0.31,
+                    "raw_mem": "37.54MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 37.5,
+                    "mem_percent": 0.31,
+                    "raw_mem": "37.54MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "mysql": {
+                "Max_used_connections": "8",
+                "Questions": "45780",
+                "Slow_queries": "2",
+                "Threads_connected": "5",
+                "Uptime": "4393",
+                "max_connections": "151"
+            },
+            "redis": {
+                "used_memory_human": "1.51M",
+                "used_memory_rss_human": "8.84M",
+                "maxmemory_human": "0B",
+                "mem_fragmentation_ratio": "6.00",
+                "ping": "PONG"
+            }
+        },
+        {
+            "endpoint": "/api/v1/catalog/search?q=bed&type=products",
+            "concurrency": 25,
+            "duration_sec": 15,
+            "http": {
+                "completed": 8000,
+                "rps": 533.33,
+                "errors": 7939,
+                "status5xx": 0,
+                "p50_ms": 525,
+                "p95_ms": 529,
+                "p99_ms": 529,
+                "max_ms": 529,
+                "avg_ms": 469,
+                "success_samples": 61
+            },
+            "stats_before": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 6.2,
+                    "mem_percent": 0.05,
+                    "raw_mem": "6.223MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 1.08,
+                    "mem_used_mib": 146.9,
+                    "mem_percent": 1.23,
+                    "raw_mem": "146.9MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 1.11,
+                    "mem_used_mib": 145.3,
+                    "mem_percent": 1.21,
+                    "raw_mem": "145.3MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 0.61,
+                    "mem_used_mib": 580.7,
+                    "mem_percent": 4.85,
+                    "raw_mem": "580.7MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 0.46,
+                    "mem_used_mib": 4.2,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.207MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.12,
+                    "mem_used_mib": 37.5,
+                    "mem_percent": 0.31,
+                    "raw_mem": "37.54MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "stats_after": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 7.5,
+                    "mem_percent": 0.06,
+                    "raw_mem": "7.512MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 0.97,
+                    "mem_used_mib": 141.5,
+                    "mem_percent": 1.18,
+                    "raw_mem": "141.5MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 1.07,
+                    "mem_used_mib": 140.6,
+                    "mem_percent": 1.18,
+                    "raw_mem": "140.6MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 3.57,
+                    "mem_used_mib": 581.5,
+                    "mem_percent": 4.86,
+                    "raw_mem": "581.5MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 0.45,
+                    "mem_used_mib": 4.2,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.211MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 38,
+                    "mem_percent": 0.32,
+                    "raw_mem": "38.04MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.09,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "mysql": {
+                "Max_used_connections": "8",
+                "Questions": "46004",
+                "Slow_queries": "2",
+                "Threads_connected": "1",
+                "Uptime": "4414",
+                "max_connections": "151"
+            },
+            "redis": {
+                "used_memory_human": "1.50M",
+                "used_memory_rss_human": "8.84M",
+                "maxmemory_human": "0B",
+                "mem_fragmentation_ratio": "6.03",
+                "ping": "PONG"
+            }
+        },
+        {
+            "endpoint": "/api/v1/products?per_page=12",
+            "concurrency": 15,
+            "duration_sec": 10,
+            "http": {
+                "completed": 450,
+                "rps": 45,
+                "errors": 0,
+                "status5xx": 0,
+                "p50_ms": 314,
+                "p95_ms": 478,
+                "p99_ms": 512,
+                "max_ms": 512,
+                "avg_ms": 342,
+                "success_samples": 450
+            },
+            "stats_before": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 7.4,
+                    "mem_percent": 0.06,
+                    "raw_mem": "7.41MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 0.86,
+                    "mem_used_mib": 141.7,
+                    "mem_percent": 1.18,
+                    "raw_mem": "141.7MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 0.96,
+                    "mem_used_mib": 140.8,
+                    "mem_percent": 1.18,
+                    "raw_mem": "140.8MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 0.49,
+                    "mem_used_mib": 581.1,
+                    "mem_percent": 4.86,
+                    "raw_mem": "581.1MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 2.19,
+                    "mem_used_mib": 3.9,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.91MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 37.5,
+                    "mem_percent": 0.31,
+                    "raw_mem": "37.54MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.09,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "stats_after": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 7.7,
+                    "mem_percent": 0.06,
+                    "raw_mem": "7.688MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 0.93,
+                    "mem_used_mib": 147.5,
+                    "mem_percent": 1.23,
+                    "raw_mem": "147.5MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 0.86,
+                    "mem_used_mib": 151.8,
+                    "mem_percent": 1.27,
+                    "raw_mem": "151.8MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 0.5,
+                    "mem_used_mib": 581.8,
+                    "mem_percent": 4.86,
+                    "raw_mem": "581.8MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 0.41,
+                    "mem_used_mib": 4.5,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.48MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.09,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.09,
+                    "mem_used_mib": 37.5,
+                    "mem_percent": 0.31,
+                    "raw_mem": "37.54MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "mysql": {
+                "Max_used_connections": "8",
+                "Questions": "81168",
+                "Slow_queries": "2",
+                "Threads_connected": "5",
+                "Uptime": "4430",
+                "max_connections": "151"
+            },
+            "redis": {
+                "used_memory_human": "1.51M",
+                "used_memory_rss_human": "8.84M",
+                "maxmemory_human": "0B",
+                "mem_fragmentation_ratio": "6.00",
+                "ping": "PONG"
+            }
+        }
+    ],
+    "saturation_sweep": [
+        {
+            "concurrency": 5,
+            "http": {
+                "completed": 6105,
+                "rps": 610.5,
+                "errors": 6105,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 7.1,
+                    "mem_percent": 0.06,
+                    "raw_mem": "7.062MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 0.95,
+                    "mem_used_mib": 149.9,
+                    "mem_percent": 1.25,
+                    "raw_mem": "149.9MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 0.94,
+                    "mem_used_mib": 152.3,
+                    "mem_percent": 1.27,
+                    "raw_mem": "152.3MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 0.52,
+                    "mem_used_mib": 581.7,
+                    "mem_percent": 4.86,
+                    "raw_mem": "581.7MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 0.52,
+                    "mem_used_mib": 4.2,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.234MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.13,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.18,
+                    "mem_used_mib": 38,
+                    "mem_percent": 0.32,
+                    "raw_mem": "38.03MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "total_cpu_percent": 3.24,
+            "total_mem_mib": 973.2
+        },
+        {
+            "concurrency": 10,
+            "http": {
+                "completed": 7680,
+                "rps": 768,
+                "errors": 7680,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 6.4,
+                    "mem_percent": 0.05,
+                    "raw_mem": "6.434MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 1,
+                    "mem_used_mib": 149.9,
+                    "mem_percent": 1.25,
+                    "raw_mem": "149.9MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 0.92,
+                    "mem_used_mib": 152.9,
+                    "mem_percent": 1.28,
+                    "raw_mem": "152.9MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 3.55,
+                    "mem_used_mib": 581.6,
+                    "mem_percent": 4.86,
+                    "raw_mem": "581.6MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 0.42,
+                    "mem_used_mib": 4.2,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.246MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.09,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "total_cpu_percent": 6.079999999999999,
+            "total_mem_mib": 972.8000000000001
+        },
+        {
+            "concurrency": 25,
+            "http": {
+                "completed": 5425,
+                "rps": 542.5,
+                "errors": 5423,
+                "status5xx": 0,
+                "p50_ms": 88,
+                "p95_ms": 88,
+                "p99_ms": 88,
+                "max_ms": 1204,
+                "avg_ms": 646,
+                "success_samples": 2
+            },
+            "stats": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 5.3,
+                    "mem_percent": 0.04,
+                    "raw_mem": "5.293MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 0.92,
+                    "mem_used_mib": 151.3,
+                    "mem_percent": 1.26,
+                    "raw_mem": "151.3MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 0.94,
+                    "mem_used_mib": 154.1,
+                    "mem_percent": 1.29,
+                    "raw_mem": "154.1MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 3.56,
+                    "mem_used_mib": 581.6,
+                    "mem_percent": 4.86,
+                    "raw_mem": "581.6MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 0.46,
+                    "mem_used_mib": 4.2,
+                    "mem_percent": 0.03,
+                    "raw_mem": "4.172MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "total_cpu_percent": 6.079999999999999,
+            "total_mem_mib": 974.3000000000001
+        },
+        {
+            "concurrency": 50,
+            "http": {
+                "completed": 6500,
+                "rps": 650,
+                "errors": 6441,
+                "status5xx": 0,
+                "p50_ms": 741,
+                "p95_ms": 741,
+                "p99_ms": 741,
+                "max_ms": 741,
+                "avg_ms": 653,
+                "success_samples": 59
+            },
+            "stats": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 5.2,
+                    "mem_percent": 0.04,
+                    "raw_mem": "5.223MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 7.66,
+                    "mem_used_mib": 151,
+                    "mem_percent": 1.26,
+                    "raw_mem": "151MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 7.88,
+                    "mem_used_mib": 143.1,
+                    "mem_percent": 1.2,
+                    "raw_mem": "143.1MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 1.12,
+                    "mem_used_mib": 581.9,
+                    "mem_percent": 4.86,
+                    "raw_mem": "581.9MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 2.3,
+                    "mem_used_mib": 4.2,
+                    "mem_percent": 0.03,
+                    "raw_mem": "4.168MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.09,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.12,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.78MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "total_cpu_percent": 19.17,
+            "total_mem_mib": 963.1999999999999
+        },
+        {
+            "concurrency": 75,
+            "http": {
+                "completed": 7125,
+                "rps": 712.5,
+                "errors": 7125,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 5.8,
+                    "mem_percent": 0.05,
+                    "raw_mem": "5.77MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 0.9,
+                    "mem_used_mib": 143.4,
+                    "mem_percent": 1.2,
+                    "raw_mem": "143.4MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 0.91,
+                    "mem_used_mib": 143.4,
+                    "mem_percent": 1.2,
+                    "raw_mem": "143.4MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 0.52,
+                    "mem_used_mib": 581.7,
+                    "mem_percent": 4.86,
+                    "raw_mem": "581.7MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 2.24,
+                    "mem_used_mib": 4.4,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.402MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.11,
+                    "mem_used_mib": 37.5,
+                    "mem_percent": 0.31,
+                    "raw_mem": "37.54MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "total_cpu_percent": 4.78,
+            "total_mem_mib": 956.2
+        },
+        {
+            "concurrency": 100,
+            "http": {
+                "completed": 7700,
+                "rps": 770,
+                "errors": 7700,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats": {
+                "diyar-multinode-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 6.3,
+                    "mem_percent": 0.05,
+                    "raw_mem": "6.301MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-a-1": {
+                    "cpu_percent": 0.97,
+                    "mem_used_mib": 144.8,
+                    "mem_percent": 1.21,
+                    "raw_mem": "144.8MiB / 11.68GiB"
+                },
+                "diyar-multinode-api-b-1": {
+                    "cpu_percent": 0.89,
+                    "mem_used_mib": 143.9,
+                    "mem_percent": 1.2,
+                    "raw_mem": "143.9MiB / 11.68GiB"
+                },
+                "diyar-multinode-mysql-1": {
+                    "cpu_percent": 0.52,
+                    "mem_used_mib": 581.7,
+                    "mem_percent": 4.86,
+                    "raw_mem": "581.7MiB / 11.68GiB"
+                },
+                "diyar-multinode-redis-1": {
+                    "cpu_percent": 0.42,
+                    "mem_used_mib": 4.2,
+                    "mem_percent": 0.03,
+                    "raw_mem": "4.184MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-1-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-queue-worker-2-1": {
+                    "cpu_percent": 0.1,
+                    "mem_used_mib": 37.8,
+                    "mem_percent": 0.32,
+                    "raw_mem": "37.79MiB / 11.68GiB"
+                },
+                "diyar-multinode-scheduler-a-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 2.2,
+                    "mem_percent": 0.02,
+                    "raw_mem": "2.164MiB / 11.68GiB"
+                }
+            },
+            "total_cpu_percent": 3,
+            "total_mem_mib": 958.7
+        }
+    ],
+    "plan_fit": {
+        "peak_measured_stack_mem_mib": 974.3,
+        "peak_measured_stack_cpu_percent": 19.2,
+        "os_overhead_assumption_mib": 1024,
+        "kvm2_usable_ram_mib": 7168,
+        "kvm4_usable_ram_mib": 15360,
+        "kvm2_mem_headroom_mib": 6193.7,
+        "kvm4_mem_headroom_mib": 14385.7,
+        "note_cpu": "Docker CPU% is relative to host logical CPUs, not VPS vCPU. Compare saturation sweep trends, not absolute %."
+    }
+}

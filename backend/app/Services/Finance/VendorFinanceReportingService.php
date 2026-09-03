@@ -13,6 +13,7 @@ use App\Models\PaymentVendorAllocation;
 use App\Models\VendorAccount;
 use App\Models\VendorOrder;
 use App\Models\VendorPayout;
+use App\Services\Analytics\AnalyticsTimeBuckets;
 use App\Services\Finance\DTO\VendorFinanceAnalyticsPoint;
 use App\Services\Finance\DTO\VendorFinancePeriodReport;
 use Carbon\CarbonImmutable;
@@ -276,90 +277,7 @@ final class VendorFinanceReportingService
      */
     private function buildAnalyticsBuckets(FinancePeriod $period, CarbonImmutable $from, CarbonImmutable $to): array
     {
-        return match ($period) {
-            FinancePeriod::Day => $this->hourlyBuckets($from, $to),
-            FinancePeriod::Week => $this->dailyBuckets($from, $to),
-            FinancePeriod::Month => $this->dailyBuckets($from, $to),
-            FinancePeriod::Year => $this->monthlyBuckets($from, $to),
-        };
-    }
-
-    /**
-     * @return list<array{label: string, from: CarbonImmutable, to: CarbonImmutable}>
-     */
-    private function hourlyBuckets(CarbonImmutable $from, CarbonImmutable $to): array
-    {
-        $buckets = [];
-        $cursor = $from->startOfHour();
-
-        while ($cursor <= $to) {
-            $bucketEnd = $cursor->endOfHour();
-            if ($bucketEnd > $to) {
-                $bucketEnd = $to;
-            }
-
-            $buckets[] = [
-                'label' => $cursor->format('H:i'),
-                'from' => $cursor,
-                'to' => $bucketEnd,
-            ];
-
-            $cursor = $cursor->addHour();
-        }
-
-        return $buckets;
-    }
-
-    /**
-     * @return list<array{label: string, from: CarbonImmutable, to: CarbonImmutable}>
-     */
-    private function dailyBuckets(CarbonImmutable $from, CarbonImmutable $to): array
-    {
-        $buckets = [];
-        $cursor = $from->startOfDay();
-
-        while ($cursor <= $to) {
-            $bucketEnd = $cursor->endOfDay();
-            if ($bucketEnd > $to) {
-                $bucketEnd = $to;
-            }
-
-            $buckets[] = [
-                'label' => $cursor->format('Y-m-d'),
-                'from' => $cursor,
-                'to' => $bucketEnd,
-            ];
-
-            $cursor = $cursor->addDay();
-        }
-
-        return $buckets;
-    }
-
-    /**
-     * @return list<array{label: string, from: CarbonImmutable, to: CarbonImmutable}>
-     */
-    private function monthlyBuckets(CarbonImmutable $from, CarbonImmutable $to): array
-    {
-        $buckets = [];
-        $cursor = $from->startOfMonth();
-
-        while ($cursor <= $to) {
-            $bucketEnd = $cursor->endOfMonth();
-            if ($bucketEnd > $to) {
-                $bucketEnd = $to;
-            }
-
-            $buckets[] = [
-                'label' => $cursor->format('Y-m'),
-                'from' => $cursor,
-                'to' => $bucketEnd,
-            ];
-
-            $cursor = $cursor->addMonth();
-        }
-
-        return $buckets;
+        return AnalyticsTimeBuckets::build($from, $to, $period->analyticsGranularity());
     }
 
     /**

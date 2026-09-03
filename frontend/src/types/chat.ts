@@ -51,6 +51,7 @@ export type Conversation = {
   last_read_at: string | null;
   participants: ChatParticipant[];
   display_name: string | null;
+  display_avatar_url?: string | null;
   vendor_slug: string | null;
   provider_slug: string | null;
   last_message: {

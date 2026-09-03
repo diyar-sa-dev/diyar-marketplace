@@ -80,13 +80,6 @@ final class CategoryService
     public function update(Category $category, array $attributes): Category
     {
         return DB::transaction(function () use ($category, $attributes) {
-            if (array_key_exists('name', $attributes) && ! array_key_exists('slug', $attributes)) {
-                $attributes['slug'] = SlugGenerator::unique(
-                    $attributes['name'],
-                    new Category,
-                );
-            }
-
             if (array_key_exists('parent_id', $attributes) && $attributes['parent_id'] === $category->id) {
                 $attributes['parent_id'] = $category->parent_id;
             }

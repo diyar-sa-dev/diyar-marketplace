@@ -36,7 +36,7 @@ export type ProviderBookingsSeriesPoint = {
 };
 
 export type ProviderServiceAnalyticsRow = {
-  service_id: string;
+  service_id: string | null;
   service_title: string;
   bookings_count: number;
   completed_bookings: number;
@@ -62,7 +62,7 @@ export async function fetchProviderAnalyticsBookings(period: AnalyticsPeriodPres
   const { data } = await apiClient.get<
     ApiSuccessResponse<{
       analytics: {
-        period: ProviderAnalyticsOverview['period'];
+        period: ProviderAnalyticsOverview['period'] & { granularity?: string };
         currency: string;
         series: ProviderBookingsSeriesPoint[];
       };

@@ -120,6 +120,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       }
 
       if (payload.sender_id === user?.id) {
+        const message = toChatMessage(payload);
+        const cacheKey = chatKeys.messages(payload.conversation_id);
+        queryClient.setQueryData<MessagesInfiniteData>(cacheKey, (current) =>
+          mergeIncomingMessage(current, message),
+        );
         bumpConversationPreview(
           queryClient,
           payload.conversation_id,

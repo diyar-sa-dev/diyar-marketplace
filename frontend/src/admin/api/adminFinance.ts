@@ -1,13 +1,14 @@
 import { adminApi } from '../../api/client.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
 
-export type AdminFinancePeriod = 'day' | 'week' | 'month' | 'year';
+export type AdminFinancePeriod = 'day' | 'week' | 'month' | '3m' | '6m' | '12m' | 'year';
 
 export type AdminFinanceReport = {
   period: {
     type: AdminFinancePeriod;
     from: string;
     to: string;
+    granularity?: 'hour' | 'day' | 'week' | 'month' | string;
   };
   summary: {
     currency: string;
@@ -19,12 +20,20 @@ export type AdminFinanceReport = {
     net_earnings: string;
     pending_escrow: string;
     pending_vendor_payouts: string;
+    pending_provider_payouts: string;
     pending_affiliate_payouts: string;
   };
   orders: {
     completed: number;
     average_order_value: string;
   };
+  series?: Array<{
+    label: string;
+    gross_sales: string;
+    platform_commission: string;
+    affiliate_commission: string;
+    net_earnings: string;
+  }>;
 };
 
 export async function fetchAdminFinanceReport(

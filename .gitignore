@@ -40,6 +40,9 @@ backend/.env.*
 !backend/.env.production.example
 !backend/.env.loadtest.example
 
+# Docker production secrets (local VPS only)
+deploy/docker/production.env
+
 # OS & IDE
 .DS_Store
 Thumbs.db

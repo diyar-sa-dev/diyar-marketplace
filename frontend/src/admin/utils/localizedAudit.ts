@@ -26,6 +26,9 @@ const ACTION_KEYS: Record<string, string> = {
   'payout.affiliate.reject': 'admin.audit.actions.payoutAffiliateReject',
   'payout.affiliate.mark_processing': 'admin.audit.actions.payoutAffiliateMarkProcessing',
   'payout.affiliate.mark_paid': 'admin.audit.actions.payoutAffiliateMarkPaid',
+  'payout.provider.approve': 'admin.audit.actions.payoutProviderApprove',
+  'payout.provider.reject': 'admin.audit.actions.payoutProviderReject',
+  'payout.provider.mark_paid': 'admin.audit.actions.payoutProviderMarkPaid',
   'affiliate_link.disable': 'admin.audit.actions.affiliateLinkDisable',
   'return.process_refund': 'admin.audit.actions.returnProcessRefund',
   'return.submit_for_review': 'admin.audit.actions.returnSubmitForReview',
@@ -84,6 +87,7 @@ const RESOURCE_KEYS: Record<string, string> = {
   'App\\Models\\Coupon': 'admin.audit.resources.coupon',
   'App\\Models\\VendorPayout': 'admin.audit.resources.vendorPayout',
   'App\\Models\\AffiliatePayout': 'admin.audit.resources.affiliatePayout',
+  'App\\Models\\ProviderPayout': 'admin.audit.resources.providerPayout',
   'App\\Models\\AffiliateLink': 'admin.audit.resources.affiliateLink',
   'App\\Models\\ReturnRequest': 'admin.audit.resources.returnRequest',
   'App\\Models\\Role': 'admin.audit.resources.role',
@@ -130,4 +134,70 @@ export function localizedAuditResource(
 
   const shortName = resourceType.split('\\').pop() ?? resourceType;
   return shortName.replace(/([A-Z])/g, ' $1').trim();
+}
+
+export type AuditActionTone = 'credit' | 'debit' | 'gold' | 'neutral';
+
+const DEBIT_ACTION_TOKENS = [
+  'delete',
+  'suspend',
+  'reject',
+  'cancel',
+  'archive',
+  'deactivate',
+  'disable',
+  'unpublish',
+  'unfeature',
+  'hide',
+  'revoke',
+];
+
+const CREDIT_ACTION_TOKENS = [
+  'create',
+  'activate',
+  'approve',
+  'publish',
+  'verify',
+  'feature',
+  'unhide',
+  'mark_paid',
+  'mark_received',
+];
+
+function actionTokenMatches(lastSegment: string, tokens: string[]): boolean {
+  return tokens.some(
+    (token) => lastSegment === token || lastSegment.startsWith(`${token}_`),
+  );
+}
+
+export function auditActionTone(action: string | null | undefined): AuditActionTone {
+  const normalized = (action ?? '').toLowerCase();
+  if (!normalized) {
+    return 'neutral';
+  }
+
+  const lastSegment = normalized.split('.').pop() ?? normalized;
+
+  if (actionTokenMatches(lastSegment, DEBIT_ACTION_TOKENS)) {
+    return 'debit';
+  }
+
+  if (actionTokenMatches(lastSegment, CREDIT_ACTION_TOKENS)) {
+    return 'credit';
+  }
+
+  return 'gold';
+}
+
+export function auditActionBadgeClass(tone: AuditActionTone): string {
+  switch (tone) {
+    case 'credit':
+      return 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200';
+    case 'debit':
+      return 'bg-red-50 text-red-800 ring-1 ring-red-200';
+    case 'gold':
+      return 'bg-[#f4ead8] text-[#8a6a2f] ring-1 ring-[#e4d4b0]';
+    default:
+      return 'bg-slate-50 text-slate-700 ring-1 ring-slate-200';
+  }
 }

@@ -9,6 +9,7 @@ use App\Models\ShippingZone;
 use App\Models\VendorShippingProfile;
 use App\Services\Shipping\ShippingConfigCache;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 final class AdminShippingConfigurationService
@@ -17,32 +18,38 @@ final class AdminShippingConfigurationService
         private readonly ShippingConfigCache $configCache,
     ) {}
 
-    public function listCarriers(int $page, int $perPage): LengthAwarePaginator
+    public function listCarriers(int $page, int $perPage, ?string $search = null): LengthAwarePaginator
     {
-        return ShippingCarrier::query()->orderBy('sort_order')->paginate($perPage, ['*'], 'page', $page);
+        return ShippingCarrier::query()
+            ->when($this->hasSearch($search), fn (Builder $query) => $this->applySearch($query, $search, ['name', 'code']))
+            ->orderBy('sort_order')
+            ->paginate($perPage, ['*'], 'page', $page);
     }
 
-    public function listZones(int $page, int $perPage, ?string $carrierId = null): LengthAwarePaginator
+    public function listZones(int $page, int $perPage, ?string $carrierId = null, ?string $search = null): LengthAwarePaginator
     {
         return ShippingZone::query()
             ->when($carrierId !== null, fn ($query) => $query->where('carrier_id', $carrierId))
+            ->when($this->hasSearch($search), fn (Builder $query) => $this->applySearch($query, $search, ['name', 'city', 'region', 'postal_prefix']))
             ->orderByDesc('priority')
             ->orderBy('name')
             ->paginate($perPage, ['*'], 'page', $page);
     }
 
-    public function listMethods(int $page, int $perPage, ?string $carrierId = null): LengthAwarePaginator
+    public function listMethods(int $page, int $perPage, ?string $carrierId = null, ?string $search = null): LengthAwarePaginator
     {
         return ShippingMethod::query()
             ->when($carrierId !== null, fn ($query) => $query->where('carrier_id', $carrierId))
+            ->when($this->hasSearch($search), fn (Builder $query) => $this->applySearch($query, $search, ['name', 'code']))
             ->orderBy('name')
             ->paginate($perPage, ['*'], 'page', $page);
     }
 
-    public function listRateRules(int $page, int $perPage, ?string $methodId = null): LengthAwarePaginator
+    public function listRateRules(int $page, int $perPage, ?string $methodId = null, ?string $search = null): LengthAwarePaginator
     {
         return ShippingRateRule::query()
             ->when($methodId !== null, fn ($query) => $query->where('shipping_method_id', $methodId))
+            ->when($this->hasSearch($search), fn (Builder $query) => $this->applySearch($query, $search, ['rate', 'min_weight_kg', 'max_weight_kg']))
             ->orderBy('sort_order')
             ->paginate($perPage, ['*'], 'page', $page);
     }
@@ -160,6 +167,12 @@ final class AdminShippingConfigurationService
         return $method->fresh();
     }
 
+    public function deleteMethod(ShippingMethod $method): void
+    {
+        $method->delete();
+        $this->bumpCache();
+    }
+
     /**
      * @param  array<string, mixed>  $payload
      */
@@ -251,5 +264,30 @@ final class AdminShippingConfigurationService
     private function bumpCache(): void
     {
         $this->configCache->bump();
+    }
+
+    private function hasSearch(?string $search): bool
+    {
+        return $search !== null && trim($search) !== '';
+    }
+
+    /**
+     * @param  list<string>  $columns
+     */
+    private function applySearch(Builder $query, ?string $search, array $columns): void
+    {
+        $term = '%'.trim((string) $search).'%';
+
+        $query->where(function (Builder $inner) use ($columns, $term) {
+            foreach ($columns as $index => $column) {
+                if ($index === 0) {
+                    $inner->where($column, 'like', $term);
+
+                    continue;
+                }
+
+                $inner->orWhere($column, 'like', $term);
+            }
+        });
     }
 }

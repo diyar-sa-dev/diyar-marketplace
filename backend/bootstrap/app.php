@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AssignRequestCorrelationId;
 use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\EnsureCleanAuthState;
 use App\Http\Middleware\EnsureAdminPermission;
 use App\Http\Middleware\EnsureAdminUserIsActive;
 use App\Http\Middleware\EnsureMarketplaceAccess;
@@ -10,6 +11,7 @@ use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocaleFromRequest;
 use App\Support\Api\ApiResponse;
+use App\Support\Http\TrustedProxies;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
@@ -39,13 +41,25 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->trustProxies(at: '*');
+        $middleware->trustProxies(
+            at: TrustedProxies::addresses(),
+            headers: Request::HEADER_X_FORWARDED_FOR
+                | Request::HEADER_X_FORWARDED_HOST
+                | Request::HEADER_X_FORWARDED_PORT
+                | Request::HEADER_X_FORWARDED_PROTO
+                | Request::HEADER_X_FORWARDED_AWS_ELB,
+        );
 
         $middleware->api(prepend: [
+            EnsureCleanAuthState::class,
             AssignRequestCorrelationId::class,
             EnsureFrontendRequestsAreStateful::class,
             SetLocaleFromRequest::class,
             EnsureMarketplaceNotInMaintenance::class,
+        ]);
+
+        $middleware->web(prepend: [
+            EnsureCleanAuthState::class,
         ]);
 
         $middleware->append([
@@ -122,7 +136,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (InvalidArgumentException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
-                return ApiResponse::error($e->getMessage(), 400);
+                return ApiResponse::error($e->getMessage(), 422);
             }
         });
 

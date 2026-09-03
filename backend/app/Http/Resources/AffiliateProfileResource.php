@@ -27,6 +27,14 @@ class AffiliateProfileResource extends JsonResource
             'payout_bank_code' => $this->payout_bank_code,
             'payout_bank_name' => $this->payout_bank_name,
             'social_links' => $this->social_links ?? [],
+            'created_at' => $this->created_at?->toIso8601String(),
+            'user' => $this->whenLoaded('user', fn () => $this->user === null ? null : [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'email' => $this->user->email,
+                'phone' => $this->user->phone,
+                'status' => $this->user->status->value,
+            ]),
         ];
     }
 }

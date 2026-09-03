@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { ProtectedRoute } from '../components/routes/ProtectedRoute.tsx';
 import { RoleName } from '../lib/auth/roles.ts';
 import { LazyRoute } from './LazyRoute.tsx';
@@ -39,6 +39,17 @@ import {
 } from './lazyPages.ts';
 
 /** Lazy-loaded /dashboard/* subtree — own <Routes> matches React Router v6 nesting rules. */
+function LegacyProviderRequestsRedirect() {
+  const { id } = useParams();
+
+  return (
+    <Navigate
+      to={id ? `/dashboard/service/client-requests/${id}` : '/dashboard/service/client-requests'}
+      replace
+    />
+  );
+}
+
 export default function DashboardRoutes() {
   return (
     <Routes>
@@ -67,6 +78,8 @@ export default function DashboardRoutes() {
         <Route path="vendor/notifications" element={<ProtectedRoute roles={[RoleName.Vendor]}><LazyRoute><DashboardNotifications /></LazyRoute></ProtectedRoute>} />
 
         <Route path="service" element={<ProtectedRoute roles={[RoleName.Provider]}><LazyRoute><ServiceDashboard /></LazyRoute></ProtectedRoute>} />
+        <Route path="service/requests" element={<ProtectedRoute roles={[RoleName.Provider]}><LegacyProviderRequestsRedirect /></ProtectedRoute>} />
+        <Route path="service/requests/:id" element={<ProtectedRoute roles={[RoleName.Provider]}><LegacyProviderRequestsRedirect /></ProtectedRoute>} />
         <Route path="service/client-requests" element={<ProtectedRoute roles={[RoleName.Provider]}><LazyRoute><ServiceClientRequests /></LazyRoute></ProtectedRoute>} />
         <Route path="service/client-requests/:id" element={<ProtectedRoute roles={[RoleName.Provider]}><LazyRoute><ServiceClientRequestDetails /></LazyRoute></ProtectedRoute>} />
         <Route path="service/bookings" element={<ProtectedRoute roles={[RoleName.Provider]}><LazyRoute><ServiceBookings /></LazyRoute></ProtectedRoute>} />

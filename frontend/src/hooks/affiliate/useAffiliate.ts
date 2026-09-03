@@ -14,8 +14,10 @@ export const affiliateKeys = {
     [...affiliateKeys.all, 'products', page, perPage, search ?? ''] as const,
   links: (page: number, perPage: number) => [...affiliateKeys.all, 'links', page, perPage] as const,
   reports: (period: AffiliateReportPeriod) => [...affiliateKeys.all, 'reports', period] as const,
-  payouts: (page: number, perPage: number) =>
-    [...affiliateKeys.all, 'payouts', page, perPage] as const,
+  payouts: (page: number, perPage: number, period?: AffiliateReportPeriod) =>
+    [...affiliateKeys.all, 'payouts', page, perPage, period ?? 'month'] as const,
+  financeTransactions: (page: number, perPage: number, type?: string, period?: AffiliateReportPeriod) =>
+    [...affiliateKeys.all, 'finance-transactions', page, perPage, type ?? 'all', period ?? 'month'] as const,
   settings: () => [...affiliateKeys.all, 'settings'] as const,
   platformConfig: () => [...affiliateKeys.all, 'platform-config'] as const,
   vendorProductAffiliate: (productId: string) =>
@@ -73,10 +75,22 @@ export function useAffiliateReports(period: AffiliateReportPeriod = 'month') {
   });
 }
 
-export function useAffiliatePayouts(page = 1, perPage = 20) {
+export function useAffiliatePayouts(page = 1, perPage = 20, period: AffiliateReportPeriod = 'month') {
   return useQuery({
-    queryKey: affiliateKeys.payouts(page, perPage),
-    queryFn: () => affiliateApi.fetchAffiliatePayouts(page, perPage),
+    queryKey: affiliateKeys.payouts(page, perPage, period),
+    queryFn: () => affiliateApi.fetchAffiliatePayouts(page, perPage, period),
+  });
+}
+
+export function useAffiliateFinanceTransactions(
+  page = 1,
+  perPage = 20,
+  type?: string,
+  period: AffiliateReportPeriod = 'month',
+) {
+  return useQuery({
+    queryKey: affiliateKeys.financeTransactions(page, perPage, type, period),
+    queryFn: () => affiliateApi.fetchAffiliateFinanceTransactions(page, perPage, type, period),
   });
 }
 
@@ -86,8 +100,10 @@ export function useRequestAffiliatePayout() {
     mutationFn: ({ amount, idempotencyKey }: { amount: string; idempotencyKey?: string }) =>
       affiliateApi.requestAffiliatePayout(amount, idempotencyKey),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: affiliateKeys.payouts(1, 20) });
+      void queryClient.invalidateQueries({ queryKey: [...affiliateKeys.all, 'payouts'] });
+      void queryClient.invalidateQueries({ queryKey: [...affiliateKeys.all, 'finance-transactions'] });
       void queryClient.invalidateQueries({ queryKey: affiliateKeys.overview() });
+      void queryClient.invalidateQueries({ queryKey: affiliateKeys.reports('month') });
     },
   });
 }

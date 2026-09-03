@@ -7,15 +7,22 @@ import {
   DollarSign,
   Download,
   Eye,
+  Loader2,
   TrendingUp,
   Wallet,
   XCircle,
 } from 'lucide-react';
+import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
 import { adminApi } from '../../api/client.ts';
 import { confirmRejectPayout } from '../../lib/confirmDialog.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { formatLocaleDateTime, intlLocaleTag } from '../../lib/intlLocale.ts';
+import {
+  analyticsAxisTickInterval,
+  formatAnalyticsAxisLabel,
+} from '../../lib/formatAnalyticsAxisLabel.ts';
 import { useToast } from '../../hooks/useToast.ts';
+import { ChartContainer } from '../../components/common/ChartContainer.tsx';
 import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
 import {
   downloadAdminFinanceReport,
@@ -23,6 +30,7 @@ import {
   type AdminFinancePeriod,
 } from '../api/adminFinance.ts';
 import { AdminPayoutDetailModal } from '../components/AdminPayoutDetailModal.tsx';
+import { TableLtrValue } from '../../components/common/TableLtrValue.tsx';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
@@ -33,25 +41,56 @@ import { useAdminAuth } from '../auth/AdminAuthContext.tsx';
 import { invalidateAdminResource, syncAdminPayoutStatus } from '../utils/adminQueryCache.ts';
 import {
   FINANCIAL_TRANSACTION_TYPES,
+  ledgerAmountClass,
+  ledgerRowAccentClass,
+  ledgerTransactionTone,
+  ledgerTypeBadgeClass,
   localizedTransactionType,
 } from '../utils/localizedTransactionType.ts';
 import type {
   AdminAffiliatePayout,
   AdminPayoutKind,
   AdminPayoutRow,
+  AdminProviderPayout,
   AdminVendorPayout,
   PayoutAction,
 } from '../types/payouts.ts';
 
 type Transaction = {
   id: string;
+  reference?: string | null;
   transaction_type: string;
   amount: string;
   currency?: string;
+  direction?: 'credit' | 'debit' | string | null;
   created_at?: string;
 };
 
-const PERIOD_OPTIONS: AdminFinancePeriod[] = ['day', 'week', 'month', 'year'];
+const FILTER_SELECT =
+  'rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none transition hover:border-diyar-brown focus:border-diyar-brown cursor-pointer';
+
+function shortLedgerReference(row: Transaction): string {
+  const raw = row.reference?.trim() || row.id || '';
+  if (!raw) {
+    return '—';
+  }
+
+  return raw.length > 12 ? `${raw.slice(0, 8)}…` : raw;
+}
+
+function formatLedgerAmount(amount: string, direction?: string | null): string {
+  if (direction === 'debit') {
+    return `− ${amount}`;
+  }
+
+  if (direction === 'credit') {
+    return `+ ${amount}`;
+  }
+
+  return amount;
+}
+
+const PERIOD_OPTIONS: AdminFinancePeriod[] = ['day', 'week', 'month', '3m', '6m', '12m', 'year'];
 
 function payoutStatusForAction(action: PayoutAction): string {
   switch (action) {
@@ -69,12 +108,17 @@ function payoutStatusForAction(action: PayoutAction): string {
 }
 
 function payoutResourceKey(kind: AdminPayoutKind): string {
-  return kind === 'vendor' ? 'admin-vendor-payouts' : 'admin-affiliate-payouts';
+  if (kind === 'vendor') return 'admin-vendor-payouts';
+  if (kind === 'provider') return 'admin-provider-payouts';
+  return 'admin-affiliate-payouts';
 }
 
 function payoutRecipientName(payout: AdminPayoutRow, kind: AdminPayoutKind): string {
   if (kind === 'vendor') {
     return (payout as AdminVendorPayout).vendor?.business_name ?? '—';
+  }
+  if (kind === 'provider') {
+    return (payout as AdminProviderPayout).provider?.business_name ?? '—';
   }
   const affiliate = (payout as AdminAffiliatePayout).affiliate;
   return affiliate?.display_name ?? affiliate?.owner?.name ?? '—';
@@ -96,7 +140,7 @@ export default function AdminFinancePage() {
   const { isAuthenticated, hasPermission } = useAdminAuth();
   const canViewBalances = hasPermission('balances.view');
   const canViewPayouts = hasPermission('payouts.view');
-  const [section, setSection] = useState<'vendor' | 'affiliate' | 'ledger'>('vendor');
+  const [section, setSection] = useState<'vendor' | 'provider' | 'affiliate' | 'ledger'>('vendor');
   const [selectedPayout, setSelectedPayout] = useState<AdminPayoutRow | null>(null);
   const [period, setPeriod] = useState<AdminFinancePeriod>('month');
 
@@ -135,6 +179,13 @@ export default function AdminFinancePage() {
         resourceKey: 'admin-affiliate-payouts',
       };
     }
+    if (section === 'provider') {
+      return {
+        endpoint: '/admin/provider/payouts',
+        itemsKey: 'payouts',
+        resourceKey: 'admin-provider-payouts',
+      };
+    }
     return { endpoint: '/admin/payouts', itemsKey: 'payouts', resourceKey: 'admin-vendor-payouts' };
   }, [section]);
 
@@ -146,7 +197,8 @@ export default function AdminFinancePage() {
     enabled: isAuthenticated && (section === 'ledger' ? canViewBalances : canViewPayouts),
   });
 
-  const payoutKind: AdminPayoutKind = section === 'affiliate' ? 'affiliate' : 'vendor';
+  const payoutKind: AdminPayoutKind =
+    section === 'affiliate' ? 'affiliate' : section === 'provider' ? 'provider' : 'vendor';
 
   const payoutMutation = useMutation({
     mutationFn: async ({
@@ -161,12 +213,17 @@ export default function AdminFinancePage() {
       reason?: string;
     }) => {
       const base =
-        kind === 'vendor' ? `/admin/payouts/${payoutId}` : `/admin/affiliate/payouts/${payoutId}`;
+        kind === 'vendor'
+          ? `/admin/payouts/${payoutId}`
+          : kind === 'provider'
+            ? `/admin/provider/payouts/${payoutId}`
+            : `/admin/affiliate/payouts/${payoutId}`;
       if (action === 'reject') {
         await adminApi.post(`${base}/reject`, { reason });
         return;
       }
-      await adminApi.post(`${base}/${action}`);
+      const actionPath = action === 'mark-processing' ? 'processing' : action;
+      await adminApi.post(`${base}/${actionPath}`);
     },
     onSuccess: async (_data, variables) => {
       const status = payoutStatusForAction(variables.action);
@@ -206,15 +263,41 @@ export default function AdminFinancePage() {
   const items = listQuery.data?.items ?? [];
   const meta = listQuery.data?.meta;
   const isLedger = section === 'ledger';
+  const showListSkeleton =
+    listQuery.isLoading || (listQuery.isFetching && items.length === 0);
+  const isSearching = listQuery.isFetching && listQuery.search.trim().length > 0;
   const report = financeReportQuery.data;
   const summary = report?.summary;
   const currency = summary?.currency ?? 'SAR';
+  const chartGranularity = report?.period.granularity ?? 'day';
+  const grossSeriesKey = t('admin.finance.seriesGross');
+  const commissionSeriesKey = t('admin.finance.seriesCommission');
+  const netSeriesKey = t('admin.finance.seriesNet');
+  const chartData = useMemo(
+    () =>
+      (report?.series ?? []).map((point) => ({
+        name: point.label,
+        [grossSeriesKey]: Number(point.gross_sales),
+        [commissionSeriesKey]: Number(point.platform_commission),
+        [netSeriesKey]: Number(point.net_earnings),
+      })),
+    [report?.series, grossSeriesKey, commissionSeriesKey, netSeriesKey],
+  );
+  const hasChartValues = chartData.some(
+    (point) =>
+      Number(point[grossSeriesKey]) > 0 ||
+      Number(point[commissionSeriesKey]) > 0 ||
+      Number(point[netSeriesKey]) > 0,
+  );
 
   const periodLabel = (value: AdminFinancePeriod) => {
     const map: Record<AdminFinancePeriod, string> = {
       day: t('vendor.finance.periodDay'),
       week: t('vendor.finance.periodWeek'),
       month: t('vendor.finance.periodMonth'),
+      '3m': t('vendor.finance.period3m'),
+      '6m': t('vendor.finance.period6m'),
+      '12m': t('vendor.finance.period12m'),
       year: t('vendor.finance.periodYear'),
     };
     return map[value];
@@ -222,6 +305,7 @@ export default function AdminFinancePage() {
 
   const tabs = [
     { id: 'vendor', label: t('admin.finance.vendorPayouts') },
+    { id: 'provider', label: t('admin.finance.providerPayouts') },
     { id: 'affiliate', label: t('admin.finance.affiliatePayouts') },
     { id: 'ledger', label: t('admin.finance.ledger') },
   ];
@@ -235,13 +319,13 @@ export default function AdminFinancePage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
+          <div className="flex rounded-xl border border-gray-200 bg-white p-1 shadow-sm overflow-x-auto scrollbar-hide">
             {PERIOD_OPTIONS.map((option) => (
               <button
                 key={option}
                 type="button"
                 onClick={() => setPeriod(option)}
-                className={`rounded-lg px-4 py-1.5 text-sm font-medium transition cursor-pointer ${
+                className={`rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition cursor-pointer whitespace-nowrap ${
                   period === option
                     ? 'bg-gray-100 font-bold text-diyar-dark'
                     : 'text-gray-500 hover:text-diyar-dark'
@@ -353,7 +437,7 @@ export default function AdminFinancePage() {
       ) : null}
 
       {summary ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <div className="rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
             <p className="text-xs text-gray-500">{t('admin.finance.affiliateCommission')}</p>
             <p className="mt-1 text-xl font-bold text-diyar-dark tabular-nums" dir="ltr">
@@ -364,6 +448,12 @@ export default function AdminFinancePage() {
             <p className="text-xs text-gray-500">{t('admin.finance.pendingVendorPayouts')}</p>
             <p className="mt-1 text-xl font-bold text-diyar-dark tabular-nums" dir="ltr">
               {summary.pending_vendor_payouts} {currency}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
+            <p className="text-xs text-gray-500">{t('admin.finance.pendingProviderPayouts')}</p>
+            <p className="mt-1 text-xl font-bold text-diyar-dark tabular-nums" dir="ltr">
+              {summary.pending_provider_payouts} {currency}
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
@@ -381,12 +471,107 @@ export default function AdminFinancePage() {
         </div>
       ) : null}
 
+      {summary ? (
+        <div className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="text-lg font-bold text-diyar-dark">{t('admin.finance.chartTitle')}</h3>
+              <p className="mt-1 text-xs text-gray-500">{periodLabel(period)}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-diyar-dark" />
+                {grossSeriesKey}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-diyar-brown" />
+                {commissionSeriesKey}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                {netSeriesKey}
+              </span>
+            </div>
+          </div>
+          {financeReportQuery.isFetching && chartData.length === 0 ? (
+            <div className="flex h-72 items-center justify-center">
+              <Loader2 className="animate-spin text-diyar-brown" size={28} />
+            </div>
+          ) : !hasChartValues ? (
+            <div className="flex h-72 items-center justify-center text-sm text-gray-500">
+              {t('admin.finance.chartEmpty')}
+            </div>
+          ) : (
+            <ChartContainer fill minHeight={320}>
+              <LineChart data={chartData} margin={{ top: 12, right: 16, left: 8, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#9ca3af', fontSize: 12 }}
+                  interval={analyticsAxisTickInterval(chartData.length)}
+                  tickFormatter={(value: string) =>
+                    formatAnalyticsAxisLabel(value, locale, chartGranularity)
+                  }
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#9ca3af', fontSize: 12 }}
+                  width={48}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '16px',
+                    border: 'none',
+                    boxShadow: '0 4px 20px -2px rgb(0 0 0 / 0.1)',
+                  }}
+                  labelFormatter={(label) =>
+                    formatAnalyticsAxisLabel(String(label), locale, chartGranularity)
+                  }
+                  formatter={(value: number, name: string) => [`${value} ${currency}`, name]}
+                />
+                <Line
+                  name={grossSeriesKey}
+                  type="monotone"
+                  dataKey={grossSeriesKey}
+                  stroke="#1f3d3a"
+                  strokeWidth={3}
+                  dot={{ r: 3, fill: '#1f3d3a', strokeWidth: 0 }}
+                  activeDot={{ r: 5 }}
+                />
+                <Line
+                  name={commissionSeriesKey}
+                  type="monotone"
+                  dataKey={commissionSeriesKey}
+                  stroke="#947961"
+                  strokeWidth={3}
+                  dot={{ r: 3, fill: '#947961', strokeWidth: 0 }}
+                  activeDot={{ r: 5 }}
+                />
+                <Line
+                  name={netSeriesKey}
+                  type="monotone"
+                  dataKey={netSeriesKey}
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  dot={{ r: 3, fill: '#10b981', strokeWidth: 0 }}
+                  activeDot={{ r: 5 }}
+                />
+              </LineChart>
+            </ChartContainer>
+          )}
+        </div>
+      ) : null}
+
       <DetailTabs
         tabs={tabs}
         activeTab={section}
         onChange={(id) => {
           setSection(id as typeof section);
           setSelectedPayout(null);
+          listQuery.setPage(1);
         }}
       />
 
@@ -396,9 +581,13 @@ export default function AdminFinancePage() {
             ? t('admin.finance.ledger')
             : section === 'vendor'
               ? t('admin.finance.vendorPayouts')
-              : t('admin.finance.affiliatePayouts')
+              : section === 'provider'
+                ? t('admin.finance.providerPayouts')
+                : t('admin.finance.affiliatePayouts')
         }
-        subtitle={!isLedger ? t('admin.payouts.subtitle') : undefined}
+        subtitle={
+          isLedger ? t('admin.transactions.subtitle') : t('admin.payouts.subtitle')
+        }
         searchValue={listQuery.search}
         onSearchChange={listQuery.setSearch}
         searchPlaceholder={
@@ -409,7 +598,7 @@ export default function AdminFinancePage() {
             <select
               value={listQuery.paramFilter}
               onChange={(event) => listQuery.setParamFilter(event.target.value)}
-              className="rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-diyar-brown cursor-pointer"
+              className={FILTER_SELECT}
             >
               <option value="">{t('admin.finance.allTypes')}</option>
               {FINANCIAL_TRANSACTION_TYPES.map((type) => (
@@ -422,7 +611,7 @@ export default function AdminFinancePage() {
             <select
               value={listQuery.statusFilter}
               onChange={(event) => listQuery.setStatusFilter(event.target.value)}
-              className="rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-diyar-brown cursor-pointer"
+              className={FILTER_SELECT}
             >
               <option value="">{t('admin.tables.allStatuses')}</option>
               <option value="pending">{t('admin.tables.pending')}</option>
@@ -433,28 +622,54 @@ export default function AdminFinancePage() {
             </select>
           )
         }
-        isLoading={listQuery.isLoading}
+        actions={
+          isSearching ? (
+            <span className="inline-flex items-center gap-2 text-xs text-gray-500">
+              <Loader2 size={14} className="animate-spin" />
+              {t('admin.tables.searching')}
+            </span>
+          ) : null
+        }
+        isLoading={showListSkeleton}
         isError={listQuery.isError}
-        isEmpty={items.length === 0}
+        isEmpty={!showListSkeleton && items.length === 0}
         emptyTitle={isLedger ? t('admin.finance.ledgerEmpty') : t('admin.payouts.empty')}
         columns={
           isLedger ? (
             <tr>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.reference')}</th>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.type')}</th>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.amount')}</th>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.createdAt')}</th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.tables.reference')}
+              </th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.tables.type')}
+              </th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.tables.amount')}
+              </th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.tables.createdAt')}
+              </th>
             </tr>
           ) : (
             <tr>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.payouts.reference')}</th>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.payouts.recipient')}</th>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.amount')}</th>
-              <th className="px-4 py-3 text-start font-semibold">
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.payouts.reference')}
+              </th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.payouts.recipient')}
+              </th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.tables.amount')}
+              </th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
                 {t('admin.payouts.requestedAt')}
               </th>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.status')}</th>
-              <th className="px-4 py-3 text-end font-semibold">{t('admin.tables.actions')}</th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.tables.status')}
+              </th>
+              <th className="px-4 py-3 text-end text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.tables.actions')}
+              </th>
             </tr>
           )
         }
@@ -463,23 +678,48 @@ export default function AdminFinancePage() {
             meta={meta}
             page={listQuery.page}
             onPageChange={listQuery.setPage}
-            isLoading={listQuery.isLoading}
+            perPage={listQuery.perPage}
+            onPerPageChange={listQuery.setPerPage}
+            isLoading={listQuery.isFetching}
           />
         }
       >
         {isLedger
           ? items.map((tx) => {
               const row = tx as Transaction;
+              const tone = ledgerTransactionTone(row.transaction_type, row.direction);
+              const amountTone =
+                row.direction === 'debit'
+                  ? 'debit'
+                  : row.direction === 'credit'
+                    ? 'credit'
+                    : tone;
               return (
-                <tr key={row.id} className="hover:bg-[#f7f4f1]/50 transition-colors">
-                  <td className="px-4 py-3 font-mono text-xs text-gray-500" dir="ltr">
-                    {row.id.slice(0, 8)}…
+                <tr
+                  key={row.id}
+                  className="hover:bg-[#f7f4f1]/50 transition-colors"
+                >
+                  <td
+                    className={`px-4 py-3 text-start ${ledgerRowAccentClass(amountTone)}`}
+                    title={row.reference ?? row.id}
+                  >
+                    <TableLtrValue className="font-mono text-xs font-semibold text-gray-600">
+                      {shortLedgerReference(row)}
+                    </TableLtrValue>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">
-                    {localizedTransactionType(row.transaction_type, t)}
+                  <td className="px-4 py-3 text-start">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${ledgerTypeBadgeClass(tone)}`}
+                    >
+                      {localizedTransactionType(row.transaction_type, t)}
+                    </span>
                   </td>
-                  <td className="px-4 py-3 font-bold text-diyar-dark tabular-nums" dir="ltr">
-                    {row.amount} {row.currency ?? 'SAR'}
+                  <td className="px-4 py-3 text-start">
+                    <TableLtrValue
+                      className={`text-sm font-extrabold tabular-nums ${ledgerAmountClass(amountTone)}`}
+                    >
+                      {formatLedgerAmount(row.amount, row.direction)} {row.currency ?? 'SAR'}
+                    </TableLtrValue>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-500">
                     {row.created_at ? formatLocaleDateTime(row.created_at, locale) : '—'}
@@ -509,8 +749,10 @@ export default function AdminFinancePage() {
                       {row.id.slice(0, 8)}…
                     </p>
                   </td>
-                  <td className="px-4 py-3 font-extrabold text-diyar-brown tabular-nums" dir="ltr">
-                    {row.amount} {row.currency ?? 'SAR'}
+                  <td className="px-4 py-3 text-start font-extrabold text-diyar-brown">
+                    <TableLtrValue>
+                      {row.amount} {row.currency ?? 'SAR'}
+                    </TableLtrValue>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
                     {formatShortDate(row.requested_at, locale)}

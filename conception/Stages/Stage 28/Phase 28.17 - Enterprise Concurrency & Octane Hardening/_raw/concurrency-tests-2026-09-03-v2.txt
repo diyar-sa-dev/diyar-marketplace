@@ -1,0 +1,19 @@
+2026-09-03 — Phase 28.17 expanded PHPUnit concurrency suite (local Windows)
+
+Command:
+  php artisan test --filter="CheckoutInventoryConcurrencyTest|PaymentFinalizationRaceTest|AuthSessionIsolationTest|PaymentWebhookProcessingLeaseTest|PaymentConcurrencyTest|CouponConcurrencyTest|OrderNumberConcurrencyTest"
+
+Result:
+  tests=14 passed=14 assertions=47 duration_ms=42319 (inventory test adds ~30s)
+
+New this pass:
+  - CheckoutInventoryConcurrencyTest (6 parallel workers, stock=1 → 1 success / 5 reject)
+  - PaymentFinalizationRaceTest (paid vs failed idempotency, cancel guard)
+  - PaymentApplicationService::submit row-lock integration (from stash, cherry-picked)
+  - stage2817-inventory-reserve-worker.php
+  - stage2817-auth-sequential-check.php
+  - stage2817-octane-auth-isolation.php
+
+Live Octane probe:
+  docker-compose.loadtest.yml started; container unhealthy during migrate:seed (long migration chain)
+  live-octane-auth-concurrency.txt — BLOCKED pending healthy API

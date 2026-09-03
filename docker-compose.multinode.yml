@@ -1,0 +1,173 @@
+# DIYAR Phase 28.17.1 — Multi-node Octane runtime gate stack
+#
+#   docker compose -f docker-compose.multinode.yml up --build -d
+#   curl http://127.0.0.1:8088/api/v1/health
+
+name: diyar-multinode
+
+x-octane-env: &octane-env
+  APP_ENV: local
+  APP_DEBUG: 'false'
+  APP_KEY: base64:2fl+KtvkblFZiGZtacP1ZAwJfvyIZxSzUI/qpgQHoW0=
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: 3306
+  DB_DATABASE: diyar_multinode
+  DB_USERNAME: root
+  DB_PASSWORD: multinode
+  CACHE_STORE: redis
+  QUEUE_CONNECTION: redis
+  SESSION_DRIVER: redis
+  SESSION_CONNECTION: default
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  REDIS_PREFIX: diyar-multinode-
+  BROADCAST_CONNECTION: 'null'
+  DIYAR_LOADTEST_MODE: 'false' # certification default; use docker-compose.loadtest.yml for unlimited limiters
+  DIYAR_HEALTH_PROBE_CACHE_SECONDS: '0'
+  DIYAR_PAYMENT_USE_FAKE_GATEWAY: 'true'
+  DIYAR_ENFORCE_REDIS_IN_PRODUCTION: 'false'
+  LOG_CHANNEL: stderr
+  LOG_LEVEL: warning
+  OCTANE_WORKERS: ${OCTANE_WORKERS:-2}
+  OCTANE_TASK_WORKERS: ${OCTANE_TASK_WORKERS:-1}
+  OCTANE_MAX_REQUESTS: ${OCTANE_MAX_REQUESTS:-500}
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6380:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: multinode
+      MYSQL_DATABASE: diyar_multinode
+    ports:
+      - '3308:3306'
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '-uroot', '-pmultinode']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.octane
+    depends_on:
+      redis:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    environment:
+      <<: *octane-env
+    command: ['sh', '-c', 'chmod +x scripts/octane-multinode-boot.sh && scripts/octane-multinode-boot.sh && php artisan migrate:fresh --seed --seeder=DatabaseSeeder --force']
+    restart: 'no'
+
+  api-a:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.octane
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      <<: *octane-env
+      DIYAR_RUNTIME_NODE_ID: api-a
+    healthcheck:
+      test: ['CMD', 'php', '-r', 'exit(@file_get_contents("http://127.0.0.1:8000/api/v1/health")===false?1:0);']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+    command: ['sh', '-c', 'scripts/octane-multinode-boot.sh && php artisan config:clear && php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000 --workers=$${OCTANE_WORKERS} --task-workers=$${OCTANE_TASK_WORKERS} --max-requests=$${OCTANE_MAX_REQUESTS}']
+
+  api-b:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.octane
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      <<: *octane-env
+      DIYAR_RUNTIME_NODE_ID: api-b
+    healthcheck:
+      test: ['CMD', 'php', '-r', 'exit(@file_get_contents("http://127.0.0.1:8000/api/v1/health")===false?1:0);']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+    command: ['sh', '-c', 'scripts/octane-multinode-boot.sh && php artisan config:clear && php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000 --workers=$${OCTANE_WORKERS} --task-workers=$${OCTANE_TASK_WORKERS} --max-requests=$${OCTANE_MAX_REQUESTS}']
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - '8088:80'
+    volumes:
+      - ./deploy/nginx/multinode-octane.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api-a:
+        condition: service_healthy
+      api-b:
+        condition: service_healthy
+
+  queue-worker-1:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.octane
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      <<: *octane-env
+      DIYAR_RUNTIME_NODE_ID: queue-worker-1
+    command: ['sh', '-c', 'scripts/octane-multinode-boot.sh && php artisan queue:work redis --queue=critical,default --sleep=1 --tries=3 --timeout=120 --max-jobs=500']
+    restart: unless-stopped
+
+  queue-worker-2:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.octane
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      <<: *octane-env
+      DIYAR_RUNTIME_NODE_ID: queue-worker-2
+    command: ['sh', '-c', 'scripts/octane-multinode-boot.sh && php artisan queue:work redis --queue=critical,default --sleep=1 --tries=3 --timeout=120 --max-jobs=500']
+    restart: unless-stopped
+
+  scheduler-a:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.octane
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      <<: *octane-env
+      DIYAR_RUNTIME_NODE_ID: scheduler-a
+    command: ['sh', '-c', 'scripts/octane-multinode-boot.sh && while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done']
+    restart: unless-stopped
+
+  scheduler-b:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.octane
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      <<: *octane-env
+      DIYAR_RUNTIME_NODE_ID: scheduler-b
+    command: ['sh', '-c', 'scripts/octane-multinode-boot.sh && while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done']
+    restart: unless-stopped

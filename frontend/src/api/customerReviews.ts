@@ -29,9 +29,10 @@ export interface CustomerReviewStoreSubject {
 }
 
 export interface CustomerReviewServiceSubject {
-  id: string;
-  title: string;
-  slug: string;
+  id: string | null;
+  title: string | null;
+  slug: string | null;
+  image_url?: string | null;
 }
 
 export interface CustomerReviewB2bSubject {
@@ -87,6 +88,8 @@ export interface PublishedServiceCustomerReview extends BasePublishedCustomerRev
   provider?: CustomerReviewProviderSubject | null;
   booking_id?: string | null;
   booking_reference?: string | null;
+  booking_source?: 'rfq' | 'direct' | null;
+  request_reference?: string | null;
 }
 
 export interface PublishedB2bCustomerReview extends BasePublishedCustomerReview {
@@ -131,6 +134,8 @@ export interface PendingServiceCustomerReview {
   sort_at?: string | null;
   booking_id?: string | null;
   booking_reference?: string | null;
+  booking_source?: 'rfq' | 'direct' | null;
+  request_reference?: string | null;
   service?: CustomerReviewServiceSubject | null;
   provider?: CustomerReviewProviderSubject | null;
 }

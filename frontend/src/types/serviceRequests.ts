@@ -142,6 +142,7 @@ export type ServiceRequestCard = {
   accepted_provider?: { id: string; name: string; slug: string } | null;
   accepted_price?: string | null;
   accepted_currency?: string | null;
+  booking?: Pick<ServiceBooking, 'id' | 'reference' | 'status'> | null;
   created_at?: string;
 };
 

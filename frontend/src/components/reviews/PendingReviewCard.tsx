@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Loader2, X } from 'lucide-react';
 import { StarRating } from '../product/StarRating.tsx';
 import { ReviewTypeBadge } from './ReviewTypeBadge.tsx';
-import { resolveMediaUrl } from '../../lib/media.ts';
 import { validateStoreReviewInput, MAX_COMMENT_LENGTH } from '../../lib/storeReviewValidation.ts';
 import { submitProductReview } from '../../api/productEngagement.ts';
 import { submitStoreReview } from '../../api/storeReviews.ts';
@@ -10,6 +9,7 @@ import { submitProviderReview } from '../../api/providerReviews.ts';
 import { submitB2bCompanyReview } from '../../api/b2bReviews.ts';
 import { showErrorAlert, showSuccessToast } from '../../lib/confirmDialog.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
+import { customerReviewSubjectImage, customerReviewSubjectTitle, customerReviewServiceSource } from '../../lib/customerReviewSubject.ts';
 import type { PendingCustomerReview } from '../../api/customerReviews.ts';
 
 interface PendingReviewCardProps {
@@ -28,25 +28,24 @@ export function PendingReviewCard({ item, t, onSkipped, onSubmitted }: PendingRe
   const isProduct = item.type === 'product';
   const isService = item.type === 'service';
   const isB2b = item.type === 'b2b';
-  const title = isProduct
-    ? item.product?.name
-    : isService
-      ? item.service?.title
-      : isB2b
-        ? item.company?.name
-        : item.store?.name;
-  const imageUrl = isProduct
-    ? resolveMediaUrl(item.product?.image_url)
-    : isService
-      ? resolveMediaUrl(item.provider?.logo_url)
-      : isB2b
-        ? resolveMediaUrl(item.company?.logo_url)
-        : resolveMediaUrl(item.store?.logo_url);
+  const untitled =
+    isProduct
+      ? t('customerReviews.typeProduct')
+      : isService
+        ? t('serviceBookings.defaultServiceTitle')
+        : isB2b
+          ? t('customerReviews.typeB2b')
+          : t('customerReviews.typeStore');
+  const title = customerReviewSubjectTitle(item, untitled);
+  const imageUrl = customerReviewSubjectImage(item);
 
+  const serviceSource = customerReviewServiceSource(item);
   const rateLabel = isProduct
     ? t('customerReviews.rateProduct')
     : isService
-      ? t('customerReviews.rateService')
+      ? serviceSource === 'rfq'
+        ? t('customerReviews.rateServiceRequest')
+        : t('customerReviews.rateService')
       : isB2b
         ? t('customerReviews.rateB2b')
         : t('customerReviews.rateStore');
@@ -112,12 +111,17 @@ export function PendingReviewCard({ item, t, onSkipped, onSubmitted }: PendingRe
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-1">
-              <h3 className="font-bold text-diyar-dark text-sm wrap-break-word">{title ?? '—'}</h3>
-              <ReviewTypeBadge type={item.type} t={t} />
+              <h3 className="font-bold text-diyar-dark text-sm wrap-break-word">{title}</h3>
+              <ReviewTypeBadge type={item.type} serviceSource={serviceSource} t={t} />
             </div>
             {'order_number' in item && item.order_number ? (
               <p className="text-xs text-gray-500">
                 {t('orders.orderNumber')}: {item.order_number}
+              </p>
+            ) : null}
+            {isService && item.request_reference ? (
+              <p className="text-xs text-gray-500">
+                {t('customerReviews.requestReference')}: {item.request_reference}
               </p>
             ) : null}
             {isService && item.booking_reference && (

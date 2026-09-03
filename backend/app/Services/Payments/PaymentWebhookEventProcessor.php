@@ -10,6 +10,7 @@ use App\Services\Order\PaymentStateService;
 use App\Services\Payments\DTO\PaymentDetailsRequest;
 use App\Services\Payments\DTO\VerifiedWebhookPayload;
 use App\Services\Payments\Exceptions\PaymentGatewayException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 final class PaymentWebhookEventProcessor
@@ -22,6 +23,10 @@ final class PaymentWebhookEventProcessor
 
     public function process(string $eventId): void
     {
+        if (! $this->acquireProcessingLease($eventId)) {
+            return;
+        }
+
         $event = PaymentWebhookEvent::query()->find($eventId);
 
         if ($event === null) {
@@ -169,6 +174,24 @@ final class PaymentWebhookEventProcessor
         ]);
     }
 
+    private function acquireProcessingLease(string $eventId): bool
+    {
+        $leaseSeconds = (int) config('diyar.payments.webhook_processing_lease_seconds', 120);
+
+        $claimed = PaymentWebhookEvent::query()
+            ->whereKey($eventId)
+            ->where(function ($query) {
+                $query->whereNull('processing_leased_until')
+                    ->orWhere('processing_leased_until', '<', now());
+            })
+            ->update([
+                'processing_leased_until' => now()->addSeconds($leaseSeconds),
+                'processing_attempts' => DB::raw('processing_attempts + 1'),
+            ]);
+
+        return $claimed === 1;
+    }
+
     /**
      * @param  array<string, mixed>  $payload
      */
@@ -179,9 +202,12 @@ final class PaymentWebhookEventProcessor
 
             return new VerifiedWebhookPayload(
                 eventType: (string) ($data['EventType'] ?? $data['event_type'] ?? 'PaymentStatusChanged'),
+                webhookVersion: (string) ($event->webhook_version ?? 'v2'),
+                payload: $payload,
                 paymentReference: isset($data['CustomerReference']) ? (string) $data['CustomerReference'] : (isset($data['payment_reference']) ? (string) $data['payment_reference'] : null),
                 gatewayPaymentId: isset($data['PaymentId']) ? (string) $data['PaymentId'] : (isset($data['gateway_payment_id']) ? (string) $data['gateway_payment_id'] : null),
                 gatewayInvoiceId: isset($data['InvoiceId']) ? (string) $data['InvoiceId'] : null,
+                transactionStatus: isset($data['TransactionStatus']) ? (string) $data['TransactionStatus'] : null,
             );
         }
 

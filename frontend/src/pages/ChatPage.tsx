@@ -23,7 +23,7 @@ import {
   CHAT_ATTACHMENT_ACCEPT,
   validateChatAttachment,
 } from '../lib/chat/attachmentValidation.ts';
-import { getConversationParticipants, getOtherParticipant, getMessagePreviewContent, isConversationInInbox, resolveConversationProfilePath, resolveMessageSenderName } from '../lib/chat/conversationHelpers.ts';
+import { getConversationParticipants, getOtherParticipant, getMessagePreviewContent, groupConversationsByCounterparty, conversationContextLabel, conversationParticipantRoleLabel, conversationParty, isConversationInInbox, mergeConversationRecords, resolveConversationProfilePath, resolveMessageSenderName } from '../lib/chat/conversationHelpers.ts';
 import { confirmRemoveConversation } from '../lib/confirmDialog.ts';
 import { isNearContainerBottom, scrollContainerToBottom } from '../lib/chat/scroll.ts';
 import type { ChatMessage } from '../types/chat.ts';
@@ -181,7 +181,7 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
   const directConversationQuery = useConversation(activeId);
 
   const activeConversation = useMemo(() => {
-    const candidate = conversationFromList ?? directConversationQuery.data ?? null;
+    const candidate = mergeConversationRecords(conversationFromList, directConversationQuery.data ?? null);
     if (!candidate || !isConversationInInbox(candidate, user?.id)) {
       return null;
     }
@@ -206,14 +206,38 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
     if (!q) {
       return inboxConversations;
     }
-    return inboxConversations.filter((conversation) =>
-      (conversation.display_name ?? conversation.subject ?? '').toLowerCase().includes(q),
-    );
+    return inboxConversations.filter((conversation) => {
+      const haystack = [
+        conversation.display_name,
+        conversation.subject,
+        ...getConversationParticipants(conversation).map((participant) => participant.name),
+      ]
+        .filter((value): value is string => typeof value === 'string' && value.trim() !== '')
+        .join(' ')
+        .toLowerCase();
+
+      return haystack.includes(q);
+    });
   }, [inboxConversations, query]);
+
+  const groupedConversations = useMemo(
+    () => groupConversationsByCounterparty(filteredConversations, user?.id),
+    [filteredConversations, user?.id],
+  );
+
+  const activeConversationGroup = useMemo(
+    () =>
+      groupedConversations.find((group) =>
+        group.conversations.some((conversation) => conversation.id === activeId),
+      ) ?? null,
+    [activeId, groupedConversations],
+  );
   const activeOtherParticipant = getOtherParticipant(activeConversation, user?.id);
+  const activeParty = conversationParty(activeConversation, user?.id, t('chat.conversation'));
+  const activePartyRoleLabel = conversationParticipantRoleLabel(activeParty.role, t);
   const counterpartyProfilePath = useMemo(
-    () => resolveConversationProfilePath(activeConversation),
-    [activeConversation],
+    () => resolveConversationProfilePath(activeConversation, user?.id),
+    [activeConversation, user?.id],
   );
   const messages = useMemo(
     () => flattenMessages(messagesQuery.data),
@@ -704,24 +728,26 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
               <div className="p-8 flex justify-center">
                 <Loader2 className="animate-spin text-diyar-brown" />
               </div>
-            ) : filteredConversations.length === 0 ? (
+            ) : groupedConversations.length === 0 ? (
               <ChatSidebarEmpty
                 title={t('chat.noConversations')}
                 hint={t('chat.noConversationsHint')}
               />
             ) : (
-              filteredConversations.map((conversation) => (
+              groupedConversations.map((group) => (
                 <ChatConversationListItem
-                  key={conversation.id}
-                  conversation={conversation}
-                  otherParticipant={getOtherParticipant(conversation, user?.id)}
-                  isActive={activeId === conversation.id}
+                  key={group.groupKey}
+                  conversation={group.primary}
+                  relatedConversations={group.conversations.length > 1 ? group.conversations : undefined}
+                  currentUserId={user?.id}
+                  isActive={group.conversations.some((conversation) => conversation.id === activeId)}
                   locale={locale}
                   noMessagesLabel={t('chat.noMessagesYet')}
                   previewLabels={previewLabels}
                   fallbackTitle={t('chat.conversation')}
+                  t={t}
                   onSelect={() => {
-                    setActiveId(conversation.id);
+                    setActiveId(group.primary.id);
                     setShowThreadOnMobile(true);
                   }}
                 />
@@ -757,16 +783,16 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
                 {counterpartyProfilePath ? (
                   <Link to={counterpartyProfilePath} className="shrink-0 rounded-full hover:opacity-90 transition-opacity">
                     <ChatAvatar
-                      name={activeOtherParticipant?.name ?? activeConversation.display_name}
-                      avatarUrl={activeOtherParticipant?.avatar_url}
+                      name={activeParty.name}
+                      avatarUrl={activeParty.avatarUrl}
                       size="md"
                       online={false}
                     />
                   </Link>
                 ) : (
                   <ChatAvatar
-                    name={activeOtherParticipant?.name ?? activeConversation.display_name}
-                    avatarUrl={activeOtherParticipant?.avatar_url}
+                    name={activeParty.name}
+                    avatarUrl={activeParty.avatarUrl}
                     size="md"
                     online={false}
                   />
@@ -777,13 +803,16 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
                       to={counterpartyProfilePath}
                       className="font-bold text-diyar-dark truncate block hover:text-diyar-brown transition-colors"
                     >
-                      {activeConversation.display_name ?? activeConversation.subject}
+                      {activeParty.name}
                     </Link>
                   ) : (
                     <h2 className="font-bold text-diyar-dark truncate">
-                      {activeConversation.display_name ?? activeConversation.subject}
+                      {activeParty.name}
                     </h2>
                   )}
+                  {activePartyRoleLabel ? (
+                    <p className="text-xs text-gray-500 truncate">{activePartyRoleLabel}</p>
+                  ) : null}
                   {showConnectionSubtitle ? (
                     <p className="text-xs text-gray-500 truncate">
                       {isSomeoneTyping
@@ -794,6 +823,34 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
                             ? t('chat.reconnecting')
                             : t('chat.disconnected')}
                     </p>
+                  ) : null}
+                  {activeConversationGroup && activeConversationGroup.conversations.length > 1 ? (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {activeConversationGroup.conversations.map((conversation) => {
+                        const label = conversationContextLabel(conversation, t);
+                        if (!label) {
+                          return null;
+                        }
+
+                        const isSelected = conversation.id === activeId;
+
+                        return (
+                          <button
+                            key={conversation.id}
+                            type="button"
+                            onClick={() => setActiveId(conversation.id)}
+                            className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
+                              isSelected
+                                ? 'bg-diyar-brown text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                            aria-label={`${t('chat.switchConversation')}: ${label}`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
                   ) : null}
                 </div>
                 <ChatConnectionStatus state={connectionState} compact hideWhenConnected />
@@ -839,8 +896,8 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
                   </div>
                 ) : messages.length === 0 ? (
                   <ChatThreadEmpty
-                    name={activeOtherParticipant?.name ?? activeConversation.display_name}
-                    avatarUrl={activeOtherParticipant?.avatar_url}
+                    name={activeParty.name}
+                    avatarUrl={activeParty.avatarUrl}
                     title={t('chat.emptyThreadTitle')}
                     hint={t('chat.emptyThreadHint')}
                   />
@@ -904,8 +961,8 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
                 {isSomeoneTyping ? (
                   <ChatTypingIndicator
                     dir={dir}
-                    name={activeTyperNames[0] ?? activeOtherParticipant?.name}
-                    avatarUrl={activeOtherParticipant?.avatar_url}
+                    name={activeTyperNames[0] ?? activeParty.name}
+                    avatarUrl={activeParty.avatarUrl}
                   />
                 ) : null}
               </div>

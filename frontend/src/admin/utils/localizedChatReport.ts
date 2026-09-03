@@ -63,3 +63,20 @@ export function localizedChatReportAction(
   const key = ACTION_KEYS[action.toLowerCase()];
   return key ? t(key as never) : action.replace(/_/g, ' ');
 }
+
+export function chatReportReasonBadgeClass(reason: string | null | undefined): string {
+  switch ((reason ?? '').toLowerCase()) {
+    case 'spam':
+      return 'bg-amber-50 text-amber-800 ring-1 ring-amber-200';
+    case 'harassment':
+    case 'hate_speech':
+    case 'scam':
+      return 'bg-red-50 text-red-800 ring-1 ring-red-200';
+    case 'inappropriate':
+      return 'bg-rose-50 text-rose-800 ring-1 ring-rose-200';
+    case 'impersonation':
+      return 'bg-[#f4ead8] text-[#8a6a2f] ring-1 ring-[#e4d4b0]';
+    default:
+      return 'bg-slate-50 text-slate-700 ring-1 ring-slate-200';
+  }
+}

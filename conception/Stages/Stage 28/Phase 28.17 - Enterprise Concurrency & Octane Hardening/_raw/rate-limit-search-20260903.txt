@@ -1,0 +1,6 @@
+﻿
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+=== Rate limit probe (catalog search) ===
+429 at attempt 1
+last_code=429 got_429=yes
+RESULT: PASS

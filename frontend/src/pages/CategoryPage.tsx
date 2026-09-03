@@ -32,6 +32,8 @@ import { isValidStoreSlug, storePath } from '../lib/storePath.ts';
 import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { EmptyState } from '../components/common/EmptyState.tsx';
+import NotFoundPage from './errors/NotFoundPage.tsx';
+import { isNotFoundError } from '../utils/errors.ts';
 import { useLocale } from '../hooks/useLocale.ts';
 
 const CATEGORIES = {
@@ -608,7 +610,7 @@ export default function CategoryPage() {
     [searchQuery, minPrice, maxPrice, vendorId, availabilityMode, page, perPage, sort],
   );
 
-  const { data: apiCategory } = useCategory(slug);
+  const { data: apiCategory, error: categoryError } = useCategory(slug);
   const isServiceCategory =
     apiCategory?.type === 'service' || KNOWN_SERVICE_CATEGORY_SLUGS.has(slug);
 
@@ -681,6 +683,10 @@ export default function CategoryPage() {
       );
     }
     return <CategoryAllLanding />;
+  }
+
+  if (isNotFoundError(categoryError) || isNotFoundError(error)) {
+    return <NotFoundPage />;
   }
 
   return (

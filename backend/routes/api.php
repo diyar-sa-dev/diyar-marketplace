@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminPermissionController;
 use App\Http\Controllers\Api\V1\Admin\AdminProductController;
 use App\Http\Controllers\Api\V1\Admin\AdminProjectController;
 use App\Http\Controllers\Api\V1\Admin\AdminProviderAccountController;
+use App\Http\Controllers\Api\V1\Admin\AdminProviderPayoutController;
 use App\Http\Controllers\Api\V1\Admin\AdminReportController;
 use App\Http\Controllers\Api\V1\Admin\AdminReturnController;
 use App\Http\Controllers\Api\V1\Admin\AdminReviewController;
@@ -316,11 +317,22 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
     Route::post('/payouts/{payout}/mark-paid', [AdminPayoutController::class, 'markPaid'])
         ->middleware('admin.permission:payouts.process');
 
+    Route::get('/provider/payouts', [AdminProviderPayoutController::class, 'index'])
+        ->middleware('admin.permission:payouts.view');
+    Route::post('/provider/payouts/{providerPayout}/approve', [AdminProviderPayoutController::class, 'approve'])
+        ->middleware('admin.permission:payouts.approve');
+    Route::post('/provider/payouts/{providerPayout}/reject', [AdminProviderPayoutController::class, 'reject'])
+        ->middleware('admin.permission:payouts.approve');
+    Route::post('/provider/payouts/{providerPayout}/mark-paid', [AdminProviderPayoutController::class, 'markPaid'])
+        ->middleware('admin.permission:payouts.process');
+
     Route::get('/affiliate/payouts', [AdminAffiliatePayoutController::class, 'index'])
         ->middleware('admin.permission:affiliate.view');
     Route::post('/affiliate/payouts/{affiliatePayout}/approve', [AdminAffiliatePayoutController::class, 'approve'])
         ->middleware('admin.permission:affiliate.payouts.process');
     Route::post('/affiliate/payouts/{affiliatePayout}/processing', [AdminAffiliatePayoutController::class, 'markProcessing'])
+        ->middleware('admin.permission:affiliate.payouts.process');
+    Route::post('/affiliate/payouts/{affiliatePayout}/mark-processing', [AdminAffiliatePayoutController::class, 'markProcessing'])
         ->middleware('admin.permission:affiliate.payouts.process');
     Route::post('/affiliate/payouts/{affiliatePayout}/reject', [AdminAffiliatePayoutController::class, 'reject'])
         ->middleware('admin.permission:affiliate.payouts.process');
@@ -427,6 +439,8 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
     Route::post('/shipping/methods', [AdminShippingConfigurationController::class, 'storeMethod'])
         ->middleware('admin.permission:shipping.manage');
     Route::patch('/shipping/methods/{method}', [AdminShippingConfigurationController::class, 'updateMethod'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::delete('/shipping/methods/{method}', [AdminShippingConfigurationController::class, 'destroyMethod'])
         ->middleware('admin.permission:shipping.manage');
     Route::get('/shipping/rate-rules', [AdminShippingConfigurationController::class, 'rateRules'])
         ->middleware('admin.permission:shipping.view');
@@ -900,6 +914,7 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::get('/reports', [AffiliateReportController::class, 'index']);
             Route::get('/payouts', [AffiliatePayoutController::class, 'index']);
             Route::post('/payouts', [AffiliatePayoutController::class, 'store']);
+            Route::get('/finance/transactions', [AffiliatePayoutController::class, 'transactions']);
             Route::get('/settings', [AffiliateSettingsController::class, 'show']);
             Route::patch('/settings', [AffiliateSettingsController::class, 'update']);
             Route::get('/platform-config', [AffiliatePlatformConfigController::class, 'show']);

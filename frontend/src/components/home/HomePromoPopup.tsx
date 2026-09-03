@@ -92,7 +92,7 @@ export function HomePromoPopup() {
       aria-label={t(currentAd.altKey)}
       data-testid="home-ad-popup"
     >
-      <div className="relative max-w-3xl w-full bg-white flex flex-col rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 ring-1 ring-white/20">
+      <div className="relative w-full max-w-3xl bg-white flex flex-col rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 ring-1 ring-white/20">
         <div className="absolute top-3 inset-x-3 z-20 flex items-center justify-between pointer-events-none">
           <div className="flex items-center gap-1.5 pointer-events-auto">
             {ads.length > 1 && (
@@ -130,13 +130,13 @@ export function HomePromoPopup() {
 
         <Link
           to={currentAd.link}
-          className="relative block cursor-pointer group"
+          className="relative block w-full overflow-hidden cursor-pointer group aspect-[4/3] sm:aspect-[16/9] max-h-[min(75vh,36rem)]"
           onClick={() => close()}
         >
           <img
             src={currentAd.imageSrc}
             alt={t(currentAd.altKey)}
-            className="w-full h-auto max-h-[78vh] object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+            className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.01]"
             loading="lazy"
             decoding="async"
           />

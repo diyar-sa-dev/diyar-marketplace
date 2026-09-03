@@ -22,7 +22,7 @@ final class InventoryService
 {
     public function createInitial(Product $product, int $stockQuantity, ?User $actor = null): ProductInventory
     {
-        return DB::transaction(function () use ($product, $stockQuantity, $actor) {
+        return $this->transaction(function () use ($product, $stockQuantity, $actor) {
             $stockQuantity = max(0, $stockQuantity);
 
             $inventory = ProductInventory::query()->create([
@@ -67,7 +67,7 @@ final class InventoryService
             throw new InvalidArgumentException(__('diyar.catalog.invalid_quantity'));
         }
 
-        return DB::transaction(function () use ($product, $actor, $type, $quantity, $payload) {
+        return $this->transaction(function () use ($product, $actor, $type, $quantity, $payload) {
             $inventory = $this->lockInventory($product);
             $previousStock = $inventory->stock_quantity;
 
@@ -133,7 +133,7 @@ final class InventoryService
             throw new InvalidArgumentException(__('diyar.catalog.product_out_of_stock'));
         }
 
-        return DB::transaction(function () use ($product, $user, $quantity, $reference) {
+        return $this->transaction(function () use ($product, $user, $quantity, $reference) {
             $product->refresh();
             $affectsInventory = $product->availability_mode !== AvailabilityMode::Preorder;
             $timeoutMinutes = (int) config('diyar.inventory.reservation_timeout_minutes', 15);
@@ -191,7 +191,7 @@ final class InventoryService
 
     public function finalize(InventoryReservation $reservation, ?User $actor = null): InventoryReservation
     {
-        return DB::transaction(function () use ($reservation, $actor) {
+        return $this->transaction(function () use ($reservation, $actor) {
             $reservation = InventoryReservation::query()
                 ->whereKey($reservation->id)
                 ->lockForUpdate()
@@ -250,7 +250,7 @@ final class InventoryService
         ?User $actor = null,
         ReservationStatus $finalStatus = ReservationStatus::Released,
     ): InventoryReservation {
-        return DB::transaction(function () use ($reservation, $actor, $finalStatus) {
+        return $this->transaction(function () use ($reservation, $actor, $finalStatus) {
             $reservation = InventoryReservation::query()
                 ->whereKey($reservation->id)
                 ->lockForUpdate()
@@ -459,5 +459,20 @@ final class InventoryService
             'reference_type' => $reference !== null ? $reference->getMorphClass() : null,
             'reference_id' => $reference?->id,
         ]);
+    }
+
+    /**
+     * @template TReturn
+     *
+     * @param  callable(): TReturn  $callback
+     * @return TReturn
+     */
+    private function transaction(callable $callback): mixed
+    {
+        if (DB::transactionLevel() > 0) {
+            return $callback();
+        }
+
+        return DB::transaction($callback);
     }
 }

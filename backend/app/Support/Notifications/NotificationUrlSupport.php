@@ -22,4 +22,31 @@ final class NotificationUrlSupport
 
         return $base.'/chat?conversation='.rawurlencode($conversationId);
     }
+
+    public static function providerBookingsUrl(?string $bookingId = null): string
+    {
+        $url = rtrim((string) config('diyar.frontend_url'), '/').'/dashboard/service/bookings';
+
+        if ($bookingId !== null && $bookingId !== '') {
+            $url .= '?highlight='.rawurlencode($bookingId);
+        }
+
+        return $url;
+    }
+
+    public static function customerBookingsUrl(?string $bookingId = null): string
+    {
+        $url = rtrim((string) config('diyar.frontend_url'), '/').'/profile/service-bookings';
+
+        if ($bookingId !== null && $bookingId !== '') {
+            $url .= '?highlight='.rawurlencode($bookingId);
+        }
+
+        return $url;
+    }
+
+    public static function serviceBookingCanonicalUrl(string $bookingId): string
+    {
+        return rtrim((string) config('diyar.frontend_url'), '/').'/service-bookings/'.rawurlencode($bookingId);
+    }
 }

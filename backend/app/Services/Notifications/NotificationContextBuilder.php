@@ -60,6 +60,18 @@ final class NotificationContextBuilder
         return $lines;
     }
 
+    public function bookingServiceTitle(ServiceBooking $booking): string
+    {
+        $snapshot = trim((string) ($booking->service_title_snapshot ?? ''));
+        if ($snapshot !== '') {
+            return $snapshot;
+        }
+
+        $booking->loadMissing('service');
+
+        return trim((string) ($booking->service?->title ?? ''));
+    }
+
     /**
      * @return list<array{label: string, value: string}>
      */
@@ -69,7 +81,7 @@ final class NotificationContextBuilder
 
         $lines = [
             ['label' => 'reference', 'value' => (string) $booking->reference],
-            ['label' => 'service', 'value' => (string) $booking->service_title_snapshot],
+            ['label' => 'service', 'value' => $this->bookingServiceTitle($booking)],
         ];
 
         if ($booking->user?->name) {

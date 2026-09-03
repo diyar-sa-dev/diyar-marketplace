@@ -90,14 +90,14 @@ export default function AdminServicesHubPage() {
       >
         {items.map((item) => (
           <tr key={item.id} className="hover:bg-[#f7f4f1]/50">
-            <td className="px-4 py-3 font-mono text-xs text-gray-600">
+            <td className="px-4 py-3 text-start font-mono text-xs text-gray-600">
               {item.reference ?? item.id.slice(0, 8)}
             </td>
-            <td className="px-4 py-3 font-semibold text-diyar-dark">{item.title ?? '—'}</td>
-            <td className="px-4 py-3">
+            <td className="px-4 py-3 text-start font-semibold text-diyar-dark">{item.title ?? '—'}</td>
+            <td className="px-4 py-3 text-start">
               {item.status ? <AdminStatusBadge status={item.status} /> : '—'}
             </td>
-            <td className="px-4 py-3">
+            <td className="px-4 py-3 text-end">
               <div className="flex justify-end">
                 <Link
                   to={`/admin/services/${activeTab}/${item.id}`}

@@ -36,7 +36,11 @@ class AdminFinancialTransactionController extends Controller
             perPage: min(max((int) $request->integer('per_page', 20), 1), 100),
         );
 
-        return $this->paginated('transactions', FinancialTransactionResource::collection($paginator->items()), $paginator);
+        return $this->paginated(
+            'transactions',
+            FinancialTransactionResource::collection($paginator->items())->resolve(),
+            $paginator,
+        );
     }
 
     public function show(FinancialTransaction $transaction): JsonResponse

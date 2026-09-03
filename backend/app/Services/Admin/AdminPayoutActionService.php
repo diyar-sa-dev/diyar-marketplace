@@ -3,10 +3,12 @@
 namespace App\Services\Admin;
 
 use App\Models\AffiliatePayout;
+use App\Models\ProviderPayout;
 use App\Models\User;
 use App\Models\VendorPayout;
 use App\Services\Affiliate\AffiliateAdminPayoutService;
 use App\Services\Finance\PayoutService;
+use App\Services\ServiceMarketplace\ProviderPayoutService;
 use Illuminate\Support\Facades\DB;
 
 final class AdminPayoutActionService
@@ -14,6 +16,7 @@ final class AdminPayoutActionService
     public function __construct(
         private readonly PayoutService $vendorPayouts,
         private readonly AffiliateAdminPayoutService $affiliatePayouts,
+        private readonly ProviderPayoutService $providerPayouts,
         private readonly AdminAuditService $audit,
     ) {}
 
@@ -136,6 +139,61 @@ final class AdminPayoutActionService
             $this->audit->record(
                 actor: $actor,
                 action: 'payout.affiliate.mark_paid',
+                resource: $updated,
+                before: $before,
+                after: ['status' => $updated->status->value],
+            );
+
+            return $updated;
+        });
+    }
+
+    public function approveProviderPayout(ProviderPayout $payout, User $actor): ProviderPayout
+    {
+        return DB::transaction(function () use ($payout, $actor): ProviderPayout {
+            $before = ['status' => $payout->status->value];
+            $updated = $this->providerPayouts->approve($payout, $actor);
+
+            $this->audit->record(
+                actor: $actor,
+                action: 'payout.provider.approve',
+                resource: $updated,
+                before: $before,
+                after: ['status' => $updated->status->value],
+            );
+
+            return $updated;
+        });
+    }
+
+    public function rejectProviderPayout(ProviderPayout $payout, User $actor, string $reason): ProviderPayout
+    {
+        return DB::transaction(function () use ($payout, $actor, $reason): ProviderPayout {
+            $before = ['status' => $payout->status->value];
+            $updated = $this->providerPayouts->reject($payout, $actor, $reason);
+
+            $this->audit->record(
+                actor: $actor,
+                action: 'payout.provider.reject',
+                resource: $updated,
+                before: $before,
+                after: ['status' => $updated->status->value],
+                reason: $reason,
+            );
+
+            return $updated;
+        });
+    }
+
+    public function markProviderPayoutPaid(ProviderPayout $payout, User $actor): ProviderPayout
+    {
+        return DB::transaction(function () use ($payout, $actor): ProviderPayout {
+            $before = ['status' => $payout->status->value];
+            $updated = $this->providerPayouts->markPaid($payout, $actor);
+
+            $this->audit->record(
+                actor: $actor,
+                action: 'payout.provider.mark_paid',
                 resource: $updated,
                 before: $before,
                 after: ['status' => $updated->status->value],

@@ -14,8 +14,8 @@ services:
     name: diyar-api
     runtime: php
     rootDir: backend
-    buildCommand: composer install --no-dev --optimize-autoloader && php artisan config:cache && php artisan route:cache && php artisan view:cache
-    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    buildCommand: composer install --optimize-autoloader && php artisan config:cache && php artisan route:cache && php artisan view:cache
+    startCommand: bash scripts/render-web-start.sh
     healthCheckPath: /api/v1/health
     envVars:
       - key: APP_ENV
@@ -64,10 +64,7 @@ services:
           name: diyar-reverb
           property: host
       - key: REVERB_PORT
-        fromService:
-          type: web
-          name: diyar-reverb
-          property: port
+        value: "443"
       - key: REVERB_SCHEME
         value: https
       - key: DB_HOST
@@ -128,6 +125,15 @@ services:
         value: production
       - key: BROADCAST_CONNECTION
         value: reverb
+      - key: REVERB_HOST
+        fromService:
+          type: web
+          name: diyar-reverb
+          property: host
+      - key: REVERB_PORT
+        value: "443"
+      - key: REVERB_SCHEME
+        value: https
       - key: REVERB_SCALING_ENABLED
         value: true
       - key: REVERB_APP_RATE_LIMITING_ENABLED

@@ -40,7 +40,7 @@ export function AdminResourceTable({
   children,
   footer,
 }: AdminResourceTableProps) {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
 
   return (
     <section className="rounded-3xl border border-gray-100 bg-white shadow-sm">
@@ -89,8 +89,8 @@ export function AdminResourceTable({
         ) : null}
 
         {!isLoading && !isError && !isEmpty ? (
-          <div className="overflow-x-auto overflow-y-hidden rounded-2xl border border-gray-100 scrollbar-hide">
-            <table className="min-w-full text-sm">
+          <div className="overflow-x-auto overflow-y-hidden rounded-2xl border border-gray-100 scrollbar-hide" dir={dir}>
+            <table className="min-w-full text-sm" dir={dir}>
               <thead className="bg-[#f7f4f1]/80 text-gray-500">{columns}</thead>
               <tbody className="divide-y divide-gray-50">{children}</tbody>
             </table>

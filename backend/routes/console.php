@@ -10,25 +10,42 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command(ReleaseExpiredInventoryReservations::class)->everyMinute();
+/**
+ * Distributed schedule mutex for horizontally scaled production nodes.
+ * Requires a shared cache store (Redis recommended).
+ */
+$oneServer = static function ($event) {
+    if (in_array(config('cache.default'), ['redis', 'memcached', 'database'], true)) {
+        $event->onOneServer();
+    }
 
-Schedule::job(new ArchiveOldMessagesJob)
-    ->dailyAt('02:30')
+    return $event;
+};
+
+$oneServer(Schedule::command(ReleaseExpiredInventoryReservations::class)->everyMinute())
+    ->withoutOverlapping(5);
+
+$oneServer(Schedule::job(new ArchiveOldMessagesJob)->dailyAt('02:30'))
     ->when(fn (): bool => (bool) config('diyar.chat.retention.archive_enabled', false));
 
-Schedule::command('chat:reconcile-unread')->weeklyOn(1, '03:00');
+$oneServer(Schedule::command('chat:reconcile-unread')->weeklyOn(1, '03:00'));
 
-Schedule::command('notifications:broadcasts:dispatch-scheduled')->everyMinute();
+$oneServer(Schedule::command('notifications:broadcasts:dispatch-scheduled')->everyMinute())
+    ->withoutOverlapping(5);
 
-Schedule::command('outbox:process')->everyMinute();
+$oneServer(Schedule::command('outbox:process')->everyMinute())
+    ->withoutOverlapping(5);
 
-Schedule::command('outbox:recover')->everyFiveMinutes();
+$oneServer(Schedule::command('outbox:recover')->everyFiveMinutes())
+    ->withoutOverlapping(10);
 
-Schedule::command('notifications:reconcile-deliveries')->everyFifteenMinutes();
+$oneServer(Schedule::command('notifications:reconcile-deliveries')->everyFifteenMinutes())
+    ->withoutOverlapping(15);
 
-Schedule::command('notifications:reconcile-unread')->weeklyOn(1, '03:30');
+$oneServer(Schedule::command('notifications:reconcile-unread')->weeklyOn(1, '03:30'));
 
-Schedule::command('payments:reconcile')->everyFifteenMinutes();
+$oneServer(Schedule::command('payments:reconcile')->everyFifteenMinutes())
+    ->withoutOverlapping(15);
 
-Schedule::command('notifications:prune')->dailyAt('04:00')
+$oneServer(Schedule::command('notifications:prune')->dailyAt('04:00'))
     ->when(fn (): bool => (bool) config('diyar.notifications.retention.enabled', true));

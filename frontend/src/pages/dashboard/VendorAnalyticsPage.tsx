@@ -7,6 +7,7 @@ import { PageLoadingOverlay } from '../../components/common/PageLoadingOverlay.t
 import { MetricCard } from '../../components/dashboard/analytics/MetricCard.tsx';
 import { AnalyticsEmptyState } from '../../components/dashboard/analytics/AnalyticsEmptyState.tsx';
 import { PaginationBar } from '../../components/catalog/PaginationBar.tsx';
+import { TableLtrValue } from '../../components/common/TableLtrValue.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
 import {
   useVendorAnalyticsOverview,
@@ -217,8 +218,8 @@ export default function VendorAnalyticsPage() {
           />
         ) : (
           <>
-            <div className="mt-4 overflow-x-auto">
-              <table className="min-w-full text-sm">
+            <div className="mt-4 overflow-x-auto" dir={dir}>
+              <table className="min-w-full text-sm" dir={dir}>
                 <thead>
                   <tr className="border-b border-gray-100 text-gray-500">
                     <th className="px-3 py-2 text-start font-semibold">
@@ -238,17 +239,19 @@ export default function VendorAnalyticsPage() {
                 <tbody>
                   {productsQuery.data?.products.map((product) => (
                     <tr key={product.product_id} className="border-b border-gray-50">
-                      <td className="px-3 py-3 font-medium text-diyar-dark">
+                      <td className="px-3 py-3 text-start font-medium text-diyar-dark">
                         {product.product_name}
                       </td>
-                      <td className="px-3 py-3 tabular-nums" dir="ltr">
-                        {product.units_sold}
+                      <td className="px-3 py-3 text-start">
+                        <TableLtrValue>{product.units_sold}</TableLtrValue>
                       </td>
-                      <td className="px-3 py-3 tabular-nums" dir="ltr">
-                        {product.orders_count}
+                      <td className="px-3 py-3 text-start">
+                        <TableLtrValue>{product.orders_count}</TableLtrValue>
                       </td>
-                      <td className="px-3 py-3 tabular-nums" dir="ltr">
-                        {formatMoney(product.revenue, locale, product.currency)}
+                      <td className="px-3 py-3 text-start">
+                        <TableLtrValue>
+                          {formatMoney(product.revenue, locale, product.currency)}
+                        </TableLtrValue>
                       </td>
                     </tr>
                   ))}

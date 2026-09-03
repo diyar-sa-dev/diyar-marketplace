@@ -247,6 +247,28 @@ export async function confirmSuspendProvider(
   return result.isConfirmed;
 }
 
+export async function confirmSuspendAffiliate(
+  t: TranslateFn,
+  affiliateName?: string,
+): Promise<boolean> {
+  const Swal = await getSwal();
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.detail.affiliate.suspend'),
+    text: affiliateName
+      ? t('admin.detail.affiliate.suspendConfirmNamed', { name: affiliateName })
+      : t('admin.detail.affiliate.suspendConfirm'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.detail.affiliate.suspend'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
 export async function confirmActivateUser(t: TranslateFn, userName?: string): Promise<boolean> {
   const Swal = await getSwal();
   const result = await Swal.fire({
@@ -328,6 +350,28 @@ export async function confirmDeleteBlogArticle(
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: t('admin.blogArticles.deleteAction'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
+export async function confirmDeleteShippingItem(
+  t: TranslateFn,
+  itemName?: string,
+): Promise<boolean> {
+  const Swal = await getSwal();
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.shipping.deleteTitle'),
+    text: itemName
+      ? t('admin.shipping.deleteConfirmNamed', { name: itemName })
+      : t('admin.shipping.confirmDelete'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.shipping.deleteAction'),
     cancelButtonText: t('common.cancel'),
     confirmButtonColor: '#ef4444',
     cancelButtonColor: '#6b7280',

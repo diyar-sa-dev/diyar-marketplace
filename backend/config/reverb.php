@@ -1,5 +1,7 @@
 <?php
 
+use App\Support\Realtime\ReverbAllowedOrigins;
+
 return [
 
     /*
@@ -82,15 +84,18 @@ return [
                     'scheme' => env('REVERB_SCHEME', 'http'),
                     'useTLS' => env('REVERB_SCHEME', 'http') === 'https',
                 ],
-                'allowed_origins' => array_values(array_filter(array_map(
-                    static fn (string $origin): string => trim($origin),
-                    explode(',', (string) env(
-                        'REVERB_ALLOWED_ORIGINS',
-                        env('FRONTEND_URL', 'http://localhost:5173'),
-                    )),
-                ))),
-                'ping_interval' => env('REVERB_APP_PING_INTERVAL', 60),
-                'activity_timeout' => env('REVERB_APP_ACTIVITY_TIMEOUT', 30),
+                'allowed_origins' => ReverbAllowedOrigins::resolve(
+                    (string) env('APP_ENV', 'production'),
+                    array_merge(
+                        explode(',', (string) env('REVERB_ALLOWED_ORIGINS', '')),
+                        [
+                            env('FRONTEND_URL', 'http://localhost:3000'),
+                            env('DIYAR_FRONTEND_URL'),
+                        ],
+                    ),
+                ),
+                'ping_interval' => env('REVERB_APP_PING_INTERVAL', 25),
+                'activity_timeout' => env('REVERB_APP_ACTIVITY_TIMEOUT', 60),
                 'max_connections' => env('REVERB_APP_MAX_CONNECTIONS'),
                 'max_message_size' => env('REVERB_APP_MAX_MESSAGE_SIZE', 10_000),
                 'accept_client_events_from' => env('REVERB_APP_ACCEPT_CLIENT_EVENTS_FROM', 'members'),

@@ -13,6 +13,7 @@ import {
 import { FunnelConversionPanel } from '../components/analytics/FunnelConversionPanel.tsx';
 import { CohortRetentionPanel } from '../components/analytics/CohortRetentionPanel.tsx';
 import { ErrorState } from '../../components/common/ErrorState.tsx';
+import { TableLtrValue } from '../../components/common/TableLtrValue.tsx';
 import { MetricCard } from '../../components/dashboard/analytics/MetricCard.tsx';
 import { AnalyticsEmptyState } from '../../components/dashboard/analytics/AnalyticsEmptyState.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
@@ -339,8 +340,8 @@ export default function AdminAnalyticsPage() {
                       description={t('admin.analytics.sections.search.emptyDescription')}
                     />
                   ) : (
-                    <div className="mt-4 overflow-x-auto rounded-xl border border-gray-100 bg-white">
-                      <table className="min-w-full text-sm">
+                    <div className="mt-4 overflow-x-auto rounded-xl border border-gray-100 bg-white" dir={dir}>
+                      <table className="min-w-full text-sm" dir={dir}>
                         <thead>
                           <tr className="border-b border-gray-100 bg-gray-50/80 text-gray-500">
                             <th className="px-4 py-3 text-start font-semibold">
@@ -361,12 +362,12 @@ export default function AdminAnalyticsPage() {
                               className="animate-in fade-in border-b border-gray-50 transition-colors hover:bg-gray-50/80 fill-mode-both duration-300 last:border-b-0"
                               style={{ animationDelay: `${index * 40}ms` }}
                             >
-                              <td className="px-4 py-3 font-medium text-diyar-dark">{row.query}</td>
-                              <td className="px-4 py-3 tabular-nums" dir="ltr">
-                                {row.searches}
+                              <td className="px-4 py-3 text-start font-medium text-diyar-dark">{row.query}</td>
+                              <td className="px-4 py-3 text-start">
+                                <TableLtrValue>{row.searches}</TableLtrValue>
                               </td>
-                              <td className="px-4 py-3 tabular-nums" dir="ltr">
-                                {row.avg_results}
+                              <td className="px-4 py-3 text-start">
+                                <TableLtrValue>{row.avg_results}</TableLtrValue>
                               </td>
                             </tr>
                           ))}

@@ -1,0 +1,71 @@
+{
+    "duration": 15,
+    "results": {
+        "health": {
+            "FPM": {
+                "rps": 16.67,
+                "p50": 2841,
+                "p95": 4387,
+                "p99": 4387,
+                "max": 4387,
+                "errors": 0,
+                "status5xx": 0,
+                "samples": 250
+            },
+            "Octane": {
+                "rps": 343.33,
+                "p50": 132,
+                "p95": 262,
+                "p99": 282,
+                "max": 300,
+                "errors": 0,
+                "status5xx": 0,
+                "samples": 5150
+            }
+        },
+        "categories": {
+            "FPM": {
+                "rps": 28.33,
+                "p50": 700,
+                "p95": 1651,
+                "p99": 1651,
+                "max": 1651,
+                "errors": 0,
+                "status5xx": 0,
+                "samples": 425
+            },
+            "Octane": {
+                "rps": 353.33,
+                "p50": 62,
+                "p95": 112,
+                "p99": 204,
+                "max": 221,
+                "errors": 0,
+                "status5xx": 0,
+                "samples": 5300
+            }
+        },
+        "products": {
+            "FPM": {
+                "rps": 26,
+                "p50": 401,
+                "p95": 1313,
+                "p99": 1325,
+                "max": 1325,
+                "errors": 0,
+                "status5xx": 0,
+                "samples": 390
+            },
+            "Octane": {
+                "rps": 39,
+                "p50": 391,
+                "p95": 460,
+                "p99": 497,
+                "max": 497,
+                "errors": 0,
+                "status5xx": 0,
+                "samples": 585
+            }
+        }
+    }
+}

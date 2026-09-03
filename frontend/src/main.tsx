@@ -24,17 +24,17 @@ void ensureLocaleCatalog(readStoredLocale()).then(() => {
         <LocaleProvider>
           <AboutModalProvider>
             <BrowserRouter>
-              <ErrorBoundary>
-                <ToastProvider>
-                  <AuthProvider>
+              <ToastProvider>
+                <AuthProvider>
+                  <ErrorBoundary>
                     <MarketplaceMessagingProviders>
                       <PlatformThemeProvider>
                         <App />
                       </PlatformThemeProvider>
                     </MarketplaceMessagingProviders>
-                  </AuthProvider>
-                </ToastProvider>
-              </ErrorBoundary>
+                  </ErrorBoundary>
+                </AuthProvider>
+              </ToastProvider>
             </BrowserRouter>
           </AboutModalProvider>
         </LocaleProvider>

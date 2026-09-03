@@ -1,0 +1,31 @@
+{
+    "product_id": "01a066d6-736a-72b4-ac90-fa0f3b980335",
+    "vendor_account_id": "01a066b3-bc33-7241-afbf-c8097cbd2ea2",
+    "available_quantity": 1,
+    "customers": [
+        {
+            "identifier": "509020001",
+            "password": "Password123!",
+            "user_id": "01a066b4-493b-72ac-bccb-86d1bcf88d1e",
+            "address_id": "01a066b4-4991-726f-94a9-e4f22fea2eae"
+        },
+        {
+            "identifier": "509020002",
+            "password": "Password123!",
+            "user_id": "01a066b4-4aa3-7251-a65c-6f8c50ce6dc0",
+            "address_id": "01a066b4-4b67-73dd-bcb7-6fb2c4c8c366"
+        },
+        {
+            "identifier": "509020003",
+            "password": "Password123!",
+            "user_id": "01a066b4-4c90-7217-84cf-7b5db5468b43",
+            "address_id": "01a066b4-4cdc-700f-b07a-0d7e280a8500"
+        },
+        {
+            "identifier": "509020004",
+            "password": "Password123!",
+            "user_id": "01a066b4-4de8-73fb-856e-2212524f0e61",
+            "address_id": "01a066b4-4e37-7227-84e4-834a7d8055b8"
+        }
+    ]
+}

@@ -7,6 +7,8 @@ use App\Http\Requests\Affiliate\RequestAffiliatePayoutRequest;
 use App\Http\Resources\AffiliatePayoutResource;
 use App\Models\AffiliatePayout;
 use App\Services\Affiliate\AffiliateBalanceService;
+use App\Services\Affiliate\AffiliateDashboardService;
+use App\Services\Affiliate\AffiliateFinanceTransactionService;
 use App\Services\Affiliate\AffiliatePayoutService;
 use App\Services\Affiliate\AffiliateProfileService;
 use App\Support\Api\ApiResponse;
@@ -20,6 +22,7 @@ class AffiliatePayoutController extends Controller
         private readonly AffiliateProfileService $profiles,
         private readonly AffiliateBalanceService $balances,
         private readonly AffiliatePayoutService $payouts,
+        private readonly AffiliateFinanceTransactionService $transactions,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -27,14 +30,58 @@ class AffiliatePayoutController extends Controller
         $profile = $this->profiles->resolveOrCreateForUser($request->user());
         $this->profiles->assertDashboardAccess($profile);
 
+        $period = is_string($request->query('period')) ? $request->query('period') : 'month';
+        [$from, $to] = AffiliateDashboardService::resolvePeriodRange($period, null, null);
+        $balance = $this->balances->summary($profile);
+        $periodMetrics = $this->balances->periodMetrics($profile, $from, $to);
+        $balance['platform_commission'] = $periodMetrics['platform_commission'];
+
         $paginator = AffiliatePayout::query()
             ->where('affiliate_profile_id', $profile->id)
             ->latest('requested_at')
             ->paginate(min(max((int) $request->query('per_page', 20), 1), 50));
 
         return ApiResponse::success(data: [
-            'balance' => $this->balances->summary($profile),
+            'balance' => $balance,
+            'period' => [
+                'type' => $period,
+                'from' => $from->toIso8601String(),
+                'to' => $to->toIso8601String(),
+                'gross' => $periodMetrics['gross'],
+                'net' => $periodMetrics['net'],
+            ],
             'payouts' => AffiliatePayoutResource::collection($paginator->items()),
+            'pagination' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ],
+        ]);
+    }
+
+    public function transactions(Request $request): JsonResponse
+    {
+        $profile = $this->profiles->resolveOrCreateForUser($request->user());
+        $this->profiles->assertDashboardAccess($profile);
+
+        $page = max((int) $request->query('page', 1), 1);
+        $perPage = min(max((int) $request->query('per_page', 20), 1), 50);
+        $type = $request->query('type');
+        $period = is_string($request->query('period')) ? $request->query('period') : 'month';
+        [$from, $to] = AffiliateDashboardService::resolvePeriodRange($period, null, null);
+
+        $paginator = $this->transactions->paginate(
+            $profile,
+            $page,
+            $perPage,
+            is_string($type) ? $type : null,
+            $from,
+            $to,
+        );
+
+        return ApiResponse::success(data: [
+            'transactions' => $paginator->items(),
             'pagination' => [
                 'current_page' => $paginator->currentPage(),
                 'last_page' => $paginator->lastPage(),

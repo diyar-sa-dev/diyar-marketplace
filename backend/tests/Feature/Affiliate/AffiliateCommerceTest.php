@@ -15,6 +15,7 @@ use App\Models\AffiliateClick;
 use App\Models\AffiliateCommission;
 use App\Models\AffiliateLink;
 use App\Models\AffiliateProfile;
+use App\Models\CommissionRule;
 use App\Models\FinancialTransaction;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -250,6 +251,35 @@ class AffiliateCommerceTest extends TestCase
     }
 
     #[Test]
+    public function affiliate_reports_day_period_returns_hourly_buckets(): void
+    {
+        $marketer = $this->createUserWithRole(RoleName::Marketer);
+
+        $payload = $this->getJsonAsUser('/api/v1/dashboard/affiliate/reports?period=day', $marketer)
+            ->assertOk()
+            ->json('data');
+
+        $this->assertSame('hour', $payload['period']['granularity']);
+        $this->assertGreaterThanOrEqual(20, count($payload['daily']));
+        $this->assertMatchesRegularExpression('/^\d{2}:\d{2}$/', $payload['daily'][0]['date']);
+        $this->assertSame(0, $payload['daily'][0]['clicks']);
+    }
+
+    #[Test]
+    public function affiliate_reports_week_period_returns_seven_zero_filled_days(): void
+    {
+        $marketer = $this->createUserWithRole(RoleName::Marketer);
+
+        $payload = $this->getJsonAsUser('/api/v1/dashboard/affiliate/reports?period=week', $marketer)
+            ->assertOk()
+            ->json('data');
+
+        $this->assertSame('day', $payload['period']['granularity']);
+        $this->assertCount(7, $payload['daily']);
+        $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}$/', $payload['daily'][0]['date']);
+    }
+
+    #[Test]
     public function duplicate_click_within_dedupe_window_does_not_inflate_metrics(): void
     {
         [$product, $link] = $this->seedAffiliateProductAndLink();
@@ -416,6 +446,150 @@ class AffiliateCommerceTest extends TestCase
         $commission->refresh();
         $this->assertSame(AffiliateCommissionStatus::Available, $commission->status);
         $this->assertNotNull($commission->available_at);
+    }
+
+    #[Test]
+    public function marketer_finance_transactions_include_pending_commissions(): void
+    {
+        [$product, $link, $marketer, $order] = $this->createAffiliateOrderWithAttribution();
+
+        app(PaymentFinalizationService::class)->finalizePaid(
+            payment: $order->payment,
+            gatewayPaymentId: 'gw-tx-1',
+            gatewayInvoiceId: 'inv-tx-1',
+        );
+        event(new PaymentSucceeded($order->payment->fresh()));
+
+        $payload = $this->getJsonAsUser('/api/v1/dashboard/affiliate/finance/transactions', $marketer)
+            ->assertOk()
+            ->json('data');
+
+        $types = array_column($payload['transactions'], 'transaction_type');
+        $this->assertContains('affiliate_commission', $types);
+        $this->assertContains('platform_commission', $types);
+
+        $earned = collect($payload['transactions'])->firstWhere('transaction_type', 'affiliate_commission');
+        $fee = collect($payload['transactions'])->firstWhere('transaction_type', 'platform_commission');
+
+        $this->assertSame('credit', $earned['direction']);
+        $this->assertSame('scheduled', $earned['status']);
+        $this->assertSame($order->order_number, $earned['order_number']);
+        $this->assertSame('debit', $fee['direction']);
+        $this->assertSame('scheduled', $fee['status']);
+
+        $commission = AffiliateCommission::query()
+            ->where('order_item_id', $order->vendorOrders->first()->items->first()->id)
+            ->firstOrFail();
+        $gross = number_format((float) $commission->commission_amount, 2, '.', '');
+        $cut = bcmul($gross, '0.10', 2);
+        $net = bcsub($gross, $cut, 2);
+
+        $this->assertSame($cut, $fee['amount']);
+
+        $balance = $this->getJsonAsUser('/api/v1/dashboard/affiliate/payouts', $marketer)
+            ->assertOk()
+            ->json('data.balance');
+
+        $this->assertSame($net, $balance['pending']);
+        $this->assertSame('0.00', $balance['available']);
+        $this->assertSame($cut, $balance['platform_commission']);
+        $this->assertTrue($balance['platform_commission_active']);
+        $this->assertSame('10.00', $balance['platform_commission_rate_percent']);
+
+        event(new OrderDelivered($order->vendorOrders->first()->fresh(['items', 'order', 'shipment', 'vendorAccount'])));
+
+        $afterDelivery = $this->getJsonAsUser('/api/v1/dashboard/affiliate/finance/transactions', $marketer)
+            ->assertOk()
+            ->json('data.transactions');
+
+        foreach ($afterDelivery as $row) {
+            $this->assertSame('completed', $row['status']);
+        }
+
+        $available = $this->getJsonAsUser('/api/v1/dashboard/affiliate/payouts', $marketer)
+            ->assertOk()
+            ->json('data.balance');
+
+        $this->assertSame($net, $available['available']);
+        $this->assertSame('0.00', $available['pending']);
+    }
+
+    #[Test]
+    public function marketer_platform_commission_is_omitted_when_rate_is_zero(): void
+    {
+        CommissionRule::query()->where('scope', 'global')->update(['rate_percent' => '0.00']);
+
+        [$product, $link, $marketer, $order] = $this->createAffiliateOrderWithAttribution();
+
+        app(PaymentFinalizationService::class)->finalizePaid(
+            payment: $order->payment,
+            gatewayPaymentId: 'gw-tx-inactive',
+            gatewayInvoiceId: 'inv-tx-inactive',
+        );
+        event(new PaymentSucceeded($order->payment->fresh()));
+
+        $payload = $this->getJsonAsUser('/api/v1/dashboard/affiliate/finance/transactions', $marketer)
+            ->assertOk()
+            ->json('data');
+
+        $this->assertCount(1, $payload['transactions']);
+        $this->assertSame('affiliate_commission', $payload['transactions'][0]['transaction_type']);
+
+        $commission = AffiliateCommission::query()
+            ->where('order_item_id', $order->vendorOrders->first()->items->first()->id)
+            ->firstOrFail();
+        $gross = number_format((float) $commission->commission_amount, 2, '.', '');
+
+        $balance = $this->getJsonAsUser('/api/v1/dashboard/affiliate/payouts', $marketer)
+            ->assertOk()
+            ->json('data.balance');
+
+        $this->assertSame($gross, $balance['pending']);
+        $this->assertFalse($balance['platform_commission_active']);
+        $this->assertSame('0.00', $balance['platform_commission']);
+    }
+
+    #[Test]
+    public function marketer_finance_period_filters_platform_commission_and_transactions(): void
+    {
+        [$product, $link, $marketer, $order] = $this->createAffiliateOrderWithAttribution();
+
+        app(PaymentFinalizationService::class)->finalizePaid(
+            payment: $order->payment,
+            gatewayPaymentId: 'gw-tx-period',
+            gatewayInvoiceId: 'inv-tx-period',
+        );
+        event(new PaymentSucceeded($order->payment->fresh()));
+
+        $commission = AffiliateCommission::query()
+            ->where('order_item_id', $order->vendorOrders->first()->items->first()->id)
+            ->firstOrFail();
+        $commission->forceFill(['created_at' => now()->subMonths(4)])->save();
+
+        $gross = number_format((float) $commission->commission_amount, 2, '.', '');
+        $cut = bcmul($gross, '0.10', 2);
+        $net = bcsub($gross, $cut, 2);
+
+        $today = $this->getJsonAsUser('/api/v1/dashboard/affiliate/payouts?period=day', $marketer)
+            ->assertOk()
+            ->json('data');
+
+        $this->assertSame($net, $today['balance']['pending']);
+        $this->assertSame('0.00', $today['balance']['platform_commission']);
+
+        $wide = $this->getJsonAsUser('/api/v1/dashboard/affiliate/payouts?period=6m', $marketer)
+            ->assertOk()
+            ->json('data.balance');
+
+        $this->assertSame($cut, $wide['platform_commission']);
+
+        $this->getJsonAsUser('/api/v1/dashboard/affiliate/finance/transactions?period=day', $marketer)
+            ->assertOk()
+            ->assertJsonPath('data.pagination.total', 0);
+
+        $this->getJsonAsUser('/api/v1/dashboard/affiliate/finance/transactions?period=6m', $marketer)
+            ->assertOk()
+            ->assertJsonPath('data.pagination.total', 2);
     }
 
     #[Test]

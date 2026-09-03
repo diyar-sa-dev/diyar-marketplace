@@ -1,4 +1,5 @@
 import { getLocaleCatalog } from './localeCatalog.ts';
+import { statusPageFallback } from './statusPageFallbacks.ts';
 import type { Locale, TranslateParams } from './types.ts';
 
 function resolvePath(catalog: Record<string, unknown>, key: string): unknown {
@@ -26,15 +27,11 @@ function interpolate(template: string, params?: TranslateParams): string {
 
 export function translate(locale: Locale, key: string, params?: TranslateParams): string {
   const catalog = getLocaleCatalog(locale);
-  if (!catalog) {
-    return key;
+  const value = catalog ? resolvePath(catalog, key) : undefined;
+
+  if (typeof value === 'string') {
+    return interpolate(value, params);
   }
 
-  const value = resolvePath(catalog, key);
-
-  if (typeof value !== 'string') {
-    return key;
-  }
-
-  return interpolate(value, params);
+  return statusPageFallback(locale, key, params) ?? key;
 }

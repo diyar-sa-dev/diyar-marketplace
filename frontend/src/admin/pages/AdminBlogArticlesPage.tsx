@@ -10,6 +10,7 @@ import {
   type BlogArticleFormValues,
 } from '../components/AdminBlogArticleModal.tsx';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
+import { TableLtrValue } from '../../components/common/TableLtrValue.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
 import { PermissionGate } from '../components/PermissionGate.tsx';
@@ -311,8 +312,8 @@ export default function AdminBlogArticlesPage() {
                 ) : null}
               </div>
             </td>
-            <td className="px-4 py-3 font-mono text-xs text-gray-500" dir="ltr">
-              {article.slug}
+            <td className="px-4 py-3 text-start">
+              <TableLtrValue className="font-mono text-xs text-gray-500">{article.slug}</TableLtrValue>
             </td>
             <td className="px-4 py-3">
               <AdminStatusBadge status={article.status} />

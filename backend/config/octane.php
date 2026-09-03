@@ -49,7 +49,10 @@ use Laravel\Octane\Listeners\FlushOnce;
 use Laravel\Octane\Listeners\FlushTemporaryContainerInstances;
 use Laravel\Octane\Listeners\FlushUploadedFiles;
 use Laravel\Octane\Listeners\ReportException;
+use App\Listeners\Octane\FlushAuthAndSessionState;
 use App\Listeners\Octane\FlushOctaneDevState;
+use App\Listeners\Octane\PersistApplicationSession;
+use App\Listeners\Octane\ResetRequestScopedState;
 use Laravel\Octane\Listeners\StopWorkerIfNecessary;
 use Laravel\Octane\Octane;
 
@@ -67,13 +70,22 @@ return [
 
         RequestReceived::class => [
             ...Octane::prepareApplicationForNextOperation(),
-            ...Octane::prepareApplicationForNextRequest(),
+            ResetRequestScopedState::class,
+            // Must run before Octane's FlushSessionState — that listener calls regenerate()
+            // on the in-memory session id and deletes the prior user's Redis session key
+            // before the next request cookie is loaded (cross-user 401 on same worker).
+            FlushAuthAndSessionState::class,
+            ...array_values(array_filter(
+                Octane::prepareApplicationForNextRequest(),
+                static fn (string $listener): bool => $listener !== \Laravel\Octane\Listeners\FlushSessionState::class,
+            )),
         ],
 
         RequestHandled::class => [],
 
         RequestTerminated::class => [
             FlushUploadedFiles::class,
+            PersistApplicationSession::class,
         ],
 
         TaskReceived::class => [
@@ -107,10 +119,17 @@ return [
     ],
 
     'warm' => [
-        ...Octane::defaultServicesToWarm(),
+        ...array_values(array_filter(
+            Octane::defaultServicesToWarm(),
+            static fn (string $service): bool => ! in_array($service, ['session', 'session.store', 'auth', 'auth.driver'], true),
+        )),
     ],
 
-    'flush' => [],
+    'flush' => [
+        'auth',
+        'auth.driver',
+        'session.store',
+    ],
 
     'cache' => [
         'rows' => 1000,

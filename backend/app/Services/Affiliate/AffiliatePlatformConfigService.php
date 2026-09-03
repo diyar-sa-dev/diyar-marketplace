@@ -16,17 +16,27 @@ final class AffiliatePlatformConfigService
      *     max_commission_percent: string,
      *     attribution_window_days: int,
      *     payout_minimum: string,
-     *     currency: string
+     *     currency: string,
+     *     payout_schedule: array{min_days: int, max_days: int}
      * }
      */
     public function snapshot(): array
     {
+        $schedule = config('diyar.finance.payout_schedule', [
+            'min_days' => 1,
+            'max_days' => 3,
+        ]);
+
         return [
             'min_commission_percent' => number_format($this->minCommissionPercent(), 2, '.', ''),
             'max_commission_percent' => number_format($this->maxCommissionPercent(), 2, '.', ''),
             'attribution_window_days' => $this->attributionWindowDays(),
             'payout_minimum' => number_format($this->payoutMinimum(), 2, '.', ''),
             'currency' => $this->currency(),
+            'payout_schedule' => [
+                'min_days' => (int) ($schedule['min_days'] ?? 1),
+                'max_days' => (int) ($schedule['max_days'] ?? 3),
+            ],
         ];
     }
 

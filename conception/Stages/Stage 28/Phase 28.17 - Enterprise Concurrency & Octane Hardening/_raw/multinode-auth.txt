@@ -1,0 +1,6 @@
+
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+=== Multi-node auth probe ===
+base=http://127.0.0.1:8088
+failures=0
+RESULT: PASS

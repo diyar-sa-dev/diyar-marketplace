@@ -100,7 +100,7 @@ final class CustomerReviewHistoryService
                 ->where('user_id', $user->id)
                 ->where('status', ProviderReviewStatus::Published)
                 ->whereKey($id)
-                ->with(['service', 'providerAccount', 'serviceBooking:id,reference'])
+                ->with(['service', 'providerAccount', 'serviceBooking.serviceRequest', 'serviceBooking.service'])
                 ->first();
 
             return $review !== null
@@ -168,7 +168,7 @@ final class CustomerReviewHistoryService
             $paginator = ProviderReview::query()
                 ->where('user_id', $user->id)
                 ->where('status', ProviderReviewStatus::Published)
-                ->with(['service', 'providerAccount', 'serviceBooking:id,reference'])
+                ->with(['service', 'providerAccount', 'serviceBooking.serviceRequest', 'serviceBooking.service'])
                 ->latest()
                 ->paginate(perPage: $perPage, page: $page);
 
@@ -438,7 +438,7 @@ final class CustomerReviewHistoryService
             ProviderReview::query()
                 ->whereIn('id', $ids)
                 ->where('status', ProviderReviewStatus::Published)
-                ->with(['service', 'providerAccount', 'serviceBooking:id,reference'])
+                ->with(['service', 'providerAccount', 'serviceBooking.serviceRequest', 'serviceBooking.service'])
                 ->get(),
         );
     }
@@ -545,7 +545,7 @@ final class CustomerReviewHistoryService
             ->where('status', ServiceBookingStatus::Completed)
             ->where('payment_status', ServiceBookingPaymentStatus::Paid)
             ->whereDoesntHave('providerReview')
-            ->with(['service', 'providerAccount'])
+            ->with(['service', 'providerAccount', 'serviceRequest'])
             ->latest('updated_at')
             ->get()
             ->filter(function (ServiceBooking $booking) use ($user) {
@@ -620,10 +620,12 @@ final class CustomerReviewHistoryService
             'provider_responded_by' => $review->provider_response !== null
                 ? $review->providerAccount?->business_name
                 : null,
-            'service' => $this->mapServiceSubject($review->service),
+            'service' => $this->mapBookingServiceSubject($review->serviceBooking, $review->service),
             'provider' => $this->mapProviderSubject($review->providerAccount),
             'booking_id' => $review->service_booking_id,
             'booking_reference' => $review->serviceBooking?->reference,
+            'booking_source' => $this->resolveBookingSource($review->serviceBooking),
+            'request_reference' => $review->serviceBooking?->serviceRequest?->reference,
         ]);
     }
 
@@ -679,7 +681,9 @@ final class CustomerReviewHistoryService
             'sort_at' => $booking->updated_at?->toIso8601String() ?? $booking->created_at?->toIso8601String(),
             'booking_id' => $booking->id,
             'booking_reference' => $booking->reference,
-            'service' => $this->mapServiceSubject($booking->service),
+            'booking_source' => $this->resolveBookingSource($booking),
+            'request_reference' => $booking->serviceRequest?->reference,
+            'service' => $this->mapBookingServiceSubject($booking),
             'provider' => $this->mapProviderSubject($booking->providerAccount),
         ];
     }
@@ -745,18 +749,76 @@ final class CustomerReviewHistoryService
     }
 
     /**
+     * @return 'rfq'|'direct'|null
+     */
+    private function resolveBookingSource(?ServiceBooking $booking): ?string
+    {
+        if ($booking === null) {
+            return null;
+        }
+
+        $source = $booking->booking_source?->value;
+        if ($source === 'rfq' || $source === 'direct') {
+            return $source;
+        }
+
+        if ($booking->service_request_id) {
+            return 'rfq';
+        }
+
+        if ($booking->service_id) {
+            return 'direct';
+        }
+
+        return null;
+    }
+
+    /**
      * @return array<string, mixed>|null
      */
-    private function mapServiceSubject(?Service $service): ?array
+    private function mapBookingServiceSubject(?ServiceBooking $booking, ?Service $service = null): ?array
     {
-        if ($service === null) {
+        $resolved = $service ?? $booking?->service;
+        $title = $this->firstNonEmpty([
+            $resolved?->title,
+            $booking?->service_title_snapshot,
+            $booking?->serviceRequest?->title,
+            $booking?->serviceRequest?->description,
+        ]);
+
+        return $this->mapServiceSubject($resolved, $title !== '' ? $title : null);
+    }
+
+    /**
+     * @param  list<mixed>  $candidates
+     */
+    private function firstNonEmpty(array $candidates): string
+    {
+        foreach ($candidates as $candidate) {
+            $value = trim((string) $candidate);
+            if ($value !== '') {
+                return \Illuminate\Support\Str::limit($value, 80, '…');
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function mapServiceSubject(?Service $service, ?string $fallbackTitle = null): ?array
+    {
+        $title = $this->firstNonEmpty([$service?->title, $fallbackTitle]);
+        if ($service === null && $title === '') {
             return null;
         }
 
         return [
-            'id' => $service->id,
-            'title' => $service->title,
-            'slug' => $service->slug,
+            'id' => $service?->id,
+            'title' => $title !== '' ? $title : null,
+            'slug' => $service?->slug,
+            'image_url' => $service?->cover_path ? $this->media->url($service->cover_path) : null,
         ];
     }
 

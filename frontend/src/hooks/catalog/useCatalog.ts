@@ -5,6 +5,14 @@ import { categoryKeys, productKeys, vendorKeys } from './queryKeys.ts';
 import { isValidStoreSlug } from '../../lib/storePath.ts';
 import { isNotFoundError } from '../../utils/errors.ts';
 
+function retryUnlessNotFound(failureCount: number, error: unknown): boolean {
+  if (isNotFoundError(error)) {
+    return false;
+  }
+
+  return failureCount < 2;
+}
+
 export function useCategories(type?: 'product' | 'service') {
   return useQuery({
     queryKey: [...categoryKeys.list(), type ?? 'all'],
@@ -17,6 +25,7 @@ export function useCategory(slug: string) {
     queryKey: categoryKeys.detail(slug),
     queryFn: () => catalogApi.fetchCategory(slug),
     enabled: Boolean(slug) && slug !== 'all',
+    retry: retryUnlessNotFound,
   });
 }
 
@@ -32,6 +41,7 @@ export function useCategoryProducts(
         ? catalogApi.fetchProducts(filters)
         : catalogApi.fetchCategoryProducts(slug, filters),
     enabled: options?.enabled !== false && Boolean(slug),
+    retry: retryUnlessNotFound,
   });
 }
 
@@ -65,12 +75,7 @@ export function useVendor(slug: string | undefined) {
     queryFn: () => catalogApi.fetchVendor(slug!),
     enabled: isValidStoreSlug(slug),
     staleTime: 60_000,
-    retry: (failureCount, error) => {
-      if (isNotFoundError(error)) {
-        return false;
-      }
-      return failureCount < 2;
-    },
+    retry: retryUnlessNotFound,
   });
 }
 
@@ -83,12 +88,7 @@ export function useVendorProducts(
     queryKey: vendorKeys.products(slug ?? '', filters),
     queryFn: () => catalogApi.fetchVendorProducts(slug!, filters),
     enabled: options?.enabled !== false && isValidStoreSlug(slug),
-    retry: (failureCount, error) => {
-      if (isNotFoundError(error)) {
-        return false;
-      }
-      return failureCount < 2;
-    },
+    retry: retryUnlessNotFound,
   });
 }
 

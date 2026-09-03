@@ -459,6 +459,9 @@ return [
         'affiliate_commission_release_credit' => 'Affiliate available credit on commission release.',
         'affiliate_commission_reversal' => 'Affiliate commission reversal.',
         'affiliate_payout_debit' => 'Affiliate payout debit.',
+        'affiliate_marketer_commission' => 'Referral commission for order :reference',
+        'affiliate_payout_request' => 'Payout request :reference',
+        'affiliate_platform_commission' => ':percent% platform commission on order :reference',
         'upcoming_escrow_note' => 'Funds held in escrow until orders are delivered.',
         'no_upcoming_payout' => 'No scheduled payout is available yet.',
         'bank_account_required' => 'Add an active bank account before requesting a payout.',
@@ -470,6 +473,9 @@ return [
             'day' => 'Day',
             'week' => 'Week',
             'month' => 'Month',
+            '3m' => '3 months',
+            '6m' => '6 months',
+            '12m' => '12 months',
             'year' => 'Year',
         ],
         'directions' => [
@@ -503,6 +509,7 @@ return [
             'platform_earnings' => 'Platform earnings',
             'affiliate_commission' => 'Affiliate commissions',
             'pending_vendor_payouts' => 'Pending vendor payouts',
+            'pending_provider_payouts' => 'Pending provider payouts',
             'pending_affiliate_payouts' => 'Pending affiliate payouts',
             'reference' => 'Reference',
             'transaction' => 'Transaction',
@@ -511,6 +518,21 @@ return [
             'amount' => 'Amount',
             'currency' => 'Currency',
             'date' => 'Date',
+            'metric' => 'Metric',
+            'value' => 'Value',
+            'day' => 'Day',
+            'monthly_gross' => 'Monthly gross',
+            'monthly_commission' => 'Monthly commission',
+            'monthly_net' => 'Monthly net',
+            'bookings_created' => 'Bookings created',
+            'bookings_confirmed' => 'Bookings confirmed',
+            'bookings_completed' => 'Bookings completed',
+            'bookings_cancelled' => 'Bookings cancelled',
+            'revenue' => 'Revenue',
+            'average_booking_value' => 'Average booking value',
+            'rating' => 'Rating',
+            'review_count' => 'Reviews',
+            'active_services' => 'Active services',
         ],
     ],
 
@@ -670,6 +692,17 @@ return [
         'return_updated' => [
             'title' => 'Return update',
             'body' => 'Your return request status is now :status.',
+            'status' => [
+                'requested' => 'Requested',
+                'under_review' => 'Under review',
+                'approved' => 'Approved',
+                'rejected' => 'Rejected',
+                'awaiting_return' => 'Awaiting return',
+                'received' => 'Received',
+                'inspected' => 'Inspected',
+                'refunded' => 'Refunded',
+                'cancelled' => 'Cancelled',
+            ],
         ],
         'offer_received' => [
             'title' => 'New service offer',
@@ -677,11 +710,11 @@ return [
         ],
         'offer_accepted' => [
             'title' => 'Offer accepted',
-            'body' => 'Your offer for request :request_reference was accepted.',
+            'body' => 'Your offer for request :request_reference was accepted and booking :booking_reference was created. Open Bookings to confirm the appointment.',
         ],
         'booking_created' => [
             'title' => 'Booking created',
-            'body' => 'Booking :reference for :service_title with :provider_name.',
+            'body' => 'Booking :reference was created for :service_title. Open Bookings to follow the appointment.',
         ],
         'booking_completed' => [
             'title' => 'Booking completed',
@@ -706,6 +739,11 @@ return [
         'team_invitation' => [
             'title' => 'Team invitation',
             'body' => 'You were invited to join :store_name as :role.',
+            'role' => [
+                'owner' => 'store owner',
+                'manager' => 'manager',
+                'customer_service' => 'customer service',
+            ],
         ],
         'team_member_added' => [
             'title' => 'Added to store team',

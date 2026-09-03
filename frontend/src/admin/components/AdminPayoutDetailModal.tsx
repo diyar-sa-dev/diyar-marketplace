@@ -21,6 +21,7 @@ import { PermissionGate } from './PermissionGate.tsx';
 import type {
   AdminAffiliatePayout,
   AdminPayoutKind,
+  AdminProviderPayout,
   AdminVendorPayout,
   PayoutAction,
 } from '../types/payouts.ts';
@@ -28,7 +29,7 @@ import type {
 type AdminPayoutDetailModalProps = {
   open: boolean;
   kind: AdminPayoutKind;
-  payout: AdminVendorPayout | AdminAffiliatePayout | null;
+  payout: AdminVendorPayout | AdminProviderPayout | AdminAffiliatePayout | null;
   isActionPending: boolean;
   onClose: () => void;
   onAction: (action: PayoutAction) => void;
@@ -74,30 +75,46 @@ export function AdminPayoutDetailModal({
   }
 
   const isVendor = kind === 'vendor';
+  const isProvider = kind === 'provider';
   const vendorPayout = isVendor ? (payout as AdminVendorPayout) : null;
-  const affiliatePayout = !isVendor ? (payout as AdminAffiliatePayout) : null;
+  const providerPayout = isProvider ? (payout as AdminProviderPayout) : null;
+  const affiliatePayout = !isVendor && !isProvider ? (payout as AdminAffiliatePayout) : null;
 
   const recipientName = isVendor
     ? vendorPayout?.vendor?.business_name
-    : (affiliatePayout?.affiliate?.display_name ?? affiliatePayout?.affiliate?.owner?.name);
+    : isProvider
+      ? providerPayout?.provider?.business_name
+      : (affiliatePayout?.affiliate?.display_name ?? affiliatePayout?.affiliate?.owner?.name);
 
-  const owner = isVendor ? vendorPayout?.vendor?.owner : affiliatePayout?.affiliate?.owner;
+  const owner = isVendor
+    ? vendorPayout?.vendor?.owner
+    : isProvider
+      ? providerPayout?.provider?.owner
+      : affiliatePayout?.affiliate?.owner;
 
   const bankLabel = isVendor
     ? vendorPayout?.vendor?.bank_account?.beneficiary_name
-    : affiliatePayout?.affiliate?.payout_account_holder;
+    : isProvider
+      ? providerPayout?.provider?.bank_account?.beneficiary_name
+      : affiliatePayout?.affiliate?.payout_account_holder;
 
   const bankName = isVendor
     ? vendorPayout?.vendor?.bank_account?.bank_code
-    : affiliatePayout?.affiliate?.payout_bank_name;
+    : isProvider
+      ? providerPayout?.provider?.bank_account?.bank_code
+      : affiliatePayout?.affiliate?.payout_bank_name;
 
   const ibanDisplay = isVendor
     ? vendorPayout?.vendor?.bank_account?.iban_last4
       ? `•••• ${vendorPayout.vendor.bank_account.iban_last4}`
       : null
-    : affiliatePayout?.affiliate?.payout_iban
-      ? `•••• ${affiliatePayout.affiliate.payout_iban.slice(-4)}`
-      : null;
+    : isProvider
+      ? providerPayout?.provider?.bank_account?.iban_last4
+        ? `•••• ${providerPayout.provider.bank_account.iban_last4}`
+        : null
+      : affiliatePayout?.affiliate?.payout_iban
+        ? `•••• ${affiliatePayout.affiliate.payout_iban.slice(-4)}`
+        : null;
 
   return (
     <div
@@ -115,7 +132,11 @@ export function AdminPayoutDetailModal({
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
-                {isVendor ? t('admin.finance.vendorPayouts') : t('admin.finance.affiliatePayouts')}
+                {isVendor
+                  ? t('admin.finance.vendorPayouts')
+                  : isProvider
+                    ? t('admin.finance.providerPayouts')
+                    : t('admin.finance.affiliatePayouts')}
               </p>
               <h2
                 id="payout-detail-title"
@@ -179,6 +200,15 @@ export function AdminPayoutDetailModal({
                   {t('admin.payouts.openVendor')}
                 </Link>
               ) : null}
+              {isProvider && providerPayout?.provider ? (
+                <Link
+                  to={`/admin/providers/${providerPayout.provider.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-diyar-dark px-3 py-1.5 text-xs font-bold text-white hover:bg-diyar-brown cursor-pointer"
+                >
+                  <ExternalLink size={14} />
+                  {t('admin.payouts.openProvider')}
+                </Link>
+              ) : null}
               {owner ? (
                 <Link
                   to={`/admin/users/${owner.id}`}
@@ -188,7 +218,7 @@ export function AdminPayoutDetailModal({
                   {t('admin.payouts.openUser')}
                 </Link>
               ) : null}
-              {!isVendor ? (
+              {!isVendor && !isProvider ? (
                 <Link
                   to="/admin/affiliate"
                   className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-diyar-brown hover:text-diyar-brown cursor-pointer"

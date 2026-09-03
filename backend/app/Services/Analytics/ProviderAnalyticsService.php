@@ -72,24 +72,30 @@ final class ProviderAnalyticsService
         $currency = $this->finance->currency();
 
         $paginator = ServiceBooking::query()
-            ->selectRaw('service_id')
-            ->selectRaw('MAX(service_title_snapshot) as service_title')
+            ->leftJoin('services', 'services.id', '=', 'service_bookings.service_id')
+            ->leftJoin('service_requests', 'service_requests.id', '=', 'service_bookings.service_request_id')
+            ->selectRaw('MAX(service_bookings.service_id) as service_id')
+            ->selectRaw("COALESCE(
+                NULLIF(MAX(NULLIF(TRIM(service_bookings.service_title_snapshot), '')), ''),
+                NULLIF(MAX(NULLIF(TRIM(services.title), '')), ''),
+                NULLIF(MAX(NULLIF(TRIM(service_requests.title), '')), '')
+            ) as service_title")
             ->selectRaw('COUNT(*) as bookings_count')
-            ->selectRaw(sprintf("SUM(CASE WHEN status = '%s' THEN 1 ELSE 0 END) as completed_count", ServiceBookingStatus::Completed->value))
-            ->selectRaw(sprintf("SUM(CASE WHEN status = '%s' THEN 1 ELSE 0 END) as cancelled_count", ServiceBookingStatus::Cancelled->value))
+            ->selectRaw(sprintf("SUM(CASE WHEN service_bookings.status = '%s' THEN 1 ELSE 0 END) as completed_count", ServiceBookingStatus::Completed->value))
+            ->selectRaw(sprintf("SUM(CASE WHEN service_bookings.status = '%s' THEN 1 ELSE 0 END) as cancelled_count", ServiceBookingStatus::Cancelled->value))
             ->selectRaw(sprintf(
-                "SUM(CASE WHEN status = '%s' AND payment_status = '%s' THEN price ELSE 0 END) as revenue",
+                "SUM(CASE WHEN service_bookings.status = '%s' AND service_bookings.payment_status = '%s' THEN service_bookings.price ELSE 0 END) as revenue",
                 ServiceBookingStatus::Completed->value,
                 ServiceBookingPaymentStatus::Paid->value,
             ))
-            ->where('provider_account_id', $provider->id)
-            ->whereBetween('created_at', [$from, $to])
-            ->groupBy('service_id')
+            ->where('service_bookings.provider_account_id', $provider->id)
+            ->whereBetween('service_bookings.created_at', [$from, $to])
+            ->groupByRaw('COALESCE(service_bookings.service_id, service_bookings.service_request_id, service_bookings.id)')
             ->orderByDesc('revenue')
             ->paginate($perPage, ['*'], 'page', $page);
 
         $serviceIds = collect($paginator->items())->pluck('service_id')->filter()->all();
-        $reviewStatsByService = [];
+        $reviewStatsByService = collect();
 
         if ($serviceIds !== []) {
             $reviewStatsByService = ProviderReview::query()
@@ -97,18 +103,20 @@ final class ProviderAnalyticsService
                 ->whereIn('service_id', $serviceIds)
                 ->groupBy('service_id')
                 ->selectRaw('service_id, AVG(rating) as avg_rating, COUNT(*) as review_count')
-                ->pluck(null, 'service_id')
-                ->all();
+                ->get()
+                ->keyBy('service_id');
         }
 
         return $paginator->through(function ($row) use ($currency, $reviewStatsByService) {
-            $reviewStats = $reviewStatsByService[$row->service_id] ?? null;
+            $reviewStats = $reviewStatsByService->get($row->service_id);
             $bookings = (int) $row->bookings_count;
             $completed = (int) $row->completed_count;
 
+            $title = trim((string) ($row->service_title ?? ''));
+
             return [
                 'service_id' => $row->service_id,
-                'service_title' => $row->service_title,
+                'service_title' => $title,
                 'bookings_count' => $bookings,
                 'completed_bookings' => $completed,
                 'cancelled_bookings' => (int) $row->cancelled_count,
@@ -223,7 +231,7 @@ final class ProviderAnalyticsService
      */
     private function buildBookingsSeries(ProviderAccount $provider, array $range): array
     {
-        $rows = DB::table('service_bookings')
+        $createdByDay = DB::table('service_bookings')
             ->selectRaw('DATE(created_at) as day')
             ->selectRaw('COUNT(*) as created')
             ->selectRaw(sprintf("SUM(CASE WHEN status = '%s' THEN 1 ELSE 0 END) as completed", ServiceBookingStatus::Completed->value))
@@ -232,7 +240,8 @@ final class ProviderAnalyticsService
             ->whereBetween('created_at', [$range['from'], $range['to']])
             ->groupBy('day')
             ->orderBy('day')
-            ->get();
+            ->get()
+            ->keyBy(fn ($row) => substr((string) $row->day, 0, 10));
 
         $revenueByDay = DB::table('service_bookings')
             ->selectRaw('DATE(completed_at) as day')
@@ -242,22 +251,46 @@ final class ProviderAnalyticsService
             ->where('payment_status', ServiceBookingPaymentStatus::Paid->value)
             ->whereBetween('completed_at', [$range['from'], $range['to']])
             ->groupBy('day')
-            ->pluck('revenue', 'day');
+            ->get()
+            ->mapWithKeys(fn ($row) => [substr((string) $row->day, 0, 10) => (float) $row->revenue]);
+
+        $series = [];
+        foreach (AnalyticsTimeBuckets::build($range['from'], $range['to'], $range['granularity']) as $bucket) {
+            $created = 0;
+            $completed = 0;
+            $cancelled = 0;
+            $revenue = 0.0;
+            $cursor = $bucket['from']->startOfDay();
+            $bucketEndDay = $bucket['to']->startOfDay();
+
+            while ($cursor <= $bucketEndDay) {
+                $day = $cursor->toDateString();
+                $row = $createdByDay->get($day);
+                $created += (int) ($row->created ?? 0);
+                $completed += (int) ($row->completed ?? 0);
+                $cancelled += (int) ($row->cancelled ?? 0);
+                $revenue += (float) ($revenueByDay->get($day) ?? 0);
+                $cursor = $cursor->addDay();
+            }
+
+            $series[] = [
+                'label' => $bucket['label'],
+                'bookings_created' => $created,
+                'bookings_completed' => $completed,
+                'bookings_cancelled' => $cancelled,
+                'revenue' => number_format($revenue, 2, '.', ''),
+            ];
+        }
 
         return [
             'period' => [
                 'preset' => $range['preset'],
                 'from' => $range['from']->toDateString(),
                 'to' => $range['to']->toDateString(),
+                'granularity' => $range['granularity'],
             ],
             'currency' => $this->finance->currency(),
-            'series' => $rows->map(fn ($row) => [
-                'label' => $row->day,
-                'bookings_created' => (int) $row->created,
-                'bookings_completed' => (int) $row->completed,
-                'bookings_cancelled' => (int) $row->cancelled,
-                'revenue' => number_format((float) ($revenueByDay[$row->day] ?? 0), 2, '.', ''),
-            ])->all(),
+            'series' => $series,
         ];
     }
 }

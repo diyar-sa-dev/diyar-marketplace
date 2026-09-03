@@ -20,7 +20,12 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { PaginationBar } from '../../components/catalog/PaginationBar.tsx';
+import { TableLtrValue } from '../../components/common/TableLtrValue.tsx';
 import { intlLocaleTag } from '../../lib/intlLocale.ts';
+import {
+  analyticsAxisTickInterval,
+  formatAnalyticsAxisLabel,
+} from '../../lib/formatAnalyticsAxisLabel.ts';
 import { PageLoadingOverlay } from '../../components/common/PageLoadingOverlay.tsx';
 import { ErrorState } from '../../components/common/ErrorState.tsx';
 import { TableSkeleton } from '../../components/common/TableSkeleton.tsx';
@@ -64,6 +69,8 @@ export default function AffiliateReports() {
   const daily = reportsQuery.data?.daily ?? [];
   const byLink = reportsQuery.data?.by_link ?? [];
   const bySource = reportsQuery.data?.by_source ?? [];
+  const chartGranularity =
+    period === 'week' ? 'weekday' : (reportsQuery.data?.period?.granularity ?? 'day');
 
   const displaySummary = summary ?? {
     clicks: daily.reduce((sum, row) => sum + row.clicks, 0),
@@ -351,7 +358,11 @@ export default function AffiliateReports() {
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
+                    interval={analyticsAxisTickInterval(areaData.length)}
                     tick={{ fill: '#9ca3af', fontSize: 11 }}
+                    tickFormatter={(value: string) =>
+                      formatAnalyticsAxisLabel(value, locale, chartGranularity)
+                    }
                   />
                   <YAxis
                     axisLine={false}
@@ -459,22 +470,26 @@ export default function AffiliateReports() {
               <tbody className="divide-y divide-gray-100">
                 {bySource.map((row) => (
                   <tr key={row.source} className="hover:bg-gray-50/50 transition">
-                    <td className="px-6 py-4 font-bold text-gray-700">
+                    <td className="px-6 py-4 text-start font-bold text-gray-700">
                       {t(`affiliate.sources.${row.source}` as 'affiliate.sources.instagram')}
                     </td>
-                    <td className="px-6 py-4 tabular-nums">
-                      {row.clicks.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
+                    <td className="px-6 py-4 text-start">
+                      <TableLtrValue>
+                        {row.clicks.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
+                      </TableLtrValue>
                     </td>
-                    <td className="px-6 py-4 tabular-nums">
-                      {row.conversions.toLocaleString(
-                        locale === 'ar' ? intlLocaleTag('ar') : 'en-US',
-                      )}
+                    <td className="px-6 py-4 text-start">
+                      <TableLtrValue>
+                        {row.conversions.toLocaleString(
+                          locale === 'ar' ? intlLocaleTag('ar') : 'en-US',
+                        )}
+                      </TableLtrValue>
                     </td>
-                    <td className="px-6 py-4 tabular-nums" dir="ltr">
-                      {row.conversion_rate}%
+                    <td className="px-6 py-4 text-start">
+                      <TableLtrValue>{row.conversion_rate}%</TableLtrValue>
                     </td>
-                    <td className="px-6 py-4 font-bold text-diyar-dark tabular-nums" dir="ltr">
-                      {row.earnings}
+                    <td className="px-6 py-4 text-start font-bold text-diyar-dark">
+                      <TableLtrValue>{row.earnings}</TableLtrValue>
                     </td>
                   </tr>
                 ))}
@@ -562,25 +577,31 @@ export default function AffiliateReports() {
               <tbody className="divide-y divide-gray-100">
                 {paginatedLinks.map((row) => (
                   <tr key={row.link_id} className="hover:bg-gray-50/50 transition">
-                    <td className="px-6 py-4 font-bold text-gray-700">{row.name}</td>
-                    <td className="px-6 py-4 text-gray-600">
+                    <td className="px-6 py-4 text-start font-bold text-gray-700">{row.name}</td>
+                    <td className="px-6 py-4 text-start text-gray-600">
                       {row.source
                         ? t(`affiliate.sources.${row.source}` as 'affiliate.sources.instagram')
                         : noDataLabel}
                     </td>
-                    <td className="px-6 py-4 text-gray-600">{row.product?.name ?? noDataLabel}</td>
-                    <td className="px-6 py-4 text-gray-700 tabular-nums">
-                      {row.clicks.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
+                    <td className="px-6 py-4 text-start text-gray-600">
+                      {row.product?.name ?? noDataLabel}
                     </td>
-                    <td className="px-6 py-4 text-gray-700 tabular-nums">
-                      {row.conversions.toLocaleString(
-                        locale === 'ar' ? intlLocaleTag('ar') : 'en-US',
-                      )}
+                    <td className="px-6 py-4 text-start text-gray-700">
+                      <TableLtrValue>
+                        {row.clicks.toLocaleString(locale === 'ar' ? intlLocaleTag('ar') : 'en-US')}
+                      </TableLtrValue>
                     </td>
-                    <td className="px-6 py-4 font-bold text-diyar-dark tabular-nums" dir="ltr">
-                      {row.earnings}
+                    <td className="px-6 py-4 text-start text-gray-700">
+                      <TableLtrValue>
+                        {row.conversions.toLocaleString(
+                          locale === 'ar' ? intlLocaleTag('ar') : 'en-US',
+                        )}
+                      </TableLtrValue>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-start font-bold text-diyar-dark">
+                      <TableLtrValue>{row.earnings}</TableLtrValue>
+                    </td>
+                    <td className="px-6 py-4 text-start">
                       <span
                         className={`px-2.5 py-1 text-xs font-bold rounded-lg ${
                           row.is_active

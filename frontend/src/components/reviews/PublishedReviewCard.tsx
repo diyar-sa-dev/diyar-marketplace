@@ -5,7 +5,7 @@ import { StarRating } from '../product/StarRating.tsx';
 import { ReviewTypeBadge } from './ReviewTypeBadge.tsx';
 import { VendorReplyBlock } from './VendorReplyBlock.tsx';
 import { formatRelativeReviewDate } from '../../lib/formatRelativeReviewDate.ts';
-import { resolveMediaUrl } from '../../lib/media.ts';
+import { customerReviewSubjectImage, customerReviewSubjectTitle, customerReviewServiceSource } from '../../lib/customerReviewSubject.ts';
 import { validateStoreReviewInput, MAX_COMMENT_LENGTH } from '../../lib/storeReviewValidation.ts';
 import { updateProductReview, deleteProductReview } from '../../api/productEngagement.ts';
 import { updateStoreReview, deleteStoreReview } from '../../api/storeReviews.ts';
@@ -32,23 +32,20 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
   const isProduct = review.type === 'product';
   const isService = review.type === 'service';
   const isB2b = review.type === 'b2b';
-  const title = isProduct
-    ? review.product?.name
-    : isService
-      ? review.service?.title
-      : isB2b
-        ? review.company?.name
-        : review.store?.name;
-  const imageUrl = isProduct
-    ? resolveMediaUrl(review.product?.image_url)
-    : isService
-      ? resolveMediaUrl(review.provider?.logo_url)
-      : isB2b
-        ? resolveMediaUrl(review.company?.logo_url)
-        : resolveMediaUrl(review.store?.logo_url);
+  const untitled =
+    isProduct
+      ? t('customerReviews.typeProduct')
+      : isService
+        ? t('serviceBookings.defaultServiceTitle')
+        : isB2b
+          ? t('customerReviews.typeB2b')
+          : t('customerReviews.typeStore');
+  const title = customerReviewSubjectTitle(review, untitled);
+  const imageUrl = customerReviewSubjectImage(review);
+  const serviceSource = customerReviewServiceSource(review);
   const linkTarget = isProduct
     ? review.product?.id && review.product.available
-      ? `/products/${review.product.id}`
+      ? `/product/${review.product.id}`
       : null
     : isService
       ? review.service?.slug
@@ -190,12 +187,12 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
                     to={linkTarget}
                     className="font-bold text-diyar-dark wrap-break-word hover:text-diyar-brown"
                   >
-                    {title ?? '—'}
+                    {title}
                   </Link>
                 ) : (
-                  <h3 className="font-bold text-diyar-dark wrap-break-word">{title ?? '—'}</h3>
+                  <h3 className="font-bold text-diyar-dark wrap-break-word">{title}</h3>
                 )}
-                <ReviewTypeBadge type={review.type} t={t} />
+                <ReviewTypeBadge type={review.type} serviceSource={serviceSource} t={t} />
               </div>
               <StarRating value={review.rating} readOnly size={14} className="mb-1" />
             </div>
@@ -231,6 +228,12 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
               {t('orders.orderNumber')}: {review.order_number}
             </p>
           )}
+
+          {isService && review.request_reference ? (
+            <p className="text-xs text-gray-400 mt-2">
+              {t('customerReviews.requestReference')}: {review.request_reference}
+            </p>
+          ) : null}
 
           {isService && review.booking_reference && (
             <p className="text-xs text-gray-400 mt-2">

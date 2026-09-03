@@ -31,6 +31,7 @@ class AdminResourceParityTest extends TestCase
             ['/api/v1/admin/orders'],
             ['/api/v1/admin/products'],
             ['/api/v1/admin/payouts'],
+            ['/api/v1/admin/provider/payouts'],
             ['/api/v1/admin/affiliate/payouts'],
             ['/api/v1/admin/audit-logs'],
             ['/api/v1/admin/settings'],

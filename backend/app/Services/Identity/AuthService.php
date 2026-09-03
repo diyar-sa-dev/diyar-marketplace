@@ -13,6 +13,7 @@ use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -150,8 +151,14 @@ final class AuthService
     public function logoutMarketplace(): void
     {
         $adminUser = Auth::guard('admin')->user();
+        $webUser = Auth::guard('web')->user();
+
+        if ($webUser !== null) {
+            $webUser->forceFill(['remember_token' => null])->save();
+        }
 
         Auth::guard('web')->logout();
+        $this->forgetRememberCookie('web');
 
         if (! request()->hasSession()) {
             return;
@@ -170,13 +177,20 @@ final class AuthService
 
         $session->invalidate();
         $session->regenerateToken();
+        $session->save();
     }
 
     public function logoutAdmin(): void
     {
         $marketplaceUser = Auth::guard('web')->user();
+        $adminUser = Auth::guard('admin')->user();
+
+        if ($adminUser !== null) {
+            $adminUser->forceFill(['remember_token' => null])->save();
+        }
 
         Auth::guard('admin')->logout();
+        $this->forgetRememberCookie('admin');
 
         if (! request()->hasSession()) {
             return;
@@ -195,6 +209,7 @@ final class AuthService
 
         $session->invalidate();
         $session->regenerateToken();
+        $session->save();
     }
 
     /**
@@ -227,6 +242,17 @@ final class AuthService
         }
 
         $session->forget('password_hash_admin');
+    }
+
+    private function forgetRememberCookie(string $guardName): void
+    {
+        $guard = Auth::guard($guardName);
+
+        if (! method_exists($guard, 'getRecallerName')) {
+            return;
+        }
+
+        Cookie::queue(Cookie::forget($guard->getRecallerName()));
     }
 
     /**

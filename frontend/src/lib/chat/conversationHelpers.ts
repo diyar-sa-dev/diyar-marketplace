@@ -110,8 +110,22 @@ export function isConversationInInbox(
 
 export function resolveConversationProfilePath(
   conversation: Conversation | null | undefined,
+  currentUserId?: string,
 ): string | null {
   if (!conversation) {
+    return null;
+  }
+
+  const other = getOtherParticipant(conversation, currentUserId);
+  if (other?.participant_role === 'vendor' && conversation.vendor_slug) {
+    return `/store/${conversation.vendor_slug}`;
+  }
+
+  if (other?.participant_role === 'provider' && conversation.provider_slug) {
+    return `/provider/${conversation.provider_slug}`;
+  }
+
+  if (other?.participant_role === 'customer') {
     return null;
   }
 
@@ -136,19 +150,180 @@ export function getConversationParticipants(
   return conversation?.participants ?? [];
 }
 
+function firstNonEmpty(...values: Array<string | null | undefined>): string | null {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim() !== '') {
+      return value.trim();
+    }
+  }
+
+  return null;
+}
+
 export function getOtherParticipant(
   conversation: Conversation | null | undefined,
   currentUserId: string | undefined,
 ): ChatParticipant | null {
-  if (!conversation || !currentUserId) {
+  const participants = getConversationParticipants(conversation);
+  if (participants.length === 0) {
     return null;
   }
 
-  return (
-    getConversationParticipants(conversation).find(
-      (participant) => participant.user_id !== currentUserId,
-    ) ?? null
-  );
+  const viewerId = currentUserId?.trim();
+  const others = viewerId
+    ? participants.filter((participant) => participant.user_id !== viewerId)
+    : [];
+
+  if (!viewerId || others.length === 0) {
+    return null;
+  }
+
+  const viewer = participants.find((participant) => participant.user_id === viewerId);
+  const viewerRole = viewer?.participant_role;
+
+  if (viewerRole === 'vendor' || viewerRole === 'provider' || viewerRole === 'admin') {
+    return others.find((participant) => participant.participant_role === 'customer') ?? others[0];
+  }
+
+  if (viewerRole === 'customer') {
+    return others.find((participant) => participant.participant_role !== 'customer') ?? others[0];
+  }
+
+  return others[0];
+}
+
+export function mergeConversationRecords(
+  fromList: Conversation | null,
+  fromDetail: Conversation | null,
+): Conversation | null {
+  if (!fromList) {
+    return fromDetail;
+  }
+
+  if (!fromDetail || fromDetail.id !== fromList.id) {
+    return fromList;
+  }
+
+  const participants =
+    (fromDetail.participants?.length ?? 0) > 0
+      ? fromDetail.participants
+      : (fromList.participants ?? []);
+
+  return {
+    ...fromList,
+    ...fromDetail,
+    participants,
+    display_name: firstNonEmpty(fromDetail.display_name, fromList.display_name),
+    display_avatar_url: fromDetail.display_avatar_url ?? fromList.display_avatar_url ?? null,
+    last_message: fromList.last_message ?? fromDetail.last_message,
+    last_message_at: fromList.last_message_at ?? fromDetail.last_message_at,
+    unread_count: fromList.unread_count ?? fromDetail.unread_count,
+  };
+}
+
+export function conversationParty(
+  conversation: Conversation | null | undefined,
+  currentUserId: string | undefined,
+  fallbackName: string,
+): { name: string; avatarUrl: string | null; role: string | null } {
+  const other = getOtherParticipant(conversation, currentUserId);
+
+  return {
+    name:
+      firstNonEmpty(
+        other?.name,
+        conversation?.display_name,
+        conversation?.subject,
+        fallbackName,
+      ) ?? fallbackName,
+    avatarUrl: other?.avatar_url ?? conversation?.display_avatar_url ?? null,
+    role: other?.participant_role ?? null,
+  };
+}
+
+export function conversationParticipantRoleLabel(
+  role: string | null | undefined,
+  t: (key: string) => string,
+): string | null {
+  switch (role) {
+    case 'customer':
+      return t('chat.roleCustomer');
+    case 'vendor':
+      return t('chat.contextVendor');
+    case 'provider':
+      return t('chat.contextProvider');
+    case 'admin':
+      return t('chat.contextSupport');
+    default:
+      return null;
+  }
+}
+
+export type GroupedConversation = {
+  groupKey: string;
+  conversations: Conversation[];
+  primary: Conversation;
+};
+
+export function groupConversationsByCounterparty(
+  conversations: Conversation[],
+  currentUserId: string | undefined,
+): GroupedConversation[] {
+  const groups = new Map<string, Conversation[]>();
+
+  for (const conversation of conversations) {
+    const other = getOtherParticipant(conversation, currentUserId);
+    const groupKey = other?.user_id ?? conversation.id;
+    const bucket = groups.get(groupKey) ?? [];
+    bucket.push(conversation);
+    groups.set(groupKey, bucket);
+  }
+
+  const sortByRecent = (items: Conversation[]) =>
+    [...items].sort((a, b) => {
+      const aTime = new Date(a.last_message_at ?? a.created_at ?? 0).getTime();
+      const bTime = new Date(b.last_message_at ?? b.created_at ?? 0).getTime();
+      return bTime - aTime;
+    });
+
+  return Array.from(groups.entries())
+    .map(([groupKey, items]) => {
+      const sorted = sortByRecent(items);
+
+      return {
+        groupKey,
+        conversations: sorted,
+        primary: sorted[0],
+      };
+    })
+    .sort((a, b) => {
+      const aTime = new Date(a.primary.last_message_at ?? a.primary.created_at ?? 0).getTime();
+      const bTime = new Date(b.primary.last_message_at ?? b.primary.created_at ?? 0).getTime();
+      return bTime - aTime;
+    });
+}
+
+export function conversationContextLabel(
+  conversation: Conversation,
+  t: (key: string) => string,
+): string | null {
+  if (conversation.type === 'customer_vendor') {
+    return t('chat.contextVendor');
+  }
+
+  if (conversation.type === 'customer_provider') {
+    return t('chat.contextProvider');
+  }
+
+  if (conversation.type === 'customer_admin') {
+    return t('chat.contextSupport');
+  }
+
+  return null;
+}
+
+export function groupedConversationUnreadCount(conversations: Conversation[]): number {
+  return conversations.reduce((total, conversation) => total + (conversation.unread_count ?? 0), 0);
 }
 
 export function formatConversationPreviewTime(

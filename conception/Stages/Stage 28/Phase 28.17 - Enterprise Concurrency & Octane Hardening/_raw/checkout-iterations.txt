@@ -1,0 +1,55 @@
+﻿
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+=== HTTP checkout concurrency ===
+base=http://127.0.0.1:8088
+customer=0 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+customer=1 HTTP 201 {"success":true,"data":{"order":{"id":"01a066d6-7066-71d5-8916-8438ee87c7af","order_number":"DYR-20260903-000004","statu
+customer=2 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+customer=3 HTTP 422 {"success":false,"message":"Checkout cannot be completed due to validation errors."}
+created=1 rejected=3
+protocol_failures=0 business_rejections=3
+RESULT: PASS
+
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+=== HTTP checkout concurrency ===
+base=http://127.0.0.1:8088
+customer=0 HTTP 422 {"success":false,"message":"Checkout cannot be completed due to validation errors."}
+customer=1 HTTP 201 {"success":true,"data":{"order":{"id":"01a066d6-81fa-732b-abdd-b4a59ac119f1","order_number":"DYR-20260903-000005","statu
+customer=2 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+customer=3 HTTP 422 {"success":false,"message":"Checkout cannot be completed due to validation errors."}
+created=1 rejected=3
+protocol_failures=0 business_rejections=3
+RESULT: PASS
+
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+=== HTTP checkout concurrency ===
+base=http://127.0.0.1:8088
+customer=0 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+customer=1 HTTP 201 {"success":true,"data":{"order":{"id":"01a066d6-9af5-72f0-b850-7d58a0fa7036","order_number":"DYR-20260903-000006","statu
+customer=2 HTTP 422 {"success":false,"message":"Checkout cannot be completed due to validation errors."}
+customer=3 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+created=1 rejected=3
+protocol_failures=0 business_rejections=3
+RESULT: PASS
+
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+=== HTTP checkout concurrency ===
+base=http://127.0.0.1:8088
+customer=0 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+customer=1 HTTP 201 {"success":true,"data":{"order":{"id":"01a066d6-acc7-70d6-8fcb-73b14cb92564","order_number":"DYR-20260903-000007","statu
+customer=2 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+customer=3 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+created=1 rejected=3
+protocol_failures=0 business_rejections=3
+RESULT: PASS
+
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+=== HTTP checkout concurrency ===
+base=http://127.0.0.1:8088
+customer=0 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+customer=1 HTTP 201 {"success":true,"data":{"order":{"id":"01a066d6-c213-720c-b506-63045ee758fb","order_number":"DYR-20260903-000008","statu
+customer=2 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+customer=3 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+created=1 rejected=3
+protocol_failures=0 business_rejections=3
+RESULT: PASS

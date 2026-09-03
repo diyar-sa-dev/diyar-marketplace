@@ -1,0 +1,8 @@
+﻿
+  2026-09-03 12:44:24 Running ['artisan' inventory:release-expired]  188.65ms DONE
+  Γçé Release inventory reservations that have passed their expiration time  
+  2026-09-03 12:44:24 Running ['artisan' notifications:broadcasts:dispatch-scheduled]  199.45ms DONE
+  Γçé '/usr/local/bin/php' 'artisan' notifications:broadcasts:dispatch-scheduled > '/dev/null' 2>&1  
+  2026-09-03 12:44:25 Running ['artisan' outbox:process] ....... 207.69ms DONE
+  Γçé '/usr/local/bin/php' 'artisan' outbox:process > '/dev/null' 2>&1  
+

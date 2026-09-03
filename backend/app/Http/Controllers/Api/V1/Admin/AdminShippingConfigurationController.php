@@ -10,8 +10,11 @@ use App\Models\ShippingZone;
 use App\Models\VendorShippingProfile;
 use App\Services\Admin\AdminShippingConfigurationService;
 use App\Support\Api\ApiResponse;
+use App\Support\SlugGenerator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class AdminShippingConfigurationController extends Controller
 {
@@ -24,6 +27,7 @@ class AdminShippingConfigurationController extends Controller
         $paginator = $this->shipping->listCarriers(
             page: max((int) $request->integer('page', 1), 1),
             perPage: min(max((int) $request->integer('per_page', 20), 1), 100),
+            search: $this->searchTerm($request),
         );
 
         return $this->paginated('carriers', $paginator);
@@ -36,6 +40,7 @@ class AdminShippingConfigurationController extends Controller
             page: max((int) $request->integer('page', 1), 1),
             perPage: min(max((int) $request->integer('per_page', 20), 1), 100),
             carrierId: $carrierId !== '' ? $carrierId : null,
+            search: $this->searchTerm($request),
         );
 
         return $this->paginated('zones', $paginator);
@@ -48,6 +53,7 @@ class AdminShippingConfigurationController extends Controller
             page: max((int) $request->integer('page', 1), 1),
             perPage: min(max((int) $request->integer('per_page', 20), 1), 100),
             carrierId: $carrierId !== '' ? $carrierId : null,
+            search: $this->searchTerm($request),
         );
 
         return $this->paginated('methods', $paginator);
@@ -60,6 +66,7 @@ class AdminShippingConfigurationController extends Controller
             page: max((int) $request->integer('page', 1), 1),
             perPage: min(max((int) $request->integer('per_page', 20), 1), 100),
             methodId: $methodId !== '' ? $methodId : null,
+            search: $this->searchTerm($request),
         );
 
         return $this->paginated('rate_rules', $paginator);
@@ -79,12 +86,19 @@ class AdminShippingConfigurationController extends Controller
 
     public function storeCarrier(Request $request): JsonResponse
     {
+        $explicitCode = $request->exists('code') && trim((string) $request->input('code', '')) !== '';
+        $this->slugifyCode($request, generateIfMissing: true);
+
         $payload = $request->validate([
-            'code' => ['required', 'string', 'max:64'],
+            'code' => ['required', 'string', 'max:64', 'alpha_dash', 'unique:shipping_carriers,code'],
             'name' => ['required', 'string', 'max:255'],
             'is_active' => ['sometimes', 'boolean'],
             'sort_order' => ['sometimes', 'integer', 'min:0'],
         ]);
+
+        if (! $explicitCode) {
+            $payload['code'] = SlugGenerator::unique($payload['code'], new ShippingCarrier, 'code');
+        }
 
         return ApiResponse::success(
             data: ['carrier' => $this->shipping->createCarrier($payload)],
@@ -94,9 +108,11 @@ class AdminShippingConfigurationController extends Controller
 
     public function updateCarrier(Request $request, ShippingCarrier $carrier): JsonResponse
     {
+        $this->slugifyCode($request);
+
         $payload = $request->validate([
-            'code' => ['sometimes', 'string', 'max:64'],
-            'name' => ['sometimes', 'string', 'max:255'],
+            'code' => ['sometimes', 'required', 'string', 'max:64', 'alpha_dash', Rule::unique('shipping_carriers', 'code')->ignore($carrier->id)],
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
             'is_active' => ['sometimes', 'boolean'],
             'sort_order' => ['sometimes', 'integer', 'min:0'],
         ]);
@@ -135,7 +151,7 @@ class AdminShippingConfigurationController extends Controller
     public function updateZone(Request $request, ShippingZone $zone): JsonResponse
     {
         $payload = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
             'country_code' => ['nullable', 'string', 'max:8'],
             'region' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
@@ -158,13 +174,34 @@ class AdminShippingConfigurationController extends Controller
 
     public function storeMethod(Request $request): JsonResponse
     {
+        $explicitCode = $request->exists('code') && trim((string) $request->input('code', '')) !== '';
+        $this->slugifyCode($request, generateIfMissing: true);
+
         $payload = $request->validate([
             'carrier_id' => ['required', 'uuid', 'exists:shipping_carriers,id'],
-            'code' => ['required', 'string', 'max:64'],
+            'code' => [
+                'required',
+                'string',
+                'max:64',
+                'alpha_dash',
+                Rule::unique('shipping_methods', 'code')->where(
+                    fn ($query) => $query->where('carrier_id', $request->input('carrier_id')),
+                ),
+            ],
             'name' => ['required', 'string', 'max:255'],
             'method_type' => ['sometimes', 'string', 'max:32'],
             'is_active' => ['sometimes', 'boolean'],
         ]);
+
+        if (! $explicitCode) {
+            $payload['code'] = SlugGenerator::unique(
+                $payload['code'],
+                new ShippingMethod,
+                'code',
+                'carrier_id',
+                $payload['carrier_id'],
+            );
+        }
 
         return ApiResponse::success(
             data: ['method' => $this->shipping->createMethod($payload)],
@@ -174,9 +211,20 @@ class AdminShippingConfigurationController extends Controller
 
     public function updateMethod(Request $request, ShippingMethod $method): JsonResponse
     {
+        $this->slugifyCode($request);
+
         $payload = $request->validate([
-            'code' => ['sometimes', 'string', 'max:64'],
-            'name' => ['sometimes', 'string', 'max:255'],
+            'code' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:64',
+                'alpha_dash',
+                Rule::unique('shipping_methods', 'code')
+                    ->where(fn ($query) => $query->where('carrier_id', $method->carrier_id))
+                    ->ignore($method->id),
+            ],
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
             'method_type' => ['sometimes', 'string', 'max:32'],
             'is_active' => ['sometimes', 'boolean'],
         ]);
@@ -184,6 +232,13 @@ class AdminShippingConfigurationController extends Controller
         return ApiResponse::success(data: [
             'method' => $this->shipping->updateMethod($method, $payload),
         ]);
+    }
+
+    public function destroyMethod(ShippingMethod $method): JsonResponse
+    {
+        $this->shipping->deleteMethod($method);
+
+        return ApiResponse::success(message: __('diyar.shipping.settings_saved'));
     }
 
     public function storeRateRule(Request $request): JsonResponse
@@ -284,6 +339,34 @@ class AdminShippingConfigurationController extends Controller
         $this->shipping->deleteVendorProfile($profile);
 
         return ApiResponse::success(message: __('diyar.shipping.settings_saved'));
+    }
+
+    private function searchTerm(Request $request): ?string
+    {
+        $term = trim($request->string('q')->toString());
+
+        return $term !== '' ? $term : null;
+    }
+
+    private function slugifyCode(Request $request, bool $generateIfMissing = false): void
+    {
+        if (! $generateIfMissing && ! $request->exists('code')) {
+            return;
+        }
+
+        $source = trim((string) $request->input('code', ''));
+        if ($source === '') {
+            $source = trim((string) $request->input('name', ''));
+        }
+
+        $slug = Str::slug($source);
+        if ($slug === '') {
+            $slug = 'c'.strtolower(Str::random(8));
+        }
+
+        $request->merge([
+            'code' => $slug,
+        ]);
     }
 
     private function paginated(string $key, $paginator): JsonResponse

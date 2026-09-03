@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { ProtectedRoute } from '../components/routes/ProtectedRoute.tsx';
 import { CustomerProfileRoute } from '../components/routes/CustomerProfileRoute.tsx';
 import { GuestRoute } from '../components/routes/GuestRoute.tsx';
@@ -49,6 +49,17 @@ import {
 
 const DashboardRoutes = lazy(() => import('./DashboardRoutes.tsx'));
 
+function ServiceBookingCanonicalRedirect() {
+  const { id } = useParams();
+
+  return (
+    <Navigate
+      to={id ? `/profile/service-bookings?highlight=${id}` : '/profile/service-bookings'}
+      replace
+    />
+  );
+}
+
 export default function StorefrontRoutes() {
   return (
     <Routes>
@@ -78,6 +89,14 @@ export default function StorefrontRoutes() {
       <Route path="/blog" element={<LazyRoute><BlogPage /></LazyRoute>} />
       <Route path="/profile" element={<CustomerProfileRoute><LazyRoute><ProfilePage /></LazyRoute></CustomerProfileRoute>} />
       <Route path="/profile/service-bookings" element={<CustomerProfileRoute><LazyRoute><ServiceBookingsPage /></LazyRoute></CustomerProfileRoute>} />
+      <Route
+        path="/service-bookings/:id"
+        element={
+          <ProtectedRoute>
+            <ServiceBookingCanonicalRedirect />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/profile/service-requests" element={<CustomerProfileRoute><LazyRoute><ServiceRequestsPage /></LazyRoute></CustomerProfileRoute>} />
       <Route path="/profile/security/reset-password" element={<ProtectedRoute><LazyRoute><PasswordResetPage /></LazyRoute></ProtectedRoute>} />
       <Route path="/profile/security" element={<ProtectedRoute><LazyRoute><SecurityPage /></LazyRoute></ProtectedRoute>} />

@@ -26,6 +26,7 @@ return [
         'max_attempts' => (int) env('DIYAR_OTP_MAX_ATTEMPTS', 5),
         'max_resends_per_hour' => (int) env('DIYAR_OTP_MAX_RESENDS', 5),
         'resend_cooldown_seconds' => (int) env('DIYAR_OTP_RESEND_COOLDOWN', 60),
+        'test_code' => env('DIYAR_OTP_TEST_CODE'),
     ],
 
     /*
@@ -168,6 +169,7 @@ return [
         })(),
         'fake_scenario' => env('DIYAR_FAKE_PAYMENT_SCENARIO', 'success'),
         'webhook_async' => filter_var(env('DIYAR_PAYMENT_WEBHOOK_ASYNC', true), FILTER_VALIDATE_BOOL),
+        'webhook_processing_lease_seconds' => (int) env('DIYAR_PAYMENT_WEBHOOK_PROCESSING_LEASE_SECONDS', 120),
     ],
 
     'coupons' => [
@@ -201,6 +203,16 @@ return [
     'services' => [
         'platform_commission_rate' => env('DIYAR_SERVICE_COMMISSION_RATE', '0.10'),
         'default_booking_duration_minutes' => (int) env('DIYAR_DEFAULT_BOOKING_DURATION_MINUTES', 60),
+        'rfq' => [
+            // Categories a provider may see/respond to beyond their listed service categories.
+            'related_categories' => [
+                'interior-design' => ['maintenance', 'upholstery', 'floor-plan'],
+                'maintenance' => ['interior-design', 'upholstery', 'moving'],
+                'upholstery' => ['interior-design', 'maintenance'],
+                'floor-plan' => ['interior-design'],
+                'moving' => ['maintenance'],
+            ],
+        ],
     ],
 
     /*

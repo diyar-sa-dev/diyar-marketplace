@@ -74,6 +74,19 @@ class BroadcastChannelAuthorizationTest extends TestCase
         ])->assertForbidden();
     }
 
+    public function test_broadcasting_auth_cors_preflight_allows_frontend_origin(): void
+    {
+        $origin = (string) config('cors.allowed_origins.0', 'http://localhost:3000');
+
+        $this->withHeaders([
+            'Origin' => $origin,
+            'Access-Control-Request-Method' => 'POST',
+            'Access-Control-Request-Headers' => 'content-type,x-xsrf-token',
+        ])->options('/broadcasting/auth')
+            ->assertSuccessful()
+            ->assertHeader('Access-Control-Allow-Origin', $origin);
+    }
+
     public function test_authenticated_user_passes_own_channel_authorization_logic(): void
     {
         $user = $this->createUserWithRole(RoleName::Customer);

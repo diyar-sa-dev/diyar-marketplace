@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\ServiceMarketplace;
 
+use App\Enums\FinancePeriod;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ServiceMarketplace\RequestProviderPayoutRequest;
 use App\Http\Resources\ProviderPayoutResource;
@@ -26,18 +27,27 @@ class ProviderFinanceController extends Controller
     public function summary(Request $request): JsonResponse
     {
         $provider = ProviderAccountResolver::forUser($request->user());
+        $period = FinancePeriod::tryFromRequest($request->query('period'));
 
         return ApiResponse::success([
-            'summary' => $this->finance->summary($provider),
+            'summary' => $this->finance->summary($provider, $period),
         ]);
     }
 
     public function analytics(Request $request): JsonResponse
     {
         $provider = ProviderAccountResolver::forUser($request->user());
+        $period = FinancePeriod::tryFromRequest($request->query('period'));
+        [$from, $to] = $this->finance->window($period);
 
         return ApiResponse::success([
-            'analytics' => $this->finance->analytics($provider),
+            'period' => [
+                'type' => $period->value,
+                'from' => $from->toIso8601String(),
+                'to' => $to->toIso8601String(),
+                'granularity' => $period->analyticsGranularity(),
+            ],
+            'analytics' => $this->finance->analytics($provider, $period),
         ]);
     }
 
@@ -47,12 +57,16 @@ class ProviderFinanceController extends Controller
         $page = max((int) $request->query('page', 1), 1);
         $perPage = min(max((int) $request->query('per_page', 20), 1), 50);
         $type = $request->query('type');
+        $period = FinancePeriod::tryFromRequest($request->query('period'));
+        [$from, $to] = $this->finance->window($period);
 
         $paginator = $this->transactions->paginate(
             $provider,
             $page,
             $perPage,
             is_string($type) ? $type : null,
+            $from,
+            $to,
         );
 
         return ApiResponse::success([
@@ -69,9 +83,10 @@ class ProviderFinanceController extends Controller
     public function exportReport(Request $request): StreamedResponse
     {
         $provider = ProviderAccountResolver::forUser($request->user());
-        $summary = $this->finance->summary($provider);
-        $analytics = $this->finance->analytics($provider);
-        $filename = sprintf('provider-finance-%s.csv', now()->format('Ymd_His'));
+        $period = FinancePeriod::tryFromRequest($request->query('period'));
+        $summary = $this->finance->summary($provider, $period);
+        $analytics = $this->finance->analytics($provider, $period);
+        $filename = sprintf('provider-finance-%s-%s.csv', $period->value, now()->format('Ymd_His'));
 
         return response()->streamDownload(function () use ($summary, $analytics) {
             $handle = fopen('php://output', 'w');
@@ -80,15 +95,15 @@ class ProviderFinanceController extends Controller
             }
 
             fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
-            fputcsv($handle, ['Metric', 'Value']);
-            fputcsv($handle, ['Available Balance', $summary['available_balance']]);
-            fputcsv($handle, ['Monthly Gross', $summary['monthly_gross_earnings']]);
-            fputcsv($handle, ['Monthly Commission', $summary['monthly_commission']]);
-            fputcsv($handle, ['Monthly Net', $summary['monthly_net_earnings']]);
+            fputcsv($handle, [__('diyar.finance.export.metric'), __('diyar.finance.export.value')]);
+            fputcsv($handle, [__('diyar.finance.export.available_balance'), $summary['available_balance']]);
+            fputcsv($handle, [__('diyar.finance.export.monthly_gross'), $summary['monthly_gross_earnings']]);
+            fputcsv($handle, [__('diyar.finance.export.monthly_commission'), $summary['monthly_commission']]);
+            fputcsv($handle, [__('diyar.finance.export.monthly_net'), $summary['monthly_net_earnings']]);
             fputcsv($handle, []);
-            fputcsv($handle, ['Day', 'Net Earnings']);
+            fputcsv($handle, [__('diyar.finance.export.day'), __('diyar.finance.export.net_earnings')]);
             foreach ($analytics as $point) {
-                fputcsv($handle, [$point['date'] ?? '', $point['net']]);
+                fputcsv($handle, [$point['label'] ?? $point['date'] ?? '', $point['net']]);
             }
 
             fclose($handle);

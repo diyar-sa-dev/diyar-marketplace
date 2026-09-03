@@ -85,16 +85,26 @@ class ProviderAnalyticsController extends Controller
             }
 
             fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
-            fputcsv($handle, ['Metric', 'Value']);
+            fputcsv($handle, [__('diyar.finance.export.metric'), __('diyar.finance.export.value')]);
             foreach ($overview['kpis'] as $key => $value) {
+                $label = __('diyar.finance.export.'.$key);
+                if ($label === 'diyar.finance.export.'.$key) {
+                    $label = $key;
+                }
                 if (is_array($value)) {
-                    fputcsv($handle, [$key, $value['value'] ?? json_encode($value)]);
+                    fputcsv($handle, [$label, $value['value'] ?? json_encode($value)]);
                 } else {
-                    fputcsv($handle, [$key, $value]);
+                    fputcsv($handle, [$label, $value]);
                 }
             }
             fputcsv($handle, []);
-            fputcsv($handle, ['Day', 'Bookings Created', 'Completed', 'Cancelled', 'Revenue']);
+            fputcsv($handle, [
+                __('diyar.finance.export.day'),
+                __('diyar.finance.export.bookings_created'),
+                __('diyar.finance.export.bookings_completed'),
+                __('diyar.finance.export.bookings_cancelled'),
+                __('diyar.finance.export.revenue'),
+            ]);
             foreach ($bookings['series'] as $point) {
                 fputcsv($handle, [
                     $point['label'],

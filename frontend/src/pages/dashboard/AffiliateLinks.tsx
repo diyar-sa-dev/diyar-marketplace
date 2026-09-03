@@ -2,6 +2,7 @@ import React from 'react';
 import { LinkIcon, Copy, ExternalLink, Trash2, MessageSquare, Loader2 } from 'lucide-react';
 import { PaginationBar } from '../../components/catalog/PaginationBar.tsx';
 import { EmptyState } from '../../components/common/EmptyState.tsx';
+import { TableLtrValue } from '../../components/common/TableLtrValue.tsx';
 import { ErrorState } from '../../components/common/ErrorState.tsx';
 import { LoadingState } from '../../components/common/LoadingState.tsx';
 import {
@@ -40,7 +41,7 @@ function linkStatusClass(link: AffiliateLink): string {
 }
 
 export default function AffiliateLinks() {
-  const { t, locale } = useLocale();
+  const { t, locale, dir } = useLocale();
   const { toast } = useToast();
   const { startVendorChat, isStarting: isStartingChat } = useStartChat();
   const { page, perPage, perPageOptions, onPageChange, onPerPageChange } = usePaginationState();
@@ -117,18 +118,32 @@ export default function AffiliateLinks() {
       ) : (
         <>
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-start text-sm">
+            <div className="overflow-x-auto" dir={dir}>
+              <table className="w-full text-sm" dir={dir}>
                 <thead className="bg-gray-50 text-gray-600 border-b border-gray-100">
                   <tr>
-                    <th className="px-6 py-4 font-bold">{t('affiliate.reports.tableLink')}</th>
-                    <th className="px-6 py-4 font-bold">{t('affiliate.reports.tableSource')}</th>
-                    <th className="px-6 py-4 font-bold">{t('affiliate.links.tableUrl')}</th>
-                    <th className="px-6 py-4 font-bold">{t('affiliate.links.tableClicks')}</th>
-                    <th className="px-6 py-4 font-bold">{t('affiliate.links.tableConversions')}</th>
-                    <th className="px-6 py-4 font-bold">{t('affiliate.links.tableEarnings')}</th>
-                    <th className="px-6 py-4 font-bold">{t('affiliate.reports.tableStatus')}</th>
-                    <th className="px-6 py-4 font-bold text-center">
+                    <th className="px-6 py-4 text-start font-bold">
+                      {t('affiliate.reports.tableLink')}
+                    </th>
+                    <th className="px-6 py-4 text-start font-bold">
+                      {t('affiliate.reports.tableSource')}
+                    </th>
+                    <th className="px-6 py-4 text-start font-bold">
+                      {t('affiliate.links.tableUrl')}
+                    </th>
+                    <th className="px-6 py-4 text-start font-bold">
+                      {t('affiliate.links.tableClicks')}
+                    </th>
+                    <th className="px-6 py-4 text-start font-bold">
+                      {t('affiliate.links.tableConversions')}
+                    </th>
+                    <th className="px-6 py-4 text-start font-bold">
+                      {t('affiliate.links.tableEarnings')}
+                    </th>
+                    <th className="px-6 py-4 text-start font-bold">
+                      {t('affiliate.reports.tableStatus')}
+                    </th>
+                    <th className="px-6 py-4 text-start font-bold">
                       {t('affiliate.links.tableActions')}
                     </th>
                   </tr>
@@ -136,14 +151,14 @@ export default function AffiliateLinks() {
                 <tbody className="divide-y divide-gray-100">
                   {links.map((link) => (
                     <tr key={link.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-start">
                         <div className="font-bold text-gray-900">{link.name}</div>
                         <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                           <LinkIcon size={12} />
                           {link.referral_code}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-start">
                         {link.source ? (
                           <span className="bg-green-50 text-green-700 px-2.5 py-1 rounded-full text-xs font-bold">
                             {t(`affiliate.sources.${link.source}` as 'affiliate.sources.instagram')}
@@ -154,27 +169,33 @@ export default function AffiliateLinks() {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-start">
                         <div className="flex items-center gap-2 max-w-50 overflow-hidden">
-                          <span className="truncate text-gray-500" dir="ltr">
+                          <TableLtrValue className="truncate text-gray-500">
                             {link.public_url ?? '—'}
-                          </span>
+                          </TableLtrValue>
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-medium">{link.click_count}</td>
-                      <td className="px-6 py-4 font-medium">{link.conversion_count}</td>
-                      <td className="px-6 py-4 font-bold text-green-600">
-                        {link.total_earnings} {t('common.currency')}
+                      <td className="px-6 py-4 text-start font-medium">
+                        <TableLtrValue>{link.click_count}</TableLtrValue>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-start font-medium">
+                        <TableLtrValue>{link.conversion_count}</TableLtrValue>
+                      </td>
+                      <td className="px-6 py-4 text-start font-bold text-green-600">
+                        <TableLtrValue>
+                          {link.total_earnings} {t('common.currency')}
+                        </TableLtrValue>
+                      </td>
+                      <td className="px-6 py-4 text-start">
                         <span
                           className={`px-2.5 py-1 rounded-full text-xs font-bold ${linkStatusClass(link)}`}
                         >
                           {linkStatusLabel(link, t)}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2 justify-center">
+                      <td className="px-6 py-4 text-start">
+                        <div className="flex gap-2 justify-start">
                           <button
                             type="button"
                             onClick={() => void handleCopy(link.public_url)}

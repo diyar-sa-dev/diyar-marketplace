@@ -76,13 +76,32 @@ export function syncAdminProviderStatus(
   );
 }
 
+export function syncAdminAffiliateStatus(
+  queryClient: QueryClient,
+  affiliateId: string,
+  status: string,
+): void {
+  patchAdminListItemStatus(queryClient, 'admin-affiliate-profiles', affiliateId, status);
+  patchAdminDetailRecord(
+    queryClient,
+    'admin-affiliate-detail',
+    `/admin/affiliate/profiles/${affiliateId}`,
+    { status },
+  );
+}
+
 export function syncAdminPayoutStatus(
   queryClient: QueryClient,
-  kind: 'vendor' | 'affiliate',
+  kind: 'vendor' | 'provider' | 'affiliate',
   payoutId: string,
   status: string,
 ): void {
-  const resourceKey = kind === 'vendor' ? 'admin-vendor-payouts' : 'admin-affiliate-payouts';
+  const resourceKey =
+    kind === 'vendor'
+      ? 'admin-vendor-payouts'
+      : kind === 'provider'
+        ? 'admin-provider-payouts'
+        : 'admin-affiliate-payouts';
   patchAdminListItemStatus(queryClient, resourceKey, payoutId, status);
 }
 

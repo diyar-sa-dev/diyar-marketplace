@@ -19,6 +19,7 @@ const AdminProjectsPage = lazy(() => import('./pages/AdminProjectsPage.tsx'));
 const AdminB2bCompaniesPage = lazy(() => import('./pages/AdminB2bCompaniesPage.tsx'));
 const AdminFinancePage = lazy(() => import('./pages/AdminFinancePage.tsx'));
 const AdminAffiliateHubPage = lazy(() => import('./pages/AdminAffiliateHubPage.tsx'));
+const AdminAffiliateDetailPage = lazy(() => import('./pages/AdminAffiliateDetailPage.tsx'));
 const AdminAuditPage = lazy(() => import('./pages/AdminAuditPage.tsx'));
 const AdminChatHubPage = lazy(() => import('./pages/AdminChatHubPage.tsx'));
 const AdminAnalyticsPage = lazy(() => import('./pages/AdminAnalyticsPage.tsx'));
@@ -113,6 +114,14 @@ export default function AdminShell() {
           element={
             <Suspense fallback={<AdminRouteFallback />}>
               <AdminAffiliateHubPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="affiliate/:affiliateId"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminAffiliateDetailPage />
             </Suspense>
           }
         />

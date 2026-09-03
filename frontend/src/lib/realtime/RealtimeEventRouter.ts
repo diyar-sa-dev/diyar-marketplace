@@ -2,6 +2,7 @@ import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 import { ensureCsrfCookie, readXsrfToken } from '../csrf.ts';
 import { env, isRealtimeEnabled } from '../env.ts';
+import { broadcastingAuthEndpoint, resolveReverbConnectionOptions } from './reverbConnection.ts';
 
 declare global {
   interface Window {
@@ -215,44 +216,66 @@ function bindConnectionHandlers(): void {
   });
 
   connector.bind('error', () => {
+    const state = connector.state;
+    if (state === 'connected' || state === 'connecting') {
+      return;
+    }
+
     window.clearTimeout(connectTimeoutId);
     notifyState('failed');
     scheduleReconnect();
   });
 }
 
-function resolveReverbConnectionOptions(): {
-  wsHost: string;
-  wsPort: number;
-  wssPort: number;
-  forceTLS: boolean;
-} {
+function pageLocation(): { hostname: string; port: string; protocol: string } | undefined {
   if (typeof window === 'undefined') {
-    return {
-      wsHost: env.reverb.host,
-      wsPort: env.reverb.port,
-      wssPort: env.reverb.port,
-      forceTLS: env.reverb.scheme === 'https',
-    };
-  }
-
-  if (import.meta.env.DEV) {
-    const devPort = window.location.port ? Number(window.location.port) : 3000;
-
-    return {
-      wsHost: window.location.hostname,
-      wsPort: devPort,
-      wssPort: devPort,
-      forceTLS: window.location.protocol === 'https:',
-    };
+    return undefined;
   }
 
   return {
-    wsHost: env.reverb.host,
-    wsPort: env.reverb.port,
-    wssPort: env.reverb.port,
-    forceTLS: env.reverb.scheme === 'https',
+    hostname: window.location.hostname,
+    port: window.location.port,
+    protocol: window.location.protocol,
   };
+}
+
+function authorizePrivateChannel(
+  channelName: string,
+  socketId: string,
+  callback: (error: Error | null, data: { auth: string; channel_data?: string } | null) => void,
+): void {
+  void (async () => {
+    try {
+      const token = readXsrfToken();
+      if (!token) {
+        await ensureCsrfCookie();
+      }
+
+      const response = await fetch(broadcastingAuthEndpoint(env.backendUrl), {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-XSRF-TOKEN': readXsrfToken() ?? '',
+        },
+        body: JSON.stringify({
+          socket_id: socketId,
+          channel_name: channelName,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Broadcast auth failed (${response.status})`);
+      }
+
+      const data = (await response.json()) as { auth: string; channel_data?: string };
+      callback(null, data);
+    } catch (error) {
+      callback(error instanceof Error ? error : new Error('Broadcast auth failed'), null);
+    }
+  })();
 }
 
 function ensureEcho(): Echo<'reverb'> | null {
@@ -264,15 +287,32 @@ function ensureEcho(): Echo<'reverb'> | null {
     return echoInstance;
   }
 
+  const connection = resolveReverbConnectionOptions({
+    isDev: import.meta.env.DEV,
+    configuredHost: env.reverb.host,
+    configuredPort: env.reverb.port,
+    configuredScheme: env.reverb.scheme,
+    location: pageLocation(),
+  });
+
   echoInstance = new Echo({
     broadcaster: 'reverb',
     key: env.reverb.key,
-    ...resolveReverbConnectionOptions(),
-    enabledTransports: ['ws', 'wss'],
-    authEndpoint: '/broadcasting/auth',
+    wsHost: connection.wsHost,
+    wsPort: connection.wsPort,
+    wssPort: connection.wssPort,
+    forceTLS: connection.forceTLS,
+    enabledTransports: connection.enabledTransports,
+    disableStats: true,
+    authEndpoint: broadcastingAuthEndpoint(env.backendUrl),
     auth: {
       headers: broadcastingAuthHeaders,
     },
+    authorizer: (channel) => ({
+      authorize: (socketId, callback) => {
+        authorizePrivateChannel(channel.name, socketId, callback);
+      },
+    }),
   });
 
   bindConnectionHandlers();

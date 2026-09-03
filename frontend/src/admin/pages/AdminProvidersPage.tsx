@@ -1,6 +1,7 @@
 import { ExternalLink, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
+import { TableLtrValue } from '../../components/common/TableLtrValue.tsx';
 import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { useAdminListQuery } from '../hooks/useAdminListQuery.ts';
@@ -101,8 +102,8 @@ export default function AdminProvidersPage() {
               )}
             </div>
           </td>
-          <td className="px-4 py-3 font-mono text-xs text-gray-500" dir="ltr">
-            {provider.slug}
+          <td className="px-4 py-3 text-start">
+            <TableLtrValue className="font-mono text-xs text-gray-500">{provider.slug}</TableLtrValue>
           </td>
           <td className="px-4 py-3 text-sm text-gray-600">{provider.location ?? '—'}</td>
           <td className="px-4 py-3">

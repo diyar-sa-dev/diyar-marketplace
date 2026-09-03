@@ -7,6 +7,7 @@ import { PageLoadingOverlay } from '../../components/common/PageLoadingOverlay.t
 import { MetricCard } from '../../components/dashboard/analytics/MetricCard.tsx';
 import { AnalyticsEmptyState } from '../../components/dashboard/analytics/AnalyticsEmptyState.tsx';
 import { PaginationBar } from '../../components/catalog/PaginationBar.tsx';
+import { TableLtrValue } from '../../components/common/TableLtrValue.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
 import {
   useProviderAnalyticsBookings,
@@ -15,6 +16,10 @@ import {
 } from '../../hooks/provider/useProviderAnalytics.ts';
 import type { AnalyticsPeriodPreset } from '../../api/vendorAnalytics.ts';
 import { formatMoney } from '../../lib/formatMoney.ts';
+import {
+  analyticsAxisTickInterval,
+  formatAnalyticsAxisLabel,
+} from '../../lib/formatAnalyticsAxisLabel.ts';
 import { Link } from 'react-router-dom';
 
 const PERIOD_OPTIONS: AnalyticsPeriodPreset[] = ['7d', '30d', '90d', 'year'];
@@ -28,6 +33,7 @@ export default function ProviderAnalyticsPage() {
   const bookingsQuery = useProviderAnalyticsBookings(period);
   const servicesQuery = useProviderAnalyticsServices(period, servicesPage);
 
+  const chartGranularity = bookingsQuery.data?.period?.granularity ?? 'day';
   const chartData = useMemo(
     () =>
       (bookingsQuery.data?.series ?? []).map((point) => ({
@@ -158,10 +164,18 @@ export default function ProviderAnalyticsPage() {
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
+                  interval={analyticsAxisTickInterval(chartData.length)}
+                  minTickGap={16}
                   tick={{ fill: '#9ca3af', fontSize: 12 }}
+                  tickFormatter={(value: string) =>
+                    formatAnalyticsAxisLabel(value, locale, chartGranularity)
+                  }
                 />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
                 <Tooltip
+                  labelFormatter={(label: string) =>
+                    formatAnalyticsAxisLabel(label, locale, chartGranularity)
+                  }
                   formatter={(value: number, name: string) => [
                     name === 'revenue' ? formatMoney(value, locale, currency) : value,
                     name === 'revenue'
@@ -175,6 +189,7 @@ export default function ProviderAnalyticsPage() {
                   stroke="#8B4513"
                   strokeWidth={2}
                   dot={false}
+                  activeDot={{ r: 4 }}
                 />
               </LineChart>
             </ChartContainer>
@@ -220,8 +235,8 @@ export default function ProviderAnalyticsPage() {
           />
         ) : (
           <>
-            <div className="mt-4 overflow-x-auto">
-              <table className="min-w-full text-sm">
+            <div className="mt-4 overflow-x-auto" dir={dir}>
+              <table className="min-w-full text-sm" dir={dir}>
                 <thead>
                   <tr className="border-b border-gray-100 text-gray-500">
                     <th className="px-3 py-2 text-start font-semibold">
@@ -239,19 +254,25 @@ export default function ProviderAnalyticsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {servicesQuery.data?.services.map((service) => (
-                    <tr key={service.service_id} className="border-b border-gray-50">
-                      <td className="px-3 py-3 font-medium text-diyar-dark">
-                        {service.service_title}
+                  {servicesQuery.data?.services.map((service, index) => (
+                    <tr
+                      key={service.service_id ?? `service-${index}`}
+                      className="border-b border-gray-50"
+                    >
+                      <td className="px-3 py-3 text-start font-medium text-diyar-dark">
+                        {service.service_title?.trim() ||
+                          t('providerDashboard.analytics.untitledService')}
                       </td>
-                      <td className="px-3 py-3 tabular-nums" dir="ltr">
-                        {service.bookings_count}
+                      <td className="px-3 py-3 text-start">
+                        <TableLtrValue>{service.bookings_count}</TableLtrValue>
                       </td>
-                      <td className="px-3 py-3 tabular-nums" dir="ltr">
-                        {service.completed_bookings}
+                      <td className="px-3 py-3 text-start">
+                        <TableLtrValue>{service.completed_bookings}</TableLtrValue>
                       </td>
-                      <td className="px-3 py-3 tabular-nums" dir="ltr">
-                        {formatMoney(service.revenue, locale, service.currency)}
+                      <td className="px-3 py-3 text-start">
+                        <TableLtrValue>
+                          {formatMoney(service.revenue, locale, service.currency)}
+                        </TableLtrValue>
                       </td>
                     </tr>
                   ))}

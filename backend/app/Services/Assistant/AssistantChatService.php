@@ -65,7 +65,7 @@ class AssistantChatService
             $response = $this->httpClient()
                 ->withToken($apiKey)
                 ->post('https://api.openai.com/v1/chat/completions', [
-                    'model' => (string) config('diyar.assistant.openai.model'),
+                    'model' => (string) (config('diyar.assistant.openai.model') ?? config('diyar.assistant.model')),
                     'messages' => $payloadMessages,
                     'temperature' => (float) config('diyar.assistant.openai.temperature', 0.7),
                     'max_tokens' => (int) config('diyar.assistant.max_tokens', 700),
@@ -231,7 +231,7 @@ class AssistantChatService
     {
         $key = match ($this->provider()) {
             'google', 'gemini' => config('diyar.assistant.google.api_key'),
-            default => config('diyar.assistant.openai.api_key'),
+            default => config('diyar.assistant.openai.api_key') ?? config('diyar.assistant.api_key'),
         };
 
         if (! is_string($key) || trim($key) === '') {

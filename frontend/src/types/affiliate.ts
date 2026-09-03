@@ -4,6 +4,7 @@ export type AffiliatePlatformConfig = {
   attribution_window_days: number;
   payout_minimum: string;
   currency: string;
+  payout_schedule?: { min_days: number; max_days: number };
 };
 
 export type AffiliateProfileStatus = 'active' | 'suspended' | 'pending';
@@ -38,6 +39,9 @@ export type AffiliateBalance = {
   total: string;
   paid_out: string;
   payout_minimum?: string;
+  platform_commission?: string;
+  platform_commission_rate_percent?: string;
+  platform_commission_active?: boolean;
 };
 
 export type AffiliateChartPoint = {
@@ -179,6 +183,23 @@ export type AffiliatePayoutsResponse = {
   pagination: AffiliatePagination;
 };
 
+export type AffiliateFinanceTransaction = {
+  id: string;
+  transaction_type: string;
+  amount: string;
+  currency: string;
+  direction: 'credit' | 'debit';
+  description: string;
+  order_number?: string | null;
+  created_at?: string;
+  status: 'completed' | 'scheduled' | 'cancelled';
+};
+
+export type AffiliateFinanceTransactionsResponse = {
+  transactions: AffiliateFinanceTransaction[];
+  pagination: AffiliatePagination;
+};
+
 export type AffiliateReportSourceRow = {
   source: string;
   clicks: number;
@@ -192,7 +213,7 @@ export type AffiliateReportsResponse = {
   by_link: AffiliateReportLinkRow[];
   by_source?: AffiliateReportSourceRow[];
   daily: AffiliateDailyReportRow[];
-  period?: { from: string; to: string; key?: string };
+  period?: { from: string; to: string; key?: string; granularity?: string };
 };
 
 export type AffiliateReportPeriod = 'day' | 'week' | 'month' | '3m' | '6m' | '12m' | 'year';

@@ -240,7 +240,7 @@ class CartTest extends TestCase
         $this->postStatefulJson('/api/v1/cart/items', [
             'product_id' => $product->id,
             'quantity' => 5,
-        ])->assertStatus(400);
+        ])->assertStatus(422);
     }
 
     public function test_totals_return_subtotal_only(): void

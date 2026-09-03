@@ -6,7 +6,7 @@ import SectionEmptyState from './SectionEmptyState.tsx';
 import { useProducts } from '../../hooks/catalog/useCatalog.ts';
 import {
   earliestPromotionEndsAt,
-  formatCountdownSeconds,
+  formatPromotionRemaining,
   usePromotionCountdown,
 } from '../../hooks/usePromotionCountdown.ts';
 import { mapProductCard } from '../../lib/catalogMappers.ts';
@@ -23,22 +23,24 @@ export default function FeaturedDeals() {
     [data?.items],
   );
   const secondsLeft = usePromotionCountdown(promotionEndsAt);
-  const showCountdown = !showEmpty && secondsLeft !== null && secondsLeft > 0;
+  const countdown =
+    secondsLeft !== null && secondsLeft > 0 ? formatPromotionRemaining(secondsLeft, t) : null;
+  const showCountdown = !showEmpty && countdown !== null;
 
   return (
     <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
       <div className="flex justify-between items-center mb-6 md:mb-8">
         <h2 className="text-2xl md:text-3xl font-sans font-bold">{t('home.featuredDeals.title')}</h2>
         <div className="flex items-center gap-3">
-          {showCountdown && (
+          {showCountdown && countdown && (
             <div
               className="text-sm md:text-xl font-bold bg-diyar-cream p-2 md:p-3 rounded-lg text-diyar-brown tabular-nums"
-              dir="ltr"
+              dir={countdown.isClock ? 'ltr' : undefined}
               aria-live="polite"
               aria-label={t('home.featuredDeals.countdownLabel')}
               title={t('home.featuredDeals.countdownHint')}
             >
-              {formatCountdownSeconds(secondsLeft)}
+              {countdown.label}
             </div>
           )}
           <Link

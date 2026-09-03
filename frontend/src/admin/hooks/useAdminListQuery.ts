@@ -12,6 +12,18 @@ type PaginatedMeta = {
   total: number;
 };
 
+function unwrapListItems<TItem>(raw: unknown): TItem[] {
+  if (Array.isArray(raw)) {
+    return raw as TItem[];
+  }
+
+  if (raw && typeof raw === 'object' && Array.isArray((raw as { data?: unknown }).data)) {
+    return (raw as { data: TItem[] }).data;
+  }
+
+  return [];
+}
+
 export function useAdminListQuery<TItem>({
   resourceKey,
   endpoint,
@@ -32,6 +44,7 @@ export function useAdminListQuery<TItem>({
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 300);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(perPage);
   const [statusFilter, setStatusFilter] = useState('');
   const [paramFilter, setParamFilterState] = useState('');
 
@@ -39,7 +52,7 @@ export function useAdminListQuery<TItem>({
     queryKey: adminQueryKey(
       resourceKey,
       page,
-      perPage,
+      pageSize,
       debouncedSearch,
       statusFilter,
       paramFilterKey,
@@ -54,7 +67,7 @@ export function useAdminListQuery<TItem>({
       >(endpoint, {
         params: {
           page,
-          per_page: perPage,
+          per_page: pageSize,
           q: debouncedSearch.trim() || undefined,
           status: statusFilter || undefined,
           ...(paramFilterKey && paramFilter ? { [paramFilterKey]: paramFilter } : {}),
@@ -63,19 +76,25 @@ export function useAdminListQuery<TItem>({
       });
 
       const data = response.data.data;
-      const items = (data[itemsKey] as TItem[]) ?? [];
+      const items = unwrapListItems<TItem>(data[itemsKey]);
       const meta = (data.meta as PaginatedMeta | undefined) ??
         (data.pagination as PaginatedMeta | undefined) ?? {
           current_page: 1,
           last_page: 1,
-          per_page: perPage,
+          per_page: pageSize,
           total: items.length,
         };
 
       return { items, meta };
     },
     enabled,
-    placeholderData: (previous) => previous,
+    placeholderData: (previousData, previousQuery) => {
+      if (!previousQuery) {
+        return undefined;
+      }
+
+      return previousQuery.queryKey[1] === resourceKey ? previousData : undefined;
+    },
     staleTime: 120_000,
     gcTime: 300_000,
   });
@@ -94,6 +113,10 @@ export function useAdminListQuery<TItem>({
         setParamFilterState(value);
         setPage(1);
       },
+      setPerPage: (value: number) => {
+        setPageSize(value);
+        setPage(1);
+      },
     }),
     [],
   );
@@ -108,6 +131,7 @@ export function useAdminListQuery<TItem>({
     setParamFilter: resetPageOnFilter.setParamFilter,
     page,
     setPage,
-    perPage,
+    perPage: pageSize,
+    setPerPage: resetPageOnFilter.setPerPage,
   };
 }

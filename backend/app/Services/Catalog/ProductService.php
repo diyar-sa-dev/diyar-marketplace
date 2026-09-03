@@ -369,11 +369,17 @@ final class ProductService
     private function applyFilters(Builder $query, array $filters): void
     {
         if (! empty($filters['q'])) {
-            $term = '%'.mb_substr((string) $filters['q'], 0, 120).'%';
-            $query->where(function (Builder $q) use ($term) {
-                $q->where('name', 'like', $term)
-                    ->orWhere('description', 'like', $term);
-            });
+            $raw = mb_substr((string) $filters['q'], 0, 120);
+
+            if (DB::connection()->getDriverName() === 'mysql') {
+                $query->whereFullText(['name', 'description'], $raw);
+            } else {
+                $term = '%'.$raw.'%';
+                $query->where(function (Builder $q) use ($term) {
+                    $q->where('name', 'like', $term)
+                        ->orWhere('description', 'like', $term);
+                });
+            }
         }
 
         if (! empty($filters['category_id'])) {
@@ -569,6 +575,7 @@ final class ProductService
     private function attachImages(User $user, Product $product, array $files): void
     {
         $imageStats = $product->images()
+            ->reorder()
             ->selectRaw('COUNT(*) as image_count, COALESCE(MAX(sort_order), 0) as max_sort_order')
             ->first();
         $currentCount = (int) ($imageStats->image_count ?? 0);

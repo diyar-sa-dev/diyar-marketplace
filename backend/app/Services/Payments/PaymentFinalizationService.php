@@ -93,53 +93,58 @@ final class PaymentFinalizationService
 
     public function markFailed(Payment $payment, ?string $reason = null, ?PaymentStatus $status = null): Payment
     {
-        if ($payment->status === PaymentStatus::Paid) {
+        return DB::transaction(function () use ($payment, $reason, $status) {
+            $payment = Payment::query()->whereKey($payment->id)->lockForUpdate()->firstOrFail();
+
+            if ($payment->status === PaymentStatus::Paid) {
+                return $payment;
+            }
+
+            $target = $status ?? PaymentStatus::Failed;
+
+            if (! in_array($target, [PaymentStatus::Failed, PaymentStatus::Expired, PaymentStatus::Cancelled], true)) {
+                $target = PaymentStatus::Failed;
+            }
+
+            $payment = $this->paymentStates->transition($payment, $target, array_filter([
+                'failure_reason' => $reason,
+            ]), source: 'finalization');
+
+            $this->syncAttempts($payment, match ($target) {
+                PaymentStatus::Expired => PaymentAttemptStatus::Expired,
+                PaymentStatus::Cancelled => PaymentAttemptStatus::Failed,
+                default => PaymentAttemptStatus::Failed,
+            });
+
+            $order = Order::query()->whereKey($payment->order_id)->lockForUpdate()->first();
+            if ($order !== null) {
+                $order->loadMissing('user');
+                $this->inventory->releasePendingForOrder(
+                    $order,
+                    finalStatus: $target === PaymentStatus::Expired
+                        ? ReservationStatus::Expired
+                        : ReservationStatus::Released,
+                );
+            }
+
+            $payment = $payment->fresh();
+            DB::afterCommit(function () use ($payment, $reason): void {
+                $this->paymentOutbox->publish(
+                    'payment.failed',
+                    (string) $payment->id,
+                    [
+                        'payment_id' => $payment->id,
+                        'order_id' => $payment->order_id,
+                        'status' => $payment->status->value,
+                        'reason' => $reason,
+                    ],
+                    idempotencyKey: 'payment.failed:'.$payment->id.':'.$payment->status->value,
+                );
+                event(new PaymentFailed($payment, $reason));
+            });
+
             return $payment;
-        }
-
-        $target = $status ?? PaymentStatus::Failed;
-
-        if (! in_array($target, [PaymentStatus::Failed, PaymentStatus::Expired, PaymentStatus::Cancelled], true)) {
-            $target = PaymentStatus::Failed;
-        }
-
-        $payment = $this->paymentStates->transition($payment, $target, array_filter([
-            'failure_reason' => $reason,
-        ]), source: 'finalization');
-
-        $this->syncAttempts($payment, match ($target) {
-            PaymentStatus::Expired => PaymentAttemptStatus::Expired,
-            PaymentStatus::Cancelled => PaymentAttemptStatus::Failed,
-            default => PaymentAttemptStatus::Failed,
         });
-
-        $order = Order::query()->with('user')->find($payment->order_id);
-        if ($order !== null) {
-            $this->inventory->releasePendingForOrder(
-                $order,
-                finalStatus: $target === PaymentStatus::Expired
-                    ? ReservationStatus::Expired
-                    : ReservationStatus::Released,
-            );
-        }
-
-        $payment = $payment->fresh();
-        DB::afterCommit(function () use ($payment, $reason): void {
-            $this->paymentOutbox->publish(
-                'payment.failed',
-                (string) $payment->id,
-                [
-                    'payment_id' => $payment->id,
-                    'order_id' => $payment->order_id,
-                    'status' => $payment->status->value,
-                    'reason' => $reason,
-                ],
-                idempotencyKey: 'payment.failed:'.$payment->id.':'.$payment->status->value,
-            );
-            event(new PaymentFailed($payment, $reason));
-        });
-
-        return $payment;
     }
 
     public function markCancelled(Payment $payment, ?string $reason = null): Payment

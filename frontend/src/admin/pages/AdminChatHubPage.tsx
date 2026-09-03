@@ -11,6 +11,7 @@ import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
 import { useAdminListQuery } from '../hooks/useAdminListQuery.ts';
 import {
+  chatReportReasonBadgeClass,
   localizedChatReportAction,
   localizedChatReportReason,
   localizedChatReportStatus,
@@ -68,6 +69,9 @@ const REPORT_REASONS = [
   'other',
 ] as const;
 
+const FILTER_SELECT =
+  'rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none transition hover:border-diyar-brown focus:border-diyar-brown cursor-pointer';
+
 function formatMessageTime(iso: string | undefined, locale: string): string {
   if (!iso) {
     return '';
@@ -99,6 +103,8 @@ export default function AdminChatHubPage() {
     setParamFilter: setReasonFilter,
     page,
     setPage,
+    perPage,
+    setPerPage,
     refetch,
   } = useAdminListQuery<ReportRow>({
     resourceKey: 'admin-chat-reports',
@@ -249,7 +255,7 @@ export default function AdminChatHubPage() {
               <select
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value)}
-                className="rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+                className={FILTER_SELECT}
               >
                 <option value="">{t('admin.chat.filters.allStatuses')}</option>
                 <option value="pending">{t('admin.chat.filters.pending')}</option>
@@ -261,7 +267,7 @@ export default function AdminChatHubPage() {
               <select
                 value={reasonFilter}
                 onChange={(event) => setReasonFilter(event.target.value)}
-                className="rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-diyar-brown"
+                className={FILTER_SELECT}
               >
                 <option value="">{t('admin.chat.filters.allReasons')}</option>
                 {REPORT_REASONS.map((reason) => (
@@ -276,7 +282,7 @@ export default function AdminChatHubPage() {
             isSearching ? (
               <span className="inline-flex items-center gap-2 text-xs text-gray-500">
                 <Loader2 size={14} className="animate-spin" />
-                {t('admin.chat.searching')}
+                {t('admin.tables.searching')}
               </span>
             ) : null
           }
@@ -286,12 +292,18 @@ export default function AdminChatHubPage() {
           emptyTitle={t('admin.chat.emptyReports')}
           columns={
             <tr>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.reference')}</th>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.name')}</th>
-              <th className="px-4 py-3 text-start font-semibold">
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.tables.reference')}
+              </th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.chat.table.reason')}
+              </th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
                 {t('admin.chat.table.submittedAt')}
               </th>
-              <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.status')}</th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.tables.status')}
+              </th>
             </tr>
           }
           footer={
@@ -299,7 +311,9 @@ export default function AdminChatHubPage() {
               meta={meta}
               page={page}
               onPageChange={setPage}
-              isLoading={showListSkeleton}
+              perPage={perPage}
+              onPerPageChange={setPerPage}
+              isLoading={isFetching}
             />
           }
         >
@@ -311,12 +325,26 @@ export default function AdminChatHubPage() {
               }`}
               onClick={() => setSelectedReportId(report.id)}
             >
-              <td className="px-4 py-3 font-mono text-xs text-gray-600">{report.id.slice(0, 8)}</td>
-              <td className="px-4 py-3 text-sm text-gray-700">
-                <div className="font-medium text-diyar-dark">
+              <td
+                className={`px-4 py-3 ${
+                  selectedReportId === report.id
+                    ? 'border-s-[3px] border-s-diyar-brown'
+                    : 'border-s-[3px] border-s-transparent'
+                }`}
+              >
+                <span className="font-mono text-xs font-semibold text-gray-600" dir="ltr">
+                  {report.id.slice(0, 8)}…
+                </span>
+              </td>
+              <td className="px-4 py-3">
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${chatReportReasonBadgeClass(report.reason)}`}
+                >
                   {localizedChatReportReason(report.reason, t)}
+                </span>
+                <div className="mt-1 text-xs text-gray-500">
+                  {report.reporter_name ?? t('admin.chat.unknownSender')}
                 </div>
-                <div className="text-xs text-gray-500">{report.reporter_name ?? '—'}</div>
               </td>
               <td className="px-4 py-3 text-xs text-gray-500">
                 {formatMessageTime(report.created_at, locale)}

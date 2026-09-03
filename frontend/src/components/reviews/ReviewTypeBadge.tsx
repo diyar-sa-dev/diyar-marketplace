@@ -1,5 +1,7 @@
 import type { CustomerReviewType } from '../../api/customerReviews.ts';
 
+export type ServiceReviewSource = 'rfq' | 'direct';
+
 const TYPE_LABEL_KEYS: Record<CustomerReviewType, string> = {
   product: 'customerReviews.typeProduct',
   store: 'customerReviews.typeStore',
@@ -14,17 +16,32 @@ const TYPE_STYLES: Record<CustomerReviewType, string> = {
   b2b: 'bg-emerald-50 text-emerald-700 border-emerald-100',
 };
 
+const SERVICE_SOURCE_LABEL_KEYS: Record<ServiceReviewSource, string> = {
+  rfq: 'customerReviews.typeServiceRequest',
+  direct: 'customerReviews.typeServiceDirect',
+};
+
+const SERVICE_SOURCE_STYLES: Record<ServiceReviewSource, string> = {
+  rfq: 'bg-sky-50 text-sky-800 border-sky-100',
+  direct: 'bg-violet-50 text-violet-700 border-violet-100',
+};
+
 interface ReviewTypeBadgeProps {
   type: CustomerReviewType;
+  serviceSource?: ServiceReviewSource | null;
   t: (key: string) => string;
 }
 
-export function ReviewTypeBadge({ type, t }: ReviewTypeBadgeProps) {
+export function ReviewTypeBadge({ type, serviceSource = null, t }: ReviewTypeBadgeProps) {
+  const isServiceSource = type === 'service' && (serviceSource === 'rfq' || serviceSource === 'direct');
+  const labelKey = isServiceSource ? SERVICE_SOURCE_LABEL_KEYS[serviceSource] : TYPE_LABEL_KEYS[type];
+  const style = isServiceSource ? SERVICE_SOURCE_STYLES[serviceSource] : TYPE_STYLES[type];
+
   return (
     <span
-      className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-bold ${TYPE_STYLES[type]}`}
+      className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-bold ${style}`}
     >
-      {t(TYPE_LABEL_KEYS[type])}
+      {t(labelKey)}
     </span>
   );
 }
