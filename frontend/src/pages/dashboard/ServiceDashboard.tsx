@@ -47,11 +47,12 @@ export default function ServiceDashboard() {
   const activeServicesCount =
     servicesData?.items.filter((service) => service.is_active !== false).length ?? 0;
 
+  const analytics = financeAnalytics?.analytics ?? [];
   const stats = useMemo(() => {
     const base = buildProviderDashboardStats(bookings, locale);
     const chartData =
-      financeAnalytics && financeAnalytics.length > 0
-        ? financeAnalytics.map((point) => ({
+      analytics.length > 0
+        ? analytics.map((point) => ({
             name: formatFinanceAnalyticsLabel(point, locale),
             earnings: point.net,
           }))
@@ -63,7 +64,7 @@ export default function ServiceDashboard() {
       chartData,
       activeServices: activeServicesCount,
     };
-  }, [bookings, activeServicesCount, locale, financeSummary, financeAnalytics]);
+  }, [bookings, activeServicesCount, locale, financeSummary, analytics]);
 
   if (bookingsLoading || servicesLoading || financeLoading || analyticsLoading) {
     return <LoadingState className="min-h-96" />;
