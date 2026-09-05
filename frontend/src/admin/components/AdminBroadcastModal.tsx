@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Loader2, Megaphone, X } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { useLocale } from '../../hooks/useLocale.ts';
@@ -11,19 +11,19 @@ type AdminBroadcastModalProps = {
 };
 
 export function AdminBroadcastModal({ open, onClose }: AdminBroadcastModalProps) {
+  if (!open) {
+    return null;
+  }
+
+  return <AdminBroadcastModalContent onClose={onClose} />;
+}
+
+function AdminBroadcastModalContent({ onClose }: { onClose: () => void }) {
   const { t } = useLocale();
   const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    if (!open) {
-      setTitle('');
-      setBody('');
-      setErrors({});
-    }
-  }, [open]);
 
   const mutation = useMutation({
     mutationFn: createAdminBroadcast,
@@ -33,10 +33,6 @@ export function AdminBroadcastModal({ open, onClose }: AdminBroadcastModalProps)
     },
     onError: () => toast.error(t('admin.feedback.broadcastError')),
   });
-
-  if (!open) {
-    return null;
-  }
 
   const validate = () => {
     const next: Record<string, string> = {};

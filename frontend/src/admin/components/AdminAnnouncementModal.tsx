@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Loader2, PanelTop, X } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale } from '../../hooks/useLocale.ts';
@@ -11,35 +11,45 @@ type AdminAnnouncementModalProps = {
   onClose: () => void;
 };
 
+type AnnouncementDraft = {
+  enabled: boolean;
+  textAr: string;
+  textEn: string;
+  ctaAr: string;
+  ctaEn: string;
+  link: string;
+};
+
 export function AdminAnnouncementModal({ open, onClose }: AdminAnnouncementModalProps) {
+  if (!open) {
+    return null;
+  }
+
+  return <AdminAnnouncementModalContent onClose={onClose} />;
+}
+
+function AdminAnnouncementModalContent({ onClose }: { onClose: () => void }) {
   const { t } = useLocale();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [enabled, setEnabled] = useState(false);
-  const [textAr, setTextAr] = useState('');
-  const [textEn, setTextEn] = useState('');
-  const [ctaAr, setCtaAr] = useState('');
-  const [ctaEn, setCtaEn] = useState('');
-  const [link, setLink] = useState('/');
+  const [draft, setDraft] = useState<Partial<AnnouncementDraft>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { data, isLoading } = useQuery({
     queryKey: adminQueryKey('admin-announcement'),
     queryFn: fetchAdminAnnouncement,
-    enabled: open,
   });
 
-  useEffect(() => {
-    if (!data) {
-      return;
-    }
-    setEnabled(data.enabled);
-    setTextAr(data.text_ar);
-    setTextEn(data.text_en);
-    setCtaAr(data.cta_ar);
-    setCtaEn(data.cta_en);
-    setLink(data.link || '/');
-  }, [data]);
+  const enabled = draft.enabled ?? data?.enabled ?? false;
+  const textAr = draft.textAr ?? data?.text_ar ?? '';
+  const textEn = draft.textEn ?? data?.text_en ?? '';
+  const ctaAr = draft.ctaAr ?? data?.cta_ar ?? '';
+  const ctaEn = draft.ctaEn ?? data?.cta_en ?? '';
+  const link = draft.link ?? data?.link ?? '/';
+
+  const updateDraft = (patch: Partial<AnnouncementDraft>) => {
+    setDraft((current) => ({ ...current, ...patch }));
+  };
 
   const mutation = useMutation({
     mutationFn: updateAdminAnnouncement,
@@ -51,10 +61,6 @@ export function AdminAnnouncementModal({ open, onClose }: AdminAnnouncementModal
     },
     onError: () => toast.error(t('admin.feedback.bannerError')),
   });
-
-  if (!open) {
-    return null;
-  }
 
   const validate = () => {
     const next: Record<string, string> = {};
@@ -119,7 +125,7 @@ export function AdminAnnouncementModal({ open, onClose }: AdminAnnouncementModal
                 <input
                   type="checkbox"
                   checked={enabled}
-                  onChange={(event) => setEnabled(event.target.checked)}
+                  onChange={(event) => updateDraft({ enabled: event.target.checked })}
                   className="h-4 w-4 cursor-pointer accent-diyar-brown"
                 />
                 <span className="text-sm font-bold text-diyar-dark">{t('admin.feedback.bannerEnabled')}</span>
@@ -131,7 +137,7 @@ export function AdminAnnouncementModal({ open, onClose }: AdminAnnouncementModal
                   <textarea
                     rows={3}
                     value={textAr}
-                    onChange={(event) => setTextAr(event.target.value)}
+                    onChange={(event) => updateDraft({ textAr: event.target.value })}
                     placeholder={t('admin.feedback.bannerTextArPlaceholder')}
                     className="mt-2 w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-diyar-brown"
                     dir="rtl"
@@ -143,7 +149,7 @@ export function AdminAnnouncementModal({ open, onClose }: AdminAnnouncementModal
                   <textarea
                     rows={3}
                     value={textEn}
-                    onChange={(event) => setTextEn(event.target.value)}
+                    onChange={(event) => updateDraft({ textEn: event.target.value })}
                     placeholder={t('admin.feedback.bannerTextEnPlaceholder')}
                     className="mt-2 w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-diyar-brown"
                     dir="ltr"
@@ -157,7 +163,7 @@ export function AdminAnnouncementModal({ open, onClose }: AdminAnnouncementModal
                   <label className="text-sm font-bold text-diyar-dark">{t('admin.feedback.bannerCtaAr')}</label>
                   <input
                     value={ctaAr}
-                    onChange={(event) => setCtaAr(event.target.value)}
+                    onChange={(event) => updateDraft({ ctaAr: event.target.value })}
                     placeholder={t('admin.feedback.bannerCtaArPlaceholder')}
                     className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-diyar-brown"
                     dir="rtl"
@@ -168,7 +174,7 @@ export function AdminAnnouncementModal({ open, onClose }: AdminAnnouncementModal
                   <label className="text-sm font-bold text-diyar-dark">{t('admin.feedback.bannerCtaEn')}</label>
                   <input
                     value={ctaEn}
-                    onChange={(event) => setCtaEn(event.target.value)}
+                    onChange={(event) => updateDraft({ ctaEn: event.target.value })}
                     placeholder={t('admin.feedback.bannerCtaEnPlaceholder')}
                     className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-diyar-brown"
                     dir="ltr"
@@ -181,7 +187,7 @@ export function AdminAnnouncementModal({ open, onClose }: AdminAnnouncementModal
                 <label className="text-sm font-bold text-diyar-dark">{t('admin.feedback.bannerLink')}</label>
                 <input
                   value={link}
-                  onChange={(event) => setLink(event.target.value)}
+                  onChange={(event) => updateDraft({ link: event.target.value })}
                   placeholder={t('admin.feedback.bannerLinkPlaceholder')}
                   className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-diyar-brown"
                   dir="ltr"

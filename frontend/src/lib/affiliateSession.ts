@@ -16,12 +16,12 @@ export function getOrCreateAffiliateSessionFingerprint(): string {
     return existing;
   }
 
-  const fingerprint =
-    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+  const fingerprint = existing ?? randomUUID();
 
-  window.localStorage.setItem(AFFILIATE_SESSION_STORAGE_KEY, fingerprint);
+  if (!existing) {
+    window.localStorage.setItem(AFFILIATE_SESSION_STORAGE_KEY, fingerprint);
+  }
+
   return fingerprint;
 }
 

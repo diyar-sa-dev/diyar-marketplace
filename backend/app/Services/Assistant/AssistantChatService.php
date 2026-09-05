@@ -263,16 +263,21 @@ class AssistantChatService
 
     private function resolveApiKey(): ?string
     {
-        $key = match ($this->provider()) {
-            'google', 'gemini' => config('diyar.assistant.google.api_key'),
-            default => config('diyar.assistant.openai.api_key') ?? config('diyar.assistant.api_key'),
+        $candidates = match ($this->provider()) {
+            'google', 'gemini' => [config('diyar.assistant.google.api_key')],
+            default => [
+                config('diyar.assistant.openai.api_key'),
+                config('diyar.assistant.api_key'),
+            ],
         };
 
-        if (! is_string($key) || trim($key) === '') {
-            return null;
+        foreach ($candidates as $key) {
+            if (is_string($key) && trim($key) !== '') {
+                return trim($key);
+            }
         }
 
-        return trim($key);
+        return null;
     }
 
     private function httpClient(): PendingRequest

@@ -48,7 +48,10 @@ class AssistantChatTest extends TestCase
     {
         config([
             'diyar.assistant.enabled' => true,
+            'diyar.assistant.provider' => 'openai',
+            'diyar.assistant.use_fake' => false,
             'diyar.assistant.api_key' => null,
+            'diyar.assistant.openai.api_key' => null,
         ]);
 
         $this->postJson('/api/v1/assistant/chat', [
@@ -83,8 +86,12 @@ class AssistantChatTest extends TestCase
     {
         config([
             'diyar.assistant.enabled' => true,
+            'diyar.assistant.provider' => 'openai',
+            'diyar.assistant.use_fake' => false,
             'diyar.assistant.api_key' => 'test-key',
+            'diyar.assistant.openai.api_key' => 'test-key',
             'diyar.assistant.model' => 'gpt-4o-mini',
+            'diyar.assistant.openai.model' => 'gpt-4o-mini',
         ]);
 
         Http::fake([
