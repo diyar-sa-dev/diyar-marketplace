@@ -88,6 +88,8 @@ let refCount = 0;
 let connectTimeoutId: number | undefined;
 let reconnectTimeoutId: number | undefined;
 let csrfPrepared = false;
+let isTearingDown = false;
+let suppressChannelLeave = false;
 const stateListeners = new Set<StateListener>();
 const channelSubscriptions = new Map<string, ChannelSubscription>();
 
@@ -179,6 +181,45 @@ function scheduleReconnect(): void {
   }, delay);
 }
 
+function pusherSocketIsOpen(): boolean {
+  if (!echoInstance) {
+    return false;
+  }
+
+  const connection = echoInstance.connector.pusher.connection as {
+    state: string;
+    socket?: WebSocket;
+  };
+
+  if (connection.state !== 'connected') {
+    return false;
+  }
+
+  const socket = connection.socket;
+  return socket === undefined || socket.readyState === WebSocket.OPEN;
+}
+
+function canLeavePrivateChannel(): boolean {
+  return !isTearingDown && !suppressChannelLeave && pusherSocketIsOpen();
+}
+
+function detachSubscription(subscription: ChannelSubscription): void {
+  subscription.echoChannel = null;
+  subscription.boundEvents.clear();
+}
+
+function safeLeavePrivateChannel(channelName: string): void {
+  if (!canLeavePrivateChannel() || !echoInstance) {
+    return;
+  }
+
+  try {
+    echoInstance.leave(`private-${channelName}`);
+  } catch {
+    // Ignore synchronous teardown races.
+  }
+}
+
 function bindConnectionHandlers(): void {
   if (!echoInstance || connectionHandlersBound) {
     return;
@@ -191,26 +232,31 @@ function bindConnectionHandlers(): void {
     window.clearTimeout(connectTimeoutId);
     clearReconnectTimer();
     reconnectAttempt = 0;
+    suppressChannelLeave = false;
     notifyState('connected');
   });
 
   connector.bind('connecting', () => {
+    suppressChannelLeave = true;
     notifyState('connecting');
   });
 
   connector.bind('disconnected', () => {
+    suppressChannelLeave = true;
     notifyState('disconnected');
     scheduleReconnect();
   });
 
   connector.bind('failed', () => {
     window.clearTimeout(connectTimeoutId);
+    suppressChannelLeave = true;
     notifyState('failed');
     scheduleReconnect();
   });
 
   connector.bind('unavailable', () => {
     window.clearTimeout(connectTimeoutId);
+    suppressChannelLeave = true;
     notifyState('failed');
     scheduleReconnect();
   });
@@ -289,6 +335,7 @@ function ensureEcho(): Echo<'reverb'> | null {
 
   const connection = resolveReverbConnectionOptions({
     isDev: import.meta.env.DEV,
+    sameOriginApi: env.backendUrl === '',
     configuredHost: env.reverb.host,
     configuredPort: env.reverb.port,
     configuredScheme: env.reverb.scheme,
@@ -373,19 +420,25 @@ function acquireConnection(): void {
 function releaseConnection(): void {
   refCount = Math.max(0, refCount - 1);
   if (refCount === 0) {
+    isTearingDown = true;
+    suppressChannelLeave = true;
     window.clearTimeout(connectTimeoutId);
     clearReconnectTimer();
     channelSubscriptions.forEach((subscription) => {
-      if (subscription.echoChannel && echoInstance) {
-        echoInstance.leave(`private-${subscription.channelName}`);
-      }
-      subscription.echoChannel = null;
+      detachSubscription(subscription);
     });
+    channelSubscriptions.clear();
     if (echoInstance) {
-      echoInstance.disconnect();
+      try {
+        echoInstance.disconnect();
+      } catch {
+        // Ignore disconnect races during hot reload / Strict Mode teardown.
+      }
       echoInstance = null;
     }
     connectionHandlersBound = false;
+    isTearingDown = false;
+    suppressChannelLeave = false;
     notifyState('idle');
   }
 }
@@ -455,9 +508,8 @@ export const RealtimeEventRouter = {
         subscription?.events.delete(eventName);
       }
       if (subscription && subscription.events.size === 0) {
-        if (subscription.echoChannel && echoInstance) {
-          echoInstance.leave(`private-${channelName}`);
-        }
+        safeLeavePrivateChannel(channelName);
+        detachSubscription(subscription);
         channelSubscriptions.delete(channelName);
       }
     };
@@ -469,10 +521,8 @@ export const RealtimeEventRouter = {
       return;
     }
 
-    if (subscription.echoChannel && echoInstance) {
-      echoInstance.leave(`private-${channelName}`);
-    }
-
+    safeLeavePrivateChannel(channelName);
+    detachSubscription(subscription);
     channelSubscriptions.delete(channelName);
   },
 };

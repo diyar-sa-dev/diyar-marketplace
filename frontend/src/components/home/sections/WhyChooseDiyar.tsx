@@ -20,7 +20,7 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
-import { RailArrows } from './RailArrows.tsx';
+import { HorizontalRail } from './HorizontalRail.tsx';
 import {
   Star,
   Quote,
@@ -76,11 +76,11 @@ export function WhyChooseDiyar() {
   return (
     <div className="py-6 md:py-8 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex overflow-x-auto md:grid md:grid-cols-4 gap-4 md:gap-8 text-center pb-4 md:pb-0 scrollbar-hide snap-x">
+        <HorizontalRail className="flex md:grid md:grid-cols-4 gap-4 md:gap-8 text-center pb-2 md:pb-0 scrollbar-hide snap-x overflow-x-auto">
           {features.map((feature, index) => (
             <div
               key={feature.titleKey}
-              className="flex flex-col items-center bg-gray-50 md:bg-transparent p-6 md:p-0 rounded-xl md:rounded-none min-w-60 md:min-w-0 snap-start border border-gray-100 md:border-none"
+              className="flex flex-col items-center bg-gray-50 md:bg-transparent p-5 md:p-0 rounded-xl md:rounded-none min-w-[min(100%,16rem)] sm:min-w-60 md:min-w-0 snap-start border border-gray-100 md:border-none shrink-0"
             >
               <div
                 className={`w-14 h-14 md:w-16 md:h-16 bg-white md:bg-diyar-cream rounded-xl flex items-center justify-center text-diyar-brown mb-4 md:mb-6 hover:rotate-0 transition-transform shadow-sm md:shadow-none ${
@@ -132,7 +132,7 @@ export function WhyChooseDiyar() {
               </p>
             </div>
           ))}
-        </div>
+        </HorizontalRail>
       </div>
     </div>
   );

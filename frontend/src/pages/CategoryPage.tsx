@@ -35,6 +35,7 @@ import { EmptyState } from '../components/common/EmptyState.tsx';
 import NotFoundPage from './errors/NotFoundPage.tsx';
 import { isNotFoundError } from '../utils/errors.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.ts';
 
 const CATEGORIES = {
   bedroom: {
@@ -564,6 +565,8 @@ export default function CategoryPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
+  useBodyScrollLock(isMobileFilterOpen);
+
   const page = Math.max(1, Number(searchParams.get('page') || '1'));
   const perPage = Math.max(10, Number(searchParams.get('per_page') || '12'));
   const sort = searchParams.get('sort') || '-created_at';
@@ -940,23 +943,26 @@ export default function CategoryPage() {
 
       {/* Mobile Filter Modal */}
       {isMobileFilterOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
-          <div
-            className="absolute inset-0 bg-black/50"
+        <div className="fixed inset-0 z-50 flex md:hidden overscroll-none">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/50 cursor-pointer"
+            aria-label={t('catalog.category.filterResults')}
             onClick={() => setIsMobileFilterOpen(false)}
           />
           <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] bg-white rounded-t-3xl shadow-xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-full duration-300">
-            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 shrink-0">
               <h3 className="font-bold text-lg text-diyar-dark">{t('catalog.category.filterResults')}</h3>
               <button
+                type="button"
                 onClick={() => setIsMobileFilterOpen(false)}
-                className="bg-gray-100 p-2 rounded-full text-gray-500 hover:text-diyar-dark"
+                className="bg-gray-100 p-2 rounded-full text-gray-500 hover:text-diyar-dark cursor-pointer"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 pb-24">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y p-4 pb-24">
               <CatalogFilterPanel
                 minPrice={minPrice}
                 maxPrice={maxPrice}
@@ -969,18 +975,18 @@ export default function CategoryPage() {
               />
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 flex gap-3">
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 flex gap-3 shrink-0">
               <button
                 type="button"
                 onClick={resetFilters}
-                className="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl"
+                className="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl cursor-pointer"
               >
                 {t('catalog.category.clearAll')}
               </button>
               <button
                 type="button"
                 onClick={() => setIsMobileFilterOpen(false)}
-                className="flex-2 bg-diyar-dark text-white font-bold py-3 rounded-xl shadow-lg shadow-black/10"
+                className="flex-2 bg-diyar-dark text-white font-bold py-3 rounded-xl shadow-lg shadow-black/10 cursor-pointer"
               >
                 {t('catalog.category.showResults', { count: totalResults })}
               </button>

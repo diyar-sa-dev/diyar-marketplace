@@ -16,6 +16,7 @@ use App\Services\Payments\DTO\PaymentSessionResult;
 use App\Services\Payments\DTO\RefundPaymentRequest;
 use App\Services\Payments\DTO\RefundPaymentResult;
 use App\Services\Payments\Exceptions\PaymentGatewayException;
+use App\Support\Http\FrontendOrigin;
 use Illuminate\Support\Str;
 
 /**
@@ -88,11 +89,10 @@ final class FakePaymentGateway implements PaymentGatewayInterface
         $this->throwIfScenarioDemands($scenario, ['timeout', 'rate_limited', 'provider_error']);
 
         $orderId = $request->metadata['order_id'] ?? '';
-        $frontend = rtrim((string) config('diyar.frontend_url'), '/');
         $gatewayPaymentId = self::PAYMENT_PREFIX.'-'.$request->paymentReference;
 
         return new PaymentCreationResult(
-            paymentUrl: $frontend.'/checkout/payment/'.$orderId.'/simulate?scenario='.$scenario->value,
+            paymentUrl: FrontendOrigin::url('/checkout/payment/'.$orderId.'/simulate?scenario='.$scenario->value),
             gatewayPaymentId: $gatewayPaymentId,
             gatewayInvoiceId: 'fake-invoice-'.Str::lower(Str::substr($request->paymentReference, -8)),
         );

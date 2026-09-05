@@ -263,196 +263,201 @@ export default function DashboardLayout() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex" dir={dir}>
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+    <div className="min-h-screen bg-gray-50 text-diyar-dark" dir={dir}>
+      <div className="flex min-h-screen">
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50 md:hidden transition-opacity"
+            onClick={() => setIsSidebarOpen(false)}
+            aria-hidden
+          />
+        )}
 
-      <aside
-        className={`fixed md:sticky top-0 inset-s-0 z-50 h-screen bg-diyar-dark text-white flex flex-col transition-all duration-300 ${
-          isSidebarOpen
-            ? 'w-64 translate-x-0'
-            : `w-64 md:w-20 ${sidebarHiddenTransform} md:translate-x-0`
-        }`}
-      >
-        <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 shrink-0 gap-2">
-          {isSidebarOpen ? (
-            <span className="font-bold text-lg md:text-xl text-diyar-cream truncate flex-1">
-              {t('dashboard.title')}
-            </span>
-          ) : (
-            <span className="flex-1" />
-          )}
-
-          {isMobile && isSidebarOpen ? (
-            <button
-              type="button"
-              onClick={() => setIsSidebarOpen(false)}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer shrink-0"
-              aria-label={t('common.close')}
-            >
-              <X size={20} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer shrink-0"
-              aria-label={isSidebarOpen ? t('common.close') : t('dashboard.openMenu')}
-            >
-              <Menu size={20} />
-            </button>
-          )}
-        </div>
-
-        <div className="flex-1 overflow-y-auto py-4">
-          {!role ? (
-            <div className="px-4 text-gray-400 text-sm">{t('dashboard.selectAccountType')}</div>
-          ) : (
-            <ul className="space-y-1 px-3">
-              {links.map((link) => {
-                const Icon = link.icon;
-                const isActive = location.pathname === link.path;
-                const portalKey = role ?? 'vendor';
-                return (
-                  <li key={link.path}>
-                    <Link
-                      to={link.path}
-                      onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)}
-                      className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
-                        isActive
-                          ? PORTAL_ACTIVE_STYLES[portalKey]
-                          : 'text-gray-300 hover:bg-white/8 hover:text-white hover:translate-x-0.5 rtl:hover:-translate-x-0.5'
-                      }`}
-                      title={link.name}
-                    >
-                      <Icon
-                        size={20}
-                        className={`shrink-0 ${isActive ? PORTAL_ICON_ACTIVE[portalKey] : ''}`}
-                      />
-                      {isSidebarOpen && (
-                        <span className="font-medium whitespace-nowrap">{link.name}</span>
-                      )}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-
-        <div className="p-4 border-t border-white/10">
-          <Link
-            to="/"
-            className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors cursor-pointer"
-            title={t('dashboard.backToStore')}
-          >
-            <LogOut size={20} className="shrink-0" />
-            {isSidebarOpen && (
-              <span className="font-medium whitespace-nowrap">{t('dashboard.backToStore')}</span>
+        <aside
+          className={`fixed inset-y-0 z-50 flex h-dvh max-h-dvh shrink-0 flex-col overflow-hidden bg-diyar-dark text-white shadow-xl transition-all duration-300 md:sticky md:translate-x-0 ${
+            dir === 'rtl' ? 'right-0' : 'left-0'
+          } ${
+            isSidebarOpen
+              ? 'w-64 translate-x-0'
+              : `w-64 md:w-20 ${sidebarHiddenTransform} md:translate-x-0`
+          }`}
+        >
+          <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-white/10 px-4">
+            {isSidebarOpen ? (
+              <span className="flex-1 truncate text-lg font-bold text-diyar-cream md:text-xl">
+                {t('dashboard.title')}
+              </span>
+            ) : (
+              <span className="flex-1" />
             )}
-          </Link>
-        </div>
-      </aside>
 
-      <main className="flex-1 flex flex-col min-w-0">
-        <header className="h-14 sm:h-16 bg-white border-b border-gray-100 flex items-center justify-between px-3 sm:px-4 md:px-6 shrink-0 gap-2">
-          <div className="flex items-center gap-2 md:gap-4 min-w-0">
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer shrink-0"
-              aria-label={t('dashboard.openMenu')}
-            >
-              <Menu size={20} />
-            </button>
-            <h1 className="text-base sm:text-lg md:text-xl font-bold text-diyar-dark truncate">
-              {role ? t(`dashboard.portals.${role}.headerTitle`) : t('dashboard.selectPortal')}
-            </h1>
+            {isMobile && isSidebarOpen ? (
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(false)}
+                className="shrink-0 rounded-lg p-2 transition-colors hover:bg-white/10 cursor-pointer"
+                aria-label={t('common.close')}
+              >
+                <X size={20} />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="hidden shrink-0 rounded-lg p-2 transition-colors hover:bg-white/10 md:inline-flex cursor-pointer"
+                aria-label={isSidebarOpen ? t('common.close') : t('dashboard.openMenu')}
+              >
+                <Menu size={20} />
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-2 md:gap-3">
-            {showRoleSwitcher && (
-              <div className="relative group">
-                <button className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg border border-gray-200 text-xs md:text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer">
-                  <span className="hidden sm:inline">{t('dashboard.switchAccount')}</span>
-                  <span className="sm:hidden">{t('dashboard.portal')}</span>
-                  <ChevronDown size={14} />
-                </button>
-                <div className="absolute top-full inset-s-0 mt-1 w-48 bg-white border border-gray-100 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
-                  {accessiblePortals.map((portal) => {
-                    const Icon = PORTAL_ICONS[portal.key];
-
-                    return (
+          <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-4">
+            {!role ? (
+              <div className="px-4 text-sm text-gray-400">{t('dashboard.selectAccountType')}</div>
+            ) : (
+              <ul className="space-y-1 px-3">
+                {links.map((link) => {
+                  const Icon = link.icon;
+                  const isActive = location.pathname === link.path;
+                  const portalKey = role ?? 'vendor';
+                  return (
+                    <li key={link.path}>
                       <Link
-                        key={portal.key}
-                        to={portal.path}
-                        className={`flex items-center gap-2 px-4 py-2 hover:bg-gray-50 text-sm transition-colors ${
-                          role === portal.key ? 'bg-gray-50 font-bold text-diyar-dark' : ''
+                        to={link.path}
+                        onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)}
+                        className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 cursor-pointer ${
+                          isActive
+                            ? PORTAL_ACTIVE_STYLES[portalKey]
+                            : 'text-gray-300 hover:bg-white/8 hover:text-white hover:translate-x-0.5 rtl:hover:-translate-x-0.5'
                         }`}
+                        title={link.name}
                       >
-                        <Icon size={16} className={portal.iconTextClass} />{' '}
-                        {t(`dashboard.portals.${portal.key}.switchLabel`)}
+                        <Icon
+                          size={20}
+                          className={`shrink-0 ${isActive ? PORTAL_ICON_ACTIVE[portalKey] : ''}`}
+                        />
+                        {isSidebarOpen && (
+                          <span className="truncate font-medium whitespace-nowrap">{link.name}</span>
+                        )}
                       </Link>
-                    );
-                  })}
-                </div>
-              </div>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
+          </nav>
 
-            {(role === 'vendor' || role === 'service') && (
-              <ChatMessagesLink
-                to={resolveChatHubPath(user?.roles, role)}
-                variant="header"
-              />
-            )}
-
-            <NotificationBellDropdown
-              viewAllPath={`/dashboard/${role}/notifications`}
-              open={isNotificationsOpen}
-              onToggle={() => setIsNotificationsOpen((value) => !value)}
-              onClose={() => setIsNotificationsOpen(false)}
-            />
-
-            <LanguageSwitcher />
-
+          <div className="shrink-0 border-t border-white/10 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
             <Link
-              to={resolveAccountHubPath(user?.roles)}
-              className={`shrink-0 rounded-full transition-all hover:ring-2 ${portalTheme.avatarRing}`}
-              title={t('common.myAccount')}
+              to="/"
+              className="flex min-h-11 items-center gap-3 rounded-xl px-1 py-2 text-gray-300 transition-colors hover:bg-white/5 hover:text-white cursor-pointer"
+              title={t('dashboard.backToStore')}
             >
-              <UserAvatar name={headerAvatarName} avatarUrl={headerAvatarUrl} size="sm" />
+              <LogOut size={20} className="shrink-0" />
+              {isSidebarOpen && (
+                <span className="truncate font-medium whitespace-nowrap">{t('dashboard.backToStore')}</span>
+              )}
             </Link>
-
-            <button
-              type="button"
-              onClick={() =>
-                void logout().then((result) => {
-                  toast.success(result.message ?? t('auth.toasts.logoutSuccess'));
-                  navigate('/');
-                })
-              }
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 p-2 text-sm font-medium transition hover:bg-gray-50 cursor-pointer md:px-3"
-              aria-label={t('common.logout')}
-            >
-              <LogOut size={16} />
-              <span className="hidden md:inline">{t('common.logout')}</span>
-            </button>
           </div>
-        </header>
+        </aside>
 
-        <div className="flex-1 overflow-auto p-4 sm:p-5 md:p-6">
-          {isVendorPortal ? (
-            <VendorPortalGuard>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between gap-2 border-b border-gray-100 bg-white/95 px-3 backdrop-blur sm:h-16 sm:px-4 md:px-6">
+            <div className="flex min-w-0 items-center gap-2 md:gap-4">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="shrink-0 rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 md:hidden cursor-pointer"
+                aria-label={t('dashboard.openMenu')}
+              >
+                <Menu size={20} />
+              </button>
+              <h1 className="truncate text-base font-bold text-diyar-dark sm:text-lg md:text-xl">
+                {role ? t(`dashboard.portals.${role}.headerTitle`) : t('dashboard.selectPortal')}
+              </h1>
+            </div>
+
+            <div className="flex items-center gap-2 md:gap-3">
+              {showRoleSwitcher && (
+                <div className="group relative">
+                  <button className="flex cursor-pointer items-center gap-1 rounded-lg border border-gray-200 px-2 py-1.5 text-xs font-medium transition-colors hover:bg-gray-50 md:gap-2 md:px-3 md:text-sm">
+                    <span className="hidden sm:inline">{t('dashboard.switchAccount')}</span>
+                    <span className="sm:hidden">{t('dashboard.portal')}</span>
+                    <ChevronDown size={14} />
+                  </button>
+                  <div className="invisible absolute top-full inset-s-0 z-50 mt-1 w-48 overflow-hidden rounded-xl border border-gray-100 bg-white opacity-0 shadow-lg transition-all group-hover:visible group-hover:opacity-100">
+                    {accessiblePortals.map((portal) => {
+                      const Icon = PORTAL_ICONS[portal.key];
+
+                      return (
+                        <Link
+                          key={portal.key}
+                          to={portal.path}
+                          className={`flex items-center gap-2 px-4 py-2 text-sm transition-colors hover:bg-gray-50 ${
+                            role === portal.key ? 'bg-gray-50 font-bold text-diyar-dark' : ''
+                          }`}
+                        >
+                          <Icon size={16} className={portal.iconTextClass} />{' '}
+                          {t(`dashboard.portals.${portal.key}.switchLabel`)}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {(role === 'vendor' || role === 'service') && (
+                <ChatMessagesLink
+                  to={resolveChatHubPath(user?.roles, role)}
+                  variant="header"
+                />
+              )}
+
+              <NotificationBellDropdown
+                viewAllPath={`/dashboard/${role}/notifications`}
+                open={isNotificationsOpen}
+                onToggle={() => setIsNotificationsOpen((value) => !value)}
+                onClose={() => setIsNotificationsOpen(false)}
+              />
+
+              <LanguageSwitcher />
+
+              <Link
+                to={resolveAccountHubPath(user?.roles)}
+                className={`shrink-0 rounded-full transition-all hover:ring-2 ${portalTheme.avatarRing}`}
+                title={t('common.myAccount')}
+              >
+                <UserAvatar name={headerAvatarName} avatarUrl={headerAvatarUrl} size="sm" />
+              </Link>
+
+              <button
+                type="button"
+                onClick={() =>
+                  void logout().then((result) => {
+                    toast.success(result.message ?? t('auth.toasts.logoutSuccess'));
+                    navigate('/');
+                  })
+                }
+                className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 p-2 text-sm font-medium transition hover:bg-gray-50 md:px-3"
+                aria-label={t('common.logout')}
+              >
+                <LogOut size={16} />
+                <span className="hidden md:inline">{t('common.logout')}</span>
+              </button>
+            </div>
+          </header>
+
+          <main className="flex-1 p-4 sm:p-5 md:p-6">
+            {isVendorPortal ? (
+              <VendorPortalGuard>
+                <Outlet />
+              </VendorPortalGuard>
+            ) : (
               <Outlet />
-            </VendorPortalGuard>
-          ) : (
-            <Outlet />
-          )}
+            )}
+          </main>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

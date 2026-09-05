@@ -77,6 +77,39 @@ export function vendorOrderItemCount(order: VendorOrder): number {
   return order.items?.length ?? 0;
 }
 
+export function vendorOrderPaymentPaid(order: VendorOrder): boolean {
+  return order.payment_status === 'paid';
+}
+
+/** Payment not completed yet (pending, failed, expired, etc.). */
+export function vendorOrderPaymentUnsettled(order: VendorOrder): boolean {
+  const status = order.payment_status ?? 'pending';
+
+  return status !== 'paid' && status !== 'refunded';
+}
+
+/** Hide status controls until the customer has paid a pending-confirmation order. */
+export function vendorOrderCanManageStatus(order: VendorOrder): boolean {
+  if (order.status === 'delivered' || order.status === 'cancelled') {
+    return false;
+  }
+
+  if (order.status === 'pending' && vendorOrderPaymentUnsettled(order)) {
+    return false;
+  }
+
+  return true;
+}
+
+/** Cancel is only allowed before payment is captured. */
+export function vendorOrderCanCancel(order: VendorOrder): boolean {
+  if (!['pending', 'accepted', 'processing'].includes(order.status)) {
+    return false;
+  }
+
+  return !vendorOrderPaymentPaid(order);
+}
+
 export function matchesVendorOrderTab(order: VendorOrder, tab: VendorOrderTab): boolean {
   if (tab === 'all') {
     return true;

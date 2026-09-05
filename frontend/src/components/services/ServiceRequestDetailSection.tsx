@@ -71,7 +71,7 @@ export function ServiceRequestDetailSection({
               <FileText size={18} className="text-diyar-brown" />
               {t('serviceMarketplace.requests.requestDetails')}
             </h3>
-            <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
+            <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line break-words overflow-hidden">
               {request.description}
             </p>
           </div>
@@ -179,7 +179,7 @@ function MetaTile({
       </div>
       <div className="min-w-0">
         <p className="text-xs text-gray-500 mb-0.5">{label}</p>
-        <p className="font-bold text-diyar-dark truncate" dir={dir}>
+        <p className="font-bold text-diyar-dark break-words line-clamp-2" dir={dir}>
           {value}
         </p>
       </div>

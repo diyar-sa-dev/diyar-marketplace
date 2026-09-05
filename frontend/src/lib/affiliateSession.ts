@@ -1,3 +1,5 @@
+import { randomUUID } from './randomUUID.ts';
+
 const AFFILIATE_SESSION_STORAGE_KEY = 'affiliate_session';
 
 export function getAffiliateSessionFingerprint(): string | null {

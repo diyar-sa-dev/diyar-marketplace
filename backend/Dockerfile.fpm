@@ -24,8 +24,10 @@ RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 COPY . .
 RUN composer dump-autoload --optimize
 
-RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache
+RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs storage/app/public/media bootstrap/cache \
+    && rm -rf public/storage \
+    && ln -snf ../storage/app/public public/storage \
+    && chown -R www-data:www-data storage bootstrap/cache public/storage
 
 USER www-data
 EXPOSE 9000

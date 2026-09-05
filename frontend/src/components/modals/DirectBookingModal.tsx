@@ -21,6 +21,7 @@ import {
   minTimeForDate,
   validateDirectBookingSchedule,
 } from '../../lib/directBookingSchedule.ts';
+import { randomUUID } from '../../lib/randomUUID.ts';
 import { parseApiError } from '../../utils/errors.ts';
 import type { ServiceDetail } from '../../types/services.ts';
 
@@ -44,7 +45,7 @@ export function DirectBookingModal({ isOpen, onClose, service }: DirectBookingMo
   const [customerNotes, setCustomerNotes] = useState('');
   const [location, setLocation] = useState(service.location ?? '');
   const [bookingId, setBookingId] = useState<string | null>(null);
-  const [idempotencyKey] = useState(() => crypto.randomUUID());
+  const [idempotencyKey] = useState(() => randomUUID());
 
   const previewMutation = useDirectBookingPreview(service.slug);
   const createMutation = useCreateDirectBooking(service.slug);

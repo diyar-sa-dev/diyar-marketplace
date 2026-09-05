@@ -24,6 +24,7 @@ import { CartLineItemCard } from '../components/checkout/CartLineItemCard.tsx';
 import { cartItemToLineProps } from '../lib/cartLineItem.ts';
 import { CheckoutVendorCoupon } from '../components/checkout/CheckoutVendorCoupon.tsx';
 import { parseApiError } from '../utils/errors.ts';
+import { randomUUID } from '../lib/randomUUID.ts';
 import type { Locale } from '../lib/i18n/types.ts';
 import type {
   CheckoutPreview,
@@ -43,7 +44,7 @@ function hasPositiveAmount(value: string | null | undefined): boolean {
 }
 
 function newIdempotencyKey(): string {
-  return crypto.randomUUID();
+  return randomUUID();
 }
 
 type CartVendorGroup = {
@@ -114,7 +115,7 @@ function formatAddressLine(
 
 export default function CheckoutPage() {
   const { t, dir, locale } = useLocale();
-  const { user } = useAuthContext();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuthContext();
   const navigate = useNavigate();
   const { toast } = useToast();
   const currency = t('common.currency');
@@ -143,6 +144,15 @@ export default function CheckoutPage() {
     }),
     [currency, t],
   );
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate('/auth', {
+        replace: true,
+        state: { from: '/checkout', reason: 'auth_required' },
+      });
+    }
+  }, [authLoading, isAuthenticated, navigate]);
 
   useEffect(() => {
     void (async () => {
@@ -347,6 +357,20 @@ export default function CheckoutPage() {
   };
 
   const handlePlaceOrder = async () => {
+    if (!isAuthenticated) {
+      navigate('/auth', {
+        replace: true,
+        state: { from: '/checkout', reason: 'auth_required' },
+      });
+      return;
+    }
+
+    if (!hasAddress) {
+      toast.error(t('checkout.addressRequired'));
+      navigate(profileAddressesPath, { state: { from: '/checkout' } });
+      return;
+    }
+
     const activePreview = previewQuery.data?.valid
       ? previewQuery.data
       : lastValidPreviewRef.current;
@@ -375,6 +399,14 @@ export default function CheckoutPage() {
       toast.error(error instanceof Error ? error.message : t('checkout.orderFailed'));
     }
   };
+
+  if (authLoading) {
+    return <LoadingState message={t('common.verifyingSession')} />;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   if (!cartFlushed || addressesLoading || cartLoading) {
     return <LoadingState message={t('checkout.loading')} />;

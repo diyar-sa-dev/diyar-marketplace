@@ -20,7 +20,7 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
-import { RailArrows } from './RailArrows.tsx';
+import { HorizontalRail } from './HorizontalRail.tsx';
 import {
   Star,
   Quote,
@@ -73,7 +73,7 @@ export function FeaturedStores() {
           </div>
           <Link
             to="/category/all"
-            className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition cursor-pointer"
+            className="text-diyar-brown font-bold flex items-center gap-2 hover:text-diyar-dark transition cursor-pointer text-sm md:text-base"
           >
             {t('home.featuredStores.viewAll')} <ViewAllIcon size={18} />
           </Link>
@@ -87,7 +87,7 @@ export function FeaturedStores() {
             icon={Store}
           />
         ) : (
-          <div className="flex overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-6 gap-4 md:gap-4 pb-2 scrollbar-hide snap-x">
+          <HorizontalRail className="flex overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-6 gap-4 md:gap-4 pb-2 scrollbar-hide snap-x">
             {isLoading
               ? [...Array(6)].map((_, i) => (
                   <div key={i} className="min-w-35 h-40 bg-white rounded-xl animate-pulse" />
@@ -146,7 +146,7 @@ export function FeaturedStores() {
                     </div>
                   </Link>
                 ))}
-          </div>
+          </HorizontalRail>
         )}
       </div>
     </div>

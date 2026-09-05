@@ -28,6 +28,8 @@ import { useLocale } from '../hooks/useLocale.ts';
 import { useToast } from '../hooks/useToast.ts';
 import { useRelatedServices, useService } from '../hooks/services/useServices.ts';
 import { SERVICE_IMAGE_FALLBACK } from '../lib/services/serviceUi.ts';
+import { resolveMediaUrl } from '../lib/media.ts';
+import { UserAvatar } from '../components/profile/UserAvatar.tsx';
 import {
   resolveServiceTypeLabel,
   bookingStatusBadgeClass,
@@ -102,11 +104,13 @@ export default function ServicePage() {
     );
   }, [provider, service, t]);
   const galleryImages = useMemo(() => {
-    const portfolio = service?.portfolio?.map((item) => item.media_url).filter(Boolean) as string[];
+    const portfolio = service?.portfolio
+      ?.map((item) => resolveMediaUrl(item.media_url) ?? item.media_url)
+      .filter(Boolean) as string[];
     if (portfolio && portfolio.length > 0) {
       return portfolio;
     }
-    return service?.image_url ? [service.image_url] : [];
+    return service?.image_url ? [resolveMediaUrl(service.image_url) ?? service.image_url] : [];
   }, [service]);
 
   useEffect(() => {
@@ -170,7 +174,11 @@ export default function ServicePage() {
     );
   }
 
-  const coverImage = provider?.cover_url || service.image_url || SERVICE_IMAGE_FALLBACK;
+  const coverImage =
+    resolveMediaUrl(provider?.cover_url) ??
+    resolveMediaUrl(service.image_url) ??
+    SERVICE_IMAGE_FALLBACK;
+  const providerAvatarUrl = resolveMediaUrl(provider?.avatar_url);
   const features = service.features ?? [];
   const isDirectBooking = service.booking_mode === 'direct';
   const isOwnProvider = Boolean(service.provider?.is_own_provider);
@@ -204,7 +212,7 @@ export default function ServicePage() {
     : t('serviceMarketplace.detail.requestService');
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-16" dir={dir}>
+    <div className="bg-gray-50 min-h-screen pb-16 overflow-x-hidden" dir={dir}>
       <div
         className="w-full h-48 md:h-80 relative bg-diyar-dark cursor-pointer group"
         onClick={() => {
@@ -217,8 +225,10 @@ export default function ServicePage() {
         <img
           src={coverImage}
           alt={service.title}
-          className="w-full h-full object-cover opacity-80 group-hover:opacity-70 transition-opacity"
+          className="w-full h-full object-cover opacity-80 group-hover:opacity-70 transition-opacity bg-diyar-dark"
           referrerPolicy="no-referrer"
+          loading="eager"
+          decoding="async"
           onError={(e) => {
             (e.target as HTMLImageElement).src = SERVICE_IMAGE_FALLBACK;
           }}
@@ -277,20 +287,17 @@ export default function ServicePage() {
           <div className="flex flex-col md:flex-row gap-6 md:items-end">
             <Link
               to={`/provider/${providerSlug}`}
-              className="w-20 h-20 md:w-28 md:h-28 rounded-xl md:rounded-2xl border-4 border-white shadow-md overflow-hidden bg-white shrink-0 -mt-12 md:-mt-16 block hover:opacity-90 transition"
+              className="w-20 h-20 md:w-28 md:h-28 shrink-0 self-start -mt-12 md:-mt-16 block hover:opacity-90 transition"
             >
-              <img
-                src={provider?.avatar_url || SERVICE_IMAGE_FALLBACK}
-                alt={provider?.display_name || ''}
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = SERVICE_IMAGE_FALLBACK;
-                }}
+              <UserAvatar
+                name={provider?.display_name}
+                avatarUrl={providerAvatarUrl}
+                shape="square"
+                className="w-full h-full text-xl md:text-2xl"
               />
             </Link>
 
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="mb-4">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   {typeLabel && <ServiceTypeBadge label={typeLabel} />}
@@ -566,7 +573,7 @@ export default function ServicePage() {
               {dir === 'rtl' ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
             </Link>
           </div>
-          <div className="flex overflow-x-auto gap-4 md:gap-6 pb-4 scrollbar-hide snap-x pt-2 -mt-2 px-2 -mx-2 md:px-0 md:mx-0">
+          <div className="flex overflow-x-auto gap-4 md:gap-6 pb-4 scrollbar-hide snap-x pt-2">
             {relatedServices.map((item) => (
               <div key={item.id} className="min-w-55 md:min-w-65 snap-start shrink-0">
                 <ServiceCard service={item} />

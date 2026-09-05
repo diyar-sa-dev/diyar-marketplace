@@ -5,6 +5,49 @@ const SECONDS_PER_HOUR = 3600;
 const SECONDS_PER_DAY = 86_400;
 const DAYS_PER_WEEK = 7;
 
+type TickListener = () => void;
+
+let tickSnapshotMs = Date.now();
+const tickListeners = new Set<TickListener>();
+let tickIntervalId: number | null = null;
+let tickSubscriberCount = 0;
+
+function ensureTickInterval(): void {
+  if (tickIntervalId !== null) {
+    return;
+  }
+
+  tickIntervalId = window.setInterval(() => {
+    tickSnapshotMs = Date.now();
+    tickListeners.forEach((listener) => listener());
+  }, 1000);
+}
+
+function stopTickIntervalIfIdle(): void {
+  if (tickSubscriberCount === 0 && tickIntervalId !== null) {
+    window.clearInterval(tickIntervalId);
+    tickIntervalId = null;
+  }
+}
+
+function subscribeToPromotionTicks(callback: TickListener): () => void {
+  tickSubscriberCount += 1;
+  tickListeners.add(callback);
+  ensureTickInterval();
+
+  return () => {
+    tickListeners.delete(callback);
+    tickSubscriberCount -= 1;
+    stopTickIntervalIfIdle();
+  };
+}
+
+function getPromotionTickSnapshot(): number {
+  return tickSnapshotMs;
+}
+
+const noopSubscribe = () => () => {};
+
 export type PromotionRemainingDisplay = {
   label: string;
   isClock: boolean;
@@ -75,17 +118,9 @@ export function usePromotionCountdown(endsAt: string | null | undefined): number
   }, [endsAt]);
 
   const nowMs = useSyncExternalStore(
-    (callback) => {
-      if (targetMs === null) {
-        return () => {};
-      }
-
-      const timer = window.setInterval(callback, 1000);
-
-      return () => window.clearInterval(timer);
-    },
-    () => Date.now(),
-    () => Date.now(),
+    targetMs === null ? noopSubscribe : subscribeToPromotionTicks,
+    getPromotionTickSnapshot,
+    getPromotionTickSnapshot,
   );
 
   if (targetMs === null) {

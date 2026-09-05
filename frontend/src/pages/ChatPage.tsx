@@ -28,6 +28,7 @@ import { confirmRemoveConversation } from '../lib/confirmDialog.ts';
 import { isNearContainerBottom, scrollContainerToBottom } from '../lib/chat/scroll.ts';
 import type { ChatMessage } from '../types/chat.ts';
 import { useToast } from '../hooks/useToast.ts';
+import { randomUUID } from '../lib/randomUUID.ts';
 import { isForbidden, parseApiError } from '../utils/errors.ts';
 import { ChatConnectionStatus } from '../components/chat/ChatConnectionStatus.tsx';
 import { ChatAttachmentDraft } from '../components/chat/ChatAttachmentDraft.tsx';
@@ -531,7 +532,7 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
       return;
     }
 
-    const idempotencyKey = retryMessage?.idempotency_key ?? retryMessage?.client_message_id ?? crypto.randomUUID();
+    const idempotencyKey = retryMessage?.idempotency_key ?? retryMessage?.client_message_id ?? randomUUID();
 
     if (!retryMessage) {
       setInput('');

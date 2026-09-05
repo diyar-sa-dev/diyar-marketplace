@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
+    "dev:prod-api": "vite --mode prod-api --port=3000 --host=0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",

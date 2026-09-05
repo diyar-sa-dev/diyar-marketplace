@@ -12,6 +12,8 @@ import {
 import { useLocale } from '../hooks/useLocale.ts';
 import { useToast } from '../hooks/useToast.ts';
 import { parseApiError } from '../utils/errors.ts';
+import { resolveSameOriginUrl } from '../lib/resolveSameOriginUrl.ts';
+import { randomUUID } from '../lib/randomUUID.ts';
 import {
   CHECKOUT_PAYMENT_METHODS,
   isApplePayDeviceAvailable,
@@ -23,7 +25,7 @@ import {
 } from '../lib/paymentMethods.ts';
 
 function newIdempotencyKey(): string {
-  return crypto.randomUUID();
+  return randomUUID();
 }
 
 export default function OrderPaymentPage() {
@@ -141,7 +143,7 @@ export default function OrderPaymentPage() {
       });
 
       if (result.payment_url) {
-        const target = new URL(result.payment_url, window.location.origin);
+        const target = resolveSameOriginUrl(result.payment_url);
         target.searchParams.set('attempt', result.attempt_id);
         window.location.href = target.toString();
         return;

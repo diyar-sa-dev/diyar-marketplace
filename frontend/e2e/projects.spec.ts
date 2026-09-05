@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { openSidebarProjects } from './helpers/sidebar.ts';
 
 test.describe('Sidebar projects journey', () => {
   test('opens projects modal, verifies API project, and opens detail', async ({ page }) => {
@@ -11,14 +12,7 @@ test.describe('Sidebar projects journey', () => {
     expect(firstProject?.slug).toBeTruthy();
 
     await page.goto('/');
-    await page.waitForTimeout(5500);
-    const closeAd = page.getByRole('button', { name: /close|إغلاق/i });
-    if (await closeAd.isVisible().catch(() => false)) {
-      await closeAd.click();
-    }
-
-    await page.locator('header button').first().click();
-    await page.getByRole('button', { name: /المشاريع|projects/i }).click();
+    await openSidebarProjects(page);
 
     const projectCard = page.getByRole('heading', { level: 4, name: firstProject!.title });
     await expect(projectCard).toBeVisible({ timeout: 30_000 });

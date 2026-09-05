@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Http\DiyarNetworkOrigins;
 use App\Support\Realtime\ReverbAllowedOrigins;
 
 return [
@@ -87,11 +88,8 @@ return [
                 'allowed_origins' => ReverbAllowedOrigins::resolve(
                     (string) env('APP_ENV', 'production'),
                     array_merge(
+                        DiyarNetworkOrigins::reverbOrigins(),
                         explode(',', (string) env('REVERB_ALLOWED_ORIGINS', '')),
-                        [
-                            env('FRONTEND_URL', 'http://localhost:3000'),
-                            env('DIYAR_FRONTEND_URL'),
-                        ],
                     ),
                 ),
                 'ping_interval' => env('REVERB_APP_PING_INTERVAL', 25),

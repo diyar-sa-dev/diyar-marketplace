@@ -113,6 +113,15 @@ class ProductEngagementService
             ->first();
     }
 
+    public function canUserReview(User $user, Product $product): bool
+    {
+        if ($this->findUserReview($user, $product) !== null) {
+            return false;
+        }
+
+        return $this->reviewEligibility->canCreateReview($user, $product);
+    }
+
     public function createReview(User $user, Product $product, int $rating, ?string $comment): ProductReview
     {
         if ($rating < 1 || $rating > 5) {

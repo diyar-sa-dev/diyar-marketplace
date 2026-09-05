@@ -595,10 +595,22 @@ return [
 
     'assistant' => [
         'enabled' => (bool) env('DIYAR_ASSISTANT_ENABLED', true),
+        'provider' => env('DIYAR_ASSISTANT_PROVIDER', 'openai'),
+        'use_fake' => filter_var(env('DIYAR_ASSISTANT_USE_FAKE', false), FILTER_VALIDATE_BOOL),
         'model' => env('DIYAR_OPENAI_MODEL', 'gpt-4o-mini'),
         'api_key' => env('OPENAI_API_KEY'),
         'max_tokens' => (int) env('DIYAR_ASSISTANT_MAX_TOKENS', 700),
         'verify_ssl' => filter_var(env('DIYAR_ASSISTANT_VERIFY_SSL', true), FILTER_VALIDATE_BOOL),
+        'openai' => [
+            'api_key' => env('OPENAI_API_KEY'),
+            'model' => env('DIYAR_OPENAI_MODEL', 'gpt-4o-mini'),
+            'temperature' => (float) env('DIYAR_OPENAI_TEMPERATURE', 0.7),
+        ],
+        'google' => [
+            'api_key' => env('GEMINI_API_KEY'),
+            'model' => env('DIYAR_GEMINI_MODEL', 'gemini-2.5-flash-lite'),
+            'temperature' => (float) env('DIYAR_GEMINI_TEMPERATURE', 0.7),
+        ],
     ],
 
     /*

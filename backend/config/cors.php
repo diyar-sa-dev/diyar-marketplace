@@ -1,5 +1,7 @@
 <?php
 
+use App\Support\Http\DiyarNetworkOrigins;
+
 return [
 
     /*
@@ -19,10 +21,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => array_values(array_unique(array_filter([
-        env('FRONTEND_URL', 'http://localhost:3000'),
-        env('DIYAR_FRONTEND_URL'),
-    ]))),
+    'allowed_origins' => DiyarNetworkOrigins::corsOrigins(),
 
     'allowed_origins_patterns' => [],
 

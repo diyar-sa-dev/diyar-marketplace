@@ -17,6 +17,7 @@ use App\Services\Payments\DTO\PaymentMethodsRequest;
 use App\Services\Payments\DTO\PaymentSessionResult;
 use App\Services\Payments\Exceptions\PaymentGatewayException;
 use App\Services\Payments\Gateways\FakePaymentGateway;
+use App\Support\Http\FrontendOrigin;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -289,8 +290,7 @@ final class PaymentApplicationService
         }
 
         $finalizer = app(PaymentFinalizationService::class);
-        $frontend = rtrim((string) config('diyar.frontend_url'), '/');
-        $redirectBase = $frontend.'/orders?highlight='.$order->id;
+        $redirectBase = FrontendOrigin::url('/orders?highlight='.$order->id);
 
         $payment = match ($outcome) {
             'success' => $finalizer->finalizePaid(

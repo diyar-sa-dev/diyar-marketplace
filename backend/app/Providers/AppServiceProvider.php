@@ -60,6 +60,12 @@ class AppServiceProvider extends ServiceProvider
             );
         }
 
+        if (app()->environment('production') && config('diyar.assistant.use_fake')) {
+            throw new \RuntimeException(
+                'DIYAR_ASSISTANT_USE_FAKE cannot be enabled in production.'
+            );
+        }
+
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute((int) env('API_RATE_LIMIT_PER_MINUTE', 60))
                 ->by($request->user()?->id ?: $request->ip());

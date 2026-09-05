@@ -25,6 +25,10 @@ class AssistantChatService
             throw new RuntimeException('assistant_disabled');
         }
 
+        if ($this->useFakeAssistant()) {
+            return $this->fakeReply($messages, $locale);
+        }
+
         $apiKey = $this->resolveApiKey();
         if ($apiKey === null) {
             throw new RuntimeException('assistant_not_configured');
@@ -44,6 +48,35 @@ class AssistantChatService
             'platform.assistant_enabled',
             (bool) config('diyar.assistant.enabled', false),
         );
+    }
+
+    private function useFakeAssistant(): bool
+    {
+        return (bool) config('diyar.assistant.use_fake', false);
+    }
+
+    /**
+     * @param  array<int, array{role: string, content: string, image?: string|null}>  $messages
+     */
+    private function fakeReply(array $messages, string $locale): string
+    {
+        $lastUser = '';
+        foreach (array_reverse($messages) as $message) {
+            if (($message['role'] ?? '') === 'user') {
+                $lastUser = trim((string) ($message['content'] ?? ''));
+                break;
+            }
+        }
+
+        if ($locale === 'en') {
+            return $lastUser === ''
+                ? 'Welcome to DIYAR design assistant (local demo mode). Tell me about your room or style preferences.'
+                : "Thanks for sharing. In local demo mode I cannot call OpenAI yet, but I can help you browse Diyar catalog for: {$lastUser}";
+        }
+
+        return $lastUser === ''
+            ? 'مرحباً بك في مساعد ديار للتصميم (وضع تجريبي محلي). أخبرني عن غرفتك أو ذوقك في الأثاث.'
+            : "شكراً لمشاركتك. في الوضع التجريبي المحلي لا أتصل بـ OpenAI بعد، لكن يمكنني مساعدتك في تصفح منتجات ديار بخصوص: {$lastUser}";
     }
 
     /**

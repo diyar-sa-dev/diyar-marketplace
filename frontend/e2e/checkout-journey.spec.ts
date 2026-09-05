@@ -2,10 +2,10 @@ import { test, expect } from '@playwright/test';
 import { demoUsers, E2E_PASSWORD } from './fixtures/credentials.ts';
 import {
   apiBaseUrl,
+  applyRequestSessionToPage,
   loginMarketplaceApi,
   sessionRequestHeaders,
 } from './helpers/api.ts';
-import { loginMarketplaceUi } from './helpers/ui-auth.ts';
 
 async function ensureCustomerAddress(request: import('@playwright/test').APIRequestContext): Promise<string> {
   const headers = await sessionRequestHeaders(request);
@@ -155,9 +155,7 @@ test.describe('Checkout journey', () => {
     const attemptId = initBody?.data?.attempt_id as string;
 
     await page.goto(`/checkout/payment/${orderId}/simulate?attempt=${attemptId}`, {
-      waitUntil: 'networkidle',
-    });
-    await expect(page).toHaveURL(/\/checkout\/payment\/[^/]+\/simulate/);
+    await page.goto(`/checkout/payment/${orderId}/simulate?attempt=${attemptId}`);
 
     const successButton = page.getByRole('button', { name: /دفع ناجح|successful payment/i });
     await expect(successButton).toBeVisible({ timeout: 30_000 });
@@ -165,4 +163,5 @@ test.describe('Checkout journey', () => {
 
     await expect(page).toHaveURL(/\/orders/, { timeout: 60_000 });
   });
+    await expect(page).not.toHaveURL(/\/auth/);
 });

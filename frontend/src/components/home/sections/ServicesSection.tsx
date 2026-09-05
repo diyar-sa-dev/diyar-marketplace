@@ -20,7 +20,7 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
-import { RailArrows } from './RailArrows.tsx';
+import { HorizontalRail } from './HorizontalRail.tsx';
 import {
   Star,
   Quote,
@@ -97,7 +97,7 @@ export function ServicesSection() {
           </div>
           <Link
             to="/services"
-            className="hidden md:flex text-diyar-brown font-bold items-center gap-2 hover:text-diyar-dark transition cursor-pointer"
+            className="text-diyar-brown font-bold flex items-center gap-2 hover:text-diyar-dark transition cursor-pointer text-sm md:text-base shrink-0"
           >
             {t('home.diyarServices.viewAll')} <ViewAllIcon size={18} />
           </Link>
@@ -117,29 +117,29 @@ export function ServicesSection() {
             icon={Paintbrush}
           />
         ) : (
-          <div className="flex overflow-x-auto gap-4 md:grid md:grid-cols-5 pb-4 scrollbar-hide snap-x pt-2">
+          <HorizontalRail className="flex overflow-x-auto gap-4 md:grid md:grid-cols-5 pb-2 scrollbar-hide snap-x pt-1">
             {(serviceCategories ?? []).slice(0, 10).map((category) => (
-              <Link
-                to={`/category/${category.slug}`}
-                key={category.id}
-                className="min-w-56 md:min-w-0 bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all snap-start group cursor-pointer"
-              >
-                <div className="h-36 relative overflow-hidden bg-diyar-brown/10">
-                  <img
-                    src={STATIC_IMG[category.slug] ?? '/logo_diyar.svg'}
-                    alt={category.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-diyar-dark text-base">{category.name}</h3>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {t('home.diyarServices.browseCategory')}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
+                <Link
+                  to={`/category/${category.slug}`}
+                  key={category.id}
+                  className="min-w-56 md:min-w-0 bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all snap-start group cursor-pointer shrink-0"
+                >
+                  <div className="h-36 relative overflow-hidden bg-diyar-brown/10">
+                    <img
+                      src={STATIC_IMG[category.slug] ?? '/logo_diyar.svg'}
+                      alt={category.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-bold text-diyar-dark text-base">{category.name}</h3>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {t('home.diyarServices.browseCategory')}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+          </HorizontalRail>
         )}
 
         {!showEmpty &&

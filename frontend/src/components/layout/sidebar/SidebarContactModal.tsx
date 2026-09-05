@@ -8,6 +8,7 @@ import {
   getPlatformSupportPhoneDisplay,
   getPlatformSupportTelHref,
 } from '../../../lib/platformContact.ts';
+import { useBodyScrollLock } from '../../../hooks/useBodyScrollLock.ts';
 import { validateConsultationForm } from '../../../lib/platformForms.ts';
 import { saveConsultationRequest } from '../../../lib/consultationStorage.ts';
 import { submitConsultation } from '../../../api/platform.ts';
@@ -29,6 +30,8 @@ export function SidebarContactModal({ onClose }: SidebarContactModalProps) {
   const [contactSubmitting, setContactSubmitting] = useState(false);
   const [contactError, setContactError] = useState<string | null>(null);
   const [contactFieldErrors, setContactFieldErrors] = useState<Record<string, string>>({});
+
+  useBodyScrollLock(true);
 
   const handleContactSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -75,8 +78,14 @@ export function SidebarContactModal({ onClose }: SidebarContactModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/75 z-100 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white text-diyar-dark rounded-t-3xl sm:rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative max-h-[94vh] sm:max-h-[90vh] flex flex-col">
+    <div
+      className="fixed inset-0 bg-black/75 z-100 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm animate-in fade-in duration-200 overscroll-none"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white text-diyar-dark rounded-t-3xl sm:rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative max-h-[94vh] sm:max-h-[90vh] flex flex-col"
+        onClick={(event) => event.stopPropagation()}
+      >
         <button
           onClick={onClose}
           className="absolute top-4 end-4 bg-white hover:bg-gray-100 text-gray-500 hover:text-black p-2 rounded-full shadow-md z-10 transition-colors border border-gray-200 cursor-pointer"
@@ -86,7 +95,7 @@ export function SidebarContactModal({ onClose }: SidebarContactModalProps) {
           <X size={18} />
         </button>
 
-        <div className="flex-1 overflow-y-auto flex flex-col lg:flex-row">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y flex flex-col lg:flex-row">
           <div className="bg-linear-to-br from-[#132624] to-[#1a3330] text-white p-6 sm:p-8 lg:w-[38%] shrink-0">
             <PhoneCall className="w-10 h-10 text-diyar-brown mb-4" />
             <h4 className="text-xl font-bold mb-2 text-diyar-cream leading-snug">

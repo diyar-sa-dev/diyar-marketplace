@@ -24,6 +24,14 @@ if (!preg_match('/^DIYAR_LOADTEST_MODE=/m', \$env)) {
 } else {
   \$env = preg_replace('/^DIYAR_LOADTEST_MODE=.*/m', 'DIYAR_LOADTEST_MODE=true', \$env);
 }
+\$env = preg_replace('/^FRONTEND_URL=.*/m', 'FRONTEND_URL=http://127.0.0.1:3000', \$env);
+\$env = preg_replace('/^DIYAR_FRONTEND_URL=.*/m', 'DIYAR_FRONTEND_URL=http://127.0.0.1:3000', \$env);
+if (!preg_match('/^FRONTEND_URL=/m', \$env)) {
+  \$env .= \"\\nFRONTEND_URL=http://127.0.0.1:3000\\n\";
+}
+if (!preg_match('/^DIYAR_FRONTEND_URL=/m', \$env)) {
+  \$env .= \"\\nDIYAR_FRONTEND_URL=http://127.0.0.1:3000\\n\";
+}
 file_put_contents('.env', \$env);
 "
 

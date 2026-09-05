@@ -11,7 +11,8 @@ import {
 import { useLocation } from 'react-router-dom';
 import * as authApi from '../api/auth.ts';
 import { registerUnauthorizedHandler } from '../lib/auth/sessionEvents.ts';
-import { resetCsrfCookie } from '../lib/csrf.ts';
+import { ensureCsrfCookie, resetCsrfCookie } from '../lib/csrf.ts';
+import { isPaymentAuthRecoveryPath } from '../lib/auth/paymentAuthRecovery.ts';
 import { shouldRemoveQueryOnSessionClear } from '../lib/auth/queryKeys.ts';
 import { queryClient } from '../lib/queryClient.ts';
 import { mergeCart } from '../api/cart.ts';
@@ -80,6 +81,28 @@ async function mergeGuestCartAfterAuth(showWarning: (message: string) => void): 
   }
 }
 
+async function fetchCurrentUserWithRecovery(recover: boolean): Promise<AuthUser | null> {
+  if (!recover) {
+    return authApi.fetchCurrentUser();
+  }
+
+  await ensureCsrfCookie();
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const currentUser = await authApi.fetchCurrentUser();
+    if (currentUser !== null) {
+      return currentUser;
+    }
+
+    if (attempt < 2) {
+      await new Promise((resolve) => window.setTimeout(resolve, 250 * (attempt + 1)));
+      await ensureCsrfCookie();
+    }
+  }
+
+  return null;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -112,6 +135,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return refreshInFlightRef.current;
     }
 
+    const recover = isPaymentAuthRecoveryPath(location.pathname, location.search);
+
     const run = (async (): Promise<AuthUser | null> => {
       setStatus((current) => {
         if (current === 'authenticated' || current === 'unauthenticated') {
@@ -122,10 +147,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       try {
-        const currentUser = await authApi.fetchCurrentUser();
+        const currentUser = await fetchCurrentUserWithRecovery(recover);
 
         if (currentUser === null) {
+          let preservedUser: AuthUser | null = null;
+
           setUser((current) => {
+            if (recover && current !== null) {
+              preservedUser = current;
+              return current;
+            }
+
             if (current === null) {
               setStatus('unauthenticated');
               return current;
@@ -139,6 +171,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setStatus('unauthenticated');
             return null;
           });
+
+          if (preservedUser !== null) {
+            setStatus('authenticated');
+            return preservedUser;
+          }
 
           return null;
         }
@@ -167,7 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       refreshInFlightRef.current = null;
     }
-  }, [clearSession]);
+  }, [clearSession, location.pathname, location.search]);
 
   useEffect(() => {
     const inAdmin = isAdminArea(location.pathname);
@@ -179,17 +216,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const paymentRecovery = isPaymentAuthRecoveryPath(location.pathname, location.search);
     const shouldBootstrap =
-      !marketplaceBootstrapDoneRef.current || wasInAdminRef.current;
+      !marketplaceBootstrapDoneRef.current || wasInAdminRef.current || paymentRecovery;
 
     if (!shouldBootstrap) {
       return;
     }
 
-    marketplaceBootstrapDoneRef.current = true;
+    if (!paymentRecovery) {
+      marketplaceBootstrapDoneRef.current = true;
+    }
     wasInAdminRef.current = false;
     void refreshUser();
-  }, [location.pathname, refreshUser]);
+  }, [location.pathname, location.search, refreshUser]);
 
   const updateUser = useCallback((next: AuthUser) => {
     setUser(next);

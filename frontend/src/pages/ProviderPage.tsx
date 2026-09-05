@@ -26,7 +26,9 @@ import {
 import { formatTimeRange } from '../lib/formatTimeRange.ts';
 import { ProviderReviewsTab } from '../components/provider/ProviderReviewsTab.tsx';
 import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
+import { UserAvatar } from '../components/profile/UserAvatar.tsx';
 import { SERVICE_IMAGE_FALLBACK } from '../lib/services/serviceUi.ts';
+import { resolveMediaUrl } from '../lib/media.ts';
 import { useStartChat } from '../hooks/chat/useStartChat.ts';
 import { EmptyState } from '../components/common/EmptyState.tsx';
 import { isNotFoundError } from '../utils/errors.ts';
@@ -135,21 +137,24 @@ export default function ProviderPage() {
   const policyItems = provider.work_policy_summary ?? [];
   const shareUrl =
     typeof window !== 'undefined' ? `${window.location.origin}/provider/${provider.slug}` : '';
+  const coverUrl = resolveMediaUrl(provider.cover_url) ?? SERVICE_IMAGE_FALLBACK;
+  const avatarUrl = resolveMediaUrl(provider.avatar_url);
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-16" dir={dir}>
+    <div className="bg-gray-50 min-h-screen pb-16 overflow-x-hidden" dir={dir}>
       <div
         className="w-full h-48 md:h-80 relative bg-diyar-dark cursor-pointer group"
         onClick={() => setIsGalleryOpen(true)}
       >
         <img
-          src={provider.cover_url || SERVICE_IMAGE_FALLBACK}
+          src={coverUrl}
           alt={provider.display_name}
-          className="w-full h-full object-cover opacity-80 group-hover:opacity-70 transition-opacity"
+          className="w-full h-full object-cover opacity-80 group-hover:opacity-70 transition-opacity bg-diyar-dark"
           referrerPolicy="no-referrer"
+          loading="eager"
+          decoding="async"
           onError={(e) => {
-            (e.target as HTMLImageElement).src =
-              'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=1200';
+            (e.target as HTMLImageElement).src = SERVICE_IMAGE_FALLBACK;
           }}
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
@@ -168,20 +173,16 @@ export default function ProviderPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 p-6 -mt-16 md:-mt-24 mb-8 z-10">
           <div className="flex flex-col md:flex-row gap-6 md:items-end">
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl md:rounded-2xl border-4 border-white shadow-md overflow-hidden bg-white shrink-0 -mt-16 md:-mt-20">
-              <img
-                src={provider.avatar_url || SERVICE_IMAGE_FALLBACK}
-                alt={provider.display_name}
-                className="w-full h-full object-cover bg-white"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=200';
-                }}
+            <div className="w-24 h-24 md:w-32 md:h-32 shrink-0 self-start -mt-16 md:-mt-20">
+              <UserAvatar
+                name={provider.display_name}
+                avatarUrl={avatarUrl}
+                shape="square"
+                className="w-full h-full text-2xl md:text-3xl"
               />
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark">
                   {provider.display_name}
@@ -308,7 +309,7 @@ export default function ProviderPage() {
           </div>
 
           <div className="md:col-span-3">
-            <div className="flex border-b border-gray-200 mb-6 font-medium text-sm md:text-base">
+            <div className="flex overflow-x-auto border-b border-gray-200 mb-6 font-medium text-sm md:text-base scrollbar-hide -mx-1 px-1">
               {(
                 [
                   {
@@ -332,13 +333,13 @@ export default function ProviderPage() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-3 px-6 shrink-0 transition-colors cursor-pointer ${
+                  className={`py-3 px-4 sm:px-6 shrink-0 transition-colors cursor-pointer ${
                     activeTab === tab.id
                       ? 'border-b-2 border-diyar-brown text-diyar-brown font-bold'
                       : 'text-gray-500 hover:text-diyar-dark'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 whitespace-nowrap">
                     <tab.icon size={18} />
                     {tab.label}
                   </div>
@@ -463,7 +464,7 @@ export default function ProviderPage() {
               <ProviderReviewsTab
                 slug={provider.slug}
                 providerName={provider.display_name}
-                providerAvatarUrl={provider.avatar_url}
+                providerAvatarUrl={avatarUrl ?? provider.avatar_url}
               />
             )}
           </div>
@@ -483,13 +484,13 @@ export default function ProviderPage() {
           <div className="relative w-full max-w-5xl mx-auto">
             <div className="aspect-4/3 md:aspect-video rounded-2xl overflow-hidden shadow-2xl relative bg-black flex items-center justify-center">
               <img
-                src={provider.cover_url || SERVICE_IMAGE_FALLBACK}
+                src={coverUrl}
                 alt={provider.display_name}
                 className="max-w-full max-h-full object-contain"
                 referrerPolicy="no-referrer"
+                decoding="async"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'https://images.unsplash.com/photo-1616137422495-1e9e46e2aa77?auto=format&fit=crop&q=80&w=800';
+                  (e.target as HTMLImageElement).src = SERVICE_IMAGE_FALLBACK;
                 }}
               />
             </div>

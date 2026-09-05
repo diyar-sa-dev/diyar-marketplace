@@ -308,7 +308,6 @@ export async function uploadProviderAvatar(file: File): Promise<ProviderSettings
   const { data } = await apiClient.post<ApiSuccessResponse<{ settings: ProviderSettings }>>(
     '/dashboard/provider/settings/avatar',
     formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } },
   );
   return data.data.settings;
 }

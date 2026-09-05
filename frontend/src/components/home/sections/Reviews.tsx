@@ -20,7 +20,7 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
-import { RailArrows } from './RailArrows.tsx';
+import { HorizontalRail } from './HorizontalRail.tsx';
 import {
   Star,
   Quote,
@@ -77,11 +77,11 @@ export function Reviews() {
         <h2 className="text-xl md:text-3xl font-sans font-bold mb-6 md:mb-8 text-center">
           {t('home.reviews.title')}
         </h2>
-        <div className="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x">
+        <HorizontalRail className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 overflow-x-auto pb-2 scrollbar-hide snap-x">
           {reviews.map((r, i) => (
             <div
               key={i}
-              className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 relative min-w-70 md:min-w-0 snap-start shrink-0 flex flex-col"
+              className="bg-white p-5 md:p-8 rounded-xl shadow-sm border border-gray-100 relative min-w-[min(100%,18rem)] sm:min-w-72 md:min-w-0 snap-start shrink-0 flex flex-col"
             >
               <Quote className="absolute top-6 inset-e-6 text-diyar-cream w-8 md:w-12 h-8 md:h-12 opacity-50 z-0" />
               <div className="relative z-10 flex flex-col h-full">
@@ -104,7 +104,7 @@ export function Reviews() {
               </div>
             </div>
           ))}
-        </div>
+        </HorizontalRail>
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
-import { RailArrows } from './RailArrows.tsx';
+import { HorizontalRail } from './HorizontalRail.tsx';
 import {
   Star,
   Quote,
@@ -83,21 +83,23 @@ export function BestSellers() {
           {t('home.bestSellers.viewAll')}
         </Link>
       </div>
-      <div className="flex gap-2 md:gap-3 mb-6 md:mb-8 overflow-x-auto scrollbar-hide snap-x justify-start md:justify-center pb-1">
-        {tabs.map((item, i) => (
-          <button
-            key={item.labelKey}
-            type="button"
-            onClick={() => setTab(i)}
-            className={`px-4 md:px-6 py-2 rounded-full transition whitespace-nowrap snap-start text-sm md:text-base cursor-pointer ${
-              tab === i
-                ? 'bg-diyar-brown text-white shadow-md shadow-diyar-brown/20'
-                : 'bg-diyar-cream text-diyar-dark hover:bg-diyar-brown/15 border border-transparent hover:border-diyar-brown/20'
-            }`}
-          >
-            {t(item.labelKey)}
-          </button>
-        ))}
+      <div className="mb-6 md:mb-8">
+        <div className="flex gap-2 md:gap-3 overflow-x-auto scrollbar-hide snap-x justify-start md:justify-center pb-1">
+          {tabs.map((item, i) => (
+            <button
+              key={item.labelKey}
+              type="button"
+              onClick={() => setTab(i)}
+              className={`px-4 md:px-6 py-2 rounded-full transition whitespace-nowrap snap-start text-sm md:text-base cursor-pointer ${
+                tab === i
+                  ? 'bg-diyar-brown text-white shadow-md shadow-diyar-brown/20'
+                  : 'bg-diyar-cream text-diyar-dark hover:bg-diyar-brown/15 border border-transparent hover:border-diyar-brown/20'
+              }`}
+            >
+              {t(item.labelKey)}
+            </button>
+          ))}
+        </div>
       </div>
 
       {showEmpty ? (
@@ -108,7 +110,9 @@ export function BestSellers() {
           browseTo="/category/all?sort=-popular"
         />
       ) : (
-        <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
+        <HorizontalRail
+          className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-2"
+        >
           {isLoading
             ? [...Array(5)].map((_, i) => (
                 <div key={i} className="w-50 md:w-auto shrink-0 snap-start">
@@ -120,7 +124,7 @@ export function BestSellers() {
                   <ProductCard product={p} />
                 </div>
               ))}
-        </div>
+        </HorizontalRail>
       )}
     </div>
   );

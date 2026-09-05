@@ -98,7 +98,7 @@ export function NotificationBellDropdown({
             </div>
 
             <div className="max-h-[min(20rem,60vh)] overflow-y-auto">
-              {listQuery.isLoading ? (
+              {listQuery.isLoading && items.length === 0 ? (
                 <NotificationSkeleton count={3} compact />
               ) : items.length === 0 ? (
                 <div className="p-8 text-center text-sm text-gray-500">{t('notifications.empty')}</div>

@@ -20,7 +20,7 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
-import { RailArrows } from './RailArrows.tsx';
+import { HorizontalRail } from './HorizontalRail.tsx';
 import {
   Star,
   Quote,
@@ -56,7 +56,6 @@ export function NewArrivals() {
   const { t, dir } = useLocale();
   const { data, isLoading } = useProducts({ per_page: 6, sort: '-created_at' });
   const products = data?.items.map(mapProductCard) ?? [];
-  const railRef = useRef<HTMLDivElement>(null);
   const showEmpty = !isLoading && products.length === 0;
   const ViewAllIcon = dir === 'rtl' ? ChevronLeft : ArrowLeft;
   return (
@@ -79,25 +78,19 @@ export function NewArrivals() {
             browseTo="/category/all?sort=-created_at"
           />
         ) : (
-          <div className="relative">
-            <RailArrows scroller={railRef} />
-            <div
-              ref={railRef}
-              className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6"
-            >
-              {isLoading
-                ? [...Array(4)].map((_, i) => (
-                    <div key={i} className="w-50 md:w-57.5 shrink-0 snap-start">
-                      <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
-                    </div>
-                  ))
-                : products.map((p) => (
-                    <div className="w-50 md:w-57.5 shrink-0 snap-start" key={p.id}>
-                      <ProductCard product={p} />
-                    </div>
-                  ))}
-            </div>
-          </div>
+          <HorizontalRail className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-2">
+            {isLoading
+              ? [...Array(4)].map((_, i) => (
+                  <div key={i} className="w-50 md:w-57.5 shrink-0 snap-start">
+                    <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+                  </div>
+                ))
+              : products.map((p) => (
+                  <div className="w-50 md:w-57.5 shrink-0 snap-start" key={p.id}>
+                    <ProductCard product={p} />
+                  </div>
+                ))}
+          </HorizontalRail>
         )}
       </div>
     </div>

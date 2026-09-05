@@ -7,6 +7,18 @@ import { defineConfig, type Plugin } from 'vite';
 const frontendRoot = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(frontendRoot, '..');
 const cdnBase = process.env.VITE_CDN_BASE_URL?.replace(/\/$/, '');
+/** Local prod stack: scripts/local/start-frontend-prod-api.ps1 sets this to http://<LAN-IP>:8093 */
+const apiProxyTarget = process.env.DIYAR_API_PROXY_TARGET?.replace(/\/$/, '') ?? 'http://localhost:8000';
+const reverbProxyTarget =
+  process.env.DIYAR_REVERB_PROXY_TARGET?.replace(/\/$/, '') ?? apiProxyTarget;
+
+function apiProxyOptions() {
+  return {
+    target: apiProxyTarget,
+    changeOrigin: true,
+    secure: false,
+  };
+}
 
 /** Reverb WebSocket lives at `/app/{key}` — proxy only that prefix, not `/app-mockup.png`. */
 function reverbProxyOptions(target: string) {
@@ -89,27 +101,11 @@ export default defineConfig({
     port: 3000,
     host: '0.0.0.0',
     proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/sanctum': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/broadcasting': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/app/': reverbProxyOptions('http://localhost:8090'),
-      '/storage': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        secure: false,
-      },
+      '/api': apiProxyOptions(),
+      '/sanctum': apiProxyOptions(),
+      '/broadcasting': apiProxyOptions(),
+      '/app/': reverbProxyOptions(reverbProxyTarget),
+      '/storage': apiProxyOptions(),
     },
     watch: {
       ignored: [
@@ -124,27 +120,11 @@ export default defineConfig({
     port: 3000,
     host: '0.0.0.0',
     proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/sanctum': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/broadcasting': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/app/': reverbProxyOptions('http://localhost:8090'),
-      '/storage': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        secure: false,
-      },
+      '/api': apiProxyOptions(),
+      '/sanctum': apiProxyOptions(),
+      '/broadcasting': apiProxyOptions(),
+      '/app/': reverbProxyOptions(reverbProxyTarget),
+      '/storage': apiProxyOptions(),
     },
   },
 });

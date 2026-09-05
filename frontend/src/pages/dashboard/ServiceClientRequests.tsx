@@ -301,7 +301,7 @@ export default function ServiceClientRequests() {
                 <Link
                   to={href}
                   key={request.id}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col p-5 group focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent cursor-pointer"
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col p-5 group focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent cursor-pointer min-w-0 overflow-hidden"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg truncate max-w-37.5">
@@ -312,13 +312,13 @@ export default function ServiceClientRequests() {
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-gray-800 mb-2 truncate group-hover:text-blue-600 transition-colors">
+                  <h3 className="font-bold text-gray-800 mb-2 line-clamp-2 break-words group-hover:text-blue-600 transition-colors">
                     {t('providerDashboard.clientRequests.requestFrom', {
                       name: request.customer?.name ?? t('providerDashboard.common.client'),
                     })}
                   </h3>
 
-                  <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-1">
+                  <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-1 break-words overflow-hidden">
                     {request.description}
                   </p>
 

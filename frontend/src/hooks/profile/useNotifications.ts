@@ -21,7 +21,7 @@ export const notificationKeys = {
 
 const RECONCILE_MS = 120_000;
 const RECONCILE_HIDDEN_MS = 300_000;
-const LIST_STALE_MS = 20_000;
+export const LIST_STALE_MS = 20_000;
 const UNREAD_STALE_MS = 10_000;
 
 export async function reconcileNotifications(
@@ -30,7 +30,12 @@ export async function reconcileNotifications(
   try {
     const unreadCount = await fetchUnreadNotificationCount();
     queryClient.setQueryData(notificationKeys.unreadCount(), unreadCount);
-    await queryClient.invalidateQueries({ queryKey: notificationKeys.list(1, 'all', null, 20) });
+    await queryClient.invalidateQueries({
+      predicate: (query) =>
+        Array.isArray(query.queryKey) &&
+        query.queryKey[0] === notificationKeys.all[0] &&
+        query.queryKey[1] === 'list',
+    });
   } catch {
     // Keep last known state when reconciliation fails.
   }

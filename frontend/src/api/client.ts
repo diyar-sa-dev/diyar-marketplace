@@ -78,6 +78,10 @@ function shouldNotifyUnauthorized(url: string | undefined): boolean {
     '/auth/forgot-password',
     '/auth/reset-password',
     '/cart/merge',
+    '/orders',
+    '/checkout',
+    '/payments',
+    '/payment',
   ];
 
   return !ignored.some((segment) => url.includes(segment));

@@ -3,6 +3,7 @@ import { X, ChevronLeft, FolderGit2, MapPin } from 'lucide-react';
 import { useProjects } from '../../../hooks/projects/useProjects.ts';
 import { useProject } from '../../../hooks/projects/useProject.ts';
 import { useLocale } from '../../../hooks/useLocale.ts';
+import { useBodyScrollLock } from '../../../hooks/useBodyScrollLock.ts';
 import {
   ProjectShowcaseDetailSkeleton,
   ProjectShowcaseListSkeleton,
@@ -28,12 +29,21 @@ export function SidebarProjectsModal({ onClose }: SidebarProjectsModalProps) {
     },
   );
 
+  useBodyScrollLock(true);
+
   return (
     <div
-      className="fixed inset-0 bg-black/80 z-100 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-250"
+      className="fixed inset-0 bg-black/80 z-100 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-250 overscroll-none"
       dir={dir}
+      onClick={() => {
+        onClose();
+        setSelectedProjectSlug(null);
+      }}
     >
-      <div className="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
+      <div
+        className="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col"
+        onClick={(event) => event.stopPropagation()}
+      >
         <button
           onClick={() => {
             onClose();
@@ -56,7 +66,7 @@ export function SidebarProjectsModal({ onClose }: SidebarProjectsModalProps) {
           </p>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-hide bg-gray-50">
+        <div className="flex-1 overflow-y-auto overscroll-contain touch-pan-y p-6 space-y-8 scrollbar-hide bg-gray-50 min-h-0">
           {selectedProjectSlug && selectedProject ? (
             <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
               <div className="w-full h-56 md:h-72 relative">

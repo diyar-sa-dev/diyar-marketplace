@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\WebsiteFeedback;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\WebsiteFeedback */
+/** @mixin WebsiteFeedback */
 class WebsiteFeedbackResource extends JsonResource
 {
     /**

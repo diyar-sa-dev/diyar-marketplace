@@ -34,6 +34,7 @@ import {
   formatAnalyticsAxisLabel,
 } from '../../lib/formatAnalyticsAxisLabel.ts';
 import { useToast } from '../../hooks/useToast.ts';
+import { randomUUID } from '../../lib/randomUUID.ts';
 import { parseApiError } from '../../utils/errors.ts';
 import { AffiliatePlatformHints } from '../../components/affiliate/AffiliatePlatformHints.tsx';
 import type { AffiliateFinanceTransaction, AffiliateReportPeriod } from '../../types/affiliate.ts';
@@ -191,7 +192,7 @@ export default function AffiliatePayouts() {
     try {
       await requestPayout.mutateAsync({
         amount: withdrawValue.toFixed(2),
-        idempotencyKey: crypto.randomUUID(),
+        idempotencyKey: randomUUID(),
       });
       toast.success(t('affiliate.payoutRequested'));
       closeWithdrawModal();

@@ -6,8 +6,9 @@ import { useOrders } from '../hooks/checkout/useCheckout.ts';
 import { useOrderPayment } from '../hooks/payment/usePayment.ts';
 import { fetchPaymentCallback } from '../api/payment.ts';
 import { useLocale } from '../hooks/useLocale.ts';
-import { usePaginationState } from '../hooks/usePaginationState.ts';
+import { useAuthContext } from '../context/AuthContext.tsx';
 import { useToast } from '../hooks/useToast.ts';
+import { usePaginationState } from '../hooks/usePaginationState.ts';
 import {
   paymentOutcomeToHighlightTone,
   showPaymentOutcomeAlert,
@@ -407,6 +408,7 @@ function OrderCard({
 export default function OrdersPage() {
   const { t, locale, dir } = useLocale();
   const { toast } = useToast();
+  const { refreshUser } = useAuthContext();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -449,6 +451,14 @@ export default function OrdersPage() {
       window.setTimeout(() => setHighlightTone(null), 5000);
     });
   };
+
+  useEffect(() => {
+    if (!paymentCallback) {
+      return;
+    }
+
+    void refreshUser();
+  }, [paymentCallback, refreshUser]);
 
   useEffect(() => {
     if (!paymentCallback || !highlightId || callbackHandledRef.current) {

@@ -20,7 +20,7 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
-import { RailArrows } from './RailArrows.tsx';
+import { HorizontalRail } from './HorizontalRail.tsx';
 import {
   Star,
   Quote,
@@ -81,7 +81,7 @@ export function SuggestedForYou() {
           browseTo="/category/all?sort=-popular"
         />
       ) : (
-        <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
+        <HorizontalRail className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-2">
           {isLoading
             ? [...Array(5)].map((_, i) => (
                 <div key={i} className="w-50 md:w-auto shrink-0 snap-start">
@@ -93,7 +93,7 @@ export function SuggestedForYou() {
                   <ProductCard product={p} />
                 </div>
               ))}
-        </div>
+        </HorizontalRail>
       )}
     </div>
   );

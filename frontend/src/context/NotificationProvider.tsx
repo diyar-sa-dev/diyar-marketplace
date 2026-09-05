@@ -18,7 +18,8 @@ import {
   prepareRealtimeConnection,
   type RealtimeConnectionState,
 } from '../lib/realtime/echo.ts';
-import { notificationKeys, reconcileNotifications } from '../hooks/profile/useNotifications.ts';
+import { notificationKeys, reconcileNotifications, LIST_STALE_MS } from '../hooks/profile/useNotifications.ts';
+import { fetchNotifications } from '../api/notifications.ts';
 import { chatKeys } from '../hooks/chat/useChat.ts';
 import { bumpConversationPreview } from '../lib/chat/conversationListCache.ts';
 
@@ -92,7 +93,19 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         prependIfNew: boolean,
       ) => {
         if (!current?.notifications) {
-          return current;
+          if (!prependIfNew) {
+            return current;
+          }
+
+          return {
+            notifications: [notification],
+            pagination: {
+              total: 1,
+              current_page: 1,
+              last_page: 1,
+              per_page: 20,
+            },
+          };
         }
 
         const existingIndex = current.notifications.findIndex((item) => item.id === notification.id);
@@ -117,21 +130,18 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         };
       };
 
+      const listPredicate = (query: { queryKey: unknown }) =>
+        Array.isArray(query.queryKey) &&
+        query.queryKey[0] === notificationKeys.all[0] &&
+        query.queryKey[1] === 'list' &&
+        query.queryKey[2] === 1 &&
+        query.queryKey[3] === 'all' &&
+        (query.queryKey[4] === null || query.queryKey[4] === 'all');
+
       queryClient.setQueriesData<{
         notifications: Notification[];
         pagination: { total: number; current_page: number; last_page: number; per_page: number };
-      }>(
-        {
-          predicate: (query) =>
-            Array.isArray(query.queryKey) &&
-            query.queryKey[0] === notificationKeys.all[0] &&
-            query.queryKey[1] === 'list' &&
-            query.queryKey[2] === 1 &&
-            query.queryKey[3] === 'all' &&
-            (query.queryKey[4] === null || query.queryKey[4] === 'all'),
-        },
-        (current) => applyToList(current, true),
-      );
+      }>({ predicate: listPredicate }, (current) => applyToList(current, true));
 
       if (!notification.is_read) {
         queryClient.setQueriesData<{
@@ -231,6 +241,13 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             const notificationPayload = payload as NotificationCreatedPayload;
             const notification = toUserNotification(notificationPayload);
             upsertNotification(notification);
+
+            void queryClient.prefetchQuery({
+              queryKey: notificationKeys.list(1, 'all', null, 5),
+              queryFn: () =>
+                fetchNotifications({ page: 1, perPage: 5, status: 'all', category: null }),
+              staleTime: LIST_STALE_MS,
+            });
 
             if (
               notificationPayload.type === 'chat.message_received' ||

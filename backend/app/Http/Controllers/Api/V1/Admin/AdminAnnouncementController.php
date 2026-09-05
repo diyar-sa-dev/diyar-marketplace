@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Enums\SystemSettingGroup;
+use App\Enums\SystemSettingType;
 use App\Http\Controllers\Controller;
 use App\Services\Settings\EffectiveConfigService;
+use App\Services\Settings\SystemSettingService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,8 +31,8 @@ class AdminAnnouncementController extends Controller
             'link' => ['required', 'string', 'max:255'],
         ]);
 
-        /** @var \App\Services\Settings\SystemSettingService $settings */
-        $settings = app(\App\Services\Settings\SystemSettingService::class);
+        /** @var SystemSettingService $settings */
+        $settings = app(SystemSettingService::class);
         $actor = $request->user('admin');
 
         $map = [
@@ -50,10 +53,10 @@ class AdminAnnouncementController extends Controller
             }
 
             $settings->set(
-                group: \App\Enums\SystemSettingGroup::from((string) $definition['group']),
+                group: SystemSettingGroup::from((string) $definition['group']),
                 key: (string) $definition['key'],
                 value: $value,
-                type: \App\Enums\SystemSettingType::from((string) $definition['type']),
+                type: SystemSettingType::from((string) $definition['type']),
                 actor: $actor,
                 isPublic: (bool) ($definition['is_public'] ?? false),
                 description: isset($definition['description']) ? (string) $definition['description'] : null,

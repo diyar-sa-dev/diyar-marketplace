@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/auth/useAuth.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import type { ServiceCard as ServiceCardType } from '../../types/services.ts';
 import { SERVICE_IMAGE_FALLBACK } from '../../lib/services/serviceUi.ts';
+import { resolveMediaUrl } from '../../lib/media.ts';
 import { ServiceTypeBadge } from '../services/ServiceTypeBadge.tsx';
 import { resolveServiceTypeLabel } from '../../lib/serviceBookingDisplay.ts';
 import { useServiceWishlistMutation } from '../../hooks/services/useServiceEngagement.ts';
@@ -42,7 +43,11 @@ function normalizeServiceCard(
   const title = ('title' in service && service.title) || ('name' in service && service.name) || '';
   const slug = service.slug || String(('id' in service && service.id) ?? '');
   const imageUrl =
-    ('image_url' in service && service.image_url) ||
+    resolveMediaUrl(
+      ('image_url' in service && service.image_url) ||
+        ('img' in service && service.img) ||
+        null,
+    ) ||
     ('img' in service && service.img) ||
     SERVICE_IMAGE_FALLBACK;
   const vendorName =

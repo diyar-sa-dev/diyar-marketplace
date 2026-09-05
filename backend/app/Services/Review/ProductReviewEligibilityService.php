@@ -23,13 +23,22 @@ final class ProductReviewEligibilityService
 
     public function assertCanCreateReview(User $user, Product $product): void
     {
-        if ($this->vendorOwnership->userOwnsProduct($user, $product)) {
-            throw new AccessDeniedHttpException(__('diyar.catalog.cannot_review_own_product'));
-        }
+        if (! $this->canCreateReview($user, $product)) {
+            if ($this->vendorOwnership->userOwnsProduct($user, $product)) {
+                throw new AccessDeniedHttpException(__('diyar.catalog.cannot_review_own_product'));
+            }
 
-        if (! $this->hasVerifiedPurchase($user, $product)) {
             throw new AccessDeniedHttpException(__('diyar.catalog.review_not_eligible'));
         }
+    }
+
+    public function canCreateReview(User $user, Product $product): bool
+    {
+        if ($this->vendorOwnership->userOwnsProduct($user, $product)) {
+            return false;
+        }
+
+        return $this->hasVerifiedPurchase($user, $product);
     }
 
     public function assertReviewOwnership(User $user, ProductReview $review): void

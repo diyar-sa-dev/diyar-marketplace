@@ -153,7 +153,7 @@ export default function ServiceRequestsPage() {
                   </span>
                   <ServiceRequestStatusBadge status={request.status} />
                 </div>
-                <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark mb-2 leading-snug">
+                <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark mb-2 leading-snug break-words">
                   {request.title}
                 </h1>
                 <p className="text-gray-500 text-sm">
@@ -255,7 +255,7 @@ export default function ServiceRequestsPage() {
                         )}
 
                         {offer.message && (
-                          <p className="text-gray-600 text-sm leading-relaxed mb-4 bg-gray-50 rounded-xl p-4 border border-gray-100">
+                          <p className="text-gray-600 text-sm leading-relaxed mb-4 bg-gray-50 rounded-xl p-4 border border-gray-100 break-words overflow-hidden">
                             {offer.message}
                           </p>
                         )}
@@ -413,7 +413,7 @@ export default function ServiceRequestsPage() {
         />
       ) : (
         <>
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
             {requests.map((item) => (
               <ServiceRequestListCard
                 key={item.id}
