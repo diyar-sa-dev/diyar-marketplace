@@ -1,14 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
 import {
   Activity,
   CalendarCheck,
@@ -434,10 +427,7 @@ export default function AdminDashboardPage() {
                 </div>
                 {chartData.length > 0 ? (
                   <ChartContainer height={288}>
-                    <LineChart
-                      data={chartData}
-                      margin={{ top: 8, right: 12, left: 0, bottom: 4 }}
-                    >
+                    <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
                       <CartesianGrid stroke="#e5e7eb" strokeDasharray="4 4" />
                       <XAxis
                         dataKey="label"
@@ -464,8 +454,7 @@ export default function AdminDashboardPage() {
                           t('admin.reports.ordersSeries'),
                         ]}
                         labelFormatter={(_, items) => {
-                          const row = items?.[0]?.payload as
-                            { tooltipLabel?: string } | undefined;
+                          const row = items?.[0]?.payload as { tooltipLabel?: string } | undefined;
                           return row?.tooltipLabel ?? '';
                         }}
                       />

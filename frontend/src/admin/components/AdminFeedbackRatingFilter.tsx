@@ -127,9 +127,7 @@ export function FeedbackRatingStars({
   return (
     <span className="inline-flex items-center gap-2">
       <StarRow count={rating} size={size} />
-      {showValue ? (
-        <span className="text-xs font-bold text-gray-500">{rating}/5</span>
-      ) : null}
+      {showValue ? <span className="text-xs font-bold text-gray-500">{rating}/5</span> : null}
     </span>
   );
 }

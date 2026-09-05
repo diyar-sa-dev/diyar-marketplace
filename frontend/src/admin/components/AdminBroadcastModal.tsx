@@ -75,7 +75,9 @@ function AdminBroadcastModalContent({ onClose }: { onClose: () => void }) {
               <Megaphone size={18} />
             </div>
             <div>
-              <h3 className="text-lg font-extrabold text-diyar-dark">{t('admin.feedback.broadcastTitle')}</h3>
+              <h3 className="text-lg font-extrabold text-diyar-dark">
+                {t('admin.feedback.broadcastTitle')}
+              </h3>
               <p className="mt-1 text-sm text-gray-500">{t('admin.feedback.broadcastSubtitle')}</p>
             </div>
           </div>

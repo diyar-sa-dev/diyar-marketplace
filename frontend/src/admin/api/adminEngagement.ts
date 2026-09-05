@@ -11,19 +11,19 @@ export type AdminAnnouncementSettings = {
 };
 
 export async function fetchAdminAnnouncement(): Promise<AdminAnnouncementSettings> {
-  const response = await adminApi.get<ApiSuccessResponse<{ announcement: AdminAnnouncementSettings }>>(
-    '/admin/announcement',
-  );
+  const response =
+    await adminApi.get<ApiSuccessResponse<{ announcement: AdminAnnouncementSettings }>>(
+      '/admin/announcement',
+    );
   return response.data.data.announcement;
 }
 
 export async function updateAdminAnnouncement(
   payload: AdminAnnouncementSettings,
 ): Promise<AdminAnnouncementSettings> {
-  const response = await adminApi.patch<ApiSuccessResponse<{ announcement: AdminAnnouncementSettings }>>(
-    '/admin/announcement',
-    payload,
-  );
+  const response = await adminApi.patch<
+    ApiSuccessResponse<{ announcement: AdminAnnouncementSettings }>
+  >('/admin/announcement', payload);
   return response.data.data.announcement;
 }
 

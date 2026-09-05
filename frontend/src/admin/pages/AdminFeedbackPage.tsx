@@ -302,7 +302,9 @@ export default function AdminFeedbackPage() {
                 <div>
                   <p className="font-semibold text-diyar-dark">{row.user.name}</p>
                   {row.user.email ? (
-                    <TableLtrValue className="text-xs text-gray-500">{row.user.email}</TableLtrValue>
+                    <TableLtrValue className="text-xs text-gray-500">
+                      {row.user.email}
+                    </TableLtrValue>
                   ) : null}
                 </div>
               ) : (

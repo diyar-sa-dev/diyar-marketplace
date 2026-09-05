@@ -14,5 +14,7 @@ export function isPaymentAuthRecoveryPath(pathname: string, search: string): boo
   }
 
   const payment = params.get('payment');
-  return payment === 'callback' || payment === 'paid' || payment === 'failed' || payment === 'expired';
+  return (
+    payment === 'callback' || payment === 'paid' || payment === 'failed' || payment === 'expired'
+  );
 }

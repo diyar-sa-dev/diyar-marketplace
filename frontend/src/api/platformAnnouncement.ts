@@ -9,8 +9,9 @@ export type PlatformAnnouncement = {
 };
 
 export async function fetchPlatformAnnouncement(): Promise<PlatformAnnouncement> {
-  const response = await marketplaceApi.get<ApiSuccessResponse<{ announcement: PlatformAnnouncement }>>(
-    '/platform/announcement',
-  );
+  const response =
+    await marketplaceApi.get<ApiSuccessResponse<{ announcement: PlatformAnnouncement }>>(
+      '/platform/announcement',
+    );
   return response.data.data.announcement;
 }

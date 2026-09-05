@@ -100,7 +100,9 @@ function AdminAnnouncementModalContent({ onClose }: { onClose: () => void }) {
               <PanelTop size={18} />
             </div>
             <div>
-              <h3 className="text-lg font-extrabold text-diyar-dark">{t('admin.feedback.bannerTitle')}</h3>
+              <h3 className="text-lg font-extrabold text-diyar-dark">
+                {t('admin.feedback.bannerTitle')}
+              </h3>
               <p className="mt-1 text-sm text-gray-500">{t('admin.feedback.bannerSubtitle')}</p>
             </div>
           </div>
@@ -128,12 +130,16 @@ function AdminAnnouncementModalContent({ onClose }: { onClose: () => void }) {
                   onChange={(event) => updateDraft({ enabled: event.target.checked })}
                   className="h-4 w-4 cursor-pointer accent-diyar-brown"
                 />
-                <span className="text-sm font-bold text-diyar-dark">{t('admin.feedback.bannerEnabled')}</span>
+                <span className="text-sm font-bold text-diyar-dark">
+                  {t('admin.feedback.bannerEnabled')}
+                </span>
               </label>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="text-sm font-bold text-diyar-dark">{t('admin.feedback.bannerTextAr')}</label>
+                  <label className="text-sm font-bold text-diyar-dark">
+                    {t('admin.feedback.bannerTextAr')}
+                  </label>
                   <textarea
                     rows={3}
                     value={textAr}
@@ -142,10 +148,14 @@ function AdminAnnouncementModalContent({ onClose }: { onClose: () => void }) {
                     className="mt-2 w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-diyar-brown"
                     dir="rtl"
                   />
-                  {errors.text_ar ? <p className="mt-1 text-xs text-red-600">{errors.text_ar}</p> : null}
+                  {errors.text_ar ? (
+                    <p className="mt-1 text-xs text-red-600">{errors.text_ar}</p>
+                  ) : null}
                 </div>
                 <div>
-                  <label className="text-sm font-bold text-diyar-dark">{t('admin.feedback.bannerTextEn')}</label>
+                  <label className="text-sm font-bold text-diyar-dark">
+                    {t('admin.feedback.bannerTextEn')}
+                  </label>
                   <textarea
                     rows={3}
                     value={textEn}
@@ -154,13 +164,17 @@ function AdminAnnouncementModalContent({ onClose }: { onClose: () => void }) {
                     className="mt-2 w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-diyar-brown"
                     dir="ltr"
                   />
-                  {errors.text_en ? <p className="mt-1 text-xs text-red-600">{errors.text_en}</p> : null}
+                  {errors.text_en ? (
+                    <p className="mt-1 text-xs text-red-600">{errors.text_en}</p>
+                  ) : null}
                 </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="text-sm font-bold text-diyar-dark">{t('admin.feedback.bannerCtaAr')}</label>
+                  <label className="text-sm font-bold text-diyar-dark">
+                    {t('admin.feedback.bannerCtaAr')}
+                  </label>
                   <input
                     value={ctaAr}
                     onChange={(event) => updateDraft({ ctaAr: event.target.value })}
@@ -168,10 +182,14 @@ function AdminAnnouncementModalContent({ onClose }: { onClose: () => void }) {
                     className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-diyar-brown"
                     dir="rtl"
                   />
-                  {errors.cta_ar ? <p className="mt-1 text-xs text-red-600">{errors.cta_ar}</p> : null}
+                  {errors.cta_ar ? (
+                    <p className="mt-1 text-xs text-red-600">{errors.cta_ar}</p>
+                  ) : null}
                 </div>
                 <div>
-                  <label className="text-sm font-bold text-diyar-dark">{t('admin.feedback.bannerCtaEn')}</label>
+                  <label className="text-sm font-bold text-diyar-dark">
+                    {t('admin.feedback.bannerCtaEn')}
+                  </label>
                   <input
                     value={ctaEn}
                     onChange={(event) => updateDraft({ ctaEn: event.target.value })}
@@ -179,12 +197,16 @@ function AdminAnnouncementModalContent({ onClose }: { onClose: () => void }) {
                     className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-diyar-brown"
                     dir="ltr"
                   />
-                  {errors.cta_en ? <p className="mt-1 text-xs text-red-600">{errors.cta_en}</p> : null}
+                  {errors.cta_en ? (
+                    <p className="mt-1 text-xs text-red-600">{errors.cta_en}</p>
+                  ) : null}
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-bold text-diyar-dark">{t('admin.feedback.bannerLink')}</label>
+                <label className="text-sm font-bold text-diyar-dark">
+                  {t('admin.feedback.bannerLink')}
+                </label>
                 <input
                   value={link}
                   onChange={(event) => updateDraft({ link: event.target.value })}
@@ -196,8 +218,12 @@ function AdminAnnouncementModalContent({ onClose }: { onClose: () => void }) {
               </div>
 
               <div className="rounded-2xl border border-[#2a4a44] bg-linear-to-r from-[#132624] via-[#1a3330] to-[#132624] px-4 py-3 text-diyar-cream">
-                <p className="text-[11px] uppercase tracking-wide text-white/60">{t('admin.feedback.bannerPreview')}</p>
-                <p className="mt-2 text-sm">{textAr || textEn || t('admin.feedback.bannerPreviewEmpty')}</p>
+                <p className="text-[11px] uppercase tracking-wide text-white/60">
+                  {t('admin.feedback.bannerPreview')}
+                </p>
+                <p className="mt-2 text-sm">
+                  {textAr || textEn || t('admin.feedback.bannerPreviewEmpty')}
+                </p>
                 <span className="mt-2 inline-flex rounded-full bg-diyar-brown px-3 py-1 text-[10px] font-bold text-white">
                   {ctaAr || ctaEn || t('admin.feedback.bannerPreviewCtaFallback')}
                 </span>

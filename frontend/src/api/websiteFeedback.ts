@@ -18,10 +18,9 @@ export async function submitWebsiteFeedback(payload: {
   message: string;
   guest_key?: string;
 }): Promise<WebsiteFeedbackRecord> {
-  const response = await marketplaceApi.post<ApiSuccessResponse<{ feedback: WebsiteFeedbackRecord }>>(
-    '/feedback',
-    payload,
-  );
+  const response = await marketplaceApi.post<
+    ApiSuccessResponse<{ feedback: WebsiteFeedbackRecord }>
+  >('/feedback', payload);
   return response.data.data.feedback;
 }
 

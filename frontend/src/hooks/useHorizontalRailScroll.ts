@@ -93,7 +93,8 @@ export function useHorizontalRailScroll(
     element.addEventListener('scroll', refresh, { passive: true });
     window.addEventListener('resize', refresh);
 
-    const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(refresh) : null;
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(refresh) : null;
     resizeObserver?.observe(element);
 
     return () => {
