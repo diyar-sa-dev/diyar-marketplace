@@ -1,16 +1,42 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Truck, Gift, ChevronLeft, ChevronRight, X, Percent, Sofa, Star } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Sparkles,
+  Truck,
+  Gift,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Percent,
+  Sofa,
+  Star,
+  Megaphone,
+} from 'lucide-react';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { fetchPlatformAnnouncement } from '../../api/platformAnnouncement.ts';
+
+type AnnouncementSlide = {
+  icon: React.ReactNode;
+  text: string;
+  cta: string;
+  link: string;
+};
 
 export function AnnouncementBar() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
 
-  const announcements = useMemo(
-    () => [
+  const { data: customAnnouncement } = useQuery({
+    queryKey: ['platform-announcement', locale],
+    queryFn: fetchPlatformAnnouncement,
+    staleTime: 120_000,
+  });
+
+  const announcements = useMemo(() => {
+    const defaults: AnnouncementSlide[] = [
       {
         icon: <Gift className="w-4 h-4 text-diyar-cream shrink-0" />,
         text: t('home.announcements.item1Text'),
@@ -47,9 +73,26 @@ export function AnnouncementBar() {
         cta: t('home.announcements.item3Cta'),
         link: '/profile/addresses',
       },
-    ],
-    [t],
-  );
+    ];
+
+    if (customAnnouncement?.enabled && customAnnouncement.text) {
+      return [
+        {
+          icon: <Megaphone className="w-4 h-4 text-amber-300 shrink-0 animate-pulse" />,
+          text: customAnnouncement.text,
+          cta: customAnnouncement.cta,
+          link: customAnnouncement.link || '/',
+        },
+        ...defaults,
+      ];
+    }
+
+    return defaults;
+  }, [customAnnouncement, t]);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [customAnnouncement?.enabled, customAnnouncement?.text]);
 
   useEffect(() => {
     if (!isVisible) return;

@@ -380,6 +380,23 @@ export async function confirmDeleteShippingItem(
   return result.isConfirmed;
 }
 
+export async function confirmDeleteFeedback(t: TranslateFn): Promise<boolean> {
+  const Swal = await getSwal();
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.feedback.deleteTitle'),
+    text: t('admin.feedback.deleteBody'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.feedback.deleteAction'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
 export async function confirmDeleteProject(
   t: TranslateFn,
   projectTitle?: string,

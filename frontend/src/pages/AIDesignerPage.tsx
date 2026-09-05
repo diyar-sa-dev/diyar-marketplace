@@ -3,6 +3,8 @@ import { Send, Image as ImageIcon, User, Sparkles, Loader2, ArrowRight } from 'l
 import { Link } from 'react-router-dom';
 import { sendAssistantChat } from '../api/assistant.ts';
 import { useAssistantCatalogContext } from '../hooks/assistant/useAssistantCatalog.ts';
+import { parseApiError } from '../utils/errors.ts';
+import { AssistantMessageContent } from '../components/assistant/AssistantMessageContent.tsx';
 import { useLocale } from '../hooks/useLocale.ts';
 
 interface Message {
@@ -73,13 +75,17 @@ export default function AIDesignerPage() {
           content: reply,
         },
       ]);
-    } catch {
+    } catch (error) {
+      const parsed = parseApiError(error, locale);
       setMessages((prev) => [
         ...prev,
         {
           id: `a-err-${Date.now()}`,
           type: 'assistant',
-          content: t('layout.assistant.error'),
+          content:
+            parsed.status === 503
+              ? t('layout.assistant.unavailable')
+              : t('layout.assistant.error'),
         },
       ]);
     } finally {
@@ -211,13 +217,19 @@ export default function AIDesignerPage() {
               ) : null}
 
               <div
-                className={`px-5 py-3.5 rounded-2xl text-sm md:text-base leading-relaxed whitespace-pre-wrap ${
+                className={`px-5 py-3.5 rounded-2xl ${
                   message.type === 'user'
                     ? 'bg-diyar-dark text-white rounded-te-sm'
                     : 'bg-white border border-gray-100 text-diyar-dark shadow-sm rounded-ts-sm'
                 }`}
               >
-                {message.content}
+                {message.type === 'assistant' ? (
+                  <AssistantMessageContent content={message.content} />
+                ) : (
+                  <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">
+                    {message.content}
+                  </p>
+                )}
               </div>
             </div>
           </div>

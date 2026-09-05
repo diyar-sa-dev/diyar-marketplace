@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Loader2, Star, X } from 'lucide-react';
+import { isAxiosError } from 'axios';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
 import { useToast } from '../../hooks/useToast.ts';
+import { submitWebsiteFeedback } from '../../api/websiteFeedback.ts';
 import {
-  hasSubmittedWebsiteFeedback,
-  saveWebsiteFeedback,
+  getOrCreateWebsiteFeedbackGuestKey,
+  markWebsiteFeedbackSubmitted,
   type WebsiteFeedbackType,
 } from '../../lib/websiteFeedbackStorage.ts';
 
@@ -63,20 +65,22 @@ export function WebsiteFeedbackModal({ open, onClose, onSubmitted }: WebsiteFeed
   };
 
   const handleSubmit = async () => {
-    if (hasSubmittedWebsiteFeedback(user?.id)) {
-      toast.info(t('layout.feedback.alreadySubmitted'));
-      onSubmitted?.();
-      onClose();
-      return;
-    }
-
     if (!validate()) {
       return;
     }
 
     setIsSubmitting(true);
     try {
-      saveWebsiteFeedback(
+      const payload = {
+        rating,
+        type: type!,
+        message: message.trim(),
+        ...(user ? {} : { guest_key: getOrCreateWebsiteFeedbackGuestKey() }),
+      };
+
+      await submitWebsiteFeedback(payload);
+
+      markWebsiteFeedbackSubmitted(
         {
           rating,
           type: type!,
@@ -85,6 +89,7 @@ export function WebsiteFeedbackModal({ open, onClose, onSubmitted }: WebsiteFeed
         },
         user?.id,
       );
+
       setIsSuccess(true);
       onSubmitted?.();
       window.setTimeout(() => {
@@ -95,6 +100,14 @@ export function WebsiteFeedbackModal({ open, onClose, onSubmitted }: WebsiteFeed
         setMessage('');
         setErrors({});
       }, 1400);
+    } catch (error) {
+      if (isAxiosError(error) && error.response?.status === 409) {
+        toast.info(t('layout.feedback.alreadySubmitted'));
+        onSubmitted?.();
+        onClose();
+        return;
+      }
+      toast.error(t('layout.feedback.submitError'));
     } finally {
       setIsSubmitting(false);
     }

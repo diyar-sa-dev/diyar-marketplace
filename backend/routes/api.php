@@ -21,6 +21,8 @@ use App\Http\Controllers\Api\V1\Admin\AdminFinanceController;
 use App\Http\Controllers\Api\V1\Admin\AdminFinancialTransactionController;
 use App\Http\Controllers\Api\V1\Admin\AdminInventoryController;
 use App\Http\Controllers\Api\V1\Admin\AdminLoyaltyController;
+use App\Http\Controllers\Api\V1\Admin\AdminAnnouncementController;
+use App\Http\Controllers\Api\V1\Admin\AdminWebsiteFeedbackController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationBroadcastController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 use App\Http\Controllers\Api\V1\Admin\AdminOperationalHealthController;
@@ -105,6 +107,7 @@ use App\Http\Controllers\Api\V1\Order\OrderStoreReviewController;
 use App\Http\Controllers\Api\V1\Payment\FakePaymentWebhookController;
 use App\Http\Controllers\Api\V1\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\Payment\PaymentWebhookController;
+use App\Http\Controllers\Api\V1\Platform\PlatformAnnouncementController;
 use App\Http\Controllers\Api\V1\Platform\PlatformCommerceController;
 use App\Http\Controllers\Api\V1\Platform\PlatformContactController;
 use App\Http\Controllers\Api\V1\Platform\PlatformThemeController;
@@ -133,6 +136,7 @@ use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceEngagementController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceOfferController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceRequestController;
 use App\Http\Controllers\Api\V1\Storefront\HomeStorefrontController;
+use App\Http\Controllers\Api\V1\WebsiteFeedbackController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -157,8 +161,17 @@ Route::post('/platform/consultation', [PlatformContactController::class, 'consul
     ->middleware('throttle:6,1')
     ->name('api.v1.platform.consultation');
 
+Route::post('/feedback', [WebsiteFeedbackController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('api.v1.feedback.store');
+Route::get('/feedback/status', [WebsiteFeedbackController::class, 'status'])
+    ->name('api.v1.feedback.status');
+
 Route::get('/platform/theme', [PlatformThemeController::class, 'show'])
     ->name('api.v1.platform.theme');
+
+Route::get('/platform/announcement', [PlatformAnnouncementController::class, 'show'])
+    ->name('api.v1.platform.announcement');
 
 Route::get('/platform/commerce', [PlatformCommerceController::class, 'show'])
     ->name('api.v1.platform.commerce');
@@ -470,6 +483,17 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
         ->middleware('throttle:admin-broadcasts');
     Route::get('/notifications/broadcasts/{broadcast}', [AdminNotificationBroadcastController::class, 'show'])
         ->middleware('admin.permission:notifications.view');
+
+    Route::get('/feedback', [AdminWebsiteFeedbackController::class, 'index'])
+        ->middleware('admin.permission:feedback.view');
+    Route::delete('/feedback/{websiteFeedback}', [AdminWebsiteFeedbackController::class, 'destroy'])
+        ->middleware('admin.permission:feedback.manage');
+
+    Route::get('/announcement', [AdminAnnouncementController::class, 'show'])
+        ->middleware('admin.permission:settings.view');
+    Route::patch('/announcement', [AdminAnnouncementController::class, 'update'])
+        ->middleware('admin.permission:settings.update');
+
     Route::get('/notifications', [AdminNotificationController::class, 'index'])
         ->middleware('admin.permission:notifications.view');
     Route::get('/notifications/{notification}', [AdminNotificationController::class, 'show'])

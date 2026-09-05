@@ -142,7 +142,7 @@ export default function MarketplaceShell() {
   }
 
   return (
-    <div className="min-h-screen bg-white font-sans text-diyar-dark pb-17.5 md:pb-0" dir={dir}>
+    <div className="min-h-screen bg-white font-sans text-diyar-dark pb-17.5 md:pb-0 overflow-x-hidden" dir={dir}>
       {!hideMarketplaceChrome && <AnnouncementBar />}
       {!hideMarketplaceChrome && (
         <div
@@ -157,6 +157,8 @@ export default function MarketplaceShell() {
                 <div className="flex items-center gap-3 md:gap-6 Order-1">
                   <div className="flex items-center gap-2">
                     <button
+                      type="button"
+                      data-testid="sidebar-menu-toggle"
                       onClick={() => setIsSidebarOpen(true)}
                       className="text-diyar-dark bg-gray-50 hover:bg-gray-100 border border-gray-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors cursor-pointer"
                     >
@@ -241,6 +243,7 @@ export default function MarketplaceShell() {
                   <div className="flex items-center gap-1.5 lg:gap-2">
                     <Link
                       to="/search"
+                      state={{ focusSearch: true }}
                       className="md:hidden w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors cursor-pointer"
                     >
                       <Search className="w-5 h-5" />
@@ -332,7 +335,7 @@ export default function MarketplaceShell() {
           <FilterModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
         </Suspense>
       ) : null}
-      {!hideMarketplaceChrome && isCartOpen ? (
+      {!hideMarketplaceChrome ? (
         <Suspense fallback={null}>
           <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
         </Suspense>

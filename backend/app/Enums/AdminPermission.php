@@ -81,6 +81,9 @@ enum AdminPermission: string
     case LoyaltyManage = 'loyalty.manage';
     case LoyaltyAdjust = 'loyalty.adjust';
 
+    case FeedbackView = 'feedback.view';
+    case FeedbackManage = 'feedback.manage';
+
     /** @return list<self> */
     public static function all(): array
     {
@@ -110,6 +113,7 @@ enum AdminPermission: string
             self::ProjectsView, self::ProjectsManage => 'projects',
             self::B2bView, self::B2bManage, self::B2bLeadsView => 'b2b',
             self::LoyaltyView, self::LoyaltyManage, self::LoyaltyAdjust => 'loyalty',
+            self::FeedbackView, self::FeedbackManage => 'feedback',
         };
     }
 

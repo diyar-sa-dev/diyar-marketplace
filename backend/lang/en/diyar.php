@@ -913,4 +913,9 @@ return [
         'payout_requested' => 'Affiliate payout request submitted.',
         'payout_marked_paid' => 'Affiliate payout marked as paid.',
     ],
+
+    'feedback' => [
+        'guest_key_required' => 'A guest identifier is required when not signed in.',
+        'already_submitted' => 'Feedback was already submitted for this account.',
+    ],
 ];

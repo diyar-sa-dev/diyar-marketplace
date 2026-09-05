@@ -7,6 +7,7 @@ import {
   FolderTree,
   LayoutDashboard,
   MessageSquare,
+  MessageSquareHeart,
   Percent,
   ScrollText,
   BarChart3,
@@ -100,6 +101,12 @@ export const adminNavItems: AdminNavItem[] = [
     permission: 'affiliate.view',
   },
   { to: '/admin/audit', icon: ScrollText, labelKey: 'admin.nav.audit', permission: 'audit.view' },
+  {
+    to: '/admin/feedback',
+    icon: MessageSquareHeart,
+    labelKey: 'admin.nav.feedback',
+    permission: 'feedback.view',
+  },
   {
     to: '/admin/settings',
     icon: Settings,

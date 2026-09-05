@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Camera,
   ChevronLeft,
@@ -31,7 +31,9 @@ import {
   useCatalogSearch,
 } from '../hooks/catalog/useCatalogSearch.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.ts';
 import { mapProductCard } from '../lib/catalogMappers.ts';
+import { SearchAutocomplete } from '../components/search/SearchAutocomplete.tsx';
 import type { CatalogSearchFilters } from '../types/catalogSearch.ts';
 
 const VISUAL_SEARCH_QUERY = 'visual_search_results';
@@ -51,14 +53,25 @@ function readFiltersFromParams(
 
 export default function SearchPage() {
   const { t, dir } = useLocale();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [draftFilters, setDraftFilters] = useState<CatalogSearchFilters | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('');
 
   const rawQuery = searchParams.get('q')?.replace(/\s+/g, ' ').trim() ?? '';
   const debouncedQuery = useDebouncedValue(rawQuery, 300);
   const isVisualSearch = rawQuery === VISUAL_SEARCH_QUERY;
+  const shouldFocusMobileSearch = Boolean(
+    (location.state as { focusSearch?: boolean } | null)?.focusSearch,
+  );
+
+  useEffect(() => {
+    setMobileSearchQuery(rawQuery);
+  }, [rawQuery]);
+
+  useBodyScrollLock(isFilterOpen && !isVisualSearch);
 
   const filters = useMemo(
     () => readFiltersFromParams(searchParams, debouncedQuery),
@@ -158,6 +171,23 @@ export default function SearchPage() {
     setDraftFilters(filters);
     setIsFilterOpen(true);
   };
+
+  const submitMobileSearch = useCallback(
+    (query: string) => {
+      const trimmed = query.replace(/\s+/g, ' ').trim();
+      const next = new URLSearchParams(searchParams);
+
+      if (trimmed) {
+        next.set('q', trimmed);
+      } else {
+        next.delete('q');
+      }
+
+      next.delete('page');
+      setSearchParams(next, { replace: true });
+    },
+    [searchParams, setSearchParams],
+  );
 
   const applyDraftFilters = () => {
     if (!draftFilters) {
@@ -315,7 +345,35 @@ export default function SearchPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+        <div className="md:hidden sticky top-0 z-30 -mx-4 mb-4 border-b border-gray-100 bg-gray-50/95 px-4 py-3 backdrop-blur-sm">
+          <form
+            className="flex items-center gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitMobileSearch(mobileSearchQuery);
+            }}
+          >
+            <div className="min-w-0 flex-1 rounded-2xl border border-gray-200 bg-white px-3 py-2.5 shadow-sm">
+              <SearchAutocomplete
+                value={mobileSearchQuery}
+                onChange={setMobileSearchQuery}
+                onSubmit={submitMobileSearch}
+                showImageSearch={false}
+                autoFocus={shouldFocusMobileSearch || !rawQuery}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={openFilterModal}
+              className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-gray-200 bg-white text-diyar-dark shadow-sm"
+              aria-label={t('catalog.search.filters.open')}
+            >
+              <SlidersHorizontal size={18} />
+            </button>
+          </form>
+        </div>
+
         <div className="mb-6">
           <h1 className="text-xl md:text-2xl font-bold text-diyar-dark mb-2 flex items-center gap-2">
             {isVisualSearch ? (
@@ -523,29 +581,29 @@ export default function SearchPage() {
       </div>
 
       {isFilterOpen && !isVisualSearch && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-250 flex items-end overscroll-none md:items-stretch md:justify-end" dir={dir}>
           <button
             type="button"
             className="absolute inset-0 bg-black/50 cursor-pointer"
             aria-label={t('catalog.search.filters.close')}
             onClick={() => setIsFilterOpen(false)}
           />
-          <div className="absolute bottom-0 left-0 right-0 md:inset-y-0 md:inset-inline-end-0 md:left-auto md:w-full md:max-w-md max-h-[90vh] md:max-h-none bg-white md:rounded-none rounded-t-3xl shadow-2xl flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-              <h2 className="font-bold text-lg text-diyar-dark inline-flex items-center gap-2">
+          <div className="relative flex w-full max-h-[min(calc(100dvh-env(safe-area-inset-bottom,0px)-0.5rem),920px)] flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl animate-in slide-in-from-bottom duration-300 md:ml-auto md:h-full md:max-h-none md:max-w-md md:rounded-none">
+            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-4 py-3">
+              <h2 className="inline-flex items-center gap-2 text-lg font-bold text-diyar-dark">
                 <SlidersHorizontal size={18} className="text-diyar-brown" />
                 {t('catalog.search.filters.title')}
               </h2>
               <button
                 type="button"
                 onClick={() => setIsFilterOpen(false)}
-                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 cursor-pointer"
+                className="cursor-pointer rounded-lg p-2 text-gray-500 hover:bg-gray-100"
                 aria-label={t('catalog.search.filters.close')}
               >
                 <X size={18} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y p-4">
               <CatalogSearchFiltersPanel
                 filters={panelFilters}
                 facets={facets}
@@ -560,7 +618,7 @@ export default function SearchPage() {
                 variant="plain"
               />
             </div>
-            <div className="border-t border-gray-100 p-4 flex gap-3 bg-white">
+            <div className="flex shrink-0 gap-3 border-t border-gray-100 bg-white p-4 pb-safe">
               <button
                 type="button"
                 onClick={() => {
@@ -568,14 +626,14 @@ export default function SearchPage() {
                   clearFilters();
                   setIsFilterOpen(false);
                 }}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-bold text-gray-600 cursor-pointer"
+                className="flex-1 cursor-pointer rounded-xl bg-gray-100 py-3 text-sm font-bold text-gray-600"
               >
                 {t('catalog.search.filters.clearAll')}
               </button>
               <button
                 type="button"
                 onClick={applyDraftFilters}
-                className="flex-[1.4] rounded-xl bg-diyar-dark py-3 text-sm font-bold text-white shadow-lg cursor-pointer"
+                className="flex-[1.4] cursor-pointer rounded-xl bg-diyar-dark py-3 text-sm font-bold text-white shadow-lg"
               >
                 {t('catalog.search.showResults', { count: draftResultCount })}
               </button>

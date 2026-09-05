@@ -913,4 +913,9 @@ return [
         'payout_requested' => 'تم تقديم طلب سحب العمولات.',
         'payout_marked_paid' => 'تم تحديد سحب العمولات كمدفوع.',
     ],
+
+    'feedback' => [
+        'guest_key_required' => 'مطلوب معرف ضيف عند عدم تسجيل الدخول.',
+        'already_submitted' => 'تم إرسال الملاحظات مسبقاً لهذا الحساب.',
+    ],
 ];

@@ -106,6 +106,48 @@ return [
             'is_public' => true,
             'validation' => ['required', 'string', 'max:500'],
         ],
+        'platform.announcement_enabled' => [
+            'group' => 'platform',
+            'key' => 'announcement_enabled',
+            'type' => 'boolean',
+            'is_public' => true,
+            'validation' => ['required', 'boolean'],
+        ],
+        'platform.announcement_text_ar' => [
+            'group' => 'platform',
+            'key' => 'announcement_text_ar',
+            'type' => 'string',
+            'is_public' => true,
+            'validation' => ['required', 'string', 'max:240'],
+        ],
+        'platform.announcement_text_en' => [
+            'group' => 'platform',
+            'key' => 'announcement_text_en',
+            'type' => 'string',
+            'is_public' => true,
+            'validation' => ['required', 'string', 'max:240'],
+        ],
+        'platform.announcement_cta_ar' => [
+            'group' => 'platform',
+            'key' => 'announcement_cta_ar',
+            'type' => 'string',
+            'is_public' => true,
+            'validation' => ['required', 'string', 'max:48'],
+        ],
+        'platform.announcement_cta_en' => [
+            'group' => 'platform',
+            'key' => 'announcement_cta_en',
+            'type' => 'string',
+            'is_public' => true,
+            'validation' => ['required', 'string', 'max:48'],
+        ],
+        'platform.announcement_link' => [
+            'group' => 'platform',
+            'key' => 'announcement_link',
+            'type' => 'string',
+            'is_public' => true,
+            'validation' => ['required', 'string', 'max:255'],
+        ],
 
         // Affiliate
         'affiliate.platform_min_commission_percent' => [
