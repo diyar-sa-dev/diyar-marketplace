@@ -1,17 +1,3 @@
-@import '@fontsource/alexandria/400.css';
-@import '@fontsource/alexandria/500.css';
-@import '@fontsource/alexandria/600.css';
-@import '@fontsource/alexandria/700.css';
-@import '@fontsource/outfit/400.css';
-@import '@fontsource/outfit/500.css';
-@import '@fontsource/outfit/600.css';
-@import '@fontsource/outfit/700.css';
-@import '@fontsource/tajawal/400.css';
-@import '@fontsource/tajawal/500.css';
-@import '@fontsource/tajawal/700.css';
-@import '@fontsource/inter/400.css';
-@import '@fontsource/inter/500.css';
-@import '@fontsource/inter/600.css';
 @import 'tailwindcss';
 
 @theme {
@@ -102,25 +88,34 @@
 
 @keyframes sweep {
   0% {
-    clip-path: inset(0 100% 0 0);
+    transform: scaleX(0);
   }
   50% {
-    clip-path: inset(0 0% 0 0);
+    transform: scaleX(1);
   }
   100% {
-    clip-path: inset(0 100% 0 0);
+    transform: scaleX(0);
+  }
+}
+
+@keyframes announcementFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
 @keyframes scan-x {
   0% {
-    left: 0%;
+    transform: translateX(0%);
   }
   50% {
-    left: 100%;
+    transform: translateX(calc(100cqw - 100%));
   }
   100% {
-    left: 0%;
+    transform: translateX(0%);
   }
 }
 

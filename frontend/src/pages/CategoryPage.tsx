@@ -41,37 +41,37 @@ import { useBodyScrollLock } from '../hooks/useBodyScrollLock.ts';
 const CATEGORIES = {
   bedroom: {
     name: 'غرف النوم',
-    img: '/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.png',
+    img: '/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.webp',
     subcategories: ['أسرة', 'خزائن ملابس', 'تسريحات', 'طاولات جانبية', 'مراتب'],
   },
   'living-room': {
     name: 'الصالونات',
-    img: '/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.png',
+    img: '/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.webp',
     subcategories: ['أطقم كنب', 'كراسي استرخاء', 'طاولات قهوة', 'طاولات تلفزيون', 'مكتبات'],
   },
   kitchen: {
     name: 'المطابخ',
-    img: '/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.png',
+    img: '/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.webp',
     subcategories: ['خزائن مطابخ', 'طاولات طعام', 'كراسي طعام', 'عربات تقديم'],
   },
   office: {
     name: 'المكاتب',
-    img: '/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.png',
+    img: '/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.webp',
     subcategories: ['مكاتب إدارية', 'كراسي مكتبية', 'وحدات أدراج', 'مكتبات مكتبية'],
   },
   decor: {
     name: 'ديكورات',
-    img: '/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.png',
+    img: '/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.webp',
     subcategories: ['إضاءة', 'سجاد', 'لوحات جدارية', 'مرايا', 'نباتات زينة'],
   },
   'interior-design': {
     name: 'تصميم داخلي',
-    img: '/categories/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%AF%D8%A7%D8%AE%D9%84%D9%8A.png',
+    img: '/categories/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%AF%D8%A7%D8%AE%D9%84%D9%8A.webp',
     subcategories: ['تصميم سكني', 'تصميم تجاري', 'استشارات', 'مخططات معمارية'],
   },
   maintenance: {
     name: 'تركيب وصيانة',
-    img: '/categories/%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%20%D9%88%D8%B5%D9%8A%D8%A7%D9%86%D8%A9.png',
+    img: '/categories/%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%20%D9%88%D8%B5%D9%8A%D8%A7%D9%86%D8%A9.webp',
     subcategories: ['تركيب أثاث', 'صيانة خشبية', 'تنجيد', 'دهانات'],
   },
   all: {
@@ -85,15 +85,15 @@ const PLACEHOLDER_CATEGORY_IMG =
   'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1200';
 
 const CATEGORY_ICONS: Record<string, string> = {
-  bedroom: '/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.png',
-  'living-room': '/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.png',
-  kitchen: '/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.png',
-  office: '/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.png',
-  decor: '/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.png',
+  bedroom: '/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.webp',
+  'living-room': '/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.webp',
+  kitchen: '/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.webp',
+  office: '/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.webp',
+  decor: '/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.webp',
   'interior-design':
-    '/categories/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%AF%D8%A7%D8%AE%D9%84%D9%8A.png',
+    '/categories/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%AF%D8%A7%D8%AE%D9%84%D9%8A.webp',
   maintenance:
-    '/categories/%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%20%D9%88%D8%B5%D9%8A%D8%A7%D9%86%D8%A9.png',
+    '/categories/%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%20%D9%88%D8%B5%D9%8A%D8%A7%D9%86%D8%A9.webp',
 };
 
 const MAX_PRICE = 20000;

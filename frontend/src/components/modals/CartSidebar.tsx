@@ -93,15 +93,18 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
 
       <div
         dir={dir}
-        aria-hidden={!isOpen}
+        role={isOpen ? 'dialog' : undefined}
+        aria-modal={isOpen ? true : undefined}
+        aria-labelledby={isOpen ? 'cart-sidebar-title' : undefined}
+        {...(!isOpen ? { inert: true } : {})}
         className={`fixed top-0 bottom-0 ${sidebarPosition} w-full md:w-100 max-w-full bg-white z-70 shadow-2xl transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : sidebarHiddenTransform
         } ${isOpen ? '' : 'pointer-events-none invisible'} flex flex-col overscroll-none`}
       >
         <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-100">
           <div className="flex items-center gap-3 text-diyar-dark">
-            <ShoppingBag className="w-6 h-6" />
-            <h2 className="text-xl font-bold">{t('cart.sidebar.title')}</h2>
+            <ShoppingBag className="w-6 h-6" aria-hidden />
+            <h2 id="cart-sidebar-title" className="text-xl font-bold">{t('cart.sidebar.title')}</h2>
             {count > 0 && (
               <span className="bg-diyar-brown text-white text-xs font-bold px-2 py-0.5 rounded-full">
                 {count}
@@ -111,6 +114,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
           <button
             type="button"
             onClick={onClose}
+            aria-label={t('common.close')}
             className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors text-gray-500 hover:text-diyar-dark cursor-pointer"
           >
             <X size={20} />
@@ -173,6 +177,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 <button
                   type="button"
                   onClick={() => handleRemove(item.id)}
+                  aria-label={t('cart.sidebar.removeItem')}
                   className="text-gray-400 hover:text-red-500 transition-colors p-1 shrink-0 self-start cursor-pointer"
                 >
                   <Trash2 size={16} />
@@ -185,6 +190,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     type="button"
                     disabled={item.quantity <= 1}
                     onClick={() => handleQuantityChange(item.id, item.quantity, -1)}
+                    aria-label={t('cart.sidebar.decreaseQuantity')}
                     className="text-gray-500 hover:text-diyar-brown p-0.5 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                   >
                     <Minus size={14} />
@@ -195,6 +201,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                   <button
                     type="button"
                     onClick={() => handleQuantityChange(item.id, item.quantity, 1)}
+                    aria-label={t('cart.sidebar.increaseQuantity')}
                     className="text-gray-500 hover:text-diyar-brown p-0.5 cursor-pointer"
                   >
                     <Plus size={14} />

@@ -20,7 +20,6 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
-import { OptimizedPicture } from '../../common/OptimizedPicture.tsx';
 import { RailArrows } from './RailArrows.tsx';
 import {
   Star,
@@ -187,8 +186,8 @@ export function PartnerBanner() {
               </button>
             </div>
             <div className="w-full sm:w-[40%] flex justify-center opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 aspect-[4/3] max-w-56">
-              <OptimizedPicture
-                src="/laptop.png"
+              <img
+                src="/laptop.webp"
                 alt="لوحة تحكم"
                 width={224}
                 height={168}

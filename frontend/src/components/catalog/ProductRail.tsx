@@ -1,5 +1,6 @@
 import React from 'react';
 import ProductCard from '../cards/ProductCard.tsx';
+import { ProductCardSkeleton } from '../cards/ProductCardSkeleton.tsx';
 import { useProducts } from '../../hooks/catalog/useCatalog.ts';
 import { mapProductCard } from '../../lib/catalogMappers.ts';
 import type { ProductListFilters } from '../../types/catalog.ts';
@@ -25,7 +26,7 @@ export default function ProductRail({
         {title && <h2 className="text-xl font-bold mb-4 text-diyar-dark">{title}</h2>}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+            <ProductCardSkeleton key={i} />
           ))}
         </div>
       </section>

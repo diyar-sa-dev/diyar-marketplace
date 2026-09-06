@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Sparkles,
@@ -116,15 +115,17 @@ export function AnnouncementBar() {
     setCurrentIndex((prev) => (prev - 1 + announcements.length) % announcements.length);
   };
 
+  if (!isVisible) {
+    return null;
+  }
+
   return (
     <div
       id="top-announcement-bar"
-      className={`w-full bg-linear-to-r from-[#132624] via-[#1a3330] to-[#132624] text-diyar-cream border-b border-[#2a4a44] text-xs font-medium relative overflow-hidden transition-[max-height,opacity,padding] duration-300 ease-out ${
-        isVisible && !isClosing
-          ? 'max-h-16 opacity-100 py-2.5'
-          : 'max-h-0 opacity-0 py-0 border-transparent pointer-events-none'
-      }`}
-      aria-hidden={!isVisible || isClosing}
+      className={`w-full bg-linear-to-r from-[#132624] via-[#1a3330] to-[#132624] text-diyar-cream border-b border-[#2a4a44] text-xs font-medium relative overflow-hidden py-2.5 ${
+        isClosing ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      } transition-opacity duration-200`}
+      {...(isClosing ? { inert: true } : {})}
       onTransitionEnd={() => {
         if (isClosing) {
           setIsVisible(false);
@@ -136,7 +137,7 @@ export function AnnouncementBar() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between relative z-10 gap-2">
         <button
           onClick={handlePrev}
-          className="hidden md:flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer w-7 h-7 hover:bg-white/10 rounded-full shrink-0"
+          className="hidden md:flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer min-w-11 min-h-11 hover:bg-white/10 rounded-full shrink-0"
           title={t('home.announcements.prev')}
           aria-label={t('home.announcements.prev')}
           id="btn-announcement-prev"
@@ -145,39 +146,33 @@ export function AnnouncementBar() {
         </button>
 
         <div className="flex-1 flex justify-center items-center overflow-hidden min-h-5.5">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentIndex}
-              initial={{ y: 16, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -16, opacity: 0 }}
-              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-center justify-center gap-2 md:gap-3 text-center px-2 md:px-4"
-            >
-              {current.icon}
-              <span className="text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-1">
-                {current.text}
+          <div
+            key={currentIndex}
+            className="flex items-center justify-center gap-2 md:gap-3 text-center px-2 md:px-4 animate-[announcementFade_0.45s_ease-out]"
+          >
+            {current.icon}
+            <span className="text-[11px] sm:text-xs leading-relaxed line-clamp-2 sm:line-clamp-1">
+              {current.text}
+            </span>
+            {current.link ? (
+              <Link
+                to={current.link}
+                className="hidden sm:inline-flex bg-diyar-brown hover:bg-[#a6886f] text-white text-[10px] font-bold px-2.5 py-1 rounded-full transition-colors cursor-pointer ms-1 shrink-0"
+              >
+                {current.cta}
+              </Link>
+            ) : (
+              <span className="hidden sm:inline-flex bg-white/10 text-diyar-cream/90 text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/10 ms-1 shrink-0">
+                {current.cta}
               </span>
-              {current.link ? (
-                <Link
-                  to={current.link}
-                  className="hidden sm:inline-flex bg-diyar-brown hover:bg-[#a6886f] text-white text-[10px] font-bold px-2.5 py-1 rounded-full transition-colors cursor-pointer ms-1 shrink-0"
-                >
-                  {current.cta}
-                </Link>
-              ) : (
-                <span className="hidden sm:inline-flex bg-white/10 text-diyar-cream/90 text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/10 ms-1 shrink-0">
-                  {current.cta}
-                </span>
-              )}
-            </motion.div>
-          </AnimatePresence>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={handleNext}
-            className="hidden md:flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer w-7 h-7 hover:bg-white/10 rounded-full"
+            className="hidden md:flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer min-w-11 min-h-11 hover:bg-white/10 rounded-full"
             title={t('home.announcements.next')}
             aria-label={t('home.announcements.next')}
             id="btn-announcement-next"
@@ -187,7 +182,7 @@ export function AnnouncementBar() {
 
           <button
             onClick={() => setIsClosing(true)}
-            className="text-white/50 hover:text-diyar-cream hover:bg-white/10 p-1.5 rounded-full transition-all cursor-pointer shrink-0"
+            className="text-white/50 hover:text-diyar-cream hover:bg-white/10 min-w-11 min-h-11 inline-flex items-center justify-center p-1.5 rounded-full transition-all cursor-pointer shrink-0"
             title={t('home.announcements.close')}
             aria-label={t('home.announcements.close')}
             id="btn-announcement-close"

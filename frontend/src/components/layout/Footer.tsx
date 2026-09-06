@@ -56,7 +56,7 @@ export function Footer() {
           <div>
             <img
               src="/logo_diyar.svg"
-              alt="DIYAR"
+              alt=""
               className="h-8 md:h-9 mb-5 brightness-0 invert"
             />
             <p className="text-white/70 leading-relaxed mb-6 text-xs md:text-sm">

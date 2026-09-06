@@ -62,7 +62,7 @@ export default function MarketplaceShell() {
   const navigate = useNavigate();
   const location = useLocation();
   const { count: cartCount } = useCart();
-  const { isAuthenticated, logout, isLoading, user } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const { toast } = useToast();
   const { dir, t } = useLocale();
   const dashboardPath = resolveDashboardEntryPath(user?.roles);
@@ -133,32 +133,6 @@ export default function MarketplaceShell() {
     }
   }, [hideMarketplaceChrome]);
 
-  if (isLoading && !hideMarketplaceChrome) {
-    return (
-      <div className="min-h-screen bg-white font-sans text-diyar-dark pb-17.5 md:pb-0 overflow-x-hidden" dir={dir}>
-        <AnnouncementBar />
-        <div className="sticky top-0 z-50 w-full flex justify-center h-0 overflow-visible">
-          <div className="w-full flex justify-center absolute top-0 mt-2 md:mt-4 pointer-events-none">
-            <header className="max-w-350 w-full px-3 md:px-4 pointer-events-auto">
-              <div className="bg-white/95 backdrop-blur-md rounded-4xl shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 flex items-center justify-between p-2 lg:px-4 lg:py-3 gap-3 w-full animate-pulse">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-100" />
-                  <div className="h-8 w-24 rounded bg-gray-100" />
-                </div>
-                <div className="hidden md:block flex-1 max-w-md h-10 rounded-full bg-gray-100 mx-4" />
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gray-100" />
-                  <div className="w-8 h-8 rounded-full bg-gray-100" />
-                </div>
-              </div>
-            </header>
-          </div>
-        </div>
-        <main className="h-[min(88vh,720px)] md:h-[calc(100vh-48px)] animate-pulse bg-gray-50" aria-busy="true" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-white font-sans text-diyar-dark pb-17.5 md:pb-0 overflow-x-hidden" dir={dir}>
       {!hideMarketplaceChrome && <AnnouncementBar />}
@@ -178,12 +152,13 @@ export default function MarketplaceShell() {
                       type="button"
                       data-testid="sidebar-menu-toggle"
                       onClick={() => setIsSidebarOpen(true)}
+                      aria-label={t('layout.nav.openMenu')}
                       className="text-diyar-dark bg-gray-50 hover:bg-gray-100 border border-gray-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors cursor-pointer"
                     >
                       <Menu size={20} />
                     </button>
-                    <Link to="/" className="cursor-pointer">
-                      <img src="/logo_diyar.svg" alt="DIYAR" width={120} height={32} className="h-7 md:h-8 mr-2 lg:mr-0" />
+                    <Link to="/" className="cursor-pointer" aria-label="DIYAR">
+                      <img src="/logo_diyar.svg" alt="" width={120} height={32} className="h-7 md:h-8 mr-2 lg:mr-0" />
                     </Link>
                   </div>
 
@@ -246,13 +221,15 @@ export default function MarketplaceShell() {
                     imageSearchDisabled
                     onImageSearchClick={() => setIsImageSearchOpen(true)}
                   />
-                  <div
+                  <button
+                    type="button"
+                    aria-label={t('layout.nav.filters')}
                     className="px-2 flex items-center gap-2 cursor-pointer text-diyar-dark hover:text-diyar-dark/80 transition shrink-0 border-r border-gray-200"
                     onClick={() => setIsFilterOpen(true)}
                   >
                     <SlidersHorizontal className="w-4 h-4 md:w-5 md:h-5" />
                     <span className="text-sm font-medium hidden sm:block">{t('layout.nav.filters')}</span>
-                  </div>
+                  </button>
                 </form>
 
                 {/* Left Group: Profile, Icons, CTA */}
@@ -262,6 +239,7 @@ export default function MarketplaceShell() {
                     <Link
                       to="/search"
                       state={{ focusSearch: true }}
+                      aria-label={t('layout.nav.search')}
                       className="md:hidden w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors cursor-pointer"
                     >
                       <Search className="w-5 h-5" />
@@ -271,6 +249,7 @@ export default function MarketplaceShell() {
                         <a
                           href={accountHubHref}
                           className="hidden md:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center overflow-hidden hover:ring-2 hover:ring-diyar-brown/30 transition-all cursor-pointer"
+                          aria-label={t('common.myAccount')}
                           title={t('common.myAccount')}
                         >
                           <UserAvatar name={user?.name} avatarUrl={user?.avatar_url} size="sm" />
@@ -279,6 +258,7 @@ export default function MarketplaceShell() {
                         <Link
                           to={accountHubHref}
                           className="hidden md:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center overflow-hidden hover:ring-2 hover:ring-diyar-brown/30 transition-all cursor-pointer"
+                          aria-label={t('common.myAccount')}
                           title={t('common.myAccount')}
                         >
                           <UserAvatar name={user?.name} avatarUrl={user?.avatar_url} size="sm" />
@@ -288,13 +268,16 @@ export default function MarketplaceShell() {
                       <Link
                         to="/auth"
                         className="hidden md:flex w-10 h-10 rounded-full border border-gray-100 items-center justify-center text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors cursor-pointer"
+                        aria-label={t('common.myAccount')}
                         title={t('common.myAccount')}
                       >
                         <User size={18} />
                       </Link>
                     )}
                     {!hideStoreCommerce ? (
-                    <div
+                    <button
+                      type="button"
+                      aria-label={t('layout.nav.cart')}
                       className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
                       onClick={() => setIsCartOpen(true)}
                     >
@@ -304,7 +287,7 @@ export default function MarketplaceShell() {
                           {cartCount}
                         </span>
                       )}
-                    </div>
+                    </button>
                     ) : null}
                     {isAuthenticated ? (
                       <Suspense fallback={<HeaderWidgetFallback />}>
@@ -325,6 +308,7 @@ export default function MarketplaceShell() {
                       <Link
                         to="/auth"
                         className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
+                        aria-label={t('common.notifications')}
                         title={t('common.notifications')}
                       >
                         <Bell className="w-5 h-5" />

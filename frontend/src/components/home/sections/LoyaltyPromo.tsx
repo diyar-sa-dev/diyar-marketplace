@@ -20,7 +20,6 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
-import { OptimizedPicture } from '../../common/OptimizedPicture.tsx';
 import { RailArrows } from './RailArrows.tsx';
 import {
   Star,
@@ -152,8 +151,8 @@ export function LoyaltyPromo() {
 
             <div className="relative z-10 w-full max-w-70 md:max-w-85 xl:max-w-105 transition-transform duration-700 hover:scale-105 aspect-square">
               <div className="absolute -inset-4 bg-amber-400/20 rounded-full blur-2xl -z-10" />
-              <OptimizedPicture
-                src="/صورة نقاط الولاء.png"
+              <img
+                src="/loyalty-points.webp"
                 alt={t('home.loyalty.imageAlt')}
                 width={420}
                 height={420}

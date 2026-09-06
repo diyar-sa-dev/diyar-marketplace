@@ -13,10 +13,10 @@ export const DEFAULT_SEO = {
   image: '/logo_diyar.svg',
 } as const;
 
-function upsertNamedMeta(name: string, content: string | undefined) {
+function upsertNamedMeta(name: string, content: string | undefined, fallback?: string) {
   const selector = `meta[name="${name}"]`;
-  if (!content) {
-    document.head.querySelector(selector)?.remove();
+  const resolved = content?.trim() || fallback;
+  if (!resolved) {
     return;
   }
 
@@ -27,13 +27,13 @@ function upsertNamedMeta(name: string, content: string | undefined) {
     document.head.appendChild(node);
   }
 
-  node.content = content;
+  node.content = resolved;
 }
 
-function upsertPropertyMeta(property: string, content: string | undefined) {
+function upsertPropertyMeta(property: string, content: string | undefined, fallback?: string) {
   const selector = `meta[property="${property}"]`;
-  if (!content) {
-    document.head.querySelector(selector)?.remove();
+  const resolved = content?.trim() || fallback;
+  if (!resolved) {
     return;
   }
 
@@ -44,7 +44,7 @@ function upsertPropertyMeta(property: string, content: string | undefined) {
     document.head.appendChild(node);
   }
 
-  node.content = content;
+  node.content = resolved;
 }
 
 function upsertCanonical(href: string | undefined) {
@@ -67,11 +67,11 @@ function upsertCanonical(href: string | undefined) {
 export function applyPageSeo(options: PageSeoOptions): void {
   document.title = options.title;
 
-  upsertNamedMeta('description', options.description);
-  upsertPropertyMeta('og:title', options.title);
-  upsertPropertyMeta('og:description', options.description);
-  upsertNamedMeta('twitter:title', options.title);
-  upsertNamedMeta('twitter:description', options.description);
+  upsertNamedMeta('description', options.description, DEFAULT_SEO.description);
+  upsertPropertyMeta('og:title', options.title, DEFAULT_SEO.title);
+  upsertPropertyMeta('og:description', options.description, DEFAULT_SEO.description);
+  upsertNamedMeta('twitter:title', options.title, DEFAULT_SEO.title);
+  upsertNamedMeta('twitter:description', options.description, DEFAULT_SEO.description);
 
   const image = options.image ?? DEFAULT_SEO.image;
   upsertPropertyMeta('og:image', image);

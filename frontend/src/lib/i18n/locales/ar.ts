@@ -1495,6 +1495,8 @@ export const ar = {
       personalAssistant: 'المساعد الشخصي',
       searchPlaceholder: 'ابحث عن منتجات، متاجر، خدمات...',
       filters: 'فلاتر',
+      openMenu: 'فتح القائمة',
+      search: 'بحث',
       requestService: 'طلب تنفيذ',
       categories: 'التصنيفات',
       cart: 'السلة',
@@ -3763,6 +3765,9 @@ export const ar = {
       pendingAtCheckout: 'يُحسب عند الدفع',
       checkoutCta: 'إتمام الطلب',
       checkoutPendingNote: 'يتم حساب الضريبة والشحن والإجمالي النهائي عند الدفع.',
+      removeItem: 'إزالة المنتج',
+      decreaseQuantity: 'تقليل الكمية',
+      increaseQuantity: 'زيادة الكمية',
     },
   },
   notifications: {

@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
@@ -8,7 +9,7 @@ const frontendRoot = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(frontendRoot, '..');
 const cdnBase = process.env.VITE_CDN_BASE_URL?.replace(/\/$/, '');
 /** Local prod stack: scripts/local/start-frontend-prod-api.ps1 sets this to http://<LAN-IP>:8093 */
-const apiProxyTarget = process.env.DIYAR_API_PROXY_TARGET?.replace(/\/$/, '') ?? 'http://localhost:8000';
+const apiProxyTarget = process.env.DIYAR_API_PROXY_TARGET?.replace(/\/$/, '') ?? 'http://localhost:8093';
 const reverbProxyTarget =
   process.env.DIYAR_REVERB_PROXY_TARGET?.replace(/\/$/, '') ?? apiProxyTarget;
 
@@ -30,6 +31,29 @@ function reverbProxyOptions(target: string) {
   };
 }
 
+function seoStaticFilesPlugin(): Plugin {
+  const siteUrl = (process.env.VITE_SITE_URL ?? 'https://diyar.com').replace(/\/$/, '');
+  const paths = ['/', '/category/all', '/services', '/blog', '/b2b', '/loyalty'];
+
+  return {
+    name: 'diyar-seo-static-files',
+    closeBundle() {
+      const outDir = path.resolve(frontendRoot, 'dist');
+      writeFileSync(
+        path.join(outDir, 'robots.txt'),
+        ['User-agent: *', 'Allow: /', 'Disallow: /admin', 'Disallow: /dashboard', 'Disallow: /auth', '', `Sitemap: ${siteUrl}/sitemap.xml`, ''].join('\n'),
+        'utf8',
+      );
+      const urls = paths.map((loc) => `  <url>\n    <loc>${siteUrl}${loc}</loc>\n  </url>`).join('\n');
+      writeFileSync(
+        path.join(outDir, 'sitemap.xml'),
+        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
+        'utf8',
+      );
+    },
+  };
+}
+
 function deliveryPreconnectPlugin(): Plugin {
   return {
     name: 'diyar-delivery-preconnect',
@@ -39,7 +63,7 @@ function deliveryPreconnectPlugin(): Plugin {
         ? `<link rel="preconnect" href="${backendOrigin}" crossorigin />\n    <link rel="dns-prefetch" href="${backendOrigin}" />`
         : '';
       const lcpPreload =
-        '<link rel="preload" as="image" href="/hero_1.webp" type="image/webp" fetchpriority="high" />';
+        '<link rel="preload" as="image" href="/hero_1.webp" type="image/webp" fetchpriority="high" imagesizes="100vw" />';
 
       return html
         .replace('<!-- diyar-preconnect -->', preconnect)
@@ -52,7 +76,7 @@ export default defineConfig({
   root: frontendRoot,
   base: cdnBase ? `${cdnBase}/` : '/',
   cacheDir: path.resolve(frontendRoot, 'node_modules/.vite'),
-  plugins: [react(), tailwindcss(), deliveryPreconnectPlugin()],
+  plugins: [react(), tailwindcss(), deliveryPreconnectPlugin(), seoStaticFilesPlugin()],
   resolve: {
     dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
   },
@@ -60,6 +84,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes('/lib/i18n/locales/')) {
+            return 'vendor-locale';
+          }
+
           if (!id.includes('node_modules')) {
             return undefined;
           }
@@ -92,7 +120,7 @@ export default defineConfig({
             return 'vendor-sweetalert2';
           }
 
-          if (id.includes('framer-motion')) {
+          if (id.includes('motion') || id.includes('framer-motion')) {
             return 'vendor-motion';
           }
 
@@ -123,6 +151,7 @@ export default defineConfig({
   preview: {
     port: 3000,
     host: '0.0.0.0',
+    strictPort: true,
     proxy: {
       '/api': apiProxyOptions(),
       '/sanctum': apiProxyOptions(),

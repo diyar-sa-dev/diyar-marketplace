@@ -32,7 +32,6 @@ export function RailControls({
   return (
     <div
       className={`inline-flex items-center gap-0.5 rounded-full border border-gray-200/90 bg-white/95 p-0.5 shadow-sm backdrop-blur-sm ${className}`}
-      aria-hidden={!overflow}
     >
       <button
         type="button"

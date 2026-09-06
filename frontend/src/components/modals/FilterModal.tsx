@@ -503,6 +503,9 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     <div
       className="fixed inset-0 z-250 flex items-end justify-center p-0 overscroll-none md:items-center md:p-6"
       dir={dir}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="filter-modal-title"
     >
       <button
         type="button"
@@ -516,13 +519,14 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           <div className="flex items-center justify-between px-4 py-4 sm:px-6">
             <div className="flex items-center gap-2">
               <SlidersHorizontal className="text-diyar-brown" size={20} />
-              <h2 className="text-lg font-bold text-diyar-dark sm:text-xl">
+              <h2 id="filter-modal-title" className="text-lg font-bold text-diyar-dark sm:text-xl">
                 {t('catalog.search.filters.title')}
               </h2>
             </div>
             <button
               type="button"
               onClick={onClose}
+              aria-label={t('catalog.search.filters.close')}
               className="cursor-pointer rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-diyar-dark"
             >
               <X size={20} />

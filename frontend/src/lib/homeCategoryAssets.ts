@@ -1,15 +1,15 @@
 /** Shared product category imagery for homepage sections (room grid, style grid, strip). */
 export const CATEGORY_IMAGES: Record<string, string> = {
-  bedroom: '/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.png',
-  'living-room': '/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.png',
-  kitchen: '/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.png',
-  dining: '/categories/غرف الطعام.png',
-  office: '/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.png',
-  decor: '/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.png',
-  lighting: '/categories/الإضاءة.png',
-  curtains: '/categories/الستائر.png',
-  outdoor: '/categories/أثاث خارجي.png',
-  bathroom: '/categories/الحمامات.png',
+  bedroom: '/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.webp',
+  'living-room': '/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.webp',
+  kitchen: '/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.webp',
+  dining: '/categories/غرف الطعام.webp',
+  office: '/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.webp',
+  decor: '/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.webp',
+  lighting: '/categories/الإضاءة.webp',
+  curtains: '/categories/الستائر.webp',
+  outdoor: '/categories/أثاث خارجي.webp',
+  bathroom: '/categories/الحمامات.webp',
 };
 
 /** Room-focused categories for the Shop by room grid. */

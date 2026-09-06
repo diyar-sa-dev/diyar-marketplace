@@ -135,7 +135,6 @@ use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceEngagementController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceOfferController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceRequestController;
-use App\Http\Controllers\Api\V1\Storefront\HomeStorefrontController;
 use App\Http\Controllers\Api\V1\WebsiteFeedbackController;
 use Illuminate\Support\Facades\Route;
 
@@ -184,7 +183,7 @@ Route::post('/webhooks/payments/fake', FakePaymentWebhookController::class)
     ->middleware('throttle:webhooks')
     ->name('api.v1.webhooks.payments.fake');
 
-Route::get('/storefront/home', [HomeStorefrontController::class, 'show']);
+Route::get('/storefront/home', [\App\Http\Controllers\Api\V1\Storefront\HomeStorefrontController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{slug}', [CategoryController::class, 'show']);
 Route::get('/categories/{slug}/items', [CategoryController::class, 'items']);

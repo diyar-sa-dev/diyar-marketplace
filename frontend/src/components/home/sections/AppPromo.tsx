@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Smartphone, Scan, Box } from 'lucide-react';
-import { OptimizedPicture } from '../../common/OptimizedPicture.tsx';
 import { useLocale } from '../../../hooks/useLocale.ts';
 
-/** Avoid `/app*.png` — Vite Reverb proxy prefix is `/app/`. */
-const APP_MOCKUP_SRC = '/diyar-phone-mockup.png';
-const APP_MOCKUP_FALLBACK = '/laptop.png';
+const APP_MOCKUP_SRC = '/diyar-phone-mockup.webp';
+const APP_MOCKUP_FALLBACK = '/laptop.webp';
 
 const GOOGLE_PLAY_BADGE_EN =
   'https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg';
@@ -27,15 +25,7 @@ export function AppPromo() {
   }, [locale]);
 
   const handleMockupError = () => {
-    setMockupSrc((current) => {
-      if (current === APP_MOCKUP_FALLBACK) {
-        return current;
-      }
-      if (current === APP_MOCKUP_SRC) {
-        return '/app-mockup.png';
-      }
-      return APP_MOCKUP_FALLBACK;
-    });
+    setMockupSrc((current) => (current === APP_MOCKUP_FALLBACK ? current : APP_MOCKUP_FALLBACK));
   };
 
   const textOrder = isRtl ? 'md:order-2' : 'md:order-1';
@@ -125,7 +115,7 @@ export function AppPromo() {
             className={`w-full md:w-[48%] lg:w-[46%] flex items-end justify-center px-6 pb-4 md:px-4 md:pb-0 md:pt-8 overflow-visible shrink-0 ${phonePlacement}`}
           >
             <div className="translate-y-5 md:translate-y-7 lg:translate-y-9 transition-transform duration-500 ease-out hover:scale-[1.03] md:hover:scale-105 lg:hover:scale-[1.06] will-change-transform origin-bottom">
-              <OptimizedPicture
+              <img
                 src={mockupSrc}
                 alt={t('home.appPromo.mockupAlt')}
                 width={400}

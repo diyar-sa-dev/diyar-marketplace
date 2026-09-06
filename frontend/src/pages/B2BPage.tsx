@@ -249,7 +249,7 @@ export default function B2BPage() {
           referrerPolicy="no-referrer"
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = '/hero_2.jpg';
+            (e.target as HTMLImageElement).src = '/hero_2.webp';
           }}
         />
         <div className="absolute inset-0 bg-diyar-dark/45 pointer-events-none" />
