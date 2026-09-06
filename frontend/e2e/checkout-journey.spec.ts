@@ -7,7 +7,9 @@ import {
   sessionRequestHeaders,
 } from './helpers/api.ts';
 
-async function ensureCustomerAddress(request: import('@playwright/test').APIRequestContext): Promise<string> {
+async function ensureCustomerAddress(
+  request: import('@playwright/test').APIRequestContext,
+): Promise<string> {
   const headers = await sessionRequestHeaders(request);
   const addresses = await request.get(`${apiBaseUrl()}/profile/addresses`, { headers });
   const list = (await addresses.json())?.data?.addresses ?? [];
@@ -58,7 +60,8 @@ test.describe('Checkout journey', () => {
     });
 
     const cart = await request.get(`${apiBaseUrl()}/cart`, { headers });
-    const vendorAccountId = (await cart.json())?.data?.cart?.items?.[0]?.product?.vendor?.vendor_account_id;
+    const vendorAccountId = (await cart.json())?.data?.cart?.items?.[0]?.product?.vendor
+      ?.vendor_account_id;
     const addressId = await ensureCustomerAddress(request);
 
     const payload = {
@@ -115,7 +118,8 @@ test.describe('Checkout journey', () => {
   });
 
   test('UI cart to fake payment simulator', async ({ page, request }) => {
-    await loginMarketplaceUi(page, demoUsers.customer.phoneNational);
+    await loginMarketplaceApi(request, demoUsers.customer.phoneNational);
+    await applyRequestSessionToPage(request, page);
 
     const headers = await sessionRequestHeaders(request);
     const products = await request.get(`${apiBaseUrl()}/products?per_page=1`);
@@ -127,7 +131,8 @@ test.describe('Checkout journey', () => {
     });
 
     const cart = await request.get(`${apiBaseUrl()}/cart`, { headers });
-    const vendorAccountId = (await cart.json())?.data?.cart?.items?.[0]?.product?.vendor?.vendor_account_id;
+    const vendorAccountId = (await cart.json())?.data?.cart?.items?.[0]?.product?.vendor
+      ?.vendor_account_id;
     const addressId = await ensureCustomerAddress(request);
     const payload = {
       shipping_address_id: addressId,
@@ -155,13 +160,15 @@ test.describe('Checkout journey', () => {
     const attemptId = initBody?.data?.attempt_id as string;
 
     await page.goto(`/checkout/payment/${orderId}/simulate?attempt=${attemptId}`, {
-    await page.goto(`/checkout/payment/${orderId}/simulate?attempt=${attemptId}`);
+      waitUntil: 'networkidle',
+    });
+    await expect(page).toHaveURL(/\/checkout\/payment\/[^/]+\/simulate/);
 
     const successButton = page.getByRole('button', { name: /دفع ناجح|successful payment/i });
     await expect(successButton).toBeVisible({ timeout: 30_000 });
     await successButton.click();
 
     await expect(page).toHaveURL(/\/orders/, { timeout: 60_000 });
-  });
     await expect(page).not.toHaveURL(/\/auth/);
+  });
 });

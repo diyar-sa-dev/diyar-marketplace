@@ -45,6 +45,9 @@ class AdvancedShippingTest extends TestCase
         $product = Product::factory()->create([
             'sale_price' => 200.00,
             'weight_kg' => 2.5,
+            'width' => null,
+            'height' => null,
+            'depth' => null,
         ]);
 
         $carrier = ShippingCarrier::query()->create([
