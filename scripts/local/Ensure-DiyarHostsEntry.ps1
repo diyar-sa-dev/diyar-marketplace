@@ -14,7 +14,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $hostsPath = Join-Path $env:SystemRoot 'System32\drivers\etc\hosts'
-$marker = "# DIYAR local dev"
+$marker = '# DIYAR local dev'
 $entryLine = "$Ip $Hostname $marker"
 
 if (-not (Test-Path $hostsPath)) {
@@ -26,7 +26,7 @@ $pattern = [regex]::Escape($Hostname)
 
 foreach ($line in $content) {
     if ($line -match "\s$pattern(\s|$)" -and $line -notmatch '^\s*#') {
-        Write-Host "Hosts OK — $Hostname already mapped."
+        Write-Host "Hosts OK - $Hostname already mapped."
         return
     }
 }
@@ -35,11 +35,7 @@ try {
     Add-Content -Path $hostsPath -Value $entryLine -Encoding ascii
     Write-Host "Added hosts entry: $entryLine"
 } catch {
-    Write-Warning @"
-Could not write hosts file (Admin required). Add manually:
-
-  $entryLine
-
-File: $hostsPath
-"@
+    Write-Warning "Could not write hosts file (Admin required). Add manually:"
+    Write-Warning "  $entryLine"
+    Write-Warning "File: $hostsPath"
 }
