@@ -1,16 +1,27 @@
-import { useEffect } from 'react';
-import { applyPageSeo, resetPageSeo, type PageSeoOptions } from '../lib/seo/pageSeo.ts';
+import { useLayoutEffect, useRef } from 'react';
+import { applyPageSeo, type PageSeoOptions } from '../lib/seo/pageSeo.ts';
 
 export function usePageSeo(options: PageSeoOptions | null | undefined) {
-  useEffect(() => {
+  const appliedRef = useRef<string>('');
+
+  useLayoutEffect(() => {
     if (!options) {
       return;
     }
 
-    applyPageSeo(options);
+    const signature = [
+      options.title,
+      options.description,
+      options.image,
+      options.canonicalPath,
+      options.noindex,
+    ].join('|');
 
-    return () => {
-      resetPageSeo();
-    };
+    if (appliedRef.current === signature) {
+      return;
+    }
+
+    appliedRef.current = signature;
+    applyPageSeo(options);
   }, [options?.title, options?.description, options?.image, options?.canonicalPath, options?.noindex]);
 }

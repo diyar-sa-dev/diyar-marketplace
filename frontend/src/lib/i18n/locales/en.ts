@@ -1525,6 +1525,8 @@ export const en = {
       personalAssistant: 'Personal assistant',
       searchPlaceholder: 'Search products, stores, services...',
       filters: 'Filters',
+      openMenu: 'Open menu',
+      search: 'Search',
       requestService: 'Request service',
       categories: 'Categories',
       cart: 'Cart',
@@ -3813,6 +3815,9 @@ export const en = {
       pendingAtCheckout: 'Calculated at checkout',
       checkoutCta: 'Continue to checkout',
       checkoutPendingNote: 'Tax, shipping, and final total are calculated at checkout.',
+      removeItem: 'Remove item',
+      decreaseQuantity: 'Decrease quantity',
+      increaseQuantity: 'Increase quantity',
     },
   },
   notifications: {

@@ -2,6 +2,7 @@ import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueries } from '@tanstack/react-query';
 import ProductCard from '../../cards/ProductCard.tsx';
+import { ProductCardSkeleton } from '../../cards/ProductCardSkeleton.tsx';
 import ServiceCard from '../../cards/ServiceCard.tsx';
 import { useCategories, useProducts, useVendors } from '../../../hooks/catalog/useCatalog.ts';
 import { useBlogArticles } from '../../../hooks/blog/useBlogArticles.ts';
@@ -87,9 +88,7 @@ export function MostInteractiveProducts() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {isLoading
-              ? [...Array(6)].map((_, i) => (
-                  <div key={i} className="h-64 bg-gray-100 animate-pulse rounded-lg" />
-                ))
+              ? [...Array(6)].map((_, i) => <ProductCardSkeleton key={i} />)
               : products.map((product) => <ProductCard key={product.id} product={product} />)}
           </div>
         )}

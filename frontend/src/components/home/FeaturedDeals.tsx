@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Tag } from 'lucide-react';
 import ProductCard from '../cards/ProductCard.tsx';
+import { ProductCardSkeleton } from '../cards/ProductCardSkeleton.tsx';
 import SectionEmptyState from './SectionEmptyState.tsx';
 import { useProducts } from '../../hooks/catalog/useCatalog.ts';
 import {
@@ -33,8 +34,7 @@ export default function FeaturedDeals() {
         <h2 className="text-2xl md:text-3xl font-sans font-bold">{t('home.featuredDeals.title')}</h2>
         <div className="flex items-center gap-3">
           <div
-            className="min-w-[7.5rem] md:min-w-[10rem] min-h-[2.5rem] md:min-h-[3.25rem] flex items-center justify-end"
-            aria-hidden={!showCountdown}
+            className={`min-w-[7.5rem] md:min-w-[10rem] min-h-[2.5rem] md:min-h-[3.25rem] flex items-center justify-end ${showCountdown ? '' : 'invisible'}`}
           >
             {showCountdown && countdown && (
               <div
@@ -69,7 +69,7 @@ export default function FeaturedDeals() {
           {isLoading
             ? [...Array(5)].map((_, i) => (
                 <div key={i} className="w-50 md:w-auto shrink-0 snap-start">
-                  <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+                  <ProductCardSkeleton />
                 </div>
               ))
             : products.map((p) => (

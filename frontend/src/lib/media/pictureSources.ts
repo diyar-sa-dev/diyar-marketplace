@@ -1,14 +1,8 @@
-const RASTER_EXT = /\.(jpe?g|png)$/i;
-
-/** Same-path WebP sibling for local public assets. Remote URLs pass through unchanged. */
-export function webpSrc(src: string): string | null {
-  if (!src || src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
-    return null;
+/** Encode local public asset paths (spaces, Arabic) for use in img src. */
+export function staticAsset(path: string): string {
+  if (!path || path.startsWith('data:') || path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
   }
 
-  if (!RASTER_EXT.test(src)) {
-    return null;
-  }
-
-  return src.replace(RASTER_EXT, '.webp');
+  return encodeURI(path);
 }

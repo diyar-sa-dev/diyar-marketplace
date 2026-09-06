@@ -7,13 +7,20 @@ import { useLocation } from 'react-router-dom';
 import { lazyWithRetry } from './lib/lazyWithRetry.ts';
 import { AdminAuthProvider } from './admin/auth/AdminAuthContext.tsx';
 import { AdminPageSkeleton } from './admin/components/AdminPageSkeleton.tsx';
+import { HomeRouteFallback } from './marketplace/LazyRoute.tsx';
 
 const AdminShell = lazyWithRetry(() => import('./admin/AdminShell.tsx'), 'admin-shell');
 const MarketplaceShell = lazyWithRetry(() => import('./MarketplaceShell.tsx'), 'marketplace-shell');
 
 function MarketplaceBootFallback() {
+  const { pathname } = useLocation();
+
+  if (pathname === '/') {
+    return <HomeRouteFallback />;
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
+    <div className="min-h-[40vh] flex items-center justify-center bg-white">
       <div className="w-8 h-8 border-2 border-diyar-brown/30 border-t-diyar-brown rounded-full animate-spin" />
     </div>
   );

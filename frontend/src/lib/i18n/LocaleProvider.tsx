@@ -1,21 +1,14 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { LocaleContext, type LocaleContextValue } from './localeContext.ts';
 import { ensureLocaleCatalog, isLocaleCatalogLoaded } from './localeCatalog.ts';
+import { ensureLocaleFonts } from './localeFonts.ts';
+import { HomeRouteFallback } from '../../marketplace/LazyRoute.tsx';
 import { translate } from './translate.ts';
 import { applyDocumentLocale, readStoredLocale, writeStoredLocale } from './storage.ts';
 import { localeDirection, type Locale, type TranslateFn, type TranslateParams } from './types.ts';
 
-function LocaleBootstrapFallback({ locale }: { locale: Locale }) {
-  return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-white"
-      dir={localeDirection(locale)}
-      aria-busy="true"
-      aria-live="polite"
-    >
-      <div className="w-8 h-8 border-2 border-diyar-brown/30 border-t-diyar-brown rounded-full animate-spin" />
-    </div>
-  );
+function LocaleBootstrapFallback() {
+  return <HomeRouteFallback />;
 }
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
@@ -32,7 +25,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
     let cancelled = false;
 
-    void ensureLocaleCatalog(locale).then(() => {
+    void Promise.all([ensureLocaleCatalog(locale), ensureLocaleFonts(locale)]).then(() => {
       if (!cancelled) {
         setBootstrappedLocale(locale);
       }
@@ -51,7 +44,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      void ensureLocaleCatalog(next).then(() => {
+      void Promise.all([ensureLocaleCatalog(next), ensureLocaleFonts(next)]).then(() => {
         setLocaleState(next);
         writeStoredLocale(next);
         applyDocumentLocale(next);
@@ -80,7 +73,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   );
 
   if (!catalogReady) {
-    return <LocaleBootstrapFallback locale={locale} />;
+    return <LocaleBootstrapFallback />;
   }
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;

@@ -20,7 +20,6 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
-import { OptimizedPicture } from '../../common/OptimizedPicture.tsx';
 import { RailArrows } from './RailArrows.tsx';
 import {
   Star,
@@ -101,20 +100,21 @@ export function AIBanner() {
         </div>
 
         <div className="w-full md:w-1/2 order-1 md:order-2 flex justify-center">
-          <div className="relative w-full max-w-lg aspect-4/3 bg-[#1a3330] rounded-xl overflow-hidden shadow-md border border-white/10 ring-1 ring-white/5 mx-auto">
-            <OptimizedPicture
-              src="/before.png"
+          <div className="relative w-full max-w-lg aspect-4/3 bg-[#1a3330] rounded-xl overflow-hidden shadow-md border border-white/10 ring-1 ring-white/5 mx-auto @container">
+            <img
+              src="/before.webp"
               alt={t('home.aiBanner.originalSpace')}
               width={1200}
               height={900}
               decoding="async"
               loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover filter grayscale-20 opacity-90"
+              className="absolute inset-0 w-full h-full object-cover opacity-80"
             />
 
-            <div className="absolute inset-0 animate-[sweep_4s_ease-in-out_infinite]">
-              <OptimizedPicture
-                src="/after.png"
+            <div className="absolute inset-0 overflow-hidden will-change-transform animate-[sweep_4s_ease-in-out_infinite] origin-left">
+              <div className="absolute inset-0 w-full h-full">
+              <img
+                src="/after.webp"
                 alt={t('home.aiBanner.assistantLayout')}
                 width={1200}
                 height={900}
@@ -122,9 +122,10 @@ export function AIBanner() {
                 loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover"
               />
+              </div>
             </div>
 
-            <div className="absolute top-0 bottom-0 w-1 bg-[#d2b694] shadow-md animate-[scan-x_4s_ease-in-out_infinite] -ml-0.5 z-10 flex flex-col items-center justify-center">
+            <div className="absolute top-0 bottom-0 left-0 w-1 bg-[#d2b694] shadow-md animate-[scan-x_4s_ease-in-out_infinite] -ml-0.5 z-10 flex flex-col items-center justify-center will-change-transform">
               <div className="w-8 h-8 md:w-10 md:h-10 bg-[#132624] border-2 border-[#d2b694] rounded-full shadow-md flex items-center justify-center -translate-x-3.5 md:-translate-x-4.5">
                 <Sparkles size={16} className="text-[#d2b694]" />
               </div>

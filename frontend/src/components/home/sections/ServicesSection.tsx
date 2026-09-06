@@ -66,17 +66,17 @@ export function ServicesSection() {
     })),
   });
   const STATIC_IMG: Record<string, string> = {
-    'interior-design': '/categories/تصميم داخلي.png',
-    maintenance: '/categories/تركيب وصيانة.png',
-    painting: '/categories/دهانات.png',
-    upholstery: '/categories/تنجيد وتجديد.png',
-    carpentry: '/categories/نجارة مخصصة.png',
-    consultation: '/categories/استشارات تصميم.png',
-    moving: '/categories/نقل وتغليف.png',
-    cleaning: '/categories/تنظيف وتلميع.png',
-    electrical: '/categories/إضاءة وكهرباء.png',
-    'curtains-install': '/categories/تركيب الستائر.png',
-    'floor-plan': '/categories/مخططات معمارية.png',
+    'interior-design': '/categories/تصميم داخلي.webp',
+    maintenance: '/categories/تركيب وصيانة.webp',
+    painting: '/categories/دهانات.webp',
+    upholstery: '/categories/تنجيد وتجديد.webp',
+    carpentry: '/categories/نجارة مخصصة.webp',
+    consultation: '/categories/استشارات تصميم.webp',
+    moving: '/categories/نقل وتغليف.webp',
+    cleaning: '/categories/تنظيف وتلميع.webp',
+    electrical: '/categories/إضاءة وكهرباء.webp',
+    'curtains-install': '/categories/تركيب الستائر.webp',
+    'floor-plan': '/categories/مخططات معمارية.webp',
     other: '/logo_diyar.svg',
   };
 

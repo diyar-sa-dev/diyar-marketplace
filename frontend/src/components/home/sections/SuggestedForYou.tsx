@@ -2,6 +2,7 @@ import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueries } from '@tanstack/react-query';
 import ProductCard from '../../cards/ProductCard.tsx';
+import { ProductCardSkeleton } from '../../cards/ProductCardSkeleton.tsx';
 import ServiceCard from '../../cards/ServiceCard.tsx';
 import { useCategories, useProducts, useVendors } from '../../../hooks/catalog/useCatalog.ts';
 import { useBlogArticles } from '../../../hooks/blog/useBlogArticles.ts';
@@ -85,7 +86,7 @@ export function SuggestedForYou() {
           {isLoading
             ? [...Array(5)].map((_, i) => (
                 <div key={i} className="w-50 md:w-auto shrink-0 snap-start">
-                  <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+                  <ProductCardSkeleton />
                 </div>
               ))
             : products.map((p) => (

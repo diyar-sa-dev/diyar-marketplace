@@ -28,6 +28,7 @@ function ContactActionButton({
       type="button"
       onClick={onClick}
       className="flex items-center gap-2 group relative bg-white border border-gray-100 shadow-lg text-diyar-dark p-3 rounded-full hover:bg-gray-50 transition-all font-bold text-sm cursor-pointer"
+      aria-label={title}
       title={title}
     >
       <span className="absolute right-full mr-3 px-3 py-1.5 bg-gray-900 text-white text-xs whitespace-nowrap rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none hidden md:block">
