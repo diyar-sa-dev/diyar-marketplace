@@ -13,6 +13,6 @@ export const addressKeys = {
 export const wishlistKeys = {
   all: marketplaceQueryKey('wishlist'),
   summary: () => [...wishlistKeys.all, 'summary'] as const,
-  list: (kind: 'products' | 'services', page: number, perPage: number) =>
+  list: (kind: 'products' | 'services' | 'articles', page: number, perPage: number) =>
     [...wishlistKeys.all, 'list', kind, page, perPage] as const,
 };

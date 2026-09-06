@@ -6,11 +6,11 @@ use App\Models\Message;
 use App\Support\Chat\ConversationMessageBroadcastPayload;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-final class ConversationMessageCreated implements ShouldBroadcastNow
+final class ConversationMessageCreated implements ShouldBroadcast
 {
     use Dispatchable;
     use InteractsWithSockets;
@@ -33,6 +33,11 @@ final class ConversationMessageCreated implements ShouldBroadcastNow
     public function broadcastAs(): string
     {
         return 'message.created';
+    }
+
+    public function broadcastQueue(): string
+    {
+        return (string) config('diyar.chat.queues.realtime', 'chat');
     }
 
     /**

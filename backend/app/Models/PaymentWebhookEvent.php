@@ -24,6 +24,9 @@ class PaymentWebhookEvent extends Model
         'payload',
         'processing_status',
         'payment_id',
+        'processing_attempts',
+        'processing_leased_until',
+        'correlation_id',
         'processed_at',
     ];
 
@@ -33,6 +36,7 @@ class PaymentWebhookEvent extends Model
             'signature_valid' => 'boolean',
             'payload' => 'array',
             'processing_status' => PaymentWebhookProcessingStatus::class,
+            'processing_leased_until' => 'datetime',
             'processed_at' => 'datetime',
         ];
     }

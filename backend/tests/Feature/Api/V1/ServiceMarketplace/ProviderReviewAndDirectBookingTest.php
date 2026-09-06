@@ -49,6 +49,29 @@ class ProviderReviewAndDirectBookingTest extends TestCase
     }
 
     #[Test]
+    public function customer_can_create_direct_booking_for_hourly_consultation_service(): void
+    {
+        $customer = $this->createUserWithRole(RoleName::Customer);
+        $service = Service::query()->where('slug', 'online-design-consultation')->firstOrFail();
+
+        $this->assertSame('direct', $service->booking_mode->value);
+        $this->assertSame(60, $service->duration_minutes);
+
+        Sanctum::actingAs($customer);
+
+        $this->postJson("/api/v1/services/{$service->slug}/direct-booking", [
+            'scheduled_date' => $this->openBookingDate(4),
+            'scheduled_time' => '11:00',
+            'customer_notes' => 'Online session please.',
+            'idempotency_key' => 'hourly-consultation-booking',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.booking.status', ServiceBookingStatus::PendingProviderConfirmation->value)
+            ->assertJsonPath('data.booking.price', '300.00')
+            ->assertJsonPath('data.booking.duration_minutes', 60);
+    }
+
+    #[Test]
     public function provider_bookings_include_linked_service_details(): void
     {
         $customer = $this->createUserWithRole(RoleName::Customer);

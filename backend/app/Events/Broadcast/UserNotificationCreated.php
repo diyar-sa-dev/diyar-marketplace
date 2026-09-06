@@ -5,11 +5,11 @@ namespace App\Events\Broadcast;
 use App\Models\UserNotification;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-final class UserNotificationCreated implements ShouldBroadcastNow
+final class UserNotificationCreated implements ShouldBroadcast
 {
     use Dispatchable;
     use InteractsWithSockets;
@@ -33,6 +33,11 @@ final class UserNotificationCreated implements ShouldBroadcastNow
     public function broadcastAs(): string
     {
         return 'notification.created';
+    }
+
+    public function broadcastQueue(): string
+    {
+        return (string) config('diyar.notifications.queues.high', 'notifications-high');
     }
 
     /**

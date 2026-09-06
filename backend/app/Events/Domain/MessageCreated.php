@@ -50,7 +50,7 @@ final class MessageCreated implements TriggersNotification
             ],
             entityType: 'conversation',
             entityId: $this->message->conversation_id,
-            dedupeKey: "chat.message:{$this->message->conversation_id}:{$this->message->sender_id}:".now()->format('Y-m-d-H-i'),
+            dedupeKey: "chat.message:{$this->message->id}",
         );
     }
 }

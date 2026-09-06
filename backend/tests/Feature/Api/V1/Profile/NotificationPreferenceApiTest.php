@@ -96,9 +96,10 @@ class NotificationPreferenceApiTest extends TestCase
 
         $notification = UserNotification::query()->where('user_id', $user->id)->firstOrFail();
 
-        $this->assertDatabaseMissing('notification_deliveries', [
+        $this->assertDatabaseHas('notification_deliveries', [
             'user_notification_id' => $notification->id,
             'channel' => 'email',
+            'status' => 'suppressed',
         ]);
     }
 }

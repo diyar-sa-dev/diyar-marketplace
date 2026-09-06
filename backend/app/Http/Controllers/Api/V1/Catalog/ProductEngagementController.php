@@ -33,6 +33,10 @@ class ProductEngagementController extends Controller
             ? $this->engagement->findUserReview($request->user(), $product)
             : null;
 
+        $canReview = $request->user() !== null
+            && $myReview === null
+            && $this->engagement->canUserReview($request->user(), $product);
+
         $media = app(MediaUploadService::class);
         $vendor = $product->vendorAccount;
 
@@ -45,6 +49,7 @@ class ProductEngagementController extends Controller
                 'total' => $paginator->total(),
             ],
             'my_review' => $myReview ? new ProductReviewResource($myReview) : null,
+            'can_review' => $canReview,
             'vendor_store' => $vendor !== null ? [
                 'name' => $vendor->business_name,
                 'logo_url' => $media->url($vendor->logo_path),

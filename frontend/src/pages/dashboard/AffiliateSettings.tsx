@@ -15,10 +15,9 @@ import { useDeleteAvatar, useProfile, useUploadAvatar } from '../../hooks/profil
 import { useAuth } from '../../hooks/auth/useAuth.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
-import { hasCustomerRole } from '../../lib/auth/roles.ts';
 import { normalizeIban, saudiIbanValidationMessage } from '../../lib/iban.ts';
 import { isValidOptionalUrl } from '../../lib/vendorFormValidation.ts';
-import { parseApiError } from '../../utils/errors.ts';
+import { getFieldErrors, parseApiError } from '../../utils/errors.ts';
 import { usePortalTheme } from '../../lib/dashboard/portalTheme.ts';
 import type { AffiliateSettingsPayload, AffiliateSocialLinks } from '../../types/affiliate.ts';
 
@@ -26,9 +25,41 @@ const TAB_IDS = ['account', 'bank', 'social'] as const;
 type SettingsTab = (typeof TAB_IDS)[number];
 
 const BANK_CODES = ['snb', 'alrajhi', 'riyad', 'bsf'] as const;
+const SOCIAL_KEYS = ['twitter', 'instagram', 'tiktok', 'website'] as const;
+type SocialLinkKey = (typeof SOCIAL_KEYS)[number];
+
+const SOCIAL_PLACEHOLDERS: Record<SocialLinkKey, string> = {
+  twitter: 'https://twitter.com/...',
+  instagram: 'https://instagram.com/...',
+  tiktok: 'https://tiktok.com/@...',
+  website: 'https://...',
+};
 
 const INPUT_CLASS =
   'w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 bg-gray-50/50 placeholder:text-gray-400 text-start';
+
+const SAVE_BUTTON_CLASS =
+  'bg-green-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700 transition shadow-sm cursor-pointer disabled:opacity-60';
+
+function settingsInputClass(hasError: boolean, extra = ''): string {
+  return [
+    INPUT_CLASS,
+    hasError ? 'border-red-300 bg-red-50/40 focus:border-red-500 focus:ring-red-500' : '',
+    extra,
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+
+function mapAffiliateApiFieldErrors(error: unknown): Record<string, string> {
+  const fields = getFieldErrors(error);
+  return Object.fromEntries(
+    Object.entries(fields).map(([field, messages]) => {
+      const key = field.startsWith('social_links.') ? field.slice('social_links.'.length) : field;
+      return [key, messages[0] ?? ''];
+    }),
+  );
+}
 
 function maskAffiliateIban(iban: string | null | undefined): string | null {
   if (!iban) {
@@ -88,6 +119,7 @@ export default function AffiliateSettings() {
     setSavedIbanMasked(data.payout_iban_masked ?? maskAffiliateIban(data.payout_iban));
     setIban('');
     setIbanEditing(false);
+    setFieldErrors({});
   }, [settingsQuery.data]);
 
   const tabs = useMemo(
@@ -101,23 +133,26 @@ export default function AffiliateSettings() {
 
   const selectTab = (tab: SettingsTab) => {
     setActiveTab(tab);
+    setFieldErrors({});
     setSearchParams({ tab }, { replace: true });
+  };
+
+  const clearFieldError = (field: string) => {
+    setFieldErrors((prev) => {
+      if (!prev[field]) {
+        return prev;
+      }
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
   };
 
   const displayName = profile?.name ?? user?.name ?? '';
   const displayAvatarUrl = profile?.avatar_url ?? user?.avatar_url;
-  const showCustomerProfileLink = hasCustomerRole(user?.roles);
+  const showIbanInput = ibanEditing || !savedIbanMasked || Boolean(iban);
 
-  const saveSettings = async (payload: AffiliateSettingsPayload) => {
-    try {
-      await updateSettings.mutateAsync(payload);
-      toast.success(t('affiliate.saveSuccess'));
-    } catch (error) {
-      toast.error(parseApiError(error, locale).message);
-    }
-  };
-
-  const handleBankSave = () => {
+  const collectBankErrors = (): Record<string, string> => {
     const errors: Record<string, string> = {};
 
     if (!accountHolder.trim()) {
@@ -134,11 +169,40 @@ export default function AffiliateSettings() {
         errors.payout_iban = ibanError;
       }
     } else if (!savedIbanMasked) {
-      errors.payout_iban = locale === 'ar' ? 'رقم الآيبان مطلوب.' : 'IBAN is required.';
+      errors.payout_iban = t('affiliate.settings.bank.ibanRequired');
     }
 
+    return errors;
+  };
+
+  const collectSocialErrors = (): Record<string, string> => {
+    const errors: Record<string, string> = {};
+
+    SOCIAL_KEYS.forEach((key) => {
+      const value = socialLinks[key];
+      if (value?.trim() && !isValidOptionalUrl(value)) {
+        errors[key] = t('affiliate.settings.social.urlInvalid');
+      }
+    });
+
+    return errors;
+  };
+
+  const saveSettings = async (payload: AffiliateSettingsPayload) => {
+    try {
+      await updateSettings.mutateAsync(payload);
+      toast.success(t('affiliate.saveSuccess'));
+    } catch (error) {
+      setFieldErrors(mapAffiliateApiFieldErrors(error));
+      toast.error(parseApiError(error, locale).message);
+    }
+  };
+
+  const handleBankSave = () => {
+    const errors = collectBankErrors();
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) {
+      toast.warning(Object.values(errors)[0]);
       return;
     }
 
@@ -155,27 +219,11 @@ export default function AffiliateSettings() {
     void saveSettings(payload);
   };
 
-  const validateSocialLinks = (): boolean => {
-    const errors: Record<string, string> = {};
-    const entries: Array<[keyof AffiliateSocialLinks, string | null | undefined]> = [
-      ['twitter', socialLinks.twitter],
-      ['instagram', socialLinks.instagram],
-      ['tiktok', socialLinks.tiktok],
-      ['website', socialLinks.website],
-    ];
-
-    entries.forEach(([key, value]) => {
-      if (value?.trim() && !isValidOptionalUrl(value)) {
-        errors[key] = t('affiliate.settings.social.urlInvalid');
-      }
-    });
-
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
   const handleSocialSave = () => {
-    if (!validateSocialLinks()) {
+    const errors = collectSocialErrors();
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      toast.warning(Object.values(errors)[0]);
       return;
     }
 
@@ -187,6 +235,50 @@ export default function AffiliateSettings() {
     };
 
     void saveSettings({ social_links: normalized });
+  };
+
+  const handleIbanBlur = () => {
+    if (!showIbanInput) {
+      return;
+    }
+
+    if (!iban.trim()) {
+      if (!savedIbanMasked) {
+        setFieldErrors((prev) => ({
+          ...prev,
+          payout_iban: t('affiliate.settings.bank.ibanRequired'),
+        }));
+      }
+      return;
+    }
+
+    const ibanError = saudiIbanValidationMessage(iban, locale);
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      if (ibanError) {
+        next.payout_iban = ibanError;
+      } else {
+        delete next.payout_iban;
+      }
+      return next;
+    });
+  };
+
+  const handleSocialBlur = (key: SocialLinkKey, value: string) => {
+    if (!value.trim()) {
+      clearFieldError(key);
+      return;
+    }
+
+    if (!isValidOptionalUrl(value)) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        [key]: t('affiliate.settings.social.urlInvalid'),
+      }));
+      return;
+    }
+
+    clearFieldError(key);
   };
 
   const handleMutationError = (error: unknown) => {
@@ -206,19 +298,15 @@ export default function AffiliateSettings() {
     );
   }
 
-  const saveButtonClass = `${theme.button} px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition cursor-pointer disabled:opacity-60`;
-
   return (
     <div className="w-full space-y-6 relative animate-in fade-in duration-300">
       {(uploadAvatar.isPending || deleteAvatar.isPending || updateSettings.isPending) && (
         <PageLoadingOverlay />
       )}
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-diyar-dark">{t('affiliate.settings.title')}</h2>
-          <p className="text-gray-500 text-sm mt-1">{t('affiliate.settings.subtitle')}</p>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold text-diyar-dark">{t('affiliate.settings.title')}</h2>
+        <p className="text-gray-500 text-sm mt-1">{t('affiliate.settings.subtitle')}</p>
       </div>
 
       <div className="flex gap-1.5 p-1.5 bg-gray-100/90 rounded-2xl overflow-x-auto scrollbar-hide border border-gray-100">
@@ -274,19 +362,17 @@ export default function AffiliateSettings() {
                       }}
                     />
                     <div className="flex-1">
-                      <p className="text-sm text-gray-500 leading-relaxed mb-3">
-                        {t('affiliate.settings.account.avatarHint')}
+                      <p className="text-sm text-gray-500 leading-relaxed">
+                        {t('affiliate.settings.account.avatarFormats')}
                       </p>
-                      {showCustomerProfileLink && (
-                        <Link
-                          to="/profile/personal-info"
-                          className={`text-sm font-bold ${theme.link} transition inline-flex items-center gap-2 cursor-pointer`}
-                        >
-                          {t('affiliate.settings.account.manageProfile')}
-                        </Link>
-                      )}
                     </div>
                   </div>
+                  <Link
+                    to="/profile"
+                    className="mt-4 text-sm font-bold text-green-600 border border-green-600 px-5 py-2.5 rounded-xl hover:bg-green-50 transition inline-block cursor-pointer"
+                  >
+                    {t('affiliate.settings.account.manageProfile')}
+                  </Link>
                 </div>
 
                 <hr className="border-gray-100" />
@@ -300,7 +386,7 @@ export default function AffiliateSettings() {
                   </p>
                   <Link
                     to="/profile/security"
-                    className={`text-sm font-bold ${theme.outline} px-5 py-2.5 rounded-xl transition inline-block cursor-pointer`}
+                    className="text-sm font-bold text-green-600 border border-green-600 px-5 py-2.5 rounded-xl hover:bg-green-50 transition inline-block cursor-pointer"
                   >
                     {t('affiliate.settings.account.securityLink')}
                   </Link>
@@ -326,8 +412,12 @@ export default function AffiliateSettings() {
                 </RequiredLabel>
                 <select
                   value={bankCode}
-                  onChange={(event) => setBankCode(event.target.value)}
-                  className={`${INPUT_CLASS} appearance-none cursor-pointer`}
+                  onChange={(event) => {
+                    setBankCode(event.target.value);
+                    clearFieldError('payout_bank_code');
+                  }}
+                  className={`${settingsInputClass(Boolean(fieldErrors.payout_bank_code))} appearance-none cursor-pointer`}
+                  aria-invalid={Boolean(fieldErrors.payout_bank_code)}
                 >
                   {BANK_CODES.map((code) => (
                     <option key={code} value={code}>
@@ -345,8 +435,20 @@ export default function AffiliateSettings() {
                 <input
                   type="text"
                   value={accountHolder}
-                  onChange={(event) => setAccountHolder(event.target.value)}
-                  className={INPUT_CLASS}
+                  onChange={(event) => {
+                    setAccountHolder(event.target.value);
+                    clearFieldError('payout_account_holder');
+                  }}
+                  onBlur={() => {
+                    if (!accountHolder.trim()) {
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        payout_account_holder: t('affiliate.settings.bank.accountHolderRequired'),
+                      }));
+                    }
+                  }}
+                  className={settingsInputClass(Boolean(fieldErrors.payout_account_holder))}
+                  aria-invalid={Boolean(fieldErrors.payout_account_holder)}
                 />
                 <FieldError message={fieldErrors.payout_account_holder} />
               </div>
@@ -355,7 +457,7 @@ export default function AffiliateSettings() {
                 <RequiredLabel required className="text-sm font-bold text-gray-700">
                   {t('affiliate.settings.bank.iban')}
                 </RequiredLabel>
-                {!ibanEditing && savedIbanMasked && !iban ? (
+                {!showIbanInput ? (
                   <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50/80 p-3.5">
                     <Wallet size={18} className="text-gray-400 shrink-0" />
                     <div className="flex-1 min-w-0">
@@ -384,20 +486,26 @@ export default function AffiliateSettings() {
                     <input
                       type="text"
                       value={iban}
-                      onChange={(event) =>
+                      onChange={(event) => {
                         setIban(
                           event.target.value
                             .toUpperCase()
                             .replace(/[^A-Z0-9]/g, '')
                             .slice(0, 24),
-                        )
-                      }
+                        );
+                        clearFieldError('payout_iban');
+                      }}
+                      onBlur={handleIbanBlur}
                       placeholder={t('affiliate.settings.bank.ibanPlaceholder')}
-                      className={`${INPUT_CLASS} ps-10 pe-10 text-left font-mono tracking-wide`}
+                      className={settingsInputClass(
+                        Boolean(fieldErrors.payout_iban),
+                        'ps-10 pe-10 text-left font-mono tracking-wide',
+                      )}
                       dir="ltr"
                       maxLength={24}
                       inputMode="text"
                       autoComplete="off"
+                      aria-invalid={Boolean(fieldErrors.payout_iban)}
                     />
                     {savedIbanMasked && (
                       <button
@@ -405,6 +513,7 @@ export default function AffiliateSettings() {
                         onClick={() => {
                           setIbanEditing(false);
                           setIban('');
+                          clearFieldError('payout_iban');
                         }}
                         className={`absolute top-1/2 -translate-y-1/2 inset-e-3 text-xs font-bold text-gray-500 ${theme.link} cursor-pointer`}
                       >
@@ -425,7 +534,7 @@ export default function AffiliateSettings() {
                 type="button"
                 disabled={updateSettings.isPending}
                 onClick={handleBankSave}
-                className={saveButtonClass}
+                className={SAVE_BUTTON_CLASS}
               >
                 <Save size={18} />
                 {updateSettings.isPending
@@ -441,27 +550,24 @@ export default function AffiliateSettings() {
             <h3 className="font-bold text-diyar-dark">{t('affiliate.settings.social.title')}</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {(
-                [
-                  ['twitter', 'https://twitter.com/...'],
-                  ['instagram', 'https://instagram.com/...'],
-                  ['tiktok', 'https://tiktok.com/@...'],
-                  ['website', 'https://...'],
-                ] as const
-              ).map(([key, placeholder]) => (
+              {SOCIAL_KEYS.map((key) => (
                 <div key={key} className="space-y-2">
                   <label className="text-sm font-bold text-gray-700">
                     {t(`affiliate.settings.social.${key}`)}
                   </label>
                   <input
                     type="url"
-                    placeholder={placeholder}
+                    placeholder={SOCIAL_PLACEHOLDERS[key]}
                     value={socialLinks[key] ?? ''}
-                    onChange={(event) =>
-                      setSocialLinks((prev) => ({ ...prev, [key]: event.target.value }))
-                    }
-                    className={`${INPUT_CLASS} dir-ltr text-left`}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setSocialLinks((prev) => ({ ...prev, [key]: value }));
+                      clearFieldError(key);
+                    }}
+                    onBlur={(event) => handleSocialBlur(key, event.target.value)}
+                    className={settingsInputClass(Boolean(fieldErrors[key]), 'dir-ltr text-left')}
                     dir="ltr"
+                    aria-invalid={Boolean(fieldErrors[key])}
                   />
                   <FieldError message={fieldErrors[key]} />
                 </div>
@@ -473,7 +579,7 @@ export default function AffiliateSettings() {
                 type="button"
                 disabled={updateSettings.isPending}
                 onClick={handleSocialSave}
-                className={saveButtonClass}
+                className={SAVE_BUTTON_CLASS}
               >
                 <Save size={18} />
                 {updateSettings.isPending

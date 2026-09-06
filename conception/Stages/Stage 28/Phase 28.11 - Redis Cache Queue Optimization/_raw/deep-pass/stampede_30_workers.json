@@ -1,0 +1,10 @@
+﻿
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+{
+    "timestamp_utc": "2026-08-27T13:58:01+00:00",
+    "workers": 30,
+    "compute_count": 1,
+    "process_failures": 0,
+    "ok": true,
+    "note": "compute_count should be 1-3 (lock timeout may allow limited duplicate compute)"
+}

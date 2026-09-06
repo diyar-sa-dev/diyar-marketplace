@@ -1,0 +1,15 @@
+{
+  "timestamp_utc": "2026-08-29T10:30:00+00:00",
+  "environment": "dev_machine",
+  "server": "php artisan serve (single process)",
+  "url": "http://127.0.0.1:8000/api/v1/products?per_page=12",
+  "concurrency": 50,
+  "success": 50,
+  "errors": 0,
+  "p50_ms": 1216.63,
+  "p95_ms": 2203.33,
+  "p99_ms": 2292.59,
+  "max_ms": 2339.74,
+  "avg_ms": 1237.66,
+  "rigor": "MEASURED — proves single-process dev server saturates under 50 concurrent; NOT FPM capacity"
+}

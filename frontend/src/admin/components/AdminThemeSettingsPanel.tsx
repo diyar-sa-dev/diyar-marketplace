@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '../../api/client.ts';
+import { previewThemeFont } from '../../lib/theme/applyPlatformTheme.ts';
 import { platformThemeKeys } from '../../hooks/usePlatformTheme.ts';
+import { useLocale } from '../../hooks/useLocale.ts';
+import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
 import type { TranslateFn } from '../../lib/i18n/types.ts';
 import { localizedSettingHint, localizedSettingLabel } from '../utils/localizedSetting.ts';
 import { fontOptionsForSetting } from '../utils/settingFontOptions.ts';
@@ -40,6 +43,7 @@ export function AdminThemeSettingsPanel({
   onSaved,
   onError,
 }: AdminThemeSettingsPanelProps) {
+  const { locale } = useLocale();
   const queryClient = useQueryClient();
   const [applyingId, setApplyingId] = useState<string | null>(null);
 
@@ -52,7 +56,7 @@ export function AdminThemeSettingsPanel({
   const activeTemplate = useMemo(() => detectActiveTemplate(colorValues), [colorValues]);
 
   const invalidate = () => {
-    void queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
+    void queryClient.invalidateQueries({ queryKey: adminQueryKey('settings') });
     void queryClient.invalidateQueries({ queryKey: platformThemeKeys.all });
   };
 
@@ -227,20 +231,9 @@ export function AdminThemeSettingsPanel({
               const hasCurrent = fontOptions.some((option) => option.value === defaultValue);
 
               return (
-                <form
+                <div
                   key={setting.full_key}
                   className="rounded-2xl border border-gray-100 bg-[#f7f4f1]/30 p-4"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    if (!canUpdate) return;
-                    const formData = new FormData(event.currentTarget);
-                    const raw = formData.get('value');
-                    updateMutation.mutate({
-                      group: setting.group,
-                      key: setting.key,
-                      value: raw instanceof File ? '' : String(raw ?? ''),
-                    });
-                  }}
                 >
                   <p className="text-sm font-bold text-diyar-dark">
                     {localizedSettingLabel(setting.full_key, t)}
@@ -249,7 +242,18 @@ export function AdminThemeSettingsPanel({
                   <select
                     name="value"
                     defaultValue={hasCurrent ? defaultValue : fontOptions[0]?.value}
-                    disabled={!canUpdate}
+                    disabled={!canUpdate || updateMutation.isPending}
+                    onChange={(event) => {
+                      if (!canUpdate) return;
+                      const value = event.currentTarget.value;
+                      event.currentTarget.style.fontFamily = value;
+                      previewThemeFont(setting.full_key, value, locale);
+                      updateMutation.mutate({
+                        group: setting.group,
+                        key: setting.key,
+                        value,
+                      });
+                    }}
                     className="mt-3 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-diyar-brown disabled:bg-gray-50"
                     style={{ fontFamily: defaultValue }}
                   >
@@ -266,14 +270,7 @@ export function AdminThemeSettingsPanel({
                   {setting.has_override ? (
                     <p className="mt-2 text-xs text-amber-700">{t('admin.settings.overridden')}</p>
                   ) : null}
-                  <button
-                    type="submit"
-                    disabled={!canUpdate || updateMutation.isPending}
-                    className="mt-3 rounded-xl bg-diyar-dark px-4 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-                  >
-                    {t('admin.settings.saveChanges')}
-                  </button>
-                </form>
+                </div>
               );
             })}
           </div>

@@ -10,7 +10,7 @@ import {
   useProductEngagementMutations,
   useProductReviews,
 } from '../../hooks/catalog/useProductEngagement.ts';
-import { confirmDeleteReview, showErrorAlert, showSuccessToast } from '../../lib/confirmDialog.ts';
+import { confirmDeleteReview, showApiErrorAlert, showErrorAlert, showSuccessToast } from '../../lib/confirmDialog.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
 import { VendorReplyBlock } from '../reviews/VendorReplyBlock.tsx';
 import { formatLocaleDate } from '../../lib/intlLocale.ts';
@@ -225,10 +225,17 @@ export function ProductReviewsSection({
   const pagination = data?.pagination;
   const totalPages = pagination?.last_page ?? 1;
   const hasOwnReview = Boolean(myReview);
-  const showAddForm = isAuthenticated && !hasOwnReview && !isEditing && !isOwnStore;
+  const canReview = data?.can_review === true;
+  const showAddForm = isAuthenticated && !hasOwnReview && !isEditing && canReview;
   const showEditForm = isAuthenticated && hasOwnReview && isEditing;
   const showGuestPrompt =
     !isAuthenticated && !isLoading && reviews.length === 0 && !hasOwnReview && !isOwnStore;
+  const showEmptyReviews =
+    !isLoading && reviews.length === 0 && !showAddForm && !showEditForm && !showGuestPrompt;
+  const emptyReviewsKey =
+    isAuthenticated && !canReview && !isOwnStore && !hasOwnReview
+      ? 'catalog.productDetail.noReviewsAfterPurchase'
+      : 'catalog.productDetail.noReviews';
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -291,8 +298,8 @@ export function ProductReviewsSection({
       }
       resetForm();
       setPage(1);
-    } catch {
-      await showErrorAlert(t, 'catalog.productDetail.reviewError');
+    } catch (error) {
+      await showApiErrorAlert(t, error, locale, 'catalog.productDetail.reviewError');
     }
   };
 
@@ -311,8 +318,8 @@ export function ProductReviewsSection({
       resetForm();
       await showSuccessToast(t, 'catalog.productDetail.reviewDeleted');
       setPage(1);
-    } catch {
-      await showErrorAlert(t, 'catalog.productDetail.reviewError');
+    } catch (error) {
+      await showApiErrorAlert(t, error, locale, 'catalog.productDetail.reviewError');
     }
   };
 
@@ -380,9 +387,9 @@ export function ProductReviewsSection({
               <Loader2 className="animate-spin text-diyar-brown" size={28} />
             </div>
           ) : reviews.length === 0 ? (
-            !showGuestPrompt && (
+            showEmptyReviews && (
               <p className="text-gray-500 text-sm text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                {t('catalog.productDetail.noReviews')}
+                {t(emptyReviewsKey)}
               </p>
             )
           ) : (

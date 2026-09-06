@@ -1,0 +1,9 @@
+{
+    "timestamp_utc": "2026-08-27T13:17:25+00:00",
+    "note": "Captured during Phase 28.11 — Redis not running on local dev host",
+    "overall": "FAIL",
+    "checks": {
+        "redis_ping": { "ok": false, "error": "Connection refused 127.0.0.1:6379" },
+        "laravel_queue_redis_connection": { "ok": true, "queue_size": 0 }
+    }
+}

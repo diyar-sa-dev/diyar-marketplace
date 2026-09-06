@@ -22,10 +22,6 @@ class SecurityHeaders
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('X-XSS-Protection', '0');
 
-        if ($request->is('api/*')) {
-            $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate');
-        }
-
         $response->headers->set(
             'Permissions-Policy',
             'camera=(), microphone=(), geolocation=(), payment=(), usb=()',

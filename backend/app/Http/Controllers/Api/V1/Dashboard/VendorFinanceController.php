@@ -71,9 +71,13 @@ class VendorFinanceController extends Controller
     {
         $vendorAccount = $this->access->assertPermission($request->user(), 'finance');
 
+        $period = FinancePeriod::tryFromRequest($request->query('period'));
+        $window = app(VendorFinancePeriodResolver::class)->resolve($period);
+
         $query = FinancialTransaction::query()->with('order:id,order_number')->latest();
         $this->transactionFilters->applyVendorScope($query, $vendorAccount);
         $this->transactionFilters->applyTypeFilter($query, $request->query('type'));
+        $query->whereBetween('created_at', [$window['from'], $window['to']]);
 
         $perPage = min(max((int) $request->query('per_page', 20), 1), 50);
         $transactions = $query->paginate($perPage);

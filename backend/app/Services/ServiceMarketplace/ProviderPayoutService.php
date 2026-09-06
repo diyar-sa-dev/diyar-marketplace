@@ -6,6 +6,7 @@ use App\Enums\PayoutStatus;
 use App\Models\ProviderAccount;
 use App\Models\ProviderBankAccount;
 use App\Models\ProviderPayout;
+use App\Models\User;
 use App\Services\Finance\FinancialReferenceService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -65,6 +66,55 @@ final class ProviderPayoutService
                 'requested_at' => now(),
             ]);
         });
+    }
+
+    public function approve(ProviderPayout $payout, User $admin): ProviderPayout
+    {
+        if ($payout->status !== PayoutStatus::Pending) {
+            throw new InvalidArgumentException(__('diyar.finance.invalid_payout_transition'));
+        }
+
+        $payout->update([
+            'status' => PayoutStatus::Approved,
+            'processed_by' => $admin->id,
+        ]);
+
+        return $payout->fresh(['providerAccount.user', 'bankAccount']) ?? $payout;
+    }
+
+    public function reject(ProviderPayout $payout, User $admin, string $reason): ProviderPayout
+    {
+        if (! in_array($payout->status, [PayoutStatus::Pending, PayoutStatus::Approved], true)) {
+            throw new InvalidArgumentException(__('diyar.finance.invalid_payout_transition'));
+        }
+
+        $payout->update([
+            'status' => PayoutStatus::Rejected,
+            'processed_by' => $admin->id,
+            'processed_at' => now(),
+            'rejection_reason' => $reason,
+        ]);
+
+        return $payout->fresh(['providerAccount.user', 'bankAccount']) ?? $payout;
+    }
+
+    public function markPaid(ProviderPayout $payout, User $admin): ProviderPayout
+    {
+        if ($payout->status === PayoutStatus::Paid) {
+            return $payout;
+        }
+
+        if (! in_array($payout->status, [PayoutStatus::Approved, PayoutStatus::Processing], true)) {
+            throw new InvalidArgumentException(__('diyar.finance.invalid_payout_transition'));
+        }
+
+        $payout->update([
+            'status' => PayoutStatus::Paid,
+            'processed_by' => $admin->id,
+            'processed_at' => now(),
+        ]);
+
+        return $payout->fresh(['providerAccount.user', 'bankAccount']) ?? $payout;
     }
 
     private function resolveBankAccount(ProviderAccount $provider, ?string $bankAccountId): ProviderBankAccount

@@ -73,6 +73,11 @@ class Conversation extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function messageReports(): HasMany
+    {
+        return $this->hasMany(ChatMessageReport::class);
+    }
+
     /**
      * Hide draft conversations from recipients until the first message is sent.
      *

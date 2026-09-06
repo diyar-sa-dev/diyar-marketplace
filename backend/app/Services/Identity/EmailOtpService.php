@@ -7,6 +7,7 @@ use App\Enums\OtpPurpose;
 use App\Infrastructure\Mail\LogEmailOtpProvider;
 use App\Services\Mail\DiyarMailContent;
 use App\Services\Mail\DiyarPhpMailer;
+use App\Support\Identity\OtpTestCodeResolver;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -33,7 +34,7 @@ final class EmailOtpService
     ): void {
         $normalizedEmail = $this->normalizeEmail($email);
         $length = (int) config('diyar.otp.length', 6);
-        $code = $this->codeGenerator->generate($length);
+        $code = OtpTestCodeResolver::resolve($length, $this->codeGenerator);
         $expiresMinutes = (int) config('diyar.otp.expires_minutes', 10);
         $ttlSeconds = $expiresMinutes * 60;
 

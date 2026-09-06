@@ -11,17 +11,18 @@ use App\Http\Resources\PaymentResource;
 use App\Http\Resources\PaymentSubmissionResource;
 use App\Models\Order;
 use App\Services\Payments\Exceptions\PaymentGatewayException;
-use App\Services\Payments\PaymentApplicationService;
+use App\Services\Payments\PaymentOrchestrator;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class PaymentController extends Controller
 {
     public function __construct(
-        private readonly PaymentApplicationService $payments,
+        private readonly PaymentOrchestrator $payments,
     ) {}
 
     public function show(Request $request, Order $order): JsonResponse
@@ -105,6 +106,8 @@ class PaymentController extends Controller
             return ApiResponse::error($exception->getMessage(), 422);
         } catch (ConflictHttpException $exception) {
             return ApiResponse::error($exception->getMessage(), 409);
+        } catch (InvalidArgumentException $exception) {
+            return ApiResponse::error($exception->getMessage(), 422);
         }
 
         return ApiResponse::success($result);

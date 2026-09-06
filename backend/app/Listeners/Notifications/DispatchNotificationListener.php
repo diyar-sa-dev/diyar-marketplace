@@ -4,9 +4,15 @@ namespace App\Listeners\Notifications;
 
 use App\Contracts\Notifications\TriggersNotification;
 use App\Services\Notifications\NotificationDispatcher;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 
-final class DispatchNotificationListener
+final class DispatchNotificationListener implements ShouldQueue
 {
+    use InteractsWithQueue;
+
+    public string $queue = 'notifications';
+
     public function __construct(
         private readonly NotificationDispatcher $dispatcher,
     ) {}

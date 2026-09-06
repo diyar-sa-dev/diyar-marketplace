@@ -174,6 +174,10 @@ class ServiceMarketplaceSeeder extends Seeder
         foreach ($services as $serviceData) {
             $provider = $providerMap[$serviceData['provider']];
             $category = $categoryMap[$serviceData['category']];
+            $supportsDirectBooking = in_array($serviceData['mode'], [
+                ServicePricingMode::Fixed,
+                ServicePricingMode::Hourly,
+            ], true);
 
             Service::query()->updateOrCreate(
                 [
@@ -185,10 +189,10 @@ class ServiceMarketplaceSeeder extends Seeder
                     'title' => $serviceData['title'],
                     'description' => $provider->bio,
                     'pricing_mode' => $serviceData['mode'],
-                    'booking_mode' => $serviceData['mode'] === ServicePricingMode::Fixed
+                    'booking_mode' => $supportsDirectBooking
                         ? ServiceBookingMode::Direct
                         : ServiceBookingMode::Request,
-                    'duration_minutes' => $serviceData['mode'] === ServicePricingMode::Fixed ? 60 : null,
+                    'duration_minutes' => $supportsDirectBooking ? 60 : null,
                     'starting_price' => $serviceData['price'],
                     'currency' => 'SAR',
                     'delivery_type_label' => $serviceData['type'],

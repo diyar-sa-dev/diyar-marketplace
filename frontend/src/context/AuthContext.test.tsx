@@ -87,6 +87,42 @@ describe('AuthContext', () => {
     await waitFor(() => {
       expect(result.current.status).toBe('unauthenticated');
     });
+
+    expect(authApi.fetchCurrentUser).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not refetch current user on every marketplace navigation', async () => {
+    mockPathname.mockReturnValue('/');
+
+    const { rerender } = renderHook(() => useAuthContext(), { wrapper });
+
+    await waitFor(() => {
+      expect(authApi.fetchCurrentUser).toHaveBeenCalledTimes(1);
+    });
+
+    mockPathname.mockReturnValue('/search');
+    rerender();
+
+    await waitFor(() => {
+      expect(authApi.fetchCurrentUser).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('refetches session after leaving admin area', async () => {
+    mockPathname.mockReturnValue('/admin');
+
+    const { rerender } = renderHook(() => useAuthContext(), { wrapper });
+
+    await waitFor(() => {
+      expect(authApi.fetchCurrentUser).not.toHaveBeenCalled();
+    });
+
+    mockPathname.mockReturnValue('/');
+    rerender();
+
+    await waitFor(() => {
+      expect(authApi.fetchCurrentUser).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('sets authenticated user after login', async () => {

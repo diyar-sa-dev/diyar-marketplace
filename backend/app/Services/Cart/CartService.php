@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Services\Catalog\ProductService;
 use App\Services\Order\SelfPurchaseGuard;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -17,6 +18,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class CartService
 {
+    public const GUEST_SESSION_FOR_MERGE_KEY = 'cart.guest_session_id_for_merge';
+
     public function __construct(
         private readonly ProductService $products,
         private readonly SelfPurchaseGuard $selfPurchase,
@@ -25,6 +28,17 @@ final class CartService
     public function maxQuantityPerItem(): int
     {
         return max(1, (int) config('diyar.cart.max_quantity_per_item', 99));
+    }
+
+    public function resolveGuestSessionIdForMerge(Session $session): string
+    {
+        $remembered = $session->get(self::GUEST_SESSION_FOR_MERGE_KEY);
+
+        if (is_string($remembered) && $remembered !== '') {
+            return $remembered;
+        }
+
+        return (string) $session->getId();
     }
 
     public function resolveForUser(User $user): Cart
@@ -76,25 +90,19 @@ final class CartService
 
     public function loadCart(Cart $cart, ?User $user = null): Cart
     {
-        if ($user === null && $cart->user_id !== null) {
-            $user = User::query()->find($cart->user_id);
-        }
+        $user = $cart->user_id !== null
+            ? User::query()->find($cart->user_id)
+            : null;
 
         return $cart->load([
             'items.product' => function ($query) use ($user) {
                 $query->with([
-                    'vendorAccount:id,business_name,slug',
-                    'category:id,name,slug',
-                    'images' => fn ($imageQuery) => $imageQuery
-                        ->orderBy('sort_order')
-                        ->limit(1)
-                        ->with('mediaFile:id,path'),
-                    'inventory:id,product_id,available_quantity',
+                    'vendorAccount',
+                    'category',
+                    'images.mediaFile',
+                    'inventory',
                 ]);
-
-                if ($user !== null) {
-                    $query->withUserSaved($user);
-                }
+                $query->withUserSaved($user);
             },
         ]);
     }

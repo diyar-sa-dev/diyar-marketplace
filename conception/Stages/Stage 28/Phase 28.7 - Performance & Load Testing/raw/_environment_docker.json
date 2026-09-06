@@ -1,0 +1,41 @@
+{
+    "timestamp_utc": "2026-08-27T10:32:04+00:00",
+    "hostname": "422b8214a583",
+    "os": "Linux",
+    "php_version": "8.3.33",
+    "laravel_version": "13.26.1",
+    "app_env": "local",
+    "app_debug": false,
+    "base_url": "http://diyar-perf-api-28:8000",
+    "database": {
+        "connection": "mysql",
+        "driver": "mysql",
+        "host": "mysql",
+        "database": "diyar_staging",
+        "version": "8.0.46",
+        "is_mysql8": true,
+        "is_mariadb": false,
+        "is_sqlite": false
+    },
+    "redis": {
+        "cache_store": "redis",
+        "queue_connection": "redis",
+        "session_driver": "redis",
+        "info": {
+            "version": "7.4.7",
+            "used_memory_human": "1.43M",
+            "connected_clients": 16
+        }
+    },
+    "loadtest_mode": true,
+    "health_probe": {
+        "latency_ms": 11.06,
+        "status": "ok"
+    },
+    "octane": {
+        "workers": 8,
+        "task_workers": 4,
+        "max_requests": 2000
+    },
+    "note": "Captured from Docker compose network during Phase 28.7"
+}

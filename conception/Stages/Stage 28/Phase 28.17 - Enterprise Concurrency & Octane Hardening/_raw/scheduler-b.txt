@@ -1,0 +1,8 @@
+﻿
+   INFO  Skipping [Release inventory reservations that have passed their expiration time] because the command already ran on another server.  
+
+   INFO  Skipping ['/usr/local/bin/php' 'artisan' notifications:broadcasts:dispatch-scheduled > '/dev/null' 2>&1] because the command already ran on another server.  
+
+   INFO  Skipping ['/usr/local/bin/php' 'artisan' outbox:process > '/dev/null' 2>&1] because the command already ran on another server.  
+
+

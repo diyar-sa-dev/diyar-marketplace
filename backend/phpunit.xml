@@ -38,6 +38,8 @@
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <env name="DIYAR_PAYMENT_USE_FAKE_GATEWAY" value="true"/>
         <env name="DIYAR_MAIL_ENABLED" value="false"/>
+        <env name="DIYAR_OUTBOX_ENABLED" value="false"/>
+        <env name="DIYAR_LOADTEST_MODE" value="false"/>
         <ini name="memory_limit" value="512M"/>
     </php>
 </phpunit>

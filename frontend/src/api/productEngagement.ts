@@ -21,6 +21,7 @@ export interface PaginatedReviews {
   items: ProductReview[];
   pagination: PaginationMeta;
   my_review?: ProductReview | null;
+  can_review?: boolean;
   vendor_store?: {
     name: string;
     logo_url?: string | null;

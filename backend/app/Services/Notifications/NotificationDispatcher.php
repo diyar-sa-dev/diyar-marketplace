@@ -11,8 +11,11 @@ use App\Models\NotificationDelivery;
 use App\Models\User;
 use App\Models\UserNotification;
 use App\Services\Chat\ChatPresenceService;
+use App\Services\Outbox\DomainOutboxPublisher;
 use App\Support\Notifications\NotificationQueue;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 final class NotificationDispatcher
 {
@@ -22,11 +25,16 @@ final class NotificationDispatcher
         private readonly NotificationPreferenceResolver $preferences,
         private readonly NotificationRealtimeBroadcaster $realtime,
         private readonly ChatPresenceService $chatPresence,
+        private readonly NotificationDeliveryStateMachine $deliveryStateMachine,
+        private readonly NotificationAggregationService $aggregation,
+        private readonly NotificationUnreadCounterService $unreadCounter,
+        private readonly DomainOutboxPublisher $outboxPublisher,
     ) {}
 
     /**
      * @param  list<User>  $recipients
      * @param  array<string, mixed>  $payload
+     * @param  list<string>|null  $channelsOverride  Channel values e.g. ['in_app', 'email']
      */
     public function dispatch(
         NotificationType $type,
@@ -35,18 +43,30 @@ final class NotificationDispatcher
         ?string $entityType = null,
         ?string $entityId = null,
         ?string $dedupeKey = null,
+        ?array $channelsOverride = null,
+        ?NotificationPriority $priorityOverride = null,
     ): void {
         foreach ($recipients as $recipient) {
             if (! $recipient instanceof User) {
                 continue;
             }
 
-            $this->dispatchToUser($type, $recipient, $payload, $entityType, $entityId, $dedupeKey);
+            $this->dispatchToUser(
+                $type,
+                $recipient,
+                $payload,
+                $entityType,
+                $entityId,
+                $dedupeKey,
+                $channelsOverride,
+                $priorityOverride,
+            );
         }
     }
 
     /**
      * @param  array<string, mixed>  $payload
+     * @param  list<string>|null  $channelsOverride
      */
     private function dispatchToUser(
         NotificationType $type,
@@ -55,6 +75,8 @@ final class NotificationDispatcher
         ?string $entityType,
         ?string $entityId,
         ?string $dedupeKey,
+        ?array $channelsOverride,
+        ?NotificationPriority $priorityOverride,
     ): void {
         if ($type === NotificationType::ChatMessageReceived) {
             $conversationId = is_string($payload['conversation_id'] ?? null)
@@ -70,11 +92,11 @@ final class NotificationDispatcher
         }
 
         $rendered = $this->renderer->render($recipient, $type, $payload);
-        $priority = $this->catalog->priorityFor($type);
-        $channels = $this->catalog->channelsFor($type);
+        $priority = $priorityOverride ?? $this->catalog->priorityFor($type);
+        $channels = $this->resolveChannels($type, $channelsOverride);
         $userDedupe = $dedupeKey !== null ? "{$dedupeKey}:{$recipient->id}" : null;
 
-        [$notification, $wasCreated] = $this->persistInAppNotification(
+        [$notification, $wasCreated, $wasAggregated] = $this->persistInAppNotification(
             $recipient,
             $type,
             $rendered,
@@ -95,6 +117,9 @@ final class NotificationDispatcher
         }
 
         if ($wasCreated) {
+            $this->unreadCounter->increment($recipient);
+            $this->realtime->notificationCreated($notification);
+        } elseif ($wasAggregated) {
             $this->realtime->notificationCreated($notification);
         }
 
@@ -103,23 +128,54 @@ final class NotificationDispatcher
                 continue;
             }
 
-            if (! $this->preferences->isChannelEnabled($recipient, $type, $channel)) {
+            if ($wasAggregated && NotificationDelivery::query()
+                ->where('user_notification_id', $notification->id)
+                ->where('channel', $channel)
+                ->exists()) {
                 continue;
             }
 
             $deliveryDedupe = $this->deliveryDedupeKey($type, $recipient->id, $channel, $entityType, $entityId, $dedupeKey);
+            $correlationId = (string) Str::uuid();
+
+            if (! $this->preferences->isChannelEnabled($recipient, $type, $channel)) {
+                $this->recordSuppressedDelivery($notification, $recipient, $channel, $deliveryDedupe, $correlationId);
+
+                continue;
+            }
 
             try {
-                $delivery = NotificationDelivery::query()->create([
-                    'user_notification_id' => $notification->id,
-                    'user_id' => $recipient->id,
-                    'channel' => $channel,
-                    'status' => NotificationDeliveryStatus::Pending,
-                    'dedupe_key' => $deliveryDedupe,
-                ]);
+                DB::transaction(function () use ($notification, $recipient, $channel, $deliveryDedupe, $correlationId, $payload, $priority): void {
+                    $delivery = NotificationDelivery::query()->create([
+                        'user_notification_id' => $notification->id,
+                        'user_id' => $recipient->id,
+                        'channel' => $channel,
+                        'status' => NotificationDeliveryStatus::Queued,
+                        'dedupe_key' => $deliveryDedupe,
+                        'correlation_id' => $correlationId,
+                    ]);
 
-                DeliverNotificationChannelJob::dispatch($delivery->id, $payload)
-                    ->onQueue(NotificationQueue::forPriority($priority));
+                    if ((bool) config('diyar.outbox.enabled', true)) {
+                        $this->outboxPublisher->publish(
+                            eventType: 'notification.delivery.dispatch',
+                            aggregateType: 'notification_delivery',
+                            aggregateId: $delivery->id,
+                            payload: [
+                                'delivery_id' => $delivery->id,
+                                'payload' => $payload,
+                                'priority' => $priority->value,
+                            ],
+                            idempotencyKey: 'outbox:'.$deliveryDedupe,
+                            correlationId: $correlationId,
+                        );
+
+                        return;
+                    }
+
+                    DeliverNotificationChannelJob::dispatch($delivery->id, $payload)
+                        ->afterCommit()
+                        ->onQueue(NotificationQueue::forPriority($priority));
+                });
             } catch (QueryException $exception) {
                 if (! $this->isDuplicateKey($exception)) {
                     throw $exception;
@@ -129,12 +185,54 @@ final class NotificationDispatcher
     }
 
     /**
+     * @param  list<string>|null  $channelsOverride
+     * @return list<NotificationChannel>
+     */
+    private function resolveChannels(NotificationType $type, ?array $channelsOverride): array
+    {
+        if ($channelsOverride === null || $channelsOverride === []) {
+            return $this->catalog->channelsFor($type);
+        }
+
+        return array_values(array_filter(array_map(
+            fn (string $value) => NotificationChannel::tryFrom($value),
+            $channelsOverride,
+        )));
+    }
+
+    private function recordSuppressedDelivery(
+        UserNotification $notification,
+        User $recipient,
+        NotificationChannel $channel,
+        string $deliveryDedupe,
+        string $correlationId,
+    ): void {
+        try {
+            $delivery = NotificationDelivery::query()->create([
+                'user_notification_id' => $notification->id,
+                'user_id' => $recipient->id,
+                'channel' => $channel,
+                'status' => NotificationDeliveryStatus::Pending,
+                'dedupe_key' => $deliveryDedupe,
+                'correlation_id' => $correlationId,
+            ]);
+
+            $this->deliveryStateMachine->markSuppressed(
+                $delivery,
+                'Channel disabled by user preference or system policy.',
+            );
+        } catch (QueryException $exception) {
+            if (! $this->isDuplicateKey($exception)) {
+                throw $exception;
+            }
+        }
+    }
+
+    /**
      * @param  array{title: string, body: string}  $rendered
      * @param  array<string, mixed>  $payload
      * @param  list<NotificationChannel>  $channels
-     */
-    /**
-     * @return array{0: ?UserNotification, 1: bool}
+     * @return array{0: ?UserNotification, 1: bool, 2: bool}
      */
     private function persistInAppNotification(
         User $recipient,
@@ -150,18 +248,35 @@ final class NotificationDispatcher
         $inAppEnabled = $this->preferences->isChannelEnabled($recipient, $type, NotificationChannel::InApp);
 
         if (! $inAppEnabled && ! in_array(NotificationChannel::InApp, $channels, true)) {
-            return [null, false];
+            return [null, false, false];
         }
 
         if (! $inAppEnabled) {
-            // Still create a shell notification when other channels need a parent record.
             if (! array_intersect(
-                [NotificationChannel::Email, NotificationChannel::Push],
+                [NotificationChannel::Email, NotificationChannel::Push, NotificationChannel::Sms],
                 array_filter($channels, fn ($c) => $this->preferences->isChannelEnabled($recipient, $type, $c)),
             )) {
-                return [null, false];
+                return [null, false, false];
             }
         }
+
+        [$aggregated] = $this->aggregation->aggregateExisting(
+            $recipient,
+            $type,
+            $payload,
+            $entityType,
+            $entityId,
+            $rendered['title'],
+            $rendered['body'],
+        );
+
+        if ($aggregated instanceof UserNotification) {
+            return [$aggregated, false, true];
+        }
+
+        $groupKey = $this->aggregation->groupKey($type, $entityType, $entityId);
+        $actorName = trim((string) ($payload['actor_name'] ?? $payload['reviewer_name'] ?? ''));
+        $actors = $actorName !== '' ? [$actorName] : [];
 
         try {
             return [
@@ -175,8 +290,12 @@ final class NotificationDispatcher
                     'entity_id' => $entityId,
                     'priority' => $priority,
                     'dedupe_key' => $userDedupe,
+                    'group_key' => $groupKey,
+                    'aggregated_count' => 1,
+                    'actor_snapshot' => $actors !== [] ? $actors : null,
                 ]),
                 true,
+                false,
             ];
         } catch (QueryException $exception) {
             if ($this->isDuplicateKey($exception) && $userDedupe !== null) {
@@ -185,6 +304,7 @@ final class NotificationDispatcher
                         ->where('user_id', $recipient->id)
                         ->where('dedupe_key', $userDedupe)
                         ->first(),
+                    false,
                     false,
                 ];
             }

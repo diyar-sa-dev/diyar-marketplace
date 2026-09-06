@@ -1,0 +1,34 @@
+# DIYAR Marketplace
+
+> Arabic-first furniture and home-services marketplace for Saudi Arabia.
+
+DIYAR (ديار) connects customers with furniture vendors and home service providers — catalog shopping, checkout, loyalty, B2B, and service bookings.
+
+## Primary URLs
+
+- [Home](/): storefront landing page
+- [Catalog](/category/all): browse all product categories
+- [Search](/search): product and service search
+- [Services](/services): book home and design services
+- [Blog](/blog): design inspiration and guides
+- [B2B directory](/b2b): business partner listings
+- [AI designer](/ai-designer): room visualization (early access)
+
+## API
+
+- [Public REST API](/api/v1/): JSON endpoints for catalog, cart, and checkout
+- [Health check](/api/v1/health): service availability probe
+
+## Languages
+
+- Arabic (ar) — default, RTL
+- English (en) — LTR
+
+## Crawling
+
+- [Robots policy](/robots.txt): allows public storefront pages
+- [Sitemap](/sitemap.xml): primary landing URLs
+
+## Contact
+
+Support email and phone are configured in platform settings and shown in the site footer.

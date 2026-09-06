@@ -28,6 +28,15 @@ function createApiClient(): AxiosInstance {
   return client;
 }
 
+function prepareRequestBody(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
+  if (config.data instanceof FormData) {
+    // Let the browser set multipart boundaries; the default JSON header breaks uploads.
+    config.headers.delete('Content-Type');
+  }
+
+  return config;
+}
+
 function attachLocaleHeader(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
   config.headers.set('Accept-Language', readStoredLocale());
   return config;
@@ -68,9 +77,15 @@ function shouldNotifyUnauthorized(url: string | undefined): boolean {
     '/admin/auth/login',
     '/auth/register',
     '/auth/verify-otp',
+    '/auth/verify-email-otp',
     '/auth/verify-password-reset-otp',
     '/auth/forgot-password',
     '/auth/reset-password',
+    '/cart/merge',
+    '/orders',
+    '/checkout',
+    '/payments',
+    '/payment',
   ];
 
   return !ignored.some((segment) => url.includes(segment));
@@ -78,7 +93,7 @@ function shouldNotifyUnauthorized(url: string | undefined): boolean {
 
 function attachInterceptors(client: AxiosInstance): AxiosInstance {
   client.interceptors.request.use((config) =>
-    attachCsrfHeader(attachAffiliateSessionHeader(attachLocaleHeader(config))),
+    prepareRequestBody(attachCsrfHeader(attachAffiliateSessionHeader(attachLocaleHeader(config)))),
   );
 
   client.interceptors.response.use(

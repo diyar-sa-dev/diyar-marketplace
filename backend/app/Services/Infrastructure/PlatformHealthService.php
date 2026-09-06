@@ -2,6 +2,7 @@
 
 namespace App\Services\Infrastructure;
 
+use App\Services\Payments\PaymentHealthService;
 use App\Services\Settings\EffectiveConfigService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +33,7 @@ final class PlatformHealthService
             'schema' => $this->probeSchema(),
             'cache' => $cache,
             'queue' => $queue,
+            'payments' => $this->probePayments(),
         ];
 
         $allOk = collect($checks)->every(fn (array $check) => ($check['ok'] ?? false) === true);
@@ -66,22 +68,42 @@ final class PlatformHealthService
             $payload['environment'] = app()->environment();
         }
 
+        if (config('diyar.loadtest.enabled')) {
+            $payload['runtime_probe'] = [
+                'node_id' => (string) env('DIYAR_RUNTIME_NODE_ID', gethostname()),
+                'hostname' => gethostname(),
+                'pid' => getmypid(),
+            ];
+        }
+
         return $payload;
     }
 
     /**
-     * @return array{ok: bool, driver: string}
+     * @return array{ok: bool, driver: string, threads_connected?: int, max_connections?: int}
      */
     public function probeDatabase(): array
     {
         return $this->rememberProbe('database', function (): array {
             try {
                 DB::connection()->getPdo();
-
-                return [
+                $payload = [
                     'ok' => true,
                     'driver' => (string) config('database.default'),
                 ];
+
+                if (DB::getDriverName() === 'mysql' && config('diyar.loadtest.enabled')) {
+                    $status = collect(DB::select('SHOW GLOBAL STATUS WHERE Variable_name IN ("Threads_connected", "Max_used_connections")'))
+                        ->mapWithKeys(fn ($row) => [$row->Variable_name => (int) $row->Value]);
+                    $variables = collect(DB::select('SHOW VARIABLES LIKE "max_connections"'))
+                        ->mapWithKeys(fn ($row) => [$row->Variable_name => (int) $row->Value]);
+
+                    $payload['threads_connected'] = $status['Threads_connected'] ?? null;
+                    $payload['max_used_connections'] = $status['Max_used_connections'] ?? null;
+                    $payload['max_connections'] = $variables['max_connections'] ?? null;
+                }
+
+                return array_filter($payload, fn ($v) => $v !== null);
             } catch (Throwable) {
                 return [
                     'ok' => false,
@@ -92,39 +114,7 @@ final class PlatformHealthService
     }
 
     /**
-     * Detect an unmigrated database — the usual cause of blanket 500s after a fresh deploy.
-     *
-     * @return array{ok: bool, session_driver: string, missing_tables?: list<string>}
-     */
-    public function probeSchema(): array
-    {
-        return $this->rememberProbe('schema', function (): array {
-            $sessionDriver = (string) config('session.driver');
-            $required = ['users', 'sessions', 'products', 'categories'];
-
-            try {
-                $schema = DB::getSchemaBuilder();
-                $missing = array_values(array_filter(
-                    $required,
-                    static fn (string $table): bool => ! $schema->hasTable($table),
-                ));
-
-                return array_filter([
-                    'ok' => $missing === [],
-                    'session_driver' => $sessionDriver,
-                    'missing_tables' => $missing === [] ? null : $missing,
-                ], static fn ($value) => $value !== null);
-            } catch (Throwable) {
-                return [
-                    'ok' => false,
-                    'session_driver' => $sessionDriver,
-                ];
-            }
-        });
-    }
-
-    /**
-     * @return array{ok: bool, driver: string}
+     * @return array{ok: bool, driver: string, used_memory_human?: string, connected_clients?: int}
      */
     public function probeCache(): array
     {
@@ -137,10 +127,23 @@ final class PlatformHealthService
                 $ok = Cache::get($probeKey) === '1';
                 Cache::forget($probeKey);
 
-                return [
+                $payload = [
                     'ok' => $ok,
                     'driver' => $driver,
                 ];
+
+                if ($driver === 'redis' && config('diyar.loadtest.enabled')) {
+                    try {
+                        $redis = Cache::getRedis()->connection();
+                        $info = $redis->info();
+                        $payload['used_memory_human'] = $info['used_memory_human'] ?? null;
+                        $payload['connected_clients'] = isset($info['connected_clients']) ? (int) $info['connected_clients'] : null;
+                    } catch (Throwable) {
+                        // optional telemetry
+                    }
+                }
+
+                return array_filter($payload, fn ($v) => $v !== null);
             } catch (Throwable) {
                 return [
                     'ok' => false,
@@ -204,5 +207,22 @@ final class PlatformHealthService
         } catch (Throwable) {
             return null;
         }
+    }
+
+    /**
+     * @return array{ok: bool, status: string, metrics: array<string, mixed>}
+     */
+    private function probePayments(): array
+    {
+        return $this->rememberProbe('payments', function (): array {
+            $metrics = app(PaymentHealthService::class)->snapshot();
+            $status = (string) ($metrics['status'] ?? 'ok');
+
+            return [
+                'ok' => $status === 'ok',
+                'status' => $status,
+                'metrics' => $metrics,
+            ];
+        });
     }
 }

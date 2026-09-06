@@ -21,6 +21,7 @@ final class MessageService
         private readonly ChatAttachmentService $attachments,
         private readonly ChatDeliveryService $delivery,
         private readonly ChatRealtimeBroadcaster $realtime,
+        private readonly ChatTypingService $typing,
     ) {}
 
     /**
@@ -35,6 +36,9 @@ final class MessageService
             ->where('conversation_id', $conversation->id)
             ->whereNull('archived_at')
             ->with(['sender', 'attachments'])
+            ->withExists(['reports as reported_by_me' => function ($builder) use ($user): void {
+                $builder->where('reporter_id', $user->id);
+            }])
             ->orderByDesc('created_at')
             ->orderByDesc('id');
 
@@ -145,7 +149,15 @@ final class MessageService
                 $message->load(['sender', 'attachments']);
 
                 DB::afterCommit(function () use ($message): void {
-                    event(new MessageCreated($message));
+                    try {
+                        event(new MessageCreated($message));
+                    } catch (\Throwable $exception) {
+                        Log::warning('chat.message.side_effects_failed', [
+                            'message_id' => $message->id,
+                            'conversation_id' => $message->conversation_id,
+                            'error' => $exception->getMessage(),
+                        ]);
+                    }
                 });
 
                 return $message;
@@ -178,6 +190,14 @@ final class MessageService
             'sender_id' => $sender->id,
             'persistence_ms' => ChatMetrics::durationMs($startedAt),
         ]);
+
+        $this->typing->setTyping($conversation->id, $sender, false);
+        $this->realtime->typing(
+            $conversation->id,
+            (string) $sender->id,
+            (string) $sender->name,
+            false,
+        );
 
         return $message;
     }
@@ -227,9 +247,31 @@ final class MessageService
         ]);
 
         $message = $message->fresh(['sender', 'attachments']);
+        $this->refreshConversationLastMessage($conversation, $message);
         $this->realtime->messageUpdated($message);
 
         return $message;
+    }
+
+    private function refreshConversationLastMessage(Conversation $conversation, Message $trigger): void
+    {
+        $conversation->refresh();
+
+        if ($conversation->last_message_id !== $trigger->id) {
+            return;
+        }
+
+        $latest = Message::query()
+            ->where('conversation_id', $conversation->id)
+            ->whereNull('archived_at')
+            ->whereNull('deleted_at')
+            ->orderByDesc('created_at')
+            ->first();
+
+        $conversation->update([
+            'last_message_id' => $latest?->id,
+            'last_message_at' => $latest?->created_at,
+        ]);
     }
 
     private function isDuplicateIdempotencyKey(QueryException $exception): bool

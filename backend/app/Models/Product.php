@@ -33,9 +33,11 @@ class Product extends Model
         'description',
         'sale_price',
         'compare_price',
+        'promotion_ends_at',
         'width',
         'height',
         'depth',
+        'weight_kg',
         'materials',
         'warranty',
         'return_policy_override_enabled',
@@ -57,9 +59,11 @@ class Product extends Model
         return [
             'sale_price' => 'decimal:2',
             'compare_price' => 'decimal:2',
+            'promotion_ends_at' => 'datetime',
             'width' => 'decimal:2',
             'height' => 'decimal:2',
             'depth' => 'decimal:2',
+            'weight_kg' => 'decimal:3',
             'materials' => 'array',
             'return_policy_override_enabled' => 'boolean',
             'returnable' => 'boolean',
@@ -134,7 +138,24 @@ class Product extends Model
     {
         return $query
             ->where('status', ProductStatus::Active)
-            ->whereHas('vendorAccount', fn ($q) => $q->where('status', 'active'));
+            ->whereIn('vendor_account_id', function ($subquery) {
+                $subquery->select('id')
+                    ->from('vendor_accounts')
+                    ->where('status', 'active');
+            });
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     */
+    public function scopeWithActiveDiscount(Builder $query): void
+    {
+        $query->whereNotNull('compare_price')
+            ->whereColumn('compare_price', '>', 'sale_price')
+            ->where(function (Builder $promotionQuery) {
+                $promotionQuery->whereNull('promotion_ends_at')
+                    ->orWhere('promotion_ends_at', '>', now());
+            });
     }
 
     /**

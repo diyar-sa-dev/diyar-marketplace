@@ -1,19 +1,22 @@
-# Render Blueprint — API (Docker + Octane) for prod-temp / V1
-# Frontend: Vercel (see deploy/RENDER_VERCEL.md)
-# Database: Render PostgreSQL (prod-temp). Dev branch stays on MySQL.
+# Render Blueprint — API + queue workers + Reverb + scheduler
+# Docs: https://render.com/docs/blueprint-spec
 #
-# FREE tier notes:
-# - Web service sleeps when idle (cold starts ~30–60s)
-# - Worker service is a separate paid service; omit if using sync queue fallback
-# - Use Upstash Redis free tier or Render Redis
+# Queue topology (priority order, left = highest):
+#   Worker A: critical
+#   Worker B: notifications-high, notifications
+#   Worker C: notifications-low, broadcast
+#   Worker D: chat, chat-low, default
+#
+# After deploy: set FRONTEND_URL, SANCTUM_STATEFUL_DOMAINS, REVERB_ALLOWED_ORIGINS, VITE_REVERB_* on Vercel.
 
 services:
   - type: web
     name: diyar-api
     runtime: docker
     rootDir: backend
-    dockerfilePath: ./Dockerfile
-    healthCheckPath: /up
+    buildCommand: composer install --optimize-autoloader && php artisan config:cache && php artisan route:cache && php artisan view:cache
+    startCommand: bash scripts/render-web-start.sh
+    healthCheckPath: /api/v1/health
     envVars:
       - key: APP_ENV
         value: production
@@ -29,6 +32,8 @@ services:
         value: redis
       - key: QUEUE_CONNECTION
         value: redis
+      - key: BROADCAST_CONNECTION
+        value: reverb
       - key: SESSION_DRIVER
         value: redis
       - key: SESSION_SECURE_COOKIE
@@ -37,14 +42,8 @@ services:
         value: lax
       - key: DIYAR_ENFORCE_REDIS_IN_PRODUCTION
         value: true
-      - key: DIYAR_HEALTH_PROBE_CACHE_SECONDS
-        value: 45
-      - key: DIYAR_MIGRATE_ON_BOOT
-        value: false
-      - key: OCTANE_WORKERS
-        value: 2
-      - key: OCTANE_TASK_WORKERS
-        value: 1
+      - key: REVERB_APP_RATE_LIMITING_ENABLED
+        value: true
       - key: APP_KEY
         generateValue: true
       - key: APP_URL
@@ -55,6 +54,23 @@ services:
         sync: false
       - key: DIYAR_FRONTEND_URL
         sync: false
+      - key: REVERB_ALLOWED_ORIGINS
+        sync: false
+      - key: REVERB_APP_ID
+        generateValue: true
+      - key: REVERB_APP_KEY
+        generateValue: true
+      - key: REVERB_APP_SECRET
+        generateValue: true
+      - key: REVERB_HOST
+        fromService:
+          type: web
+          name: diyar-reverb
+          property: host
+      - key: REVERB_PORT
+        value: "443"
+      - key: REVERB_SCHEME
+        value: https
       - key: DB_HOST
         sync: false
       - key: DB_DATABASE
@@ -72,14 +88,12 @@ services:
       - key: REDIS_PORT
         value: 6379
 
-  # Optional — requires Render paid worker. Without this, set QUEUE_CONNECTION=sync
-  # on FREE tier or accept delayed notification delivery until worker is provisioned.
-  - type: worker
-    name: diyar-queue
-    runtime: docker
+  - type: web
+    name: diyar-reverb
+    runtime: php
     rootDir: backend
-    dockerfilePath: ./Dockerfile
-    dockerCommand: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php artisan reverb:start --host=0.0.0.0 --port=$PORT
     envVars:
       - fromService:
           type: web
@@ -88,31 +102,147 @@ services:
       - fromService:
           type: web
           name: diyar-api
-          envVarKey: APP_URL
-      - fromService:
-          type: web
-          name: diyar-api
-          envVarKey: DB_HOST
-      - fromService:
-          type: web
-          name: diyar-api
-          envVarKey: DB_DATABASE
-      - fromService:
-          type: web
-          name: diyar-api
-          envVarKey: DB_USERNAME
-      - fromService:
-          type: web
-          name: diyar-api
-          envVarKey: DB_PASSWORD
-      - fromService:
-          type: web
-          name: diyar-api
           envVarKey: REDIS_HOST
       - fromService:
           type: web
           name: diyar-api
           envVarKey: REDIS_PASSWORD
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: REVERB_APP_ID
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: REVERB_APP_KEY
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: REVERB_APP_SECRET
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: FRONTEND_URL
+      - fromService:
+          type: web
+          name: diyar-api
+          envVarKey: REVERB_ALLOWED_ORIGINS
+      - key: APP_ENV
+        value: production
+      - key: BROADCAST_CONNECTION
+        value: reverb
+      - key: REVERB_HOST
+        fromService:
+          type: web
+          name: diyar-reverb
+          property: host
+      - key: REVERB_PORT
+        value: "443"
+      - key: REVERB_SCHEME
+        value: https
+      - key: REVERB_SCALING_ENABLED
+        value: true
+      - key: REVERB_APP_RATE_LIMITING_ENABLED
+        value: true
+
+  - type: worker
+    name: diyar-queue-critical
+    runtime: php
+    rootDir: backend
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php artisan queue:work redis --queue=critical --sleep=1 --tries=5 --timeout=120 --max-time=3600 --memory=128
+    envVars:
+      - fromService: { type: web, name: diyar-api, envVarKey: APP_KEY }
+      - fromService: { type: web, name: diyar-api, envVarKey: APP_URL }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_HOST }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_DATABASE }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_USERNAME }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_PASSWORD }
+      - fromService: { type: web, name: diyar-api, envVarKey: REDIS_HOST }
+      - fromService: { type: web, name: diyar-api, envVarKey: REDIS_PASSWORD }
+      - key: APP_ENV
+        value: production
+      - key: QUEUE_CONNECTION
+        value: redis
+
+  - type: worker
+    name: diyar-queue-notifications
+    runtime: php
+    rootDir: backend
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php artisan queue:work redis --queue=notifications-high,notifications --sleep=2 --tries=5 --timeout=120 --max-time=3600 --memory=128
+    envVars:
+      - fromService: { type: web, name: diyar-api, envVarKey: APP_KEY }
+      - fromService: { type: web, name: diyar-api, envVarKey: APP_URL }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_HOST }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_DATABASE }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_USERNAME }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_PASSWORD }
+      - fromService: { type: web, name: diyar-api, envVarKey: REDIS_HOST }
+      - fromService: { type: web, name: diyar-api, envVarKey: REDIS_PASSWORD }
+      - key: APP_ENV
+        value: production
+      - key: QUEUE_CONNECTION
+        value: redis
+
+  - type: worker
+    name: diyar-queue-broadcast
+    runtime: php
+    rootDir: backend
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php artisan queue:work redis --queue=notifications-low,broadcast --sleep=3 --tries=5 --timeout=180 --max-time=3600 --memory=192
+    envVars:
+      - fromService: { type: web, name: diyar-api, envVarKey: APP_KEY }
+      - fromService: { type: web, name: diyar-api, envVarKey: APP_URL }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_HOST }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_DATABASE }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_USERNAME }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_PASSWORD }
+      - fromService: { type: web, name: diyar-api, envVarKey: REDIS_HOST }
+      - fromService: { type: web, name: diyar-api, envVarKey: REDIS_PASSWORD }
+      - key: APP_ENV
+        value: production
+      - key: QUEUE_CONNECTION
+        value: redis
+
+  - type: worker
+    name: diyar-queue-chat
+    runtime: php
+    rootDir: backend
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php artisan queue:work redis --queue=chat,chat-low,default --sleep=2 --tries=5 --timeout=120 --max-time=3600 --memory=128
+    envVars:
+      - fromService: { type: web, name: diyar-api, envVarKey: APP_KEY }
+      - fromService: { type: web, name: diyar-api, envVarKey: APP_URL }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_HOST }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_DATABASE }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_USERNAME }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_PASSWORD }
+      - fromService: { type: web, name: diyar-api, envVarKey: REDIS_HOST }
+      - fromService: { type: web, name: diyar-api, envVarKey: REDIS_PASSWORD }
+      - key: APP_ENV
+        value: production
+      - key: QUEUE_CONNECTION
+        value: redis
+      - key: BROADCAST_CONNECTION
+        value: reverb
+
+  - type: cron
+    name: diyar-scheduler
+    runtime: php
+    rootDir: backend
+    schedule: "* * * * *"
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php artisan schedule:run
+    envVars:
+      - fromService: { type: web, name: diyar-api, envVarKey: APP_KEY }
+      - fromService: { type: web, name: diyar-api, envVarKey: APP_URL }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_HOST }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_DATABASE }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_USERNAME }
+      - fromService: { type: web, name: diyar-api, envVarKey: DB_PASSWORD }
+      - fromService: { type: web, name: diyar-api, envVarKey: REDIS_HOST }
+      - fromService: { type: web, name: diyar-api, envVarKey: REDIS_PASSWORD }
       - key: APP_ENV
         value: production
       - key: DB_CONNECTION

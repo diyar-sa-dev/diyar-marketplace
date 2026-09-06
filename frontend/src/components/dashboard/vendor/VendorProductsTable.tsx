@@ -3,6 +3,7 @@ import { Tag, Edit, Trash2, Eye } from 'lucide-react';
 import type { ProductCard } from '../../../types/catalog.ts';
 import { resolveMediaUrl } from '../../../lib/media.ts';
 import { useLocale } from '../../../hooks/useLocale.ts';
+import { TableLtrValue } from '../../common/TableLtrValue.tsx';
 import { stockStatus } from '../../../lib/stockStatus.ts';
 import { vendorActionButtonClass } from '../../../lib/vendorProductValidation.ts';
 
@@ -43,24 +44,24 @@ export function VendorProductsTable({
   canEdit = true,
   canDelete = true,
 }: VendorProductsTableProps) {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
   const currency = t('vendor.products.table.currency');
 
   return (
     <div className="bg-white border rounded-2xl border-gray-100 shadow-sm overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-right text-sm">
+      <div className="overflow-x-auto" dir={dir}>
+        <table className="w-full text-sm" dir={dir}>
           <thead className="bg-linear-to-l from-gray-50 to-white text-gray-600 border-b border-gray-100">
             <tr>
-              <th className="px-6 py-4 font-bold text-right">
+              <th className="px-6 py-4 font-bold text-start">
                 {t('vendor.products.table.product')}
               </th>
-              <th className="px-6 py-4 font-bold text-right">
+              <th className="px-6 py-4 font-bold text-start">
                 {t('vendor.products.table.category')}
               </th>
-              <th className="px-6 py-4 font-bold text-right">{t('vendor.products.table.price')}</th>
-              <th className="px-6 py-4 font-bold text-right">{t('vendor.products.table.stock')}</th>
-              <th className="px-6 py-4 font-bold text-left">
+              <th className="px-6 py-4 font-bold text-start">{t('vendor.products.table.price')}</th>
+              <th className="px-6 py-4 font-bold text-start">{t('vendor.products.table.stock')}</th>
+              <th className="px-6 py-4 font-bold text-start">
                 {t('vendor.products.table.actions')}
               </th>
             </tr>
@@ -75,7 +76,7 @@ export function VendorProductsTable({
                     index % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'
                   } hover:bg-amber-50/70 hover:shadow-[inset_3px_0_0_0_#A67B5B]`}
                 >
-                  <td className="px-6 py-4 font-bold text-diyar-dark">
+                  <td className="px-6 py-4 text-start font-bold text-diyar-dark">
                     <div className="flex items-center gap-3">
                       <div className="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 overflow-hidden shrink-0 ring-1 ring-gray-100 group-hover:ring-diyar-brown/20 transition-all">
                         {img ? (
@@ -93,11 +94,13 @@ export function VendorProductsTable({
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-500">{product.category}</td>
-                  <td className="px-6 py-4 font-bold text-diyar-brown tabular-nums">
-                    {product.price} {currency}
+                  <td className="px-6 py-4 text-start text-gray-500">{product.category}</td>
+                  <td className="px-6 py-4 text-start font-bold text-diyar-brown">
+                    <TableLtrValue>
+                      {product.price} {currency}
+                    </TableLtrValue>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-start">
                     {(() => {
                       const status = stockStatus(product.stock);
                       if (status === 'out_of_stock') {
@@ -121,8 +124,8 @@ export function VendorProductsTable({
                       );
                     })()}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-1.5 justify-end opacity-80 group-hover:opacity-100 transition-opacity">
+                  <td className="px-6 py-4 text-start">
+                    <div className="flex gap-1.5 justify-start opacity-80 group-hover:opacity-100 transition-opacity">
                       <button
                         type="button"
                         onClick={() => onView(product.id)}

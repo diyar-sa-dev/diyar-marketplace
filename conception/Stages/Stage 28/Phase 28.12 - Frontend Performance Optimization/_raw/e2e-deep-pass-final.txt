@@ -1,0 +1,6 @@
+﻿Playwright E2E — Deep Pass Final
+Date: 2026-08-27
+Stack: API 127.0.0.1:8000 (sqlite seeded), Preview 127.0.0.1:3000
+
+Result: 72 passed (2.5m)
+Vitest: 124/124 PASS

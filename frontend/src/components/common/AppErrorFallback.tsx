@@ -8,6 +8,10 @@ type AppErrorFallbackProps = {
 export function AppErrorFallback({ message }: AppErrorFallbackProps) {
   const { t, dir } = getStaticLocale();
 
+  if (message?.trim()) {
+    console.error(message);
+  }
+
   const handleReload = () => {
     window.location.reload();
   };
@@ -26,7 +30,7 @@ export function AppErrorFallback({ message }: AppErrorFallbackProps) {
       dir={dir}
       statusCode={500}
       title={t('status.unexpected.title')}
-      description={message?.trim() || t('status.unexpected.description')}
+      description={t('status.unexpected.description')}
       primaryLabel={t('status.unexpected.reload')}
       primaryOnClick={handleReload}
       secondaryLabel={t('status.unexpected.goBack')}

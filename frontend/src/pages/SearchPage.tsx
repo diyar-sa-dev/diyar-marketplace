@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Camera,
   ChevronLeft,
@@ -26,11 +26,15 @@ import { fetchCatalogSearch } from '../api/catalogSearch.ts';
 import { useDebouncedValue } from '../hooks/useDebouncedValue.ts';
 import { usePlatformCommerce } from '../hooks/usePlatformCommerce.ts';
 import {
+  hasCatalogSearchContext,
   normalizeCatalogSearchFilters,
   useCatalogSearch,
 } from '../hooks/catalog/useCatalogSearch.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { usePageSeo } from '../hooks/usePageSeo.ts';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.ts';
 import { mapProductCard } from '../lib/catalogMappers.ts';
+import { SearchAutocomplete } from '../components/search/SearchAutocomplete.tsx';
 import type { CatalogSearchFilters } from '../types/catalogSearch.ts';
 
 const VISUAL_SEARCH_QUERY = 'visual_search_results';
@@ -48,39 +52,48 @@ function readFiltersFromParams(
   });
 }
 
-function hasActiveSearchContext(filters: CatalogSearchFilters, rawQuery: string): boolean {
-  return Boolean(
-    rawQuery ||
-      filters.category_slug ||
-      filters.vendor_slug ||
-      filters.color ||
-      (filters.colors && filters.colors.length > 0) ||
-      filters.material ||
-      filters.min_price ||
-      filters.max_price ||
-      filters.discounted ||
-      filters.availability_mode,
-  );
-}
-
 export default function SearchPage() {
   const { t, dir } = useLocale();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [draftFilters, setDraftFilters] = useState<CatalogSearchFilters | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('');
 
   const rawQuery = searchParams.get('q')?.replace(/\s+/g, ' ').trim() ?? '';
   const debouncedQuery = useDebouncedValue(rawQuery, 300);
   const isVisualSearch = rawQuery === VISUAL_SEARCH_QUERY;
+  const shouldFocusMobileSearch = Boolean(
+    (location.state as { focusSearch?: boolean } | null)?.focusSearch,
+  );
+
+  useEffect(() => {
+    setMobileSearchQuery(rawQuery);
+  }, [rawQuery]);
+
+  useBodyScrollLock(isFilterOpen && !isVisualSearch);
 
   const filters = useMemo(
     () => readFiltersFromParams(searchParams, debouncedQuery),
     [searchParams, debouncedQuery],
   );
 
-  const { loyaltySarPerPoint } = usePlatformCommerce();
-  const searchEnabled = !isVisualSearch && hasActiveSearchContext(filters, debouncedQuery);
+  const seo = useMemo(
+    () => ({
+      title: rawQuery ? t('seo.searchTitle', { query: rawQuery }) : t('seo.searchEmptyTitle'),
+      description: rawQuery
+        ? t('seo.searchDescription', { query: rawQuery })
+        : t('seo.homeDescription'),
+      canonicalPath: rawQuery ? `/search?q=${encodeURIComponent(rawQuery)}` : '/search',
+      noindex: isVisualSearch,
+    }),
+    [isVisualSearch, rawQuery, t],
+  );
+  usePageSeo(seo);
+
+  const { loyaltySarPerPoint, loyaltyPointsPerUnit } = usePlatformCommerce();
+  const searchEnabled = !isVisualSearch && hasCatalogSearchContext(filters, rawQuery);
 
   const {
     data,
@@ -92,8 +105,14 @@ export default function SearchPage() {
   } = useCatalogSearch(filters, { enabled: searchEnabled });
 
   const products = useMemo(
-    () => data?.products?.items.map((item) => mapProductCard(item, loyaltySarPerPoint)) ?? [],
-    [data?.products?.items, loyaltySarPerPoint],
+    () =>
+      data?.products?.items.map((item) =>
+        mapProductCard(item, {
+          sarPerPoint: loyaltySarPerPoint,
+          pointsPerUnit: loyaltyPointsPerUnit,
+        }),
+      ) ?? [],
+    [data?.products?.items, loyaltySarPerPoint, loyaltyPointsPerUnit],
   );
   const services = data?.services?.items ?? [];
   const productPagination = data?.products?.pagination;
@@ -103,12 +122,15 @@ export default function SearchPage() {
   const activeType = filters.type ?? 'all';
   const productCount = productPagination?.total ?? 0;
   const serviceCount = servicePagination?.total ?? 0;
-  const totalResults =
-    activeType === 'products'
-      ? productCount
+  const displayProductCount = isError ? 0 : productCount;
+  const displayServiceCount = isError ? 0 : serviceCount;
+  const displayTotalResults = isError
+    ? 0
+    : activeType === 'products'
+      ? displayProductCount
       : activeType === 'services'
-        ? serviceCount
-        : productCount + serviceCount;
+        ? displayServiceCount
+        : displayProductCount + displayServiceCount;
 
   const updateFilters = useCallback(
     (patch: Partial<CatalogSearchFilters>, resetPage = false) => {
@@ -163,6 +185,23 @@ export default function SearchPage() {
     setDraftFilters(filters);
     setIsFilterOpen(true);
   };
+
+  const submitMobileSearch = useCallback(
+    (query: string) => {
+      const trimmed = query.replace(/\s+/g, ' ').trim();
+      const next = new URLSearchParams(searchParams);
+
+      if (trimmed) {
+        next.set('q', trimmed);
+      } else {
+        next.delete('q');
+      }
+
+      next.delete('page');
+      setSearchParams(next, { replace: true });
+    },
+    [searchParams, setSearchParams],
+  );
 
   const applyDraftFilters = () => {
     if (!draftFilters) {
@@ -223,7 +262,7 @@ export default function SearchPage() {
 
   const draftResultCount = useMemo(() => {
     if (!draftPreviewData) {
-      return totalResults;
+      return displayTotalResults;
     }
 
     const draftType = debouncedPanelFilters.type ?? 'all';
@@ -238,7 +277,7 @@ export default function SearchPage() {
       (draftPreviewData.products?.pagination.total ?? 0) +
       (draftPreviewData.services?.pagination.total ?? 0)
     );
-  }, [debouncedPanelFilters.type, draftPreviewData, totalResults]);
+  }, [debouncedPanelFilters.type, draftPreviewData, displayTotalResults]);
 
   const renderProducts = () => {
     if (showInitialSkeleton) {
@@ -320,7 +359,35 @@ export default function SearchPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+        <div className="md:hidden sticky top-0 z-30 -mx-4 mb-4 border-b border-gray-100 bg-gray-50/95 px-4 py-3 backdrop-blur-sm">
+          <form
+            className="flex items-center gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitMobileSearch(mobileSearchQuery);
+            }}
+          >
+            <div className="min-w-0 flex-1 rounded-2xl border border-gray-200 bg-white px-3 py-2.5 shadow-sm">
+              <SearchAutocomplete
+                value={mobileSearchQuery}
+                onChange={setMobileSearchQuery}
+                onSubmit={submitMobileSearch}
+                showImageSearch={false}
+                autoFocus={shouldFocusMobileSearch || !rawQuery}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={openFilterModal}
+              className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-gray-200 bg-white text-diyar-dark shadow-sm"
+              aria-label={t('catalog.search.filters.open')}
+            >
+              <SlidersHorizontal size={18} />
+            </button>
+          </form>
+        </div>
+
         <div className="mb-6">
           <h1 className="text-xl md:text-2xl font-bold text-diyar-dark mb-2 flex items-center gap-2">
             {isVisualSearch ? (
@@ -339,9 +406,9 @@ export default function SearchPage() {
               </span>
             )}
           </h1>
-          {searchEnabled && !showInitialSkeleton && (
+          {searchEnabled && !showInitialSkeleton && !isError && (
             <p className="text-gray-500 text-sm">
-              {t('catalog.search.resultsCount', { count: totalResults })}
+              {t('catalog.search.resultsCount', { count: displayTotalResults })}
             </p>
           )}
           {showSubtleLoading && (
@@ -352,32 +419,15 @@ export default function SearchPage() {
           )}
         </div>
 
-        {!searchEnabled && !isVisualSearch ? (
-          <EmptyState
-            title={t('catalog.search.emptyTitle')}
-            description={t('catalog.search.emptyDescription')}
-            action={
-              <button
-                type="button"
-                onClick={openFilterModal}
-                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-6 py-3 text-sm font-bold text-white cursor-pointer"
-              >
-                <SlidersHorizontal size={16} />
-                {t('catalog.search.filters.open')}
-              </button>
-            }
-          />
-        ) : isVisualSearch ? (
+        {isVisualSearch ? (
           <EmptyState
             title={t('catalog.search.visualSearchSoon')}
             description={t('catalog.search.visualSearchSoonDescription')}
           />
-        ) : isError ? (
-          <ErrorState error={error as Error} onRetry={() => refetch()} />
         ) : (
           <div className="flex flex-col md:flex-row gap-6 md:gap-8">
             <aside className="hidden md:block w-72 shrink-0 self-start">
-              {showInitialSkeleton ? (
+              {showInitialSkeleton && searchEnabled ? (
                 <SearchFiltersSkeleton />
               ) : (
                 <div className="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm">
@@ -394,129 +444,150 @@ export default function SearchPage() {
             </aside>
 
             <div className="flex-1 min-w-0">
-              <div className="bg-white border border-gray-200 rounded-2xl p-3 md:p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
-                <button
-                  type="button"
-                  onClick={openFilterModal}
-                  className="inline-flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2 text-sm font-bold text-diyar-dark cursor-pointer md:hidden"
-                >
-                  <Filter size={18} />
-                  {t('catalog.search.filters.open')}
-                </button>
-
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <span className="font-medium hidden sm:inline">
-                    {t('catalog.search.showingResults', {
-                      shown:
-                        activeType === 'services'
-                          ? services.length
-                          : activeType === 'products'
-                            ? products.length
-                            : products.length + services.length,
-                      total: totalResults,
-                    })}
-                  </span>
-                  <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-1.5 bg-gray-50">
-                    <span className="text-gray-500">{t('catalog.search.filters.sort')}:</span>
-                    <select
-                      value={filters.sort ?? '-created_at'}
-                      onChange={(event) =>
-                        updateFilters(
-                          { sort: event.target.value as CatalogSearchFilters['sort'] },
-                          true,
-                        )
-                      }
-                      className="bg-transparent border-none outline-none font-bold text-diyar-dark cursor-pointer"
-                    >
-                      <option value="-created_at">{t('catalog.search.filters.sortNewest')}</option>
-                      <option value="-popular">{t('catalog.search.filters.sortPopular')}</option>
-                      <option value="-discount">{t('catalog.search.filters.sortOffers')}</option>
-                      <option value="price">{t('catalog.search.filters.sortPriceLow')}</option>
-                      <option value="-price">{t('catalog.search.filters.sortPriceHigh')}</option>
-                      <option value="rating">{t('catalog.search.filters.sortRating')}</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="hidden md:flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl p-1">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('grid')}
-                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${viewMode === 'grid' ? 'bg-white shadow-sm text-diyar-brown' : 'text-gray-400 hover:text-diyar-dark'}`}
-                    aria-label="Grid view"
-                  >
-                    <LayoutGrid size={18} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('list')}
-                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${viewMode === 'list' ? 'bg-white shadow-sm text-diyar-brown' : 'text-gray-400 hover:text-diyar-dark'}`}
-                    aria-label="List view"
-                  >
-                    <List size={18} />
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex overflow-x-auto scrollbar-hide gap-2 mb-6">
-                {(['all', 'products', 'services'] as const).map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => updateFilters({ type }, true)}
-                    className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
-                      activeType === type
-                        ? 'bg-diyar-dark text-white shadow-md'
-                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-                    }`}
-                  >
-                    {t(`catalog.search.filters.type_${type}`)} (
-                    {type === 'products'
-                      ? productCount
-                      : type === 'services'
-                        ? serviceCount
-                        : productCount + serviceCount}
-                    )
-                  </button>
-                ))}
-              </div>
-
-              {(activeType === 'all' || activeType === 'products') && renderProducts()}
-              {(activeType === 'all' || activeType === 'services') && (
-                <div className={activeType === 'all' && products.length > 0 ? 'mt-10' : ''}>
-                  {activeType === 'all' && services.length > 0 && (
-                    <h2 className="text-lg font-bold text-diyar-dark mb-4">
-                      {t('catalog.search.servicesSection')}
-                    </h2>
-                  )}
-                  {renderServices()}
-                </div>
-              )}
-
-              {!showInitialSkeleton && products.length === 0 && services.length === 0 && (
-                <div className="bg-white rounded-3xl p-10 text-center shadow-sm border border-gray-100">
-                  <h3 className="text-2xl font-bold text-diyar-dark mb-2">
-                    {t('catalog.search.noResultsTitle')}
-                  </h3>
-                  <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                    {t('catalog.search.noResultsDescription')}
-                  </p>
-                  <div className="flex flex-wrap items-center justify-center gap-3">
+              {!searchEnabled ? (
+                <EmptyState
+                  title={t('catalog.search.emptyTitle')}
+                  description={t('catalog.search.emptyDescription')}
+                  action={
                     <button
                       type="button"
-                      onClick={clearFilters}
-                      className="bg-white border border-gray-200 text-diyar-dark px-6 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all cursor-pointer"
+                      onClick={openFilterModal}
+                      className="mt-4 inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-6 py-3 text-sm font-bold text-white cursor-pointer"
                     >
-                      {t('catalog.search.filters.clearAll')}
+                      <SlidersHorizontal size={16} />
+                      {t('catalog.search.filters.open')}
                     </button>
-                    <Link
-                      to="/"
-                      className="bg-diyar-dark text-white px-6 py-3 rounded-xl font-bold hover:bg-black transition-all cursor-pointer"
+                  }
+                />
+              ) : isError ? (
+                <ErrorState error={error as Error} onRetry={() => refetch()} />
+              ) : (
+                <>
+                  <div className="bg-white border border-gray-200 rounded-2xl p-3 md:p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+                    <button
+                      type="button"
+                      onClick={openFilterModal}
+                      className="inline-flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2 text-sm font-bold text-diyar-dark cursor-pointer md:hidden"
                     >
-                      {t('catalog.search.backHome')}
-                    </Link>
+                      <Filter size={18} />
+                      {t('catalog.search.filters.open')}
+                    </button>
+
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <span className="font-medium hidden sm:inline">
+                        {t('catalog.search.showingResults', {
+                          shown:
+                            activeType === 'services'
+                              ? services.length
+                              : activeType === 'products'
+                                ? products.length
+                                : products.length + services.length,
+                          total: displayTotalResults,
+                        })}
+                      </span>
+                      <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-1.5 bg-gray-50">
+                        <span className="text-gray-500">{t('catalog.search.filters.sort')}:</span>
+                        <select
+                          value={filters.sort ?? '-created_at'}
+                          onChange={(event) =>
+                            updateFilters(
+                              { sort: event.target.value as CatalogSearchFilters['sort'] },
+                              true,
+                            )
+                          }
+                          className="bg-transparent border-none outline-none font-bold text-diyar-dark cursor-pointer"
+                        >
+                          <option value="-created_at">{t('catalog.search.filters.sortNewest')}</option>
+                          <option value="-popular">{t('catalog.search.filters.sortPopular')}</option>
+                          <option value="-discount">{t('catalog.search.filters.sortOffers')}</option>
+                          <option value="price">{t('catalog.search.filters.sortPriceLow')}</option>
+                          <option value="-price">{t('catalog.search.filters.sortPriceHigh')}</option>
+                          <option value="rating">{t('catalog.search.filters.sortRating')}</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="hidden md:flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl p-1">
+                      <button
+                        type="button"
+                        onClick={() => setViewMode('grid')}
+                        className={`p-1.5 rounded-lg transition-colors cursor-pointer ${viewMode === 'grid' ? 'bg-white shadow-sm text-diyar-brown' : 'text-gray-400 hover:text-diyar-dark'}`}
+                        aria-label="Grid view"
+                      >
+                        <LayoutGrid size={18} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setViewMode('list')}
+                        className={`p-1.5 rounded-lg transition-colors cursor-pointer ${viewMode === 'list' ? 'bg-white shadow-sm text-diyar-brown' : 'text-gray-400 hover:text-diyar-dark'}`}
+                        aria-label="List view"
+                      >
+                        <List size={18} />
+                      </button>
+                    </div>
                   </div>
-                </div>
+
+                  <div className="flex overflow-x-auto scrollbar-hide gap-2 mb-6">
+                    {(['all', 'products', 'services'] as const).map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => updateFilters({ type }, true)}
+                        className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
+                          activeType === type
+                            ? 'bg-diyar-dark text-white shadow-md'
+                            : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                        }`}
+                      >
+                        {t(`catalog.search.filters.type_${type}`)} (
+                        {type === 'products'
+                          ? displayProductCount
+                          : type === 'services'
+                            ? displayServiceCount
+                            : displayProductCount + displayServiceCount}
+                        )
+                      </button>
+                    ))}
+                  </div>
+
+                  {(activeType === 'all' || activeType === 'products') && renderProducts()}
+                  {(activeType === 'all' || activeType === 'services') && (
+                    <div className={activeType === 'all' && products.length > 0 ? 'mt-10' : ''}>
+                      {activeType === 'all' && services.length > 0 && (
+                        <h2 className="text-lg font-bold text-diyar-dark mb-4">
+                          {t('catalog.search.servicesSection')}
+                        </h2>
+                      )}
+                      {renderServices()}
+                    </div>
+                  )}
+
+                  {!showInitialSkeleton && products.length === 0 && services.length === 0 && (
+                    <div className="bg-white rounded-3xl p-10 text-center shadow-sm border border-gray-100">
+                      <h3 className="text-2xl font-bold text-diyar-dark mb-2">
+                        {t('catalog.search.noResultsTitle')}
+                      </h3>
+                      <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                        {t('catalog.search.noResultsDescription')}
+                      </p>
+                      <div className="flex flex-wrap items-center justify-center gap-3">
+                        <button
+                          type="button"
+                          onClick={clearFilters}
+                          className="bg-white border border-gray-200 text-diyar-dark px-6 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all cursor-pointer"
+                        >
+                          {t('catalog.search.filters.clearAll')}
+                        </button>
+                        <Link
+                          to="/"
+                          className="bg-diyar-dark text-white px-6 py-3 rounded-xl font-bold hover:bg-black transition-all cursor-pointer"
+                        >
+                          {t('catalog.search.backHome')}
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -524,29 +595,29 @@ export default function SearchPage() {
       </div>
 
       {isFilterOpen && !isVisualSearch && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-250 flex items-end overscroll-none md:items-stretch md:justify-end" dir={dir}>
           <button
             type="button"
             className="absolute inset-0 bg-black/50 cursor-pointer"
             aria-label={t('catalog.search.filters.close')}
             onClick={() => setIsFilterOpen(false)}
           />
-          <div className="absolute bottom-0 left-0 right-0 md:inset-y-0 md:inset-inline-end-0 md:left-auto md:w-full md:max-w-md max-h-[90vh] md:max-h-none bg-white md:rounded-none rounded-t-3xl shadow-2xl flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-              <h2 className="font-bold text-lg text-diyar-dark inline-flex items-center gap-2">
+          <div className="relative flex w-full max-h-[min(calc(100dvh-env(safe-area-inset-bottom,0px)-0.5rem),920px)] flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl animate-in slide-in-from-bottom duration-300 md:ml-auto md:h-full md:max-h-none md:max-w-md md:rounded-none">
+            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-4 py-3">
+              <h2 className="inline-flex items-center gap-2 text-lg font-bold text-diyar-dark">
                 <SlidersHorizontal size={18} className="text-diyar-brown" />
                 {t('catalog.search.filters.title')}
               </h2>
               <button
                 type="button"
                 onClick={() => setIsFilterOpen(false)}
-                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 cursor-pointer"
+                className="cursor-pointer rounded-lg p-2 text-gray-500 hover:bg-gray-100"
                 aria-label={t('catalog.search.filters.close')}
               >
                 <X size={18} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y p-4">
               <CatalogSearchFiltersPanel
                 filters={panelFilters}
                 facets={facets}
@@ -561,7 +632,7 @@ export default function SearchPage() {
                 variant="plain"
               />
             </div>
-            <div className="border-t border-gray-100 p-4 flex gap-3 bg-white">
+            <div className="flex shrink-0 gap-3 border-t border-gray-100 bg-white p-4 pb-safe">
               <button
                 type="button"
                 onClick={() => {
@@ -569,14 +640,14 @@ export default function SearchPage() {
                   clearFilters();
                   setIsFilterOpen(false);
                 }}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-bold text-gray-600 cursor-pointer"
+                className="flex-1 cursor-pointer rounded-xl bg-gray-100 py-3 text-sm font-bold text-gray-600"
               >
                 {t('catalog.search.filters.clearAll')}
               </button>
               <button
                 type="button"
                 onClick={applyDraftFilters}
-                className="flex-[1.4] rounded-xl bg-diyar-dark py-3 text-sm font-bold text-white shadow-lg cursor-pointer"
+                className="flex-[1.4] cursor-pointer rounded-xl bg-diyar-dark py-3 text-sm font-bold text-white shadow-lg"
               >
                 {t('catalog.search.showResults', { count: draftResultCount })}
               </button>

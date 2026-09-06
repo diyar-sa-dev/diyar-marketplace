@@ -6,6 +6,7 @@ use App\Contracts\Identity\OtpCodeGenerator;
 use App\Contracts\Sms\SmsProvider;
 use App\Enums\OtpPurpose;
 use App\Infrastructure\Sms\LogSmsProvider;
+use App\Support\Identity\OtpTestCodeResolver;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -28,7 +29,8 @@ final class OtpService
         int $resendCount = 0,
     ): void {
         $length = (int) config('diyar.otp.length', 6);
-        $code = $this->codeGenerator->generate($length);
+        $replacingExisting = $this->cache->get($phone, $purpose) !== null;
+        $code = OtpTestCodeResolver::resolve($length, $this->codeGenerator, forceRandom: $replacingExisting);
         $expiresMinutes = (int) config('diyar.otp.expires_minutes', 10);
         $ttlSeconds = $expiresMinutes * 60;
 

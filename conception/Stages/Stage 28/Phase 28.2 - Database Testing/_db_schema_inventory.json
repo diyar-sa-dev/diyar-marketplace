@@ -1,0 +1,2901 @@
+{
+    "timestamp_utc": "2026-08-27T08:04:34+00:00",
+    "schema": "diyar",
+    "driver": "mysql",
+    "migration_files": 93,
+    "domains": {
+        "users": {
+            "expected": {
+                "users": true,
+                "roles": true,
+                "role_user": false,
+                "personal_access_tokens": true,
+                "addresses": true,
+                "email_verification_tokens": false
+            },
+            "missing": [
+                "role_user",
+                "email_verification_tokens"
+            ]
+        },
+        "vendors": {
+            "expected": {
+                "vendor_accounts": true,
+                "vendor_team_members": true,
+                "vendor_coupons": true,
+                "commission_rules": true,
+                "vendor_payouts": true
+            },
+            "missing": []
+        },
+        "catalog": {
+            "expected": {
+                "categories": true,
+                "products": true,
+                "product_colors": true,
+                "product_images": true,
+                "product_inventory": true,
+                "product_reviews": true,
+                "media_files": true
+            },
+            "missing": []
+        },
+        "cart": {
+            "expected": {
+                "carts": true,
+                "cart_items": true
+            },
+            "missing": []
+        },
+        "orders": {
+            "expected": {
+                "orders": true,
+                "order_items": true,
+                "vendor_orders": true,
+                "shipments": true
+            },
+            "missing": []
+        },
+        "payments": {
+            "expected": {
+                "payments": true,
+                "payment_attempts": true,
+                "payment_webhook_events": true,
+                "payment_vendor_allocations": true,
+                "financial_transactions": true
+            },
+            "missing": []
+        },
+        "returns": {
+            "expected": {
+                "return_requests": true,
+                "return_items": true,
+                "refunds": true,
+                "vendor_return_policies": true
+            },
+            "missing": []
+        },
+        "services": {
+            "expected": {
+                "services": true,
+                "service_bookings": true,
+                "service_rfqs": false,
+                "service_rfq_offers": false,
+                "provider_reviews": true
+            },
+            "missing": [
+                "service_rfqs",
+                "service_rfq_offers"
+            ]
+        },
+        "reviews": {
+            "expected": {
+                "product_reviews": true,
+                "store_reviews": true,
+                "provider_reviews": true,
+                "b2b_company_reviews": true
+            },
+            "missing": []
+        },
+        "coupons": {
+            "expected": {
+                "vendor_coupons": true,
+                "coupon_redemptions": false
+            },
+            "missing": [
+                "coupon_redemptions"
+            ]
+        },
+        "notifications": {
+            "expected": {
+                "notifications": false,
+                "notification_deliveries": true,
+                "notification_broadcasts": true
+            },
+            "missing": [
+                "notifications"
+            ]
+        },
+        "chat": {
+            "expected": {
+                "conversations": true,
+                "conversation_participants": true,
+                "messages": true,
+                "message_attachments": true
+            },
+            "missing": []
+        },
+        "affiliate": {
+            "expected": {
+                "affiliate_accounts": false,
+                "affiliate_links": true,
+                "affiliate_commissions": true,
+                "affiliate_payouts": true
+            },
+            "missing": [
+                "affiliate_accounts"
+            ]
+        },
+        "b2b": {
+            "expected": {
+                "b2b_companies": true,
+                "b2b_company_portfolio_images": true,
+                "b2b_rfqs": false
+            },
+            "missing": [
+                "b2b_rfqs"
+            ]
+        },
+        "loyalty": {
+            "expected": {
+                "loyalty_accounts": true,
+                "loyalty_transactions": true
+            },
+            "missing": []
+        },
+        "analytics": {
+            "expected": {
+                "analytics_events": true,
+                "search_query_events": true
+            },
+            "missing": []
+        },
+        "admin": {
+            "expected": {
+                "admin_permissions": false,
+                "admin_role_permissions": false,
+                "admin_audit_logs": true,
+                "system_settings": true
+            },
+            "missing": [
+                "admin_permissions",
+                "admin_role_permissions"
+            ]
+        },
+        "cms": {
+            "expected": {
+                "blog_articles": true,
+                "blog_categories": true,
+                "projects": true,
+                "blog_wishlist_items": true
+            },
+            "missing": []
+        },
+        "shipping": {
+            "expected": {
+                "shipping_carriers": true,
+                "shipping_zones": true,
+                "shipping_methods": true,
+                "shipping_rate_rules": true,
+                "vendor_shipping_settings": true,
+                "vendor_shipping_profiles": true
+            },
+            "missing": []
+        }
+    },
+    "summary": {
+        "total_tables": 123,
+        "total_foreign_keys": 209,
+        "total_indexes": 472
+    },
+    "tables": {
+        "addresses": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.05
+        },
+        "admin_audit_logs": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 202,
+            "size_mb": 0.19
+        },
+        "affiliate_attributions": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.11
+        },
+        "affiliate_clicks": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.13
+        },
+        "affiliate_commissions": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.17
+        },
+        "affiliate_links": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.09
+        },
+        "affiliate_payouts": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.09
+        },
+        "affiliate_profiles": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.08
+        },
+        "analytics_events": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.16
+        },
+        "b2b_categories": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 2,
+            "size_mb": 0.03
+        },
+        "b2b_companies": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 10,
+            "size_mb": 0.16
+        },
+        "b2b_company_portfolio_images": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 6,
+            "size_mb": 0.03
+        },
+        "b2b_company_project": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 9,
+            "size_mb": 0.05
+        },
+        "b2b_company_reviews": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.13
+        },
+        "b2b_company_services": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 13,
+            "size_mb": 0.03
+        },
+        "b2b_company_tag": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 6,
+            "size_mb": 0.03
+        },
+        "b2b_company_testimonials": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 2,
+            "size_mb": 0.03
+        },
+        "b2b_leads": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 2,
+            "size_mb": 0.05
+        },
+        "b2b_tags": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 6,
+            "size_mb": 0.03
+        },
+        "blog_articles": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 14,
+            "size_mb": 0.06
+        },
+        "blog_article_tag": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 10,
+            "size_mb": 0.03
+        },
+        "blog_categories": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 4,
+            "size_mb": 0.03
+        },
+        "blog_tags": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 5,
+            "size_mb": 0.03
+        },
+        "blog_wishlist_items": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.08
+        },
+        "cache": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.03
+        },
+        "cache_locks": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.03
+        },
+        "carts": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 138,
+            "size_mb": 0.08
+        },
+        "cart_items": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 1,
+            "size_mb": 0.08
+        },
+        "categories": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 20,
+            "size_mb": 0.06
+        },
+        "chat_archive_batches": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.03
+        },
+        "chat_message_reports": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.09
+        },
+        "commission_rules": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.03
+        },
+        "conversations": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 1,
+            "size_mb": 0.16
+        },
+        "conversation_participants": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 2,
+            "size_mb": 0.08
+        },
+        "domain_outbox_events": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 9,
+            "size_mb": 0.09
+        },
+        "failed_jobs": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.05
+        },
+        "financial_transactions": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 9,
+            "size_mb": 0.16
+        },
+        "inventory_movements": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 6,
+            "size_mb": 0.08
+        },
+        "inventory_reservations": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.09
+        },
+        "jobs": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.03
+        },
+        "job_batches": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.02
+        },
+        "loyalty_accounts": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.03
+        },
+        "loyalty_transactions": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.09
+        },
+        "media_files": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.05
+        },
+        "messages": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 6,
+            "size_mb": 0.11
+        },
+        "message_attachments": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.05
+        },
+        "migrations": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 88,
+            "size_mb": 0.02
+        },
+        "notification_broadcasts": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "notification_deliveries": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 24,
+            "size_mb": 0.14
+        },
+        "notification_devices": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "orders": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.11
+        },
+        "order_items": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.09
+        },
+        "order_number_sequences": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.02
+        },
+        "password_reset_tokens": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.02
+        },
+        "payments": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.13
+        },
+        "payment_attempts": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.08
+        },
+        "payment_state_transitions": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 2,
+            "size_mb": 0.05
+        },
+        "payment_vendor_allocations": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.09
+        },
+        "payment_webhook_events": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "permissions": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 55,
+            "size_mb": 0.05
+        },
+        "personal_access_tokens": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "products": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 12,
+            "size_mb": 0.08
+        },
+        "product_affiliate_settings": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.05
+        },
+        "product_colors": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 12,
+            "size_mb": 0.03
+        },
+        "product_images": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "product_inventory": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 12,
+            "size_mb": 0.03
+        },
+        "product_likes": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 6,
+            "size_mb": 0.05
+        },
+        "product_preorder_requests": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.09
+        },
+        "product_reviews": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "projects": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 6,
+            "size_mb": 0.06
+        },
+        "project_images": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.03
+        },
+        "provider_accounts": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.06
+        },
+        "provider_bank_accounts": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.05
+        },
+        "provider_follows": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.08
+        },
+        "provider_payouts": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.09
+        },
+        "provider_reviews": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.16
+        },
+        "provider_work_policies": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.03
+        },
+        "refunds": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.17
+        },
+        "refund_number_sequences": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.02
+        },
+        "return_evidence": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "return_items": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.08
+        },
+        "return_number_sequences": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.02
+        },
+        "return_requests": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.13
+        },
+        "roles": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 5,
+            "size_mb": 0.03
+        },
+        "role_permissions": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 59,
+            "size_mb": 0.05
+        },
+        "search_query_events": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 1,
+            "size_mb": 0.08
+        },
+        "services": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 4,
+            "size_mb": 0.14
+        },
+        "service_bookings": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.14
+        },
+        "service_booking_payments": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "service_categories": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 6,
+            "size_mb": 0.05
+        },
+        "service_offers": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.09
+        },
+        "service_portfolio_items": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 4,
+            "size_mb": 0.05
+        },
+        "service_requests": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.11
+        },
+        "service_request_attachments": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "service_request_category": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.03
+        },
+        "service_wishlist_items": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.08
+        },
+        "sessions": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 101,
+            "size_mb": 0.11
+        },
+        "shipments": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.06
+        },
+        "shipping_carriers": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.05
+        },
+        "shipping_methods": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "shipping_rate_rules": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.09
+        },
+        "shipping_zones": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "store_reviews": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.11
+        },
+        "system_settings": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 37,
+            "size_mb": 0.06
+        },
+        "users": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 9,
+            "size_mb": 0.08
+        },
+        "user_notifications": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 14,
+            "size_mb": 0.11
+        },
+        "user_roles": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 11,
+            "size_mb": 0.05
+        },
+        "vendor_accounts": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 2,
+            "size_mb": 0.06
+        },
+        "vendor_bank_accounts": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.05
+        },
+        "vendor_coupons": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.08
+        },
+        "vendor_coupon_exclusions": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "vendor_coupon_scopes": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "vendor_coupon_usages": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.13
+        },
+        "vendor_legal_profiles": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.05
+        },
+        "vendor_orders": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 3,
+            "size_mb": 0.09
+        },
+        "vendor_payouts": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.09
+        },
+        "vendor_return_policies": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.05
+        },
+        "vendor_shipping_profiles": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.06
+        },
+        "vendor_shipping_settings": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 2,
+            "size_mb": 0.05
+        },
+        "vendor_store_follows": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.08
+        },
+        "vendor_team_members": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.13
+        },
+        "vendor_working_hours": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.05
+        },
+        "wishlist_items": {
+            "engine": "InnoDB",
+            "collation": "utf8mb4_unicode_ci",
+            "approx_rows": 0,
+            "size_mb": 0.08
+        }
+    },
+    "foreign_keys": [
+        {
+            "CONSTRAINT_NAME": "addresses_user_id_foreign",
+            "TABLE_NAME": "addresses",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "admin_audit_logs_actor_id_foreign",
+            "TABLE_NAME": "admin_audit_logs",
+            "COLUMN_NAME": "actor_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_attributions_affiliate_click_id_foreign",
+            "TABLE_NAME": "affiliate_attributions",
+            "COLUMN_NAME": "affiliate_click_id",
+            "REFERENCED_TABLE_NAME": "affiliate_clicks",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_attributions_affiliate_link_id_foreign",
+            "TABLE_NAME": "affiliate_attributions",
+            "COLUMN_NAME": "affiliate_link_id",
+            "REFERENCED_TABLE_NAME": "affiliate_links",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_attributions_affiliate_profile_id_foreign",
+            "TABLE_NAME": "affiliate_attributions",
+            "COLUMN_NAME": "affiliate_profile_id",
+            "REFERENCED_TABLE_NAME": "affiliate_profiles",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_attributions_product_id_foreign",
+            "TABLE_NAME": "affiliate_attributions",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_attributions_user_id_foreign",
+            "TABLE_NAME": "affiliate_attributions",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_clicks_affiliate_commission_id_foreign",
+            "TABLE_NAME": "affiliate_clicks",
+            "COLUMN_NAME": "affiliate_commission_id",
+            "REFERENCED_TABLE_NAME": "affiliate_commissions",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_clicks_affiliate_link_id_foreign",
+            "TABLE_NAME": "affiliate_clicks",
+            "COLUMN_NAME": "affiliate_link_id",
+            "REFERENCED_TABLE_NAME": "affiliate_links",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_clicks_affiliate_profile_id_foreign",
+            "TABLE_NAME": "affiliate_clicks",
+            "COLUMN_NAME": "affiliate_profile_id",
+            "REFERENCED_TABLE_NAME": "affiliate_profiles",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_clicks_product_id_foreign",
+            "TABLE_NAME": "affiliate_clicks",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_commissions_affiliate_click_id_foreign",
+            "TABLE_NAME": "affiliate_commissions",
+            "COLUMN_NAME": "affiliate_click_id",
+            "REFERENCED_TABLE_NAME": "affiliate_clicks",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_commissions_affiliate_link_id_foreign",
+            "TABLE_NAME": "affiliate_commissions",
+            "COLUMN_NAME": "affiliate_link_id",
+            "REFERENCED_TABLE_NAME": "affiliate_links",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_commissions_affiliate_payout_id_foreign",
+            "TABLE_NAME": "affiliate_commissions",
+            "COLUMN_NAME": "affiliate_payout_id",
+            "REFERENCED_TABLE_NAME": "affiliate_payouts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_commissions_affiliate_profile_id_foreign",
+            "TABLE_NAME": "affiliate_commissions",
+            "COLUMN_NAME": "affiliate_profile_id",
+            "REFERENCED_TABLE_NAME": "affiliate_profiles",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_commissions_order_id_foreign",
+            "TABLE_NAME": "affiliate_commissions",
+            "COLUMN_NAME": "order_id",
+            "REFERENCED_TABLE_NAME": "orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_commissions_order_item_id_foreign",
+            "TABLE_NAME": "affiliate_commissions",
+            "COLUMN_NAME": "order_item_id",
+            "REFERENCED_TABLE_NAME": "order_items",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_commissions_product_id_foreign",
+            "TABLE_NAME": "affiliate_commissions",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_commissions_vendor_order_id_foreign",
+            "TABLE_NAME": "affiliate_commissions",
+            "COLUMN_NAME": "vendor_order_id",
+            "REFERENCED_TABLE_NAME": "vendor_orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_links_affiliate_profile_id_foreign",
+            "TABLE_NAME": "affiliate_links",
+            "COLUMN_NAME": "affiliate_profile_id",
+            "REFERENCED_TABLE_NAME": "affiliate_profiles",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_links_product_id_foreign",
+            "TABLE_NAME": "affiliate_links",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_payouts_affiliate_profile_id_foreign",
+            "TABLE_NAME": "affiliate_payouts",
+            "COLUMN_NAME": "affiliate_profile_id",
+            "REFERENCED_TABLE_NAME": "affiliate_profiles",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_payouts_processed_by_foreign",
+            "TABLE_NAME": "affiliate_payouts",
+            "COLUMN_NAME": "processed_by",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "affiliate_profiles_user_id_foreign",
+            "TABLE_NAME": "affiliate_profiles",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "analytics_events_provider_account_id_foreign",
+            "TABLE_NAME": "analytics_events",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "analytics_events_user_id_foreign",
+            "TABLE_NAME": "analytics_events",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "analytics_events_vendor_account_id_foreign",
+            "TABLE_NAME": "analytics_events",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_companies_b2b_category_id_foreign",
+            "TABLE_NAME": "b2b_companies",
+            "COLUMN_NAME": "b2b_category_id",
+            "REFERENCED_TABLE_NAME": "b2b_categories",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_companies_owner_user_id_foreign",
+            "TABLE_NAME": "b2b_companies",
+            "COLUMN_NAME": "owner_user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_companies_provider_account_id_foreign",
+            "TABLE_NAME": "b2b_companies",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_companies_vendor_account_id_foreign",
+            "TABLE_NAME": "b2b_companies",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_company_portfolio_images_b2b_company_id_foreign",
+            "TABLE_NAME": "b2b_company_portfolio_images",
+            "COLUMN_NAME": "b2b_company_id",
+            "REFERENCED_TABLE_NAME": "b2b_companies",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_company_project_b2b_company_id_foreign",
+            "TABLE_NAME": "b2b_company_project",
+            "COLUMN_NAME": "b2b_company_id",
+            "REFERENCED_TABLE_NAME": "b2b_companies",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_company_project_project_id_foreign",
+            "TABLE_NAME": "b2b_company_project",
+            "COLUMN_NAME": "project_id",
+            "REFERENCED_TABLE_NAME": "projects",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_company_reviews_b2b_company_id_foreign",
+            "TABLE_NAME": "b2b_company_reviews",
+            "COLUMN_NAME": "b2b_company_id",
+            "REFERENCED_TABLE_NAME": "b2b_companies",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_company_reviews_b2b_lead_id_foreign",
+            "TABLE_NAME": "b2b_company_reviews",
+            "COLUMN_NAME": "b2b_lead_id",
+            "REFERENCED_TABLE_NAME": "b2b_leads",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_company_reviews_company_replied_by_user_id_foreign",
+            "TABLE_NAME": "b2b_company_reviews",
+            "COLUMN_NAME": "company_replied_by_user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_company_reviews_user_id_foreign",
+            "TABLE_NAME": "b2b_company_reviews",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_company_services_b2b_company_id_foreign",
+            "TABLE_NAME": "b2b_company_services",
+            "COLUMN_NAME": "b2b_company_id",
+            "REFERENCED_TABLE_NAME": "b2b_companies",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_company_tag_b2b_company_id_foreign",
+            "TABLE_NAME": "b2b_company_tag",
+            "COLUMN_NAME": "b2b_company_id",
+            "REFERENCED_TABLE_NAME": "b2b_companies",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_company_tag_b2b_tag_id_foreign",
+            "TABLE_NAME": "b2b_company_tag",
+            "COLUMN_NAME": "b2b_tag_id",
+            "REFERENCED_TABLE_NAME": "b2b_tags",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_company_testimonials_b2b_company_id_foreign",
+            "TABLE_NAME": "b2b_company_testimonials",
+            "COLUMN_NAME": "b2b_company_id",
+            "REFERENCED_TABLE_NAME": "b2b_companies",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_leads_b2b_company_id_foreign",
+            "TABLE_NAME": "b2b_leads",
+            "COLUMN_NAME": "b2b_company_id",
+            "REFERENCED_TABLE_NAME": "b2b_companies",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "b2b_leads_user_id_foreign",
+            "TABLE_NAME": "b2b_leads",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "blog_articles_blog_category_id_foreign",
+            "TABLE_NAME": "blog_articles",
+            "COLUMN_NAME": "blog_category_id",
+            "REFERENCED_TABLE_NAME": "blog_categories",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "blog_article_tag_blog_article_id_foreign",
+            "TABLE_NAME": "blog_article_tag",
+            "COLUMN_NAME": "blog_article_id",
+            "REFERENCED_TABLE_NAME": "blog_articles",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "blog_article_tag_blog_tag_id_foreign",
+            "TABLE_NAME": "blog_article_tag",
+            "COLUMN_NAME": "blog_tag_id",
+            "REFERENCED_TABLE_NAME": "blog_tags",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "blog_wishlist_items_blog_article_id_foreign",
+            "TABLE_NAME": "blog_wishlist_items",
+            "COLUMN_NAME": "blog_article_id",
+            "REFERENCED_TABLE_NAME": "blog_articles",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "blog_wishlist_items_user_id_foreign",
+            "TABLE_NAME": "blog_wishlist_items",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "carts_user_id_foreign",
+            "TABLE_NAME": "carts",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "cart_items_cart_id_foreign",
+            "TABLE_NAME": "cart_items",
+            "COLUMN_NAME": "cart_id",
+            "REFERENCED_TABLE_NAME": "carts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "cart_items_product_id_foreign",
+            "TABLE_NAME": "cart_items",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "categories_parent_id_foreign",
+            "TABLE_NAME": "categories",
+            "COLUMN_NAME": "parent_id",
+            "REFERENCED_TABLE_NAME": "categories",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "chat_message_reports_conversation_id_foreign",
+            "TABLE_NAME": "chat_message_reports",
+            "COLUMN_NAME": "conversation_id",
+            "REFERENCED_TABLE_NAME": "conversations",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "chat_message_reports_message_id_foreign",
+            "TABLE_NAME": "chat_message_reports",
+            "COLUMN_NAME": "message_id",
+            "REFERENCED_TABLE_NAME": "messages",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "chat_message_reports_reporter_id_foreign",
+            "TABLE_NAME": "chat_message_reports",
+            "COLUMN_NAME": "reporter_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "chat_message_reports_reviewed_by_foreign",
+            "TABLE_NAME": "chat_message_reports",
+            "COLUMN_NAME": "reviewed_by",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "conversations_created_by_foreign",
+            "TABLE_NAME": "conversations",
+            "COLUMN_NAME": "created_by",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "conversations_last_message_id_foreign",
+            "TABLE_NAME": "conversations",
+            "COLUMN_NAME": "last_message_id",
+            "REFERENCED_TABLE_NAME": "messages",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "conversations_provider_account_id_foreign",
+            "TABLE_NAME": "conversations",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "conversations_vendor_account_id_foreign",
+            "TABLE_NAME": "conversations",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "conversation_participants_conversation_id_foreign",
+            "TABLE_NAME": "conversation_participants",
+            "COLUMN_NAME": "conversation_id",
+            "REFERENCED_TABLE_NAME": "conversations",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "conversation_participants_user_id_foreign",
+            "TABLE_NAME": "conversation_participants",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "financial_transactions_created_by_foreign",
+            "TABLE_NAME": "financial_transactions",
+            "COLUMN_NAME": "created_by",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "financial_transactions_order_id_foreign",
+            "TABLE_NAME": "financial_transactions",
+            "COLUMN_NAME": "order_id",
+            "REFERENCED_TABLE_NAME": "orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "financial_transactions_payment_id_foreign",
+            "TABLE_NAME": "financial_transactions",
+            "COLUMN_NAME": "payment_id",
+            "REFERENCED_TABLE_NAME": "payments",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "financial_transactions_payment_vendor_allocation_id_foreign",
+            "TABLE_NAME": "financial_transactions",
+            "COLUMN_NAME": "payment_vendor_allocation_id",
+            "REFERENCED_TABLE_NAME": "payment_vendor_allocations",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "financial_transactions_vendor_account_id_foreign",
+            "TABLE_NAME": "financial_transactions",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "financial_transactions_vendor_payout_id_foreign",
+            "TABLE_NAME": "financial_transactions",
+            "COLUMN_NAME": "vendor_payout_id",
+            "REFERENCED_TABLE_NAME": "vendor_payouts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "inventory_movements_created_by_foreign",
+            "TABLE_NAME": "inventory_movements",
+            "COLUMN_NAME": "created_by",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "inventory_movements_product_id_foreign",
+            "TABLE_NAME": "inventory_movements",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "inventory_reservations_product_id_foreign",
+            "TABLE_NAME": "inventory_reservations",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "inventory_reservations_user_id_foreign",
+            "TABLE_NAME": "inventory_reservations",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "loyalty_accounts_user_id_foreign",
+            "TABLE_NAME": "loyalty_accounts",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "loyalty_transactions_created_by_foreign",
+            "TABLE_NAME": "loyalty_transactions",
+            "COLUMN_NAME": "created_by",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "loyalty_transactions_loyalty_account_id_foreign",
+            "TABLE_NAME": "loyalty_transactions",
+            "COLUMN_NAME": "loyalty_account_id",
+            "REFERENCED_TABLE_NAME": "loyalty_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "loyalty_transactions_order_id_foreign",
+            "TABLE_NAME": "loyalty_transactions",
+            "COLUMN_NAME": "order_id",
+            "REFERENCED_TABLE_NAME": "orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "media_files_uploaded_by_foreign",
+            "TABLE_NAME": "media_files",
+            "COLUMN_NAME": "uploaded_by",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "messages_conversation_id_foreign",
+            "TABLE_NAME": "messages",
+            "COLUMN_NAME": "conversation_id",
+            "REFERENCED_TABLE_NAME": "conversations",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "messages_reply_to_message_id_foreign",
+            "TABLE_NAME": "messages",
+            "COLUMN_NAME": "reply_to_message_id",
+            "REFERENCED_TABLE_NAME": "messages",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "messages_sender_id_foreign",
+            "TABLE_NAME": "messages",
+            "COLUMN_NAME": "sender_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "message_attachments_message_id_foreign",
+            "TABLE_NAME": "message_attachments",
+            "COLUMN_NAME": "message_id",
+            "REFERENCED_TABLE_NAME": "messages",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "notification_broadcasts_created_by_foreign",
+            "TABLE_NAME": "notification_broadcasts",
+            "COLUMN_NAME": "created_by",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "notification_deliveries_user_id_foreign",
+            "TABLE_NAME": "notification_deliveries",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "notification_deliveries_user_notification_id_foreign",
+            "TABLE_NAME": "notification_deliveries",
+            "COLUMN_NAME": "user_notification_id",
+            "REFERENCED_TABLE_NAME": "user_notifications",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "notification_devices_user_id_foreign",
+            "TABLE_NAME": "notification_devices",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "orders_shipping_address_id_foreign",
+            "TABLE_NAME": "orders",
+            "COLUMN_NAME": "shipping_address_id",
+            "REFERENCED_TABLE_NAME": "addresses",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "orders_user_id_foreign",
+            "TABLE_NAME": "orders",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "order_items_affiliate_click_id_foreign",
+            "TABLE_NAME": "order_items",
+            "COLUMN_NAME": "affiliate_click_id",
+            "REFERENCED_TABLE_NAME": "affiliate_clicks",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "order_items_affiliate_link_id_foreign",
+            "TABLE_NAME": "order_items",
+            "COLUMN_NAME": "affiliate_link_id",
+            "REFERENCED_TABLE_NAME": "affiliate_links",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "order_items_affiliate_profile_id_foreign",
+            "TABLE_NAME": "order_items",
+            "COLUMN_NAME": "affiliate_profile_id",
+            "REFERENCED_TABLE_NAME": "affiliate_profiles",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "order_items_product_id_foreign",
+            "TABLE_NAME": "order_items",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "order_items_vendor_order_id_foreign",
+            "TABLE_NAME": "order_items",
+            "COLUMN_NAME": "vendor_order_id",
+            "REFERENCED_TABLE_NAME": "vendor_orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "payments_order_id_foreign",
+            "TABLE_NAME": "payments",
+            "COLUMN_NAME": "order_id",
+            "REFERENCED_TABLE_NAME": "orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "payment_attempts_payment_id_foreign",
+            "TABLE_NAME": "payment_attempts",
+            "COLUMN_NAME": "payment_id",
+            "REFERENCED_TABLE_NAME": "payments",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "payment_state_transitions_payment_id_foreign",
+            "TABLE_NAME": "payment_state_transitions",
+            "COLUMN_NAME": "payment_id",
+            "REFERENCED_TABLE_NAME": "payments",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "payment_vendor_allocations_payment_attempt_id_foreign",
+            "TABLE_NAME": "payment_vendor_allocations",
+            "COLUMN_NAME": "payment_attempt_id",
+            "REFERENCED_TABLE_NAME": "payment_attempts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "payment_vendor_allocations_payment_id_foreign",
+            "TABLE_NAME": "payment_vendor_allocations",
+            "COLUMN_NAME": "payment_id",
+            "REFERENCED_TABLE_NAME": "payments",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "payment_vendor_allocations_vendor_account_id_foreign",
+            "TABLE_NAME": "payment_vendor_allocations",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "payment_vendor_allocations_vendor_order_id_foreign",
+            "TABLE_NAME": "payment_vendor_allocations",
+            "COLUMN_NAME": "vendor_order_id",
+            "REFERENCED_TABLE_NAME": "vendor_orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "payment_webhook_events_payment_id_foreign",
+            "TABLE_NAME": "payment_webhook_events",
+            "COLUMN_NAME": "payment_id",
+            "REFERENCED_TABLE_NAME": "payments",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "products_category_id_foreign",
+            "TABLE_NAME": "products",
+            "COLUMN_NAME": "category_id",
+            "REFERENCED_TABLE_NAME": "categories",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "products_vendor_account_id_foreign",
+            "TABLE_NAME": "products",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_affiliate_settings_product_id_foreign",
+            "TABLE_NAME": "product_affiliate_settings",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_colors_product_id_foreign",
+            "TABLE_NAME": "product_colors",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_images_media_file_id_foreign",
+            "TABLE_NAME": "product_images",
+            "COLUMN_NAME": "media_file_id",
+            "REFERENCED_TABLE_NAME": "media_files",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_images_product_id_foreign",
+            "TABLE_NAME": "product_images",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_inventory_product_id_foreign",
+            "TABLE_NAME": "product_inventory",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_likes_product_id_foreign",
+            "TABLE_NAME": "product_likes",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_likes_user_id_foreign",
+            "TABLE_NAME": "product_likes",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_preorder_requests_product_id_foreign",
+            "TABLE_NAME": "product_preorder_requests",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_preorder_requests_user_id_foreign",
+            "TABLE_NAME": "product_preorder_requests",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_preorder_requests_vendor_account_id_foreign",
+            "TABLE_NAME": "product_preorder_requests",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_reviews_product_id_foreign",
+            "TABLE_NAME": "product_reviews",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_reviews_user_id_foreign",
+            "TABLE_NAME": "product_reviews",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "product_reviews_vendor_replied_by_user_id_foreign",
+            "TABLE_NAME": "product_reviews",
+            "COLUMN_NAME": "vendor_replied_by_user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "project_images_project_id_foreign",
+            "TABLE_NAME": "project_images",
+            "COLUMN_NAME": "project_id",
+            "REFERENCED_TABLE_NAME": "projects",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_accounts_user_id_foreign",
+            "TABLE_NAME": "provider_accounts",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_bank_accounts_provider_account_id_foreign",
+            "TABLE_NAME": "provider_bank_accounts",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_follows_provider_account_id_foreign",
+            "TABLE_NAME": "provider_follows",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_follows_user_id_foreign",
+            "TABLE_NAME": "provider_follows",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_payouts_processed_by_foreign",
+            "TABLE_NAME": "provider_payouts",
+            "COLUMN_NAME": "processed_by",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_payouts_provider_account_id_foreign",
+            "TABLE_NAME": "provider_payouts",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_payouts_provider_bank_account_id_foreign",
+            "TABLE_NAME": "provider_payouts",
+            "COLUMN_NAME": "provider_bank_account_id",
+            "REFERENCED_TABLE_NAME": "provider_bank_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_reviews_provider_account_id_foreign",
+            "TABLE_NAME": "provider_reviews",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_reviews_provider_responded_by_user_id_foreign",
+            "TABLE_NAME": "provider_reviews",
+            "COLUMN_NAME": "provider_responded_by_user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_reviews_service_booking_id_foreign",
+            "TABLE_NAME": "provider_reviews",
+            "COLUMN_NAME": "service_booking_id",
+            "REFERENCED_TABLE_NAME": "service_bookings",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_reviews_service_id_foreign",
+            "TABLE_NAME": "provider_reviews",
+            "COLUMN_NAME": "service_id",
+            "REFERENCED_TABLE_NAME": "services",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_reviews_user_id_foreign",
+            "TABLE_NAME": "provider_reviews",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "provider_work_policies_provider_account_id_foreign",
+            "TABLE_NAME": "provider_work_policies",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "refunds_order_id_foreign",
+            "TABLE_NAME": "refunds",
+            "COLUMN_NAME": "order_id",
+            "REFERENCED_TABLE_NAME": "orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "refunds_payment_id_foreign",
+            "TABLE_NAME": "refunds",
+            "COLUMN_NAME": "payment_id",
+            "REFERENCED_TABLE_NAME": "payments",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "refunds_payment_vendor_allocation_id_foreign",
+            "TABLE_NAME": "refunds",
+            "COLUMN_NAME": "payment_vendor_allocation_id",
+            "REFERENCED_TABLE_NAME": "payment_vendor_allocations",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "refunds_return_request_id_foreign",
+            "TABLE_NAME": "refunds",
+            "COLUMN_NAME": "return_request_id",
+            "REFERENCED_TABLE_NAME": "return_requests",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "refunds_vendor_order_id_foreign",
+            "TABLE_NAME": "refunds",
+            "COLUMN_NAME": "vendor_order_id",
+            "REFERENCED_TABLE_NAME": "vendor_orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "return_evidence_return_request_id_foreign",
+            "TABLE_NAME": "return_evidence",
+            "COLUMN_NAME": "return_request_id",
+            "REFERENCED_TABLE_NAME": "return_requests",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "return_evidence_uploaded_by_foreign",
+            "TABLE_NAME": "return_evidence",
+            "COLUMN_NAME": "uploaded_by",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "return_items_order_item_id_foreign",
+            "TABLE_NAME": "return_items",
+            "COLUMN_NAME": "order_item_id",
+            "REFERENCED_TABLE_NAME": "order_items",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "return_items_return_request_id_foreign",
+            "TABLE_NAME": "return_items",
+            "COLUMN_NAME": "return_request_id",
+            "REFERENCED_TABLE_NAME": "return_requests",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "return_requests_order_id_foreign",
+            "TABLE_NAME": "return_requests",
+            "COLUMN_NAME": "order_id",
+            "REFERENCED_TABLE_NAME": "orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "return_requests_user_id_foreign",
+            "TABLE_NAME": "return_requests",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "return_requests_vendor_order_id_foreign",
+            "TABLE_NAME": "return_requests",
+            "COLUMN_NAME": "vendor_order_id",
+            "REFERENCED_TABLE_NAME": "vendor_orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "role_permissions_permission_id_foreign",
+            "TABLE_NAME": "role_permissions",
+            "COLUMN_NAME": "permission_id",
+            "REFERENCED_TABLE_NAME": "permissions",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "role_permissions_role_id_foreign",
+            "TABLE_NAME": "role_permissions",
+            "COLUMN_NAME": "role_id",
+            "REFERENCED_TABLE_NAME": "roles",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "services_provider_account_id_foreign",
+            "TABLE_NAME": "services",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "services_service_category_id_foreign",
+            "TABLE_NAME": "services",
+            "COLUMN_NAME": "service_category_id",
+            "REFERENCED_TABLE_NAME": "service_categories",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_bookings_provider_account_id_foreign",
+            "TABLE_NAME": "service_bookings",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_bookings_service_id_foreign",
+            "TABLE_NAME": "service_bookings",
+            "COLUMN_NAME": "service_id",
+            "REFERENCED_TABLE_NAME": "services",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_bookings_service_offer_id_foreign",
+            "TABLE_NAME": "service_bookings",
+            "COLUMN_NAME": "service_offer_id",
+            "REFERENCED_TABLE_NAME": "service_offers",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_bookings_service_request_id_foreign",
+            "TABLE_NAME": "service_bookings",
+            "COLUMN_NAME": "service_request_id",
+            "REFERENCED_TABLE_NAME": "service_requests",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_bookings_user_id_foreign",
+            "TABLE_NAME": "service_bookings",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_booking_payments_service_booking_id_foreign",
+            "TABLE_NAME": "service_booking_payments",
+            "COLUMN_NAME": "service_booking_id",
+            "REFERENCED_TABLE_NAME": "service_bookings",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_offers_provider_account_id_foreign",
+            "TABLE_NAME": "service_offers",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_offers_service_request_id_foreign",
+            "TABLE_NAME": "service_offers",
+            "COLUMN_NAME": "service_request_id",
+            "REFERENCED_TABLE_NAME": "service_requests",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_portfolio_items_provider_account_id_foreign",
+            "TABLE_NAME": "service_portfolio_items",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_portfolio_items_service_id_foreign",
+            "TABLE_NAME": "service_portfolio_items",
+            "COLUMN_NAME": "service_id",
+            "REFERENCED_TABLE_NAME": "services",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_requests_accepted_offer_id_foreign",
+            "TABLE_NAME": "service_requests",
+            "COLUMN_NAME": "accepted_offer_id",
+            "REFERENCED_TABLE_NAME": "service_offers",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_requests_provider_account_id_foreign",
+            "TABLE_NAME": "service_requests",
+            "COLUMN_NAME": "provider_account_id",
+            "REFERENCED_TABLE_NAME": "provider_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_requests_service_id_foreign",
+            "TABLE_NAME": "service_requests",
+            "COLUMN_NAME": "service_id",
+            "REFERENCED_TABLE_NAME": "services",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_requests_user_id_foreign",
+            "TABLE_NAME": "service_requests",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_request_attachments_service_request_id_foreign",
+            "TABLE_NAME": "service_request_attachments",
+            "COLUMN_NAME": "service_request_id",
+            "REFERENCED_TABLE_NAME": "service_requests",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_request_attachments_uploaded_by_foreign",
+            "TABLE_NAME": "service_request_attachments",
+            "COLUMN_NAME": "uploaded_by",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_request_category_service_category_id_foreign",
+            "TABLE_NAME": "service_request_category",
+            "COLUMN_NAME": "service_category_id",
+            "REFERENCED_TABLE_NAME": "service_categories",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_request_category_service_request_id_foreign",
+            "TABLE_NAME": "service_request_category",
+            "COLUMN_NAME": "service_request_id",
+            "REFERENCED_TABLE_NAME": "service_requests",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_wishlist_items_service_id_foreign",
+            "TABLE_NAME": "service_wishlist_items",
+            "COLUMN_NAME": "service_id",
+            "REFERENCED_TABLE_NAME": "services",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "service_wishlist_items_user_id_foreign",
+            "TABLE_NAME": "service_wishlist_items",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "sessions_user_id_foreign",
+            "TABLE_NAME": "sessions",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "shipments_vendor_order_id_foreign",
+            "TABLE_NAME": "shipments",
+            "COLUMN_NAME": "vendor_order_id",
+            "REFERENCED_TABLE_NAME": "vendor_orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "shipping_methods_carrier_id_foreign",
+            "TABLE_NAME": "shipping_methods",
+            "COLUMN_NAME": "carrier_id",
+            "REFERENCED_TABLE_NAME": "shipping_carriers",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "shipping_rate_rules_shipping_method_id_foreign",
+            "TABLE_NAME": "shipping_rate_rules",
+            "COLUMN_NAME": "shipping_method_id",
+            "REFERENCED_TABLE_NAME": "shipping_methods",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "shipping_rate_rules_vendor_account_id_foreign",
+            "TABLE_NAME": "shipping_rate_rules",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "shipping_rate_rules_zone_id_foreign",
+            "TABLE_NAME": "shipping_rate_rules",
+            "COLUMN_NAME": "zone_id",
+            "REFERENCED_TABLE_NAME": "shipping_zones",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "shipping_zones_carrier_id_foreign",
+            "TABLE_NAME": "shipping_zones",
+            "COLUMN_NAME": "carrier_id",
+            "REFERENCED_TABLE_NAME": "shipping_carriers",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "store_reviews_order_id_foreign",
+            "TABLE_NAME": "store_reviews",
+            "COLUMN_NAME": "order_id",
+            "REFERENCED_TABLE_NAME": "orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "store_reviews_user_id_foreign",
+            "TABLE_NAME": "store_reviews",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "store_reviews_vendor_account_id_foreign",
+            "TABLE_NAME": "store_reviews",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "store_reviews_vendor_order_id_foreign",
+            "TABLE_NAME": "store_reviews",
+            "COLUMN_NAME": "vendor_order_id",
+            "REFERENCED_TABLE_NAME": "vendor_orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "store_reviews_vendor_replied_by_user_id_foreign",
+            "TABLE_NAME": "store_reviews",
+            "COLUMN_NAME": "vendor_replied_by_user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "user_notifications_user_id_foreign",
+            "TABLE_NAME": "user_notifications",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "user_roles_role_id_foreign",
+            "TABLE_NAME": "user_roles",
+            "COLUMN_NAME": "role_id",
+            "REFERENCED_TABLE_NAME": "roles",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "user_roles_user_id_foreign",
+            "TABLE_NAME": "user_roles",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_accounts_user_id_foreign",
+            "TABLE_NAME": "vendor_accounts",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_bank_accounts_vendor_account_id_foreign",
+            "TABLE_NAME": "vendor_bank_accounts",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_coupons_vendor_account_id_foreign",
+            "TABLE_NAME": "vendor_coupons",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_coupon_exclusions_vendor_coupon_id_foreign",
+            "TABLE_NAME": "vendor_coupon_exclusions",
+            "COLUMN_NAME": "vendor_coupon_id",
+            "REFERENCED_TABLE_NAME": "vendor_coupons",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_coupon_scopes_vendor_coupon_id_foreign",
+            "TABLE_NAME": "vendor_coupon_scopes",
+            "COLUMN_NAME": "vendor_coupon_id",
+            "REFERENCED_TABLE_NAME": "vendor_coupons",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_coupon_usages_order_id_foreign",
+            "TABLE_NAME": "vendor_coupon_usages",
+            "COLUMN_NAME": "order_id",
+            "REFERENCED_TABLE_NAME": "orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_coupon_usages_user_id_foreign",
+            "TABLE_NAME": "vendor_coupon_usages",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_coupon_usages_vendor_coupon_id_foreign",
+            "TABLE_NAME": "vendor_coupon_usages",
+            "COLUMN_NAME": "vendor_coupon_id",
+            "REFERENCED_TABLE_NAME": "vendor_coupons",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_coupon_usages_vendor_order_id_foreign",
+            "TABLE_NAME": "vendor_coupon_usages",
+            "COLUMN_NAME": "vendor_order_id",
+            "REFERENCED_TABLE_NAME": "vendor_orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_legal_profiles_vendor_account_id_foreign",
+            "TABLE_NAME": "vendor_legal_profiles",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_orders_order_id_foreign",
+            "TABLE_NAME": "vendor_orders",
+            "COLUMN_NAME": "order_id",
+            "REFERENCED_TABLE_NAME": "orders",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_orders_vendor_account_id_foreign",
+            "TABLE_NAME": "vendor_orders",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "RESTRICT",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_orders_vendor_coupon_id_foreign",
+            "TABLE_NAME": "vendor_orders",
+            "COLUMN_NAME": "vendor_coupon_id",
+            "REFERENCED_TABLE_NAME": "vendor_coupons",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_payouts_processed_by_foreign",
+            "TABLE_NAME": "vendor_payouts",
+            "COLUMN_NAME": "processed_by",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_payouts_vendor_account_id_foreign",
+            "TABLE_NAME": "vendor_payouts",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_return_policies_vendor_account_id_foreign",
+            "TABLE_NAME": "vendor_return_policies",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_shipping_profiles_shipping_method_id_foreign",
+            "TABLE_NAME": "vendor_shipping_profiles",
+            "COLUMN_NAME": "shipping_method_id",
+            "REFERENCED_TABLE_NAME": "shipping_methods",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_shipping_profiles_vendor_account_id_foreign",
+            "TABLE_NAME": "vendor_shipping_profiles",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_shipping_settings_shipping_profile_id_foreign",
+            "TABLE_NAME": "vendor_shipping_settings",
+            "COLUMN_NAME": "shipping_profile_id",
+            "REFERENCED_TABLE_NAME": "vendor_shipping_profiles",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_shipping_settings_vendor_account_id_foreign",
+            "TABLE_NAME": "vendor_shipping_settings",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_store_follows_user_id_foreign",
+            "TABLE_NAME": "vendor_store_follows",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_store_follows_vendor_account_id_foreign",
+            "TABLE_NAME": "vendor_store_follows",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_team_members_invited_by_user_id_foreign",
+            "TABLE_NAME": "vendor_team_members",
+            "COLUMN_NAME": "invited_by_user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_team_members_user_id_foreign",
+            "TABLE_NAME": "vendor_team_members",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "SET NULL",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_team_members_vendor_account_id_foreign",
+            "TABLE_NAME": "vendor_team_members",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "vendor_working_hours_vendor_account_id_foreign",
+            "TABLE_NAME": "vendor_working_hours",
+            "COLUMN_NAME": "vendor_account_id",
+            "REFERENCED_TABLE_NAME": "vendor_accounts",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "wishlist_items_product_id_foreign",
+            "TABLE_NAME": "wishlist_items",
+            "COLUMN_NAME": "product_id",
+            "REFERENCED_TABLE_NAME": "products",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        },
+        {
+            "CONSTRAINT_NAME": "wishlist_items_user_id_foreign",
+            "TABLE_NAME": "wishlist_items",
+            "COLUMN_NAME": "user_id",
+            "REFERENCED_TABLE_NAME": "users",
+            "REFERENCED_COLUMN_NAME": "id",
+            "DELETE_RULE": "CASCADE",
+            "UPDATE_RULE": "RESTRICT"
+        }
+    ],
+    "largest_tables_by_size_mb": [
+        {
+            "table": "admin_audit_logs",
+            "size_mb": 0.19,
+            "approx_rows": 202
+        },
+        {
+            "table": "affiliate_commissions",
+            "size_mb": 0.17,
+            "approx_rows": 0
+        },
+        {
+            "table": "refunds",
+            "size_mb": 0.17,
+            "approx_rows": 0
+        },
+        {
+            "table": "analytics_events",
+            "size_mb": 0.16,
+            "approx_rows": 0
+        },
+        {
+            "table": "b2b_companies",
+            "size_mb": 0.16,
+            "approx_rows": 10
+        },
+        {
+            "table": "conversations",
+            "size_mb": 0.16,
+            "approx_rows": 1
+        },
+        {
+            "table": "financial_transactions",
+            "size_mb": 0.16,
+            "approx_rows": 9
+        },
+        {
+            "table": "provider_reviews",
+            "size_mb": 0.16,
+            "approx_rows": 0
+        },
+        {
+            "table": "notification_deliveries",
+            "size_mb": 0.14,
+            "approx_rows": 24
+        },
+        {
+            "table": "services",
+            "size_mb": 0.14,
+            "approx_rows": 4
+        },
+        {
+            "table": "service_bookings",
+            "size_mb": 0.14,
+            "approx_rows": 0
+        },
+        {
+            "table": "affiliate_clicks",
+            "size_mb": 0.13,
+            "approx_rows": 0
+        },
+        {
+            "table": "b2b_company_reviews",
+            "size_mb": 0.13,
+            "approx_rows": 0
+        },
+        {
+            "table": "payments",
+            "size_mb": 0.13,
+            "approx_rows": 3
+        },
+        {
+            "table": "return_requests",
+            "size_mb": 0.13,
+            "approx_rows": 0
+        }
+    ]
+}

@@ -87,6 +87,17 @@ final class CommissionResolver
         return $this->resolveGlobalRule();
     }
 
+    public function activeGlobalRatePercent(): string
+    {
+        $rule = $this->activeRuleQuery(CommissionScope::Global, null)->first();
+
+        if ($rule === null) {
+            return '0.00';
+        }
+
+        return number_format((float) $rule->rate_percent, 2, '.', '');
+    }
+
     private function resolveProductRule(string $productId): ?CommissionRule
     {
         return $this->activeRuleQuery(CommissionScope::Product, $productId)->first();

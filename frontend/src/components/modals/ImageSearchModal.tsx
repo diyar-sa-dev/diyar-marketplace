@@ -25,15 +25,21 @@ export function ImageSearchModal({ isOpen, onClose, disabled = false }: ImageSea
         onClick={onClose}
       />
 
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div
+        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="image-search-modal-title"
+      >
         <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-diyar-dark flex items-center gap-2">
+          <h2 id="image-search-modal-title" className="text-xl font-bold text-diyar-dark flex items-center gap-2">
             <Camera className="text-diyar-brown" size={24} />
             {t('catalog.search.imageSearch')}
           </h2>
           <button
             type="button"
             onClick={onClose}
+            aria-label={t('catalog.search.filters.close')}
             className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-diyar-dark transition-colors cursor-pointer"
           >
             <X size={20} />

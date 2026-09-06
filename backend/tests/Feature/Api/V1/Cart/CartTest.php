@@ -240,7 +240,7 @@ class CartTest extends TestCase
         $this->postStatefulJson('/api/v1/cart/items', [
             'product_id' => $product->id,
             'quantity' => 5,
-        ])->assertStatus(400);
+        ])->assertStatus(422);
     }
 
     public function test_totals_return_subtotal_only(): void
@@ -260,5 +260,38 @@ class CartTest extends TestCase
     public function test_merge_requires_authentication(): void
     {
         $this->postJson('/api/v1/cart/merge')->assertUnauthorized();
+    }
+
+    public function test_merge_after_login_finds_guest_cart_despite_session_regeneration(): void
+    {
+        $user = $this->createUserWithRole(RoleName::Customer, [
+            'phone' => '966501222333',
+            'password' => 'Password123!',
+        ]);
+        $product = Product::factory()->create();
+
+        $this->postStatefulJson('/api/v1/cart/items', [
+            'product_id' => $product->id,
+            'quantity' => 2,
+        ])->assertOk();
+
+        $guestSessionId = session()->getId();
+
+        $this->postStatefulJson('/api/v1/auth/login', [
+            'method' => 'phone',
+            'identifier' => '501222333',
+            'password' => 'Password123!',
+        ])->assertOk();
+
+        $this->assertNotSame($guestSessionId, session()->getId());
+
+        $this->postStatefulJson('/api/v1/cart/merge')
+            ->assertOk()
+            ->assertJsonPath('data.cart.item_count', 2);
+
+        $this->assertDatabaseHas('carts', [
+            'session_id' => $guestSessionId,
+            'status' => CartStatus::Merged->value,
+        ]);
     }
 }

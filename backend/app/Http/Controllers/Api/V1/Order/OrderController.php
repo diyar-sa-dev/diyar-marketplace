@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Services\Order\OrderCancellationService;
 use App\Services\Order\OrderCreationService;
 use App\Support\Api\ApiResponse;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
@@ -67,6 +68,14 @@ class OrderController extends Controller
             return ApiResponse::error($exception->getMessage(), 409);
         } catch (UnprocessableEntityHttpException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
+        } catch (InvalidArgumentException $exception) {
+            return ApiResponse::error($exception->getMessage(), 422);
+        } catch (QueryException $exception) {
+            if ($this->isCheckoutInventoryRace($exception)) {
+                return ApiResponse::error(__('diyar.catalog.insufficient_available_stock'), 422);
+            }
+
+            throw $exception;
         }
 
         return ApiResponse::success(
@@ -108,5 +117,12 @@ class OrderController extends Controller
             data: ['order' => new OrderResource($updated)],
             message: __('diyar.order.cancelled'),
         );
+    }
+
+    private function isCheckoutInventoryRace(QueryException $exception): bool
+    {
+        $driverCode = (int) ($exception->errorInfo[1] ?? 0);
+
+        return in_array($driverCode, [1205, 1213], true);
     }
 }

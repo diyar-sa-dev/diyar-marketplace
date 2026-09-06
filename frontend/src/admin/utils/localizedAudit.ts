@@ -26,6 +26,9 @@ const ACTION_KEYS: Record<string, string> = {
   'payout.affiliate.reject': 'admin.audit.actions.payoutAffiliateReject',
   'payout.affiliate.mark_processing': 'admin.audit.actions.payoutAffiliateMarkProcessing',
   'payout.affiliate.mark_paid': 'admin.audit.actions.payoutAffiliateMarkPaid',
+  'payout.provider.approve': 'admin.audit.actions.payoutProviderApprove',
+  'payout.provider.reject': 'admin.audit.actions.payoutProviderReject',
+  'payout.provider.mark_paid': 'admin.audit.actions.payoutProviderMarkPaid',
   'affiliate_link.disable': 'admin.audit.actions.affiliateLinkDisable',
   'return.process_refund': 'admin.audit.actions.returnProcessRefund',
   'return.submit_for_review': 'admin.audit.actions.returnSubmitForReview',
@@ -36,6 +39,41 @@ const ACTION_KEYS: Record<string, string> = {
   'role.permissions.sync': 'admin.audit.actions.rolePermissionsSync',
   'provider_review.hide': 'admin.audit.actions.providerReviewHide',
   'provider_review.unhide': 'admin.audit.actions.providerReviewUnhide',
+  'blog_article.create': 'admin.audit.actions.blogArticleCreate',
+  'blog_article.update': 'admin.audit.actions.blogArticleUpdate',
+  'blog_article.delete': 'admin.audit.actions.blogArticleDelete',
+  'blog_article.publish': 'admin.audit.actions.blogArticlePublish',
+  'blog_article.unpublish': 'admin.audit.actions.blogArticleUnpublish',
+  'blog_article.archive': 'admin.audit.actions.blogArticleArchive',
+  'blog_category.create': 'admin.audit.actions.blogCategoryCreate',
+  'blog_category.update': 'admin.audit.actions.blogCategoryUpdate',
+  'blog_category.delete': 'admin.audit.actions.blogCategoryDelete',
+  'blog_tag.create': 'admin.audit.actions.blogTagCreate',
+  'blog_tag.update': 'admin.audit.actions.blogTagUpdate',
+  'blog_tag.delete': 'admin.audit.actions.blogTagDelete',
+  'project.create': 'admin.audit.actions.projectCreate',
+  'project.update': 'admin.audit.actions.projectUpdate',
+  'project.delete': 'admin.audit.actions.projectDelete',
+  'project.publish': 'admin.audit.actions.projectPublish',
+  'project.unpublish': 'admin.audit.actions.projectUnpublish',
+  'project.archive': 'admin.audit.actions.projectArchive',
+  'b2b_company.create': 'admin.audit.actions.b2bCompanyCreate',
+  'b2b_company.update': 'admin.audit.actions.b2bCompanyUpdate',
+  'b2b_company.delete': 'admin.audit.actions.b2bCompanyDelete',
+  'b2b_company.publish': 'admin.audit.actions.b2bCompanyPublish',
+  'b2b_company.unpublish': 'admin.audit.actions.b2bCompanyUnpublish',
+  'b2b_company.archive': 'admin.audit.actions.b2bCompanyArchive',
+  'b2b_company.verify': 'admin.audit.actions.b2bCompanyVerify',
+  'b2b_company.reject_verification': 'admin.audit.actions.b2bCompanyRejectVerification',
+  'b2b_company.feature': 'admin.audit.actions.b2bCompanyFeature',
+  'b2b_company.unfeature': 'admin.audit.actions.b2bCompanyUnfeature',
+  'b2b_category.create': 'admin.audit.actions.b2bCategoryCreate',
+  'b2b_category.update': 'admin.audit.actions.b2bCategoryUpdate',
+  'b2b_category.delete': 'admin.audit.actions.b2bCategoryDelete',
+  'b2b_tag.create': 'admin.audit.actions.b2bTagCreate',
+  'chat.reports.list': 'admin.audit.actions.chatReportsList',
+  'chat.report.view': 'admin.audit.actions.chatReportView',
+  'chat.report.resolve': 'admin.audit.actions.chatReportResolve',
 };
 
 const RESOURCE_KEYS: Record<string, string> = {
@@ -49,21 +87,35 @@ const RESOURCE_KEYS: Record<string, string> = {
   'App\\Models\\Coupon': 'admin.audit.resources.coupon',
   'App\\Models\\VendorPayout': 'admin.audit.resources.vendorPayout',
   'App\\Models\\AffiliatePayout': 'admin.audit.resources.affiliatePayout',
+  'App\\Models\\ProviderPayout': 'admin.audit.resources.providerPayout',
   'App\\Models\\AffiliateLink': 'admin.audit.resources.affiliateLink',
   'App\\Models\\ReturnRequest': 'admin.audit.resources.returnRequest',
   'App\\Models\\Role': 'admin.audit.resources.role',
   'App\\Models\\ProviderReview': 'admin.audit.resources.providerReview',
   'App\\Models\\AffiliateProfile': 'admin.audit.resources.affiliateProfile',
+  'App\\Models\\BlogArticle': 'admin.audit.resources.blogArticle',
+  'App\\Models\\BlogCategory': 'admin.audit.resources.blogCategory',
+  'App\\Models\\BlogTag': 'admin.audit.resources.blogTag',
+  'App\\Models\\Project': 'admin.audit.resources.project',
+  'App\\Models\\B2bCompany': 'admin.audit.resources.b2bCompany',
+  'App\\Models\\B2bCategory': 'admin.audit.resources.b2bCategory',
+  'App\\Models\\B2bTag': 'admin.audit.resources.b2bTag',
+  'App\\Models\\ChatMessageReport': 'admin.audit.resources.chatMessageReport',
 };
 
 export const AUDIT_ACTION_FILTER_OPTIONS = Object.keys(ACTION_KEYS);
+
+function normalizeAuditAction(action: string): string {
+  return action.trim().toLowerCase().replace(/\s+/g, '_');
+}
 
 export function localizedAuditAction(action: string | null | undefined, t: TranslateFn): string {
   if (!action) {
     return '—';
   }
 
-  const key = ACTION_KEYS[action];
+  const normalized = normalizeAuditAction(action);
+  const key = ACTION_KEYS[normalized] ?? ACTION_KEYS[action.trim()];
   return key ? t(key as never) : action.replace(/[._]/g, ' ');
 }
 
@@ -82,4 +134,68 @@ export function localizedAuditResource(
 
   const shortName = resourceType.split('\\').pop() ?? resourceType;
   return shortName.replace(/([A-Z])/g, ' $1').trim();
+}
+
+export type AuditActionTone = 'credit' | 'debit' | 'gold' | 'neutral';
+
+const DEBIT_ACTION_TOKENS = [
+  'delete',
+  'suspend',
+  'reject',
+  'cancel',
+  'archive',
+  'deactivate',
+  'disable',
+  'unpublish',
+  'unfeature',
+  'hide',
+  'revoke',
+];
+
+const CREDIT_ACTION_TOKENS = [
+  'create',
+  'activate',
+  'approve',
+  'publish',
+  'verify',
+  'feature',
+  'unhide',
+  'mark_paid',
+  'mark_received',
+];
+
+function actionTokenMatches(lastSegment: string, tokens: string[]): boolean {
+  return tokens.some((token) => lastSegment === token || lastSegment.startsWith(`${token}_`));
+}
+
+export function auditActionTone(action: string | null | undefined): AuditActionTone {
+  const normalized = (action ?? '').toLowerCase();
+  if (!normalized) {
+    return 'neutral';
+  }
+
+  const lastSegment = normalized.split('.').pop() ?? normalized;
+
+  if (actionTokenMatches(lastSegment, DEBIT_ACTION_TOKENS)) {
+    return 'debit';
+  }
+
+  if (actionTokenMatches(lastSegment, CREDIT_ACTION_TOKENS)) {
+    return 'credit';
+  }
+
+  return 'gold';
+}
+
+export function auditActionBadgeClass(tone: AuditActionTone): string {
+  switch (tone) {
+    case 'credit':
+      return 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200';
+    case 'debit':
+      return 'bg-red-50 text-red-800 ring-1 ring-red-200';
+    case 'gold':
+      return 'bg-[#f4ead8] text-[#8a6a2f] ring-1 ring-[#e4d4b0]';
+    default:
+      return 'bg-slate-50 text-slate-700 ring-1 ring-slate-200';
+  }
 }

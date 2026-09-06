@@ -65,6 +65,10 @@ final class EnvironmentSafetyValidator
             $issues[] = 'DIYAR_PAYMENT_USE_FAKE_GATEWAY must be false in production';
         }
 
+        if (config('diyar.loadtest.enabled')) {
+            $issues[] = 'DIYAR_LOADTEST_MODE must be false in production (disables rate limits and auth throttles)';
+        }
+
         if (filter_var(env('MYFATOORAH_TEST_MODE', true), FILTER_VALIDATE_BOOL)) {
             $issues[] = 'MYFATOORAH_TEST_MODE must be false in production';
         }
@@ -90,6 +94,10 @@ final class EnvironmentSafetyValidator
         if (! config('diyar.payments.use_fake_gateway')
             && ! filter_var(env('MYFATOORAH_TEST_MODE', true), FILTER_VALIDATE_BOOL)) {
             $issues[] = 'staging requires MYFATOORAH_TEST_MODE=true or DIYAR_PAYMENT_USE_FAKE_GATEWAY=true';
+        }
+
+        if (config('diyar.loadtest.enabled')) {
+            $issues[] = 'DIYAR_LOADTEST_MODE must be false in staging (use only for local E2E/load tests)';
         }
 
         if ($this->looksLikeProductionDatabase()) {

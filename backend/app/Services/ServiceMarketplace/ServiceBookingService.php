@@ -67,12 +67,16 @@ final class ServiceBookingService
                 ? substr((string) $offer->proposed_scheduled_time, 0, 5)
                 : null;
 
+            $request->loadMissing('service');
+            $serviceTitle = trim((string) ($request->service?->title ?: $request->title ?: ''));
+
             $booking = ServiceBooking::query()->create([
                 'service_offer_id' => $offer->id,
                 'service_request_id' => $request->id,
                 'user_id' => $user->id,
                 'provider_account_id' => $offer->provider_account_id,
                 'service_id' => $request->service_id,
+                'service_title_snapshot' => $serviceTitle !== '' ? $serviceTitle : null,
                 'booking_source' => ServiceBookingSource::Rfq,
                 'reference' => $this->allocateReference('SBK'),
                 'scheduled_date' => $offerDate,
@@ -130,14 +134,16 @@ final class ServiceBookingService
         }
 
         if ($search !== null && trim($search) !== '') {
-            $term = '%'.trim($search).'%';
-            $query->where(function ($q) use ($term) {
-                $q->where('reference', 'like', $term)
-                    ->orWhere('location', 'like', $term)
-                    ->orWhereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', $term))
+            $term = trim($search);
+            $like = '%'.$term.'%';
+            $query->where(function ($q) use ($term, $like) {
+                $q->where('id', $term)
+                    ->orWhere('reference', 'like', $like)
+                    ->orWhere('location', 'like', $like)
+                    ->orWhereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', $like))
                     ->orWhereHas('serviceRequest', fn ($reqQuery) => $reqQuery
-                        ->where('title', 'like', $term)
-                        ->orWhere('reference', 'like', $term));
+                        ->where('title', 'like', $like)
+                        ->orWhere('reference', 'like', $like));
             });
         }
 

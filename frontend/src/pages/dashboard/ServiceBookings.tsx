@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Search,
   Calendar as CalendarIcon,
@@ -16,7 +16,7 @@ import {
   FileText,
   Smartphone,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { PaginationBar } from '../../components/catalog/PaginationBar.tsx';
 import { ErrorState } from '../../components/common/ErrorState.tsx';
 import { ProviderBookingCardSkeleton } from '../../components/provider/ProviderBookingCardSkeleton.tsx';
@@ -141,8 +141,10 @@ function ActionModal({
 export default function ServiceBookings() {
   const { t, dir, locale } = useLocale();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const highlightId = searchParams.get('highlight')?.trim() || null;
   const BackIcon = dir === 'rtl' ? ArrowRight : ArrowLeft;
-  const [activeTab, setActiveTab] = useState('upcoming');
+  const [activeTab, setActiveTab] = useState(highlightId ? 'pending' : 'upcoming');
   const [searchInput, setSearchInput] = useState('');
   const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
     usePaginationState({ initialPerPage: 9 });
@@ -154,6 +156,8 @@ export default function ServiceBookings() {
   const [proposedTime, setProposedTime] = useState('10:00');
   const [providerNotes, setProviderNotes] = useState('');
   const [showRescheduleForm, setShowRescheduleForm] = useState(false);
+  const highlightOpenedRef = useRef<string | null>(null);
+  const highlightTriedAllRef = useRef(false);
 
   const debouncedSearch = useDebouncedValue(searchInput, 300);
 
@@ -187,6 +191,33 @@ export default function ServiceBookings() {
       setSelectedBooking(fresh);
     }
   }, [bookings, selectedBooking?.id]);
+
+  useEffect(() => {
+    if (!highlightId) {
+      highlightOpenedRef.current = null;
+      highlightTriedAllRef.current = false;
+      return;
+    }
+
+    if (isLoading) {
+      return;
+    }
+
+    const match = bookings.find((booking) => booking.id === highlightId);
+    if (match) {
+      if (highlightOpenedRef.current !== highlightId) {
+        highlightOpenedRef.current = highlightId;
+        setSelectedBooking(match);
+      }
+      return;
+    }
+
+    if (activeTab !== 'all' && !highlightTriedAllRef.current) {
+      highlightTriedAllRef.current = true;
+      setActiveTab('all');
+      resetPage();
+    }
+  }, [highlightId, bookings, isLoading, activeTab, resetPage]);
 
   const getStatusBadge = (status: BookingUiStatus, bookingStatus?: ProviderBooking['status']) => {
     if (bookingStatus === 'pending_customer_acceptance') {

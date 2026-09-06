@@ -5,10 +5,11 @@ import { StarRating } from '../product/StarRating.tsx';
 import { ReviewTypeBadge } from './ReviewTypeBadge.tsx';
 import { VendorReplyBlock } from './VendorReplyBlock.tsx';
 import { formatRelativeReviewDate } from '../../lib/formatRelativeReviewDate.ts';
-import { resolveMediaUrl } from '../../lib/media.ts';
+import { customerReviewSubjectImage, customerReviewSubjectTitle, customerReviewServiceSource } from '../../lib/customerReviewSubject.ts';
 import { validateStoreReviewInput, MAX_COMMENT_LENGTH } from '../../lib/storeReviewValidation.ts';
 import { updateProductReview, deleteProductReview } from '../../api/productEngagement.ts';
 import { updateStoreReview, deleteStoreReview } from '../../api/storeReviews.ts';
+import { updateProviderReview } from '../../api/providerReviews.ts';
 import { showErrorAlert, showSuccessToast } from '../../lib/confirmDialog.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
 import type { PublishedCustomerReview } from '../../api/customerReviews.ts';
@@ -29,20 +30,41 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
   const [deleting, setDeleting] = useState(false);
 
   const isProduct = review.type === 'product';
-  const title = isProduct ? review.product?.name : review.store?.name;
-  const imageUrl = isProduct
-    ? resolveMediaUrl(review.product?.image_url)
-    : resolveMediaUrl(review.store?.logo_url);
+  const isService = review.type === 'service';
+  const isB2b = review.type === 'b2b';
+  const untitled =
+    isProduct
+      ? t('customerReviews.typeProduct')
+      : isService
+        ? t('serviceBookings.defaultServiceTitle')
+        : isB2b
+          ? t('customerReviews.typeB2b')
+          : t('customerReviews.typeStore');
+  const title = customerReviewSubjectTitle(review, untitled);
+  const imageUrl = customerReviewSubjectImage(review);
+  const serviceSource = customerReviewServiceSource(review);
   const linkTarget = isProduct
     ? review.product?.id && review.product.available
-      ? `/products/${review.product.id}`
+      ? `/product/${review.product.id}`
       : null
-    : review.store?.slug
-      ? `/store/${review.store.slug}`
-      : null;
+    : isService
+      ? review.service?.slug
+        ? `/service/${review.service.slug}`
+        : null
+      : isB2b
+        ? review.company?.slug
+          ? `/b2b/${review.company.slug}`
+          : null
+        : review.store?.slug
+          ? `/store/${review.store.slug}`
+          : null;
 
   const canEdit =
-    (isProduct && review.product?.id) || (!isProduct && review.store?.slug && review.id);
+    (isProduct && review.product?.id) ||
+    (isService && review.id) ||
+    (isB2b && false) ||
+    (!isProduct && !isService && !isB2b && review.store?.slug && review.id);
+  const canDelete = !isService && !isB2b;
 
   const handleUpdate = async () => {
     const trimmed = comment.trim();
@@ -56,6 +78,11 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
     try {
       if (isProduct && review.product?.id) {
         await updateProductReview(review.product.id, {
+          rating,
+          comment: trimmed || undefined,
+        });
+      } else if (isService) {
+        await updateProviderReview(review.id, {
           rating,
           comment: trimmed || undefined,
         });
@@ -84,7 +111,7 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
     try {
       if (isProduct && review.product?.id) {
         await deleteProductReview(review.product.id);
-      } else if (!isProduct) {
+      } else if (!isProduct && !isService) {
         await deleteStoreReview(review.id);
       }
       await showSuccessToast(t, 'customerReviews.deleteSuccess');
@@ -101,6 +128,27 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
     setComment(review.comment ?? '');
     setEditOpen(true);
   };
+
+  const replyText = isService
+    ? review.provider_response
+    : isB2b
+      ? review.company_reply
+      : review.vendor_reply;
+  const replyAuthor = isService
+    ? review.provider_responded_by ?? review.provider?.name
+    : isB2b
+      ? review.company_replied_by ?? review.company?.name
+      : review.vendor_replied_by ?? review.store?.name;
+  const replyAt = isService
+    ? review.provider_responded_at
+    : isB2b
+      ? review.company_replied_at
+      : review.vendor_replied_at;
+  const replyAvatar = isService
+    ? review.provider?.logo_url
+    : isB2b
+      ? review.company?.logo_url
+      : review.store?.logo_url;
 
   return (
     <>
@@ -139,12 +187,12 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
                     to={linkTarget}
                     className="font-bold text-diyar-dark wrap-break-word hover:text-diyar-brown"
                   >
-                    {title ?? '—'}
+                    {title}
                   </Link>
                 ) : (
-                  <h3 className="font-bold text-diyar-dark wrap-break-word">{title ?? '—'}</h3>
+                  <h3 className="font-bold text-diyar-dark wrap-break-word">{title}</h3>
                 )}
-                <ReviewTypeBadge type={review.type} t={t} />
+                <ReviewTypeBadge type={review.type} serviceSource={serviceSource} t={t} />
               </div>
               <StarRating value={review.rating} readOnly size={14} className="mb-1" />
             </div>
@@ -162,21 +210,34 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
             </p>
           )}
 
-          {review.vendor_reply && (
+          {replyText && (
             <VendorReplyBlock
-              reply={review.vendor_reply}
-              repliedBy={review.vendor_replied_by ?? review.store?.name}
-              repliedAt={review.vendor_replied_at}
-              avatarUrl={review.store?.logo_url}
+              reply={replyText}
+              repliedBy={replyAuthor}
+              repliedAt={replyAt}
+              avatarUrl={replyAvatar}
               locale={locale}
               t={t}
               compact
+              variant={isService ? 'provider' : 'vendor'}
             />
           )}
 
-          {!isProduct && review.order_number && (
+          {!isProduct && !isService && !isB2b && review.order_number && (
             <p className="text-xs text-gray-400 mt-2">
               {t('orders.orderNumber')}: {review.order_number}
+            </p>
+          )}
+
+          {isService && review.request_reference ? (
+            <p className="text-xs text-gray-400 mt-2">
+              {t('customerReviews.requestReference')}: {review.request_reference}
+            </p>
+          ) : null}
+
+          {isService && review.booking_reference && (
+            <p className="text-xs text-gray-400 mt-2">
+              {t('customerReviews.bookingReference')}: {review.booking_reference}
             </p>
           )}
 
@@ -191,15 +252,17 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
                   <Pencil size={14} />
                   {t('customerReviews.editReview')}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => void handleDelete()}
-                  disabled={deleting}
-                  className={`${vendorButtonClass} inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border border-red-200 text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-60`}
-                >
-                  <Trash2 size={14} />
-                  {deleting ? '…' : t('customerReviews.deleteReview')}
-                </button>
+                {canDelete && (
+                  <button
+                    type="button"
+                    onClick={() => void handleDelete()}
+                    disabled={deleting}
+                    className={`${vendorButtonClass} inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border border-red-200 text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-60`}
+                  >
+                    <Trash2 size={14} />
+                    {deleting ? '…' : t('customerReviews.deleteReview')}
+                  </button>
+                )}
               </div>
             )}
             <Link

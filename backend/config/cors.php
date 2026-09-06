@@ -1,5 +1,7 @@
 <?php
 
+use App\Support\Http\DiyarNetworkOrigins;
+
 return [
 
     /*
@@ -15,13 +17,11 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'broadcasting/*'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => array_filter([
-        env('FRONTEND_URL', 'http://localhost:3000'),
-    ]),
+    'allowed_origins' => DiyarNetworkOrigins::corsOrigins(),
 
     'allowed_origins_patterns' => [],
 

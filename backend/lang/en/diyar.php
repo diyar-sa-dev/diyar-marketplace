@@ -44,6 +44,7 @@ return [
     'errors' => [
         'unexpected' => 'Something went wrong. Please try again.',
         'conflict' => 'This action conflicts with existing data.',
+        'not_found' => 'Resource not found.',
     ],
 
     'maintenance' => [
@@ -115,6 +116,45 @@ return [
         'product_updated' => 'Product updated successfully.',
         'product_archived' => 'Product archived successfully.',
         'category_has_products' => 'Cannot delete a category that has products.',
+    ],
+
+    'blog' => [
+        'article_not_found' => 'Blog article not found.',
+        'tag_not_found' => 'Blog tag not found.',
+        'category_has_articles' => 'Cannot delete a category that has articles.',
+    ],
+
+    'projects' => [
+        'not_found' => 'Project not found.',
+    ],
+
+    'b2b' => [
+        'company_not_found' => 'B2B company not found.',
+        'company_created' => 'B2B company profile created. It will be reviewed before publishing.',
+        'company_updated' => 'B2B company profile updated.',
+        'company_already_linked' => 'You already have a linked B2B company profile.',
+        'company_manage_denied' => 'You are not allowed to manage this B2B company profile.',
+        'vendor_account_required' => 'A vendor account is required.',
+        'provider_account_required' => 'A provider account is required.',
+        'lead_not_found' => 'B2B lead not found.',
+        'lead_duplicate' => 'You already submitted a similar request recently. Please try again later.',
+        'lead_daily_limit' => 'Daily lead submission limit reached. Please try again tomorrow.',
+        'lead_invalid' => 'Invalid lead request.',
+        'lead_status_updated' => 'Quote request status updated.',
+        'lead_status_locked' => 'This quote request has already been reviewed.',
+        'leads_require_published' => 'Quote requests are available after your B2B profile is published.',
+        'category_has_companies' => 'Cannot delete a category that has companies.',
+        'portfolio_max_reached' => 'You can upload up to :max portfolio images.',
+        'portfolio_image_not_found' => 'Portfolio image not found.',
+        'other_category' => 'Other',
+        'review' => [
+            'saved' => 'Your B2B company review was submitted successfully.',
+            'lead_not_found' => 'Quote request not found for this company.',
+            'lead_not_owned' => 'You can only review companies you requested a quote from.',
+            'lead_not_eligible' => 'You can review this company after your quote request is accepted.',
+            'cannot_review_own_company' => 'You cannot review your own company profile.',
+            'already_submitted' => 'You already reviewed this quote request.',
+        ],
     ],
 
     'services' => [
@@ -230,6 +270,11 @@ return [
         'carrier_rate_required' => 'Carrier flat rate is required when carrier delivery is enabled.',
         'free_threshold_required' => 'Free shipping threshold is required when free shipping is enabled.',
         'pickup_label_required' => 'Pickup location label is required when pickup is enabled.',
+        'unsupported_zone' => 'Shipping is not available for this destination.',
+        'missing_weight' => 'Unable to calculate shipping weight for cart items.',
+        'weight_exceeds_max' => 'Cart weight exceeds the maximum supported limit.',
+        'invalid_volumetric_divisor' => 'Invalid volumetric divisor configuration.',
+        'profile_not_configured' => 'Advanced shipping profile is not configured for this vendor.',
         'methods' => [
             'carrier' => 'Carrier delivery',
             'pickup' => 'Store pickup',
@@ -267,6 +312,12 @@ return [
         'minimum_not_met' => 'Order subtotal does not meet the coupon minimum.',
         'store_mismatch' => 'This coupon does not apply to this store.',
         'cannot_edit_after_use' => 'This field cannot be changed after the coupon has been used.',
+        'user_limit_exhausted' => 'You have reached the usage limit for this coupon.',
+        'not_stackable' => 'These coupons cannot be combined.',
+        'exclusive_conflict' => 'An exclusive coupon is already applied.',
+        'disabled' => 'Coupons are currently unavailable.',
+        'duplicate_vendor_entry' => 'Only one coupon may be applied per store.',
+        'free_shipping_requires_carrier' => 'Free shipping coupons require carrier delivery.',
     ],
 
     'provider_review' => [
@@ -346,6 +397,12 @@ return [
         'order_not_payable' => 'This order is not payable.',
         'already_processed' => 'Payment has already been processed.',
         'invalid_session' => 'Invalid or expired payment session.',
+        'invalid_payment_method' => 'Invalid payment method.',
+        'payment_method_unavailable' => 'The selected payment method is not available for this order.',
+        'checkout_method_mada' => 'Mada',
+        'checkout_method_card' => 'Credit / debit card',
+        'checkout_method_apple_pay' => 'Apple Pay',
+        'checkout_method_tabby' => 'Tabby',
         'callback_informational' => 'Payment status is confirmed by the server webhook only.',
         'simulation_unavailable' => 'Payment simulation is only available in local dev mode.',
         'simulated_failed' => 'Simulated payment failure (dev).',
@@ -364,6 +421,17 @@ return [
         'method_failed' => 'Payment failed',
         'method_refunded' => 'Refunded',
         'refund_not_implemented' => 'Gateway refunds are not implemented for this provider yet.',
+    ],
+
+    'analytics' => [
+        'funnel' => [
+            'product_views' => 'Product views',
+            'add_to_cart' => 'Add to cart',
+            'checkout_started' => 'Checkout started',
+            'order_created' => 'Orders created',
+            'payment_initiated' => 'Payments initiated',
+            'payment_completed' => 'Payments completed',
+        ],
     ],
 
     'finance' => [
@@ -391,6 +459,9 @@ return [
         'affiliate_commission_release_credit' => 'Affiliate available credit on commission release.',
         'affiliate_commission_reversal' => 'Affiliate commission reversal.',
         'affiliate_payout_debit' => 'Affiliate payout debit.',
+        'affiliate_marketer_commission' => 'Referral commission for order :reference',
+        'affiliate_payout_request' => 'Payout request :reference',
+        'affiliate_platform_commission' => ':percent% platform commission on order :reference',
         'upcoming_escrow_note' => 'Funds held in escrow until orders are delivered.',
         'no_upcoming_payout' => 'No scheduled payout is available yet.',
         'bank_account_required' => 'Add an active bank account before requesting a payout.',
@@ -402,6 +473,9 @@ return [
             'day' => 'Day',
             'week' => 'Week',
             'month' => 'Month',
+            '3m' => '3 months',
+            '6m' => '6 months',
+            '12m' => '12 months',
             'year' => 'Year',
         ],
         'directions' => [
@@ -435,6 +509,7 @@ return [
             'platform_earnings' => 'Platform earnings',
             'affiliate_commission' => 'Affiliate commissions',
             'pending_vendor_payouts' => 'Pending vendor payouts',
+            'pending_provider_payouts' => 'Pending provider payouts',
             'pending_affiliate_payouts' => 'Pending affiliate payouts',
             'reference' => 'Reference',
             'transaction' => 'Transaction',
@@ -443,6 +518,21 @@ return [
             'amount' => 'Amount',
             'currency' => 'Currency',
             'date' => 'Date',
+            'metric' => 'Metric',
+            'value' => 'Value',
+            'day' => 'Day',
+            'monthly_gross' => 'Monthly gross',
+            'monthly_commission' => 'Monthly commission',
+            'monthly_net' => 'Monthly net',
+            'bookings_created' => 'Bookings created',
+            'bookings_confirmed' => 'Bookings confirmed',
+            'bookings_completed' => 'Bookings completed',
+            'bookings_cancelled' => 'Bookings cancelled',
+            'revenue' => 'Revenue',
+            'average_booking_value' => 'Average booking value',
+            'rating' => 'Rating',
+            'review_count' => 'Reviews',
+            'active_services' => 'Active services',
         ],
     ],
 
@@ -542,6 +632,7 @@ return [
 
     'notifications' => [
         'deleted' => 'Notification deleted.',
+        'delivery_already_delivered' => 'This delivery has already been completed.',
         'categories' => [
             'orders' => 'Orders',
             'payments' => 'Payments',
@@ -560,11 +651,19 @@ return [
             'system' => 'System',
             'auth' => 'Account & Security',
             'chat' => 'Chat',
+            'b2b' => 'B2B directory',
         ],
         'channels' => [
             'in_app' => 'In-App',
             'email' => 'Email',
             'push' => 'Push',
+            'sms' => 'SMS',
+        ],
+        'aggregation' => [
+            'someone' => 'Someone',
+            'generic_title' => ':name and :count others',
+            'reviews_title' => ':name and :count others reviewed your product',
+            'reviews_body' => ':count new reviews on :product_name',
         ],
         'order_created' => [
             'title' => 'Order placed',
@@ -593,6 +692,17 @@ return [
         'return_updated' => [
             'title' => 'Return update',
             'body' => 'Your return request status is now :status.',
+            'status' => [
+                'requested' => 'Requested',
+                'under_review' => 'Under review',
+                'approved' => 'Approved',
+                'rejected' => 'Rejected',
+                'awaiting_return' => 'Awaiting return',
+                'received' => 'Received',
+                'inspected' => 'Inspected',
+                'refunded' => 'Refunded',
+                'cancelled' => 'Cancelled',
+            ],
         ],
         'offer_received' => [
             'title' => 'New service offer',
@@ -600,11 +710,11 @@ return [
         ],
         'offer_accepted' => [
             'title' => 'Offer accepted',
-            'body' => 'Your offer for request :request_reference was accepted.',
+            'body' => 'Your offer for request :request_reference was accepted and booking :booking_reference was created. Open Bookings to confirm the appointment.',
         ],
         'booking_created' => [
             'title' => 'Booking created',
-            'body' => 'Booking :reference for :service_title with :provider_name.',
+            'body' => 'Booking :reference was created for :service_title. Open Bookings to follow the appointment.',
         ],
         'booking_completed' => [
             'title' => 'Booking completed',
@@ -629,6 +739,11 @@ return [
         'team_invitation' => [
             'title' => 'Team invitation',
             'body' => 'You were invited to join :store_name as :role.',
+            'role' => [
+                'owner' => 'store owner',
+                'manager' => 'manager',
+                'customer_service' => 'customer service',
+            ],
         ],
         'team_member_added' => [
             'title' => 'Added to store team',
@@ -662,6 +777,39 @@ return [
             'title' => '💬 New message',
             'body' => 'You have a new message from :sender_name.',
         ],
+        'chat_report_resolved' => [
+            'title' => 'Your report was reviewed',
+            'title_under_review' => 'Your report is being reviewed',
+            'body' => 'Your report about :reason_label was :status_label.:note_line',
+            'status' => [
+                'under_review' => 'confirmed and under active review',
+                'dismissed' => 'dismissed — no violation found',
+                'actioned' => 'reviewed and action was taken',
+                'resolved' => 'resolved and closed',
+            ],
+            'note_line' => ' Note: :resolution_note',
+        ],
+        'chat_moderation_action_taken' => [
+            'title' => 'Chat moderation notice',
+            'body' => 'An action was taken on one of your messages: :action_label.:note_line',
+            'actions' => [
+                'delete_message' => 'your message was removed',
+                'warn_sender' => 'you received a warning',
+                'suspend_account' => 'your account was suspended',
+                'escalate' => 'your account was suspended',
+                'moderated' => 'moderation action was applied',
+            ],
+            'note_line' => ' Note: :resolution_note',
+        ],
+        'chat_report_reasons' => [
+            'spam' => 'spam',
+            'harassment' => 'harassment',
+            'inappropriate' => 'inappropriate content',
+            'scam' => 'scam',
+            'hate_speech' => 'hate speech',
+            'impersonation' => 'impersonation',
+            'other' => 'other',
+        ],
         'affiliate_commission_available' => [
             'title' => 'Commission available',
             'body' => ':amount :currency commission for :product_name is now available in your balance.',
@@ -669,6 +817,22 @@ return [
         'affiliate_payout_requested' => [
             'title' => 'Payout request submitted',
             'body' => 'Your payout request for :amount :currency was received. Reference: :reference.',
+        ],
+        'b2b_company_published' => [
+            'title' => 'B2B profile published',
+            'body' => 'Your company profile :company_name is now live in the B2B directory.',
+        ],
+        'b2b_lead_received' => [
+            'title' => 'New quote request',
+            'body' => ':requester_name sent a quote request for :project_type to :company_name.',
+        ],
+        'b2b_lead_accepted' => [
+            'title' => 'Quote request accepted',
+            'body' => ':company_name accepted your quote request for :project_type.',
+        ],
+        'b2b_lead_rejected' => [
+            'title' => 'Quote request declined',
+            'body' => ':company_name declined your quote request for :project_type.',
         ],
     ],
 
@@ -688,11 +852,22 @@ return [
         'cannot_edit_message' => 'You cannot edit this message.',
         'cannot_delete_message' => 'You cannot delete this message.',
         'message_deleted' => 'This message was deleted.',
+        'message_already_reported' => 'You already reported this message.',
+        'report_reasons' => [
+            'spam' => 'Spam',
+            'harassment' => 'Harassment or bullying',
+            'inappropriate' => 'Inappropriate content',
+            'scam' => 'Scam or fraud',
+            'hate_speech' => 'Hate speech',
+            'impersonation' => 'Impersonation',
+            'other' => 'Other',
+        ],
     ],
 
     'assistant' => [
         'unavailable' => 'The assistant is unavailable right now.',
         'failed' => 'Could not get a response from the assistant.',
+        'off_topic_refusal' => 'I can only help with Diyar furniture, interior design, and marketplace questions. Please ask about products, rooms, or services on Diyar.',
     ],
 
     'platform' => [
@@ -702,6 +877,17 @@ return [
         'newsletter_auth_required' => 'Sign in to activate newsletter subscription.',
         'newsletter_email_mismatch' => 'The email must match your account email.',
         'contact_failed' => 'We could not send your request right now. Please try again later.',
+    ],
+
+    'loyalty' => [
+        'adjustment_zero' => 'Adjustment points cannot be zero.',
+        'adjustment_exceeds_max' => 'Adjustment cannot exceed :max points.',
+        'adjustment_reason_required' => 'A reason is required for manual adjustments.',
+        'insufficient_balance' => 'Insufficient loyalty balance for this adjustment.',
+        'reasons' => [
+            'order_earn' => 'Points earned from order :order_number.',
+            'order_reversal' => 'Points reversed for order :order_number refund/return.',
+        ],
     ],
 
     'affiliate' => [
@@ -726,5 +912,10 @@ return [
         'invalid_payout_transition' => 'Invalid affiliate payout status transition.',
         'payout_requested' => 'Affiliate payout request submitted.',
         'payout_marked_paid' => 'Affiliate payout marked as paid.',
+    ],
+
+    'feedback' => [
+        'guest_key_required' => 'A guest identifier is required when not signed in.',
+        'already_submitted' => 'Feedback was already submitted for this account.',
     ],
 ];

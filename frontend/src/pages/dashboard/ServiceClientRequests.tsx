@@ -288,71 +288,94 @@ export default function ServiceClientRequests() {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {requests.map((request) => (
-              <Link
-                to={`/dashboard/service/client-requests/${request.id}`}
-                key={request.id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col p-5 group focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent cursor-pointer"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg truncate max-w-37.5">
-                    {providerCategoryLabel(request, locale)}
-                  </span>
-                  <span className="text-gray-400 text-xs flex items-center gap-1">
-                    <Clock size={12} /> {formatProviderRequestDate(request.created_at, locale)}
-                  </span>
-                </div>
+            {requests.map((request) => {
+              const becameBooking =
+                Boolean(request.booking?.id) &&
+                (request.status === 'offer_accepted' || request.status === 'in_progress');
+              const href =
+                becameBooking && request.booking?.id
+                  ? `/dashboard/service/bookings?highlight=${request.booking.id}`
+                  : `/dashboard/service/client-requests/${request.id}`;
 
-                <h3 className="font-bold text-gray-800 mb-2 truncate group-hover:text-blue-600 transition-colors">
-                  {t('providerDashboard.clientRequests.requestFrom', {
-                    name: request.customer?.name ?? t('providerDashboard.common.client'),
-                  })}
-                </h3>
-
-                <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-1">
-                  {request.description}
-                </p>
-
-                <div className="space-y-2 mb-5">
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <MapPin size={14} className="text-gray-400" />
-                    <span>{request.location ?? '—'}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <DollarSign size={14} className="text-gray-400" />
-                    <span className="font-medium text-gray-700">
-                      {t('providerDashboard.common.budgetLabel')}{' '}
-                      <span dir="ltr">
-                        {formatProviderBudget(request.budget_min, request.budget_max, locale)}
-                      </span>
+              return (
+                <Link
+                  to={href}
+                  key={request.id}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col p-5 group focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent cursor-pointer min-w-0 overflow-hidden"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg truncate max-w-37.5">
+                      {providerCategoryLabel(request, locale)}
+                    </span>
+                    <span className="text-gray-400 text-xs flex items-center gap-1">
+                      <Clock size={12} /> {formatProviderRequestDate(request.created_at, locale)}
                     </span>
                   </div>
-                </div>
 
-                <hr className="border-gray-50 mb-4" />
+                  <h3 className="font-bold text-gray-800 mb-2 line-clamp-2 break-words group-hover:text-blue-600 transition-colors">
+                    {t('providerDashboard.clientRequests.requestFrom', {
+                      name: request.customer?.name ?? t('providerDashboard.common.client'),
+                    })}
+                  </h3>
 
-                {activeTab === 'open' ? (
-                  <div className="w-full bg-blue-600 text-white py-2 rounded-xl text-sm font-bold text-center group-hover:bg-blue-700 transition-colors">
-                    {t('providerDashboard.clientRequests.viewDetails')}
+                  <p className="text-sm text-gray-600 line-clamp-3 mb-4 flex-1 break-words overflow-hidden">
+                    {request.description}
+                  </p>
+
+                  <div className="space-y-2 mb-5">
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <MapPin size={14} className="text-gray-400" />
+                      <span>{request.location ?? '—'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <DollarSign size={14} className="text-gray-400" />
+                      <span className="font-medium text-gray-700">
+                        {t('providerDashboard.common.budgetLabel')}{' '}
+                        <span dir="ltr">
+                          {formatProviderBudget(request.budget_min, request.budget_max, locale)}
+                        </span>
+                      </span>
+                    </div>
                   </div>
-                ) : (
-                  <div className="w-full bg-green-50 text-green-700 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
-                    <CheckCircle2 size={16} />{' '}
-                    {t('providerDashboard.clientRequests.offerSubmitted')}
-                  </div>
-                )}
-              </Link>
-            ))}
+
+                  <hr className="border-gray-50 mb-4" />
+
+                  {activeTab === 'open' ? (
+                    <div className="w-full bg-blue-600 text-white py-2 rounded-xl text-sm font-bold text-center group-hover:bg-blue-700 transition-colors">
+                      {t('providerDashboard.clientRequests.viewDetails')}
+                    </div>
+                  ) : becameBooking ? (
+                    <div className="w-full bg-blue-50 text-blue-700 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+                      <CheckCircle2 size={16} />{' '}
+                      {t('providerDashboard.clientRequests.offerBecameBooking')}
+                    </div>
+                  ) : (
+                    <div className="w-full bg-green-50 text-green-700 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+                      <CheckCircle2 size={16} />{' '}
+                      {t('providerDashboard.clientRequests.offerSubmitted')}
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
           {requests.length === 0 && (
             <div className="bg-white rounded-2xl border border-gray-100 p-10 flex flex-col items-center justify-center text-center">
               <MessageSquare size={48} className="text-gray-200 mb-4" />
               <h3 className="text-lg font-bold text-gray-700 mb-2">
-                {t('providerDashboard.clientRequests.emptyTitle')}
+                {t(
+                  activeTab === 'offered'
+                    ? 'providerDashboard.clientRequests.emptyOfferedTitle'
+                    : 'providerDashboard.clientRequests.emptyTitle',
+                )}
               </h3>
               <p className="text-gray-500 text-sm max-w-sm">
-                {t('providerDashboard.clientRequests.emptyDescription')}
+                {t(
+                  activeTab === 'offered'
+                    ? 'providerDashboard.clientRequests.emptyOfferedDescription'
+                    : 'providerDashboard.clientRequests.emptyDescription',
+                )}
               </p>
             </div>
           )}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Catalog;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductCardResource;
 use App\Http\Resources\ProductDetailResource;
+use App\Services\Analytics\ProductViewAnalyticsService;
 use App\Services\Catalog\ProductService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -15,6 +16,7 @@ class ProductController extends Controller
 {
     public function __construct(
         private readonly ProductService $products,
+        private readonly ProductViewAnalyticsService $productViewAnalytics,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -28,6 +30,8 @@ class ProductController extends Controller
     {
         $product = $this->products->findPublic($id, $request->user());
         $related = $this->products->relatedProducts($product, user: $request->user());
+
+        $this->productViewAnalytics->recordFromProductShow($request, $product);
 
         return ApiResponse::success(data: [
             'product' => new ProductDetailResource($product, $related),

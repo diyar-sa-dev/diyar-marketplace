@@ -8,6 +8,7 @@ use App\Enums\ServiceBookingStatus;
 use App\Models\ProviderAccount;
 use App\Models\ProviderPayout;
 use App\Models\ServiceBooking;
+use DateTimeInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
@@ -20,9 +21,15 @@ final class ProviderFinanceTransactionService
     /**
      * @return LengthAwarePaginator<int, array<string, mixed>>
      */
-    public function paginate(ProviderAccount $provider, int $page, int $perPage, ?string $type = null): LengthAwarePaginator
-    {
-        $items = $this->collect($provider, $type);
+    public function paginate(
+        ProviderAccount $provider,
+        int $page,
+        int $perPage,
+        ?string $type = null,
+        ?DateTimeInterface $from = null,
+        ?DateTimeInterface $to = null,
+    ): LengthAwarePaginator {
+        $items = $this->collect($provider, $type, $from, $to);
         $total = $items->count();
         $page = max($page, 1);
         $perPage = min(max($perPage, 1), 50);
@@ -40,8 +47,12 @@ final class ProviderFinanceTransactionService
     /**
      * @return Collection<int, array<string, mixed>>
      */
-    public function collect(ProviderAccount $provider, ?string $type = null): Collection
-    {
+    public function collect(
+        ProviderAccount $provider,
+        ?string $type = null,
+        ?DateTimeInterface $from = null,
+        ?DateTimeInterface $to = null,
+    ): Collection {
         $rate = $this->finance->commissionRate();
         $currency = $this->finance->currency();
         $rows = collect();
@@ -50,6 +61,15 @@ final class ProviderFinanceTransactionService
             ->where('provider_account_id', $provider->id)
             ->where('status', ServiceBookingStatus::Completed)
             ->where('payment_status', ServiceBookingPaymentStatus::Paid)
+            ->when($from && $to, function ($query) use ($from, $to) {
+                $query->where(function ($inner) use ($from, $to) {
+                    $inner->whereBetween('completed_at', [$from, $to])
+                        ->orWhere(function ($fallback) use ($from, $to) {
+                            $fallback->whereNull('completed_at')
+                                ->whereBetween('created_at', [$from, $to]);
+                        });
+                });
+            })
             ->orderByDesc('completed_at')
             ->get(['id', 'reference', 'price', 'currency', 'completed_at', 'created_at']);
 
@@ -87,6 +107,7 @@ final class ProviderFinanceTransactionService
 
         $payouts = ProviderPayout::query()
             ->where('provider_account_id', $provider->id)
+            ->when($from && $to, fn ($query) => $query->whereBetween('requested_at', [$from, $to]))
             ->orderByDesc('requested_at')
             ->get();
 

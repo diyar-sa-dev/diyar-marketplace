@@ -9,21 +9,21 @@ const SLIDE_CONFIG = [
     subKey: 'home.hero.slide1Sub',
     ctaKey: 'home.hero.slide1Cta',
     to: '/category/all',
-    img: '/hero_1.jpg',
+    img: '/hero_1.webp',
   },
   {
     titleKey: 'home.hero.slide2Title',
     subKey: 'home.hero.slide2Sub',
     ctaKey: 'home.hero.slide2Cta',
     to: '/ai-designer',
-    img: '/hero_2.jpg',
+    img: '/hero_2.webp',
   },
   {
     titleKey: 'home.hero.slide3Title',
     subKey: 'home.hero.slide3Sub',
     ctaKey: 'home.hero.slide3Cta',
     to: '/auth?role=marketer',
-    img: '/hero_3.jpg',
+    img: '/hero_3.webp',
   },
 ] as const;
 
@@ -79,13 +79,18 @@ export default function Hero() {
             className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
               i === current ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
             }`}
-            aria-hidden={i !== current}
+            {...(i !== current ? { inert: true } : {})}
           >
             <img
               src={slide.img}
               alt=""
+              width={1920}
+              height={1080}
+              decoding="async"
+              fetchPriority={i === 0 ? 'high' : 'auto'}
+              loading={i === 0 ? 'eager' : 'lazy'}
               referrerPolicy="no-referrer"
-              className="absolute inset-0 w-full h-full object-cover scale-105 animate-[heroKenBurns_18s_ease-in-out_infinite_alternate]"
+              className="absolute inset-0 w-full h-full object-cover scale-105 will-change-transform"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = FALLBACK_HERO;
               }}
@@ -141,7 +146,7 @@ export default function Hero() {
               type="button"
               onClick={() => goTo(i)}
               aria-label={t('home.hero.goToSlide', { n: i + 1 })}
-              aria-current={i === current ? 'true' : undefined}
+              aria-pressed={i === current}
               className={`h-2.5 rounded-full transition-all cursor-pointer ${
                 i === current
                   ? 'w-8 bg-diyar-brown shadow-md shadow-diyar-brown/40'

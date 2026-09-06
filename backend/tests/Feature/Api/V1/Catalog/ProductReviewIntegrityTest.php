@@ -29,9 +29,22 @@ class ProductReviewIntegrityTest extends TestCase
         $customer = $this->createUserWithRole(RoleName::Customer);
         $product = Product::factory()->create();
 
+        $this->actingAs($customer)->getJson('/api/v1/products/'.$product->id.'/reviews')
+            ->assertOk()
+            ->assertJsonPath('data.can_review', false);
+
         $this->postJsonAsUser('/api/v1/products/'.$product->id.'/reviews', $customer, [
             'rating' => 5,
         ])->assertForbidden();
+    }
+
+    public function test_customer_can_review_flag_true_after_delivered_purchase(): void
+    {
+        [$customer, , , $product] = $this->deliverSingleItemOrder();
+
+        $this->actingAs($customer)->getJson('/api/v1/products/'.$product->id.'/reviews')
+            ->assertOk()
+            ->assertJsonPath('data.can_review', true);
     }
 
     public function test_customer_can_review_verified_purchase(): void

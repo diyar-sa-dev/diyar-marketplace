@@ -44,6 +44,7 @@ return [
     'errors' => [
         'unexpected' => 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.',
         'conflict' => 'يتعارض هذا الإجراء مع بيانات موجودة.',
+        'not_found' => 'المورد غير موجود.',
     ],
 
     'maintenance' => [
@@ -115,6 +116,45 @@ return [
         'product_updated' => 'تم تحديث المنتج بنجاح.',
         'product_archived' => 'تم أرشفة المنتج بنجاح.',
         'category_has_products' => 'لا يمكن حذف تصنيف يحتوي على منتجات.',
+    ],
+
+    'blog' => [
+        'article_not_found' => 'المقال غير موجود.',
+        'tag_not_found' => 'الوسم غير موجود.',
+        'category_has_articles' => 'لا يمكن حذف تصنيف يحتوي على مقالات.',
+    ],
+
+    'projects' => [
+        'not_found' => 'المشروع غير موجود.',
+    ],
+
+    'b2b' => [
+        'company_not_found' => 'الشركة غير موجودة.',
+        'company_created' => 'تم إنشاء ملف الشركة في دليل B2B. سيتم مراجعته قبل النشر.',
+        'company_updated' => 'تم تحديث ملف الشركة في دليل B2B.',
+        'company_already_linked' => 'لديك بالفعل ملف شركة مرتبط في دليل B2B.',
+        'company_manage_denied' => 'غير مسموح لك بإدارة ملف هذه الشركة.',
+        'vendor_account_required' => 'يلزم حساب تاجر.',
+        'provider_account_required' => 'يلزم حساب مزود خدمة.',
+        'lead_not_found' => 'طلب عرض السعر غير موجود.',
+        'lead_duplicate' => 'لقد أرسلت طلباً مشابهاً مؤخراً. يرجى المحاولة لاحقاً.',
+        'lead_daily_limit' => 'تم الوصول إلى الحد اليومي لطلبات عروض الأسعار. يرجى المحاولة غداً.',
+        'lead_invalid' => 'طلب غير صالح.',
+        'lead_status_updated' => 'تم تحديث حالة طلب عرض السعر.',
+        'lead_status_locked' => 'تمت مراجعة هذا الطلب مسبقاً.',
+        'leads_require_published' => 'طلبات عروض الأسعار متاحة بعد نشر ملف B2B.',
+        'category_has_companies' => 'لا يمكن حذف تصنيف مرتبط بشركات.',
+        'portfolio_max_reached' => 'يمكنك رفع :max صور كحد أقصى في معرض الأعمال.',
+        'portfolio_image_not_found' => 'صورة المعرض غير موجودة.',
+        'other_category' => 'أخرى',
+        'review' => [
+            'saved' => 'تم إرسال تقييم الشركة بنجاح.',
+            'lead_not_found' => 'طلب عرض السعر غير موجود لهذه الشركة.',
+            'lead_not_owned' => 'يمكنك تقييم الشركات التي طلبت عرض سعر منها فقط.',
+            'lead_not_eligible' => 'يمكنك تقييم هذه الشركة بعد قبول طلب عرض السعر.',
+            'cannot_review_own_company' => 'لا يمكنك تقييم ملف شركتك الخاص.',
+            'already_submitted' => 'لقد قمت بتقييم طلب عرض السعر هذا مسبقاً.',
+        ],
     ],
 
     'services' => [
@@ -245,6 +285,11 @@ return [
         'carrier_rate_required' => 'سعر الشحن مطلوب عند تفعيل التوصيل.',
         'free_threshold_required' => 'حد الشحن المجاني مطلوب عند تفعيل الشحن المجاني.',
         'pickup_label_required' => 'عنوان نقطة الاستلام مطلوب عند تفعيل الاستلام.',
+        'unsupported_zone' => 'الشحن غير متاح لهذا العنوان.',
+        'missing_weight' => 'تعذر حساب وزن الشحن لمنتجات السلة.',
+        'weight_exceeds_max' => 'وزن السلة يتجاوز الحد الأقصى المدعوم.',
+        'invalid_volumetric_divisor' => 'إعداد القاسم الحجمي غير صالح.',
+        'profile_not_configured' => 'ملف الشحن المتقدم غير مهيأ لهذا المتجر.',
         'methods' => [
             'carrier' => 'توصيل',
             'pickup' => 'استلام من المتجر',
@@ -282,6 +327,12 @@ return [
         'minimum_not_met' => 'مجموع الطلب لا يحقق الحد الأدنى للكوبون.',
         'store_mismatch' => 'هذا الكوبون لا ينطبق على هذا المتجر.',
         'cannot_edit_after_use' => 'لا يمكن تعديل هذا الحقل بعد استخدام الكوبون.',
+        'user_limit_exhausted' => 'لقد وصلت إلى حد استخدام هذا الكوبون.',
+        'not_stackable' => 'لا يمكن الجمع بين هذه الكوبونات.',
+        'exclusive_conflict' => 'كوبون حصري مطبّق بالفعل.',
+        'disabled' => 'الكوبونات غير متاحة حالياً.',
+        'duplicate_vendor_entry' => 'يمكن تطبيق كوبون واحد فقط لكل متجر.',
+        'free_shipping_requires_carrier' => 'كوبونات الشحن المجاني تتطلب التوصيل عبر الناقل.',
     ],
 
     'store_review' => [
@@ -346,6 +397,12 @@ return [
         'order_not_payable' => 'لا يمكن دفع هذا الطلب.',
         'already_processed' => 'تمت معالجة الدفع مسبقاً.',
         'invalid_session' => 'جلسة دفع غير صالحة أو منتهية.',
+        'invalid_payment_method' => 'طريقة دفع غير صالحة.',
+        'payment_method_unavailable' => 'طريقة الدفع المحددة غير متاحة لهذا الطلب.',
+        'checkout_method_mada' => 'مدى',
+        'checkout_method_card' => 'البطاقة الائتمانية',
+        'checkout_method_apple_pay' => 'Apple Pay',
+        'checkout_method_tabby' => 'تابي',
         'callback_informational' => 'يتم تأكيد حالة الدفع عبر webhook الخادم فقط.',
         'simulation_unavailable' => 'محاكاة الدفع متاحة فقط في بيئة التطوير المحلية.',
         'simulated_failed' => 'فشل دفع تجريبي (تطوير).',
@@ -364,6 +421,17 @@ return [
         'method_failed' => 'فشل الدفع',
         'method_refunded' => 'مسترد',
         'refund_not_implemented' => 'استرداد بوابة الدفع غير متاح لهذا المزود بعد.',
+    ],
+
+    'analytics' => [
+        'funnel' => [
+            'product_views' => 'مشاهدات المنتج',
+            'add_to_cart' => 'إضافة إلى السلة',
+            'checkout_started' => 'بدء الدفع',
+            'order_created' => 'الطلبات المُنشأة',
+            'payment_initiated' => 'محاولات الدفع',
+            'payment_completed' => 'المدفوعات المكتملة',
+        ],
     ],
 
     'finance' => [
@@ -391,6 +459,9 @@ return [
         'affiliate_commission_release_credit' => 'إيداع الرصيد المتاح للمسوق عند إتاحة العمولة.',
         'affiliate_commission_reversal' => 'عكس عمولة المسوق.',
         'affiliate_payout_debit' => 'خصم سحب المسوق.',
+        'affiliate_marketer_commission' => 'عمولة إحالة للطلب :reference',
+        'affiliate_payout_request' => 'طلب سحب :reference',
+        'affiliate_platform_commission' => 'عمولة المنصة :percent% على الطلب :reference',
         'upcoming_escrow_note' => 'أموال محجوزة في الضمان حتى تسليم الطلبات.',
         'no_upcoming_payout' => 'لا توجد دفعة مجدولة متاحة بعد.',
         'bank_account_required' => 'أضف حساباً بنكياً نشطاً قبل طلب السحب.',
@@ -402,6 +473,9 @@ return [
             'day' => 'يوم',
             'week' => 'أسبوع',
             'month' => 'شهر',
+            '3m' => '3 أشهر',
+            '6m' => '6 أشهر',
+            '12m' => '12 شهراً',
             'year' => 'سنة',
         ],
         'directions' => [
@@ -435,6 +509,7 @@ return [
             'platform_earnings' => 'أرباح المنصة',
             'affiliate_commission' => 'عمولات المسوقين',
             'pending_vendor_payouts' => 'دفعات التجار المعلقة',
+            'pending_provider_payouts' => 'دفعات مقدمي الخدمات المعلقة',
             'pending_affiliate_payouts' => 'دفعات المسوقين المعلقة',
             'reference' => 'المرجع',
             'transaction' => 'المعاملة',
@@ -443,6 +518,21 @@ return [
             'amount' => 'المبلغ',
             'currency' => 'العملة',
             'date' => 'التاريخ',
+            'metric' => 'المؤشر',
+            'value' => 'القيمة',
+            'day' => 'اليوم',
+            'monthly_gross' => 'الإجمالي الشهري',
+            'monthly_commission' => 'العمولة الشهرية',
+            'monthly_net' => 'صافي الشهر',
+            'bookings_created' => 'الحجوزات المنشأة',
+            'bookings_confirmed' => 'الحجوزات المؤكدة',
+            'bookings_completed' => 'الحجوزات المكتملة',
+            'bookings_cancelled' => 'الحجوزات الملغاة',
+            'revenue' => 'الإيرادات',
+            'average_booking_value' => 'متوسط قيمة الحجز',
+            'rating' => 'التقييم',
+            'review_count' => 'عدد التقييمات',
+            'active_services' => 'الخدمات النشطة',
         ],
     ],
 
@@ -542,6 +632,7 @@ return [
 
     'notifications' => [
         'deleted' => 'تم حذف الإشعار.',
+        'delivery_already_delivered' => 'تم تسليم هذا الإشعار مسبقاً.',
         'categories' => [
             'orders' => 'الطلبات',
             'payments' => 'المدفوعات',
@@ -560,11 +651,19 @@ return [
             'system' => 'النظام',
             'auth' => 'الحساب والأمان',
             'chat' => 'المحادثات',
+            'b2b' => 'دليل B2B',
         ],
         'channels' => [
             'in_app' => 'داخل التطبيق',
             'email' => 'البريد الإلكتروني',
             'push' => 'الإشعارات الفورية',
+            'sms' => 'رسائل SMS',
+        ],
+        'aggregation' => [
+            'someone' => 'شخص ما',
+            'generic_title' => ':name و :count آخرين',
+            'reviews_title' => ':name و :count آخرين قيّموا منتجك',
+            'reviews_body' => ':count تقييمات جديدة على :product_name',
         ],
         'order_created' => [
             'title' => 'تم استلام الطلب',
@@ -591,8 +690,19 @@ return [
             'body' => 'تعذّر إتمام الدفع للطلب :order_number.',
         ],
         'return_updated' => [
-            'title' => 'تحديث الإرجاع',
-            'body' => 'حالة طلب الإرجاع أصبحت :status.',
+            'title' => 'تحديث طلب الإرجاع',
+            'body' => 'حالة طلب الإرجاع الآن: :status.',
+            'status' => [
+                'requested' => 'مقدّم',
+                'under_review' => 'قيد المراجعة',
+                'approved' => 'موافق عليه',
+                'rejected' => 'مرفوض',
+                'awaiting_return' => 'بانتظار الإرجاع',
+                'received' => 'مستلم',
+                'inspected' => 'تم الفحص',
+                'refunded' => 'مسترد',
+                'cancelled' => 'ملغى',
+            ],
         ],
         'offer_received' => [
             'title' => 'عرض خدمة جديد',
@@ -600,11 +710,11 @@ return [
         ],
         'offer_accepted' => [
             'title' => 'تم قبول العرض',
-            'body' => 'تم قبول عرضك للطلب :request_reference.',
+            'body' => 'تم قبول عرضك للطلب :request_reference، وتم إنشاء الحجز :booking_reference. راجعه من الحجوزات لتأكيد الموعد.',
         ],
         'booking_created' => [
             'title' => 'تم إنشاء حجز',
-            'body' => 'تم إنشاء الحجز :reference لخدمة :service_title مع مزود الخدمة :provider_name.',
+            'body' => 'تم إنشاء الحجز :reference لخدمة :service_title. يمكنك فتح الحجوزات لمتابعة الموعد.',
         ],
         'booking_completed' => [
             'title' => 'اكتمل الحجز',
@@ -629,6 +739,11 @@ return [
         'team_invitation' => [
             'title' => 'دعوة للانضمام للفريق',
             'body' => 'تمت دعوتك للانضمام إلى :store_name بدور :role.',
+            'role' => [
+                'owner' => 'مالك المتجر',
+                'manager' => 'مدير',
+                'customer_service' => 'خدمة العملاء',
+            ],
         ],
         'team_member_added' => [
             'title' => 'تمت إضافتك إلى فريق المتجر',
@@ -662,6 +777,39 @@ return [
             'title' => '💬 رسالة جديدة',
             'body' => 'لديك رسالة جديدة من :sender_name.',
         ],
+        'chat_report_resolved' => [
+            'title' => 'تمت مراجعة بلاغك',
+            'title_under_review' => 'بلاغك قيد المراجعة',
+            'body' => 'بلاغك بخصوص :reason_label: :status_label.:note_line',
+            'status' => [
+                'under_review' => 'تم تأكيده وهو قيد المراجعة النشطة',
+                'dismissed' => 'تم رفضه — لا مخالفة',
+                'actioned' => 'تمت مراجعته واتُخذ إجراء',
+                'resolved' => 'تم حله وإغلاقه',
+            ],
+            'note_line' => ' ملاحظة: :resolution_note',
+        ],
+        'chat_moderation_action_taken' => [
+            'title' => 'إشعار إدارة المحادثة',
+            'body' => 'تم اتخاذ إجراء على إحدى رسائلك: :action_label.:note_line',
+            'actions' => [
+                'delete_message' => 'تم حذف رسالتك',
+                'warn_sender' => 'تلقيت تحذيراً',
+                'suspend_account' => 'تم تعليق حسابك',
+                'escalate' => 'تم تعليق حسابك',
+                'moderated' => 'تم تطبيق إجراء إداري',
+            ],
+            'note_line' => ' ملاحظة: :resolution_note',
+        ],
+        'chat_report_reasons' => [
+            'spam' => 'رسائل مزعجة',
+            'harassment' => 'تحرش أو تنمر',
+            'inappropriate' => 'محتوى غير لائق',
+            'scam' => 'احتيال',
+            'hate_speech' => 'خطاب كراهية',
+            'impersonation' => 'انتحال شخصية',
+            'other' => 'سبب آخر',
+        ],
         'affiliate_commission_available' => [
             'title' => 'عمولة متاحة للسحب',
             'body' => 'أصبحت عمولة :amount :currency للمنتج :product_name متاحة في رصيدك.',
@@ -669,6 +817,22 @@ return [
         'affiliate_payout_requested' => [
             'title' => 'تم تقديم طلب سحب',
             'body' => 'تم استلام طلب سحب بقيمة :amount :currency. المرجع: :reference.',
+        ],
+        'b2b_company_published' => [
+            'title' => 'تم نشر ملف B2B',
+            'body' => 'أصبح ملف شركتك :company_name منشوراً في دليل B2B.',
+        ],
+        'b2b_lead_received' => [
+            'title' => 'طلب عرض سعر جديد',
+            'body' => 'أرسل :requester_name طلب عرض سعر لـ :project_type إلى :company_name.',
+        ],
+        'b2b_lead_accepted' => [
+            'title' => 'تم قبول طلب عرض السعر',
+            'body' => 'قبلت :company_name طلب عرض السعر الخاص بـ :project_type.',
+        ],
+        'b2b_lead_rejected' => [
+            'title' => 'تم رفض طلب عرض السعر',
+            'body' => 'رفضت :company_name طلب عرض السعر الخاص بـ :project_type.',
         ],
     ],
 
@@ -688,11 +852,22 @@ return [
         'cannot_edit_message' => 'لا يمكنك تعديل هذه الرسالة.',
         'cannot_delete_message' => 'لا يمكنك حذف هذه الرسالة.',
         'message_deleted' => 'تم حذف هذه الرسالة.',
+        'message_already_reported' => 'لقد أبلغت عن هذه الرسالة مسبقاً.',
+        'report_reasons' => [
+            'spam' => 'رسائل مزعجة',
+            'harassment' => 'تحرش أو تنمر',
+            'inappropriate' => 'محتوى غير لائق',
+            'scam' => 'احتيال أو نصب',
+            'hate_speech' => 'خطاب كراهية',
+            'impersonation' => 'انتحال شخصية',
+            'other' => 'سبب آخر',
+        ],
     ],
 
     'assistant' => [
         'unavailable' => 'المساعد غير متاح حالياً.',
         'failed' => 'تعذر الحصول على رد من المساعد.',
+        'off_topic_refusal' => 'أنا مساعد ديار للأثاث والتصميم الداخلي وأسئلة المنصة فقط. اسألني عن المنتجات أو الغرف أو الخدمات على ديار.',
     ],
 
     'platform' => [
@@ -702,6 +877,17 @@ return [
         'newsletter_auth_required' => 'يجب تسجيل الدخول لتفعيل اشتراك النشرة البريدية.',
         'newsletter_email_mismatch' => 'يجب أن يطابق البريد الإلكتروني بريد حسابك.',
         'contact_failed' => 'تعذر إرسال طلبك حالياً. يرجى المحاولة لاحقاً.',
+    ],
+
+    'loyalty' => [
+        'adjustment_zero' => 'لا يمكن أن تكون نقاط التعديل صفراً.',
+        'adjustment_exceeds_max' => 'لا يمكن أن يتجاوز التعديل :max نقطة.',
+        'adjustment_reason_required' => 'سبب التعديل مطلوب.',
+        'insufficient_balance' => 'رصيد النقاط غير كافٍ لهذا التعديل.',
+        'reasons' => [
+            'order_earn' => 'نقاط مكتسبة من الطلب :order_number.',
+            'order_reversal' => 'استرجاع نقاط للطلب :order_number بسبب إرجاع/استرداد.',
+        ],
     ],
 
     'affiliate' => [
@@ -726,5 +912,10 @@ return [
         'invalid_payout_transition' => 'انتقال حالة سحب العمولات غير صالح.',
         'payout_requested' => 'تم تقديم طلب سحب العمولات.',
         'payout_marked_paid' => 'تم تحديد سحب العمولات كمدفوع.',
+    ],
+
+    'feedback' => [
+        'guest_key_required' => 'مطلوب معرف ضيف عند عدم تسجيل الدخول.',
+        'already_submitted' => 'تم إرسال الملاحظات مسبقاً لهذا الحساب.',
     ],
 ];

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProviderAccountStatus;
+use App\Support\SlugGenerator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
@@ -50,6 +51,25 @@ class ProviderAccount extends Model
             'reviews_count' => 'integer',
             'joined_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (ProviderAccount $account) {
+            if ($account->status === null) {
+                $account->status = ProviderAccountStatus::Active;
+            }
+
+            if (($account->slug === null || $account->slug === '') && $account->business_name !== null && $account->business_name !== '') {
+                $account->slug = SlugGenerator::unique($account->business_name, new ProviderAccount);
+            }
+        });
+
+        static::saving(function (ProviderAccount $account) {
+            if (($account->slug === null || $account->slug === '') && $account->business_name !== null && $account->business_name !== '') {
+                $account->slug = SlugGenerator::unique($account->business_name, new ProviderAccount);
+            }
+        });
     }
 
     public function user(): BelongsTo

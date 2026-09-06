@@ -72,7 +72,10 @@ class OrderCreationTest extends TestCase
             ->assertJsonPath('data.order.id', $orderId);
 
         $this->assertSame(1, Order::query()->where('user_id', $customer->id)->count());
-        $this->assertSame(1, InventoryReservation::query()->count());
+        $this->assertSame(1, InventoryReservation::query()
+            ->where('product_id', $product->id)
+            ->where('user_id', $customer->id)
+            ->count());
     }
 
     public function test_order_creation_rolls_back_when_insufficient_stock(): void

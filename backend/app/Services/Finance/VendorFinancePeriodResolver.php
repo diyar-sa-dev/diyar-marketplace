@@ -19,6 +19,9 @@ final class VendorFinancePeriodResolver
             FinancePeriod::Day => $now->startOfDay(),
             FinancePeriod::Week => $now->subDays(6)->startOfDay(),
             FinancePeriod::Month => $now->startOfMonth(),
+            FinancePeriod::ThreeMonths => $now->subMonths(3)->startOfDay(),
+            FinancePeriod::SixMonths => $now->subMonths(6)->startOfDay(),
+            FinancePeriod::TwelveMonths => $now->subMonths(12)->startOfDay(),
             FinancePeriod::Year => $now->startOfYear(),
         };
 

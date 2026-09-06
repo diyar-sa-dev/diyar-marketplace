@@ -1,0 +1,8 @@
+﻿
+    test-results\vendor-journey-Vendor-journey-vendor-login-reaches-dashboard-chromium\test-failed-1.png
+    test-results\vendor-journey-Vendor-journey-vendor-products-page-loads-chromium\test-failed-1.png
+    test-results\vendor-journey-Vendor-journey-vendor-orders-page-loads-chromium\test-failed-1.png
+  68 failed
+  4 did not run
+
+

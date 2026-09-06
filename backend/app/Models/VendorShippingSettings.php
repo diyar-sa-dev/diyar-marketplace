@@ -22,6 +22,8 @@ class VendorShippingSettings extends Model
         'carrier_free_shipping_threshold',
         'pickup_enabled',
         'pickup_location_label',
+        'use_advanced_rules',
+        'shipping_profile_id',
     ];
 
     protected function casts(): array
@@ -32,12 +34,18 @@ class VendorShippingSettings extends Model
             'carrier_free_shipping_enabled' => 'boolean',
             'carrier_free_shipping_threshold' => 'decimal:2',
             'pickup_enabled' => 'boolean',
+            'use_advanced_rules' => 'boolean',
         ];
     }
 
     public function vendorAccount(): BelongsTo
     {
         return $this->belongsTo(VendorAccount::class);
+    }
+
+    public function shippingProfile(): BelongsTo
+    {
+        return $this->belongsTo(VendorShippingProfile::class, 'shipping_profile_id');
     }
 
     public function isCheckoutEligible(): bool

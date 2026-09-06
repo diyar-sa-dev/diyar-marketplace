@@ -143,8 +143,9 @@ export function SearchAutocomplete({
           autoComplete="off"
           autoFocus={autoFocus}
           role="combobox"
+          aria-label={placeholder ?? t('layout.nav.searchPlaceholder')}
           aria-expanded={showDropdown}
-          aria-controls={listboxId}
+          {...(showDropdown ? { 'aria-controls': listboxId } : {})}
           aria-autocomplete="list"
           placeholder={placeholder ?? t('layout.nav.searchPlaceholder')}
           className={`bg-transparent border-none outline-none w-full text-diyar-dark placeholder:text-gray-400 text-sm h-7 ${inputClassName}`}
@@ -166,6 +167,11 @@ export function SearchAutocomplete({
             type="button"
             disabled={imageSearchDisabled}
             onClick={onImageSearchClick}
+            aria-label={
+              imageSearchDisabled
+                ? t('catalog.search.imageSearchDisabled')
+                : t('catalog.search.imageSearch')
+            }
             title={
               imageSearchDisabled
                 ? t('catalog.search.imageSearchDisabled')

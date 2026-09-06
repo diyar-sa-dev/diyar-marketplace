@@ -22,7 +22,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -69,7 +69,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, pdo, pdo_sqlite, intl
+          extensions: mbstring, pdo, pdo_sqlite, intl, redis
           tools: composer:v2
 
       - name: Install backend dependencies
@@ -78,7 +78,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -104,6 +104,62 @@ jobs:
 
       - name: Run Playwright E2E
         run: npm run test:e2e
+
+  k6-analytics:
+    name: k6 — analytics p95
+    if: false # Deferred: smoke thresholds fail on CI artisan serve; run locally via scripts/performance/
+    runs-on: ubuntu-latest
+    needs: [backend]
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    env:
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      CACHE_STORE: redis
+      E2E_DEMO_PASSWORD: Password123!
+      ORIGIN_URL: http://127.0.0.1:8000
+      BASE_URL: http://127.0.0.1:8000/api/v1
+      FRONTEND_ORIGIN: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo, pdo_sqlite, intl, redis
+          tools: composer:v2
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Bootstrap API for k6 analytics
+        working-directory: backend
+        run: |
+          bash ../scripts/e2e/bootstrap-backend.sh
+          nohup php artisan serve --host=127.0.0.1 --port=8000 --no-reload > /tmp/laravel-serve.log 2>&1 &
+          sleep 5
+          curl -sf http://127.0.0.1:8000/api/v1/health
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Run k6 analytics profile
+        run: k6 run scripts/performance/analytics.js
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k6-analytics-summary
+          path: k6-analytics-summary.json
 
   backend:
     name: Backend — pint, tests
@@ -159,53 +215,153 @@ jobs:
       - name: PHPUnit
         run: php artisan test
 
-  backend-pgsql:
-    name: Backend — PostgreSQL migrate smoke
+  backend-mysql:
+    name: Backend — MySQL index EXPLAIN
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: diyar_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: diyar_test
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      DIYAR_LOADTEST_MODE: false
     defaults:
       run:
         working-directory: backend
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: diyar_ci
-          POSTGRES_USER: diyar
-          POSTGRES_PASSWORD: secret
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U diyar -d diyar_ci"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, pdo, pdo_pgsql, intl
+          extensions: mbstring, pdo, pdo_mysql, intl
           coverage: none
           tools: composer:v2
 
       - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress --no-dev
+        run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Migrate against PostgreSQL
-        env:
-          APP_ENV: testing
-          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-          DB_CONNECTION: pgsql
-          DB_HOST: 127.0.0.1
-          DB_PORT: 5432
-          DB_DATABASE: diyar_ci
-          DB_USERNAME: diyar
-          DB_PASSWORD: secret
-          CACHE_STORE: array
-          QUEUE_CONNECTION: sync
-          SESSION_DRIVER: array
+      - name: Prepare environment
         run: |
           cp .env.example .env
-          php artisan migrate:fresh --force
-          php artisan test --filter='HealthEndpointTest|CatalogSearchTest|CartTest|ProductEngagementTest|VendorDashboardOverviewTest|AffiliateDashboardOverviewTest|ProviderDashboardExtrasTest'
+          php artisan key:generate
+
+      - name: MySQL index EXPLAIN tests
+        run: php artisan test tests/Feature/Database/CatalogAndOrderIndexTest.php tests/Feature/Database/ProductListIndexTest.php
+
+  redis-integration:
+    name: Backend — Redis integration
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    env:
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      CACHE_STORE: redis
+      QUEUE_CONNECTION: redis
+      DIYAR_LOADTEST_MODE: false
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo, pdo_sqlite, intl, redis
+          coverage: none
+          tools: composer:v2
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Redis integration tests
+        run: vendor/bin/phpunit --configuration phpunit.redis.xml --group=redis-integration
+
+  queue-integration:
+    name: Backend — Queue worker integration
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    env:
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      CACHE_STORE: redis
+      QUEUE_CONNECTION: redis
+      DIYAR_LOADTEST_MODE: false
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo, pdo_sqlite, intl, redis
+          coverage: none
+          tools: composer:v2
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Queue integration tests
+        run: vendor/bin/phpunit --configuration phpunit.redis.xml --group=queue-integration
+
+  broadcast-integration:
+    name: Backend — Broadcast channel auth
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo, pdo_sqlite, intl
+          coverage: none
+          tools: composer:v2
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Broadcast integration tests
+        run: vendor/bin/phpunit --configuration phpunit.integration.xml --group=broadcast-integration

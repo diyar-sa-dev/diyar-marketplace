@@ -41,7 +41,7 @@ import type {
   TransactionTypeFilter,
 } from '../../api/vendorFinance.ts';
 
-const PERIOD_OPTIONS: FinancePeriod[] = ['day', 'week', 'month', 'year'];
+const PERIOD_OPTIONS: FinancePeriod[] = ['day', 'week', 'month', '3m', '6m', '12m', 'year'];
 
 const ORDER_LINKED_TYPES = new Set([
   'escrow',
@@ -131,7 +131,12 @@ export default function VendorFinance() {
 
   const reportQuery = useVendorFinanceReport(period);
   const analyticsQuery = useVendorFinanceAnalytics(period);
-  const transactionsQuery = useVendorTransactions(transactionPage, typeFilter, transactionPerPage);
+  const transactionsQuery = useVendorTransactions(
+    transactionPage,
+    typeFilter,
+    transactionPerPage,
+    period,
+  );
   const downloadReport = useDownloadVendorFinanceReport();
   const requestPayout = useRequestVendorPayout();
   const settingsQuery = useVendorSettings();
@@ -172,6 +177,9 @@ export default function VendorFinance() {
       day: t('vendor.finance.periodDay'),
       week: t('vendor.finance.periodWeek'),
       month: t('vendor.finance.periodMonth'),
+      '3m': t('vendor.finance.period3m'),
+      '6m': t('vendor.finance.period6m'),
+      '12m': t('vendor.finance.period12m'),
       year: t('vendor.finance.periodYear'),
     };
     return map[value];
@@ -258,7 +266,7 @@ export default function VendorFinance() {
 
     return (
       <tr key={tx.id} className="hover:bg-gray-50/50 transition">
-        <td className="px-6 py-4">
+        <td className="px-6 py-4 text-start">
           <div className="flex items-center gap-3">
             <div
               className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${visual.bgClass} ${visual.iconClass}`}
@@ -277,18 +285,18 @@ export default function VendorFinance() {
             </div>
           </div>
         </td>
-        <td className="px-6 py-4">
+        <td className="px-6 py-4 text-start">
           <span
-            className={`font-bold inline-block whitespace-nowrap ${visual.amountClass}`}
+            className={`font-bold inline-block whitespace-nowrap tabular-nums [unicode-bidi:isolate] ${visual.amountClass}`}
             dir="ltr"
           >
             {formatSignedAmount(tx.amount, tx.direction, tx.currency)}
           </span>
         </td>
-        <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
+        <td className="px-6 py-4 text-start text-gray-500 whitespace-nowrap">
           {formatFinanceDateTime(tx.created_at ?? undefined, locale)}
         </td>
-        <td className="px-6 py-4">
+        <td className="px-6 py-4 text-start">
           <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-green-100 text-green-700">
             {t('vendor.finance.transactionCompleted')}
           </span>
@@ -308,13 +316,13 @@ export default function VendorFinance() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
+          <div className="flex bg-white border border-gray-200 rounded-xl p-1 shadow-sm overflow-x-auto scrollbar-hide">
             {PERIOD_OPTIONS.map((option) => (
               <button
                 key={option}
                 type="button"
                 onClick={() => handlePeriodChange(option)}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition cursor-pointer whitespace-nowrap ${
                   period === option
                     ? 'bg-gray-100 text-diyar-dark font-bold'
                     : 'text-gray-500 hover:text-diyar-dark'

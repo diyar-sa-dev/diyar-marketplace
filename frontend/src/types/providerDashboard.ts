@@ -80,6 +80,7 @@ export type ProviderFinanceSummary = {
 export type ProviderFinanceAnalyticsPoint = {
   name?: string;
   date?: string;
+  label?: string;
   net: number;
 };
 

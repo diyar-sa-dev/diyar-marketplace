@@ -1,10 +1,11 @@
 <?php
 
+use App\Http\Middleware\ApplyHttpCachePolicy;
 use App\Http\Middleware\AssignRequestCorrelationId;
 use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\EnsureAdminPermission;
 use App\Http\Middleware\EnsureAdminUserIsActive;
-use App\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use App\Http\Middleware\EnsureCleanAuthState;
 use App\Http\Middleware\EnsureMarketplaceAccess;
 use App\Http\Middleware\EnsureMarketplaceNotInMaintenance;
 use App\Http\Middleware\EnsureUserHasRole;
@@ -13,6 +14,7 @@ use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocaleFromRequest;
 use App\Http\Middleware\TrustForwardedHost;
 use App\Support\Api\ApiResponse;
+use App\Support\Http\TrustedProxies;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
@@ -20,6 +22,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -29,18 +33,32 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
-        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
         apiPrefix: 'api/v1',
+        then: function (): void {
+            require __DIR__.'/../routes/channels.php';
+
+            Broadcast::routes([
+                'middleware' => ['web', 'auth:sanctum', 'account.active'],
+            ]);
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->trustProxies(at: '*');
+        $middleware->trustProxies(
+            at: TrustedProxies::addresses(),
+            headers: Request::HEADER_X_FORWARDED_FOR
+                | Request::HEADER_X_FORWARDED_HOST
+                | Request::HEADER_X_FORWARDED_PORT
+                | Request::HEADER_X_FORWARDED_PROTO
+                | Request::HEADER_X_FORWARDED_AWS_ELB,
+        );
 
         $middleware->web(prepend: [
             TrustForwardedHost::class,
         ]);
 
         $middleware->api(prepend: [
+            EnsureCleanAuthState::class,
             AssignRequestCorrelationId::class,
             TrustForwardedHost::class,
             NormalizeSessionCookieDomain::class,
@@ -49,8 +67,13 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureMarketplaceNotInMaintenance::class,
         ]);
 
+        $middleware->web(prepend: [
+            EnsureCleanAuthState::class,
+        ]);
+
         $middleware->append([
             SecurityHeaders::class,
+            ApplyHttpCachePolicy::class,
         ]);
 
         $middleware->alias([
@@ -77,7 +100,13 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
-                return ApiResponse::error(__('diyar.auth.not_found'), 404);
+                $message = trim((string) $e->getMessage());
+
+                if ($message === '' || str_starts_with($message, 'The route ')) {
+                    $message = __('diyar.errors.not_found');
+                }
+
+                return ApiResponse::error($message, 404);
             }
         });
 
@@ -116,7 +145,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (InvalidArgumentException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
-                return ApiResponse::error($e->getMessage(), 400);
+                return ApiResponse::error($e->getMessage(), 422);
             }
         });
 

@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Enums\PayoutStatus;
 use App\Enums\ServiceBookingStatus;
 use App\Enums\ServiceRequestStatus;
+use App\Enums\UserStatus;
 use App\Models\AffiliatePayout;
 use App\Models\Order;
 use App\Models\ProviderAccount;
@@ -40,7 +41,7 @@ final class AdminDashboardService
                 ->count(),
             'pending_vendor_payouts' => VendorPayout::query()->where('status', PayoutStatus::Pending)->count(),
             'pending_affiliate_payouts' => AffiliatePayout::query()->where('status', PayoutStatus::Pending)->count(),
-            'active_users' => User::query()->where('status', 'active')->count(),
+            'active_users' => User::query()->where('status', UserStatus::Active)->count(),
             'vendors' => VendorAccount::query()->count(),
             'providers' => ProviderAccount::query()->count(),
             'service_requests_open' => ServiceRequest::query()

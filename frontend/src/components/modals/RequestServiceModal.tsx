@@ -32,6 +32,7 @@ import {
   validateServiceRequestFile,
 } from '../../lib/serviceRequestValidation.ts';
 import { parseApiError } from '../../utils/errors.ts';
+import { AuthPromptModal } from '../product/AuthPromptModal.tsx';
 
 export type RequestServiceModalContext = {
   serviceId?: string;
@@ -85,6 +86,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
   const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceInputRef = useRef<HTMLInputElement>(null);
   const replacingAttachmentId = useRef<string | null>(null);
@@ -116,8 +118,6 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
     setErrors({});
     setIsSubmitted(false);
   }, [isOpen, context?.defaultCategoryIds, context?.defaultDescription]);
-
-  if (!isOpen) return null;
 
   const toggleCategory = (categoryId: string) => {
     setSelectedCategoryIds((prev) =>
@@ -242,8 +242,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
     e.preventDefault();
 
     if (!user) {
-      toast.error(t('serviceMarketplace.requestModal.loginRequired'));
-      navigate('/login');
+      setAuthOpen(true);
       return;
     }
 
@@ -332,6 +331,8 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
   const canAddMoreAttachments = pendingAttachments.length < MAX_SERVICE_REQUEST_ATTACHMENTS;
 
   return (
+    <>
+      {isOpen ? (
     <div
       className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-0 md:p-4 backdrop-blur-sm cursor-pointer"
       dir={dir}
@@ -501,7 +502,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                       errors.budget ? 'border-red-300 bg-red-50/40' : 'border-gray-200'
                     }`}
                   />
-                  <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">
+                  <span className="absolute inset-s-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">
                     {t('providerDashboard.common.currency')}
                   </span>
                 </div>
@@ -562,7 +563,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                                 type="button"
                                 disabled={submitting}
                                 onClick={() => removeAttachment(item.id)}
-                                className="absolute top-1.5 start-1.5 cursor-pointer w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center opacity-90 hover:opacity-100 disabled:opacity-50"
+                                className="absolute top-1.5 inset-s-1.5 cursor-pointer w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center opacity-90 hover:opacity-100 disabled:opacity-50"
                                 aria-label={t('serviceMarketplace.requestModal.deleteFile')}
                               >
                                 <X size={14} />
@@ -581,7 +582,7 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
                             </>
                           )}
 
-                          <span className="absolute top-1.5 end-1.5 text-[9px] bg-black/55 text-white px-1.5 py-0.5 rounded flex items-center gap-1">
+                          <span className="absolute top-1.5 inset-e-1.5 text-[9px] bg-black/55 text-white px-1.5 py-0.5 rounded flex items-center gap-1">
                             <File size={10} />
                             {formatFileSize(item.file.size)}
                           </span>
@@ -704,5 +705,14 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
         </div>
       </div>
     </div>
+      ) : null}
+
+      <AuthPromptModal
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+        title={t('catalog.productDetail.authRequiredTitle')}
+        message={t('serviceMarketplace.requestModal.loginRequired')}
+      />
+    </>
   );
 }

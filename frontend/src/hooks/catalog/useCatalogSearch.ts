@@ -22,6 +22,26 @@ const ALLOWED_SORTS = new Set([
 
 const MAX_PER_PAGE = 50;
 
+export function hasCatalogSearchContext(
+  filters: CatalogSearchFilters,
+  query?: string | null,
+): boolean {
+  const normalizedQuery = query?.replace(/\s+/g, ' ').trim() ?? filters.q?.trim() ?? '';
+
+  return Boolean(
+    normalizedQuery ||
+    filters.category_slug ||
+    filters.vendor_slug ||
+    filters.color ||
+    (filters.colors && filters.colors.length > 0) ||
+    filters.material ||
+    filters.min_price ||
+    filters.max_price ||
+    filters.discounted ||
+    filters.availability_mode,
+  );
+}
+
 export function normalizeCatalogSearchFilters(
   raw: Record<string, string | number | boolean | null | undefined>,
 ): CatalogSearchFilters {
@@ -84,18 +104,7 @@ export function useCatalogSearch(filters: CatalogSearchFilters, options?: { enab
       ),
     [filters],
   );
-  const hasQueryContext = Boolean(
-    stableFilters.q ||
-    stableFilters.category_slug ||
-    stableFilters.vendor_slug ||
-    stableFilters.colors?.length ||
-    stableFilters.color ||
-    stableFilters.material ||
-    stableFilters.min_price ||
-    stableFilters.max_price ||
-    stableFilters.discounted ||
-    stableFilters.availability_mode,
-  );
+  const hasQueryContext = hasCatalogSearchContext(stableFilters);
 
   return useQuery({
     queryKey: catalogSearchKeys.query(stableFilters),

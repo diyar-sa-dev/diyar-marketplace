@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تقرير حالة المشروع — منصة ديار (27 أغسطس 2026)</title>
+<style>
+  :root {
+    --surround: #e8ecf1;
+    --paper: #ffffff;
+    --ink: #1c2733;
+    --ink-soft: #46586b;
+    --navy: #1f3864;
+    --band: #2e6db4;
+    --band-soft: #eef4fb;
+    --row-alt: #f5f8fc;
+    --line: #dbe4ee;
+    --ok-bg: #e4f3ea;   --ok-fg: #1a7a4c;
+    --part-bg: #fcf1d2; --part-fg: #96660a;
+    --no-bg: #fbe7e7;   --no-fg: #b23330;
+    --shadow: 0 2px 14px rgba(31, 56, 100, .12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --surround: #141a22; --shadow: 0 2px 18px rgba(0,0,0,.5); }
+  }
+  :root[data-theme="dark"] { --surround: #141a22; --shadow: 0 2px 18px rgba(0,0,0,.5); }
+  :root[data-theme="light"] { --surround: #e8ecf1; --shadow: 0 2px 14px rgba(31,56,100,.12); }
+
+  html { background: var(--surround); }
+  body { margin: 0; background: var(--surround); }
+
+  .report {
+    direction: rtl;
+    font-family: "Segoe UI", Tahoma, "Noto Naskh Arabic", Arial, sans-serif;
+    color: var(--ink);
+    max-width: 880px;
+    margin: 24px auto 64px;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+    border-radius: 6px;
+    overflow: hidden;
+    line-height: 1.7;
+  }
+  .inner { padding: 0 40px 48px; }
+
+  .masthead {
+    background: var(--navy);
+    color: #fff;
+    text-align: center;
+    padding: 34px 24px 26px;
+  }
+  .masthead h1 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: .5px; }
+  .subhead {
+    background: var(--band);
+    color: #fff;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 10px 24px;
+    margin-bottom: 32px;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 26px; font-size: 14.5px; }
+  td, th { padding: 9px 14px; vertical-align: top; }
+  tbody tr:nth-child(odd) { background: var(--band-soft); }
+  tbody tr:nth-child(even) { background: var(--paper); }
+  tbody tr { border-bottom: 1px solid var(--line); }
+
+  .meta td:first-child { font-weight: 700; color: var(--navy); width: 130px; white-space: nowrap; }
+
+  .st {
+    width: 128px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+  .ok   { background: var(--ok-bg)   !important; color: var(--ok-fg); }
+  .part { background: var(--part-bg) !important; color: var(--part-fg); }
+  .no   { background: var(--no-bg)   !important; color: var(--no-fg); }
+
+  .legend { display: flex; gap: 10px; margin: 8px 0 4px; }
+  .legend span { flex: 1; text-align: center; padding: 8px 0; font-weight: 700; font-size: 13px; border-radius: 3px; }
+
+  .section-band {
+    background: var(--navy);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 800;
+    padding: 12px 40px;
+    margin: 44px -40px 20px;
+  }
+  .section-note {
+    background: var(--ok-bg);
+    color: var(--ok-fg);
+    font-weight: 700;
+    font-size: 14px;
+    text-align: center;
+    padding: 9px 16px;
+    border-radius: 4px;
+    margin: 0 0 18px;
+  }
+  .section-note.part-note { background: var(--part-bg); color: var(--part-fg); }
+  .section-note.no-note { background: var(--no-bg); color: var(--no-fg); }
+  h3 { color: var(--band); font-size: 15.5px; margin: 26px 0 4px; font-weight: 800; }
+  .fine { font-size: 12.5px; color: var(--ink-soft); margin: -14px 0 22px; }
+
+  .highlights {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 22px 10px;
+    margin: 0 0 10px;
+    background: var(--band-soft);
+  }
+  .highlights h3 { margin-top: 0; }
+  .highlights ul { margin: 6px 0 12px; padding-right: 20px; }
+  .highlights li { margin-bottom: 5px; font-size: 14px; }
+
+  .closing {
+    text-align: center;
+    margin-top: 54px;
+    border-top: 1px solid var(--line);
+    padding-top: 26px;
+  }
+  .closing .thanks { color: var(--navy); font-weight: 700; }
+  .closing .sig { color: var(--band); font-weight: 800; margin-top: 10px; }
+  .closing .date { color: var(--ink-soft); font-size: 13.5px; }
+
+  .toolbar { max-width: 880px; margin: 18px auto -8px; text-align: left; direction: ltr; padding: 0 4px; }
+  .toolbar button {
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    background: var(--navy); color: #fff; border: 0; border-radius: 5px;
+    padding: 8px 16px; cursor: pointer;
+  }
+  .toolbar button:focus-visible { outline: 3px solid var(--band); outline-offset: 2px; }
+
+  @media print {
+    html, body { background: #fff; }
+    .toolbar { display: none; }
+    .report { box-shadow: none; margin: 0; max-width: none; border-radius: 0; }
+    .section-band { break-after: avoid; }
+    tr { break-inside: avoid; }
+    .page-break { break-before: page; }
+  }
+  @media (max-width: 640px) {
+    .inner { padding: 0 16px 32px; }
+    .section-band { margin: 36px -16px 16px; padding: 10px 16px; }
+    .table-wrap { overflow-x: auto; }
+    .meta td:first-child { white-space: normal; width: auto; }
+    .st { width: auto; white-space: normal; }
+  }
+</style>
+
+<div class="toolbar"><button type="button" onclick="window.print()">🖨 Print / PDF</button></div>
+
+<div class="report" lang="ar">
+  <div class="masthead"><h1>تقرير حالة المشروع</h1></div>
+  <div class="subhead">منصة ديار — سوق إلكتروني للأثاث والخدمات المنزلية مع لوحات تشغيل متعددة الأدوار</div>
+
+  <div class="inner">
+    <table class="meta">
+      <tbody>
+        <tr><td>المشروع:</td><td>منصة ديار (Diyar Marketplace) — المملكة العربية السعودية</td></tr>
+        <tr><td>تاريخ التقرير:</td><td>27/08/2026</td></tr>
+        <tr><td>التقرير السابق:</td><td>لا يوجد — هذا التقرير الأول</td></tr>
+      </tbody>
+    </table>
+
+    <p style="font-weight:700; color:var(--navy); margin-bottom:6px;">دلالة الألوان في هذا التقرير:</p>
+    <div class="legend">
+      <span class="ok">منجز</span>
+      <span class="part">جزئي</span>
+      <span class="no">غير منجز</span>
+    </div>
+
+    <div class="section-band">عن المنصة</div>
+    <p>منصة ديار سوق إلكتروني عربي موجّه للسوق السعودي (الريال وضريبة القيمة المضافة 15%). تجمع المنصة بيع منتجات الأثاث والمنزل، وخدمات التصميم والتنفيذ المنزلي، ودليل شركات قطاع الأعمال.</p>
+    <p>تخدم المنصة خمسة أدوار: <b>العميل</b>، <b>البائع</b>، <b>مقدّم الخدمة</b>، <b>المسوّق (الإحالة)</b>، و<b>الإدارة</b>. بعد نموذج الواجهة السابق، بُني أساس الويب ولوحات التشغيل على خلفية تشغيل حقيقية. مساعد التصميم بالدردشة يعمل اليوم ويحتاج ضبط الإطلاق. الدفع والرسائل ينتظران مفاتيح الواجهة. الاستضافة، وتطبيق العميل، وروبوت واتساب، والتوصيات، وذكاء الصور والتخصيص لم تُنجز بعد.</p>
+
+    <div class="section-band">أبرز ما أُنجز</div>
+    <div class="highlights">
+      <ul>
+        <li><b>المتجر الإلكتروني:</b> التصفح، البحث، صفحات المنتجات والمتاجر، السلة، وإتمام الطلب على الويب.</li>
+        <li><b>حساب العميل:</b> التسجيل، العناوين، الطلبات، المفضلة، الولاء، التقييمات، الإشعارات، والدردشة داخل المنصة.</li>
+        <li><b>لوحة البائع:</b> المنتجات، المخزون، الطلبات، الإرجاع، الكوبونات، المالية، التحليلات، الفريق، وملف قطاع الأعمال.</li>
+        <li><b>لوحة مقدّم الخدمة:</b> الخدمات، طلبات العملاء، الحجوزات، التقييمات، المالية، والتحليلات.</li>
+        <li><b>لوحة المسوّق:</b> المنتجات، روابط الإحالة، التقارير، والمستحقات.</li>
+        <li><b>لوحة الإدارة:</b> المستخدمون، البائعون، مقدّمو الخدمة، التصنيفات، الشحن، المحتوى، المالية، التحليلات، والإعدادات.</li>
+        <li><b>ما لم يُستكمل:</b> تفعيل مفاتيح الدفع والرسائل، ضبط إطلاق مساعد التصميم، الاستضافة، تطبيق العميل، روبوت واتساب، التوصيات، وذكاء الصور والتخصيص، مع تطوير الشحن والكوبونات وتحسين الميزات الحالية.</li>
+      </ul>
+    </div>
+
+    <div class="section-band">ملخص حالة التسليم</div>
+    <div class="table-wrap">
+    <table>
+      <tbody>
+        <tr><td>الموقع الإلكتروني (المتجر العام)</td><td class="st part">جزئي — الأساس موجود ويحتاج تحسينات ووظائف إضافية</td></tr>
+        <tr><td>حساب العميل ومسار الشراء</td><td class="st part">جزئي — المسار موجود، والدفع والرسائل ينتظران مفاتيح الواجهة</td></tr>
+        <tr><td>لوحة البائع</td><td class="st part">جزئي — موجودة وتحتاج تحسينات</td></tr>
+        <tr><td>لوحة مقدّم الخدمة</td><td class="st part">جزئي — موجودة وتحتاج تحسينات</td></tr>
+        <tr><td>لوحة المسوّق (الإحالة)</td><td class="st part">جزئي — موجودة وتحتاج تحسينات</td></tr>
+        <tr><td>لوحة الإدارة</td><td class="st part">جزئي — موجودة وتحتاج تحسينات</td></tr>
+        <tr><td>الدفع الإلكتروني (MyFatoorah)</td><td class="st part">جزئي — يحتاج مفاتيح واجهة برمجة</td></tr>
+        <tr><td>رسائل التحقق (مسجات / MSEGAT)</td><td class="st part">جزئي — يحتاج مفاتيح واجهة برمجة</td></tr>
+        <tr><td>الدردشة داخل المنصة</td><td class="st part">جزئي</td></tr>
+        <tr><td>مساعد التصميم بالدردشة</td><td class="st part">جزئي — يعمل اليوم ويحتاج ضبط الإطلاق</td></tr>
+        <tr><td>روبوت واتساب</td><td class="st no">غير منجز</td></tr>
+        <tr><td>توصيات المنتجات</td><td class="st no">غير منجز</td></tr>
+        <tr><td>الشحن</td><td class="st part">جزئي — موجود ويحتاج تطوير</td></tr>
+        <tr><td>قطاع الأعمال (B2B) والعروض</td><td class="st part">جزئي — موجود ويحتاج تطوير</td></tr>
+        <tr><td>دعوة الفريق</td><td class="st part">جزئي — موجودة وتحتاج تطوير</td></tr>
+        <tr><td>الإرجاع والاسترداد</td><td class="st part">جزئي — موجود ويحتاج تطوير</td></tr>
+        <tr><td>صرف مستحقات البائع والمسوّق</td><td class="st part">جزئي — موجود ويحتاج تطوير</td></tr>
+        <tr><td>ذكاء المنصة والصور والتخصيص</td><td class="st no">غير منجز</td></tr>
+        <tr><td>تطبيق الجوال</td><td class="st part">البنية مهيأة — التطبيقات غير منجزة بعد</td></tr>
+        <tr><td>الاستضافة والإطلاق</td><td class="st no">غير منجز</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="section-band page-break">أولا: الموقع الإلكتروني (الصفحات العامة)</div>
+    <div class="section-note part-note">الأساس موجود — الميزات الحالية تحتاج تحسينات، ووظائف أخرى لم تُنجز بعد</div>
+
+    <h3>صفحات التصفح</h3>
+    <table><tbody>
+      <tr><td>الصفحة الرئيسية — عرض الأقسام والمنتجات والخدمات والمشاريع المميزة</td><td class="st ok">منجز</td></tr>
+      <tr><td>البحث — البحث في المنتجات والخدمات مع التصفية والترتيب</td><td class="st ok">منجز</td></tr>
+      <tr><td>صفحة التصنيف — عرض منتجات التصنيف وتصفية النتائج</td><td class="st ok">منجز</td></tr>
+      <tr><td>تفاصيل المنتج — عرض الصور والسعر والمواصفات، الإضافة للسلة أو المفضلة، وقراءة التقييمات. التوصيات غير منجزة بعد</td><td class="st part">جزئي</td></tr>
+      <tr><td>صفحة المتجر — عرض متجر البائع ومنتجاته ومتابعته</td><td class="st ok">منجز</td></tr>
+      <tr><td>قائمة الخدمات — تصفح الخدمات المنزلية</td><td class="st ok">منجز</td></tr>
+      <tr><td>تفاصيل الخدمة — عرض الخدمة وطلب عرض أو حجز</td><td class="st ok">منجز</td></tr>
+      <tr><td>صفحة مقدّم الخدمة — عرض الملف والخدمات المرتبطة</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>صفحات المحتوى وقطاع الأعمال</h3>
+    <table><tbody>
+      <tr><td>دليل الشركات — عرض الشركات والبحث فيها. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>صفحة الشركة — عرض الملف والتواصل أو إرسال اهتمام. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>عروض قطاع الأعمال (B2B) — الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>المدونة — عرض قائمة المقالات</td><td class="st ok">منجز</td></tr>
+      <tr><td>المقال والوسوم — قراءة المقال والانتقال حسب الوسم</td><td class="st ok">منجز</td></tr>
+      <tr><td>برنامج الولاء — عرض البرنامج والرصيد بعد تسجيل الدخول</td><td class="st ok">منجز</td></tr>
+      <tr><td>مساعد التصميم بالدردشة — يعمل اليوم على الموقع ويحتاج ضبط الإطلاق</td><td class="st part">جزئي — يعمل اليوم ويحتاج ضبط الإطلاق</td></tr>
+    </tbody></table>
+
+    <h3>صفحات الدخول والحالة</h3>
+    <table><tbody>
+      <tr><td>تسجيل الدخول وإنشاء الحساب — تسجيل، دخول، وتأكيد الجوال</td><td class="st ok">منجز</td></tr>
+      <tr><td>حساب قيد المراجعة / معلّق — عرض حالة الحساب دون الدخول للمتجر</td><td class="st ok">منجز</td></tr>
+      <tr><td>دعوة الفريق — قبول دعوة الانضمام لمتجر البائع. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+    </tbody></table>
+
+    <div class="section-band">ثانيا: دور العميل</div>
+    <div class="section-note part-note">المسار موجود — الدفع والرسائل جزئيان وينتظران مفاتيح واجهة برمجة</div>
+
+    <h3>مسار الشراء</h3>
+    <table><tbody>
+      <tr><td>التسجيل واستعادة كلمة المرور — إنشاء حساب وإعادة التعيين. مسجات جزئي ويحتاج مفاتيح واجهة برمجة</td><td class="st part">جزئي — يحتاج مفاتيح واجهة برمجة</td></tr>
+      <tr><td>السلة وإتمام الطلب — إضافة وتعديل الكمية والحذف، ثم تأكيد الطلب مع العنوان. الشحن والكوبون موجودان ويحتاجان تطوير</td><td class="st part">جزئي — الشحن والكوبونات يحتاجان تطوير</td></tr>
+      <tr><td>صفحة الدفع — الشاشة والربط في البنية موجودان. MyFatoorah يحتاج مفاتيح واجهة برمجة</td><td class="st part">جزئي — يحتاج مفاتيح واجهة برمجة</td></tr>
+      <tr><td>طلباتي — عرض الطلبات وتفاصيلها ومتابعة الحالة. الإرجاع والاسترداد موجودان ويحتاجان تطوير</td><td class="st part">جزئي — الإرجاع والاسترداد يحتاجان تطوير</td></tr>
+      <tr><td>المفضلة — إضافة منتجات وإزالتها وعرض القائمة</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>صفحات الحساب</h3>
+    <table><tbody>
+      <tr><td>الملف الشخصي — عرض ملخص الحساب والوصول لصفحات الإعداد</td><td class="st ok">منجز</td></tr>
+      <tr><td>المعلومات الشخصية — عرض وتعديل الاسم وبيانات التواصل والصورة</td><td class="st ok">منجز</td></tr>
+      <tr><td>العناوين — إضافة عنوان وتعديله وحذفه وتعيين عنوان افتراضي</td><td class="st ok">منجز</td></tr>
+      <tr><td>الأمان — تغيير كلمة المرور وإدارة حماية الحساب</td><td class="st ok">منجز</td></tr>
+      <tr><td>اللغة — اختيار العربية أو الإنجليزية</td><td class="st ok">منجز</td></tr>
+      <tr><td>التقييمات — عرض تقييماتي وإضافة تقييم للمنتجات أو المتاجر أو الخدمات بعد الشراء</td><td class="st ok">منجز</td></tr>
+      <tr><td>حجوزات الخدمات وطلبات الخدمة — إنشاء طلب، عرض العروض، ومتابعة الحجوزات</td><td class="st ok">منجز</td></tr>
+      <tr><td>الإشعارات وإعداداتها — عرض الإشعارات وتفعيل أو إيقاف أنواع التنبيه</td><td class="st ok">منجز</td></tr>
+      <tr><td>الدردشة — فتح محادثة وإرسال الرسائل ومتابعتها</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band page-break">ثالثا: لوحة البائع</div>
+    <div class="section-note part-note">موجودة — تحتاج تحسينات على الميزات الحالية</div>
+
+    <h3>صفحات لوحة البائع</h3>
+    <table><tbody>
+      <tr><td>لوحة المتابعة — عرض ملخص المبيعات والطلبات والأداء</td><td class="st ok">منجز</td></tr>
+      <tr><td>المنتجات والمخزون — إضافة منتج، تعديله، أرشفه، رفع الصور، وتعديل الكمية</td><td class="st ok">منجز</td></tr>
+      <tr><td>الطلبات — عرض الطلبات وتفاصيلها وتحديث حالة التجهيز والشحن</td><td class="st ok">منجز</td></tr>
+      <tr><td>الطلبات المسبقة — عرض طلبات الحجز المسبق ومتابعتها</td><td class="st ok">منجز</td></tr>
+      <tr><td>الإرجاع — عرض طلبات الإرجاع وقبولها أو رفضها. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>الكوبونات — إنشاء كوبون وتعديله وتفعيله أو إيقافه. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>التقييمات الواردة — عرض تقييمات المتجر والرد عليها</td><td class="st ok">منجز</td></tr>
+      <tr><td>الرسائل — محادثة العملاء من لوحة المتجر</td><td class="st ok">منجز</td></tr>
+      <tr><td>الفريق — دعوة أعضاء، عرض الفريق، وإدارة صلاحياتهم. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>المالية وصرف المستحقات — عرض الرصيد والحركات، طلب سحب، وتصدير كشف. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>التحليلات — عرض تقارير المبيعات والأداء</td><td class="st ok">منجز</td></tr>
+      <tr><td>ملف قطاع الأعمال — عرض وتعديل ملف الشركة في الدليل. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>الإشعارات — عرض تنبيهات المتجر</td><td class="st ok">منجز</td></tr>
+      <tr><td>إعدادات المتجر — تعديل بيانات المتجر والشحن والظهور. الشحن موجود ويحتاج تطوير</td><td class="st part">جزئي — الشحن يحتاج تطوير</td></tr>
+    </tbody></table>
+
+    <div class="section-band">رابعا: لوحة مقدّم الخدمة</div>
+    <div class="section-note part-note">موجودة — تحتاج تحسينات على الميزات الحالية</div>
+
+    <h3>صفحات لوحة مقدّم الخدمة</h3>
+    <table><tbody>
+      <tr><td>لوحة المتابعة — عرض ملخص الطلبات والحجوزات والأداء</td><td class="st ok">منجز</td></tr>
+      <tr><td>خدماتي — إضافة خدمة وتعديلها وإيقافها</td><td class="st ok">منجز</td></tr>
+      <tr><td>طلبات العملاء — عرض الطلبات الواردة ومتابعتها</td><td class="st ok">منجز</td></tr>
+      <tr><td>تفاصيل الطلب والعروض — عرض التفاصيل وتقديم عرض أو تحديثه. عروض قطاع الأعمال تحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>الحجوزات — عرض الحجوزات وتحديث حالتها</td><td class="st ok">منجز</td></tr>
+      <tr><td>التقييمات الواردة — عرض تقييمات العملاء</td><td class="st ok">منجز</td></tr>
+      <tr><td>الرسائل — محادثة العملاء</td><td class="st ok">منجز</td></tr>
+      <tr><td>المالية وصرف المستحقات — عرض الرصيد والحركات وطلب السحب. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>التحليلات — عرض تقارير الخدمات</td><td class="st ok">منجز</td></tr>
+      <tr><td>ملف قطاع الأعمال — عرض وتعديل ملف الشركة في الدليل. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>الإشعارات — عرض التنبيهات</td><td class="st ok">منجز</td></tr>
+      <tr><td>الإعدادات — تعديل بيانات النشاط ومواعيد العمل</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band">خامسا: لوحة المسوّق (الإحالة)</div>
+    <div class="section-note part-note">موجودة — تحتاج تحسينات على الميزات الحالية</div>
+
+    <h3>صفحات لوحة المسوّق</h3>
+    <table><tbody>
+      <tr><td>لوحة المتابعة — عرض ملخص النقرات والعمولات</td><td class="st ok">منجز</td></tr>
+      <tr><td>المنتجات المتاحة للترويج — عرض المنتجات واختيار ما يُروَّج له</td><td class="st ok">منجز</td></tr>
+      <tr><td>روابط الإحالة — إنشاء رابط وتتبعه وإيقافه</td><td class="st ok">منجز</td></tr>
+      <tr><td>التقارير — عرض أداء الروابط والعمولات</td><td class="st ok">منجز</td></tr>
+      <tr><td>المستحقات وصرف أرباح المسوّق — عرض الأرباح وطلب الصرف. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>الإشعارات — عرض التنبيهات</td><td class="st ok">منجز</td></tr>
+      <tr><td>الإعدادات — تعديل بيانات حساب المسوّق</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band page-break">سادسا: لوحة الإدارة</div>
+    <div class="section-note part-note">موجودة — تحتاج تحسينات، وبعض أدوات التشغيل لم تُنجز بعد</div>
+
+    <h3>المتابعة والتشغيل</h3>
+    <table><tbody>
+      <tr><td>تسجيل دخول الإدارة — دخول منفصل عن حساب المتجر</td><td class="st ok">منجز</td></tr>
+      <tr><td>لوحة المتابعة — عرض مؤشرات المنصة العامة</td><td class="st ok">منجز</td></tr>
+      <tr><td>التحليلات — عرض تقارير المبيعات والقمع والبحث</td><td class="st ok">منجز</td></tr>
+      <tr><td>سجل التدقيق — عرض سجل العمليات الإدارية</td><td class="st ok">منجز</td></tr>
+      <tr><td>إعدادات المنصة — عرض وتعديل إعدادات التشغيل والميزات</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>إدارة الأطراف</h3>
+    <table><tbody>
+      <tr><td>المستخدمون — عرض القائمة والبحث، عرض التفاصيل، تعليق الحساب وإعادة تفعيله. لا إنشاء مستخدم جديد من هنا ولا حذف نهائي</td><td class="st ok">منجز</td></tr>
+      <tr><td>البائعون — عرض المتاجر والبحث، عرض التفاصيل، قبول أو رفض الحساب، وتعليقه</td><td class="st ok">منجز</td></tr>
+      <tr><td>مقدّمو الخدمة — عرض الحسابات والبحث، عرض التفاصيل، قبول أو رفض الحساب، وتعليقه</td><td class="st ok">منجز</td></tr>
+      <tr><td>مركز الإحالات — عرض المسوّقين والروابط، وتعطيل رابط أو متابعة المستحقات. الصرف يحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+    </tbody></table>
+
+    <h3>التجارة والمحتوى</h3>
+    <table><tbody>
+      <tr><td>التصنيفات — إضافة تصنيف وتعديله وترتيبه وتفعيله أو إيقافه</td><td class="st ok">منجز</td></tr>
+      <tr><td>المدفوعات — عرض العمليات وتفاصيلها ومتابعة الحالة. لا إنشاء دفعة يدوياً</td><td class="st ok">منجز</td></tr>
+      <tr><td>إعدادات الشحن — عرض قواعد الشحن وإضافتها وتعديلها. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>مقالات المدونة — إضافة مقال وتعديله ونشره</td><td class="st ok">منجز</td></tr>
+      <tr><td>المشاريع — إضافة مشروع وتعديله ونشره أو إلغاء نشره أو أرشفته أو حذفه</td><td class="st ok">منجز</td></tr>
+      <tr><td>شركات قطاع الأعمال — عرض الشركات ومراجعتها ونشرها أو إخفائها. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>المالية وصرف المستحقات — عرض الحركات والمستحقات، الموافقة على السحب أو رفضه. الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>الإشراف على الدردشة — عرض المحادثات والإشراف عليها</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band page-break">سابعا: تطبيق الجوال</div>
+    <div class="section-note part-note">البنية والهيكل مهيآن — التطبيقات غير منجزة بعد ولا توجد على المتاجر</div>
+    <p>الخلفية الحالية للمنصة مهيأة لخدمة تطبيقات الجوال لاحقاً (نفس الحسابات والمتجر والطلبات). البنية والنماذج والتقسيم موضعها جزئي. لا يوجد تطبيق على المتاجر اليوم.</p>
+
+    <h3>البنية والنماذج والتقسيم</h3>
+    <table><tbody>
+      <tr><td>البنية التحتية المشتركة — الحسابات، الكتالوج، السلة، الدفع، والطلبات جاهزة للربط مع الجوال</td><td class="st part">جزئي — مهيأة</td></tr>
+      <tr><td>نماذج التطبيقات حسب الأدوار — نموذج العميل والبائع ومقدّم الخدمة والإدارة محدد والبناء غير مكتمل</td><td class="st part">جزئي</td></tr>
+      <tr><td>تقسيم التطبيقات حسب الأدوار — تطبيق مستقل لكل دور معتمد وغير مبني بعد</td><td class="st part">جزئي</td></tr>
+      <tr><td>موضع التطبيق والتجربة على الجوال — التخطيط معتمد والنشر في المتاجر غير جاهز</td><td class="st part">جزئي</td></tr>
+    </tbody></table>
+
+    <h3>التطبيقات والنشر</h3>
+    <table><tbody>
+      <tr><td>هيكل المنصة وواجهة التشغيل المشتركة</td><td class="st part">مهيأة</td></tr>
+      <tr><td>تطبيق العميل (تصفح، سلة، دفع، طلبات، إشعارات)</td><td class="st no">غير منجز</td></tr>
+      <tr><td>تطبيق البائع — البنية مهيأة عبر لوحة المتجر. التطبيق نفسه غير منجز بعد</td><td class="st part">مهيأة — غير منجز بعد</td></tr>
+      <tr><td>تطبيق مقدّم الخدمة — البنية مهيأة عبر لوحة الخدمات. التطبيق نفسه غير منجز بعد</td><td class="st part">مهيأة — غير منجز بعد</td></tr>
+      <tr><td>تطبيق الإدارة — البنية مهيأة عبر لوحة التشغيل. التطبيق نفسه غير منجز بعد</td><td class="st part">مهيأة — غير منجز بعد</td></tr>
+      <tr><td>النشر على متجري Apple وGoogle</td><td class="st no">غير منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band">ثامنا: ما لم يُنجز بعد</div>
+    <div class="section-note no-note">هذا القسم يوضح المتبقي بشكل عام ولا يعني أن المنصة مكتملة أو شبه مكتملة</div>
+
+    <h3>الربط والاستضافة</h3>
+    <table><tbody>
+      <tr><td>بوابة الدفع MyFatoorah — البنية موجودة ويحتاج مفاتيح واجهة برمجة</td><td class="st part">جزئي — يحتاج مفاتيح واجهة برمجة</td></tr>
+      <tr><td>مزوّد الرسائل مسجات (MSEGAT) — البنية موجودة ويحتاج مفاتيح واجهة برمجة</td><td class="st part">جزئي — يحتاج مفاتيح واجهة برمجة</td></tr>
+      <tr><td>الاستضافة والإطلاق على الخادم</td><td class="st no">غير منجز</td></tr>
+    </tbody></table>
+
+    <h3>الذكاء الاصطناعي والتواصل</h3>
+    <table><tbody>
+      <tr><td>مساعد التصميم بالدردشة — يعمل اليوم ويحتاج ضبط الإطلاق</td><td class="st part">جزئي — يعمل اليوم ويحتاج ضبط الإطلاق</td></tr>
+      <tr><td>روبوت واتساب</td><td class="st no">غير منجز</td></tr>
+      <tr><td>توصيات المنتجات</td><td class="st no">غير منجز</td></tr>
+      <tr><td>ذكاء المنصة (مساعد تشغيلي متقدم)</td><td class="st no">غير منجز</td></tr>
+      <tr><td>الذكاء الاصطناعي للصور</td><td class="st no">غير منجز</td></tr>
+      <tr><td>التخصيص الذكي للمنتجات والمساحات</td><td class="st no">غير منجز</td></tr>
+    </tbody></table>
+
+    <h3>وظائف المنصة والويب</h3>
+    <table><tbody>
+      <tr><td>الشحن — الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>الكوبونات — الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>دعوة الفريق — الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>قطاع الأعمال (B2B) وعروض الشركات — الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>الإرجاع والاسترداد — الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>صرف مستحقات البائع والمسوّق — الأساس موجود ويحتاج تطوير</td><td class="st part">جزئي — يحتاج تطوير</td></tr>
+      <tr><td>تحسين الميزات الحالية على الويب (تجربة، أداء، استكمال نواقص)</td><td class="st part">جزئي</td></tr>
+      <tr><td>بوابات دفع إضافية بعد MyFatoorah</td><td class="st no">غير منجز</td></tr>
+      <tr><td>مزوّدو OTP ورسائل إضافية بعد مسجات</td><td class="st no">غير منجز</td></tr>
+      <tr><td>خدمات ومنتجات التركيب</td><td class="st no">غير منجز</td></tr>
+      <tr><td>روابط إحالة وأنظمة تسويق بالعمولة إضافية</td><td class="st no">غير منجز</td></tr>
+      <tr><td>أنظمة دردشة إضافية (قنوات جديدة غير الدردشة الحالية)</td><td class="st no">غير منجز</td></tr>
+      <tr><td>وظائف إضافية أخرى على الموقع لم تُبنَ بعد</td><td class="st no">غير منجز</td></tr>
+    </tbody></table>
+
+    <div class="closing">
+      <p class="thanks">منذ نموذج الواجهة السابق بُني أساس المنصة الويب ولوحات الأدوار، وهو ليس منتجاً مكتملاً بعد. المتبقي يشمل تطوير الشحن والكوبونات، وضبط إطلاق مساعد التصميم، وتفعيل مفاتيح الدفع والرسائل، والاستضافة، وتطبيق العميل، وروبوت واتساب، والتوصيات، وذكاء الصور والتخصيص.</p>
+      <p class="sig">تقرير حالة المشروع — منصة ديار</p>
+      <p class="date">27 أغسطس 2026</p>
+    </div>
+  </div>
+</div>
+</html>

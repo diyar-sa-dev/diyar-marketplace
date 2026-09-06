@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api\V1\Chat;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Chat\ReportMessageRequest;
 use App\Http\Requests\Chat\SendMessageRequest;
 use App\Http\Requests\Chat\UpdateMessageRequest;
+use App\Http\Resources\ChatReportReasonResource;
 use App\Http\Resources\MessageResource;
 use App\Models\Message;
+use App\Services\Chat\ChatModerationService;
 use App\Services\Chat\ConversationService;
 use App\Services\Chat\MessageService;
 use App\Support\Api\ApiResponse;
@@ -86,6 +89,44 @@ class MessageController extends Controller
         return ApiResponse::success([
             'message' => (new MessageResource($deleted))->resolve(),
         ]);
+    }
+
+    public function reportReasons(Request $request, ChatModerationService $moderation): JsonResponse
+    {
+        return ApiResponse::success([
+            'reasons' => ChatReportReasonResource::collection(
+                collect($moderation->localizedReasons()),
+            )->resolve(),
+        ]);
+    }
+
+    public function report(
+        ReportMessageRequest $request,
+        string $conversationId,
+        string $messageId,
+        ConversationService $conversations,
+        ChatModerationService $moderation,
+    ): JsonResponse {
+        $conversation = $conversations->findForUser($request->user(), $conversationId);
+        $message = $this->findMessage($conversation->id, $messageId);
+
+        $report = $moderation->reportMessage(
+            $request->user(),
+            $conversation,
+            $message,
+            $request->validated('reason'),
+            $request->validated('details'),
+        );
+
+        return ApiResponse::success([
+            'report' => [
+                'id' => $report->id,
+                'message_id' => $report->message_id,
+                'reason' => $report->reason,
+                'status' => $report->status->value,
+                'created_at' => $report->created_at?->toIso8601String(),
+            ],
+        ], status: 201);
     }
 
     private function findMessage(string $conversationId, string $messageId): Message

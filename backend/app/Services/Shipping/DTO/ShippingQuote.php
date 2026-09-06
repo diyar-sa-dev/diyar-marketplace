@@ -11,5 +11,7 @@ final readonly class ShippingQuote
         public string $shippingCost,
         public bool $freeShippingApplied,
         public ?string $pickupLocationLabel,
+        public ?int $deliveryEstimateDays = null,
+        public ?string $billableWeightKg = null,
     ) {}
 }

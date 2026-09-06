@@ -13,4 +13,13 @@ return [
     'vendor_cover_mimes' => ['image/jpeg', 'image/png', 'image/webp'],
     'vendor_cover_extensions' => ['jpg', 'jpeg', 'png', 'webp'],
     'vendor_directory' => 'vendors',
+    'cms_directories' => [
+        'blog_hero' => 'cms/blog/hero',
+        'blog_avatar' => 'cms/blog/avatar',
+        'project_cover' => 'cms/projects/cover',
+        'project_gallery' => 'cms/projects/gallery',
+        'b2b_logo' => 'cms/b2b/logo',
+        'b2b_portfolio' => 'cms/b2b/portfolio',
+    ],
+    'default_cms_directory' => 'cms/misc',
 ];

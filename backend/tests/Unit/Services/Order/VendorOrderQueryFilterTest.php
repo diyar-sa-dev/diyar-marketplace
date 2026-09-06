@@ -28,6 +28,11 @@ class VendorOrderQueryFilterTest extends TestCase
 
         $filter->applySearchFilter($query, 'مقبول');
 
-        $this->assertStringContainsString('"status" in', strtolower($query->toSql()));
+        $sql = strtolower($query->toSql());
+        $this->assertTrue(
+            str_contains($sql, '`status` in') || str_contains($sql, '"status" in'),
+            $query->toSql(),
+        );
+        $this->assertContains('accepted', $query->getBindings());
     }
 }

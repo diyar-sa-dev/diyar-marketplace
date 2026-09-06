@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { availabilityLabel, formatCompactProductSize, mapProductCard } from './catalogMappers.ts';
+import {
+  availabilityLabel,
+  estimateLoyaltyPoints,
+  formatCompactProductSize,
+  mapProductCard,
+} from './catalogMappers.ts';
 import type { ProductCard } from '../types/catalog.ts';
 
 const baseProduct: ProductCard = {
@@ -30,6 +35,13 @@ describe('mapProductCard', () => {
     expect(mapped.loyaltyPoints).toBe(37);
   });
 
+  it('uses server loyalty estimate when provided', () => {
+    const mapped = mapProductCard({ ...baseProduct, loyalty_points_estimate: 42 });
+
+    expect(mapped.loyaltyPoints).toBe(42);
+    expect(mapped.loyalty_points_estimate).toBe(42);
+  });
+
   it('omits old price when there is no discount', () => {
     const mapped = mapProductCard({
       ...baseProduct,
@@ -38,6 +50,19 @@ describe('mapProductCard', () => {
 
     expect(mapped.oldPrice).toBeUndefined();
     expect(mapped.discountPercent).toBeUndefined();
+  });
+});
+
+describe('estimateLoyaltyPoints', () => {
+  it('awards 1 point per 50 SAR by default', () => {
+    expect(estimateLoyaltyPoints(2499)).toBe(49);
+    expect(estimateLoyaltyPoints(1100)).toBe(22);
+    expect(estimateLoyaltyPoints(3200)).toBe(64);
+  });
+
+  it('respects admin sar per point and points per unit', () => {
+    expect(estimateLoyaltyPoints(100, 50, 2)).toBe(4);
+    expect(estimateLoyaltyPoints(100, 25, 1)).toBe(4);
   });
 });
 

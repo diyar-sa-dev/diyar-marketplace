@@ -24,6 +24,7 @@ class VendorOrder extends Model
         'subtotal',
         'shipping_method',
         'shipping_cost',
+        'shipping_discount_amount',
         'pickup_location_label',
         'free_shipping_applied',
         'assembly_cost',
@@ -33,6 +34,8 @@ class VendorOrder extends Model
         'vendor_coupon_id',
         'coupon_code',
         'coupon_percent_snapshot',
+        'coupon_discount_snapshot',
+        'coupon_type_snapshot',
     ];
 
     protected function casts(): array
@@ -41,6 +44,7 @@ class VendorOrder extends Model
             'status' => VendorOrderStatus::class,
             'subtotal' => 'decimal:2',
             'shipping_cost' => 'decimal:2',
+            'shipping_discount_amount' => 'decimal:2',
             'free_shipping_applied' => 'boolean',
             'assembly_cost' => 'decimal:2',
             'discount_amount' => 'decimal:2',

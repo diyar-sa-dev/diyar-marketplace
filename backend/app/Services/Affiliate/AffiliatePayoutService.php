@@ -105,7 +105,9 @@ final class AffiliatePayoutService
                 break;
             }
 
-            $commissionAmount = number_format((float) $commission->commission_amount, 2, '.', '');
+            $commissionAmount = $this->balances->netAmount(
+                number_format((float) $commission->commission_amount, 2, '.', ''),
+            );
 
             $commission->update([
                 'status' => AffiliateCommissionStatus::Approved,

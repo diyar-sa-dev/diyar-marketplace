@@ -1,0 +1,13 @@
+{
+  "profile": "rps50",
+  "workload": "mixed-storefront",
+  "octane_workers": 4,
+  "timestamp_utc": "2026-08-29T12:54:57.224Z",
+  "rps_target": 50,
+  "rps_actual": 50.001826083242875,
+  "p50_ms": 36.086554,
+  "p95_ms": 442.051266,
+  "error_rate": 0,
+  "thresholds_pass": true,
+  "status": "MEASURED_PASS"
+}

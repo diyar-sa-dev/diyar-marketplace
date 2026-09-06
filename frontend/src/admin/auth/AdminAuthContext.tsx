@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -25,7 +26,7 @@ type AdminAuthContextValue = {
   isLoading: boolean;
   login: (payload: Parameters<typeof adminAuthApi.loginAdmin>[0]) => Promise<AuthUser>;
   logout: () => Promise<AuthActionResult>;
-  refreshSession: () => Promise<AuthUser | null>;
+  refreshSession: (options?: { silent?: boolean }) => Promise<AuthUser | null>;
   setUser: (user: AuthUser, permissions?: string[]) => void;
   hasRole: (role: string) => boolean;
   hasPermission: (permission: string) => boolean;
@@ -39,6 +40,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<AuthUser | null>(null);
   const [permissions, setPermissions] = useState<string[]>([]);
   const [status, setStatus] = useState<AuthState>('loading');
+  const refreshInFlightRef = useRef<Promise<AuthUser | null> | null>(null);
 
   const clearSession = useCallback(() => {
     setUserState(null);
@@ -46,26 +48,47 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     setStatus('unauthenticated');
   }, []);
 
-  const refreshSession = useCallback(async (): Promise<AuthUser | null> => {
-    setStatus('loading');
-
-    try {
-      const session = await adminAuthApi.fetchAdminSession();
-
-      if (session === null) {
-        clearSession();
-        return null;
+  const refreshSession = useCallback(
+    async (options?: { silent?: boolean }): Promise<AuthUser | null> => {
+      if (refreshInFlightRef.current) {
+        return refreshInFlightRef.current;
       }
 
-      setUserState(session.user);
-      setPermissions(session.permissions);
-      setStatus('authenticated');
-      return session.user;
-    } catch {
-      clearSession();
-      return null;
-    }
-  }, [clearSession]);
+      const promise = (async (): Promise<AuthUser | null> => {
+        setStatus((current) => {
+          if (options?.silent || current === 'authenticated') {
+            return current;
+          }
+
+          return 'loading';
+        });
+
+        try {
+          const session = await adminAuthApi.fetchAdminSession();
+
+          if (session === null) {
+            clearSession();
+            return null;
+          }
+
+          setUserState(session.user);
+          setPermissions(session.permissions);
+          setStatus('authenticated');
+          return session.user;
+        } catch {
+          clearSession();
+          return null;
+        } finally {
+          refreshInFlightRef.current = null;
+        }
+      })();
+
+      refreshInFlightRef.current = promise;
+
+      return promise;
+    },
+    [clearSession],
+  );
 
   useEffect(() => {
     if (applicationContext !== 'admin') {

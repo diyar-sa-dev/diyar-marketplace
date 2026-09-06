@@ -1,0 +1,34 @@
+Phase 28.14 — Infrastructure Re-Audit Evidence
+Date: 2026-08-29
+
+=== Phase 28.13 Reverification ===
+Vitest: 126/126 PASS
+Typecheck: PASS
+Frontend build: PASS (prior session)
+HttpCachePolicyTest: 9/9 PASS
+Nginx template: deploy/nginx/production.conf.example (enhanced security blocks)
+
+=== Phase 28.14 Implementation Tests ===
+EnvironmentSafetyValidatorTest: 5/5 PASS (incl. loadtest production/staging guard)
+PhpRuntimeValidatorTest: 2/2 PASS (bcmath verified)
+HttpCachePolicyTest: 9/9 PASS
+
+=== PHPUnit (clean env: DIYAR_LOADTEST_MODE=false) ===
+Full suite: 761/769 PASS, 6 skipped, 2 failed (pre-existing loyalty config tests)
+Infrastructure tests: 16/16 PASS
+RateLimitingTest: 4/4 PASS (with clean env)
+
+=== Artisan ===
+diyar:validate-php-runtime: PASS (bcmath OK, intl/opcache recommended)
+
+=== New Artifacts ===
+- backend/app/Services/Infrastructure/PhpRuntimeValidator.php
+- backend/app/Console/Commands/ValidatePhpRuntimeCommand.php
+- deploy/php/fpm-pool-{small,medium,large}.conf.example
+- deploy/php/opcache-production.ini.example
+- scripts/deploy/deploy-release.sh
+- docker-compose.production-like.yml + backend/Dockerfile.fpm
+- EnvironmentSafetyValidator: DIYAR_LOADTEST_MODE guard
+
+=== Production Guards ===
+DIYAR_LOADTEST_MODE=false enforced in production AND staging via EnvironmentSafetyValidator

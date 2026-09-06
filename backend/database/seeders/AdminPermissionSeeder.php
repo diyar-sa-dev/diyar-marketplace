@@ -6,6 +6,7 @@ use App\Enums\AdminPermission;
 use App\Enums\RoleName;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Services\Admin\AdminPermissionService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -37,5 +38,7 @@ class AdminPermissionSeeder extends Seeder
                 ]);
             }
         }
+
+        app(AdminPermissionService::class)->forgetAll();
     }
 }

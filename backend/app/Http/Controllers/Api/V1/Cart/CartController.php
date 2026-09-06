@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1\Cart;
 
+use App\Enums\AnalyticsEventType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cart\StoreCartItemRequest;
 use App\Http\Requests\Cart\UpdateCartItemRequest;
 use App\Http\Resources\CartResource;
 use App\Models\Cart;
+use App\Models\Product;
+use App\Services\Analytics\AnalyticsEventRecorder;
 use App\Services\Cart\CartMergeService;
 use App\Services\Cart\CartService;
 use App\Services\Cart\CartValidationService;
@@ -20,6 +23,7 @@ class CartController extends Controller
         private readonly CartService $carts,
         private readonly CartMergeService $merge,
         private readonly CartValidationService $validation,
+        private readonly AnalyticsEventRecorder $analyticsEvents,
     ) {}
 
     public function show(Request $request): JsonResponse
@@ -51,6 +55,17 @@ class CartController extends Controller
             (int) $request->validated('quantity'),
             $request->validated('color_name'),
             $request->validated('color_hex'),
+        );
+
+        $product = Product::query()->find($request->validated('product_id'));
+        $this->analyticsEvents->record(
+            AnalyticsEventType::AddToCart,
+            user: $request->user(),
+            sessionId: $request->hasSession() ? (string) $request->session()->getId() : null,
+            subjectType: 'product',
+            subjectId: $product?->id,
+            vendorAccountId: $product?->vendor_account_id,
+            payload: ['quantity' => (int) $request->validated('quantity')],
         );
 
         return ApiResponse::success(data: [
@@ -87,9 +102,12 @@ class CartController extends Controller
     public function merge(Request $request): JsonResponse
     {
         $user = $request->user();
-        $sessionId = (string) $request->session()->getId();
+        $session = $request->session();
+        $guestSessionId = $this->carts->resolveGuestSessionIdForMerge($session);
 
-        $result = $this->merge->mergeGuestIntoUser($user, $sessionId);
+        $result = $this->merge->mergeGuestIntoUser($user, $guestSessionId);
+
+        $session->forget(CartService::GUEST_SESSION_FOR_MERGE_KEY);
 
         return ApiResponse::success(data: [
             'cart' => new CartResource($result['cart']),

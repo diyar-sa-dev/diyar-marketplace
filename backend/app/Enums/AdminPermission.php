@@ -31,6 +31,7 @@ enum AdminPermission: string
     case RefundsView = 'refunds.view';
     case RefundsApprove = 'refunds.approve';
     case ShippingView = 'shipping.view';
+    case ShippingManage = 'shipping.manage';
 
     case CommissionsView = 'commissions.view';
     case BalancesView = 'balances.view';
@@ -47,6 +48,18 @@ enum AdminPermission: string
     case ServiceRequestsView = 'service_requests.view';
     case BookingsView = 'bookings.view';
     case NotificationsView = 'notifications.view';
+    case NotificationsManage = 'notifications.manage';
+
+    case ChatView = 'chat.view';
+    case ChatModerate = 'chat.moderate';
+
+    case SystemHealthView = 'system.health.view';
+    case ExportsCreate = 'exports.create';
+    case ExportsDownload = 'exports.download';
+    case SearchAnalyticsView = 'search.analytics.view';
+    case AnalyticsView = 'analytics.view';
+    case AnalyticsViewFinancial = 'analytics.view_financial';
+    case AnalyticsExport = 'analytics.export';
 
     case AffiliateView = 'affiliate.view';
     case AffiliateManage = 'affiliate.manage';
@@ -54,6 +67,22 @@ enum AdminPermission: string
 
     case SettingsView = 'settings.view';
     case SettingsUpdate = 'settings.update';
+
+    case BlogView = 'blog.view';
+    case BlogManage = 'blog.manage';
+    case ProjectsView = 'projects.view';
+    case ProjectsManage = 'projects.manage';
+
+    case B2bView = 'b2b.view';
+    case B2bManage = 'b2b.manage';
+    case B2bLeadsView = 'b2b.leads.view';
+
+    case LoyaltyView = 'loyalty.view';
+    case LoyaltyManage = 'loyalty.manage';
+    case LoyaltyAdjust = 'loyalty.adjust';
+
+    case FeedbackView = 'feedback.view';
+    case FeedbackManage = 'feedback.manage';
 
     /** @return list<self> */
     public static function all(): array
@@ -68,14 +97,23 @@ enum AdminPermission: string
             self::UsersView, self::UsersUpdate, self::UsersSuspend, self::RolesView, self::RolesManage => 'identity',
             self::VendorsView, self::VendorsSuspend, self::ProvidersView, self::ProvidersSuspend => 'people',
             self::CategoriesView, self::CategoriesManage, self::ProductsView, self::ProductsUpdate, self::InventoryView, self::InventoryAdjust => 'catalog',
-            self::OrdersView, self::OrdersAction, self::PaymentsView, self::RefundsView, self::RefundsApprove, self::ShippingView => 'commerce',
+            self::OrdersView, self::OrdersAction, self::PaymentsView, self::RefundsView, self::RefundsApprove, self::ShippingView, self::ShippingManage => 'commerce',
             self::CommissionsView, self::BalancesView, self::PayoutsView, self::PayoutsApprove, self::PayoutsProcess => 'finance',
             self::CouponsView, self::CouponsManage => 'coupons',
             self::ReviewsView, self::ReviewsModerate => 'reviews',
             self::ServicesView, self::ServiceRequestsView, self::BookingsView => 'services',
-            self::NotificationsView => 'notifications',
+            self::NotificationsView, self::NotificationsManage => 'notifications',
+            self::ChatView, self::ChatModerate => 'chat',
+            self::SystemHealthView => 'system',
+            self::ExportsCreate, self::ExportsDownload => 'exports',
+            self::SearchAnalyticsView, self::AnalyticsView, self::AnalyticsViewFinancial, self::AnalyticsExport => 'analytics',
             self::AffiliateView, self::AffiliateManage, self::AffiliatePayoutsProcess => 'affiliate',
             self::SettingsView, self::SettingsUpdate => 'settings',
+            self::BlogView, self::BlogManage => 'blog',
+            self::ProjectsView, self::ProjectsManage => 'projects',
+            self::B2bView, self::B2bManage, self::B2bLeadsView => 'b2b',
+            self::LoyaltyView, self::LoyaltyManage, self::LoyaltyAdjust => 'loyalty',
+            self::FeedbackView, self::FeedbackManage => 'feedback',
         };
     }
 

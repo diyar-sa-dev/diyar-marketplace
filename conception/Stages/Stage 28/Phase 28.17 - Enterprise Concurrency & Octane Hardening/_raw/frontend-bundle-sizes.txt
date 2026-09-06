@@ -1,0 +1,16 @@
+
+Name                              KB
+----                              --
+vendor-recharts-jux4YUr_.js    376.7
+ar-IGrhcepR.js                 228.4
+vendor-react-Cg3bnyxV.js       189.7
+en-DxsNtIVJ.js                 171.2
+vendor-motion-DYdUSOU1.js      125.7
+index-BunOFu7i.js              114.4
+vendor-sweetalert2-Di9180FS.js  77.4
+vendor-icons-2TtTB0Sy.js        72.1
+vendor-realtime-CMHAp8bs.js       72
+MarketplaceShell-3NTO0Wjz.js    60.4
+
+
+

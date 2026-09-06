@@ -6,12 +6,16 @@ import { useAuthContext } from '../../context/AuthContext.tsx';
 import {
   ADMIN_PANEL_PATH,
   isAdminOnlyAccount,
+  PARTNER_REGISTRATION_ROLE_PARAMS,
+  resolvePartnerB2bDashboardPath,
   resolveSafeReturnPath,
 } from '../../lib/auth/roles.ts';
 
 type GuestRouteProps = {
   children: React.ReactNode;
 };
+
+const PARTNER_REGISTRATION_ROLES = PARTNER_REGISTRATION_ROLE_PARAMS;
 
 export function GuestRoute({ children }: GuestRouteProps) {
   const { status, isAuthenticated, user } = useAuthContext();
@@ -31,6 +35,18 @@ export function GuestRoute({ children }: GuestRouteProps) {
     const authView = (location.state as { authView?: string } | null)?.authView;
     if (authView === 'forgot' || authView === 'reset') {
       return children;
+    }
+
+    const roleParam = new URLSearchParams(location.search).get('role');
+    if (roleParam && PARTNER_REGISTRATION_ROLES.has(roleParam)) {
+      if (isAdminOnlyAccount(user?.roles)) {
+        return <Navigate to={ADMIN_PANEL_PATH} replace />;
+      }
+
+      const partnerB2bPath = resolvePartnerB2bDashboardPath(user?.roles);
+      if (partnerB2bPath) {
+        return <Navigate to={partnerB2bPath} replace />;
+      }
     }
 
     if (isAdminOnlyAccount(user?.roles)) {

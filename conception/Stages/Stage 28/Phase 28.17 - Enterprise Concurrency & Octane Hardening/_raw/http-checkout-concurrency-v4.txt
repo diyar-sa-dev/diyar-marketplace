@@ -1,0 +1,13 @@
+﻿
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+=== HTTP checkout concurrency ===
+base=http://127.0.0.1:8088
+customer=0 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+customer=1 HTTP 422 {"success":false,"message":"\u0633\u0644\u062a\u0643 \u0641\u0627\u0631\u063a\u0629."}
+customer=2 HTTP 500 {
+    "message": "Server Error"
+}
+customer=3 HTTP 422 {"success":false,"message":"\u0644\u0627 \u064a\u0645\u0643\u0646 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0634\u063
+created=0 rejected=4
+protocol_failures=1 business_rejections=3
+RESULT: FAIL

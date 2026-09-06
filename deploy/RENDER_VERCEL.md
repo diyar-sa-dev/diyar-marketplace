@@ -7,12 +7,10 @@ V1 split hosting. Later migrate to Hostinger VPS with Nginx same-origin (`VITE_A
 1. Create **MySQL** and **Redis** on Render (or external providers).
 2. New **Blueprint** from repo `render.yaml`, or manual Web Service:
    - Root: `backend`
-   - Build: `composer install --no-dev --optimize-autoloader && php artisan migrate --force`
-   - Start: `php artisan serve --host=0.0.0.0 --port=$PORT`
-3. Copy env from `backend/.env.production.example` into Render environment.
-4. Set `APP_URL` to your Render API URL (e.g. `https://diyar-api.onrender.com`).
-5. Run once after first deploy: `php artisan migrate --force` (Render shell).
-6. Add **Worker** service: `php artisan queue:work redis --sleep=3 --tries=3`.
+   - Build: `composer install --optimize-autoloader && php artisan migrate --force`
+   - Start: `bash scripts/render-web-start.sh` (Octane when Swoole/FrankenPHP exists; otherwise `artisan serve` with **STAGING ONLY** warning)
+3. **Render Free is not production-grade** — spin-down, 512 MB, no paid workers. Use for demo/staging only.
+4. **Production API** should run on **Hostinger VPS (Nginx + PHP-FPM)** or **paid Render** with always-on workers.
 
 ## 2. Vercel (React SPA)
 

@@ -12,6 +12,7 @@ import {
 import { fetchCatalogSearch } from '../../api/catalogSearch.ts';
 import { fetchServiceCategories, fetchServices } from '../../api/services.ts';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue.ts';
+import { useBodyScrollLock } from '../../hooks/useBodyScrollLock.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { parsePriceDigits } from '../../lib/priceInput.ts';
 import type { CatalogSearchFilters } from '../../types/catalogSearch.ts';
@@ -24,7 +25,7 @@ type FilterTab = 'products' | 'services' | 'ai';
 type ServiceSort = NonNullable<ServiceListFilters['sort']>;
 
 export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const { t, locale } = useLocale();
+  const { t, locale, dir } = useLocale();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<FilterTab>('products');
 
@@ -142,6 +143,8 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       (previewData.products?.pagination.total ?? 0) + (previewData.services?.pagination.total ?? 0)
     );
   }, [activeTab, previewData, searchType, servicePreviewData?.pagination.total]);
+
+  useBodyScrollLock(isOpen);
 
   useEffect(() => {
     if (!isOpen) {
@@ -497,7 +500,13 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   );
 
   return (
-    <div className="fixed inset-0 z-200 flex items-center justify-center p-0 md:p-6" dir="rtl">
+    <div
+      className="fixed inset-0 z-250 flex items-end justify-center p-0 overscroll-none md:items-center md:p-6"
+      dir={dir}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="filter-modal-title"
+    >
       <button
         type="button"
         className="absolute inset-0 bg-diyar-dark/60 backdrop-blur-sm transition-opacity cursor-pointer"
@@ -505,23 +514,26 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         onClick={onClose}
       />
 
-      <div className="bg-white rounded-t-3xl md:rounded-3xl w-full max-w-xl flex flex-col relative z-10 shadow-2xl h-[90vh] md:h-auto md:max-h-[90vh] mt-auto md:mt-0 overflow-hidden transform transition-transform animate-in slide-in-from-bottom-5 duration-300">
-        <div className="flex flex-col border-b border-gray-100 bg-white z-20">
-          <div className="flex justify-between items-center px-6 py-4">
+      <div className="relative z-10 mt-auto flex w-full max-w-xl max-h-[min(calc(100dvh-env(safe-area-inset-bottom,0px)-0.5rem),920px)] flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl animate-in slide-in-from-bottom duration-300 md:mt-0 md:max-h-[min(90dvh,920px)] md:rounded-3xl">
+        <div className="flex shrink-0 flex-col border-b border-gray-100 bg-white">
+          <div className="flex items-center justify-between px-4 py-4 sm:px-6">
             <div className="flex items-center gap-2">
               <SlidersHorizontal className="text-diyar-brown" size={20} />
-              <h2 className="text-xl font-bold text-diyar-dark">{t('catalog.search.filters.title')}</h2>
+              <h2 id="filter-modal-title" className="text-lg font-bold text-diyar-dark sm:text-xl">
+                {t('catalog.search.filters.title')}
+              </h2>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="p-2 text-gray-500 hover:text-diyar-dark hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
+              aria-label={t('catalog.search.filters.close')}
+              className="cursor-pointer rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-diyar-dark"
             >
               <X size={20} />
             </button>
           </div>
 
-          <div className="flex px-4 overflow-x-auto scrollbar-hide gap-1 pb-2">
+          <div className="flex gap-1 overflow-x-auto px-3 pb-2 scrollbar-hide sm:px-4">
             <button
               type="button"
               onClick={() => setActiveTab('products')}
@@ -551,13 +563,13 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           </div>
         </div>
 
-        <div className="p-6 overflow-y-auto flex-1 bg-white">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y bg-white p-4 sm:p-6">
           {activeTab === 'products' && renderProductFilters()}
           {activeTab === 'services' && renderServiceFilters()}
           {activeTab === 'ai' && renderAIFilters()}
         </div>
 
-        <div className="p-5 border-t border-gray-100 flex gap-3 bg-white sticky bottom-0 z-20">
+        <div className="sticky bottom-0 z-20 flex shrink-0 gap-3 border-t border-gray-100 bg-white p-4 pb-safe sm:p-5">
           <button
             type="button"
             onClick={resetFilters}

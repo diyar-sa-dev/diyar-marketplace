@@ -30,8 +30,10 @@ export function NotificationItem({
   deletePending = false,
   showDelete = false,
 }: NotificationItemProps) {
+  const { user } = useAuth();
+  const location = useLocation();
   const visual = notificationVisual(notification.type);
-  const href = resolveNotificationLink(notification);
+  const href = resolveNotificationLink(notification, user?.roles, location.pathname);
   const copy = resolveNotificationCopy(notification, t, locale);
   const iconSize = compact ? 18 : 20;
   const wrapperClass = compact ? 'p-4 gap-3' : 'p-5 md:p-6 gap-4';

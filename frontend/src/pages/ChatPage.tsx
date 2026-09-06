@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Loader2, Paperclip, Search, Send, Trash2 } from 'lucide-react';
+import { Loader2, Paperclip, Search, Send, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useLocale } from '../hooks/useLocale.ts';
 import { useChatRealtime } from '../context/ChatProvider.tsx';
@@ -13,6 +13,7 @@ import {
   useHideConversation,
   useMarkConversationRead,
   useMessagesInfinite,
+  useReportMessage,
   useSendMessage,
   useSendTyping,
   useUpdateMessage,
@@ -22,11 +23,12 @@ import {
   CHAT_ATTACHMENT_ACCEPT,
   validateChatAttachment,
 } from '../lib/chat/attachmentValidation.ts';
-import { getOtherParticipant, getMessagePreviewContent, isConversationInInbox, resolveConversationProfilePath, resolveMessageSenderName } from '../lib/chat/conversationHelpers.ts';
+import { getConversationParticipants, getOtherParticipant, getMessagePreviewContent, groupConversationsByCounterparty, conversationContextLabel, conversationParticipantRoleLabel, conversationParty, isConversationInInbox, mergeConversationRecords, resolveConversationProfilePath, resolveMessageSenderName } from '../lib/chat/conversationHelpers.ts';
 import { confirmRemoveConversation } from '../lib/confirmDialog.ts';
 import { isNearContainerBottom, scrollContainerToBottom } from '../lib/chat/scroll.ts';
 import type { ChatMessage } from '../types/chat.ts';
 import { useToast } from '../hooks/useToast.ts';
+import { randomUUID } from '../lib/randomUUID.ts';
 import { isForbidden, parseApiError } from '../utils/errors.ts';
 import { ChatConnectionStatus } from '../components/chat/ChatConnectionStatus.tsx';
 import { ChatAttachmentDraft } from '../components/chat/ChatAttachmentDraft.tsx';
@@ -34,16 +36,19 @@ import { ChatAvatar } from '../components/chat/ChatAvatar.tsx';
 import { ChatConversationListItem } from '../components/chat/ChatConversationListItem.tsx';
 import { ChatComposerBanner } from '../components/chat/ChatComposerBanner.tsx';
 import { ChatMessageBubble } from '../components/chat/ChatMessageBubble.tsx';
+import { ChatReportMessageDialog } from '../components/chat/ChatReportMessageDialog.tsx';
 import { ChatTypingIndicator } from '../components/chat/ChatTypingIndicator.tsx';
 import {
   ChatSelectConversation,
   ChatSidebarEmpty,
   ChatThreadEmpty,
 } from '../components/chat/ChatEmptyStates.tsx';
+import { MessagingSectionErrorBoundary } from '../components/common/MessagingSectionErrorBoundary.tsx';
 
 const TYPING_DEBOUNCE_MS = 1500;
 const TYPING_STOP_MS = 3000;
 const PRESENCE_HEARTBEAT_MS = 45_000;
+const RECENT_ACTIVITY_MS = 90_000;
 
 type ChatPageProps = {
   embedded?: boolean;
@@ -67,6 +72,7 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [replyToMessage, setReplyToMessage] = useState<ChatMessage | null>(null);
   const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(null);
+  const [reportingMessage, setReportingMessage] = useState<ChatMessage | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const shouldStickToBottomRef = useRef(true);
@@ -176,7 +182,7 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
   const directConversationQuery = useConversation(activeId);
 
   const activeConversation = useMemo(() => {
-    const candidate = conversationFromList ?? directConversationQuery.data ?? null;
+    const candidate = mergeConversationRecords(conversationFromList, directConversationQuery.data ?? null);
     if (!candidate || !isConversationInInbox(candidate, user?.id)) {
       return null;
     }
@@ -190,26 +196,50 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
   const sendMessageMutation = useSendMessage(activeId ?? 'none');
   const updateMessageMutation = useUpdateMessage(activeId ?? 'none');
   const deleteMessageMutation = useDeleteMessage(activeId ?? 'none');
+  const reportMessageMutation = useReportMessage(activeId ?? 'none');
   const hideConversationMutation = useHideConversation();
   const sendTypingMutation = useSendTyping(activeId ?? 'none');
   const { mutate: markConversationRead } = useMarkConversationRead();
-  const { connectionState, subscribeConversation, typingUsers } = useChatRealtime();
+  const { connectionState, subscribeConversation, typingUsers, counterpartyActivityAt } = useChatRealtime();
 
   const filteredConversations = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) {
       return inboxConversations;
     }
-    return inboxConversations.filter((conversation) =>
-      (conversation.display_name ?? conversation.subject ?? '').toLowerCase().includes(q),
-    );
+    return inboxConversations.filter((conversation) => {
+      const haystack = [
+        conversation.display_name,
+        conversation.subject,
+        ...getConversationParticipants(conversation).map((participant) => participant.name),
+      ]
+        .filter((value): value is string => typeof value === 'string' && value.trim() !== '')
+        .join(' ')
+        .toLowerCase();
+
+      return haystack.includes(q);
+    });
   }, [inboxConversations, query]);
-  const activeOtherParticipant = getOtherParticipant(activeConversation, user?.id);
-  const counterpartyProfilePath = useMemo(
-    () => resolveConversationProfilePath(activeConversation),
-    [activeConversation],
+
+  const groupedConversations = useMemo(
+    () => groupConversationsByCounterparty(filteredConversations, user?.id),
+    [filteredConversations, user?.id],
   );
-  const isRealtimeLive = connectionState === 'connected';
+
+  const activeConversationGroup = useMemo(
+    () =>
+      groupedConversations.find((group) =>
+        group.conversations.some((conversation) => conversation.id === activeId),
+      ) ?? null,
+    [activeId, groupedConversations],
+  );
+  const activeOtherParticipant = getOtherParticipant(activeConversation, user?.id);
+  const activeParty = conversationParty(activeConversation, user?.id, t('chat.conversation'));
+  const activePartyRoleLabel = conversationParticipantRoleLabel(activeParty.role, t);
+  const counterpartyProfilePath = useMemo(
+    () => resolveConversationProfilePath(activeConversation, user?.id),
+    [activeConversation, user?.id],
+  );
   const messages = useMemo(
     () => flattenMessages(messagesQuery.data),
     [messagesQuery.data],
@@ -226,7 +256,38 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
   );
   const lastMessageKey = messages.at(-1)?.client_message_id ?? messages.at(-1)?.id ?? null;
   const activeTypers = activeId ? (typingUsers[activeId] ?? []) : [];
+  const activeTyperNames = activeTypers.map((entry) => entry.name);
   const isSomeoneTyping = activeTypers.length > 0;
+  const counterpartyRecentlyActive = useMemo(() => {
+    if (!activeId || !activeOtherParticipant || isSomeoneTyping) {
+      return false;
+    }
+
+    const lastRealtimeAt = counterpartyActivityAt[activeId];
+    if (lastRealtimeAt && Date.now() - lastRealtimeAt < RECENT_ACTIVITY_MS) {
+      return true;
+    }
+
+    const lastMessage = activeConversation?.last_message;
+    if (lastMessage && lastMessage.sender_id === activeOtherParticipant.user_id) {
+      return Date.now() - new Date(lastMessage.created_at).getTime() < RECENT_ACTIVITY_MS;
+    }
+
+    return false;
+  }, [
+    activeId,
+    activeConversation?.last_message,
+    activeOtherParticipant,
+    counterpartyActivityAt,
+    isSomeoneTyping,
+  ]);
+  const showConnectionSubtitle =
+    isSomeoneTyping ||
+    counterpartyRecentlyActive ||
+    connectionState === 'connecting' ||
+    connectionState === 'reconnecting' ||
+    connectionState === 'disconnected' ||
+    connectionState === 'failed';
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -408,10 +469,22 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
     [activeId, canAccessThread, sendTypingMutation],
   );
 
+  const stopTyping = useCallback(() => {
+    window.clearTimeout(typingStopTimeoutRef.current);
+    typingStopTimeoutRef.current = undefined;
+    lastTypingSentRef.current = 0;
+    notifyTyping(false);
+  }, [notifyTyping]);
+
   const handleInputChange = (value: string) => {
     setInput(value);
 
-    if (!activeId || !value.trim()) {
+    if (!activeId) {
+      return;
+    }
+
+    if (!value.trim()) {
+      stopTyping();
       return;
     }
 
@@ -428,6 +501,8 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
   };
 
   const handleSend = async (retryMessage?: ChatMessage) => {
+    stopTyping();
+
     const trimmed = retryMessage?.body?.trim() ?? input.trim();
     const attachment = editingMessage ? undefined : selectedFile ?? undefined;
 
@@ -457,7 +532,7 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
       return;
     }
 
-    const idempotencyKey = retryMessage?.idempotency_key ?? retryMessage?.client_message_id ?? crypto.randomUUID();
+    const idempotencyKey = retryMessage?.idempotency_key ?? retryMessage?.client_message_id ?? randomUUID();
 
     if (!retryMessage) {
       setInput('');
@@ -471,6 +546,8 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
         setUploadProgress(0);
       }
 
+      sendMessageMutation.reset();
+
       await sendMessageMutation.mutateAsync({
         body: trimmed,
         idempotency_key: idempotencyKey,
@@ -478,16 +555,16 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
         attachment,
         onUploadProgress: attachment ? setUploadProgress : undefined,
       });
-      notifyTyping(false);
       shouldStickToBottomRef.current = true;
       scrollToBottom('smooth');
       clearAttachmentDraft();
       clearComposerMode();
-    } catch {
+    } catch (error) {
       if (!retryMessage) {
         setInput(trimmed);
       }
       setUploadProgress(null);
+      toast.error(parseApiError(error, locale).message);
     }
   };
 
@@ -523,6 +600,50 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
       }
     },
     [activeId, canAccessThread, clearComposerMode, deleteMessageMutation, editingMessage?.id, replyToMessage?.id, t, toast],
+  );
+
+  const handleReport = useCallback((message: ChatMessage) => {
+    if (!activeId || !canAccessThread || message.reported_by_me) {
+      return;
+    }
+
+    setReportingMessage(message);
+  }, [activeId, canAccessThread]);
+
+  const handleSubmitReport = useCallback(
+    async (payload: { reason: string; details?: string }) => {
+      if (!activeId || !canAccessThread || !reportingMessage) {
+        return;
+      }
+
+      try {
+        await reportMessageMutation.mutateAsync({
+          messageId: reportingMessage.id,
+          reason: payload.reason,
+          details: payload.details,
+        });
+        setReportingMessage(null);
+        toast.success(t('chat.reportSubmitted'));
+      } catch (error) {
+        const parsed = parseApiError(error, locale);
+        if (parsed.status === 409) {
+          toast.error(parsed.message || t('chat.reportAlreadySubmitted'));
+          setReportingMessage(null);
+          return;
+        }
+
+        toast.error(parsed.message || t('chat.reportFailed'));
+      }
+    },
+    [
+      activeId,
+      canAccessThread,
+      locale,
+      reportMessageMutation,
+      reportingMessage,
+      t,
+      toast,
+    ],
   );
 
   const handleRemoveConversation = useCallback(async () => {
@@ -572,7 +693,7 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
             <h1 className="text-2xl font-bold text-diyar-dark">{t('chat.title')}</h1>
             <p className="text-sm text-gray-500 mt-1">{t('chat.selectConversationHint')}</p>
           </div>
-          <ChatConnectionStatus state={connectionState} />
+          <ChatConnectionStatus state={connectionState} hideWhenConnected />
         </div>
       ) : (
         <div className="mb-3 flex items-center justify-between gap-3">
@@ -581,6 +702,10 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
         </div>
       )}
 
+      <MessagingSectionErrorBoundary
+        fallbackTitle={t('chat.title')}
+        fallbackMessage={t('chat.loadError')}
+      >
       <div
         className={`grid min-h-0 grid-cols-1 md:grid-cols-[minmax(280px,340px)_1fr] bg-white border border-gray-100 rounded-3xl overflow-hidden ${panelHeightClass} shadow-sm ${embedded ? 'flex-1' : ''}`}
       >
@@ -604,23 +729,26 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
               <div className="p-8 flex justify-center">
                 <Loader2 className="animate-spin text-diyar-brown" />
               </div>
-            ) : filteredConversations.length === 0 ? (
+            ) : groupedConversations.length === 0 ? (
               <ChatSidebarEmpty
                 title={t('chat.noConversations')}
                 hint={t('chat.noConversationsHint')}
               />
             ) : (
-              filteredConversations.map((conversation) => (
+              groupedConversations.map((group) => (
                 <ChatConversationListItem
-                  key={conversation.id}
-                  conversation={conversation}
-                  otherParticipant={getOtherParticipant(conversation, user?.id)}
-                  isActive={activeId === conversation.id}
+                  key={group.groupKey}
+                  conversation={group.primary}
+                  relatedConversations={group.conversations.length > 1 ? group.conversations : undefined}
+                  currentUserId={user?.id}
+                  isActive={group.conversations.some((conversation) => conversation.id === activeId)}
                   locale={locale}
                   noMessagesLabel={t('chat.noMessagesYet')}
+                  previewLabels={previewLabels}
                   fallbackTitle={t('chat.conversation')}
+                  t={t}
                   onSelect={() => {
-                    setActiveId(conversation.id);
+                    setActiveId(group.primary.id);
                     setShowThreadOnMobile(true);
                   }}
                 />
@@ -646,26 +774,28 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
               <div className="p-4 border-b border-gray-100 flex items-center gap-3 bg-white/90 backdrop-blur-sm shrink-0">
                 <button
                   type="button"
-                  className="md:hidden text-sm text-diyar-brown font-bold cursor-pointer shrink-0"
+                  className="md:hidden shrink-0 w-9 h-9 rounded-full border border-gray-100 flex items-center justify-center text-diyar-brown hover:bg-gray-50 transition-colors cursor-pointer"
                   onClick={() => setShowThreadOnMobile(false)}
+                  aria-label={t('chat.backToList')}
+                  title={t('chat.backToList')}
                 >
-                  {t('chat.backToList')}
+                  {dir === 'rtl' ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                 </button>
                 {counterpartyProfilePath ? (
                   <Link to={counterpartyProfilePath} className="shrink-0 rounded-full hover:opacity-90 transition-opacity">
                     <ChatAvatar
-                      name={activeOtherParticipant?.name ?? activeConversation.display_name}
-                      avatarUrl={activeOtherParticipant?.avatar_url}
+                      name={activeParty.name}
+                      avatarUrl={activeParty.avatarUrl}
                       size="md"
-                      online={isRealtimeLive}
+                      online={false}
                     />
                   </Link>
                 ) : (
                   <ChatAvatar
-                    name={activeOtherParticipant?.name ?? activeConversation.display_name}
-                    avatarUrl={activeOtherParticipant?.avatar_url}
+                    name={activeParty.name}
+                    avatarUrl={activeParty.avatarUrl}
                     size="md"
-                    online={isRealtimeLive}
+                    online={false}
                   />
                 )}
                 <div className="min-w-0 flex-1">
@@ -674,22 +804,57 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
                       to={counterpartyProfilePath}
                       className="font-bold text-diyar-dark truncate block hover:text-diyar-brown transition-colors"
                     >
-                      {activeConversation.display_name ?? activeConversation.subject}
+                      {activeParty.name}
                     </Link>
                   ) : (
                     <h2 className="font-bold text-diyar-dark truncate">
-                      {activeConversation.display_name ?? activeConversation.subject}
+                      {activeParty.name}
                     </h2>
                   )}
-                  <p className="text-xs text-gray-500 truncate">
-                    {activeTypers.length > 0
-                      ? t('chat.isTyping', { name: activeTypers.join(', ') })
-                      : isRealtimeLive
-                        ? t('chat.connected')
-                        : t('chat.reconnecting')}
-                  </p>
+                  {activePartyRoleLabel ? (
+                    <p className="text-xs text-gray-500 truncate">{activePartyRoleLabel}</p>
+                  ) : null}
+                  {showConnectionSubtitle ? (
+                    <p className="text-xs text-gray-500 truncate">
+                      {isSomeoneTyping
+                        ? t('chat.isTyping', { name: activeTyperNames.join(', ') })
+                        : counterpartyRecentlyActive
+                          ? t('chat.recentlyActive')
+                          : connectionState === 'connecting' || connectionState === 'reconnecting'
+                            ? t('chat.reconnecting')
+                            : t('chat.disconnected')}
+                    </p>
+                  ) : null}
+                  {activeConversationGroup && activeConversationGroup.conversations.length > 1 ? (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {activeConversationGroup.conversations.map((conversation) => {
+                        const label = conversationContextLabel(conversation, t);
+                        if (!label) {
+                          return null;
+                        }
+
+                        const isSelected = conversation.id === activeId;
+
+                        return (
+                          <button
+                            key={conversation.id}
+                            type="button"
+                            onClick={() => setActiveId(conversation.id)}
+                            className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
+                              isSelected
+                                ? 'bg-diyar-brown text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                            aria-label={`${t('chat.switchConversation')}: ${label}`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
                 </div>
-                <ChatConnectionStatus state={connectionState} compact />
+                <ChatConnectionStatus state={connectionState} compact hideWhenConnected />
                 <button
                   type="button"
                   onClick={() => void handleRemoveConversation()}
@@ -732,15 +897,15 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
                   </div>
                 ) : messages.length === 0 ? (
                   <ChatThreadEmpty
-                    name={activeOtherParticipant?.name ?? activeConversation.display_name}
-                    avatarUrl={activeOtherParticipant?.avatar_url}
+                    name={activeParty.name}
+                    avatarUrl={activeParty.avatarUrl}
                     title={t('chat.emptyThreadTitle')}
                     hint={t('chat.emptyThreadHint')}
                   />
                 ) : (
                   messages.map((message) => {
                     const isMine = message.sender_id === user?.id;
-                    const senderParticipant = activeConversation.participants.find(
+                    const senderParticipant = getConversationParticipants(activeConversation).find(
                       (participant) => participant.user_id === message.sender_id,
                     );
                     const repliedMessage = message.reply_to_message_id
@@ -783,10 +948,12 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
                         replyActionLabel={t('chat.reply')}
                         editActionLabel={t('chat.edit')}
                         deleteActionLabel={t('chat.delete')}
+                        reportActionLabel={t('chat.report')}
                         onRetry={() => void handleSend(message)}
                         onReply={() => handleReply(message)}
                         onEdit={() => handleEdit(message)}
                         onDelete={() => void handleDelete(message)}
+                        onReport={() => void handleReport(message)}
                       />
                     );
                   })
@@ -795,8 +962,8 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
                 {isSomeoneTyping ? (
                   <ChatTypingIndicator
                     dir={dir}
-                    name={activeTypers[0] ?? activeOtherParticipant?.name}
-                    avatarUrl={activeOtherParticipant?.avatar_url}
+                    name={activeTyperNames[0] ?? activeParty.name}
+                    avatarUrl={activeParty.avatarUrl}
                   />
                 ) : null}
               </div>
@@ -901,6 +1068,7 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
           )}
         </section>
       </div>
+      </MessagingSectionErrorBoundary>
 
       {!isAuthenticated ? (
         <div className="mt-4 text-center">
@@ -909,6 +1077,14 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
           </Link>
         </div>
       ) : null}
+
+      <ChatReportMessageDialog
+        open={Boolean(reportingMessage)}
+        message={reportingMessage}
+        isSubmitting={reportMessageMutation.isPending}
+        onClose={() => setReportingMessage(null)}
+        onSubmit={(payload) => void handleSubmitReport(payload)}
+      />
     </div>
   );
 }

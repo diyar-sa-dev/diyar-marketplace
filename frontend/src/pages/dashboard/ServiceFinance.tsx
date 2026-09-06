@@ -33,13 +33,15 @@ import type { ProviderFinanceTransaction } from '../../types/providerDashboard.t
 import { useLocale } from '../../hooks/useLocale.ts';
 import { usePaginationState } from '../../hooks/usePaginationState.ts';
 import { useToast } from '../../hooks/useToast.ts';
-import {
-  formatFinanceAnalyticsLabel,
-  formatProviderMoney,
-  formatWesternNumber,
-} from '../../lib/providerDashboardUi.ts';
+import { formatProviderMoney, formatWesternNumber } from '../../lib/providerDashboardUi.ts';
 import { parseApiError } from '../../utils/errors.ts';
+import type { FinancePeriod } from '../../api/vendorFinance.ts';
+import {
+  analyticsAxisTickInterval,
+  formatAnalyticsAxisLabel,
+} from '../../lib/formatAnalyticsAxisLabel.ts';
 
+const PERIOD_OPTIONS: FinancePeriod[] = ['day', 'week', 'month', '3m', '6m', '12m', 'year'];
 const TYPE_FILTERS = ['all', 'revenue', 'commission', 'payout'] as const;
 type TransactionTypeFilter = (typeof TYPE_FILTERS)[number];
 
@@ -81,6 +83,7 @@ export default function ServiceFinance() {
   const { toast } = useToast();
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
   const [payoutAmount, setPayoutAmount] = useState('');
+  const [period, setPeriod] = useState<FinancePeriod>('month');
   const {
     page: transactionPage,
     perPage: transactionPerPage,
@@ -98,18 +101,22 @@ export default function ServiceFinance() {
     isError: summaryError,
     error: summaryErr,
     refetch: refetchSummary,
-  } = useProviderFinanceSummary();
+  } = useProviderFinanceSummary(period);
   const {
-    data: analytics = [],
+    data: analyticsPayload,
     isLoading: analyticsLoading,
     isError: analyticsError,
     refetch: refetchAnalytics,
-  } = useProviderFinanceAnalytics();
+  } = useProviderFinanceAnalytics(period);
+  const analytics = analyticsPayload?.analytics ?? [];
+  const chartGranularity =
+    period === 'week' ? 'weekday' : (analyticsPayload?.period?.granularity ?? 'day');
   const { data: settings } = useProviderSettings();
   const transactionsQuery = useProviderFinanceTransactions(
     transactionPage,
     typeFilter === 'all' ? undefined : typeFilter,
     transactionPerPage,
+    period,
   );
   const requestPayout = useRequestProviderPayout();
   const downloadReport = useDownloadProviderFinanceReport();
@@ -132,10 +139,23 @@ export default function ServiceFinance() {
     () =>
       analytics.map((point) => ({
         ...point,
-        name: formatFinanceAnalyticsLabel(point, locale),
+        name: point.label ?? point.date ?? point.name ?? '',
       })),
-    [analytics, locale],
+    [analytics],
   );
+
+  const periodLabel = (value: FinancePeriod) => {
+    const map: Record<FinancePeriod, string> = {
+      day: t('vendor.finance.periodDay'),
+      week: t('vendor.finance.periodWeek'),
+      month: t('vendor.finance.periodMonth'),
+      '3m': t('vendor.finance.period3m'),
+      '6m': t('vendor.finance.period6m'),
+      '12m': t('vendor.finance.period12m'),
+      year: t('vendor.finance.periodYear'),
+    };
+    return map[value];
+  };
 
   const currency = t('providerDashboard.common.currency');
   const transactions = transactionsQuery.data?.items ?? [];
@@ -173,7 +193,7 @@ export default function ServiceFinance() {
     const Icon = visual.icon;
     return (
       <tr key={tx.id} className="hover:bg-gray-50/50 transition">
-        <td className="px-6 py-4">
+        <td className="px-6 py-4 text-start">
           <div className="flex items-center gap-3">
             <div
               className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${visual.bgClass} ${visual.iconClass}`}
@@ -188,15 +208,18 @@ export default function ServiceFinance() {
             </div>
           </div>
         </td>
-        <td className="px-6 py-4">
-          <span className={`font-bold tabular-nums ${visual.amountClass}`} dir="ltr">
+        <td className="px-6 py-4 text-start">
+          <span
+            className={`font-bold tabular-nums inline-block [unicode-bidi:isolate] ${visual.amountClass}`}
+            dir="ltr"
+          >
             {formatSignedAmount(tx.amount, tx.direction, tx.currency)}
           </span>
         </td>
-        <td className="px-6 py-4 text-gray-500 whitespace-nowrap text-xs">
+        <td className="px-6 py-4 text-start text-gray-500 whitespace-nowrap text-xs">
           {tx.created_at ? formatFinanceDateTime(tx.created_at, locale) : '—'}
         </td>
-        <td className="px-6 py-4">
+        <td className="px-6 py-4 text-start">
           <span
             className={`px-2.5 py-1 text-xs font-bold rounded-lg ${
               tx.status === 'scheduled'
@@ -232,11 +255,11 @@ export default function ServiceFinance() {
 
   const handleExport = async () => {
     try {
-      const blob = await downloadReport.mutateAsync();
+      const blob = await downloadReport.mutateAsync(period);
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `provider-finance-${new Date().toISOString().slice(0, 10)}.csv`;
+      link.download = `provider-finance-${period}.csv`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
@@ -283,17 +306,38 @@ export default function ServiceFinance() {
           <p className="text-gray-500 text-sm mt-1">{t('providerDashboard.finance.subtitle')}</p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => void handleExport()}
-          disabled={downloadReport.isPending}
-          className="border border-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-gray-50 transition shadow-sm bg-white cursor-pointer disabled:opacity-60"
-        >
-          <Download size={18} />
-          {downloadReport.isPending
-            ? t('providerDashboard.finance.exporting')
-            : t('providerDashboard.finance.export')}
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex bg-white border border-gray-200 rounded-xl p-1 shadow-sm overflow-x-auto scrollbar-hide">
+            {PERIOD_OPTIONS.map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => {
+                  setPeriod(option);
+                  resetTransactionPage();
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition cursor-pointer whitespace-nowrap ${
+                  period === option
+                    ? 'bg-gray-100 text-diyar-dark font-bold'
+                    : 'text-gray-500 hover:text-diyar-dark'
+                }`}
+              >
+                {periodLabel(option)}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => void handleExport()}
+            disabled={downloadReport.isPending}
+            className="border border-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-gray-50 transition shadow-sm bg-white cursor-pointer disabled:opacity-60"
+          >
+            <Download size={18} />
+            {downloadReport.isPending
+              ? t('providerDashboard.finance.exporting')
+              : t('providerDashboard.finance.export')}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -392,7 +436,11 @@ export default function ServiceFinance() {
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
+                  interval={analyticsAxisTickInterval(chartData.length)}
                   tick={{ fill: '#9ca3af', fontSize: 12 }}
+                  tickFormatter={(value: string) =>
+                    formatAnalyticsAxisLabel(value, locale, chartGranularity)
+                  }
                 />
                 <YAxis
                   axisLine={false}

@@ -15,6 +15,10 @@ export default defineConfig({
   expect: { timeout: 15_000 },
   use: {
     baseURL,
+    extraHTTPHeaders: {
+      Origin: baseURL,
+      Referer: `${baseURL}/`,
+    },
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

@@ -19,6 +19,19 @@ php -r "
 \$env = preg_replace('/^CACHE_STORE=.*/m', 'CACHE_STORE=redis', \$env);
 \$env = preg_replace('/^QUEUE_CONNECTION=.*/m', 'QUEUE_CONNECTION=sync', \$env);
 \$env = preg_replace('/^DIYAR_PAYMENT_USE_FAKE_GATEWAY=.*/m', 'DIYAR_PAYMENT_USE_FAKE_GATEWAY=true', \$env);
+if (!preg_match('/^DIYAR_LOADTEST_MODE=/m', \$env)) {
+  \$env .= \"\\nDIYAR_LOADTEST_MODE=true\\n\";
+} else {
+  \$env = preg_replace('/^DIYAR_LOADTEST_MODE=.*/m', 'DIYAR_LOADTEST_MODE=true', \$env);
+}
+\$env = preg_replace('/^FRONTEND_URL=.*/m', 'FRONTEND_URL=http://127.0.0.1:3000', \$env);
+\$env = preg_replace('/^DIYAR_FRONTEND_URL=.*/m', 'DIYAR_FRONTEND_URL=http://127.0.0.1:3000', \$env);
+if (!preg_match('/^FRONTEND_URL=/m', \$env)) {
+  \$env .= \"\\nFRONTEND_URL=http://127.0.0.1:3000\\n\";
+}
+if (!preg_match('/^DIYAR_FRONTEND_URL=/m', \$env)) {
+  \$env .= \"\\nDIYAR_FRONTEND_URL=http://127.0.0.1:3000\\n\";
+}
 file_put_contents('.env', \$env);
 "
 
@@ -35,9 +48,10 @@ export SESSION_DRIVER=database
 export DIYAR_PAYMENT_USE_FAKE_GATEWAY=true
 export DIYAR_MAIL_ENABLED=false
 export FRONTEND_URL=http://127.0.0.1:3000
-export SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000
+export SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000,127.0.0.1:8000,localhost:8000
 export REDIS_HOST="${REDIS_HOST:-127.0.0.1}"
 export REDIS_PORT="${REDIS_PORT:-6379}"
+export DIYAR_LOADTEST_MODE=true
 
 php artisan migrate:fresh --seed --force --no-interaction
 

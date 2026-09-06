@@ -5,7 +5,9 @@ namespace Tests\Feature\Api\V1\ServiceMarketplace;
 use App\Enums\RoleName;
 use App\Enums\ServiceBookingStatus;
 use App\Enums\ServiceRequestStatus;
+use App\Events\Domain\ServiceOfferAccepted;
 use App\Models\ServiceCategory;
+use App\Models\ServiceOffer;
 use App\Models\ServiceRequest;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
@@ -106,6 +108,30 @@ class ServiceRfqWorkflowTest extends TestCase
 
         $accept->assertJsonPath('data.offer.status', 'accepted')
             ->assertJsonPath('data.offer.booking.status', ServiceBookingStatus::PendingProviderConfirmation->value);
+
+        $bookingId = $accept->json('data.offer.booking.id');
+        $bookingReference = $accept->json('data.offer.booking.reference');
+
+        Sanctum::actingAs($providerUser);
+        $this->getJson('/api/v1/dashboard/provider/service-requests?status=open')
+            ->assertOk()
+            ->assertJsonPath('data.pagination.total', 0);
+
+        $this->getJson('/api/v1/dashboard/provider/service-requests?status=submitted')
+            ->assertOk()
+            ->assertJsonPath('data.pagination.total', 1)
+            ->assertJsonPath('data.items.0.id', $requestId)
+            ->assertJsonPath('data.items.0.status', ServiceRequestStatus::OfferAccepted->value)
+            ->assertJsonPath('data.items.0.booking.id', $bookingId);
+
+        $acceptedOffer = ServiceOffer::query()->with(['providerAccount.user', 'serviceRequest', 'booking'])->findOrFail($offerId);
+        $intent = (new ServiceOfferAccepted($acceptedOffer))->toNotificationIntent();
+
+        $this->assertStringContainsString('/dashboard/service/bookings', (string) ($intent->payload['action_url'] ?? ''));
+        $this->assertStringContainsString((string) $bookingId, (string) ($intent->payload['action_url'] ?? ''));
+        $this->assertSame($bookingReference, $intent->payload['booking_reference'] ?? null);
+        $this->assertSame('service_booking', $intent->entityType);
+        $this->assertSame($bookingId, $intent->entityId);
     }
 
     #[Test]
@@ -271,11 +297,11 @@ class ServiceRfqWorkflowTest extends TestCase
     {
         $customer = $this->createUserWithRole(RoleName::Customer);
         $maintenanceProvider = User::query()->where('email', 'enjaz@diyar.local')->firstOrFail();
-        $category = ServiceCategory::query()->where('slug', 'interior-design')->firstOrFail();
+        $category = ServiceCategory::query()->where('slug', 'other')->firstOrFail();
 
         Sanctum::actingAs($customer);
         $requestId = $this->postJson('/api/v1/service-requests', [
-            'description' => 'طلب تصميم داخلي لغرفة معيشة.',
+            'description' => 'طلب خدمة عامة خارج تخصصات مقدم الخدمة.',
             'category_ids' => [$category->id],
         ])->json('data.service_request.id');
 

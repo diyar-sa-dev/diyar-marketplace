@@ -15,4 +15,14 @@ final class PaymentGatewayException extends RuntimeException
     {
         return new self($message);
     }
+
+    public static function rateLimited(string $message): self
+    {
+        return new self($message);
+    }
+
+    public static function timeout(string $message): self
+    {
+        return new self($message);
+    }
 }

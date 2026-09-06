@@ -1,0 +1,7 @@
+{
+  "timestamp_utc": "2026-08-27T08:49:49.956Z",
+  "files_scanned": 305,
+  "potential_hardcoded_count": 0,
+  "sample": [],
+  "note": "Heuristic only — t() usage excluded from scan; manual review required"
+}

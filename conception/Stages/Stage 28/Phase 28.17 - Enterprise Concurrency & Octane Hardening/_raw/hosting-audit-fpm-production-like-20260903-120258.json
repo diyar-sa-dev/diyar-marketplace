@@ -1,0 +1,667 @@
+{
+    "profile": "fpm-production-like",
+    "base": "http://127.0.0.1:8080",
+    "timestamp": "2026-09-03T12:00:15+00:00",
+    "environment_note": "Local Windows Docker \u2014 NOT Hostinger VPS. Used to measure relative stack footprint and scaling behavior.",
+    "hostinger_plans": {
+        "kvm2": {
+            "vcpu": 2,
+            "ram_gib": 8,
+            "nvme_gib": 100
+        },
+        "kvm4": {
+            "vcpu": 4,
+            "ram_gib": 16,
+            "nvme_gib": 200
+        }
+    },
+    "idle_stats": {
+        "diyar-fpm-nginx-1": {
+            "cpu_percent": 0,
+            "mem_used_mib": 4.7,
+            "mem_percent": 0.04,
+            "raw_mem": "4.672MiB / 11.68GiB"
+        },
+        "diyar-fpm-app-1": {
+            "cpu_percent": 0,
+            "mem_used_mib": 44.9,
+            "mem_percent": 0.37,
+            "raw_mem": "44.85MiB / 11.68GiB"
+        },
+        "diyar-fpm-mysql-1": {
+            "cpu_percent": 0.46,
+            "mem_used_mib": 454.6,
+            "mem_percent": 3.8,
+            "raw_mem": "454.6MiB / 11.68GiB"
+        },
+        "diyar-fpm-redis-1": {
+            "cpu_percent": 0.3,
+            "mem_used_mib": 4,
+            "mem_percent": 0.03,
+            "raw_mem": "4.016MiB / 11.68GiB"
+        }
+    },
+    "idle_mysql": {
+        "Max_used_connections": "2",
+        "Questions": "2363",
+        "Slow_queries": "0",
+        "Threads_connected": "1",
+        "Uptime": "7270",
+        "max_connections": "151"
+    },
+    "idle_redis": {
+        "used_memory_human": "1.21M",
+        "used_memory_rss_human": "8.62M",
+        "maxmemory_human": "256.00M",
+        "mem_fragmentation_ratio": "7.34",
+        "ping": "PONG"
+    },
+    "workloads": [
+        {
+            "endpoint": "/api/v1/health",
+            "concurrency": 50,
+            "duration_sec": 10,
+            "http": {
+                "completed": 11650,
+                "rps": 1165,
+                "errors": 11650,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats_before": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 0.47,
+                    "mem_used_mib": 458.3,
+                    "mem_percent": 3.83,
+                    "raw_mem": "458.3MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 0.33,
+                    "mem_used_mib": 4.1,
+                    "mem_percent": 0.03,
+                    "raw_mem": "4.078MiB / 11.68GiB"
+                }
+            },
+            "stats_after": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 3.51,
+                    "mem_used_mib": 458.5,
+                    "mem_percent": 3.83,
+                    "raw_mem": "458.5MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 2.09,
+                    "mem_used_mib": 3.8,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.82MiB / 11.68GiB"
+                }
+            },
+            "mysql": {
+                "Max_used_connections": "2",
+                "Questions": "2369",
+                "Slow_queries": "0",
+                "Threads_connected": "1",
+                "Uptime": "7286",
+                "max_connections": "151"
+            },
+            "redis": {
+                "used_memory_human": "1.23M",
+                "used_memory_rss_human": "8.62M",
+                "maxmemory_human": "256.00M",
+                "mem_fragmentation_ratio": "7.20",
+                "ping": "PONG"
+            }
+        },
+        {
+            "endpoint": "/api/v1/categories",
+            "concurrency": 10,
+            "duration_sec": 10,
+            "http": {
+                "completed": 5860,
+                "rps": 586,
+                "errors": 5860,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats_before": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 0.45,
+                    "mem_used_mib": 462.1,
+                    "mem_percent": 3.86,
+                    "raw_mem": "462.1MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 2.22,
+                    "mem_used_mib": 4.2,
+                    "mem_percent": 0.03,
+                    "raw_mem": "4.18MiB / 11.68GiB"
+                }
+            },
+            "stats_after": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 0.46,
+                    "mem_used_mib": 462.2,
+                    "mem_percent": 3.86,
+                    "raw_mem": "462.2MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 0.3,
+                    "mem_used_mib": 3.8,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.812MiB / 11.68GiB"
+                }
+            },
+            "mysql": {
+                "Max_used_connections": "2",
+                "Questions": "2374",
+                "Slow_queries": "0",
+                "Threads_connected": "1",
+                "Uptime": "7303",
+                "max_connections": "151"
+            },
+            "redis": {
+                "used_memory_human": "1.23M",
+                "used_memory_rss_human": "8.62M",
+                "maxmemory_human": "256.00M",
+                "mem_fragmentation_ratio": "7.20",
+                "ping": "PONG"
+            }
+        },
+        {
+            "endpoint": "/api/v1/catalog/search?q=bed&type=products",
+            "concurrency": 25,
+            "duration_sec": 15,
+            "http": {
+                "completed": 10650,
+                "rps": 710,
+                "errors": 10650,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats_before": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 0.48,
+                    "mem_used_mib": 462.2,
+                    "mem_percent": 3.86,
+                    "raw_mem": "462.2MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 2.07,
+                    "mem_used_mib": 3.9,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.867MiB / 11.68GiB"
+                }
+            },
+            "stats_after": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 0.47,
+                    "mem_used_mib": 462.4,
+                    "mem_percent": 3.87,
+                    "raw_mem": "462.4MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 0.31,
+                    "mem_used_mib": 3.9,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.879MiB / 11.68GiB"
+                }
+            },
+            "mysql": {
+                "Max_used_connections": "2",
+                "Questions": "2380",
+                "Slow_queries": "0",
+                "Threads_connected": "1",
+                "Uptime": "7322",
+                "max_connections": "151"
+            },
+            "redis": {
+                "used_memory_human": "1.23M",
+                "used_memory_rss_human": "8.62M",
+                "maxmemory_human": "256.00M",
+                "mem_fragmentation_ratio": "7.20",
+                "ping": "PONG"
+            }
+        },
+        {
+            "endpoint": "/api/v1/products?per_page=12",
+            "concurrency": 15,
+            "duration_sec": 10,
+            "http": {
+                "completed": 7110,
+                "rps": 711,
+                "errors": 7110,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats_before": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 0.47,
+                    "mem_used_mib": 462.5,
+                    "mem_percent": 3.87,
+                    "raw_mem": "462.5MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 0.31,
+                    "mem_used_mib": 4,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.957MiB / 11.68GiB"
+                }
+            },
+            "stats_after": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 0.49,
+                    "mem_used_mib": 462.4,
+                    "mem_percent": 3.87,
+                    "raw_mem": "462.4MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 0.32,
+                    "mem_used_mib": 4,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.953MiB / 11.68GiB"
+                }
+            },
+            "mysql": {
+                "Max_used_connections": "2",
+                "Questions": "2386",
+                "Slow_queries": "0",
+                "Threads_connected": "1",
+                "Uptime": "7337",
+                "max_connections": "151"
+            },
+            "redis": {
+                "used_memory_human": "1.23M",
+                "used_memory_rss_human": "8.62M",
+                "maxmemory_human": "256.00M",
+                "mem_fragmentation_ratio": "7.20",
+                "ping": "PONG"
+            }
+        }
+    ],
+    "saturation_sweep": [
+        {
+            "concurrency": 5,
+            "http": {
+                "completed": 7155,
+                "rps": 715.5,
+                "errors": 7155,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 0.41,
+                    "mem_used_mib": 462.4,
+                    "mem_percent": 3.87,
+                    "raw_mem": "462.4MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 0.31,
+                    "mem_used_mib": 3.9,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.859MiB / 11.68GiB"
+                }
+            },
+            "total_cpu_percent": 0.72,
+            "total_mem_mib": 515.9
+        },
+        {
+            "concurrency": 10,
+            "http": {
+                "completed": 6670,
+                "rps": 667,
+                "errors": 6670,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 3.4,
+                    "mem_used_mib": 462.4,
+                    "mem_percent": 3.87,
+                    "raw_mem": "462.4MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 2.04,
+                    "mem_used_mib": 3.9,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.898MiB / 11.68GiB"
+                }
+            },
+            "total_cpu_percent": 5.4399999999999995,
+            "total_mem_mib": 515.9
+        },
+        {
+            "concurrency": 25,
+            "http": {
+                "completed": 6900,
+                "rps": 690,
+                "errors": 6900,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 0.47,
+                    "mem_used_mib": 462.7,
+                    "mem_percent": 3.87,
+                    "raw_mem": "462.7MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 2.25,
+                    "mem_used_mib": 4,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.961MiB / 11.68GiB"
+                }
+            },
+            "total_cpu_percent": 2.7199999999999998,
+            "total_mem_mib": 516.3
+        },
+        {
+            "concurrency": 50,
+            "http": {
+                "completed": 7000,
+                "rps": 700,
+                "errors": 7000,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 0.48,
+                    "mem_used_mib": 462.3,
+                    "mem_percent": 3.86,
+                    "raw_mem": "462.3MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 0.29,
+                    "mem_used_mib": 3.9,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.883MiB / 11.68GiB"
+                }
+            },
+            "total_cpu_percent": 0.77,
+            "total_mem_mib": 515.8000000000001
+        },
+        {
+            "concurrency": 75,
+            "http": {
+                "completed": 150,
+                "rps": 15,
+                "errors": 150,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 0.46,
+                    "mem_used_mib": 462.1,
+                    "mem_percent": 3.86,
+                    "raw_mem": "462.1MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 0.31,
+                    "mem_used_mib": 3.5,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.516MiB / 11.68GiB"
+                }
+            },
+            "total_cpu_percent": 0.77,
+            "total_mem_mib": 515.2
+        },
+        {
+            "concurrency": 100,
+            "http": {
+                "completed": 200,
+                "rps": 20,
+                "errors": 200,
+                "status5xx": 0,
+                "p50_ms": 0,
+                "p95_ms": 0,
+                "p99_ms": 0,
+                "max_ms": 0,
+                "avg_ms": 0,
+                "success_samples": 0
+            },
+            "stats": {
+                "diyar-fpm-nginx-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 4.7,
+                    "mem_percent": 0.04,
+                    "raw_mem": "4.672MiB / 11.68GiB"
+                },
+                "diyar-fpm-app-1": {
+                    "cpu_percent": 0,
+                    "mem_used_mib": 44.9,
+                    "mem_percent": 0.37,
+                    "raw_mem": "44.85MiB / 11.68GiB"
+                },
+                "diyar-fpm-mysql-1": {
+                    "cpu_percent": 0.44,
+                    "mem_used_mib": 462.2,
+                    "mem_percent": 3.86,
+                    "raw_mem": "462.2MiB / 11.68GiB"
+                },
+                "diyar-fpm-redis-1": {
+                    "cpu_percent": 2.13,
+                    "mem_used_mib": 3.9,
+                    "mem_percent": 0.03,
+                    "raw_mem": "3.949MiB / 11.68GiB"
+                }
+            },
+            "total_cpu_percent": 2.57,
+            "total_mem_mib": 515.7
+        }
+    ],
+    "plan_fit": {
+        "peak_measured_stack_mem_mib": 516.3,
+        "peak_measured_stack_cpu_percent": 5.4,
+        "os_overhead_assumption_mib": 1024,
+        "kvm2_usable_ram_mib": 7168,
+        "kvm4_usable_ram_mib": 15360,
+        "kvm2_mem_headroom_mib": 6651.7,
+        "kvm4_mem_headroom_mib": 14843.7,
+        "note_cpu": "Docker CPU% is relative to host logical CPUs, not VPS vCPU. Compare saturation sweep trends, not absolute %."
+    }
+}

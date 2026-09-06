@@ -59,7 +59,7 @@ type OrderDetail = {
 
 export default function AdminOrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
-  const { t, locale } = useLocale();
+  const { t, locale, dir } = useLocale();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('summary');
@@ -212,18 +212,20 @@ export default function AdminOrderDetailPage() {
                   </p>
                   <AdminStatusBadge status={vendorOrder.status} />
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm">
+                <div className="overflow-x-auto" dir={dir}>
+                  <table className="min-w-full text-sm" dir={dir}>
                     <thead>
-                      <tr className="text-start text-gray-500">
-                        <th className="px-2 py-2 font-semibold">
+                      <tr className="text-gray-500">
+                        <th className="px-2 py-2 text-start font-semibold">
                           {t('admin.detail.order.product')}
                         </th>
-                        <th className="px-2 py-2 font-semibold">{t('admin.detail.order.qty')}</th>
-                        <th className="px-2 py-2 font-semibold">
+                        <th className="px-2 py-2 text-start font-semibold">
+                          {t('admin.detail.order.qty')}
+                        </th>
+                        <th className="px-2 py-2 text-start font-semibold">
                           {t('admin.detail.order.unitPrice')}
                         </th>
-                        <th className="px-2 py-2 font-semibold">
+                        <th className="px-2 py-2 text-start font-semibold">
                           {t('admin.detail.order.lineTotal')}
                         </th>
                       </tr>
@@ -231,10 +233,10 @@ export default function AdminOrderDetailPage() {
                     <tbody>
                       {(vendorOrder.items ?? []).map((item) => (
                         <tr key={item.id} className="border-t border-gray-50">
-                          <td className="px-2 py-2">{item.product_name ?? '—'}</td>
-                          <td className="px-2 py-2">{item.quantity}</td>
-                          <td className="px-2 py-2">{item.unit_price}</td>
-                          <td className="px-2 py-2 font-semibold">{item.line_total}</td>
+                          <td className="px-2 py-2 text-start">{item.product_name ?? '—'}</td>
+                          <td className="px-2 py-2 text-start">{item.quantity}</td>
+                          <td className="px-2 py-2 text-start">{item.unit_price}</td>
+                          <td className="px-2 py-2 text-start font-semibold">{item.line_total}</td>
                         </tr>
                       ))}
                     </tbody>

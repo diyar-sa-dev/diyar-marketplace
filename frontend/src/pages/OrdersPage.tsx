@@ -6,8 +6,9 @@ import { useOrders } from '../hooks/checkout/useCheckout.ts';
 import { useOrderPayment } from '../hooks/payment/usePayment.ts';
 import { fetchPaymentCallback } from '../api/payment.ts';
 import { useLocale } from '../hooks/useLocale.ts';
-import { usePaginationState } from '../hooks/usePaginationState.ts';
+import { useAuthContext } from '../context/AuthContext.tsx';
 import { useToast } from '../hooks/useToast.ts';
+import { usePaginationState } from '../hooks/usePaginationState.ts';
 import {
   paymentOutcomeToHighlightTone,
   showPaymentOutcomeAlert,
@@ -39,9 +40,10 @@ import { StoreReviewPrompt } from '../components/orders/StoreReviewPrompt.tsx';
 import { useOrderStoreReviewEligibility } from '../hooks/storeReview/useStoreReviews.ts';
 import { customerReturnKeys, useCustomerReturns } from '../hooks/returns/useCustomerReturns.ts';
 import { CustomerServiceBookingsPanel } from '../components/customer/CustomerServiceBookingsPanel.tsx';
+import { CustomerB2bLeadsPanel } from '../components/customer/CustomerB2bLeadsPanel.tsx';
 import type { StoreReviewEligibilityItem } from '../api/storeReviews.ts';
 
-type OrdersHubTab = 'orders' | 'bookings' | 'returns';
+type OrdersHubTab = 'orders' | 'bookings' | 'returns' | 'b2b';
 
 function OrderStatusBadge({ status, label }: { status: string; label: string }) {
   const badgeKey = orderStatusBadgeKey(status);
@@ -406,6 +408,7 @@ function OrderCard({
 export default function OrdersPage() {
   const { t, locale, dir } = useLocale();
   const { toast } = useToast();
+  const { refreshUser } = useAuthContext();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -448,6 +451,14 @@ export default function OrdersPage() {
       window.setTimeout(() => setHighlightTone(null), 5000);
     });
   };
+
+  useEffect(() => {
+    if (!paymentCallback) {
+      return;
+    }
+
+    void refreshUser();
+  }, [paymentCallback, refreshUser]);
 
   useEffect(() => {
     if (!paymentCallback || !highlightId || callbackHandledRef.current) {
@@ -547,14 +558,18 @@ export default function OrdersPage() {
       ? t('orders.tabs.bookings')
       : activeTab === 'returns'
         ? t('orders.tabs.returns')
-        : t('orders.title');
+        : activeTab === 'b2b'
+          ? t('orders.tabs.b2b')
+          : t('orders.title');
 
   const hubSubtitle =
     activeTab === 'bookings'
       ? t('orders.tabsSubtitle.bookings')
       : activeTab === 'returns'
         ? t('orders.tabsSubtitle.returns')
-        : t('orders.subtitle');
+        : activeTab === 'b2b'
+          ? t('orders.tabsSubtitle.b2b')
+          : t('orders.subtitle');
 
   useEffect(() => {
     if (!highlightId || highlightRef.current === highlightId) {
@@ -563,19 +578,18 @@ export default function OrdersPage() {
 
     highlightRef.current = highlightId;
     const timer = window.setTimeout(() => {
-      document
-        .getElementById(`order-${highlightId}`)
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const targetId = activeTab === 'b2b' ? `b2b-lead-${highlightId}` : `order-${highlightId}`;
+      document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 300);
 
     return () => window.clearTimeout(timer);
-  }, [highlightId, data]);
+  }, [highlightId, data, activeTab]);
 
-  if (isLoading) {
+  if (activeTab === 'orders' && isLoading) {
     return <LoadingState message={t('orders.loading')} />;
   }
 
-  if (isError) {
+  if (activeTab === 'orders' && isError) {
     return <ErrorState error={error} title={t('orders.error')} />;
   }
 
@@ -586,7 +600,7 @@ export default function OrdersPage() {
           <h1 className="text-2xl md:text-3xl font-bold mb-2">{hubTitle}</h1>
           <p className="text-diyar-cream/80 text-sm mb-6">{hubSubtitle}</p>
           <div className="flex flex-wrap gap-2">
-            {(['orders', 'bookings', 'returns'] as OrdersHubTab[]).map((tab) => (
+            {(['orders', 'bookings', 'returns', 'b2b'] as OrdersHubTab[]).map((tab) => (
               <button
                 key={tab}
                 type="button"
@@ -606,6 +620,8 @@ export default function OrdersPage() {
 
       <div className="max-w-4xl mx-auto px-4 space-y-8">
         {activeTab === 'bookings' && <CustomerServiceBookingsPanel embedded />}
+
+        {activeTab === 'b2b' && <CustomerB2bLeadsPanel highlightId={highlightId} />}
 
         {activeTab === 'orders' && (
           <>

@@ -1,0 +1,56 @@
+{
+    "timestamp_utc": "2026-08-27T12:15:00+00:00",
+    "summary": {
+        "raw_sql_hotspots": 25,
+        "paginate_call_sites": 60,
+        "eager_load_patterns": "ProductService.cardQuery, OrderController.index, ConversationService.listForUser",
+        "n1_tests": [
+            "CatalogQueryPerformanceTest",
+            "CheckoutShippingQueryCountTest",
+            "OrderListQueryCountTest",
+            "NotificationDeliveryStateMachineTest",
+            "VendorAnalyticsTest"
+        ],
+        "sargability_risks": [
+            "AdminAnalyticsService DATE_FORMAT/TIMESTAMPDIFF",
+            "ProductService orderByRaw discount sort"
+        ],
+        "unbounded_get_risk": "NONE confirmed in list controllers"
+    },
+    "high_traffic_queries": [
+        {
+            "id": "QRY-CAT-001",
+            "path": "GET /api/v1/products",
+            "service": "ProductService::listPublic",
+            "pagination": "offset",
+            "index": "products_status_created_at_index",
+            "status": "OPTIMIZED"
+        },
+        {
+            "id": "QRY-CAT-002",
+            "path": "GET /api/v1/products?category_id",
+            "index": "products_category_status_created_at_index",
+            "status": "OPTIMIZED"
+        },
+        {
+            "id": "QRY-ORD-001",
+            "path": "GET /api/v1/orders",
+            "index": "orders_user_created_at_index",
+            "eager_load": "vendorOrders, payment",
+            "status": "OPTIMIZED"
+        },
+        {
+            "id": "QRY-ADM-001",
+            "path": "GET /api/v1/admin/orders",
+            "index": "orders_created_at_index, orders_status_created_at_index",
+            "status": "OPTIMIZED"
+        },
+        {
+            "id": "QRY-CHT-001",
+            "path": "GET /api/v1/conversations/{id}/messages",
+            "pagination": "cursor",
+            "index": "messages_conversation_id_created_at_id_index",
+            "status": "PASS"
+        }
+    ]
+}

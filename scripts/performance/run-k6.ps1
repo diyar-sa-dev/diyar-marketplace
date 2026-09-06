@@ -1,6 +1,6 @@
 param(
-    [ValidateSet('baseline', '100', '500', '1000', '5000', '10000', '25000')]
-    [string]$Profile = 'baseline'
+    [ValidateSet('baseline', '100', '500', '1000', '5000', '10000', '25000', 'rps10', 'rps25', 'rps50', 'rps75', 'rps100', 'rps150', 'rps200', 'rps278', 'soak15', 'spike')]
+    [string]$Profile = 'rps10'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -30,5 +30,5 @@ if (-not $ready) {
 }
 
 docker compose -f $composeFile --profile k6 run --rm `
-    -e "PROFILE=$Profile" `
+    -e "RPS_PROFILE=$Profile" `
     k6

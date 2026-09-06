@@ -1,0 +1,554 @@
+{
+  "timestamp_utc": "2026-08-27T08:49:49.838Z",
+  "total_route_definitions": 101,
+  "unique_paths": 98,
+  "by_domain": {
+    "public_catalog": 8,
+    "other": 40,
+    "auth": 3,
+    "services": 16,
+    "b2b": 5,
+    "checkout": 5,
+    "user": 16,
+    "cms": 5,
+    "dashboard": 1,
+    "admin": 2
+  },
+  "routes": [
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/",
+      "domain": "public_catalog"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/team-invite",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/auth",
+      "domain": "auth"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/account/pending",
+      "domain": "auth"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/account/suspended",
+      "domain": "auth"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/category/:id",
+      "domain": "public_catalog"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/store/:id",
+      "domain": "public_catalog"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/provider/:id",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/b2b",
+      "domain": "b2b"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/b2b/:id",
+      "domain": "b2b"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/ai-designer",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/chat",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/services",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/service/:id",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/product/:id",
+      "domain": "public_catalog"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/checkout",
+      "domain": "checkout"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/checkout/payment/:orderId/simulate",
+      "domain": "checkout"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/checkout/payment/:orderId",
+      "domain": "checkout"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/orders",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/loyalty",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/search",
+      "domain": "public_catalog"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/blog/tag/:tagSlug",
+      "domain": "cms"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/blog/:slug",
+      "domain": "cms"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/blog",
+      "domain": "cms"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/profile",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/profile/service-bookings",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/profile/service-requests",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/profile/security/reset-password",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/profile/security",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/profile/personal-info",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/profile/addresses",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/profile/reviews",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/profile/reviews/:type/:id",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/profile/notifications",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/profile/notification-settings",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/profile/language",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/wishlist",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/403",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "/dashboard/*",
+      "domain": "dashboard"
+    },
+    {
+      "file": "marketplace/StorefrontRoutes.tsx",
+      "path": "*",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/orders",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/preorders",
+      "domain": "user"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/returns",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/products",
+      "domain": "public_catalog"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/coupons",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/reviews",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/messages",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/team",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/finance",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/analytics",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/settings",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/b2b",
+      "domain": "b2b"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "vendor/notifications",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "service",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "service/client-requests",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "service/client-requests/:id",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "service/bookings",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "service/services",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "service/finance",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "service/analytics",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "service/reviews",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "service/messages",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "service/settings",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "service/b2b",
+      "domain": "b2b"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "service/notifications",
+      "domain": "services"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "affiliate",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "affiliate/products",
+      "domain": "public_catalog"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "affiliate/links",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "affiliate/reports",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "affiliate/payouts",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "affiliate/settings",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "affiliate/notifications",
+      "domain": "other"
+    },
+    {
+      "file": "marketplace/DashboardRoutes.tsx",
+      "path": "*",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "/admin/login",
+      "domain": "admin"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "/admin",
+      "domain": "admin"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "users",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "users/:userId",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "vendors",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "vendors/:vendorId",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "providers",
+      "domain": "services"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "providers/:providerId",
+      "domain": "services"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "affiliate",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "categories",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "payments",
+      "domain": "checkout"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "payments/:paymentId",
+      "domain": "checkout"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "shipping",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "blog/articles",
+      "domain": "cms"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "projects",
+      "domain": "cms"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "b2b/companies",
+      "domain": "b2b"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "finance",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "payouts",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "transactions",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "audit",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "chat",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "analytics",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "analytics/funnel",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "analytics/cohorts",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "analytics/search",
+      "domain": "public_catalog"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "settings",
+      "domain": "other"
+    },
+    {
+      "file": "admin/AdminShell.tsx",
+      "path": "*",
+      "domain": "other"
+    }
+  ],
+  "guard_usage": [
+    {
+      "guard": "ProtectedRoute",
+      "count": 84
+    },
+    {
+      "guard": "CustomerProfileRoute",
+      "count": 26
+    },
+    {
+      "guard": "GuestRoute",
+      "count": 8
+    },
+    {
+      "guard": "ProtectedAdminRoute",
+      "count": 4
+    },
+    {
+      "guard": "AdminGuestRoute",
+      "count": 4
+    },
+    {
+      "guard": "MarketplaceCommerceRoute",
+      "count": 8
+    },
+    {
+      "guard": "AccountStatusRoute",
+      "count": 6
+    }
+  ]
+}

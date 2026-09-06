@@ -10,7 +10,7 @@ use App\Services\Checkout\AssemblyCalculator;
 use App\Services\Checkout\StubAssemblyCalculator;
 use App\Services\Identity\SecureOtpCodeGenerator;
 use App\Services\Infrastructure\EnvironmentSafetyValidator;
-use App\Services\Payments\Gateways\LocalPaymentGateway;
+use App\Services\Payments\Gateways\FakePaymentGateway;
 use App\Services\Payments\Gateways\MyFatoorah\MyFatoorahGateway;
 use App\Services\Payments\PaymentGatewayManager;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(MyFatoorahGateway::class);
         $this->app->singleton(PaymentGatewayInterface::class, function ($app) {
             if (config('diyar.payments.use_fake_gateway')) {
-                return new LocalPaymentGateway;
+                return $app->make(FakePaymentGateway::class);
             }
 
             return $app->make(MyFatoorahGateway::class);
@@ -53,6 +53,18 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Password::defaults(fn () => Password::min(8)->letters()->numbers());
+
+        if (app()->environment('production') && config('diyar.payments.use_fake_gateway')) {
+            throw new \RuntimeException(
+                'DIYAR_PAYMENT_USE_FAKE_GATEWAY cannot be enabled in production.'
+            );
+        }
+
+        if (app()->environment('production') && config('diyar.assistant.use_fake')) {
+            throw new \RuntimeException(
+                'DIYAR_ASSISTANT_USE_FAKE cannot be enabled in production.'
+            );
+        }
 
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute((int) env('API_RATE_LIMIT_PER_MINUTE', 60))
@@ -90,8 +102,20 @@ class AppServiceProvider extends ServiceProvider
                 ->by($phone.'|'.$request->ip());
         });
 
+        RateLimiter::for('analytics-export', function (Request $request) {
+            return Limit::perMinute(10)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
         RateLimiter::for('wishlist-toggle', function (Request $request) {
             $limit = (int) config('diyar.rate_limits.wishlist_toggle_per_minute', 60);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('b2b-leads', function (Request $request) {
+            $limit = (int) config('diyar.rate_limits.b2b_leads_per_minute', 5);
 
             return Limit::perMinute($limit)
                 ->by($request->user()?->id ?: $request->ip());
@@ -104,6 +128,11 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('notification-preferences', function (Request $request) {
             return Limit::perMinute(30)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('admin-broadcasts', function (Request $request) {
+            return Limit::perHour(10)
                 ->by($request->user()?->id ?: $request->ip());
         });
 
@@ -156,7 +185,14 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->user()?->id ?: $request->ip());
         });
 
-        if (config('diyar.loadtest.enabled')) {
+        RateLimiter::for('assistant-chat', function (Request $request) {
+            $limit = (int) config('diyar.rate_limits.assistant_chat_per_minute', 30);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        if (config('diyar.loadtest.enabled') && ! $this->app->runningUnitTests()) {
             $this->configureLoadTestRateLimits();
         }
 
@@ -174,10 +210,10 @@ class AppServiceProvider extends ServiceProvider
     {
         DevCommands::except('vite');
 
-        DevCommands::artisan('reverb:start', 'reverb');
+        DevCommands::artisan('reverb:start --host=127.0.0.1 --port=8090', 'reverb');
 
         DevCommands::artisan(
-            'queue:listen --queue=notifications-high,notifications,notifications-low,chat-low,default --tries=1 --timeout=0',
+            'queue:listen --queue=critical,notifications-high,notifications,notifications-low,broadcast,chat,chat-low,default --tries=5 --timeout=120',
             'queue',
         );
 
@@ -186,8 +222,11 @@ class AppServiceProvider extends ServiceProvider
         if (extension_loaded('swoole') && class_exists(Octane::class)) {
             DevCommands::artisan(
                 'octane:start --server=swoole --host=127.0.0.1 --port=8000 --workers=4 --max-requests=500',
-                'octane',
+                'server',
             );
+        } else {
+            // Octane package registers `octane:start --watch` as `server`; override when Swoole is unavailable (Windows).
+            DevCommands::artisan('serve --host=127.0.0.1 --port=8000', 'server');
         }
     }
 
@@ -203,8 +242,10 @@ class AppServiceProvider extends ServiceProvider
             'auth',
             'otp',
             'wishlist-toggle',
+            'b2b-leads',
             'notification-devices',
             'notification-preferences',
+            'admin-broadcasts',
             'chat-messages',
             'chat-conversations',
             'chat-typing',
@@ -230,6 +271,9 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $argv = $_SERVER['argv'] ?? [];
             if (in_array('package:discover', $argv, true)) {
+                return false;
+            }
+            if (in_array('diyar:validate-environment', $argv, true)) {
                 return false;
             }
         }

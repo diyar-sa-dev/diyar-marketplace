@@ -48,8 +48,30 @@ export type AdminAffiliatePayout = {
   } | null;
 };
 
-export type AdminPayoutKind = 'vendor' | 'affiliate';
+export type AdminProviderPayout = {
+  id: string;
+  reference: string;
+  amount: string;
+  currency: string;
+  status: string;
+  requested_at?: string | null;
+  processed_at?: string | null;
+  rejection_reason?: string | null;
+  provider?: {
+    id: string;
+    business_name: string;
+    slug: string;
+    owner?: AdminPayoutOwner | null;
+    bank_account?: {
+      beneficiary_name: string;
+      bank_code?: string | null;
+      iban_last4?: string | null;
+    } | null;
+  } | null;
+};
 
-export type AdminPayoutRow = AdminVendorPayout | AdminAffiliatePayout;
+export type AdminPayoutKind = 'vendor' | 'provider' | 'affiliate';
+
+export type AdminPayoutRow = AdminVendorPayout | AdminProviderPayout | AdminAffiliatePayout;
 
 export type PayoutAction = 'approve' | 'reject' | 'mark-paid' | 'mark-processing';

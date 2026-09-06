@@ -16,6 +16,7 @@ use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
+use RuntimeException;
 
 class ProviderSettingsController extends Controller
 {
@@ -102,6 +103,8 @@ class ProviderSettingsController extends Controller
             $payload = $this->settings->uploadAvatar($request->user(), $request->file('avatar'));
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
+        } catch (RuntimeException $exception) {
+            return ApiResponse::error($exception->getMessage(), 503);
         }
 
         return ApiResponse::success(

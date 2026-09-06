@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { DeferredPrototypeBanner } from '../components/deferred/DeferredPrototypeBanner.tsx';
+import React, { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   MapPin,
@@ -9,6 +8,7 @@ import {
   Mail,
   Globe,
   ArrowRight,
+  ArrowLeft,
   CheckCircle2,
   MessageSquare,
   Briefcase,
@@ -20,251 +20,221 @@ import {
   Factory,
   Clock,
   Quote,
+  ZoomIn,
 } from 'lucide-react';
+import { ErrorState } from '../components/common/ErrorState.tsx';
+import { ImageGalleryLightbox } from '../components/common/ImageGalleryLightbox.tsx';
+import { B2bCompanyPageSkeleton } from '../components/b2b/B2bCompanyPageSkeleton.tsx';
+import { AuthPromptModal } from '../components/product/AuthPromptModal.tsx';
+import { useAuth } from '../hooks/auth/useAuth.ts';
+import { useLocale } from '../hooks/useLocale.ts';
+import { useB2bCompany } from '../hooks/b2b/useB2bCompany.ts';
+import { usePartnerB2bCompany } from '../hooks/b2b/usePartnerB2bCompany.ts';
+import { useSubmitB2bLead } from '../hooks/b2b/useSubmitB2bLead.ts';
+import { useToast } from '../hooks/useToast.ts';
+import { resolvePartnerB2bDashboardPath, resolvePartnerB2bPortal } from '../lib/auth/roles.ts';
+import { isNotFoundError, parseApiError } from '../utils/errors.ts';
+import type { B2bLeadBudgetRange } from '../types/b2b.ts';
 
 const FALLBACK_IMG =
   'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800';
 
-const SERVICES_BY_TYPE: Record<string, string[]> = {
-  'تصنيع أثاث': [
-    'تفصيل أثاث حسب الطلب',
-    'تأثيث الفنادق والمنتجعات',
-    'بيع بالجملة للمعارض',
-    'صيانة وتجديد الأثاث',
-  ],
-  'تصميم داخلي': [
-    'تصميم المساحات السكنية والتجارية',
-    'تصميم المكاتب والمعارض',
-    'مخططات ثلاثية الأبعاد',
-    'الإشراف على التنفيذ',
-  ],
-  'توريد مواد خام': [
-    'توريد بالجملة للمصانع',
-    'عقود توريد طويلة الأمد',
-    'شحن وتوصيل للمشاريع',
-    'عيّنات مجانية للعملاء',
-  ],
-};
-
-const PORTFOLIO_POOL = [
-  'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=600',
-  'https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&q=80&w=600',
-  'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=600',
-  'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=600',
-  'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=600',
-  'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&q=80&w=600',
-];
-
-const COMPANIES = [
-  {
-    id: '1',
-    name: 'مصنع الأخشاب الحديثة',
-    slug: 'modernwood',
-    type: 'تصنيع أثاث',
-    rating: 4.8,
-    reviews: 124,
-    location: 'الرياض، الصناعية الثانية',
-    cover:
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1600',
-    desc: 'متخصصون في تصنيع الكنب والمجالس العربية بأعلى معايير الجودة للشركات والفنادق والمشاريع الكبرى. نعتمد على أحدث التقنيات وأفضل أنواع الأخشاب والإسفنج لضمان المتانة والراحة.',
-    tags: ['كنب', 'مجالس', 'جملة', 'تأثيث فنادق', 'طاولات خشبية'],
-    stats: { years: 12, employees: '50-100', projects: 300 },
-  },
-  {
-    id: '2',
-    name: 'مؤسسة رواد الديكور',
-    slug: 'rowad-decor',
-    type: 'تصميم داخلي',
-    rating: 4.9,
-    reviews: 86,
-    location: 'جدة، شارع التحلية',
-    cover:
-      'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&q=80&w=1600',
-    desc: 'نقدم خدمات التصميم الداخلي المبتكر للمكاتب والمطاعم والمعارض التجارية، مع فريق من المصممين المعتمدين وحلول تنفيذ متكاملة من الفكرة حتى التسليم.',
-    tags: ['تصميم مكاتب', 'مطاعم', 'تنفيذ ديكور', 'مخططات'],
-    stats: { years: 9, employees: '20-50', projects: 180 },
-  },
-  {
-    id: '3',
-    name: 'الشركة العالمية للأقمشة',
-    slug: 'global-fabrics',
-    type: 'توريد مواد خام',
-    rating: 4.7,
-    reviews: 210,
-    location: 'الدمام، الخالدية',
-    cover:
-      'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=1600',
-    desc: 'موردون معتمدون لأرقى أنواع الأقمشة والإسفنج لمصانع الأثاث في المملكة، مع مخزون دائم وأسعار جملة تنافسية وشبكة توزيع تغطي جميع المناطق.',
-    tags: ['أقمشة', 'إسفنج', 'موردين جملة', 'استيراد'],
-    stats: { years: 18, employees: '100-200', projects: 500 },
-  },
-  {
-    id: '4',
-    name: 'مصنع الصلب للأثاث المكتبي',
-    slug: 'steel-office',
-    type: 'تصنيع أثاث',
-    rating: 4.6,
-    reviews: 156,
-    location: 'الرياض، السلي',
-    cover:
-      'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1600',
-    desc: 'تصنيع الأثاث المكتبي المتين والعصري من مكاتب ودواليب وكراسي مريحة للشركات والمؤسسات، بخطوط إنتاج حديثة وضمان يصل إلى خمس سنوات.',
-    tags: ['أثاث مكتبي', 'كراسي', 'دواليب', 'تجهيز شركات'],
-    stats: { years: 15, employees: '50-100', projects: 260 },
-  },
-  {
-    id: '5',
-    name: 'استوديو فينيق للتصميم',
-    slug: 'phoenix-studio',
-    type: 'تصميم داخلي',
-    rating: 5.0,
-    reviews: 64,
-    location: 'الرياض، حي حطين',
-    cover:
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=1600',
-    desc: 'تصميم وتنفيذ المساحات التجارية والفندقية بلمسة عصرية فاخرة، مع مخططات ثلاثية الأبعاد دقيقة وإشراف هندسي كامل على مراحل التنفيذ.',
-    tags: ['فنادق', 'معارض', 'مخططات 3D', 'فخامة'],
-    stats: { years: 7, employees: '10-20', projects: 95 },
-  },
-  {
-    id: '6',
-    name: 'مصنع النخبة للمجالس',
-    slug: 'elite-majlis',
-    type: 'تصنيع أثاث',
-    rating: 4.8,
-    reviews: 98,
-    location: 'القصيم، بريدة',
-    cover:
-      'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&q=80&w=1600',
-    desc: 'تفصيل المجالس العربية الفاخرة حسب الطلب للقطاع الفندقي والمشاريع الكبرى، بخبرة عريقة في النقش اليدوي والأقمشة الفاخرة.',
-    tags: ['مجالس', 'تفصيل خاص', 'فنادق', 'نقش يدوي'],
-    stats: { years: 20, employees: '50-100', projects: 410 },
-  },
-  {
-    id: '7',
-    name: 'مؤسسة الرواد لتوريد الأخشاب',
-    slug: 'rowad-wood',
-    type: 'توريد مواد خام',
-    rating: 4.5,
-    reviews: 142,
-    location: 'جدة، الصناعية',
-    cover:
-      'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&q=80&w=1600',
-    desc: 'توريد الأخشاب الطبيعية والصناعية وألواح MDF والقشرة الخشبية بأسعار الجملة، مع خدمة قص وتجهيز حسب مقاسات العميل.',
-    tags: ['أخشاب', 'MDF', 'قشرة خشبية', 'جملة'],
-    stats: { years: 14, employees: '20-50', projects: 320 },
-  },
-  {
-    id: '8',
-    name: 'شركة لمسة للإضاءة والديكور',
-    slug: 'lamsa-lighting',
-    type: 'توريد مواد خام',
-    rating: 4.7,
-    reviews: 73,
-    location: 'الرياض، العليا',
-    cover:
-      'https://images.unsplash.com/photo-1531973576160-7125cd663d86?auto=format&fit=crop&q=80&w=1600',
-    desc: 'حلول الإضاءة الفاخرة وإكسسوارات الديكور المعدنية والرخامية للمشاريع التجارية والسكنية، بتشكيلات حصرية مستوردة.',
-    tags: ['إضاءة', 'إكسسوارات', 'مشاريع', 'استيراد'],
-    stats: { years: 8, employees: '10-20', projects: 130 },
-  },
-  {
-    id: '9',
-    name: 'مصنع المثالية للأثاث المكتبي',
-    slug: 'almithalia',
-    type: 'تصنيع أثاث',
-    rating: 4.6,
-    reviews: 119,
-    location: 'الدمام، الصناعية الأولى',
-    cover:
-      'https://images.unsplash.com/photo-1581539250439-c96689b516dd?auto=format&fit=crop&q=80&w=1600',
-    desc: 'أثاث مكتبي ومقاعد إرغونومية متينة لتجهيز الشركات والمؤسسات الحكومية، بمعايير جودة عالمية وخدمة ما بعد البيع.',
-    tags: ['مكاتب', 'كراسي إرغونومية', 'تجهيز شركات', 'حكومي'],
-    stats: { years: 11, employees: '50-100', projects: 240 },
-  },
-];
-
-const MOCK_REVIEWS = [
-  {
-    name: 'شركة الواحة للضيافة',
-    role: 'عميل أعمال',
-    rating: 5,
-    text: 'تعاملنا معهم في تجهيز فرعين كاملين، الالتزام بالمواعيد والجودة كان ممتازاً. شراكة ناجحة بكل المقاييس.',
-  },
-  {
-    name: 'مجموعة الأفق العقارية',
-    role: 'مقاول',
-    rating: 5,
-    text: 'أسعار الجملة تنافسية والتعامل احترافي. وفّروا علينا الكثير من الوقت في توريد المشاريع.',
-  },
-  {
-    name: 'مكتب إبداع للاستشارات',
-    role: 'مصمم',
-    rating: 4,
-    text: 'جودة التنفيذ مطابقة للمخططات تماماً، وفريق متعاون في التعديلات. أنصح بالتعامل معهم.',
-  },
-];
-
 export default function B2BCompanyPage() {
-  const { id } = useParams();
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
-  const [quoteSent, setQuoteSent] = useState(false);
+  const { id: slug } = useParams<{ id: string }>();
+  const { t, dir } = useLocale();
+  const { isAuthenticated, user } = useAuth();
+  const partnerPortal = resolvePartnerB2bPortal(user?.roles);
+  const { data: ownCompany } = usePartnerB2bCompany(partnerPortal, {
+    enabled: isAuthenticated && partnerPortal !== null,
+  });
+  const { toast } = useToast();
+  const { data, isPending, isError, error, refetch } = useB2bCompany(slug);
+  const submitLead = useSubmitB2bLead(slug ?? '');
 
-  const company = COMPANIES.find((c) => c.id === id) || COMPANIES[0];
-  const logo = `https://ui-avatars.com/api/?name=${encodeURIComponent(company.name)}&background=F3ECDB&color=947961&size=200&bold=true`;
-  const services = SERVICES_BY_TYPE[company.type] || SERVICES_BY_TYPE['تصنيع أثاث'];
-  const idx = COMPANIES.findIndex((c) => c.id === company.id);
-  const portfolio = [...PORTFOLIO_POOL.slice(idx % 3), ...PORTFOLIO_POOL.slice(0, idx % 3)];
-  const contact = {
-    phone: '+966 50 123 4567',
-    email: `info@${company.slug}.sa`,
-    website: `www.${company.slug}.sa`,
-  };
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [quoteSent, setQuoteSent] = useState(false);
+  const [projectType, setProjectType] = useState('');
+  const [estimatedQuantity, setEstimatedQuantity] = useState('');
+  const [details, setDetails] = useState('');
+  const [budgetRange, setBudgetRange] = useState<B2bLeadBudgetRange | ''>('');
+  const [portfolioPreviewOpen, setPortfolioPreviewOpen] = useState(false);
+  const [portfolioActiveIndex, setPortfolioActiveIndex] = useState(0);
+  const [brokenPortfolioIds, setBrokenPortfolioIds] = useState<Set<string>>(new Set());
+  const BackIcon = dir === 'rtl' ? ArrowRight : ArrowLeft;
+
+  const budgetOptions = useMemo(
+    (): Array<{ value: B2bLeadBudgetRange | ''; label: string }> => [
+      { value: '', label: t('b2b.company.budgetUnspecified') },
+      { value: 'under_10k', label: t('b2b.company.budgetUnder10k') },
+      { value: '10k_50k', label: t('b2b.company.budget10k50k') },
+      { value: '50k_200k', label: t('b2b.company.budget50k200k') },
+      { value: 'over_200k', label: t('b2b.company.budgetOver200k') },
+    ],
+    [t],
+  );
+
+  const company = data?.company;
 
   const onImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     (e.target as HTMLImageElement).src = FALLBACK_IMG;
   };
 
-  const handleQuoteSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setQuoteSent(true);
-    setTimeout(() => {
-      setIsQuoteModalOpen(false);
-      setQuoteSent(false);
-    }, 3000);
+  const openQuoteModal = () => {
+    if (!isAuthenticated) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    setIsQuoteModalOpen(true);
   };
 
+  const handleQuoteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!slug) return;
+
+    const trimmedDetails = details.trim();
+    if (trimmedDetails.length < 10) {
+      toast.error(t('b2b.company.detailsTooShort'));
+      return;
+    }
+
+    if (!projectType.trim()) {
+      toast.error(t('b2b.company.projectTypeRequired'));
+      return;
+    }
+
+    try {
+      await submitLead.mutateAsync({
+        project_type: projectType.trim(),
+        estimated_quantity: estimatedQuantity || undefined,
+        details: trimmedDetails,
+        budget_range: budgetRange || 'unspecified',
+      });
+      setQuoteSent(true);
+      setProjectType('');
+      setEstimatedQuantity('');
+      setDetails('');
+      setBudgetRange('');
+      setTimeout(() => {
+        setIsQuoteModalOpen(false);
+        setQuoteSent(false);
+      }, 3000);
+    } catch (err) {
+      toast.error(parseApiError(err).message ?? t('b2b.company.submitError'));
+    }
+  };
+
+  if (isPending) {
+    return <B2bCompanyPageSkeleton dir={dir} />;
+  }
+
+  if (isError || !company) {
+    const notFound = isError && isNotFoundError(error);
+
+    return (
+      <div className="min-h-screen bg-gray-50 pb-20 px-4" dir={dir}>
+        <div className="max-w-3xl mx-auto pt-20">
+          {notFound ? (
+            <div className="flex flex-col items-center text-center gap-5 p-8 md:p-10">
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-diyar-cream/40 text-diyar-brown flex items-center justify-center">
+                <Building2 size={34} />
+              </div>
+              <div className="max-w-md space-y-2">
+                <h2 className="text-lg md:text-xl font-bold text-diyar-dark">
+                  {t('b2b.company.notFoundTitle')}
+                </h2>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  {t('b2b.company.notFoundDescription')}
+                </p>
+                <p className="text-sm text-gray-400 leading-relaxed">
+                  {t('b2b.company.notPublishedHint')}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <ErrorState
+              error={error}
+              onRetry={() => refetch()}
+              title={t('b2b.company.loadErrorTitle')}
+            />
+          )}
+          <div className="text-center mt-6">
+            <Link to="/b2b" className="text-diyar-brown font-bold hover:underline cursor-pointer">
+              {t('b2b.company.backToDirectory')}
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const logo =
+    company.logo ??
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(company.name)}&background=F3ECDB&color=947961&size=200&bold=true`;
+
   const stats = [
-    { icon: CalendarClock, label: 'سنوات الخبرة', value: `+${company.stats.years}` },
-    { icon: Briefcase, label: 'مشروع منجز', value: `+${company.stats.projects}` },
-    { icon: Users, label: 'حجم الفريق', value: company.stats.employees },
+    {
+      icon: CalendarClock,
+      label: t('b2b.company.yearsExperience'),
+      value: company.stats.years_experience ? `+${company.stats.years_experience}` : '—',
+    },
+    {
+      icon: Briefcase,
+      label: t('b2b.company.completedProjects'),
+      value: `+${company.stats.completed_projects}`,
+    },
+    {
+      icon: Users,
+      label: t('b2b.company.teamSize'),
+      value: company.stats.team_size_label ?? (company.stats.team_size ? String(company.stats.team_size) : '—'),
+    },
   ];
 
+  const isOwnCompany = Boolean(company && ownCompany?.slug === company.slug);
+  const manageOwnProfilePath = resolvePartnerB2bDashboardPath(user?.roles);
+
+  const portfolioItems = (() => {
+    const gallery = company.portfolio_gallery?.filter((item) => item.url?.trim()) ?? [];
+    if (gallery.length > 0) {
+      return gallery.map((item) => ({ id: item.id, url: item.url }));
+    }
+
+    return (company.portfolio ?? []).flatMap((project, index) => {
+      const url = project.cover_image?.trim();
+      return url ? [{ id: project.id ?? `legacy-${index}`, url }] : [];
+    });
+  })();
+
+  const visiblePortfolio = portfolioItems.filter((item) => !brokenPortfolioIds.has(item.id));
+  const showPortfolio = visiblePortfolio.length > 0;
+
+  const contact = {
+    phone: company.phone ?? '',
+    email: company.email ?? '',
+    website: company.website ?? '',
+    businessHours: company.business_hours ?? '',
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-20" dir="rtl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <DeferredPrototypeBanner scopeId="b2bDirectory" />
-      </div>
-      {/* Cover */}
+    <div className="min-h-screen bg-gray-50 pb-20" dir={dir}>
       <div className="h-56 md:h-72 w-full relative overflow-hidden bg-diyar-dark">
         <img
-          src={company.cover}
+          src={company.cover_image ?? FALLBACK_IMG}
           alt={company.name}
           referrerPolicy="no-referrer"
           className="w-full h-full object-cover"
           onError={onImgError}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-diyar-dark/90 via-diyar-dark/40 to-diyar-dark/30"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-diyar-dark/90 via-diyar-dark/40 to-diyar-dark/30" />
         <Link
           to="/b2b"
-          className="absolute top-6 right-6 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white hover:text-diyar-dark transition z-10"
+          className={`absolute top-6 ${dir === 'rtl' ? 'right-6' : 'left-6'} w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white hover:text-diyar-dark transition z-10 cursor-pointer`}
         >
-          <ArrowRight size={20} />
+          <BackIcon size={20} />
         </Link>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative -mt-20 z-10">
-        {/* Header card */}
         <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
           <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
             <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white shadow-md border border-gray-100 overflow-hidden shrink-0 -mt-16 md:-mt-20 relative z-20">
@@ -272,60 +242,86 @@ export default function B2BCompanyPage() {
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-diyar-brown bg-diyar-cream/50 px-2.5 py-1 rounded-md">
-                  <Building2 size={13} /> {company.type}
-                </span>
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-md">
-                  <BadgeCheck size={13} /> موثّقة
-                </span>
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                {company.category?.name ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-diyar-brown bg-diyar-cream/50 px-2.5 py-1 rounded-md">
+                    <Building2 size={13} /> {company.category.name}
+                  </span>
+                ) : null}
+                {company.verified ? (
+                  <span className="inline-flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-md">
+                    <BadgeCheck size={13} /> {t('b2b.company.verified')}
+                  </span>
+                ) : null}
               </div>
               <h1 className="text-2xl md:text-3xl font-bold text-diyar-dark mb-2 leading-snug">
                 {company.name}
               </h1>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-gray-500">
-                <span className="flex items-center gap-1.5">
-                  <MapPin size={15} className="text-diyar-brown" /> {company.location}
-                </span>
+                {company.location ? (
+                  <span className="flex items-center gap-1.5">
+                    <MapPin size={15} className="text-diyar-brown" /> {company.location}
+                  </span>
+                ) : null}
                 <span className="flex items-center gap-1.5">
                   <Star size={15} className="fill-amber-400 text-amber-400" />
-                  <span className="font-bold text-diyar-dark">{company.rating}</span>
-                  <span className="text-gray-400">({company.reviews} تقييم)</span>
+                  <span className="font-bold text-diyar-dark">{company.rating.toFixed(1)}</span>
+                  <span className="text-gray-400">
+                    ({t('b2b.company.reviews', { count: company.reviews_count })})
+                  </span>
                 </span>
               </div>
             </div>
 
             <div className="w-full md:w-auto flex flex-col gap-3 shrink-0">
-              <button
-                onClick={() => setIsQuoteModalOpen(true)}
-                className="w-full md:w-auto bg-diyar-brown text-white px-8 py-3 rounded-xl font-bold hover:bg-diyar-dark transition-colors shadow-lg shadow-diyar-brown/20 flex items-center justify-center gap-2"
-              >
-                <MessageSquare size={18} /> طلب عرض سعر
-              </button>
+              {isOwnCompany && manageOwnProfilePath ? (
+                <Link
+                  to={manageOwnProfilePath}
+                  className="w-full md:w-auto bg-diyar-cream text-diyar-dark px-8 py-3 rounded-xl font-bold hover:bg-white transition-colors shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Building2 size={18} /> {t('b2b.company.manageOwnProfile')}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={openQuoteModal}
+                  data-testid="b2b-rfq-open"
+                  className="w-full md:w-auto bg-diyar-brown text-white px-8 py-3 rounded-xl font-bold hover:bg-diyar-dark transition-colors shadow-lg shadow-diyar-brown/20 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <MessageSquare size={18} /> {t('b2b.company.requestQuote')}
+                </button>
+              )}
               <div className="flex justify-center gap-2">
-                <a
-                  href={`tel:${contact.phone}`}
-                  className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-600 hover:text-white hover:bg-diyar-brown transition"
-                >
-                  <Phone size={18} />
-                </a>
-                <a
-                  href={`mailto:${contact.email}`}
-                  className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-600 hover:text-white hover:bg-diyar-brown transition"
-                >
-                  <Mail size={18} />
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-600 hover:text-white hover:bg-diyar-brown transition"
-                >
-                  <Globe size={18} />
-                </a>
+                {contact.phone ? (
+                  <a
+                    href={`tel:${contact.phone}`}
+                    className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-600 hover:text-white hover:bg-diyar-brown transition cursor-pointer"
+                  >
+                    <Phone size={18} />
+                  </a>
+                ) : null}
+                {contact.email ? (
+                  <a
+                    href={`mailto:${contact.email}`}
+                    className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-600 hover:text-white hover:bg-diyar-brown transition cursor-pointer"
+                  >
+                    <Mail size={18} />
+                  </a>
+                ) : null}
+                {contact.website ? (
+                  <a
+                    href={contact.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-600 hover:text-white hover:bg-diyar-brown transition cursor-pointer"
+                  >
+                    <Globe size={18} />
+                  </a>
+                ) : null}
               </div>
             </div>
           </div>
 
-          {/* Stats strip */}
           <div className="grid grid-cols-3 gap-3 md:gap-4 mt-6 pt-6 border-t border-gray-100">
             {stats.map((s) => (
               <div
@@ -336,9 +332,7 @@ export default function B2BCompanyPage() {
                   <s.icon size={20} />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-bold text-diyar-dark text-base md:text-lg leading-none">
-                    {s.value}
-                  </p>
+                  <p className="font-bold text-diyar-dark text-base md:text-lg leading-none">{s.value}</p>
                   <p className="text-[11px] md:text-xs text-gray-500 mt-1 truncate">{s.label}</p>
                 </div>
               </div>
@@ -347,158 +341,245 @@ export default function B2BCompanyPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-          {/* Main */}
           <div className="lg:col-span-2 flex flex-col gap-6">
-            {/* About */}
             <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
               <h2 className="text-lg font-bold text-diyar-dark mb-4 flex items-center gap-2">
-                <Factory size={20} className="text-diyar-brown" /> عن الشركة
+                <Factory size={20} className="text-diyar-brown" /> {t('b2b.company.about')}
               </h2>
-              <p className="text-gray-600 leading-relaxed text-sm md:text-base">{company.desc}</p>
-              <div className="flex flex-wrap gap-2 mt-6">
-                {company.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-gray-50 text-gray-600 text-sm px-3 py-1.5 rounded-lg border border-gray-100"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+              <p className="text-gray-600 leading-relaxed text-sm md:text-base">
+                {company.about ?? company.description ?? '—'}
+              </p>
+              {company.tags && company.tags.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mt-6">
+                  {company.tags.map((tag) => (
+                    <span
+                      key={tag.id}
+                      className="bg-gray-50 text-gray-600 text-sm px-3 py-1.5 rounded-lg border border-gray-100"
+                    >
+                      {tag.name}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
             </div>
 
-            {/* Portfolio */}
-            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
-              <h2 className="text-lg font-bold text-diyar-dark mb-5 flex items-center gap-2">
-                <Briefcase size={20} className="text-diyar-brown" /> معرض الأعمال
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                {portfolio.map((img, i) => (
-                  <div
-                    key={i}
-                    className="aspect-square rounded-2xl overflow-hidden group relative bg-gray-100 cursor-pointer"
-                  >
-                    <img
-                      src={img}
-                      alt={`عمل ${i + 1}`}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      onError={onImgError}
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors"></div>
-                  </div>
-                ))}
+            {showPortfolio ? (
+              <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
+                <h2 className="text-lg font-bold text-diyar-dark mb-5 flex items-center gap-2">
+                  <Briefcase size={20} className="text-diyar-brown" /> {t('b2b.company.portfolio')}
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                  {visiblePortfolio.map((item, index) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setPortfolioActiveIndex(index);
+                        setPortfolioPreviewOpen(true);
+                      }}
+                      className="group relative aspect-square overflow-hidden rounded-2xl bg-gray-100 cursor-pointer"
+                    >
+                      <img
+                        src={item.url}
+                        alt={t('b2b.company.portfolioItem', { index: index + 1 })}
+                        referrerPolicy="no-referrer"
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        onError={() =>
+                          setBrokenPortfolioIds((prev) => new Set(prev).add(item.id))
+                        }
+                      />
+                      <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+                        <span className="rounded-full bg-white/90 p-2 text-diyar-dark shadow-md">
+                          <ZoomIn size={18} />
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : null}
 
-            {/* Reviews */}
-            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
-              <h2 className="text-lg font-bold text-diyar-dark mb-5 flex items-center gap-2">
-                <Star size={20} className="text-amber-400 fill-amber-400" /> آراء شركاء الأعمال
-              </h2>
-              <div className="flex flex-col gap-4">
-                {MOCK_REVIEWS.map((r, i) => (
-                  <div key={i} className="bg-gray-50/70 rounded-2xl p-4 md:p-5 relative">
-                    <Quote size={28} className="absolute top-4 left-4 text-gray-200" />
-                    <div className="flex items-center justify-between mb-2 gap-2">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-full bg-diyar-brown/10 text-diyar-brown flex items-center justify-center font-bold text-sm shrink-0 border border-diyar-brown/20">
-                          {r.name.charAt(0)}
+            {company.testimonials && company.testimonials.length > 0 ? (
+              <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
+                <h2 className="text-lg font-bold text-diyar-dark mb-5 flex items-center gap-2">
+                  <Star size={20} className="text-amber-400 fill-amber-400" /> {t('b2b.company.testimonials')}
+                </h2>
+                <div className="flex flex-col gap-4">
+                  {company.testimonials.map((r) => (
+                    <div key={r.id} className="bg-gray-50/70 rounded-2xl p-4 md:p-5 relative">
+                      <Quote size={28} className="absolute top-4 left-4 text-gray-200" />
+                      <div className="flex items-center justify-between mb-2 gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-full bg-diyar-brown/10 text-diyar-brown flex items-center justify-center font-bold text-sm shrink-0 border border-diyar-brown/20">
+                            {r.author_name.charAt(0)}
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-diyar-dark text-sm truncate">{r.author_name}</h4>
+                            {r.author_role ? (
+                              <span className="text-[11px] text-gray-500">{r.author_role}</span>
+                            ) : null}
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <h4 className="font-bold text-diyar-dark text-sm truncate">{r.name}</h4>
-                          <span className="text-[11px] text-gray-500">{r.role}</span>
+                        <div className="flex gap-0.5 shrink-0">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star
+                              key={s}
+                              size={12}
+                              className={
+                                s <= r.rating ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
+                              }
+                            />
+                          ))}
                         </div>
                       </div>
-                      <div className="flex gap-0.5 shrink-0">
-                        {[1, 2, 3, 4, 5].map((s) => (
-                          <Star
-                            key={s}
-                            size={12}
-                            className={
-                              s <= r.rating ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
-                            }
-                          />
-                        ))}
-                      </div>
+                      <p className="text-gray-600 text-sm leading-relaxed">{r.content}</p>
                     </div>
-                    <p className="text-gray-600 text-sm leading-relaxed">{r.text}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : null}
+
+            {company.customer_reviews && company.customer_reviews.length > 0 ? (
+              <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
+                <h2 className="text-lg font-bold text-diyar-dark mb-5 flex items-center gap-2">
+                  <Star size={20} className="text-amber-400 fill-amber-400" /> {t('b2b.company.customerReviews')}
+                </h2>
+                <div className="flex flex-col gap-4">
+                  {company.customer_reviews.map((review) => (
+                    <div key={review.id} className="bg-gray-50/70 rounded-2xl p-4 md:p-5">
+                      <div className="flex items-center justify-between mb-2 gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-full bg-diyar-brown/10 text-diyar-brown flex items-center justify-center font-bold text-sm shrink-0 border border-diyar-brown/20">
+                            {(review.author_name ?? '?').charAt(0)}
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-diyar-dark text-sm truncate">
+                              {review.author_name ?? t('storeReviews.anonymous')}
+                            </h4>
+                            {review.project_type ? (
+                              <span className="text-[11px] text-gray-500">{review.project_type}</span>
+                            ) : null}
+                          </div>
+                        </div>
+                        <div className="flex gap-0.5 shrink-0">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star
+                              key={s}
+                              size={12}
+                              className={
+                                s <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
+                              }
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      {review.comment ? (
+                        <p className="text-gray-600 text-sm leading-relaxed">{review.comment}</p>
+                      ) : (
+                        <p className="text-sm text-gray-400 italic">{t('customerReviews.noComment')}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
 
-          {/* Sidebar */}
           <div className="flex flex-col gap-6">
-            {/* Quote CTA card */}
-            <div className="bg-diyar-dark text-white rounded-3xl p-6 shadow-sm">
-              <h3 className="font-bold text-lg mb-1.5">هل لديك مشروع؟</h3>
-              <p className="text-white/70 text-sm leading-relaxed mb-5">
-                احصل على عرض سعر مخصص من {company.name} خلال 24 ساعة.
-              </p>
-              <button
-                onClick={() => setIsQuoteModalOpen(true)}
-                className="w-full bg-diyar-cream text-diyar-dark py-3 rounded-xl font-bold hover:bg-white transition-colors flex items-center justify-center gap-2"
-              >
-                <MessageSquare size={18} /> طلب عرض سعر
-              </button>
-            </div>
+            {!isOwnCompany ? (
+              <div className="bg-diyar-dark text-white rounded-3xl p-6 shadow-sm">
+                <h3 className="font-bold text-lg mb-1.5">{t('b2b.company.projectCtaTitle')}</h3>
+                <p className="text-white/70 text-sm leading-relaxed mb-5">
+                  {t('b2b.company.projectCtaBody', { name: company.name })}
+                </p>
+                <button
+                  type="button"
+                  onClick={openQuoteModal}
+                  className="w-full bg-diyar-cream text-diyar-dark py-3 rounded-xl font-bold hover:bg-white transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <MessageSquare size={18} /> {t('b2b.company.requestQuote')}
+                </button>
+              </div>
+            ) : null}
 
-            {/* Services */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-              <h3 className="font-bold text-diyar-dark mb-4">الخدمات المقدمة</h3>
-              <ul className="flex flex-col gap-3">
-                {services.map((service, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                    <CheckCircle2 size={18} className="text-diyar-brown shrink-0 mt-0.5" />
-                    <span>{service}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {company.services && company.services.length > 0 ? (
+              <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                <h3 className="font-bold text-diyar-dark mb-4">{t('b2b.company.services')}</h3>
+                <ul className="flex flex-col gap-3">
+                  {company.services.map((service) => (
+                    <li key={service.id} className="rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+                      <div className="flex items-start gap-2 text-sm">
+                        <CheckCircle2 size={18} className="text-diyar-brown shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                          <p className="font-bold text-diyar-dark">{service.name}</p>
+                          {service.description ? (
+                            <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                              {service.description}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
 
-            {/* Contact + hours */}
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-              <h3 className="font-bold text-diyar-dark mb-4">معلومات التواصل</h3>
+              <h3 className="font-bold text-diyar-dark mb-4">{t('b2b.company.contact')}</h3>
               <div className="flex flex-col gap-3 text-sm">
-                <a
-                  href={`tel:${contact.phone}`}
-                  className="flex items-center gap-3 text-gray-600 hover:text-diyar-brown transition"
-                >
-                  <Phone size={16} className="text-diyar-brown shrink-0" />{' '}
-                  <span dir="ltr">{contact.phone}</span>
-                </a>
-                <a
-                  href={`mailto:${contact.email}`}
-                  className="flex items-center gap-3 text-gray-600 hover:text-diyar-brown transition"
-                >
-                  <Mail size={16} className="text-diyar-brown shrink-0" />{' '}
-                  <span dir="ltr" className="truncate">
-                    {contact.email}
-                  </span>
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center gap-3 text-gray-600 hover:text-diyar-brown transition"
-                >
-                  <Globe size={16} className="text-diyar-brown shrink-0" />{' '}
-                  <span dir="ltr">{contact.website}</span>
-                </a>
-                <div className="flex items-center gap-3 text-gray-600 pt-3 mt-1 border-t border-gray-50">
-                  <Clock size={16} className="text-diyar-brown shrink-0" /> الأحد - الخميس، 8ص - 5م
-                </div>
+                {contact.phone ? (
+                  <a
+                    href={`tel:${contact.phone}`}
+                    className="flex items-center gap-3 text-gray-600 hover:text-diyar-brown transition cursor-pointer"
+                  >
+                    <Phone size={16} className="text-diyar-brown shrink-0" />
+                    <span dir="ltr">{contact.phone}</span>
+                  </a>
+                ) : null}
+                {contact.email ? (
+                  <a
+                    href={`mailto:${contact.email}`}
+                    className="flex items-center gap-3 text-gray-600 hover:text-diyar-brown transition cursor-pointer"
+                  >
+                    <Mail size={16} className="text-diyar-brown shrink-0" />
+                    <span dir="ltr" className="truncate">
+                      {contact.email}
+                    </span>
+                  </a>
+                ) : null}
+                {contact.website ? (
+                  <a
+                    href={contact.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 text-gray-600 hover:text-diyar-brown transition cursor-pointer"
+                  >
+                    <Globe size={16} className="text-diyar-brown shrink-0" />
+                    <span dir="ltr" className="truncate">{contact.website.replace(/^https?:\/\//, '')}</span>
+                  </a>
+                ) : null}
+                {contact.businessHours ? (
+                  <div className="flex items-center gap-3 text-gray-600 pt-3 mt-1 border-t border-gray-50">
+                    <Clock size={16} className="text-diyar-brown shrink-0" />
+                    <span>{contact.businessHours}</span>
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Quote Modal */}
-      {isQuoteModalOpen && (
+      {isQuoteModalOpen ? (
         <div
           className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
-          dir="rtl"
+          dir={dir}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="b2b-rfq-title"
         >
           <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
             {quoteSent ? (
@@ -506,8 +587,10 @@ export default function B2BCompanyPage() {
                 <div className="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Send size={30} />
                 </div>
-                <h2 className="text-2xl font-bold text-diyar-dark mb-2">تم الإرسال بنجاح!</h2>
-                <p className="text-gray-500">سيتم التواصل معك من قبل الشركة في أقرب وقت ممكن.</p>
+                <h2 className="text-2xl font-bold text-diyar-dark mb-2" data-testid="b2b-rfq-success">
+                  {t('b2b.company.successTitle')}
+                </h2>
+                <p className="text-gray-500">{t('b2b.company.successBody')}</p>
               </div>
             ) : (
               <>
@@ -517,15 +600,16 @@ export default function B2BCompanyPage() {
                       <MessageSquare size={20} />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-diyar-dark leading-tight">
-                        طلب عرض سعر
+                      <h2 id="b2b-rfq-title" className="text-lg font-bold text-diyar-dark leading-tight">
+                        {t('b2b.company.quoteModalTitle')}
                       </h2>
                       <p className="text-xs text-gray-500 mt-0.5">{company.name}</p>
                     </div>
                   </div>
                   <button
+                    type="button"
                     onClick={() => setIsQuoteModalOpen(false)}
-                    className="w-9 h-9 rounded-full bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-diyar-dark hover:bg-gray-100 transition"
+                    className="w-9 h-9 rounded-full bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-diyar-dark hover:bg-gray-100 transition cursor-pointer"
                   >
                     <X size={18} />
                   </button>
@@ -534,62 +618,79 @@ export default function B2BCompanyPage() {
                 <form onSubmit={handleQuoteSubmit} className="flex flex-col gap-4 p-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1.5">
-                      نوع المشروع / الطلب <span className="text-diyar-brown">*</span>
+                      {t('b2b.company.projectType')} <span className="text-diyar-brown">*</span>
                     </label>
                     <input
+                      data-testid="b2b-rfq-project-type"
                       type="text"
                       required
-                      placeholder="مثال: تأثيث فندق، شراء جملة..."
+                      value={projectType}
+                      onChange={(e) => setProjectType(e.target.value)}
+                      placeholder={t('b2b.company.projectTypePlaceholder')}
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:bg-white focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown transition"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1.5">
-                      الكمية المقدّرة
+                      {t('b2b.company.estimatedQuantity')}
                     </label>
                     <input
                       type="text"
-                      placeholder="مثال: 50 طقم كنب"
+                      value={estimatedQuantity}
+                      onChange={(e) => setEstimatedQuantity(e.target.value)}
+                      placeholder={t('b2b.company.estimatedQuantityPlaceholder')}
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:bg-white focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown transition"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1.5">
-                      التفاصيل الكاملة <span className="text-diyar-brown">*</span>
+                      {t('b2b.company.details')} <span className="text-diyar-brown">*</span>
                     </label>
                     <textarea
+                      data-testid="b2b-rfq-details"
                       rows={4}
                       required
-                      placeholder="اشرح احتياجاتك بالتفصيل ليتمكن المورد من تقديم عرض دقيق..."
+                      minLength={10}
+                      value={details}
+                      onChange={(e) => setDetails(e.target.value)}
+                      placeholder={t('b2b.company.detailsPlaceholder')}
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:bg-white focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown transition resize-none"
-                    ></textarea>
+                    />
+                    <p className="mt-1 text-xs text-gray-400">{t('b2b.company.detailsHint')}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1.5">
-                      الميزانية التقديرية (اختياري)
+                      {t('b2b.company.budget')}
                     </label>
-                    <select className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:bg-white focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown transition">
-                      <option value="">غير محدد</option>
-                      <option value="1">أقل من 10,000 ريال</option>
-                      <option value="2">10,000 - 50,000 ريال</option>
-                      <option value="3">50,000 - 200,000 ريال</option>
-                      <option value="4">أكثر من 200,000 ريال</option>
+                    <select
+                      value={budgetRange}
+                      onChange={(e) => setBudgetRange(e.target.value as B2bLeadBudgetRange | '')}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:bg-white focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown transition"
+                    >
+                      {budgetOptions.map((opt) => (
+                        <option key={opt.label} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   <div className="mt-2 flex gap-3">
                     <button
                       type="submit"
-                      className="flex-1 bg-diyar-brown text-white py-3 rounded-xl font-bold hover:bg-diyar-dark transition-colors flex items-center justify-center gap-2"
+                      disabled={submitLead.isPending || details.trim().length < 10 || !projectType.trim()}
+                      data-testid="b2b-rfq-submit"
+                      className="flex-1 bg-diyar-brown text-white py-3 rounded-xl font-bold hover:bg-diyar-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
                     >
-                      <Send size={16} /> إرسال الطلب
+                      <Send size={16} />{' '}
+                      {submitLead.isPending ? t('b2b.company.submitting') : t('b2b.company.submit')}
                     </button>
                     <button
                       type="button"
                       onClick={() => setIsQuoteModalOpen(false)}
-                      className="px-6 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+                      className="px-6 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors cursor-pointer"
                     >
-                      إلغاء
+                      {t('b2b.company.cancel')}
                     </button>
                   </div>
                 </form>
@@ -597,7 +698,23 @@ export default function B2BCompanyPage() {
             )}
           </div>
         </div>
-      )}
+      ) : null}
+
+      <ImageGalleryLightbox
+        images={visiblePortfolio.map((item) => item.url)}
+        open={portfolioPreviewOpen}
+        activeIndex={portfolioActiveIndex}
+        onActiveIndexChange={setPortfolioActiveIndex}
+        onClose={() => setPortfolioPreviewOpen(false)}
+        altPrefix={t('b2b.company.portfolio')}
+      />
+
+      <AuthPromptModal
+        open={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        title={t('b2b.auth.loginRequiredTitle')}
+        message={t('b2b.auth.loginRequiredMessage')}
+      />
     </div>
   );
 }

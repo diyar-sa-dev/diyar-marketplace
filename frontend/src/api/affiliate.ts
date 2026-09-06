@@ -8,6 +8,7 @@ import type {
   AffiliateOverviewStats,
   AffiliatePayout,
   AffiliatePayoutsResponse,
+  AffiliateFinanceTransactionsResponse,
   AffiliateProductSetting,
   AffiliateProductsResponse,
   AffiliatePlatformConfig,
@@ -39,7 +40,7 @@ function reportRangeFromPeriod(period: AffiliateReportPeriod): { from: string; t
       from.setFullYear(from.getFullYear() - 1);
       break;
     case 'year':
-      from.setFullYear(from.getFullYear() - 1);
+      from.setMonth(0, 1);
       break;
     case 'month':
     default:
@@ -154,10 +155,24 @@ export async function fetchAffiliateReports(
 export async function fetchAffiliatePayouts(
   page = 1,
   perPage = 20,
+  period: AffiliateReportPeriod = 'month',
 ): Promise<AffiliatePayoutsResponse> {
   const { data } = await apiClient.get<ApiSuccessResponse<AffiliatePayoutsResponse>>(
     '/dashboard/affiliate/payouts',
-    { params: { page, per_page: perPage } },
+    { params: { page, per_page: perPage, period } },
+  );
+  return data.data;
+}
+
+export async function fetchAffiliateFinanceTransactions(
+  page = 1,
+  perPage = 20,
+  type?: string,
+  period: AffiliateReportPeriod = 'month',
+): Promise<AffiliateFinanceTransactionsResponse> {
+  const { data } = await apiClient.get<ApiSuccessResponse<AffiliateFinanceTransactionsResponse>>(
+    '/dashboard/affiliate/finance/transactions',
+    { params: { page, per_page: perPage, period, ...(type && type !== 'all' ? { type } : {}) } },
   );
   return data.data;
 }

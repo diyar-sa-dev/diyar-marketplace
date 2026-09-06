@@ -2,6 +2,7 @@
 
 namespace App\Services\Order;
 
+use App\Enums\AnalyticsEventType;
 use App\Enums\CartStatus;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
@@ -19,6 +20,7 @@ use App\Models\Shipment;
 use App\Models\User;
 use App\Models\VendorOrder;
 use App\Services\Affiliate\AffiliateAttributionService;
+use App\Services\Analytics\AnalyticsEventRecorder;
 use App\Services\Cart\CartService;
 use App\Services\Catalog\InventoryService;
 use App\Services\Checkout\CheckoutPreviewService;
@@ -37,6 +39,7 @@ final class OrderCreationService
         private readonly InventoryService $inventory,
         private readonly SelfPurchaseGuard $selfPurchase,
         private readonly AffiliateAttributionService $affiliateAttribution,
+        private readonly AnalyticsEventRecorder $analyticsEvents,
     ) {}
 
     /**
@@ -123,6 +126,9 @@ final class OrderCreationService
         $cart->loadMissing('items.product');
         $this->selfPurchase->assertCartItemsNotSelfPurchase($user, $cart->items);
 
+        $productsById = $cart->items
+            ->mapWithKeys(fn ($item) => [$item->product_id => $item->product]);
+
         $preview = $this->checkoutPreview->preview($user, $shippingAddressId, $deliverySelections, $vendorCoupons);
 
         if (! $preview['valid']) {
@@ -162,10 +168,13 @@ final class OrderCreationService
                 'vendor_coupon_id' => $coupon['id'] ?? null,
                 'coupon_code' => $coupon['code'] ?? null,
                 'coupon_percent_snapshot' => $coupon['value'] ?? null,
+                'coupon_discount_snapshot' => $group['discount'],
+                'coupon_type_snapshot' => $coupon['type'] ?? null,
                 'status' => VendorOrderStatus::Pending,
                 'subtotal' => $group['subtotal'],
                 'shipping_method' => $group['shipping']['method'],
                 'shipping_cost' => $group['shipping']['cost'],
+                'shipping_discount_amount' => $group['shipping']['shipping_discount'] ?? '0.00',
                 'pickup_location_label' => $group['shipping']['pickup_location_label'],
                 'free_shipping_applied' => $group['shipping']['free_shipping_applied'],
                 'assembly_cost' => $group['assembly'],
@@ -187,7 +196,7 @@ final class OrderCreationService
                     'vendor_order_id' => $vendorOrder->id,
                     'product_id' => $line['product_id'],
                     'product_name' => $line['product_name'],
-                    'product_slug' => Product::query()->whereKey($line['product_id'])->value('slug'),
+                    'product_slug' => $line['product_slug'],
                     'unit_price' => $line['unit_price'],
                     'quantity' => $line['quantity'],
                     'line_subtotal' => $line['line_subtotal'],
@@ -196,7 +205,8 @@ final class OrderCreationService
                     ...$affiliateSnapshot,
                 ]);
 
-                $product = Product::query()->findOrFail($line['product_id']);
+                $product = $productsById[$line['product_id']]
+                    ?? Product::query()->findOrFail($line['product_id']);
                 $this->inventory->reserve(
                     product: $product,
                     user: $user,
@@ -233,8 +243,18 @@ final class OrderCreationService
 
         $this->reconciliation->assertOrderInvariants($order);
 
+        $order->loadMissing('user');
+
         DB::afterCommit(function () use ($order): void {
             event(new OrderCreated($order));
+
+            $this->analyticsEvents->record(
+                AnalyticsEventType::CheckoutCompleted,
+                user: $order->user,
+                subjectType: 'order',
+                subjectId: $order->id,
+                payload: ['order_number' => $order->order_number],
+            );
 
             foreach ($order->vendorOrders as $vendorOrder) {
                 event(new VendorOrderReceived($vendorOrder));

@@ -6,6 +6,7 @@ import { useOrderPayment } from '../hooks/payment/usePayment.ts';
 import { useLocale } from '../hooks/useLocale.ts';
 import { useToast } from '../hooks/useToast.ts';
 import { simulateOrderPayment } from '../api/payment.ts';
+import { resolveSameOriginUrl } from '../lib/resolveSameOriginUrl.ts';
 import { parseApiError } from '../utils/errors.ts';
 
 type SimulateOutcome = 'success' | 'failed' | 'expired';
@@ -30,7 +31,8 @@ export default function LocalPaymentSimulatorPage() {
 
     try {
       const result = await simulateOrderPayment(orderId, attemptId, outcome);
-      window.location.href = result.redirect_url;
+      const redirect = resolveSameOriginUrl(result.redirect_url);
+      navigate(`${redirect.pathname}${redirect.search}${redirect.hash}`);
     } catch (error) {
       const parsed = parseApiError(error);
       toast.error(parsed.message || t('checkout.simulatorError'));

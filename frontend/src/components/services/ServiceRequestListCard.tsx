@@ -37,7 +37,7 @@ export function ServiceRequestListCard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(event) => event.key === 'Enter' && onClick()}
-      className={`bg-white border border-gray-100 rounded-3xl p-5 hover:shadow-lg hover:border-diyar-brown/25 transition-all cursor-pointer group flex flex-col md:flex-row gap-5 items-start md:items-center ${serviceRequestAccentClass(item.status)} ${compact ? 'p-4' : ''}`}
+      className={`bg-white border border-gray-100 rounded-3xl p-5 hover:shadow-lg hover:border-diyar-brown/25 transition-all cursor-pointer group flex flex-col md:flex-row gap-5 items-start md:items-center w-full min-w-0 overflow-hidden ${serviceRequestAccentClass(item.status)} ${compact ? 'p-4' : ''}`}
     >
       <div
         className={`rounded-2xl bg-linear-to-br from-diyar-cream/60 to-white flex items-center justify-center text-diyar-brown shrink-0 border border-diyar-brown/10 ${compact ? 'w-12 h-12' : 'w-14 h-14'}`}
@@ -45,18 +45,18 @@ export function ServiceRequestListCard({
         <FileText size={compact ? 18 : 20} />
       </div>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+      <div className="flex-1 min-w-0 w-full">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-1.5">
           <h3
-            className={`font-bold text-diyar-dark group-hover:text-diyar-brown transition-colors ${compact ? 'text-base' : 'text-lg'}`}
+            className={`font-bold text-diyar-dark group-hover:text-diyar-brown transition-colors break-words line-clamp-2 min-w-0 ${compact ? 'text-base' : 'text-lg'}`}
           >
             {item.title}
           </h3>
           <ServiceRequestStatusBadge status={item.status} />
         </div>
 
-        <p className="text-gray-500 text-sm mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="font-mono text-diyar-brown/80">
+        <p className="text-gray-500 text-sm mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
+          <span className="font-mono text-diyar-brown/80 break-all">
             {formatServiceRequestReference(item.reference)}
           </span>
           {item.created_at && (
@@ -69,7 +69,7 @@ export function ServiceRequestListCard({
         </p>
 
         {!compact && item.description && (
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3 leading-relaxed">
+          <p className="text-sm text-gray-600 line-clamp-2 mb-3 leading-relaxed break-words overflow-hidden">
             {item.description}
           </p>
         )}

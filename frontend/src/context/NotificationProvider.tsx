@@ -13,11 +13,13 @@ import type { Notification } from '../types/notification.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { isRealtimeEnabled } from '../lib/env.ts';
 import {
-  createEcho,
-  disconnectEcho,
+  RealtimeEventRouter,
+  subscribeRealtimeConnection,
+  prepareRealtimeConnection,
   type RealtimeConnectionState,
 } from '../lib/realtime/echo.ts';
-import { notificationKeys, reconcileNotifications } from '../hooks/profile/useNotifications.ts';
+import { notificationKeys, reconcileNotifications, LIST_STALE_MS } from '../hooks/profile/useNotifications.ts';
+import { fetchNotifications } from '../api/notifications.ts';
 import { chatKeys } from '../hooks/chat/useChat.ts';
 import { bumpConversationPreview } from '../lib/chat/conversationListCache.ts';
 
@@ -71,8 +73,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [connectionState, setConnectionState] =
     useState<RealtimeConnectionState>('idle');
-  const reconnectAttemptRef = useRef(0);
   const crossTabRef = useRef<BroadcastChannel | null>(null);
+  const previousConnectionRef = useRef<RealtimeConnectionState>('idle');
 
   const setUnreadCount = useCallback(
     (count: number) => {
@@ -81,40 +83,65 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     [queryClient],
   );
 
-  const prependNotification = useCallback(
+  const upsertNotification = useCallback(
     (notification: Notification) => {
-      queryClient.setQueriesData<{
-        notifications: Notification[];
-        pagination: { total: number; current_page: number; last_page: number; per_page: number };
-      }>(
-        {
-          predicate: (query) =>
-            Array.isArray(query.queryKey) &&
-            query.queryKey[0] === notificationKeys.all[0] &&
-            query.queryKey[1] === 'list' &&
-            query.queryKey[2] === 1 &&
-            query.queryKey[3] === 'all' &&
-            (query.queryKey[4] === null || query.queryKey[4] === 'all'),
-        },
-        (current) => {
-          if (!current?.notifications) {
-            return current;
-          }
-
-          if (current.notifications.some((item) => item.id === notification.id)) {
+      const applyToList = (
+        current: {
+          notifications: Notification[];
+          pagination: { total: number; current_page: number; last_page: number; per_page: number };
+        } | undefined,
+        prependIfNew: boolean,
+      ) => {
+        if (!current?.notifications) {
+          if (!prependIfNew) {
             return current;
           }
 
           return {
-            ...current,
-            notifications: [notification, ...current.notifications].slice(0, current.pagination.per_page),
+            notifications: [notification],
             pagination: {
-              ...current.pagination,
-              total: current.pagination.total + 1,
+              total: 1,
+              current_page: 1,
+              last_page: 1,
+              per_page: 20,
             },
           };
-        },
-      );
+        }
+
+        const existingIndex = current.notifications.findIndex((item) => item.id === notification.id);
+        if (existingIndex >= 0) {
+          const notifications = [...current.notifications];
+          notifications[existingIndex] = { ...notifications[existingIndex], ...notification };
+
+          return { ...current, notifications };
+        }
+
+        if (!prependIfNew) {
+          return current;
+        }
+
+        return {
+          ...current,
+          notifications: [notification, ...current.notifications].slice(0, current.pagination.per_page),
+          pagination: {
+            ...current.pagination,
+            total: current.pagination.total + 1,
+          },
+        };
+      };
+
+      const listPredicate = (query: { queryKey: unknown }) =>
+        Array.isArray(query.queryKey) &&
+        query.queryKey[0] === notificationKeys.all[0] &&
+        query.queryKey[1] === 'list' &&
+        query.queryKey[2] === 1 &&
+        query.queryKey[3] === 'all' &&
+        (query.queryKey[4] === null || query.queryKey[4] === 'all');
+
+      queryClient.setQueriesData<{
+        notifications: Notification[];
+        pagination: { total: number; current_page: number; last_page: number; per_page: number };
+      }>({ predicate: listPredicate }, (current) => applyToList(current, true));
 
       if (!notification.is_read) {
         queryClient.setQueriesData<{
@@ -129,24 +156,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               query.queryKey[2] === 1 &&
               query.queryKey[3] === 'unread',
           },
-          (current) => {
-            if (!current?.notifications) {
-              return current;
-            }
-
-            if (current.notifications.some((item) => item.id === notification.id)) {
-              return current;
-            }
-
-            return {
-              ...current,
-              notifications: [notification, ...current.notifications].slice(0, current.pagination.per_page),
-              pagination: {
-                ...current.pagination,
-                total: current.pagination.total + 1,
-              },
-            };
-          },
+          (current) => applyToList(current, true),
         );
       }
     },
@@ -190,107 +200,115 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isAuthenticated || !user?.id || !isRealtimeEnabled()) {
-      disconnectEcho();
       setConnectionState('idle');
       return;
     }
 
     let cancelled = false;
-    let reconnectTimer: number | undefined;
+    let releaseConnection: (() => void) | null = null;
+    let unsubscribeState: (() => void) | null = null;
+    let reconcileTimer: number | undefined;
+    const unsubs: Array<() => void> = [];
 
-    const connect = () => {
-      setConnectionState('connecting');
-      const echo = createEcho();
-      const channel = echo.private(`users.${user.id}`);
+    void prepareRealtimeConnection().then(() => {
+      if (cancelled) {
+        return;
+      }
 
-      channel
-        .listen('.notification.created', (payload: NotificationCreatedPayload) => {
-          const notification = toUserNotification(payload);
-          prependNotification(notification);
-
-          if (
-            payload.type === 'chat.message_received' ||
-            payload.entity_type === 'conversation'
-          ) {
-            if (payload.entity_id) {
-              bumpConversationPreview(
-                queryClient,
-                payload.entity_id,
-                {
-                  id: payload.notification_id,
-                  body: payload.body,
-                  sender_id: '',
-                  message_type: 'text',
-                  created_at: payload.created_at,
-                },
-                false,
-              );
-            }
-            if (typeof payload.unread_count === 'number') {
-              setUnreadCount(payload.unread_count);
-            }
-            void queryClient.invalidateQueries({ queryKey: chatKeys.unreadCount() });
-          }
-
-          if (typeof payload.unread_count === 'number') {
-            setUnreadCount(payload.unread_count);
-          } else if (!notification.is_read) {
-            void reconcile();
-          }
-        })
-        .listen('.notification.read_state', (payload: NotificationReadStatePayload) => {
-          setUnreadCount(payload.unread_count);
-          publishCrossTab(payload);
-          void queryClient.invalidateQueries({ queryKey: notificationKeys.all });
-        });
-
-      echo.connector.pusher.connection.bind('connected', () => {
+      releaseConnection = RealtimeEventRouter.retain();
+      unsubscribeState = subscribeRealtimeConnection((state) => {
         if (cancelled) {
           return;
         }
 
-        reconnectAttemptRef.current = 0;
-        setConnectionState('connected');
+        const previous = previousConnectionRef.current;
+        previousConnectionRef.current = state;
+        setConnectionState(state);
+
+        if (
+          state === 'connected' &&
+          (previous === 'disconnected' || previous === 'reconnecting' || previous === 'failed')
+        ) {
+          void reconcile();
+        }
+      });
+
+      unsubs.push(
+        RealtimeEventRouter.subscribePrivateChannel(
+          `users.${user.id}`,
+          '.notification.created',
+          (payload) => {
+            const notificationPayload = payload as NotificationCreatedPayload;
+            const notification = toUserNotification(notificationPayload);
+            upsertNotification(notification);
+
+            void queryClient.prefetchQuery({
+              queryKey: notificationKeys.list(1, 'all', null, 5),
+              queryFn: () =>
+                fetchNotifications({ page: 1, perPage: 5, status: 'all', category: null }),
+              staleTime: LIST_STALE_MS,
+            });
+
+            if (
+              notificationPayload.type === 'chat.message_received' ||
+              notificationPayload.entity_type === 'conversation'
+            ) {
+              if (notificationPayload.entity_id) {
+                bumpConversationPreview(
+                  queryClient,
+                  notificationPayload.entity_id,
+                  {
+                    id: notificationPayload.notification_id,
+                    body: notificationPayload.body,
+                    sender_id: '',
+                    message_type: 'text',
+                    created_at: notificationPayload.created_at,
+                  },
+                  false,
+                );
+              }
+              if (typeof notificationPayload.unread_count === 'number') {
+                setUnreadCount(notificationPayload.unread_count);
+              }
+              void queryClient.invalidateQueries({ queryKey: chatKeys.unreadCount() });
+            }
+
+            if (typeof notificationPayload.unread_count === 'number') {
+              setUnreadCount(notificationPayload.unread_count);
+            } else if (!notification.is_read) {
+              void reconcile();
+            }
+          },
+        ),
+        RealtimeEventRouter.subscribePrivateChannel(
+          `users.${user.id}`,
+          '.notification.read_state',
+          (payload) => {
+            const readPayload = payload as NotificationReadStatePayload;
+            setUnreadCount(readPayload.unread_count);
+            publishCrossTab(readPayload);
+            void queryClient.invalidateQueries({ queryKey: notificationKeys.all });
+          },
+        ),
+      );
+
+      reconcileTimer = window.setInterval(() => {
         void reconcile();
-      });
-
-      echo.connector.pusher.connection.bind('disconnected', () => {
-        if (cancelled) {
-          return;
-        }
-
-        setConnectionState('disconnected');
-        const delay = Math.min(30_000, 1_000 * 2 ** reconnectAttemptRef.current);
-        reconnectAttemptRef.current += 1;
-        reconnectTimer = window.setTimeout(connect, delay);
-      });
-
-      echo.connector.pusher.connection.bind('error', () => {
-        if (!cancelled) {
-          setConnectionState('failed');
-        }
-      });
-    };
-
-    connect();
-
-    const reconcileTimer = window.setInterval(() => {
-      void reconcile();
-    }, RECONCILE_MS);
+      }, RECONCILE_MS);
+    });
 
     return () => {
       cancelled = true;
       window.clearInterval(reconcileTimer);
-      if (reconnectTimer) {
-        window.clearTimeout(reconnectTimer);
-      }
-      disconnectEcho();
+      unsubs.forEach((unsub) => unsub());
+      unsubscribeState?.();
+      releaseConnection?.();
       setConnectionState('idle');
     };
   }, [
     isAuthenticated,
     user?.id,
-    prependNotification,
+    upsertNotification,
     publishCrossTab,
     queryClient,
     reconcile,

@@ -1,0 +1,19 @@
+2026-09-03 — PHPUnit concurrency regression (local Windows, PHP artisan test)
+
+Command:
+  php artisan test --filter="AuthSessionIsolationTest|PaymentWebhookProcessingLeaseTest|PaymentConcurrencyTest|CouponConcurrencyTest|OrderNumberConcurrencyTest"
+
+Result:
+  tests=10 passed=10 assertions=36
+
+Files:
+  backend/tests/Feature/Api/V1/Auth/AuthSessionIsolationTest.php (3 tests)
+  backend/tests/Feature/Api/V1/Payment/PaymentWebhookProcessingLeaseTest.php (2 tests)
+  backend/tests/Feature/Api/V1/Payment/PaymentConcurrencyTest.php
+  backend/tests/Feature/Api/V1/Coupon/CouponConcurrencyTest.php
+  backend/tests/Feature/Api/V1/Order/OrderNumberConcurrencyTest.php
+
+Notes:
+  - AuthSessionIsolationTest validates cookie isolation + Octane flush listener + remember-me logout
+  - Live Octane Swoole probe NOT run in this pass (Windows; requires docker-compose.loadtest.yml)
+  - stash@{0} NOT applied wholesale; Octane listeners recreated from prior session evidence

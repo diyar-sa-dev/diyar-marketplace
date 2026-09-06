@@ -21,12 +21,13 @@ class InventoryTransactionAuditTest extends TestCase
         $product = Product::factory()->create();
         $inventoryService = app(InventoryService::class);
 
+        DB::beginTransaction();
+
         try {
-            DB::transaction(function () use ($inventoryService, $product, $customer) {
-                $inventoryService->reserve($product, $customer, 2);
-                throw new \RuntimeException('force rollback');
-            });
+            $inventoryService->reserve($product, $customer, 2);
+            throw new \RuntimeException('force rollback');
         } catch (\RuntimeException) {
+            DB::rollBack();
         }
 
         $product->inventory->refresh();

@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libbrotli-dev \
     libssl-dev \
     zlib1g-dev \
-    && docker-php-ext-install pdo_mysql pdo_pgsql pdo_sqlite zip intl pcntl \
+    && docker-php-ext-install pdo_mysql pdo_sqlite zip intl pcntl bcmath opcache \
     && pecl install redis swoole \
     && docker-php-ext-enable redis swoole \
     && rm -rf /var/lib/apt/lists/*
@@ -32,7 +32,8 @@ ENV APP_ENV=local \
     CACHE_STORE=array \
     QUEUE_CONNECTION=sync
 
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs --no-scripts
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs --no-scripts \
+    && php -r "if (!extension_loaded('bcmath')) { fwrite(STDERR, 'bcmath extension missing\n'); exit(1); }"
 
 EXPOSE 8000
 

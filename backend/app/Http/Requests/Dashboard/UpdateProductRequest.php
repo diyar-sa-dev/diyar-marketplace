@@ -27,6 +27,7 @@ class UpdateProductRequest extends FormRequest
             'description' => ['sometimes', 'nullable', 'string'],
             'sale_price' => ['sometimes', 'numeric', 'min:0'],
             'compare_price' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'promotion_ends_at' => ['sometimes', 'nullable', 'date', 'after:now'],
             'width' => ['sometimes', 'nullable', 'numeric', 'min:0'],
             'height' => ['sometimes', 'nullable', 'numeric', 'min:0'],
             'depth' => ['sometimes', 'nullable', 'numeric', 'min:0'],

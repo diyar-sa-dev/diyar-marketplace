@@ -8,6 +8,7 @@ use Tests\TestCase;
 class ReadinessEndpointTest extends TestCase
 {
     use RefreshDatabase;
+
     public function test_readiness_endpoint_returns_queue_probe(): void
     {
         $response = $this->getJson('/api/v1/readiness');

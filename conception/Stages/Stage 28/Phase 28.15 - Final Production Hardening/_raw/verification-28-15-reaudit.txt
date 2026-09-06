@@ -1,0 +1,55 @@
+Phase 28.15 Independent Re-Audit — Verification Log
+Date: 2026-08-29T09:41–09:55 UTC+1
+Branch: dev @ badbb6e
+
+=== ENVIRONMENT ===
+PHP: 8.4.0 (local)
+Laravel: 13.17
+MySQL 8: localhost:3306 REACHABLE
+Redis: localhost:6379 NOT REACHABLE (Docker Desktop offline)
+Node: available (Vitest/Playwright/Build PASS)
+
+=== PHPUNIT (sqlite default) ===
+Result: 764/770 PASS, 6 skipped, 0 failed
+Duration: ~132s
+Evidence: _raw/phpunit-reaudit.txt
+
+=== PHPUNIT (MySQL index — separate run) ===
+DB_CONNECTION=mysql DB_DATABASE=diyar
+Result: 6/6 PASS (ProductListIndexTest, CatalogAndOrderIndexTest)
+Duration: ~67s
+
+=== PHPUNIT (Redis) ===
+Result: SKIPPED — CACHE_STORE=array in phpunit.xml; Docker unavailable
+
+=== FRONTEND ===
+Vitest: 126/126 PASS
+Typecheck: PASS
+Lint: PASS
+Format check: PASS
+Build: PASS — index-rC5k_cns.js gzip 37.15 KB
+
+=== E2E ===
+Bootstrap: scripts/e2e/bootstrap-stack.ps1 PASS
+API: 127.0.0.1:8000 (sqlite, DIYAR_LOADTEST_MODE=true)
+Frontend: 127.0.0.1:3000 (vite preview --strictPort)
+
+First Playwright run: 71/72 FAIL
+  Failed: projects-modal-regression.spec.ts — ad dismiss clicked wrong close button
+
+Fix applied: frontend/e2e/projects-modal-regression.spec.ts
+
+Second Playwright run: 72/72 PASS (3.0m, workers=1)
+Evidence: _raw/playwright-reaudit-final.txt
+
+=== FIXES THIS RE-AUDIT ===
+REAUD-015-001: E2E ad popup dismiss scoping
+
+=== SCORE ===
+Independent: 9.8/10 COMPLETE
+P0=0 P1=0 P2=0
+
+=== LIMITATION ===
+Redis live integration not executed — start Docker and run:
+  docker compose -f docker-compose.dev.yml up -d
+  CACHE_STORE=redis QUEUE_CONNECTION=redis php artisan test --group=redis-integration

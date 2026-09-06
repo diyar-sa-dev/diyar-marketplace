@@ -37,7 +37,11 @@ class AdminAffiliateProfileController extends Controller
             perPage: min(max((int) $request->integer('per_page', 20), 1), 100),
         );
 
-        return $this->paginated('affiliate_profiles', AffiliateProfileResource::collection($paginator->items()), $paginator);
+        return $this->paginated(
+            'affiliate_profiles',
+            AffiliateProfileResource::collection($paginator->items())->resolve(),
+            $paginator,
+        );
     }
 
     public function show(AffiliateProfile $affiliateProfile): JsonResponse

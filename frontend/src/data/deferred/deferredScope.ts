@@ -7,6 +7,7 @@ export const DEFERRED_SCOPES = {
     id: 'b2b-directory',
     label: 'B2B company directory',
     futureApi: 'GET /api/v1/b2b/companies',
+    status: 'live',
   },
   blogCms: {
     id: 'blog-cms',

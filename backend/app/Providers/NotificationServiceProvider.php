@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use App\Contracts\Notifications\PushProviderInterface;
+use App\Events\Domain\B2bCompanyPublished;
+use App\Events\Domain\B2bLeadAccepted;
+use App\Events\Domain\B2bLeadReceived;
+use App\Events\Domain\B2bLeadRejected;
 use App\Events\Domain\BookingCompleted;
 use App\Events\Domain\BookingCreated;
 use App\Events\Domain\CouponActivated;
@@ -54,6 +58,10 @@ final class NotificationServiceProvider extends ServiceProvider
             TeamMemberAdded::class,
             ProductStockLow::class,
             MessageCreated::class,
+            B2bCompanyPublished::class,
+            B2bLeadReceived::class,
+            B2bLeadAccepted::class,
+            B2bLeadRejected::class,
         ];
 
         foreach ($events as $eventClass) {

@@ -10,6 +10,7 @@ import {
 import type { NotificationFilter, NotificationStatusFilter } from '../../types/notification.ts';
 
 import { marketplaceQueryKey } from '../../lib/auth/queryKeys.ts';
+import { usePageVisibility } from '../usePageVisibility.ts';
 
 export const notificationKeys = {
   all: marketplaceQueryKey('notifications'),
@@ -19,6 +20,9 @@ export const notificationKeys = {
 };
 
 const RECONCILE_MS = 120_000;
+const RECONCILE_HIDDEN_MS = 300_000;
+export const LIST_STALE_MS = 20_000;
+const UNREAD_STALE_MS = 10_000;
 
 export async function reconcileNotifications(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -26,7 +30,12 @@ export async function reconcileNotifications(
   try {
     const unreadCount = await fetchUnreadNotificationCount();
     queryClient.setQueryData(notificationKeys.unreadCount(), unreadCount);
-    await queryClient.invalidateQueries({ queryKey: notificationKeys.all });
+    await queryClient.invalidateQueries({
+      predicate: (query) =>
+        Array.isArray(query.queryKey) &&
+        query.queryKey[0] === notificationKeys.all[0] &&
+        query.queryKey[1] === 'list',
+    });
   } catch {
     // Keep last known state when reconciliation fails.
   }
@@ -47,6 +56,7 @@ export function useNotifications(filter: Partial<NotificationFilter> = {}) {
   return useQuery({
     queryKey: notificationKeys.list(page, status, category, perPage),
     queryFn: () => fetchNotifications({ page, perPage, status, category }),
+    staleTime: LIST_STALE_MS,
     placeholderData: (previousData, previousQuery) => {
       const previousPerPage = previousQuery?.queryKey[5];
       if (previousPerPage !== undefined && previousPerPage !== perPage) {
@@ -59,12 +69,15 @@ export function useNotifications(filter: Partial<NotificationFilter> = {}) {
 }
 
 export function useUnreadNotificationCount(enabled = true) {
+  const pageVisible = usePageVisibility();
+
   return useQuery({
     queryKey: notificationKeys.unreadCount(),
     queryFn: fetchUnreadNotificationCount,
     enabled,
-    refetchInterval: RECONCILE_MS,
-    refetchIntervalInBackground: true,
+    staleTime: UNREAD_STALE_MS,
+    refetchInterval: pageVisible ? RECONCILE_MS : RECONCILE_HIDDEN_MS,
+    refetchIntervalInBackground: false,
   });
 }
 

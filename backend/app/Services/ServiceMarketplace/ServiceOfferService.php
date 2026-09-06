@@ -8,6 +8,7 @@ use App\Enums\ServiceRequestStatus;
 use App\Events\Domain\ServiceOfferAccepted;
 use App\Events\Domain\ServiceOfferReceived;
 use App\Models\ProviderAccount;
+use App\Models\ServiceCategory;
 use App\Models\ServiceOffer;
 use App\Models\ServiceRequest;
 use App\Models\User;
@@ -50,26 +51,45 @@ final class ServiceOfferService
     ): LengthAwarePaginator {
         $provider = $this->resolveProviderAccount($user);
 
+        $providerCategoryIds = $this->providerCategoryIds($provider);
+
+        $openStatuses = [
+            ServiceRequestStatus::Pending,
+            ServiceRequestStatus::OffersReceived,
+        ];
+        $submittedStatuses = [
+            ServiceRequestStatus::Pending,
+            ServiceRequestStatus::OffersReceived,
+            ServiceRequestStatus::OfferAccepted,
+            ServiceRequestStatus::InProgress,
+        ];
+
         $query = ServiceRequest::query()
-            ->whereIn('status', [
-                ServiceRequestStatus::Pending,
-                ServiceRequestStatus::OffersReceived,
-            ])
             ->where('user_id', '!=', $user->id)
-            ->whereHas('categories', function (Builder $categoryQuery) use ($provider) {
-                $categoryQuery->whereIn('service_categories.id', $this->providerCategoryIds($provider));
+            ->where(function (Builder $visibility) use ($provider, $providerCategoryIds) {
+                $visibility->where('provider_account_id', $provider->id);
+
+                if ($providerCategoryIds !== []) {
+                    $visibility->orWhereHas('categories', function (Builder $categoryQuery) use ($providerCategoryIds) {
+                        $categoryQuery->whereIn('service_categories.id', $providerCategoryIds);
+                    });
+                }
             })
-            ->with(['categories', 'user:id,name'])
+            ->with(['categories', 'user:id,name', 'booking'])
             ->withCount('attachments')
             ->withExists(['offers as provider_has_offer' => fn (Builder $q) => $q
                 ->where('provider_account_id', $provider->id)]);
 
         if ($status === 'submitted') {
-            $query->whereHas('offers', fn (Builder $q) => $q
-                ->where('provider_account_id', $provider->id));
+            $query->whereIn('status', $submittedStatuses)
+                ->whereHas('offers', fn (Builder $q) => $q
+                    ->where('provider_account_id', $provider->id));
         } elseif ($status === 'open') {
-            $query->whereDoesntHave('offers', fn (Builder $q) => $q
-                ->where('provider_account_id', $provider->id));
+            $query->whereIn('status', $openStatuses)
+                ->whereDoesntHave('offers', fn (Builder $q) => $q
+                    ->where('provider_account_id', $provider->id));
+        } else {
+            $query->whereIn('status', $openStatuses);
         }
 
         if ($category !== null && trim($category) !== '') {
@@ -110,8 +130,9 @@ final class ServiceOfferService
                 'offers' => function ($query) use ($provider) {
                     $query
                         ->where('provider_account_id', $provider->id)
-                        ->with('providerAccount');
+                        ->with(['providerAccount', 'booking']);
                 },
+                'booking',
             ])
             ->withCount('attachments')
             ->withExists(['offers as provider_has_offer' => fn (Builder $q) => $q
@@ -132,7 +153,7 @@ final class ServiceOfferService
             throw new NotFoundHttpException(__('diyar.services.requests.not_found'));
         }
 
-        if (! $hasOffer && ! $this->requestMatchesProviderCategories($request, $provider)) {
+        if (! $hasOffer && ! $this->providerCanAccessRequest($request, $provider)) {
             throw new AccessDeniedHttpException(__('diyar.auth.forbidden'));
         }
 
@@ -164,7 +185,7 @@ final class ServiceOfferService
             throw new InvalidArgumentException(__('diyar.services.offers.request_closed'));
         }
 
-        if (! $this->requestMatchesProviderCategories($request, $provider)) {
+        if (! $this->providerCanAccessRequest($request, $provider)) {
             throw new AccessDeniedHttpException(__('diyar.services.offers.category_mismatch'));
         }
 
@@ -267,7 +288,7 @@ final class ServiceOfferService
                 'scheduled_time' => $offer->proposed_scheduled_time,
             ], $payload));
 
-            $fresh = $offer->fresh(['providerAccount', 'booking']);
+            $fresh = $offer->fresh(['providerAccount', 'booking', 'serviceRequest']);
             DB::afterCommit(fn () => event(new ServiceOfferAccepted($fresh)));
 
             return $fresh;
@@ -344,16 +365,41 @@ final class ServiceOfferService
      */
     private function providerCategoryIds(ProviderAccount $provider): array
     {
-        return $provider->services()
+        $directCategoryIds = $provider->services()
             ->where('is_active', true)
             ->pluck('service_category_id')
             ->unique()
             ->values()
             ->all();
+
+        if ($directCategoryIds === []) {
+            return [];
+        }
+
+        $slugs = ServiceCategory::query()
+            ->whereIn('id', $directCategoryIds)
+            ->pluck('slug');
+
+        $relatedMap = config('diyar.services.rfq.related_categories', []);
+        $expandedSlugs = $slugs
+            ->flatMap(static fn (string $slug) => array_merge([$slug], $relatedMap[$slug] ?? []))
+            ->unique()
+            ->values();
+
+        return ServiceCategory::query()
+            ->whereIn('slug', $expandedSlugs)
+            ->pluck('id')
+            ->unique()
+            ->values()
+            ->all();
     }
 
-    private function requestMatchesProviderCategories(ServiceRequest $request, ProviderAccount $provider): bool
+    private function providerCanAccessRequest(ServiceRequest $request, ProviderAccount $provider): bool
     {
+        if ($request->provider_account_id === $provider->id) {
+            return true;
+        }
+
         $providerCategoryIds = $this->providerCategoryIds($provider);
         if ($providerCategoryIds === []) {
             return false;

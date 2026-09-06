@@ -27,16 +27,19 @@ class AffiliateReportController extends Controller
         [$from, $to] = AffiliateDashboardService::resolvePeriodRange($period, $fromInput, $toInput);
 
         $sort = is_string($request->query('sort')) ? $request->query('sort') : 'earnings';
+        $granularity = AffiliateDashboardService::chartGranularity($period);
+        $series = $this->dashboard->chartSeries($profile, $from, $to, $period);
 
         return ApiResponse::success(data: [
             'summary' => $this->dashboard->reportSummary($profile, $from, $to),
             'by_link' => $this->dashboard->reportByLink($profile, $from, $to, $sort),
             'by_source' => $this->dashboard->reportBySource($profile, $from, $to),
-            'daily' => $this->dashboard->dailySeries($profile, $from, $to),
+            'daily' => $series,
             'period' => [
                 'from' => $from->toDateString(),
                 'to' => $to->toDateString(),
                 'key' => $period,
+                'granularity' => $granularity,
             ],
         ]);
     }

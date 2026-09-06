@@ -65,6 +65,7 @@ export async function verifyEmailOtp(payload: VerifyEmailOtpPayload): Promise<Au
     ),
   );
   resetCsrfCookie();
+  await ensureCsrfCookie();
   return {
     user: response.data.data.user,
     message: extractMessage(response),
@@ -91,6 +92,7 @@ export async function login(payload: LoginPayload): Promise<AuthUserResult> {
     ),
   );
   resetCsrfCookie();
+  await ensureCsrfCookie();
   return {
     user: response.data.data.user,
     message: extractMessage(response),

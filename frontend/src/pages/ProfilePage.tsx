@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
+  Building2,
   Wrench,
 } from 'lucide-react';
 import { useAuth } from '../hooks/auth/useAuth.ts';
@@ -62,6 +63,13 @@ export default function ProfilePage() {
             title: t('profile.menu.serviceRequests.title'),
             subtitle: t('profile.menu.serviceRequests.subtitle'),
             link: '/profile/service-requests',
+          },
+          {
+            id: 'b2b_offers',
+            icon: <Building2 size={20} />,
+            title: t('profile.menu.b2bOffers.title'),
+            subtitle: t('profile.menu.b2bOffers.subtitle'),
+            link: '/orders?tab=b2b',
           },
           {
             id: 'wishlist',

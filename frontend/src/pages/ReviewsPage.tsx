@@ -43,7 +43,7 @@ function persistSkippedKeys(keys: Set<string>) {
   sessionStorage.setItem(SKIPPED_STORAGE_KEY, JSON.stringify([...keys]));
 }
 
-const TYPE_FILTERS: CustomerReviewFilterType[] = ['all', 'product', 'store', 'service'];
+const TYPE_FILTERS: CustomerReviewFilterType[] = ['all', 'product', 'store', 'service', 'b2b'];
 
 export default function ReviewsPage() {
   const { t, locale, dir } = useLocale();
@@ -145,8 +145,10 @@ export default function ReviewsPage() {
         : typeFilter === 'store'
           ? t('customerReviews.emptyPendingStore')
           : typeFilter === 'service'
-            ? t('customerReviews.emptyService')
-            : t('customerReviews.emptyPending');
+            ? t('customerReviews.emptyPendingService')
+            : typeFilter === 'b2b'
+              ? t('customerReviews.emptyPendingB2b')
+              : t('customerReviews.emptyPending');
 
   const emptyDescription =
     activeTab === 'published'
@@ -214,8 +216,7 @@ export default function ReviewsPage() {
               key={type}
               type="button"
               onClick={() => handleTypeChange(type)}
-              disabled={type === 'service'}
-              className={`px-4 py-2 rounded-xl text-sm font-bold border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`px-4 py-2 rounded-xl text-sm font-bold border transition-colors cursor-pointer ${
                 typeFilter === type
                   ? 'bg-diyar-brown text-white border-diyar-brown'
                   : 'bg-white text-gray-600 border-gray-200 hover:border-diyar-brown/40'
@@ -233,11 +234,6 @@ export default function ReviewsPage() {
             message={t('customerReviews.loadError')}
             error={error as Error}
             onRetry={() => void refetch()}
-          />
-        ) : typeFilter === 'service' ? (
-          <EmptyState
-            title={t('customerReviews.emptyService')}
-            description={t('customerReviews.serviceComingSoon')}
           />
         ) : allPendingSkipped ? (
           <EmptyState
