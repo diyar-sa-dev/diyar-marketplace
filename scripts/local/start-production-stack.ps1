@@ -5,6 +5,7 @@ $Root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 Set-Location $Root
 
 . (Join-Path $PSScriptRoot 'Sync-ProductionEnv.ps1')
+. (Join-Path $PSScriptRoot 'Ensure-DiyarHostsEntry.ps1')
 
 $EnvFile = Join-Path $Root 'deploy/docker/production.env'
 $Example = Join-Path $Root 'deploy/docker/production.env.local.example'
@@ -25,8 +26,9 @@ if ($appKey) {
 }
 
 $network = Sync-ProductionEnv -Root $Root
+Ensure-DiyarHostsEntry -Hostname $network.GatewayHost
 
-Write-Host 'Starting KVM2 production Docker stack (port 8093)...'
+Write-Host 'Starting KVM2 production Docker stack (API internal port 8093)...'
 docker compose -f docker-compose.production.yml --env-file deploy/docker/production.env up -d --build
 
 Write-Host 'Waiting for health...'
@@ -45,4 +47,7 @@ Write-Host ''
 Write-Host 'Frontend (separate terminal):'
 Write-Host '  .\scripts\local\start-frontend-prod-api.ps1'
 Write-Host ''
-Write-Host "LAN phone URL: http://$($network.LanHost):$($network.FrontendPort)"
+Write-Host 'Dev gateway (after Vite is running):'
+Write-Host '  .\scripts\local\start-dev-gateway.ps1'
+Write-Host ''
+Write-Host "Stable browser URL: $($network.GatewayUrl)"

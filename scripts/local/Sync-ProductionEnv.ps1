@@ -1,44 +1,14 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Resolves DIYAR_LAN_HOST and writes derived URL keys into deploy/docker/production.env.
+  Writes stable local URLs into deploy/docker/production.env.
 
 .DESCRIPTION
-  Single knob local networking:
-    DIYAR_LAN_HOST=auto   -> detected Wi‑Fi IPv4 (192.168.x.x), or 127.0.0.1
-    DIYAR_LAN_HOST=192.168.1.50  -> fixed IP (override auto)
+  Uses a fixed hostname (default diyar.local) — no Wi‑Fi IP auto-detect.
+  Open http://diyar.local:8080 via scripts/local/start-dev-gateway.ps1.
 
-  Synced keys: DIYAR_LAN_HOST, APP_URL, REVERB_HOST
-  Sanctum/CORS expand at runtime from *_BASE lists + DIYAR_LAN_HOST (see DiyarNetworkOrigins.php).
+  Override hostname only if needed: DIYAR_GATEWAY_HOST=mydiyar.local
 #>
-
-function Get-DiyarLanHost {
-    param(
-        [string]$Configured = 'auto'
-    )
-
-    if ($env:DIYAR_LAN_HOST -and $env:DIYAR_LAN_HOST -ne 'auto') {
-        return $env:DIYAR_LAN_HOST.Trim()
-    }
-
-    if ($Configured -and $Configured.Trim() -ne '' -and $Configured.Trim().ToLower() -ne 'auto') {
-        return $Configured.Trim()
-    }
-
-    $detected = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
-        Where-Object {
-            $_.IPAddress -like '192.168.*' -and
-            $_.PrefixOrigin -ne 'WellKnown' -and
-            $_.AddressState -eq 'Preferred'
-        } |
-        Select-Object -First 1 -ExpandProperty IPAddress
-
-    if ($detected) {
-        return $detected
-    }
-
-    return '127.0.0.1'
-}
 
 function Read-EnvMap {
     param([string]$Path)
@@ -134,31 +104,41 @@ function Sync-ProductionEnv {
 
     $map = Read-EnvMap -Path $envFile
     $httpPort = if ($map.HTTP_PORT) { $map.HTTP_PORT } else { '8093' }
-    $configuredLan = if ($map.DIYAR_LAN_HOST) { $map.DIYAR_LAN_HOST } else { 'auto' }
-    $lanHost = Get-DiyarLanHost -Configured $configuredLan
+    $gatewayHost = if ($map.DIYAR_GATEWAY_HOST) { $map.DIYAR_GATEWAY_HOST } elseif ($map.DIYAR_LAN_HOST -and $map.DIYAR_LAN_HOST -ne 'auto') { $map.DIYAR_LAN_HOST } else { 'diyar.local' }
+    $gatewayPort = if ($map.GATEWAY_PORT) { $map.GATEWAY_PORT } else { '8080' }
+    $frontendPort = if ($map.FRONTEND_PORT) { $map.FRONTEND_PORT } else { '3000' }
+    $gatewayUrl = "http://${gatewayHost}:${gatewayPort}"
 
-    Set-EnvMapValue -Map $map -Key 'DIYAR_LAN_HOST' -Value $lanHost
-    Set-EnvMapValue -Map $map -Key 'APP_URL' -Value "http://${lanHost}:${httpPort}"
-    Set-EnvMapValue -Map $map -Key 'REVERB_HOST' -Value $lanHost
-
-    if (-not $map.FRONTEND_PORT) { Set-EnvMapValue -Map $map -Key 'FRONTEND_PORT' -Value '3000' }
-    if (-not $map.HTTP_PORT) { Set-EnvMapValue -Map $map -Key 'HTTP_PORT' -Value $httpPort }
+    Set-EnvMapValue -Map $map -Key 'DIYAR_GATEWAY_HOST' -Value $gatewayHost
+    Set-EnvMapValue -Map $map -Key 'DIYAR_LAN_HOST' -Value $gatewayHost
+    Set-EnvMapValue -Map $map -Key 'GATEWAY_PORT' -Value $gatewayPort
+    Set-EnvMapValue -Map $map -Key 'HTTP_PORT' -Value $httpPort
+    Set-EnvMapValue -Map $map -Key 'FRONTEND_PORT' -Value $frontendPort
+    Set-EnvMapValue -Map $map -Key 'APP_URL' -Value $gatewayUrl
+    Set-EnvMapValue -Map $map -Key 'FRONTEND_URL' -Value $gatewayUrl
+    Set-EnvMapValue -Map $map -Key 'DIYAR_FRONTEND_URL' -Value $gatewayUrl
+    Set-EnvMapValue -Map $map -Key 'REVERB_HOST' -Value $gatewayHost
+    Set-EnvMapValue -Map $map -Key 'REVERB_PORT' -Value $gatewayPort
+    Set-EnvMapValue -Map $map -Key 'REVERB_SCHEME' -Value 'http'
 
     Write-EnvFile -Path $envFile -Map $map -KeyOrder @(
-        'DIYAR_LAN_HOST', 'HTTP_PORT', 'FRONTEND_PORT', 'APP_URL', 'REVERB_HOST'
+        'DIYAR_GATEWAY_HOST', 'DIYAR_LAN_HOST', 'GATEWAY_PORT', 'HTTP_PORT', 'FRONTEND_PORT',
+        'APP_URL', 'FRONTEND_URL', 'DIYAR_FRONTEND_URL', 'REVERB_HOST', 'REVERB_PORT', 'REVERB_SCHEME'
     )
 
-    Write-Host "Synced production.env:"
-    Write-Host "  DIYAR_LAN_HOST = $lanHost"
-    Write-Host "  APP_URL        = http://${lanHost}:${httpPort}"
-    Write-Host "  REVERB_HOST    = $lanHost"
-    Write-Host "  Phone frontend = http://${lanHost}:$($map.FRONTEND_PORT)"
-    Write-Host "  PC frontend    = http://localhost:$($map.FRONTEND_PORT)"
+    Write-Host 'Synced production.env (stable local URL):'
+    Write-Host "  DIYAR_GATEWAY_HOST = $gatewayHost"
+    Write-Host "  GATEWAY_PORT       = $gatewayPort"
+    Write-Host "  Open in browser    = $gatewayUrl"
+    Write-Host "  Docker API (internal) = http://127.0.0.1:$httpPort"
+    Write-Host "  Vite (internal)       = http://127.0.0.1:$frontendPort"
 
     return @{
-        LanHost = $lanHost
+        GatewayHost = $gatewayHost
+        GatewayPort = $gatewayPort
+        GatewayUrl = $gatewayUrl
         HttpPort = $httpPort
-        FrontendPort = $map.FRONTEND_PORT
+        FrontendPort = $frontendPort
     }
 }
 

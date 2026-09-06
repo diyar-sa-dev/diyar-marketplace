@@ -20,7 +20,8 @@ class DiyarNetworkOriginsTest extends TestCase
     #[Test]
     public function it_expands_lan_host_into_sanctum_and_cors_lists(): void
     {
-        putenv('DIYAR_LAN_HOST=192.168.1.50');
+        putenv('DIYAR_LAN_HOST=diyar.local');
+        putenv('GATEWAY_PORT=8080');
         putenv('FRONTEND_PORT=3000');
         putenv('HTTP_PORT=8093');
         putenv('SANCTUM_STATEFUL_DOMAINS_BASE=localhost,localhost:3000');
@@ -31,13 +32,15 @@ class DiyarNetworkOriginsTest extends TestCase
         $domains = DiyarNetworkOrigins::statefulDomains();
 
         $this->assertContains('localhost', $domains);
-        $this->assertContains('192.168.1.50', $domains);
-        $this->assertContains('192.168.1.50:3000', $domains);
-        $this->assertContains('192.168.1.50:8093', $domains);
+        $this->assertContains('diyar.local', $domains);
+        $this->assertContains('diyar.local:3000', $domains);
+        $this->assertContains('diyar.local:8093', $domains);
+        $this->assertContains('diyar.local:8080', $domains);
 
         $origins = DiyarNetworkOrigins::corsOrigins();
 
-        $this->assertContains('http://192.168.1.50:3000', $origins);
+        $this->assertContains('http://diyar.local:3000', $origins);
+        $this->assertContains('http://diyar.local:8080', $origins);
     }
 
     #[Test]

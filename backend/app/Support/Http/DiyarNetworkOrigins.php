@@ -55,7 +55,9 @@ final class DiyarNetworkOrigins
         $lan = self::lanHost();
         if ($lan !== null) {
             $frontendPort = (string) env('FRONTEND_PORT', '3000');
+            $gatewayPort = (string) env('GATEWAY_PORT', '8080');
             $origins[] = "http://{$lan}:{$frontendPort}";
+            $origins[] = "http://{$lan}:{$gatewayPort}";
         }
 
         $legacy = self::splitEnvList((string) env('CORS_ALLOWED_ORIGINS', ''));
@@ -95,10 +97,10 @@ final class DiyarNetworkOrigins
     public static function apiBaseUrl(): string
     {
         $lan = self::lanHost();
-        $port = (string) env('HTTP_PORT', '8093');
+        $gatewayPort = (string) env('GATEWAY_PORT', '8080');
 
         if ($lan !== null) {
-            return "http://{$lan}:{$port}";
+            return "http://{$lan}:{$gatewayPort}";
         }
 
         return rtrim((string) env('APP_URL', 'http://127.0.0.1:8093'), '/');
@@ -116,11 +118,13 @@ final class DiyarNetworkOrigins
 
         $frontendPort = (string) env('FRONTEND_PORT', '3000');
         $httpPort = (string) env('HTTP_PORT', '8093');
+        $gatewayPort = (string) env('GATEWAY_PORT', '8080');
 
         return [
             $lan,
             "{$lan}:{$frontendPort}",
             "{$lan}:{$httpPort}",
+            "{$lan}:{$gatewayPort}",
         ];
     }
 
