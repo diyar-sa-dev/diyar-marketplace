@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -17,6 +17,7 @@ import { useBlogArticle } from '../hooks/blog/useBlogArticle.ts';
 import { useBlogWishlistMutation } from '../hooks/blog/useBlogEngagement.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { usePageSeo } from '../hooks/usePageSeo.ts';
 import { useToast } from '../hooks/useToast.ts';
 import { formatBlogReadingTime } from '../lib/formatBlogReadingTime.ts';
 import { formatLocaleDate } from '../lib/intlLocale.ts';
@@ -34,6 +35,24 @@ export default function BlogArticlePage() {
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
   const { data, isPending, isError, error, refetch } = useBlogArticle(slug);
+  const seo = useMemo(() => {
+    const article = data?.article;
+    if (!article) {
+      return null;
+    }
+
+    return {
+      title: article.seo_title || t('seo.blogTitle', { title: article.title }),
+      description:
+        article.seo_description ||
+        t('seo.blogDescription', {
+          excerpt: article.excerpt || article.title,
+        }),
+      image: article.hero_image ?? undefined,
+      canonicalPath: `/blog/${article.slug}`,
+    };
+  }, [data?.article, t]);
+  usePageSeo(seo);
   const wishlist = useBlogWishlistMutation(slug);
   const [shareOpen, setShareOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);

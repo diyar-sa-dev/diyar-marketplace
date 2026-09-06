@@ -20,6 +20,7 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
+import { OptimizedPicture } from '../../common/OptimizedPicture.tsx';
 import { RailArrows } from './RailArrows.tsx';
 import {
   Star,
@@ -101,16 +102,24 @@ export function AIBanner() {
 
         <div className="w-full md:w-1/2 order-1 md:order-2 flex justify-center">
           <div className="relative w-full max-w-lg aspect-4/3 bg-[#1a3330] rounded-xl overflow-hidden shadow-md border border-white/10 ring-1 ring-white/5 mx-auto">
-            <img
+            <OptimizedPicture
               src="/before.png"
               alt={t('home.aiBanner.originalSpace')}
+              width={1200}
+              height={900}
+              decoding="async"
+              loading="lazy"
               className="absolute inset-0 w-full h-full object-cover filter grayscale-20 opacity-90"
             />
 
             <div className="absolute inset-0 animate-[sweep_4s_ease-in-out_infinite]">
-              <img
+              <OptimizedPicture
                 src="/after.png"
                 alt={t('home.aiBanner.assistantLayout')}
+                width={1200}
+                height={900}
+                decoding="async"
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover"
               />
             </div>

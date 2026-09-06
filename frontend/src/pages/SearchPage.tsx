@@ -31,6 +31,7 @@ import {
   useCatalogSearch,
 } from '../hooks/catalog/useCatalogSearch.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { usePageSeo } from '../hooks/usePageSeo.ts';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.ts';
 import { mapProductCard } from '../lib/catalogMappers.ts';
 import { SearchAutocomplete } from '../components/search/SearchAutocomplete.tsx';
@@ -77,6 +78,19 @@ export default function SearchPage() {
     () => readFiltersFromParams(searchParams, debouncedQuery),
     [searchParams, debouncedQuery],
   );
+
+  const seo = useMemo(
+    () => ({
+      title: rawQuery ? t('seo.searchTitle', { query: rawQuery }) : t('seo.searchEmptyTitle'),
+      description: rawQuery
+        ? t('seo.searchDescription', { query: rawQuery })
+        : t('seo.homeDescription'),
+      canonicalPath: rawQuery ? `/search?q=${encodeURIComponent(rawQuery)}` : '/search',
+      noindex: isVisualSearch,
+    }),
+    [isVisualSearch, rawQuery, t],
+  );
+  usePageSeo(seo);
 
   const { loyaltySarPerPoint, loyaltyPointsPerUnit } = usePlatformCommerce();
   const searchEnabled = !isVisualSearch && hasCatalogSearchContext(filters, rawQuery);

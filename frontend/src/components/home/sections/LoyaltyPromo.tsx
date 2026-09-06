@@ -20,6 +20,7 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
+import { OptimizedPicture } from '../../common/OptimizedPicture.tsx';
 import { RailArrows } from './RailArrows.tsx';
 import {
   Star,
@@ -95,6 +96,8 @@ export function LoyaltyPromo() {
                   })}
                 </span>
               </div>
+            ) : isAuthenticated ? (
+              <div className="mb-8 h-12 w-56 max-w-full rounded-2xl bg-amber-50/80 animate-pulse" aria-hidden />
             ) : null}
 
             <div className="flex flex-col gap-5 mb-10">
@@ -147,12 +150,16 @@ export function LoyaltyPromo() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-75 xl:w-100 h-75 xl:h-100 border border-amber-200 rounded-full z-0"></div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-100 xl:w-135 h-100 xl:h-135 border border-amber-200/50 rounded-full z-0 border-dashed"></div>
 
-            <div className="relative z-10 w-full max-w-70 md:max-w-85 xl:max-w-105 transition-transform duration-700 hover:scale-105">
-              <div className="absolute -inset-4 bg-amber-400/20 rounded-full blur-2xl -z-10"></div>
-              <img
+            <div className="relative z-10 w-full max-w-70 md:max-w-85 xl:max-w-105 transition-transform duration-700 hover:scale-105 aspect-square">
+              <div className="absolute -inset-4 bg-amber-400/20 rounded-full blur-2xl -z-10" />
+              <OptimizedPicture
                 src="/صورة نقاط الولاء.png"
                 alt={t('home.loyalty.imageAlt')}
-                className="w-full drop-shadow-md"
+                width={420}
+                height={420}
+                decoding="async"
+                loading="lazy"
+                className="w-full h-full object-contain drop-shadow-md"
               />
             </div>
 

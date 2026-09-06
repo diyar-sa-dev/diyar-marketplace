@@ -1,4 +1,5 @@
 import type { PlatformThemeTokens } from '../../api/platformTheme.ts';
+import { ensureThemeFontsLoaded } from './ensureThemeFonts.ts';
 
 const DEFAULTS: Required<PlatformThemeTokens> = {
   primary_color: '#947961',
@@ -25,6 +26,7 @@ export function applyPlatformTheme(theme: PlatformThemeTokens, locale: string): 
   const fontStack = locale === 'ar' ? merged.font_family_ar : merged.font_family_en;
   root.style.setProperty('--diyar-theme-font', fontStack);
   document.body.style.fontFamily = fontStack;
+  ensureThemeFontsLoaded(fontStack);
 }
 
 export function previewThemeFont(fullKey: string, fontStack: string, locale: string): void {
@@ -38,4 +40,5 @@ export function previewThemeFont(fullKey: string, fontStack: string, locale: str
 
   document.documentElement.style.setProperty('--diyar-theme-font', fontStack);
   document.body.style.fontFamily = fontStack;
+  ensureThemeFontsLoaded(fontStack);
 }

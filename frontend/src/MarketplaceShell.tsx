@@ -135,8 +135,26 @@ export default function MarketplaceShell() {
 
   if (isLoading && !hideMarketplaceChrome) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white" dir={dir}>
-        <div className="w-8 h-8 border-2 border-diyar-brown/30 border-t-diyar-brown rounded-full animate-spin" />
+      <div className="min-h-screen bg-white font-sans text-diyar-dark pb-17.5 md:pb-0 overflow-x-hidden" dir={dir}>
+        <AnnouncementBar />
+        <div className="sticky top-0 z-50 w-full flex justify-center h-0 overflow-visible">
+          <div className="w-full flex justify-center absolute top-0 mt-2 md:mt-4 pointer-events-none">
+            <header className="max-w-350 w-full px-3 md:px-4 pointer-events-auto">
+              <div className="bg-white/95 backdrop-blur-md rounded-4xl shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 flex items-center justify-between p-2 lg:px-4 lg:py-3 gap-3 w-full animate-pulse">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gray-100" />
+                  <div className="h-8 w-24 rounded bg-gray-100" />
+                </div>
+                <div className="hidden md:block flex-1 max-w-md h-10 rounded-full bg-gray-100 mx-4" />
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-100" />
+                  <div className="w-8 h-8 rounded-full bg-gray-100" />
+                </div>
+              </div>
+            </header>
+          </div>
+        </div>
+        <main className="h-[min(88vh,720px)] md:h-[calc(100vh-48px)] animate-pulse bg-gray-50" aria-busy="true" />
       </div>
     );
   }
@@ -165,7 +183,7 @@ export default function MarketplaceShell() {
                       <Menu size={20} />
                     </button>
                     <Link to="/" className="cursor-pointer">
-                      <img src="/logo_diyar.svg" alt="DIYAR" className="h-7 md:h-8 mr-2 lg:mr-0" />
+                      <img src="/logo_diyar.svg" alt="DIYAR" width={120} height={32} className="h-7 md:h-8 mr-2 lg:mr-0" />
                     </Link>
                   </div>
 

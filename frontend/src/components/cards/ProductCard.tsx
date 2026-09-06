@@ -202,6 +202,10 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
         <img
           src={item.img}
           alt={item.name}
+          width={400}
+          height={300}
+          decoding="async"
+          loading="lazy"
           referrerPolicy="no-referrer"
           className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
           onError={(e) => {

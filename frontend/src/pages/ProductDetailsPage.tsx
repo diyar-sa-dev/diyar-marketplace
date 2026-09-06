@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import {
   Bookmark,
@@ -34,6 +34,7 @@ import { useCart } from '../hooks/cart/useCart.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { shouldHideMarketplaceCommerce } from '../lib/marketplaceCommerce.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { usePageSeo } from '../hooks/usePageSeo.ts';
 import { useToast } from '../hooks/useToast.ts';
 import {
   availabilityLabel,
@@ -73,6 +74,20 @@ export default function ProductDetailsPage() {
   const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const { data: product, isLoading, isError, error, refetch } = useProduct(id);
+  const seo = useMemo(() => {
+    if (!product) {
+      return null;
+    }
+
+    const image = product.images?.[0]?.url ? resolveMediaUrl(product.images[0].url) : undefined;
+    return {
+      title: t('seo.productTitle', { name: product.name }),
+      description: t('seo.productDescription', { name: product.name }),
+      image,
+      canonicalPath: `/product/${product.slug ?? id}`,
+    };
+  }, [product, t, id]);
+  usePageSeo(seo);
   const vendorSlug = isValidStoreSlug(product?.vendor?.slug) ? product?.vendor?.slug : undefined;
   const { data: vendorProfile, refetch: refetchVendorProfile } = useVendor(vendorSlug);
   const { follow, unfollow } = useStoreFollow(vendorSlug);

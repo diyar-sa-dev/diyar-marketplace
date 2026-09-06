@@ -38,8 +38,12 @@ function deliveryPreconnectPlugin(): Plugin {
       const preconnect = backendOrigin
         ? `<link rel="preconnect" href="${backendOrigin}" crossorigin />\n    <link rel="dns-prefetch" href="${backendOrigin}" />`
         : '';
+      const lcpPreload =
+        '<link rel="preload" as="image" href="/hero_1.webp" type="image/webp" fetchpriority="high" />';
 
-      return html.replace('<!-- diyar-preconnect -->', preconnect);
+      return html
+        .replace('<!-- diyar-preconnect -->', preconnect)
+        .replace('<!-- diyar-lcp-preload -->', lcpPreload);
     },
   };
 }

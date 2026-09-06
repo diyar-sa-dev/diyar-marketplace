@@ -35,6 +35,7 @@ import { EmptyState } from '../components/common/EmptyState.tsx';
 import NotFoundPage from './errors/NotFoundPage.tsx';
 import { isNotFoundError } from '../utils/errors.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { usePageSeo } from '../hooks/usePageSeo.ts';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.ts';
 
 const CATEGORIES = {
@@ -614,6 +615,16 @@ export default function CategoryPage() {
   );
 
   const { data: apiCategory, error: categoryError } = useCategory(slug);
+  const categorySeoName = apiCategory?.name ?? staticMeta?.name ?? slug;
+  const seo = useMemo(
+    () => ({
+      title: t('seo.categoryTitle', { name: categorySeoName }),
+      description: t('seo.categoryDescription', { name: categorySeoName }),
+      canonicalPath: `/category/${slug}`,
+    }),
+    [categorySeoName, slug, t],
+  );
+  usePageSeo(seo);
   const isServiceCategory =
     apiCategory?.type === 'service' || KNOWN_SERVICE_CATEGORY_SLUGS.has(slug);
 
