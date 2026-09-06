@@ -1,8 +1,8 @@
-import Swal from 'sweetalert2';
 import type { TranslateFn } from './i18n/types.ts';
 import type { Locale } from './i18n/types.ts';
 import { parseApiError, isValidationError } from '../utils/errors.ts';
 import { translate } from './i18n/translate.ts';
+import { getSwal } from './swalLoader.ts';
 
 const swalCustomClass = {
   popup: 'diyar-swal',
@@ -29,6 +29,7 @@ export async function confirmArchiveProduct(
   t: TranslateFn,
   productName?: string,
 ): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('vendor.dialog.archiveTitle'),
@@ -47,6 +48,7 @@ export async function confirmArchiveProduct(
 }
 
 export async function confirmDeleteImage(t: TranslateFn): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('vendor.dialog.deleteImageTitle'),
@@ -63,6 +65,7 @@ export async function confirmDeleteImage(t: TranslateFn): Promise<boolean> {
 }
 
 export async function showSuccessToast(t: TranslateFn, titleKey: string): Promise<void> {
+  const Swal = await getSwal();
   await Swal.fire({
     ...toastOptions,
     toast: true,
@@ -81,6 +84,7 @@ export async function showErrorAlert(
   titleKey: string,
   textKey?: string,
 ): Promise<void> {
+  const Swal = await getSwal();
   await Swal.fire({
     ...modalOptions,
     title: t(titleKey),
@@ -100,6 +104,7 @@ export async function showApiErrorAlert(
   const parsed = parseApiError(error, locale);
   const unexpectedMessage = translate(locale, 'errors.unexpected');
 
+  const Swal = await getSwal();
   await Swal.fire({
     ...modalOptions,
     title: isValidationError(parsed) ? parsed.message : t(fallbackTitleKey),
@@ -115,6 +120,7 @@ export async function showApiErrorAlert(
 }
 
 export async function confirmClearWishlist(t: TranslateFn): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('profile.wishlistPage.clearTitle'),
@@ -131,6 +137,7 @@ export async function confirmClearWishlist(t: TranslateFn): Promise<boolean> {
 }
 
 export async function confirmDeleteReview(t: TranslateFn): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('catalog.productDetail.deleteReviewTitle'),
@@ -147,6 +154,7 @@ export async function confirmDeleteReview(t: TranslateFn): Promise<boolean> {
 }
 
 export async function confirmDeleteAllNotifications(t: TranslateFn): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('notifications.deleteAllTitle'),
@@ -163,6 +171,7 @@ export async function confirmDeleteAllNotifications(t: TranslateFn): Promise<boo
 }
 
 export async function confirmRemoveConversation(t: TranslateFn): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('chat.removeConversationTitle'),
@@ -179,6 +188,7 @@ export async function confirmRemoveConversation(t: TranslateFn): Promise<boolean
 }
 
 export async function confirmSuspendUser(t: TranslateFn, userName?: string): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.users.suspend'),
@@ -197,6 +207,7 @@ export async function confirmSuspendUser(t: TranslateFn, userName?: string): Pro
 }
 
 export async function confirmSuspendVendor(t: TranslateFn, storeName?: string): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.detail.vendor.suspend'),
@@ -218,6 +229,7 @@ export async function confirmSuspendProvider(
   t: TranslateFn,
   providerName?: string,
 ): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.detail.provider.suspend'),
@@ -235,7 +247,30 @@ export async function confirmSuspendProvider(
   return result.isConfirmed;
 }
 
+export async function confirmSuspendAffiliate(
+  t: TranslateFn,
+  affiliateName?: string,
+): Promise<boolean> {
+  const Swal = await getSwal();
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.detail.affiliate.suspend'),
+    text: affiliateName
+      ? t('admin.detail.affiliate.suspendConfirmNamed', { name: affiliateName })
+      : t('admin.detail.affiliate.suspendConfirm'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.detail.affiliate.suspend'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
 export async function confirmActivateUser(t: TranslateFn, userName?: string): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.users.activate'),
@@ -254,6 +289,7 @@ export async function confirmActivateUser(t: TranslateFn, userName?: string): Pr
 }
 
 export async function confirmRejectPayout(t: TranslateFn): Promise<string | null> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.payouts.rejectTitle'),
@@ -282,6 +318,7 @@ export async function confirmDeleteCategory(
   t: TranslateFn,
   categoryName?: string,
 ): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('admin.categories.deleteTitle'),
@@ -299,7 +336,91 @@ export async function confirmDeleteCategory(
   return result.isConfirmed;
 }
 
+export async function confirmDeleteBlogArticle(
+  t: TranslateFn,
+  articleTitle?: string,
+): Promise<boolean> {
+  const Swal = await getSwal();
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.blogArticles.deleteTitle'),
+    text: articleTitle
+      ? t('admin.blogArticles.deleteConfirmNamed', { name: articleTitle })
+      : t('admin.blogArticles.deleteConfirm'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.blogArticles.deleteAction'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
+export async function confirmDeleteShippingItem(
+  t: TranslateFn,
+  itemName?: string,
+): Promise<boolean> {
+  const Swal = await getSwal();
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.shipping.deleteTitle'),
+    text: itemName
+      ? t('admin.shipping.deleteConfirmNamed', { name: itemName })
+      : t('admin.shipping.confirmDelete'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.shipping.deleteAction'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
+export async function confirmDeleteFeedback(t: TranslateFn): Promise<boolean> {
+  const Swal = await getSwal();
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.feedback.deleteTitle'),
+    text: t('admin.feedback.deleteBody'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.feedback.deleteAction'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
+export async function confirmDeleteProject(
+  t: TranslateFn,
+  projectTitle?: string,
+): Promise<boolean> {
+  const Swal = await getSwal();
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.projects.deleteTitle'),
+    text: projectTitle
+      ? t('admin.projects.deleteConfirmNamed', { name: projectTitle })
+      : t('admin.projects.deleteConfirm'),
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: t('admin.projects.deleteAction'),
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+
+  return result.isConfirmed;
+}
+
 export async function showShareLinkDialog(t: TranslateFn, url: string): Promise<boolean> {
+  const Swal = await getSwal();
   const result = await Swal.fire({
     ...modalOptions,
     title: t('catalog.productDetail.share'),
@@ -320,6 +441,38 @@ export async function showShareLinkDialog(t: TranslateFn, url: string): Promise<
         return false;
       }
     },
+  });
+
+  return result.isConfirmed;
+}
+
+export async function confirmLoyaltyAdjustment(
+  t: TranslateFn,
+  options: {
+    direction: 'credit' | 'debit';
+    points: number;
+    currentBalance: number;
+  },
+): Promise<boolean> {
+  const body =
+    options.direction === 'credit'
+      ? t('admin.loyalty.confirmAdjustBodyCredit', { points: options.points })
+      : t('admin.loyalty.confirmAdjustBodyDebit', {
+          points: options.points,
+          balance: Math.max(0, options.currentBalance - options.points),
+        });
+
+  const Swal = await getSwal();
+  const result = await Swal.fire({
+    ...modalOptions,
+    title: t('admin.loyalty.confirmAdjustTitle'),
+    text: body,
+    icon: options.direction === 'debit' ? 'warning' : 'question',
+    showCancelButton: true,
+    confirmButtonText: t('admin.loyalty.confirmAdjustConfirm'),
+    cancelButtonText: t('admin.loyalty.confirmAdjustCancel'),
+    confirmButtonColor: options.direction === 'debit' ? '#ef4444' : '#111827',
+    cancelButtonColor: '#6b7280',
   });
 
   return result.isConfirmed;

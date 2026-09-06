@@ -27,6 +27,7 @@ class StoreProductRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'sale_price' => ['required', 'numeric', 'min:0'],
             'compare_price' => ['nullable', 'numeric', 'min:0'],
+            'promotion_ends_at' => ['nullable', 'date', 'after:now'],
             'width' => ['nullable', 'numeric', 'min:0'],
             'height' => ['nullable', 'numeric', 'min:0'],
             'depth' => ['nullable', 'numeric', 'min:0'],

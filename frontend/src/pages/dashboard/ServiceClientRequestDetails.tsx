@@ -76,6 +76,12 @@ export default function ServiceClientRequestDetails() {
   }, [id, isSubmitted]);
 
   const submittedOffer: ServiceOffer | undefined = request?.offers?.[0];
+  const createdBooking = request?.booking ?? submittedOffer?.booking ?? null;
+  const offerBecameBooking =
+    Boolean(createdBooking?.id) &&
+    (request?.status === 'offer_accepted' ||
+      request?.status === 'in_progress' ||
+      submittedOffer?.status === 'accepted');
   const minScheduleTime = scheduledDate ? minTimeForDate(scheduledDate) : undefined;
 
   const handlePriceChange = (value: string) => {
@@ -272,11 +278,27 @@ export default function ServiceClientRequestDetails() {
                     <CheckCircle2 size={32} className="text-green-500" />
                   </div>
                   <h4 className="text-lg font-bold text-gray-800 mb-2">
-                    {t('providerDashboard.clientRequestDetails.offerSubmittedTitle')}
+                    {t(
+                      offerBecameBooking
+                        ? 'providerDashboard.clientRequestDetails.offerAcceptedTitle'
+                        : 'providerDashboard.clientRequestDetails.offerSubmittedTitle',
+                    )}
                   </h4>
                   <p className="text-gray-500 text-sm">
-                    {t('providerDashboard.clientRequestDetails.offerSubmittedDescription')}
+                    {offerBecameBooking
+                      ? t('providerDashboard.clientRequestDetails.offerAcceptedDescription', {
+                          reference: createdBooking?.reference ?? '',
+                        })
+                      : t('providerDashboard.clientRequestDetails.offerSubmittedDescription')}
                   </p>
+                  {offerBecameBooking && createdBooking?.id ? (
+                    <Link
+                      to={`/dashboard/service/bookings?highlight=${createdBooking.id}`}
+                      className="inline-flex items-center justify-center gap-2 mt-4 bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors"
+                    >
+                      {t('providerDashboard.clientRequestDetails.openBooking')}
+                    </Link>
+                  ) : null}
                 </div>
 
                 {submittedOffer ? (

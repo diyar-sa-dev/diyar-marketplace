@@ -41,6 +41,11 @@ class ServiceRequestCardResource extends JsonResource
             ]),
             'attachments_count' => (int) ($this->attachments_count ?? 0),
             'provider_has_offer' => (bool) ($this->provider_has_offer ?? false),
+            'booking' => $this->whenLoaded('booking', fn () => $this->booking ? [
+                'id' => $this->booking->id,
+                'reference' => $this->booking->reference,
+                'status' => $this->booking->status->value,
+            ] : null),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

@@ -12,7 +12,7 @@ use App\Models\User;
 use App\Models\VendorAccount;
 use App\Services\Media\MediaUploadService;
 use App\Services\Vendor\VendorAccessService;
-use App\Support\Cache\CatalogCacheVersion;
+use App\Support\Pagination\PaginationBounds;
 use App\Support\SlugGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -44,9 +44,10 @@ final class ProductService
 
         $this->applyFilters($query, $filters);
 
-        $perPage = min(max((int) ($filters['per_page'] ?? 20), 1), 50);
+        $perPage = PaginationBounds::perPage((int) ($filters['per_page'] ?? 20));
+        $page = PaginationBounds::page((int) ($filters['page'] ?? 1));
 
-        return $query->paginate($perPage);
+        return $query->paginate($perPage, ['*'], 'page', $page);
     }
 
     /**
@@ -153,6 +154,11 @@ final class ProductService
                 'description' => $attributes['description'] ?? null,
                 'sale_price' => $attributes['sale_price'],
                 'compare_price' => $attributes['compare_price'] ?? null,
+                'promotion_ends_at' => $this->resolvePromotionEndsAt(
+                    $attributes['compare_price'] ?? null,
+                    $attributes['sale_price'],
+                    $attributes['promotion_ends_at'] ?? null,
+                ),
                 'width' => $attributes['width'] ?? null,
                 'height' => $attributes['height'] ?? null,
                 'depth' => $attributes['depth'] ?? null,
@@ -171,7 +177,7 @@ final class ProductService
                 $this->attachImages($user, $product, $images);
             }
 
-            CatalogCacheVersion::bump();
+            app(CatalogCacheInvalidator::class)->invalidateSearchCachesAfterCommit();
 
             return $product->fresh(['vendorAccount', 'category', 'colors', 'images.mediaFile', 'inventory']);
         });
@@ -195,6 +201,7 @@ final class ProductService
                 'description' => array_key_exists('description', $attributes) ? $attributes['description'] : $product->description,
                 'sale_price' => $attributes['sale_price'] ?? $product->sale_price,
                 'compare_price' => array_key_exists('compare_price', $attributes) ? $attributes['compare_price'] : $product->compare_price,
+                'promotion_ends_at' => $this->resolvePromotionEndsAtForUpdate($product, $attributes),
                 'width' => array_key_exists('width', $attributes) ? $attributes['width'] : $product->width,
                 'height' => array_key_exists('height', $attributes) ? $attributes['height'] : $product->height,
                 'depth' => array_key_exists('depth', $attributes) ? $attributes['depth'] : $product->depth,
@@ -213,7 +220,7 @@ final class ProductService
 
             $this->syncReturnPolicy($product, $attributes);
 
-            CatalogCacheVersion::bump();
+            app(CatalogCacheInvalidator::class)->invalidateSearchCachesAfterCommit();
 
             return $product->fresh(['vendorAccount', 'category', 'colors', 'images.mediaFile', 'inventory']);
         });
@@ -226,7 +233,7 @@ final class ProductService
         $product->forceFill(['status' => ProductStatus::Archived])->save();
         $product->delete();
 
-        CatalogCacheVersion::bump();
+        app(CatalogCacheInvalidator::class)->invalidateSearchCachesAfterCommit();
 
         return $product->fresh();
     }
@@ -370,11 +377,17 @@ final class ProductService
     private function applyFilters(Builder $query, array $filters): void
     {
         if (! empty($filters['q'])) {
-            $term = '%'.mb_substr((string) $filters['q'], 0, 120).'%';
-            $query->where(function (Builder $q) use ($term) {
-                $q->where('name', 'like', $term)
-                    ->orWhere('description', 'like', $term);
-            });
+            $raw = mb_substr((string) $filters['q'], 0, 120);
+
+            if (DB::connection()->getDriverName() === 'mysql') {
+                $query->whereFullText(['name', 'description'], $raw);
+            } else {
+                $term = '%'.$raw.'%';
+                $query->where(function (Builder $q) use ($term) {
+                    $q->where('name', 'like', $term)
+                        ->orWhere('description', 'like', $term);
+                });
+            }
         }
 
         if (! empty($filters['category_id'])) {
@@ -393,8 +406,16 @@ final class ProductService
         }
 
         if (! empty($filters['vendor_slug'])) {
-            $query->whereHas('vendorAccount', fn (Builder $vendorQuery) => $vendorQuery
-                ->where('slug', (string) $filters['vendor_slug']));
+            $vendorId = VendorAccount::query()
+                ->where('slug', (string) $filters['vendor_slug'])
+                ->where('status', 'active')
+                ->value('id');
+
+            if ($vendorId !== null) {
+                $query->where('vendor_account_id', $vendorId);
+            } else {
+                $query->whereRaw('0 = 1');
+            }
         }
 
         $colorList = $this->normalizeColorFilter($filters);
@@ -422,8 +443,7 @@ final class ProductService
         }
 
         if ($this->isTruthy($filters['discounted'] ?? null)) {
-            $query->whereNotNull('compare_price')
-                ->whereColumn('compare_price', '>', 'sale_price');
+            $query->withActiveDiscount();
         }
 
         if (isset($filters['min_price'])) {
@@ -558,12 +578,16 @@ final class ProductService
      */
     private function attachImages(User $user, Product $product, array $files): void
     {
-        $currentCount = $product->images()->count();
+        $imageStats = $product->images()
+            ->reorder()
+            ->selectRaw('COUNT(*) as image_count, COALESCE(MAX(sort_order), 0) as max_sort_order')
+            ->first();
+        $currentCount = (int) ($imageStats->image_count ?? 0);
         if ($currentCount + count($files) > self::MAX_IMAGES) {
             throw new InvalidArgumentException(__('diyar.catalog.max_images_exceeded'));
         }
 
-        $sortOrder = (int) $product->images()->max('sort_order');
+        $sortOrder = (int) ($imageStats->max_sort_order ?? 0);
 
         foreach ($files as $file) {
             $sortOrder++;
@@ -578,5 +602,38 @@ final class ProductService
     private function requireVendorAccount(User $user): VendorAccount
     {
         return $this->access->requireVendorAccount($user);
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private function resolvePromotionEndsAtForUpdate(Product $product, array $attributes): mixed
+    {
+        $comparePrice = array_key_exists('compare_price', $attributes)
+            ? $attributes['compare_price']
+            : $product->compare_price;
+        $salePrice = $attributes['sale_price'] ?? $product->sale_price;
+        $promotionEndsAt = array_key_exists('promotion_ends_at', $attributes)
+            ? $attributes['promotion_ends_at']
+            : $product->promotion_ends_at;
+
+        return $this->resolvePromotionEndsAt($comparePrice, $salePrice, $promotionEndsAt);
+    }
+
+    private function resolvePromotionEndsAt(mixed $comparePrice, mixed $salePrice, mixed $promotionEndsAt): mixed
+    {
+        if ($comparePrice === null || $comparePrice === '') {
+            return null;
+        }
+
+        if ((float) $comparePrice <= (float) $salePrice) {
+            return null;
+        }
+
+        if ($promotionEndsAt === null || $promotionEndsAt === '') {
+            return null;
+        }
+
+        return $promotionEndsAt;
     }
 }

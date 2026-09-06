@@ -46,6 +46,7 @@ export interface VendorProductPayload {
   description?: string | null;
   sale_price: number;
   compare_price?: number | null;
+  promotion_ends_at?: string | null;
   stock_quantity: number;
   width?: number | null;
   height?: number | null;

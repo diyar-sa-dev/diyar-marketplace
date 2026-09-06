@@ -14,5 +14,8 @@ export QUEUE_CONNECTION=sync
 export REDIS_HOST="${REDIS_HOST:-127.0.0.1}"
 export REDIS_PORT="${REDIS_PORT:-6379}"
 export DIYAR_PAYMENT_USE_FAKE_GATEWAY=true
+export DIYAR_LOADTEST_MODE=true
+export FRONTEND_URL=http://127.0.0.1:3000
+export DIYAR_FRONTEND_URL=http://127.0.0.1:3000
 
 exec php artisan serve --host=127.0.0.1 --port=8000 --no-reload

@@ -1,0 +1,11 @@
+{
+  "timestamp_utc": "2026-08-29T10:21:05+00:00",
+  "host": "127.0.0.1:3306",
+  "engine": "10.4.32-MariaDB",
+  "note": "NOT MySQL 8.0 — production target is MySQL 8; CI backend-mysql job validates MySQL 8 EXPLAIN",
+  "index_explain_tests": "6/6 PASS on MariaDB",
+  "products_list_index": "products_status_created_at_index",
+  "row_counts": { "products": 0, "orders": 0 },
+  "explain_analyze": "NOT SUPPORTED on MariaDB 10.4",
+  "rigor": "PARTIALLY VERIFIED — index plans only; empty dataset; MariaDB not MySQL 8"
+}

@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Loader2, X } from 'lucide-react';
 import { StarRating } from '../product/StarRating.tsx';
 import { ReviewTypeBadge } from './ReviewTypeBadge.tsx';
-import { resolveMediaUrl } from '../../lib/media.ts';
 import { validateStoreReviewInput, MAX_COMMENT_LENGTH } from '../../lib/storeReviewValidation.ts';
 import { submitProductReview } from '../../api/productEngagement.ts';
 import { submitStoreReview } from '../../api/storeReviews.ts';
+import { submitProviderReview } from '../../api/providerReviews.ts';
+import { submitB2bCompanyReview } from '../../api/b2bReviews.ts';
 import { showErrorAlert, showSuccessToast } from '../../lib/confirmDialog.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
+import { customerReviewSubjectImage, customerReviewSubjectTitle, customerReviewServiceSource } from '../../lib/customerReviewSubject.ts';
 import type { PendingCustomerReview } from '../../api/customerReviews.ts';
 
 interface PendingReviewCardProps {
@@ -24,10 +26,29 @@ export function PendingReviewCard({ item, t, onSkipped, onSubmitted }: PendingRe
   const [submitting, setSubmitting] = useState(false);
 
   const isProduct = item.type === 'product';
-  const title = isProduct ? item.product?.name : item.store?.name;
-  const imageUrl = isProduct
-    ? resolveMediaUrl(item.product?.image_url)
-    : resolveMediaUrl(item.store?.logo_url);
+  const isService = item.type === 'service';
+  const isB2b = item.type === 'b2b';
+  const untitled =
+    isProduct
+      ? t('customerReviews.typeProduct')
+      : isService
+        ? t('serviceBookings.defaultServiceTitle')
+        : isB2b
+          ? t('customerReviews.typeB2b')
+          : t('customerReviews.typeStore');
+  const title = customerReviewSubjectTitle(item, untitled);
+  const imageUrl = customerReviewSubjectImage(item);
+
+  const serviceSource = customerReviewServiceSource(item);
+  const rateLabel = isProduct
+    ? t('customerReviews.rateProduct')
+    : isService
+      ? serviceSource === 'rfq'
+        ? t('customerReviews.rateServiceRequest')
+        : t('customerReviews.rateService')
+      : isB2b
+        ? t('customerReviews.rateB2b')
+        : t('customerReviews.rateStore');
 
   const handleSubmit = async () => {
     const trimmed = comment.trim();
@@ -44,7 +65,18 @@ export function PendingReviewCard({ item, t, onSkipped, onSubmitted }: PendingRe
           rating,
           comment: trimmed || undefined,
         });
-      } else if (!isProduct && item.store?.slug && item.order_id) {
+      } else if (isService && item.booking_id) {
+        await submitProviderReview(item.booking_id, {
+          rating,
+          comment: trimmed || undefined,
+        });
+      } else if (isB2b && item.company?.slug && item.b2b_lead_id) {
+        await submitB2bCompanyReview(item.company.slug, {
+          b2b_lead_id: item.b2b_lead_id,
+          rating,
+          comment: trimmed || undefined,
+        });
+      } else if (!isProduct && !isService && !isB2b && item.store?.slug && item.order_id) {
         await submitStoreReview(item.store.slug, {
           order_id: item.order_id,
           rating,
@@ -79,14 +111,29 @@ export function PendingReviewCard({ item, t, onSkipped, onSubmitted }: PendingRe
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-1">
-              <h3 className="font-bold text-diyar-dark text-sm wrap-break-word">{title ?? '—'}</h3>
-              <ReviewTypeBadge type={item.type} t={t} />
+              <h3 className="font-bold text-diyar-dark text-sm wrap-break-word">{title}</h3>
+              <ReviewTypeBadge type={item.type} serviceSource={serviceSource} t={t} />
             </div>
-            {item.order_number && (
+            {'order_number' in item && item.order_number ? (
               <p className="text-xs text-gray-500">
                 {t('orders.orderNumber')}: {item.order_number}
               </p>
+            ) : null}
+            {isService && item.request_reference ? (
+              <p className="text-xs text-gray-500">
+                {t('customerReviews.requestReference')}: {item.request_reference}
+              </p>
+            ) : null}
+            {isService && item.booking_reference && (
+              <p className="text-xs text-gray-500">
+                {t('customerReviews.bookingReference')}: {item.booking_reference}
+              </p>
             )}
+            {isB2b && item.project_type ? (
+              <p className="text-xs text-gray-500">
+                {t('b2b.company.projectType')}: {item.project_type}
+              </p>
+            ) : null}
           </div>
         </div>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto shrink-0">
@@ -95,7 +142,7 @@ export function PendingReviewCard({ item, t, onSkipped, onSubmitted }: PendingRe
             onClick={() => setOpen(true)}
             className={`${vendorButtonClass} flex-1 sm:flex-none bg-diyar-brown text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-[#A67B5B] transition-colors cursor-pointer`}
           >
-            {isProduct ? t('customerReviews.rateProduct') : t('customerReviews.rateStore')}
+            {rateLabel}
           </button>
           <button
             type="button"
@@ -117,9 +164,7 @@ export function PendingReviewCard({ item, t, onSkipped, onSubmitted }: PendingRe
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="min-w-0">
                 <h3 className="font-bold text-diyar-dark wrap-break-word">{title}</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  {isProduct ? t('customerReviews.rateProduct') : t('customerReviews.rateStore')}
-                </p>
+                <p className="text-sm text-gray-500 mt-1">{rateLabel}</p>
               </div>
               <button
                 type="button"

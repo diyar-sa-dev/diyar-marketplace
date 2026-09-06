@@ -2,6 +2,7 @@
 
 namespace App\Services\Coupon;
 
+use App\Enums\CouponScopeType;
 use App\Enums\VendorCouponType;
 use App\Events\Domain\CouponActivated;
 use App\Events\Domain\CouponDeactivated;
@@ -46,7 +47,8 @@ final class VendorCouponManagementService
     public function create(User $user, array $payload): VendorCoupon
     {
         $vendor = $this->requireVendorAccount($user);
-        $this->assertPercentageValue((int) $payload['value']);
+        $type = VendorCouponType::from((string) ($payload['type'] ?? VendorCouponType::Percentage->value));
+        $this->assertTypePayload($type, $payload);
 
         $code = VendorCoupon::normalizeCode((string) $payload['code']);
 
@@ -58,13 +60,18 @@ final class VendorCouponManagementService
             return VendorCoupon::query()->create([
                 'vendor_account_id' => $vendor->id,
                 'code' => $code,
-                'type' => VendorCouponType::Percentage,
-                'value' => (int) $payload['value'],
+                'type' => $type,
+                'scope_type' => CouponScopeType::from((string) ($payload['scope_type'] ?? CouponScopeType::All->value)),
+                'value' => $type === VendorCouponType::Percentage ? (int) $payload['value'] : 0,
+                'fixed_amount' => $type === VendorCouponType::Fixed ? $payload['fixed_amount'] : null,
                 'minimum_order' => $payload['minimum_order'] ?? 0,
                 'maximum_discount' => $payload['maximum_discount'] ?? null,
                 'starts_at' => $payload['starts_at'] ?? null,
                 'ends_at' => $payload['ends_at'] ?? null,
                 'usage_limit' => $payload['usage_limit'] ?? null,
+                'usage_limit_per_user' => $payload['usage_limit_per_user'] ?? null,
+                'stackable' => $payload['stackable'] ?? false,
+                'exclusive_group' => $payload['exclusive_group'] ?? null,
                 'is_active' => $payload['is_active'] ?? true,
             ]);
         } catch (QueryException $exception) {
@@ -84,7 +91,7 @@ final class VendorCouponManagementService
         $this->findOwned($user, $coupon->id);
 
         if ($coupon->used_count > 0) {
-            $locked = ['code', 'value', 'type', 'vendor_account_id'];
+            $locked = ['code', 'value', 'type', 'vendor_account_id', 'fixed_amount'];
             foreach ($locked as $field) {
                 if (array_key_exists($field, $payload)) {
                     throw new InvalidArgumentException(__('diyar.coupons.cannot_edit_after_use'));
@@ -94,26 +101,20 @@ final class VendorCouponManagementService
 
         $updates = [];
 
-        if (array_key_exists('minimum_order', $payload)) {
-            $updates['minimum_order'] = $payload['minimum_order'];
+        foreach ([
+            'minimum_order', 'maximum_discount', 'starts_at', 'ends_at', 'usage_limit',
+            'usage_limit_per_user', 'stackable', 'exclusive_group',
+        ] as $field) {
+            if (array_key_exists($field, $payload)) {
+                $updates[$field] = $payload[$field];
+            }
         }
-        if (array_key_exists('maximum_discount', $payload)) {
-            $updates['maximum_discount'] = $payload['maximum_discount'];
-        }
-        if (array_key_exists('starts_at', $payload)) {
-            $updates['starts_at'] = $payload['starts_at'];
-        }
-        if (array_key_exists('ends_at', $payload)) {
-            $updates['ends_at'] = $payload['ends_at'];
-        }
-        if (array_key_exists('usage_limit', $payload)) {
-            $updates['usage_limit'] = $payload['usage_limit'];
-        }
+
         if (array_key_exists('is_active', $payload)) {
             $updates['is_active'] = (bool) $payload['is_active'];
         }
 
-        if (! $coupon->used_count && array_key_exists('value', $payload)) {
+        if (! $coupon->used_count && array_key_exists('value', $payload) && $coupon->type === VendorCouponType::Percentage) {
             $this->assertPercentageValue((int) $payload['value']);
             $updates['value'] = (int) $payload['value'];
         }
@@ -163,6 +164,18 @@ final class VendorCouponManagementService
         return $fresh;
     }
 
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function assertTypePayload(VendorCouponType $type, array $payload): void
+    {
+        match ($type) {
+            VendorCouponType::Percentage => $this->assertPercentageValue((int) ($payload['value'] ?? 0)),
+            VendorCouponType::Fixed => $this->assertFixedAmount((string) ($payload['fixed_amount'] ?? '0')),
+            VendorCouponType::FreeShipping => null,
+        };
+    }
+
     private function requireVendorAccount(User $user): VendorAccount
     {
         $vendor = $user->vendorAccount;
@@ -184,6 +197,13 @@ final class VendorCouponManagementService
                 'min' => $min,
                 'max' => $max,
             ]));
+        }
+    }
+
+    private function assertFixedAmount(string $amount): void
+    {
+        if (bccomp($amount, '0.01', 2) < 0) {
+            throw new InvalidArgumentException(__('diyar.coupons.invalid'));
         }
     }
 

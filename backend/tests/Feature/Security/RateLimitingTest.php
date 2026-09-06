@@ -13,26 +13,29 @@ class RateLimitingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        config(['diyar.loadtest.enabled' => false]);
+
         RateLimiter::clear('auth');
         RateLimiter::clear('otp');
         RateLimiter::clear('catalog-search');
+        RateLimiter::clear('assistant-chat');
     }
 
     public function test_auth_login_is_rate_limited(): void
     {
         config(['diyar.rate_limits.auth_per_minute' => 3]);
 
+        $payload = [
+            'method' => 'phone',
+            'identifier' => '+966500000001',
+            'password' => 'wrong-password',
+        ];
+
         for ($i = 0; $i < 3; $i++) {
-            $this->postJson('/api/v1/auth/login', [
-                'phone' => '+966500000001',
-                'password' => 'wrong-password',
-            ])->assertStatus(422);
+            $this->postJson('/api/v1/auth/login', $payload)->assertStatus(422);
         }
 
-        $this->postJson('/api/v1/auth/login', [
-            'phone' => '+966500000001',
-            'password' => 'wrong-password',
-        ])->assertStatus(429);
+        $this->postJson('/api/v1/auth/login', $payload)->assertStatus(429);
     }
 
     public function test_catalog_search_is_rate_limited(): void
@@ -61,5 +64,24 @@ class RateLimitingTest extends TestCase
         $this->postJson('/api/v1/auth/forgot-password', [
             'phone' => '+966500000099',
         ])->assertStatus(429);
+    }
+
+    public function test_loadtest_mode_bypasses_credential_login_throttle(): void
+    {
+        config([
+            'diyar.loadtest.enabled' => true,
+            'diyar.auth.login_max_attempts' => 2,
+        ]);
+
+        $payload = [
+            'method' => 'phone',
+            'identifier' => '+966500000001',
+            'password' => 'wrong-password',
+        ];
+
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->postJson('/api/v1/auth/login', $payload);
+            $this->assertNotSame(429, $response->status());
+        }
     }
 }

@@ -1,0 +1,25 @@
+# DIYAR — local dev infrastructure (Redis for cache, queues, Reverb scaling)
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yml up -d
+#   cd backend && composer dev
+#
+# Redis: localhost:6379 (matches backend/.env REDIS_PORT)
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '6379:6379'
+    volumes:
+      - diyar_dev_redis:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  diyar_dev_redis:

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  formatSaudiPhoneInputDisplay,
   isValidNameClient,
   isValidSaudiPhoneNational,
   maskPhoneForDisplay,
@@ -13,6 +14,11 @@ describe('Saudi phone validation', () => {
     expect(sanitizeSaudiPhoneInput('+966501234567')).toBe('501234567');
     expect(sanitizeSaudiPhoneInput('966501234567')).toBe('501234567');
     expect(sanitizeSaudiPhoneInput('50123456789')).toHaveLength(SAUDI_PHONE_DIGITS);
+  });
+
+  it('formats national digits for editable input display', () => {
+    expect(formatSaudiPhoneInputDisplay('501234567')).toBe('+966501234567');
+    expect(formatSaudiPhoneInputDisplay('')).toBe('');
   });
 
   it('accepts valid national numbers', () => {

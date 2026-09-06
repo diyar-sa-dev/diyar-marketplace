@@ -1,6 +1,7 @@
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useMarketplaceAuth } from '../../hooks/auth/useAuth.ts';
 import { useUpdateProfile } from '../../hooks/profile/useProfile.ts';
+import { ensureLocaleCatalog } from '../../lib/i18n/localeCatalog.ts';
 import type { Locale } from '../../lib/i18n/types.ts';
 
 const options: Array<{ id: Locale; label: string }> = [
@@ -46,6 +47,12 @@ export function LanguageSwitcher() {
           <button
             key={option.id}
             type="button"
+            onMouseEnter={() => {
+              void ensureLocaleCatalog(option.id);
+            }}
+            onFocus={() => {
+              void ensureLocaleCatalog(option.id);
+            }}
             onClick={() => handleLocaleChange(option.id)}
             aria-pressed={isActive}
             className={`min-w-9 rounded-md px-2 py-1 text-xs font-bold transition-colors cursor-pointer ${

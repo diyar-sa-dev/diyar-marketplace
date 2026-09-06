@@ -1,0 +1,117 @@
+﻿docker : time="2026-08-27T11:14:25+01:00" level=warning msg="No services to build"
+At C:\Users\APL TECH\AppData\Local\Temp\ps-script-098a037e-612c-4199-bc8a-58e37d7ff5bb.ps1:115 char:688
++ ... oding utf8; docker compose -f docker-compose.loadtest.yml run --rm -- ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (time="2026-08-2...vices to build":String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+time="2026-08-27T11:14:25+01:00" level=warning msg="No services to build"
+ Container diyar-marketplace-api-run-cc9d47a8090d Creating 
+ Container diyar-marketplace-api-run-cc9d47a8090d Created 
+{
+    "timestamp_utc": "2026-08-27T10:14:27+00:00",
+    "database": "diyar_staging",
+    "engine_version": "8.0.46",
+    "tables": {
+        "users": {
+            "exists": true,
+            "count": 200
+        },
+        "products": {
+            "exists": true,
+            "count": 500
+        },
+        "product_inventories": {
+            "exists": false,
+            "count": null
+        },
+        "orders": {
+            "exists": true,
+            "count": 100
+        },
+        "order_items": {
+            "exists": true,
+            "count": 300
+        },
+        "vendor_orders": {
+            "exists": true,
+            "count": 100
+        },
+        "payments": {
+            "exists": true,
+            "count": 0
+        },
+        "user_notifications": {
+            "exists": true,
+            "count": 1000
+        },
+        "analytics_events": {
+            "exists": true,
+            "count": 5000
+        },
+        "conversations": {
+            "exists": true,
+            "count": 0
+        },
+        "messages": {
+            "exists": true,
+            "count": 0
+        },
+        "chat_messages": {
+            "exists": false,
+            "count": null
+        },
+        "affiliate_clicks": {
+            "exists": true,
+            "count": 0
+        },
+        "affiliate_commissions": {
+            "exists": true,
+            "count": 0
+        },
+        "reviews": {
+            "exists": false,
+            "count": null
+        },
+        "product_reviews": {
+            "exists": true,
+            "count": 0
+        },
+        "store_reviews": {
+            "exists": true,
+            "count": 0
+        },
+        "carts": {
+            "exists": true,
+            "count": 0
+        },
+        "cart_items": {
+            "exists": true,
+            "count": 0
+        },
+        "b2b_companies": {
+            "exists": true,
+            "count": 7
+        },
+        "b2b_leads": {
+            "exists": true,
+            "count": 0
+        },
+        "services": {
+            "exists": true,
+            "count": 4
+        },
+        "bookings": {
+            "exists": false,
+            "count": null
+        }
+    },
+    "totals": {
+        "users": 200,
+        "products": 500,
+        "orders": 100,
+        "order_items": 300,
+        "user_notifications": 1000,
+        "analytics_events": 5000
+    }
+}

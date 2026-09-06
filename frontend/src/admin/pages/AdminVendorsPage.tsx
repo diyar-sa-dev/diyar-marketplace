@@ -76,12 +76,14 @@ export default function AdminVendorsPage() {
     >
       {vendors.map((vendor) => (
         <tr key={vendor.id} className="hover:bg-[#f7f4f1]/50">
-          <td className="px-4 py-3 font-semibold text-diyar-dark">{vendor.business_name}</td>
-          <td className="px-4 py-3 font-mono text-xs text-gray-500">{vendor.slug}</td>
-          <td className="px-4 py-3">
+          <td className="px-4 py-3 text-start font-semibold text-diyar-dark">
+            {vendor.business_name}
+          </td>
+          <td className="px-4 py-3 text-start font-mono text-xs text-gray-500">{vendor.slug}</td>
+          <td className="px-4 py-3 text-start">
             <AdminStatusBadge status={vendor.status} />
           </td>
-          <td className="px-4 py-3">
+          <td className="px-4 py-3 text-end">
             <div className="flex justify-end">
               <Link
                 to={`/admin/vendors/${vendor.id}`}

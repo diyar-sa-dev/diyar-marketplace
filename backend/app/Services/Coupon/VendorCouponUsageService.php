@@ -8,6 +8,7 @@ use App\Models\VendorCouponUsage;
 use App\Models\VendorOrder;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 final class VendorCouponUsageService
 {
@@ -33,6 +34,18 @@ final class VendorCouponUsageService
                 ->first();
 
             if ($coupon === null) {
+                return;
+            }
+
+            $order->loadMissing('user');
+            try {
+                app(VendorCouponValidationService::class)->revalidateBeforeUsage($coupon, $order->user);
+            } catch (\InvalidArgumentException) {
+                Log::warning('coupon_redemption_conflict', [
+                    'order_id' => $order->id,
+                    'vendor_coupon_id' => $coupon->id,
+                ]);
+
                 return;
             }
 

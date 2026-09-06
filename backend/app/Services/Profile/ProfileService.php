@@ -72,7 +72,9 @@ final class ProfileService
             $newPath = $this->media->storeUserAvatar($user, $file);
 
             $user->forceFill(['avatar_path' => $newPath])->save();
-            $this->media->deletePath($previousPath);
+            if (! str_starts_with((string) $previousPath, 'http')) {
+                $this->media->deletePath($previousPath);
+            }
 
             return $user->fresh('roles');
         });
@@ -82,7 +84,9 @@ final class ProfileService
     {
         $previousPath = $user->avatar_path;
         $user->forceFill(['avatar_path' => null])->save();
-        $this->media->deletePath($previousPath);
+        if (! str_starts_with((string) $previousPath, 'http')) {
+            $this->media->deletePath($previousPath);
+        }
 
         return $user->fresh('roles');
     }

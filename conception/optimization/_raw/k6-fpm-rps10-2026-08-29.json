@@ -1,0 +1,14 @@
+{
+  "profile": "rps10",
+  "timestamp_utc": "2026-08-29T12:11:18.344Z",
+  "rps_target": 10,
+  "rps_actual": 6.325755046317792,
+  "p50_ms": 3248.786045,
+  "p95_ms": 8228.211597,
+  "p99_ms": null,
+  "error_rate": 0,
+  "thresholds_pass": false,
+  "server": "Nginx+PHP-FPM (docker-compose.production-like.yml)",
+  "dataset": "base seeder (~12 products)",
+  "status": "MEASURED_LATENCY_FAIL"
+}

@@ -50,6 +50,7 @@ class ProductDetailResource extends JsonResource
             'description' => $this->description,
             'sale_price' => $this->sale_price,
             'compare_price' => $this->compare_price,
+            'promotion_ends_at' => $this->promotion_ends_at?->toIso8601String(),
             'product_type' => $this->product_type->value,
             'availability_mode' => $this->availability_mode->value,
             'expected_available_at' => $this->expected_available_at?->toDateString(),

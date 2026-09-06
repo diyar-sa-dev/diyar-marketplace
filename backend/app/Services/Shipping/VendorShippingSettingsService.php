@@ -5,6 +5,7 @@ namespace App\Services\Shipping;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorShippingSettings;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -29,6 +30,33 @@ final class VendorShippingSettingsService
         }
 
         return $this->normalizeForCheckout($settings);
+    }
+
+    /**
+     * @param  list<string>  $vendorAccountIds
+     * @return Collection<string, VendorShippingSettings>
+     */
+    public function batchForVendors(array $vendorAccountIds): Collection
+    {
+        if ($vendorAccountIds === []) {
+            return collect();
+        }
+
+        $settings = VendorShippingSettings::query()
+            ->whereIn('vendor_account_id', $vendorAccountIds)
+            ->with('shippingProfile')
+            ->get()
+            ->keyBy('vendor_account_id');
+
+        return collect($vendorAccountIds)->mapWithKeys(function (string $vendorAccountId) use ($settings) {
+            $row = $settings->get($vendorAccountId);
+
+            return [
+                $vendorAccountId => $row === null || ! $row->isCheckoutEligible()
+                    ? $this->syntheticCheckoutDefaults($vendorAccountId)
+                    : $this->normalizeForCheckout($row),
+            ];
+        });
     }
 
     /**

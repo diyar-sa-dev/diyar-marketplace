@@ -2,30 +2,28 @@
 
 namespace App\Services\Payments;
 
-use App\Enums\PaymentStatus;
 use App\Enums\PaymentWebhookProcessingStatus;
+use App\Jobs\Payments\ProcessPaymentWebhookJob;
 use App\Models\Payment;
 use App\Models\PaymentWebhookEvent;
-use App\Services\Payments\DTO\PaymentDetailsRequest;
 use App\Services\Payments\DTO\VerifiedWebhookPayload;
 use App\Services\Payments\Exceptions\PaymentGatewayException;
 use App\Services\Payments\Gateways\MyFatoorah\MyFatoorahWebhookMapper;
 use App\Services\Payments\Gateways\MyFatoorah\MyFatoorahWebhookVerifier;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 final class PaymentWebhookProcessor
 {
     public function __construct(
-        private readonly PaymentGatewayManager $gateways,
         private readonly MyFatoorahWebhookVerifier $webhookVerifier,
         private readonly MyFatoorahWebhookMapper $webhookMapper,
-        private readonly PaymentFinalizationService $finalization,
     ) {}
 
     /**
      * @param  array<string, string>  $headers
-     * @return array{accepted: bool, duplicate: bool}
+     * @return array{accepted: bool, duplicate: bool, event_id: string|null}
      */
     public function handle(string $gateway, string $rawBody, array $headers): array
     {
@@ -38,16 +36,17 @@ final class PaymentWebhookProcessor
         $signature = $headers['myfatoorah-signature'] ?? $headers['MyFatoorah-Signature'] ?? '';
         $webhookVersion = strtolower((string) ($headers['myfatoorah-webhook-version'] ?? $headers['MyFatoorah-Webhook-Version'] ?? 'v1'));
         $payloadHash = hash('sha256', $rawBody);
+        $correlationId = (string) Str::uuid();
 
         try {
-            return DB::transaction(function () use ($gateway, $payload, $signature, $webhookVersion, $payloadHash) {
+            return DB::transaction(function () use ($gateway, $payload, $signature, $webhookVersion, $payloadHash, $correlationId) {
                 $existing = PaymentWebhookEvent::query()
                     ->where('payload_hash', $payloadHash)
                     ->lockForUpdate()
                     ->first();
 
                 if ($existing !== null) {
-                    return ['accepted' => true, 'duplicate' => true];
+                    return ['accepted' => true, 'duplicate' => true, 'event_id' => $existing->id];
                 }
 
                 $secretKey = (string) config('myfatoorah.webhook_secret_key');
@@ -66,19 +65,78 @@ final class PaymentWebhookProcessor
                         ? PaymentWebhookProcessingStatus::Pending
                         : PaymentWebhookProcessingStatus::Failed,
                     'payment_id' => $payment?->id,
+                    'correlation_id' => $correlationId,
                 ]);
 
                 if (! $signatureValid || $payment === null) {
-                    return ['accepted' => false, 'duplicate' => false];
+                    return ['accepted' => false, 'duplicate' => false, 'event_id' => $event->id];
                 }
 
-                $this->processVerifiedEvent($event, $payment, $mapped);
+                ProcessPaymentWebhookJob::dispatch($event->id, $correlationId);
 
-                return ['accepted' => true, 'duplicate' => false];
+                return ['accepted' => true, 'duplicate' => false, 'event_id' => $event->id];
             });
         } catch (QueryException $exception) {
             if (str_contains(strtolower($exception->getMessage()), 'payload_hash')) {
-                return ['accepted' => true, 'duplicate' => true];
+                return ['accepted' => true, 'duplicate' => true, 'event_id' => null];
+            }
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * Fake/dev webhook ingestion without provider signature requirements.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array{accepted: bool, duplicate: bool, event_id: string|null}
+     */
+    public function ingestFake(array $payload): array
+    {
+        if (! config('diyar.payments.use_fake_gateway')) {
+            throw PaymentGatewayException::operationFailed(__('diyar.payment.simulation_unavailable'));
+        }
+
+        $rawBody = json_encode($payload, JSON_THROW_ON_ERROR);
+        $payloadHash = hash('sha256', $rawBody);
+        $correlationId = (string) Str::uuid();
+        $data = is_array($payload['data'] ?? null) ? $payload['data'] : $payload;
+        $reference = (string) ($data['payment_reference'] ?? $data['CustomerReference'] ?? '');
+
+        $payment = $reference !== ''
+            ? Payment::query()->where('payment_reference', $reference)->first()
+            : null;
+
+        try {
+            return DB::transaction(function () use ($payload, $payloadHash, $correlationId, $payment, $data) {
+                $existing = PaymentWebhookEvent::query()
+                    ->where('payload_hash', $payloadHash)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($existing !== null) {
+                    return ['accepted' => true, 'duplicate' => true, 'event_id' => $existing->id];
+                }
+
+                $event = PaymentWebhookEvent::query()->create([
+                    'gateway' => 'fake',
+                    'event_type' => (string) ($data['event_type'] ?? 'PaymentStatusChanged'),
+                    'webhook_version' => 'fake',
+                    'signature_valid' => true,
+                    'payload_hash' => $payloadHash,
+                    'payload' => $payload,
+                    'processing_status' => PaymentWebhookProcessingStatus::Pending,
+                    'payment_id' => $payment?->id,
+                    'correlation_id' => $correlationId,
+                ]);
+
+                ProcessPaymentWebhookJob::dispatch($event->id, $correlationId);
+
+                return ['accepted' => true, 'duplicate' => false, 'event_id' => $event->id];
+            });
+        } catch (QueryException $exception) {
+            if (str_contains(strtolower($exception->getMessage()), 'payload_hash')) {
+                return ['accepted' => true, 'duplicate' => true, 'event_id' => null];
             }
 
             throw $exception;
@@ -94,72 +152,5 @@ final class PaymentWebhookProcessor
         return Payment::query()
             ->where('payment_reference', $mapped->paymentReference)
             ->first();
-    }
-
-    private function processVerifiedEvent(
-        PaymentWebhookEvent $event,
-        Payment $payment,
-        VerifiedWebhookPayload $mapped,
-    ): void {
-        if ($mapped->gatewayPaymentId === null) {
-            $event->update([
-                'processing_status' => PaymentWebhookProcessingStatus::Ignored,
-                'processed_at' => now(),
-            ]);
-
-            return;
-        }
-
-        if ($payment->status === PaymentStatus::Paid) {
-            $event->update([
-                'processing_status' => PaymentWebhookProcessingStatus::Processed,
-                'processed_at' => now(),
-            ]);
-
-            return;
-        }
-
-        $driver = $this->gateways->driver($payment->gateway);
-        $details = $driver->getPaymentDetails(new PaymentDetailsRequest(
-            gatewayPaymentId: $mapped->gatewayPaymentId,
-            expectedReference: (string) $payment->payment_reference,
-            expectedAmount: number_format((float) $payment->amount, 2, '.', ''),
-            expectedCurrency: $payment->currency,
-        ));
-
-        if ($details->status === PaymentStatus::Paid) {
-            $this->finalization->finalizePaid($payment, $details->gatewayPaymentId, $details->gatewayInvoiceId);
-            $event->update([
-                'processing_status' => PaymentWebhookProcessingStatus::Processed,
-                'processed_at' => now(),
-            ]);
-
-            return;
-        }
-
-        if ($details->status === PaymentStatus::Expired) {
-            $this->finalization->markFailed($payment, $details->failureReason, PaymentStatus::Expired);
-            $event->update([
-                'processing_status' => PaymentWebhookProcessingStatus::Processed,
-                'processed_at' => now(),
-            ]);
-
-            return;
-        }
-
-        if (in_array($details->status, [PaymentStatus::Failed, PaymentStatus::Cancelled], true)) {
-            $this->finalization->markFailed($payment, $details->failureReason, $details->status);
-            $event->update([
-                'processing_status' => PaymentWebhookProcessingStatus::Processed,
-                'processed_at' => now(),
-            ]);
-
-            return;
-        }
-
-        $event->update([
-            'processing_status' => PaymentWebhookProcessingStatus::Ignored,
-            'processed_at' => now(),
-        ]);
     }
 }

@@ -32,6 +32,10 @@ import { isValidStoreSlug, storePath } from '../lib/storePath.ts';
 import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { EmptyState } from '../components/common/EmptyState.tsx';
+import NotFoundPage from './errors/NotFoundPage.tsx';
+import { isNotFoundError } from '../utils/errors.ts';
+import { useLocale } from '../hooks/useLocale.ts';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock.ts';
 
 const CATEGORIES = {
   bedroom: {
@@ -91,13 +95,9 @@ const CATEGORY_ICONS: Record<string, string> = {
     '/categories/%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%20%D9%88%D8%B5%D9%8A%D8%A7%D9%86%D8%A9.png',
 };
 
-const AVAILABILITY_OPTIONS = [
-  { value: 'in_stock', label: 'متوفر' },
-  { value: 'out_of_stock', label: 'غير متوفر' },
-  { value: 'preorder', label: 'طلب مسبق' },
-] as const;
-
 const MAX_PRICE = 20000;
+
+type AvailabilityValue = 'in_stock' | 'out_of_stock' | 'preorder';
 
 interface AccordionProps {
   title: string;
@@ -136,6 +136,7 @@ function CategoryAllProductsBrowse({
   searchParams: URLSearchParams;
   setSearchParams: ReturnType<typeof useSearchParams>[1];
 }) {
+  const { t } = useLocale();
   const page = Math.max(1, Number(searchParams.get('page') || '1'));
   const perPage = Math.max(10, Number(searchParams.get('per_page') || '12'));
   const sort = searchParams.get('sort') || '-created_at';
@@ -156,12 +157,12 @@ function CategoryAllProductsBrowse({
   const pagination = data?.pagination;
 
   const sectionTitle = discounted
-    ? 'عروض مميزة'
+    ? t('catalog.category.sectionFeaturedDeals')
     : sort === '-popular'
-      ? 'الأكثر تفاعلاً'
+      ? t('catalog.category.sectionMostInteractive')
       : sort === '-created_at'
-        ? 'وصل حديثاً'
-        : 'جميع المنتجات';
+        ? t('catalog.category.sectionNewArrivals')
+        : t('catalog.category.sectionAllProducts');
 
   return (
     <div className="bg-gray-50 min-h-screen pb-10">
@@ -172,7 +173,7 @@ function CategoryAllProductsBrowse({
               to="/category/all"
               className="text-sm text-diyar-brown hover:text-diyar-dark transition cursor-pointer"
             >
-              ← جميع التصنيفات
+              {t('catalog.category.backToAllCategories')}
             </Link>
             <h1 className="text-xl md:text-3xl font-bold text-diyar-dark mt-2">{sectionTitle}</h1>
           </div>
@@ -186,11 +187,11 @@ function CategoryAllProductsBrowse({
             }}
             className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm cursor-pointer"
           >
-            <option value="-created_at">الأحدث</option>
-            <option value="-popular">الأكثر تفاعلاً</option>
-            <option value="-discount">أعلى خصم</option>
-            <option value="price">السعر: الأقل</option>
-            <option value="-price">السعر: الأعلى</option>
+            <option value="-created_at">{t('catalog.search.filters.sortNewest')}</option>
+            <option value="-popular">{t('catalog.search.filters.sortPopular')}</option>
+            <option value="-discount">{t('catalog.search.filters.sortOffers')}</option>
+            <option value="price">{t('catalog.search.filters.sortPriceLow')}</option>
+            <option value="-price">{t('catalog.search.filters.sortPriceHigh')}</option>
           </select>
         </div>
       </div>
@@ -201,7 +202,10 @@ function CategoryAllProductsBrowse({
         ) : isError ? (
           <ErrorState error={error as Error} onRetry={() => refetch()} />
         ) : products.length === 0 ? (
-          <EmptyState title="لا توجد منتجات" description="جرّب تغيير الفلاتر أو العودة لاحقاً." />
+          <EmptyState
+            title={t('catalog.category.emptyProductsTitle')}
+            description={t('catalog.category.emptyProductsDescription')}
+          />
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -238,6 +242,7 @@ function CategoryAllProductsBrowse({
 }
 
 function CategoryAllLanding() {
+  const { t } = useLocale();
   const { data: productCategories, isLoading: categoriesLoading } = useCategories('product');
   const { data: serviceCategories, isLoading: servicesLoading } = useCategories('service');
   const { data: vendorsData, isLoading: vendorsLoading } = useVendors({ per_page: 12 });
@@ -246,14 +251,16 @@ function CategoryAllLanding() {
     <div className="bg-gray-50 min-h-screen pb-10">
       <div className="bg-white border-b border-gray-200 pt-6 pb-6 px-4">
         <div className="max-w-7xl mx-auto text-right">
-          <h1 className="text-xl md:text-3xl font-bold text-diyar-dark mb-2">جميع التصنيفات</h1>
-          <p className="text-gray-500 text-sm md:text-base">
-            تصفح جميع أقسام المنتجات والخدمات التي تقدمها منصة ديار.
-          </p>
+          <h1 className="text-xl md:text-3xl font-bold text-diyar-dark mb-2">
+            {t('catalog.category.allTitle')}
+          </h1>
+          <p className="text-gray-500 text-sm md:text-base">{t('catalog.category.allSubtitle')}</p>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 mt-6 md:mt-10">
-        <h2 className="text-xl md:text-2xl font-bold mb-6 text-diyar-dark">تصنيفات المنتجات</h2>
+        <h2 className="text-xl md:text-2xl font-bold mb-6 text-diyar-dark">
+          {t('catalog.category.productCategories')}
+        </h2>
         {categoriesLoading ? (
           <LoadingState className="min-h-40 mb-16" />
         ) : (
@@ -280,7 +287,9 @@ function CategoryAllLanding() {
         )}
 
         <div className="mb-16 md:mb-20">
-          <h2 className="text-xl md:text-2xl font-bold mb-6 text-diyar-dark">المتاجر المعتمدة</h2>
+          <h2 className="text-xl md:text-2xl font-bold mb-6 text-diyar-dark">
+            {t('catalog.category.verifiedStores')}
+          </h2>
           {vendorsLoading ? (
             <LoadingState className="min-h-24" />
           ) : (
@@ -309,7 +318,7 @@ function CategoryAllLanding() {
                     </span>
                     {vendor.product_count != null && (
                       <span className="text-xs text-gray-400 mt-1">
-                        {vendor.product_count} منتج
+                        {t('catalog.category.productCount', { count: vendor.product_count })}
                       </span>
                     )}
                   </Link>
@@ -319,7 +328,9 @@ function CategoryAllLanding() {
         </div>
 
         <div className="mb-16">
-          <h2 className="text-xl md:text-2xl font-bold mb-6 text-diyar-dark">خدمات ديار</h2>
+          <h2 className="text-xl md:text-2xl font-bold mb-6 text-diyar-dark">
+            {t('catalog.category.diyarServices')}
+          </h2>
           {servicesLoading ? (
             <LoadingState className="min-h-24" />
           ) : (
@@ -341,7 +352,9 @@ function CategoryAllLanding() {
                     <h3 className="font-bold text-lg md:text-xl text-diyar-dark mb-1">
                       {service.name}
                     </h3>
-                    <p className="text-sm text-gray-500">تصفح مقدمي الخدمة في هذا القسم.</p>
+                    <p className="text-sm text-gray-500">
+                      {t('catalog.category.browseServiceProviders')}
+                    </p>
                   </div>
                 </Link>
               ))}
@@ -372,24 +385,35 @@ function CatalogFilterPanel({
   onPatch: (updates: Record<string, string | undefined>) => void;
   onReset: () => void;
 }) {
+  const { t } = useLocale();
+
+  const availabilityOptions = useMemo(
+    (): Array<{ value: AvailabilityValue; label: string }> => [
+      { value: 'in_stock', label: t('catalog.category.availabilityInStock') },
+      { value: 'out_of_stock', label: t('catalog.category.availabilityOutOfStock') },
+      { value: 'preorder', label: t('catalog.category.availabilityPreorder') },
+    ],
+    [t],
+  );
+
   if (isServiceCategory) {
     return (
       <>
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
           <h3 className="font-bold text-lg text-diyar-dark flex items-center gap-2">
             <SlidersHorizontal size={20} className="text-diyar-brown" />
-            تصفية الخدمات
+            {t('catalog.category.filterServices')}
           </h3>
           <button
             type="button"
             onClick={onReset}
             className="text-xs text-diyar-brown font-medium hover:underline cursor-pointer"
           >
-            مسح الكل
+            {t('catalog.category.clearAll')}
           </button>
         </div>
 
-        <Accordion title="نطاق السعر">
+        <Accordion title={t('catalog.category.priceRange')}>
           <div className="px-1 space-y-4">
             <input
               type="range"
@@ -402,7 +426,7 @@ function CatalogFilterPanel({
             />
             <div className="flex items-center justify-between gap-4">
               <label className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
-                <span className="text-xs text-gray-500 block mb-1">من</span>
+                <span className="text-xs text-gray-500 block mb-1">{t('catalog.category.from')}</span>
                 <input
                   type="number"
                   min={0}
@@ -413,7 +437,7 @@ function CatalogFilterPanel({
                 />
               </label>
               <label className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
-                <span className="text-xs text-gray-500 block mb-1">إلى</span>
+                <span className="text-xs text-gray-500 block mb-1">{t('catalog.category.to')}</span>
                 <input
                   type="number"
                   min={minPrice}
@@ -435,18 +459,18 @@ function CatalogFilterPanel({
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
         <h3 className="font-bold text-lg text-diyar-dark flex items-center gap-2">
           <SlidersHorizontal size={20} className="text-diyar-brown" />
-          تصفية النتائج
+          {t('catalog.category.filterResults')}
         </h3>
         <button
           type="button"
           onClick={onReset}
           className="text-xs text-diyar-brown font-medium hover:underline"
         >
-          مسح الكل
+          {t('catalog.category.clearAll')}
         </button>
       </div>
 
-      <Accordion title="نطاق السعر">
+      <Accordion title={t('catalog.category.priceRange')}>
         <div className="px-1 space-y-4">
           <input
             type="range"
@@ -459,7 +483,7 @@ function CatalogFilterPanel({
           />
           <div className="flex items-center justify-between gap-4">
             <label className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
-              <span className="text-xs text-gray-500 block mb-1">من</span>
+              <span className="text-xs text-gray-500 block mb-1">{t('catalog.category.from')}</span>
               <input
                 type="number"
                 min={0}
@@ -470,7 +494,7 @@ function CatalogFilterPanel({
               />
             </label>
             <label className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
-              <span className="text-xs text-gray-500 block mb-1">إلى</span>
+              <span className="text-xs text-gray-500 block mb-1">{t('catalog.category.to')}</span>
               <input
                 type="number"
                 min={minPrice}
@@ -484,7 +508,7 @@ function CatalogFilterPanel({
         </div>
       </Accordion>
 
-      <Accordion title="المتاجر المعتمدة">
+      <Accordion title={t('catalog.category.verifiedStores')}>
         <div className="space-y-2 max-h-48 overflow-y-auto pr-1 pl-3">
           {vendors.map((vendor) => (
             <label key={vendor.id} className="flex items-center gap-3 cursor-pointer group">
@@ -505,9 +529,9 @@ function CatalogFilterPanel({
         </div>
       </Accordion>
 
-      <Accordion title="التوفر">
+      <Accordion title={t('catalog.category.availability')}>
         <div className="space-y-2">
-          {AVAILABILITY_OPTIONS.map((option) => (
+          {availabilityOptions.map((option) => (
             <label key={option.value} className="flex items-center gap-3 cursor-pointer group">
               <input
                 type="radio"
@@ -532,6 +556,7 @@ function CatalogFilterPanel({
 }
 
 export default function CategoryPage() {
+  const { t } = useLocale();
   const { id } = useParams();
   const slug = id ?? 'all';
   const staticMeta = CATEGORIES[slug as keyof typeof CATEGORIES];
@@ -540,11 +565,13 @@ export default function CategoryPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
+  useBodyScrollLock(isMobileFilterOpen);
+
   const page = Math.max(1, Number(searchParams.get('page') || '1'));
   const perPage = Math.max(10, Number(searchParams.get('per_page') || '12'));
   const sort = searchParams.get('sort') || '-created_at';
   const searchQuery = searchParams.get('q') || undefined;
-  const activeSubcategory = searchQuery ?? 'الكل';
+  const isAllSubcategory = !searchQuery;
   const vendorId = searchParams.get('vendor_id') || undefined;
   const availabilityMode = searchParams.get('availability_mode') || undefined;
   const minPrice = Number(searchParams.get('min_price') || '0');
@@ -586,7 +613,7 @@ export default function CategoryPage() {
     [searchQuery, minPrice, maxPrice, vendorId, availabilityMode, page, perPage, sort],
   );
 
-  const { data: apiCategory } = useCategory(slug);
+  const { data: apiCategory, error: categoryError } = useCategory(slug);
   const isServiceCategory =
     apiCategory?.type === 'service' || KNOWN_SERVICE_CATEGORY_SLUGS.has(slug);
 
@@ -634,6 +661,14 @@ export default function CategoryPage() {
     : (productsData?.pagination.total ?? products.length);
   const listPagination = isServiceCategory ? servicesData?.pagination : productsData?.pagination;
   const vendors = vendorsData?.items ?? [];
+  const availabilityOptions = useMemo(
+    (): Array<{ value: AvailabilityValue; label: string }> => [
+      { value: 'in_stock', label: t('catalog.category.availabilityInStock') },
+      { value: 'out_of_stock', label: t('catalog.category.availabilityOutOfStock') },
+      { value: 'preorder', label: t('catalog.category.availabilityPreorder') },
+    ],
+    [t],
+  );
   const hasActiveFilters =
     minPrice > 0 ||
     maxPrice < MAX_PRICE ||
@@ -653,6 +688,10 @@ export default function CategoryPage() {
     return <CategoryAllLanding />;
   }
 
+  if (isNotFoundError(categoryError) || isNotFoundError(error)) {
+    return <NotFoundPage />;
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen pb-10">
       {/* Category Header */}
@@ -667,8 +706,8 @@ export default function CategoryPage() {
             </h1>
             <p className="text-gray-500 max-w-2xl text-xs md:text-base leading-relaxed line-clamp-2 md:line-clamp-none">
               {isServiceCategory
-                ? `تصفّح خدمات ${categoryName} من مزودين معتمدين على منصة ديار.`
-                : `تصفح أحدث وأرقى المنتجات في قسم ${categoryName}. نقدم لك تشكيلة واسعة من أعرق المتاجر.`}
+                ? t('catalog.category.serviceCategoryDescription', { category: categoryName })
+                : t('catalog.category.productCategoryDescription', { category: categoryName })}
             </p>
           </div>
         </div>
@@ -683,12 +722,12 @@ export default function CategoryPage() {
                 type="button"
                 onClick={() => patchParams({ q: undefined })}
                 className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold shadow-sm shrink-0 transition-colors cursor-pointer ${
-                  activeSubcategory === 'الكل'
+                  isAllSubcategory
                     ? 'bg-diyar-dark text-white'
                     : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 hover:border-gray-300'
                 }`}
               >
-                الكل
+                {t('catalog.category.subcategoryAll')}
               </button>
               {subcategories.map((sub: string, index: number) => (
                 <button
@@ -696,7 +735,7 @@ export default function CategoryPage() {
                   type="button"
                   onClick={() => patchParams({ q: sub })}
                   className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium border transition-colors shrink-0 cursor-pointer ${
-                    activeSubcategory === sub
+                    searchQuery === sub
                       ? 'bg-diyar-dark text-white border-diyar-dark font-bold'
                       : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
                   }`}
@@ -734,27 +773,32 @@ export default function CategoryPage() {
                 className="flex items-center gap-2 bg-gray-100 text-diyar-dark px-4 py-2 rounded-xl text-sm font-bold"
               >
                 <Filter size={18} />
-                تصفية
+                {t('catalog.category.filter')}
               </button>
             </div>
 
             <div className="flex items-center gap-4 text-sm text-gray-600">
               <span className="hidden md:inline font-medium">
-                إظهار {isServiceCategory ? services.length : products.length} من أصل {totalResults}{' '}
-                {isServiceCategory ? 'خدمة' : 'نتيجة'}
+                {t('catalog.category.showingResults', {
+                  shown: isServiceCategory ? services.length : products.length,
+                  total: totalResults,
+                  unit: isServiceCategory
+                    ? t('catalog.category.unitService')
+                    : t('catalog.category.unitResult'),
+                })}
               </span>
               <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-1.5 bg-gray-50">
-                <span className="text-gray-500">ترتيب حسب:</span>
+                <span className="text-gray-500">{t('catalog.category.sortBy')}</span>
                 <select
                   value={sort}
                   onChange={(e) => patchParams({ sort: e.target.value })}
                   className="bg-transparent border-none outline-none font-bold text-diyar-dark pr-1 pl-4 cursor-pointer"
                 >
-                  <option value="-created_at">الأحدث</option>
-                  <option value="price">السعر: من الأقل للأعلى</option>
-                  <option value="-price">السعر: من الأعلى للأقل</option>
-                  <option value="-discount">أعلى خصم</option>
-                  <option value="name">الاسم</option>
+                  <option value="-created_at">{t('catalog.search.filters.sortNewest')}</option>
+                  <option value="price">{t('catalog.search.filters.sortPriceLow')}</option>
+                  <option value="-price">{t('catalog.search.filters.sortPriceHigh')}</option>
+                  <option value="-discount">{t('catalog.search.filters.sortOffers')}</option>
+                  <option value="name">{t('catalog.category.sortName')}</option>
                 </select>
               </div>
             </div>
@@ -779,10 +823,10 @@ export default function CategoryPage() {
             <div className="flex flex-wrap gap-2 mb-6">
               {(minPrice > 0 || maxPrice < MAX_PRICE) && (
                 <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
-                  السعر: {minPrice} - {maxPrice}
+                  {t('catalog.category.priceChip', { min: minPrice, max: maxPrice })}
                   <button
                     type="button"
-                    aria-label="إزالة فلتر السعر"
+                    aria-label={t('catalog.category.removePriceFilter')}
                     onClick={() => patchParams({ min_price: undefined, max_price: undefined })}
                   >
                     <X size={14} className="cursor-pointer hover:text-gray-300" />
@@ -794,7 +838,7 @@ export default function CategoryPage() {
                   {searchQuery}
                   <button
                     type="button"
-                    aria-label="إزالة فلتر النوع"
+                    aria-label={t('catalog.category.removeTypeFilter')}
                     onClick={() => patchParams({ q: undefined })}
                   >
                     <X size={14} className="cursor-pointer hover:text-gray-300" />
@@ -803,10 +847,10 @@ export default function CategoryPage() {
               )}
               {vendorId && (
                 <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
-                  {vendors.find((v) => v.id === vendorId)?.store_name ?? 'متجر'}
+                  {vendors.find((v) => v.id === vendorId)?.store_name ?? t('catalog.category.storeFallback')}
                   <button
                     type="button"
-                    aria-label="إزالة فلتر المتجر"
+                    aria-label={t('catalog.category.removeStoreFilter')}
                     onClick={() => patchParams({ vendor_id: undefined })}
                   >
                     <X size={14} className="cursor-pointer hover:text-gray-300" />
@@ -815,10 +859,10 @@ export default function CategoryPage() {
               )}
               {availabilityMode && (
                 <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
-                  {AVAILABILITY_OPTIONS.find((o) => o.value === availabilityMode)?.label}
+                  {availabilityOptions.find((o) => o.value === availabilityMode)?.label}
                   <button
                     type="button"
-                    aria-label="إزالة فلتر التوفر"
+                    aria-label={t('catalog.category.removeAvailabilityFilter')}
                     onClick={() => patchParams({ availability_mode: undefined })}
                   >
                     <X size={14} className="cursor-pointer hover:text-gray-300" />
@@ -830,7 +874,7 @@ export default function CategoryPage() {
                 onClick={resetFilters}
                 className="text-sm text-diyar-brown font-medium cursor-pointer flex items-center px-2 hover:underline"
               >
-                مسح فلاتر البحث
+                {t('catalog.category.clearFilters')}
               </button>
             </div>
           )}
@@ -842,14 +886,14 @@ export default function CategoryPage() {
             <ErrorState error={error as Error} onRetry={() => refetch()} />
           ) : isServiceCategory && services.length === 0 ? (
             <EmptyState
-              title="لا توجد خدمات"
-              description="لا توجد خدمات مطابقة في هذا القسم حالياً. جرّب قسماً آخر أو تصفّح كل الخدمات."
+              title={t('catalog.category.emptyServicesTitle')}
+              description={t('catalog.category.emptyServicesDescription')}
               action={
                 <Link
                   to="/services"
                   className="inline-flex mt-4 bg-diyar-brown text-white px-6 py-2.5 rounded-xl font-bold hover:bg-orange-700 cursor-pointer"
                 >
-                  عرض كل الخدمات
+                  {t('catalog.category.viewAllServices')}
                 </Link>
               }
             />
@@ -865,8 +909,8 @@ export default function CategoryPage() {
             </div>
           ) : products.length === 0 ? (
             <EmptyState
-              title="لا توجد منتجات"
-              description="لم يتم العثور على منتجات في هذا القسم حالياً."
+              title={t('catalog.category.emptyCategoryProductsTitle')}
+              description={t('catalog.category.emptyCategoryProductsDescription')}
             />
           ) : (
             <div
@@ -899,23 +943,26 @@ export default function CategoryPage() {
 
       {/* Mobile Filter Modal */}
       {isMobileFilterOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
-          <div
-            className="absolute inset-0 bg-black/50"
+        <div className="fixed inset-0 z-50 flex md:hidden overscroll-none">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/50 cursor-pointer"
+            aria-label={t('catalog.category.filterResults')}
             onClick={() => setIsMobileFilterOpen(false)}
           />
           <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] bg-white rounded-t-3xl shadow-xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-full duration-300">
-            <div className="flex items-center justify-between p-4 border-b border-gray-100">
-              <h3 className="font-bold text-lg text-diyar-dark">تصفية النتائج</h3>
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 shrink-0">
+              <h3 className="font-bold text-lg text-diyar-dark">{t('catalog.category.filterResults')}</h3>
               <button
+                type="button"
                 onClick={() => setIsMobileFilterOpen(false)}
-                className="bg-gray-100 p-2 rounded-full text-gray-500 hover:text-diyar-dark"
+                className="bg-gray-100 p-2 rounded-full text-gray-500 hover:text-diyar-dark cursor-pointer"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 pb-24">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y p-4 pb-24">
               <CatalogFilterPanel
                 minPrice={minPrice}
                 maxPrice={maxPrice}
@@ -928,20 +975,20 @@ export default function CategoryPage() {
               />
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 flex gap-3">
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 flex gap-3 shrink-0">
               <button
                 type="button"
                 onClick={resetFilters}
-                className="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl"
+                className="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl cursor-pointer"
               >
-                مسح الكل
+                {t('catalog.category.clearAll')}
               </button>
               <button
                 type="button"
                 onClick={() => setIsMobileFilterOpen(false)}
-                className="flex-2 bg-diyar-dark text-white font-bold py-3 rounded-xl shadow-lg shadow-black/10"
+                className="flex-2 bg-diyar-dark text-white font-bold py-3 rounded-xl shadow-lg shadow-black/10 cursor-pointer"
               >
-                عرض النتائج ({totalResults})
+                {t('catalog.category.showResults', { count: totalResults })}
               </button>
             </div>
           </div>

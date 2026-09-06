@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\Payments\DTO\PaymentCreationRequest;
 use App\Services\Payments\DTO\PaymentSessionRequest;
 use App\Services\Payments\Gateways\MyFatoorah\MyFatoorahConfigFactory;
+use App\Support\Http\FrontendOrigin;
 
 final class PaymentRequestBuilder
 {
@@ -63,9 +64,12 @@ final class PaymentRequestBuilder
 
     private function callbackUrl(Order $order): string
     {
-        $base = rtrim((string) (config('myfatoorah.redirect_url') ?: config('diyar.frontend_url')), '/');
+        $configured = config('myfatoorah.redirect_url');
+        if (is_string($configured) && $configured !== '') {
+            return rtrim($configured, '/').'/orders?highlight='.$order->id.'&payment=callback';
+        }
 
-        return $base.'/orders?highlight='.$order->id.'&payment=callback';
+        return FrontendOrigin::url('/orders?highlight='.$order->id.'&payment=callback');
     }
 
     private function normalizeMobile(?string $phone): string

@@ -32,7 +32,7 @@ export function ServiceRequestStatusBadge({ status }: { status: ServiceRequestSt
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${className}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shrink-0 whitespace-nowrap ${className}`}
     >
       {icon}
       {t(`serviceMarketplace.status.${status}`)}

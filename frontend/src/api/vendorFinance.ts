@@ -1,7 +1,7 @@
 import { apiClient } from './client.ts';
 import type { ApiSuccessResponse } from '../types/api.ts';
 
-export type FinancePeriod = 'day' | 'week' | 'month' | 'year';
+export type FinancePeriod = 'day' | 'week' | 'month' | '3m' | '6m' | '12m' | 'year';
 
 export type VendorFinanceSummary = {
   currency: string;
@@ -99,6 +99,7 @@ export async function fetchVendorTransactions(
   page = 1,
   type: TransactionTypeFilter = 'all',
   perPage = 20,
+  period: FinancePeriod = 'month',
 ): Promise<{
   transactions: FinancialTransaction[];
   pagination: { current_page: number; last_page: number; per_page: number; total: number };
@@ -109,7 +110,7 @@ export async function fetchVendorTransactions(
       pagination: { current_page: number; last_page: number; per_page: number; total: number };
     }>
   >('/dashboard/vendor/finance/transactions', {
-    params: { page, per_page: perPage, type: type === 'all' ? undefined : type },
+    params: { page, per_page: perPage, period, type: type === 'all' ? undefined : type },
   });
   return data.data;
 }

@@ -28,5 +28,7 @@ return [
         'scheduled_date' => 'تاريخ الموعد',
         'scheduled_time' => 'وقت الموعد',
         'expected_available_at' => 'التاريخ المتوقع للتوفر',
+        'details' => 'التفاصيل',
+        'project_type' => 'نوع المشروع',
     ],
 ];

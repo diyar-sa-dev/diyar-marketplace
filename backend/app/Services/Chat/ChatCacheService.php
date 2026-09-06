@@ -39,8 +39,11 @@ final class ChatCacheService
                 'last_message_at' => $conversation->last_message_at?->toIso8601String(),
                 'last_message' => $conversation->lastMessage ? [
                     'id' => $conversation->lastMessage->id,
-                    'body' => $conversation->lastMessage->body,
+                    'body' => $conversation->lastMessage->deleted_at !== null ? null : $conversation->lastMessage->body,
                     'sender_id' => $conversation->lastMessage->sender_id,
+                    'message_type' => $conversation->lastMessage->message_type->value,
+                    'is_deleted' => $conversation->lastMessage->deleted_at !== null,
+                    'deleted_at' => $conversation->lastMessage->deleted_at?->toIso8601String(),
                     'created_at' => $conversation->lastMessage->created_at?->toIso8601String(),
                 ] : null,
             ];

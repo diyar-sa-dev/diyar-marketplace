@@ -1,0 +1,101 @@
+﻿docker : time="2026-08-27T11:19:59+01:00" level=warning msg="No services to build"
+At C:\Users\APL TECH\AppData\Local\Temp\ps-script-5d84f413-fc62-4987-80a9-99a0cfe2b708.ps1:115 char:654
++ ... oding utf8; docker compose -f docker-compose.loadtest.yml run --rm -- ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (time="2026-08-2...vices to build":String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+time="2026-08-27T11:19:59+01:00" level=warning msg="No services to build"
+ Container diyar-marketplace-api-run-ff222ae2efac Creating 
+ Container diyar-marketplace-api-run-ff222ae2efac Created 
+{
+    "timestamp_utc": "2026-08-27T10:20:06+00:00",
+    "engine_version": "8.0.46",
+    "queries": [
+        {
+            "label": "orders_by_status_count",
+            "sql_preview": "SELECT status, COUNT(*) AS c FROM orders GROUP BY status",
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "orders",
+                    "partitions": null,
+                    "type": "index",
+                    "possible_keys": "orders_user_id_status_index",
+                    "key": "orders_user_id_status_index",
+                    "key_len": "274",
+                    "ref": null,
+                    "rows": 100,
+                    "filtered": 100,
+                    "Extra": "Using index; Using temporary"
+                }
+            ],
+            "explain_analyze": [
+                {
+                    "EXPLAIN": "-> Table scan on <temporary>  (actual time=0.0995..0.0997 rows=1 loops=1)\n    -> Aggregate using temporary table  (actual time=0.0985..0.0985 rows=1 loops=1)\n        -> Covering index scan on orders using orders_user_id_status_index  (cost=10.8 rows=100) (actual time=0.0191..0.0418 rows=100 loops=1)\n"
+                }
+            ]
+        },
+        {
+            "label": "analytics_events_recent",
+            "sql_preview": "SELECT event_type, COUNT(*) AS c FROM analytics_events WHERE created_at >= ? GROUP BY event_type",
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "analytics_events",
+                    "partitions": null,
+                    "type": "index",
+                    "possible_keys": "analytics_events_event_type_created_at_index,analytics_vendor_event_time,analytics_events_event_type_index,analytics_events_created_at_index,analytics_provider_event_time",
+                    "key": "analytics_events_event_type_created_at_index",
+                    "key_len": "262",
+                    "ref": null,
+                    "rows": 5191,
+                    "filtered": 49.9903678894043,
+                    "Extra": "Using where; Using index"
+                }
+            ],
+            "explain_analyze": [
+                {
+                    "EXPLAIN": "-> Group aggregate: count(0)  (cost=803 rows=4) (actual time=0.558..1.91 rows=4 loops=1)\n    -> Filter: (analytics_events.created_at >= TIMESTAMP'2026-07-28 13:20:06')  (cost=543 rows=2595) (actual time=0.104..1.47 rows=4999 loops=1)\n        -> Covering index scan on analytics_events using analytics_events_event_type_created_at_index  (cost=543 rows=5191) (actual time=0.102..0.942 rows=5000 loops=1)\n"
+                }
+            ]
+        },
+        {
+            "label": "products_active_list",
+            "sql_preview": "SELECT id, name, sale_price FROM products WHERE status = ? ORDER BY created_at DESC LIMIT 20",
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "products",
+                    "partitions": null,
+                    "type": "ALL",
+                    "possible_keys": null,
+                    "key": null,
+                    "key_len": null,
+                    "ref": null,
+                    "rows": 500,
+                    "filtered": 10,
+                    "Extra": "Using where; Using filesort"
+                }
+            ],
+            "explain_analyze": [
+                {
+                    "EXPLAIN": "-> Limit: 20 row(s)  (cost=8 rows=20) (actual time=0.311..0.313 rows=20 loops=1)\n    -> Sort: products.created_at DESC, limit input to 20 row(s) per chunk  (cost=8 rows=500) (actual time=0.311..0.312 rows=20 loops=1)\n        -> Filter: (products.`status` = 'active')  (cost=8 rows=500) (actual time=0.0473..0.234 rows=500 loops=1)\n            -> Table scan on products  (cost=8 rows=500) (actual time=0.0447..0.188 rows=500 loops=1)\n"
+                }
+            ]
+        }
+    ],
+    "service_profiles": {
+        "admin_funnel": {
+            "duration_ms": 437.94,
+            "query_count": 7,
+            "total_db_time_ms": 5.59
+        },
+        "vendor_overview": {
+            "error": "Call to undefined function App\\Services\\Analytics\\bcsub()"
+        }
+    }
+}

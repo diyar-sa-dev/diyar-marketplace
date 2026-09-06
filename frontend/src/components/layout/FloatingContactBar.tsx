@@ -1,9 +1,14 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Phone, MessageSquareHeart, X, MessageSquareText, Sparkles } from 'lucide-react';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
-import { hasSubmittedWebsiteFeedback } from '../../lib/websiteFeedbackStorage.ts';
+import { fetchWebsiteFeedbackStatus } from '../../api/websiteFeedback.ts';
+import {
+  getOrCreateWebsiteFeedbackGuestKey,
+  hasSubmittedWebsiteFeedback,
+} from '../../lib/websiteFeedbackStorage.ts';
 import { WebsiteFeedbackModal } from '../feedback/WebsiteFeedbackModal.tsx';
 import { PlatformContactModal } from './PlatformContactModal.tsx';
 
@@ -36,16 +41,35 @@ function ContactActionButton({
 export function FloatingContactBar() {
   const { t } = useLocale();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState(() =>
-    hasSubmittedWebsiteFeedback(user?.id),
-  );
+
+  const [localSubmitted, setLocalSubmitted] = useState(false);
 
   useEffect(() => {
-    setFeedbackSubmitted(hasSubmittedWebsiteFeedback(user?.id));
+    setLocalSubmitted(false);
   }, [user?.id]);
+
+  const guestKey = useMemo(
+    () => (user ? undefined : getOrCreateWebsiteFeedbackGuestKey()),
+    [user],
+  );
+
+  const { data: apiSubmitted } = useQuery({
+    queryKey: ['website-feedback-status', user?.id ?? null, guestKey ?? null],
+    queryFn: () => fetchWebsiteFeedbackStatus(guestKey),
+    staleTime: 120_000,
+  });
+
+  const feedbackSubmitted =
+    localSubmitted || apiSubmitted === true || hasSubmittedWebsiteFeedback(user?.id);
+
+  const handleFeedbackSubmitted = () => {
+    setLocalSubmitted(true);
+    void queryClient.invalidateQueries({ queryKey: ['website-feedback-status'] });
+  };
 
   const openContact = () => {
     setIsOpen(false);
@@ -111,7 +135,7 @@ export function FloatingContactBar() {
       <WebsiteFeedbackModal
         open={feedbackOpen}
         onClose={() => setFeedbackOpen(false)}
-        onSubmitted={() => setFeedbackSubmitted(true)}
+        onSubmitted={handleFeedbackSubmitted}
       />
       <PlatformContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </>

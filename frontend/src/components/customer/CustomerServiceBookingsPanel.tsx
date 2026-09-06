@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Calendar,
   CheckCircle2,
@@ -9,7 +9,7 @@ import {
   Sparkles,
   XCircle,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { PaginationBar } from '../catalog/PaginationBar.tsx';
 import { LoadingState } from '../common/LoadingState.tsx';
 import { ErrorState } from '../common/ErrorState.tsx';
@@ -46,6 +46,7 @@ function ServiceBookingCard({
   locale,
   onReview,
   onChanged,
+  highlighted = false,
 }: {
   booking: ServiceBooking;
   t: (key: string, vars?: Record<string, string | number>) => string;
@@ -53,6 +54,7 @@ function ServiceBookingCard({
   locale: Locale;
   onReview: (booking: ServiceBooking) => void;
   onChanged: () => void;
+  highlighted?: boolean;
 }) {
   const { toast } = useToast();
   const [payOpen, setPayOpen] = useState(false);
@@ -98,7 +100,14 @@ function ServiceBookingCard({
     cancelMutation.isPending;
 
   return (
-    <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <article
+      id={`service-booking-${booking.id}`}
+      className={`bg-white rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow ${
+        highlighted
+          ? 'border-diyar-brown ring-2 ring-diyar-brown/20'
+          : 'border-gray-100'
+      }`}
+    >
       <div className="h-1.5 bg-linear-to-r from-diyar-brown via-diyar-dark to-diyar-brown" />
       <div className="p-5 md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
@@ -290,12 +299,22 @@ function ServiceBookingCard({
 
 export function CustomerServiceBookingsPanel({ embedded = false }: { embedded?: boolean }) {
   const { t, dir, locale } = useLocale();
+  const [searchParams] = useSearchParams();
+  const highlightId = searchParams.get('highlight')?.trim() || null;
   const { page, perPage, perPageOptions, onPageChange, onPerPageChange } = usePaginationState();
   const [reviewBooking, setReviewBooking] = useState<ServiceBooking | null>(null);
 
   const { data, isLoading, isError, error, refetch } = useCustomerServiceBookings(page, perPage);
   const bookings = data?.items ?? [];
   const pagination = data?.pagination;
+
+  useEffect(() => {
+    if (!highlightId) {
+      return;
+    }
+    const el = document.getElementById(`service-booking-${highlightId}`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [highlightId, bookings]);
 
   if (isLoading) {
     return <LoadingState className="min-h-64" />;
@@ -335,6 +354,7 @@ export function CustomerServiceBookingsPanel({ embedded = false }: { embedded?: 
               locale={locale}
               onReview={setReviewBooking}
               onChanged={() => void refetch()}
+              highlighted={highlightId === booking.id}
             />
           ))}
         </div>

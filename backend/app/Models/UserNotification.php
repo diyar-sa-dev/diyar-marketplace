@@ -29,6 +29,9 @@ class UserNotification extends Model
         'entity_id',
         'priority',
         'dedupe_key',
+        'group_key',
+        'aggregated_count',
+        'actor_snapshot',
         'read_at',
     ];
 
@@ -38,6 +41,7 @@ class UserNotification extends Model
             'type' => NotificationType::class,
             'priority' => NotificationPriority::class,
             'data' => 'array',
+            'actor_snapshot' => 'array',
             'read_at' => 'datetime',
         ];
     }

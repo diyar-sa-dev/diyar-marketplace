@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Link as LinkIcon, Loader2 } from 'lucide-react';
 import { PaginationBar } from '../../components/catalog/PaginationBar.tsx';
 import { EmptyState } from '../../components/common/EmptyState.tsx';
 import { ErrorState } from '../../components/common/ErrorState.tsx';
-import { LoadingState } from '../../components/common/LoadingState.tsx';
 import {
   useAffiliateProducts,
   useAffiliatePlatformConfig,
@@ -16,13 +15,38 @@ import { useToast } from '../../hooks/useToast.ts';
 import { parseApiError } from '../../utils/errors.ts';
 import { resolveMediaUrl } from '../../lib/media.ts';
 import { AffiliatePlatformHints } from '../../components/affiliate/AffiliatePlatformHints.tsx';
-import { usePortalTheme, portalInputClass } from '../../lib/dashboard/portalTheme.ts';
+import { usePortalTheme } from '../../lib/dashboard/portalTheme.ts';
 import type { AffiliateProductSetting } from '../../types/affiliate.ts';
 
 const FALLBACK_IMAGE = '/placeholder-product.png';
+const SEARCH_DEBOUNCE_MS = 400;
 
 function formatWesternNumber(value: number): string {
   return value.toLocaleString('en-US');
+}
+
+function AffiliateProductGridSkeleton({ count = 8 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {Array.from({ length: count }).map((_, index) => (
+        <div
+          key={index}
+          className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-pulse"
+        >
+          <div className="h-48 bg-gray-100" />
+          <div className="p-4 space-y-3">
+            <div className="h-3 w-24 bg-gray-100 rounded" />
+            <div className="h-4 w-3/4 bg-gray-100 rounded" />
+            <div className="flex justify-between pt-2">
+              <div className="h-8 w-16 bg-gray-100 rounded" />
+              <div className="h-8 w-16 bg-gray-100 rounded" />
+            </div>
+            <div className="h-10 w-full bg-gray-100 rounded-xl" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function AffiliateProducts() {
@@ -30,7 +54,7 @@ export default function AffiliateProducts() {
   const theme = usePortalTheme();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearch = useDebouncedValue(searchTerm, 300);
+  const debouncedSearch = useDebouncedValue(searchTerm, SEARCH_DEBOUNCE_MS);
   const { page, perPage, perPageOptions, onPageChange, onPerPageChange, resetPage } =
     usePaginationState({ initialPerPage: 12 });
   const [creatingProductId, setCreatingProductId] = useState<string | null>(null);
@@ -40,6 +64,13 @@ export default function AffiliateProducts() {
   const createLink = useCreateAffiliateLink();
 
   const products = productsQuery.data?.products ?? [];
+  const searchPending = searchTerm !== debouncedSearch;
+  const showSkeleton =
+    productsQuery.isLoading || searchPending || (productsQuery.isFetching && !productsQuery.data);
+
+  useEffect(() => {
+    resetPage();
+  }, [debouncedSearch, resetPage]);
 
   const handleGenerateLink = async (item: AffiliateProductSetting) => {
     const productName = item.product?.name ?? 'Marketing link';
@@ -67,10 +98,6 @@ export default function AffiliateProducts() {
     }
   };
 
-  if (productsQuery.isLoading) {
-    return <LoadingState className="min-h-60" />;
-  }
-
   if (productsQuery.isError) {
     return (
       <ErrorState
@@ -92,14 +119,11 @@ export default function AffiliateProducts() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <input
-              type="text"
+              type="search"
               placeholder={t('affiliate.products.searchPlaceholder')}
               value={searchTerm}
-              onChange={(event) => {
-                setSearchTerm(event.target.value);
-                resetPage();
-              }}
-              className={`ps-10 pe-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-600/20 focus:border-green-600 text-sm w-full md:w-64`}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              className="ps-10 pe-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-600/20 focus:border-green-600 text-sm w-full md:w-64"
             />
             <Search
               size={18}
@@ -113,7 +137,9 @@ export default function AffiliateProducts() {
         <AffiliatePlatformHints platform={platformQuery.data} variant="marketer" />
       ) : null}
 
-      {products.length === 0 ? (
+      {showSkeleton ? (
+        <AffiliateProductGridSkeleton />
+      ) : products.length === 0 ? (
         <EmptyState title={t('affiliate.emptyProducts')} />
       ) : (
         <>
@@ -176,7 +202,7 @@ export default function AffiliateProducts() {
                       type="button"
                       disabled={isCreating || createLink.isPending}
                       onClick={() => void handleGenerateLink(item)}
-                      className={`w-full ${theme.buttonSoft} py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer`}
+                      className="w-full bg-green-600 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-green-700 transition shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
                     >
                       {isCreating ? (
                         <Loader2 size={16} className="animate-spin" />

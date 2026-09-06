@@ -40,7 +40,7 @@ export function AdminResourceTable({
   children,
   footer,
 }: AdminResourceTableProps) {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
 
   return (
     <section className="rounded-3xl border border-gray-100 bg-white shadow-sm">
@@ -57,7 +57,7 @@ export function AdminResourceTable({
           <label className="relative flex-1">
             <Search
               size={16}
-              className="pointer-events-none absolute top-1/2 -translate-y-1/2 text-gray-400 start-3"
+              className="pointer-events-none absolute top-1/2 -translate-y-1/2 text-gray-400 inset-s-3"
             />
             <input
               type="search"
@@ -89,8 +89,11 @@ export function AdminResourceTable({
         ) : null}
 
         {!isLoading && !isError && !isEmpty ? (
-          <div className="overflow-x-auto rounded-2xl border border-gray-100">
-            <table className="min-w-full text-sm">
+          <div
+            className="overflow-x-auto overflow-y-hidden rounded-2xl border border-gray-100 scrollbar-hide"
+            dir={dir}
+          >
+            <table className="min-w-full text-sm" dir={dir}>
               <thead className="bg-[#f7f4f1]/80 text-gray-500">{columns}</thead>
               <tbody className="divide-y divide-gray-50">{children}</tbody>
             </table>

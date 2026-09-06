@@ -1,4 +1,4 @@
-import type { APIRequestContext } from '@playwright/test';
+import type { APIRequestContext, Page } from '@playwright/test';
 import { E2E_PASSWORD } from '../fixtures/credentials.ts';
 
 export function apiBaseUrl(): string {
@@ -10,6 +10,17 @@ export function appOrigin(): string {
   return api.replace(/\/api\/v1\/?$/, '');
 }
 
+export function statefulApiHeaders(): Record<string, string> {
+  const origin = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:3000';
+
+  return {
+    Accept: 'application/json',
+    Origin: origin,
+    Referer: `${origin}/`,
+    'X-Requested-With': 'XMLHttpRequest',
+  };
+}
+
 async function readXsrfToken(request: APIRequestContext): Promise<string | null> {
   const state = await request.storageState();
   const token = state.cookies.find((cookie) => cookie.name === 'XSRF-TOKEN')?.value;
@@ -17,11 +28,8 @@ async function readXsrfToken(request: APIRequestContext): Promise<string | null>
 }
 
 export async function ensureCsrf(request: APIRequestContext): Promise<string | null> {
-  const response = await request.get(`${apiBaseUrl()}/csrf-token`, {
-    headers: {
-      Accept: 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
-    },
+  const response = await request.get(`${appOrigin()}/sanctum/csrf-cookie`, {
+    headers: statefulApiHeaders(),
   });
   if (!response.ok()) {
     throw new Error(`CSRF bootstrap failed: ${response.status()}`);
@@ -44,9 +52,8 @@ export async function loginMarketplaceApi(
   const response = await request.post(`${apiBaseUrl()}/auth/login`, {
     data: { method: 'phone', identifier, password },
     headers: {
-      Accept: 'application/json',
+      ...statefulApiHeaders(),
       'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
       ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
     },
   });
@@ -64,9 +71,8 @@ export async function loginAdminApi(
   const response = await request.post(`${apiBaseUrl()}/admin/auth/login`, {
     data: { method: 'phone', identifier, password },
     headers: {
-      Accept: 'application/json',
+      ...statefulApiHeaders(),
       'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
       ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
     },
   });
@@ -79,8 +85,7 @@ export async function logoutMarketplaceApi(request: APIRequestContext): Promise<
   const xsrf = await readXsrfToken(request);
   await request.post(`${apiBaseUrl()}/auth/logout`, {
     headers: {
-      Accept: 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
+      ...statefulApiHeaders(),
       ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
     },
   });
@@ -90,9 +95,29 @@ export async function logoutAdminApi(request: APIRequestContext): Promise<void> 
   const xsrf = await readXsrfToken(request);
   await request.post(`${apiBaseUrl()}/admin/auth/logout`, {
     headers: {
-      Accept: 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
+      ...statefulApiHeaders(),
       ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
     },
   });
+}
+
+export async function sessionRequestHeaders(
+  request: APIRequestContext,
+): Promise<Record<string, string>> {
+  const xsrf = await readXsrfToken(request);
+
+  return {
+    ...statefulApiHeaders(),
+    ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
+  };
+}
+
+export async function applyRequestSessionToPage(
+  request: APIRequestContext,
+  page: Page,
+): Promise<void> {
+  const state = await request.storageState();
+  if (state.cookies.length > 0) {
+    await page.context().addCookies(state.cookies);
+  }
 }

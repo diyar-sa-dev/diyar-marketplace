@@ -9,10 +9,12 @@ use App\Models\AffiliateLink;
 use App\Models\AffiliateProfile;
 use App\Models\ProductAffiliateSetting;
 use App\Models\User;
+use App\Services\Analytics\AnalyticsTimeBuckets;
 use App\Services\Media\MediaUploadService;
 use App\Support\Database\SqlDialect;
 use App\Support\Vendor\VendorOwnership;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
@@ -353,6 +355,71 @@ final class AffiliateDashboardService
         return $series;
     }
 
+    public static function chartGranularity(string $period): string
+    {
+        return match ($period) {
+            'day' => 'hour',
+            'week', 'month' => 'day',
+            '3m', '6m' => 'week',
+            '12m', 'year' => 'month',
+            default => 'day',
+        };
+    }
+
+    /**
+     * @return list<array{date: string, clicks: int, conversions: int, earnings: string}>
+     */
+    public function chartSeries(AffiliateProfile $profile, Carbon $from, Carbon $to, string $period): array
+    {
+        $granularity = self::chartGranularity($period);
+        $fromImm = CarbonImmutable::parse($from->toIso8601String());
+        $toImm = CarbonImmutable::parse($to->toIso8601String());
+
+        $clickTimes = AffiliateClick::query()
+            ->where('affiliate_profile_id', $profile->id)
+            ->whereBetween('created_at', [$from, $to])
+            ->pluck('created_at');
+
+        $commissionRows = AffiliateCommission::query()
+            ->where('affiliate_profile_id', $profile->id)
+            ->whereBetween('created_at', [$from, $to])
+            ->whereNotIn('status', [
+                AffiliateCommissionStatus::Reversed->value,
+                AffiliateCommissionStatus::Cancelled->value,
+            ])
+            ->get(['created_at', 'commission_amount']);
+
+        $series = [];
+        foreach (AnalyticsTimeBuckets::build($fromImm, $toImm, $granularity) as $bucket) {
+            $clicks = 0;
+            foreach ($clickTimes as $occurredAt) {
+                $moment = CarbonImmutable::parse($occurredAt);
+                if ($moment->betweenIncluded($bucket['from'], $bucket['to'])) {
+                    $clicks++;
+                }
+            }
+
+            $conversions = 0;
+            $earnings = 0.0;
+            foreach ($commissionRows as $row) {
+                $moment = CarbonImmutable::parse($row->created_at);
+                if ($moment->betweenIncluded($bucket['from'], $bucket['to'])) {
+                    $conversions++;
+                    $earnings += (float) $row->commission_amount;
+                }
+            }
+
+            $series[] = [
+                'date' => $bucket['label'],
+                'clicks' => $clicks,
+                'conversions' => $conversions,
+                'earnings' => number_format($earnings, 2, '.', ''),
+            ];
+        }
+
+        return $series;
+    }
+
     public static function bustDashboardCache(AffiliateProfile $profile): void
     {
         Cache::increment("diyar:affiliate:cache-v:{$profile->id}");
@@ -371,7 +438,8 @@ final class AffiliateDashboardService
             'week' => [now()->subDays(6)->startOfDay(), $end],
             '3m' => [now()->subMonths(3)->startOfDay(), $end],
             '6m' => [now()->subMonths(6)->startOfDay(), $end],
-            '12m', 'year' => [now()->subYear()->startOfDay(), $end],
+            '12m' => [now()->subMonths(12)->startOfDay(), $end],
+            'year' => [now()->startOfYear(), $end],
             default => [now()->subDays(29)->startOfDay(), $end],
         };
     }

@@ -31,6 +31,20 @@ final class RefundCalculationService
             $itemsSubtotal = bcadd($itemsSubtotal, number_format((float) $item->line_subtotal, 2, '.', ''), 2);
         }
 
+        $vendorSubtotal = number_format((float) $vendorOrder->subtotal, 2, '.', '');
+        $discountSnapshot = number_format((float) ($vendorOrder->discount_amount ?? 0), 2, '.', '');
+        if (bccomp($vendorSubtotal, '0.00', 2) > 0 && bccomp($discountSnapshot, '0.00', 2) > 0) {
+            $discountShare = bcmul(
+                bcdiv($itemsSubtotal, $vendorSubtotal, 8),
+                $discountSnapshot,
+                8,
+            );
+            $itemsSubtotal = bcsub($itemsSubtotal, number_format((float) $discountShare, 2, '.', ''), 2);
+            if (bccomp($itemsSubtotal, '0.00', 2) < 0) {
+                $itemsSubtotal = '0.00';
+            }
+        }
+
         $allocationSubtotal = number_format((float) $allocation->vendor_subtotal, 2, '.', '');
         $itemRatio = bccomp($allocationSubtotal, '0.00', 2) > 0
             ? bcdiv($itemsSubtotal, $allocationSubtotal, 8)

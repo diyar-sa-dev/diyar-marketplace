@@ -6,12 +6,14 @@ use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Enums\UserStatus;
 use App\Models\User;
+use App\Services\Cart\CartService;
 use App\Support\Identity\MarketplaceAccess;
 use App\Support\User\UserNotificationPreferences;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -32,6 +34,8 @@ final class AuthService
     public function establishMarketplaceSession(User $user, bool $remember = false): User
     {
         $guard = Auth::guard('web');
+
+        $this->rememberGuestCartSessionBeforeLogin();
 
         if (! $guard->check() || (string) $guard->id() !== (string) $user->getAuthIdentifier()) {
             $guard->login($user, remember: $remember);
@@ -74,7 +78,23 @@ final class AuthService
             return;
         }
 
+        $session->put(CartService::GUEST_SESSION_FOR_MERGE_KEY, $session->getId());
         $session->regenerate();
+    }
+
+    private function rememberGuestCartSessionBeforeLogin(): void
+    {
+        if (! request()->hasSession()) {
+            return;
+        }
+
+        $session = request()->session();
+
+        if (! $session->isStarted() || Auth::guard('web')->check()) {
+            return;
+        }
+
+        $session->put(CartService::GUEST_SESSION_FOR_MERGE_KEY, $session->getId());
     }
 
     public function loginWithPhone(string $phoneRaw, string $password, bool $remember = false): User
@@ -131,8 +151,14 @@ final class AuthService
     public function logoutMarketplace(): void
     {
         $adminUser = Auth::guard('admin')->user();
+        $webUser = Auth::guard('web')->user();
+
+        if ($webUser !== null) {
+            $webUser->forceFill(['remember_token' => null])->save();
+        }
 
         Auth::guard('web')->logout();
+        $this->forgetRememberCookie('web');
 
         if (! request()->hasSession()) {
             return;
@@ -151,13 +177,20 @@ final class AuthService
 
         $session->invalidate();
         $session->regenerateToken();
+        $session->save();
     }
 
     public function logoutAdmin(): void
     {
         $marketplaceUser = Auth::guard('web')->user();
+        $adminUser = Auth::guard('admin')->user();
+
+        if ($adminUser !== null) {
+            $adminUser->forceFill(['remember_token' => null])->save();
+        }
 
         Auth::guard('admin')->logout();
+        $this->forgetRememberCookie('admin');
 
         if (! request()->hasSession()) {
             return;
@@ -176,6 +209,7 @@ final class AuthService
 
         $session->invalidate();
         $session->regenerateToken();
+        $session->save();
     }
 
     /**
@@ -210,6 +244,17 @@ final class AuthService
         $session->forget('password_hash_admin');
     }
 
+    private function forgetRememberCookie(string $guardName): void
+    {
+        $guard = Auth::guard($guardName);
+
+        if (! method_exists($guard, 'getRecallerName')) {
+            return;
+        }
+
+        Cookie::queue(Cookie::forget($guard->getRecallerName()));
+    }
+
     /**
      * @param  array<string, mixed>  $credentials
      */
@@ -217,8 +262,10 @@ final class AuthService
     {
         $this->ensureIsNotRateLimited($key, $identifier);
 
+        $this->rememberGuestCartSessionBeforeLogin();
+
         if (! Auth::guard('web')->attempt($credentials, remember: $remember)) {
-            RateLimiter::hit($this->throttleKey($key, $identifier), decaySeconds: $this->decaySeconds());
+            $this->hitRateLimiter($key, $identifier);
             throw ValidationException::withMessages([
                 'credentials' => [__('auth.failed')],
             ]);
@@ -271,7 +318,7 @@ final class AuthService
         $this->ensureIsNotRateLimited($key, $identifier);
 
         if (! Auth::guard('admin')->attempt($credentials, remember: $remember)) {
-            RateLimiter::hit($this->throttleKey($key, $identifier), decaySeconds: $this->decaySeconds());
+            $this->hitRateLimiter($key, $identifier);
             throw ValidationException::withMessages([
                 'credentials' => [__('auth.failed')],
             ]);
@@ -409,6 +456,10 @@ final class AuthService
 
     private function ensureIsNotRateLimited(string $key, string $identifier): void
     {
+        if ($this->shouldBypassLoginRateLimit()) {
+            return;
+        }
+
         $throttleKey = $this->throttleKey($key, $identifier);
 
         if (! RateLimiter::tooManyAttempts($throttleKey, $this->maxAttempts())) {
@@ -426,7 +477,16 @@ final class AuthService
 
     private function hitRateLimiter(string $key, string $identifier): void
     {
+        if ($this->shouldBypassLoginRateLimit()) {
+            return;
+        }
+
         RateLimiter::hit($this->throttleKey($key, $identifier), decaySeconds: $this->decaySeconds());
+    }
+
+    private function shouldBypassLoginRateLimit(): bool
+    {
+        return (bool) config('diyar.loadtest.enabled', false);
     }
 
     private function throttleKey(string $key, string $identifier): string

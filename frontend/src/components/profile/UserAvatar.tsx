@@ -7,6 +7,8 @@ type UserAvatarProps = {
   name?: string | null;
   avatarUrl?: string | null;
   size?: 'sm' | 'md' | 'lg';
+  shape?: 'circle' | 'square';
+  className?: string;
   variant?: 'default' | 'onDark';
   editable?: boolean;
   isUploading?: boolean;
@@ -33,6 +35,8 @@ export function UserAvatar({
   name,
   avatarUrl,
   size = 'lg',
+  shape = 'circle',
+  className,
   variant = 'default',
   editable = false,
   isUploading = false,
@@ -52,8 +56,10 @@ export function UserAvatar({
   }, [resolvedUrl]);
 
   const dimension =
-    size === 'lg' ? 'w-24 h-24 text-3xl' : size === 'md' ? 'w-16 h-16 text-xl' : 'w-9 h-9 text-xs';
+    className ??
+    (size === 'lg' ? 'w-24 h-24 text-3xl' : size === 'md' ? 'w-16 h-16 text-xl' : 'w-9 h-9 text-xs');
   const borderWidth = size === 'sm' ? 'border-2' : 'border-4';
+  const roundedClass = shape === 'square' ? 'rounded-xl md:rounded-2xl' : 'rounded-full';
   const shellClassName =
     variant === 'onDark'
       ? showImage
@@ -78,7 +84,7 @@ export function UserAvatar({
   return (
     <div className={`relative group shrink-0 ${dimension}`}>
       <div
-        className={`${dimension} relative rounded-full overflow-hidden ${borderWidth} drop-shadow-md font-bold ${shellClassName}`}
+        className={`${dimension} relative ${roundedClass} overflow-hidden ${borderWidth} drop-shadow-md font-bold ${shellClassName}`}
       >
         <div
           role={editable ? 'button' : undefined}
@@ -110,7 +116,9 @@ export function UserAvatar({
         </div>
 
         {isBusy && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center rounded-full bg-black/40">
+          <div
+            className={`absolute inset-0 z-20 flex items-center justify-center ${roundedClass} bg-black/40`}
+          >
             <span className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
           </div>
         )}
@@ -125,7 +133,9 @@ export function UserAvatar({
               onChange={handleFileChange}
             />
             {!isBusy && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center gap-2 rounded-full bg-black/45 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
+              <div
+                className={`absolute inset-0 z-10 flex items-center justify-center gap-2 ${roundedClass} bg-black/45 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100`}
+              >
                 <button
                   type="button"
                   onClick={(event) => {

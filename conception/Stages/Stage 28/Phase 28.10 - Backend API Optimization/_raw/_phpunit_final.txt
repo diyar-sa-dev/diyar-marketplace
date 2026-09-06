@@ -1,0 +1,72 @@
+﻿
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+
+--- STAGE 10.1 E2E EVIDENCE ---
+{
+    "checkout_preview": {
+        "shipping_total": "40.00",
+        "grand_total": null,
+        "vendor_groups": [
+            {
+                "vendor_account_id": "01a0435a-14d4-72f5-ab9a-81716243b033",
+                "shipping_cost": "25.00",
+                "method": "carrier"
+            },
+            {
+                "vendor_account_id": "01a0435a-14d9-72fb-964d-07c4ac96d21b",
+                "shipping_cost": "15.00",
+                "method": "carrier"
+            }
+        ]
+    },
+    "order_created": {
+        "order_id": "01a0435a-150f-722c-9a6c-81035705d0eb",
+        "order_number": "DYR-20260827-000001",
+        "shipping_total": "40.00",
+        "grand_total": "563.50",
+        "vendor_orders": [
+            {
+                "id": "01a0435a-1510-7282-bf48-0dc0f1dfcf85",
+                "vendor_account_id": "01a0435a-14d4-72f5-ab9a-81716243b033",
+                "shipping_cost": "25.00",
+                "shipping_method": "carrier",
+                "shipment_status": "pending"
+            },
+            {
+                "id": "01a0435a-1513-7121-a639-57d3aa1881f9",
+                "vendor_account_id": "01a0435a-14d9-72fb-964d-07c4ac96d21b",
+                "shipping_cost": "15.00",
+                "shipping_method": "carrier",
+                "shipment_status": "pending"
+            }
+        ]
+    },
+    "payment": {
+        "status": "paid",
+        "amount": "563.50",
+        "order_grand_total": "563.50"
+    },
+    "fulfillment": [
+        {
+            "vendor_order_id": "01a0435a-1510-7282-bf48-0dc0f1dfcf85",
+            "status": "delivered",
+            "tracking_number": "E2E-01a0435a-1510-7282-bf48-0dc0f1dfcf85",
+            "shipped_at": "2026-08-27T16:12:52+03:00",
+            "delivered_at": "2026-08-27T16:12:52+03:00"
+        },
+        {
+            "vendor_order_id": "01a0435a-1513-7121-a639-57d3aa1881f9",
+            "status": "delivered",
+            "tracking_number": "E2E-01a0435a-1513-7121-a639-57d3aa1881f9",
+            "shipped_at": "2026-08-27T16:12:52+03:00",
+            "delivered_at": "2026-08-27T16:12:52+03:00"
+        }
+    ],
+    "historical_immutability": {
+        "settings_a_carrier_flat_rate_now": "40.00",
+        "order_a_shipping_cost_snapshot": "25.00"
+    }
+}
+{"tool":"phpunit","result":"failed","tests":747,"passed":740,"assertions":3182,"duration_ms":76717,"errors":1,"error_details":[{"test":"Tests\\Unit\\Services\\Shipping\\ShippingRulePrecedenceTest::test_vendor_specific_rule_wins_over_platform_rule","file":"C:\\Users\\APL TECH\\OneDrive\\Documents\\Web\\Work\\Hamid\\project\\diyar-marketplace\\backend\\tests\\Unit\\Services\\Shipping\\ShippingRulePrecedenceTest.php","line":21,"message":"Cart weight exceeds the maximum supported limit."}],"skipped":6}

@@ -137,6 +137,17 @@ class SystemSettingServiceTest extends TestCase
         $this->assertSame(175.5, $this->config->decimal('affiliate.payout_minimum'));
     }
 
+    public function test_effective_config_reflects_runtime_config_changes_during_tests(): void
+    {
+        $this->assertTrue(app()->runningUnitTests());
+
+        config(['diyar.commerce.loyalty_sar_per_point' => 50]);
+        $this->assertSame(50, $this->config->integer('commerce.loyalty_sar_per_point'));
+
+        config(['diyar.commerce.loyalty_sar_per_point' => 100]);
+        $this->assertSame(100, $this->config->integer('commerce.loyalty_sar_per_point'));
+    }
+
     public function test_affiliate_platform_config_service_uses_effective_config(): void
     {
         SystemSetting::query()->create([

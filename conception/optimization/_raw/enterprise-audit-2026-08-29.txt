@@ -1,0 +1,51 @@
+Enterprise Deep Audit — 2026-08-29
+==================================
+
+## Code fixes (this audit)
+- ENT-001: VendorOrderQueryFilterTest — backtick SQL assertion + binding check
+- ENT-002: vite.config.ts — reverbProxyOptions bypass for /app-mockup.png
+
+## Test matrix
+
+| Suite | Result | Notes |
+|-------|--------|-------|
+| PHPUnit | 771/771 PASS | 3260 assertions, ~401s |
+| Vitest | 128/128 PASS | 26 files |
+| Typecheck | PASS | npm run typecheck |
+| Production build | PASS | index gzip 37.19 KB |
+| Playwright E2E | 72/72 PASS | Fresh run 2026-08-29 (prior session) |
+| MySQL EXPLAIN | 6/6 PASS | scripts/test-phpunit-mysql.ps1 (prior) |
+| Redis integration | SKIPPED | Docker/Redis offline |
+
+## Prior fixes verified still in place
+- OPT-002 AuthContext /me dedup
+- OPT-003 Assistant EffectiveConfig
+- KI-028-055 B2B sanitizeHtml
+- 28.15 TestCase forceTestingEnvironment
+
+## Open P0/P1
+- None
+
+## Conditional P2 (accepted with controls)
+- KI-028-053 public assistant (30/min, payload caps, admin toggle)
+- DB-PAG-001 deep OFFSET (trigger >50k SKUs)
+- OPT-004 homepage fan-out (monitor)
+
+## Documentation created
+- MASTER_OPTIMIZATION_REGISTER.md
+- SCALABILITY_MODEL.md
+- CAPACITY_PLAN.md
+- PERFORMANCE_ARCHITECTURE.md
+- SECURITY_HARDENING_AUDIT.md
+- PRODUCTION_FAILURE_MODES.md
+- TECHNICAL_DEBT_REGISTER.md
+- OVERENGINEERING_AUDIT.md (updated)
+
+## Capacity claims rigor
+- PROVEN: payment idempotency, auth rate limits, HTTP cache policy, PHPUnit suite
+- VALIDATED: MySQL catalog indexes, main JS bundle size, E2E flows
+- PROJECTED: 100k user scaling path, FPM capacity math
+- NOT YET TESTED: live P95 latency, 50+ VU load test, Redis live integration, multi-node deploy
+
+## Production readiness verdict
+READY WITH CONDITIONS — wire CI MySQL/Redis, deploy nginx CSP/HSTS, monitor assistant costs

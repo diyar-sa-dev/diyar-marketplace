@@ -493,17 +493,17 @@ export default function ServiceSettings() {
                       }}
                     />
                     <div className="flex-1">
-                      <p className="text-sm text-gray-500 leading-relaxed mb-3">
+                      <p className="text-sm text-gray-500 leading-relaxed">
                         {t('providerDashboard.settings.account.avatarFormats')}
                       </p>
-                      <Link
-                        to="/profile/personal-info"
-                        className="text-sm font-bold text-blue-600 hover:text-diyar-dark transition inline-flex items-center gap-2 cursor-pointer"
-                      >
-                        {t('providerDashboard.settings.account.manageProfile')}
-                      </Link>
                     </div>
                   </div>
+                  <Link
+                    to="/profile"
+                    className="mt-4 text-sm font-bold text-blue-600 border border-blue-600 px-5 py-2.5 rounded-xl hover:bg-blue-50 transition inline-block cursor-pointer"
+                  >
+                    {t('providerDashboard.settings.account.manageProfile')}
+                  </Link>
                 </div>
 
                 <hr className="border-gray-100" />

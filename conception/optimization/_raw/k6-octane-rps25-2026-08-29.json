@@ -1,0 +1,15 @@
+{
+  "profile": "rps25",
+  "timestamp_utc": "2026-08-29T11:33:51.293Z",
+  "rps_target": 25,
+  "rps_actual": 17.292497854104163,
+  "p50_ms": 2989.7381795,
+  "p95_ms": 5096.124210149998,
+  "p99_ms": null,
+  "error_rate": 0,
+  "thresholds_pass": false,
+  "threshold_failure": "http_req_duration p95 > 2500ms",
+  "server": "Octane+Swoole (docker-compose.loadtest.yml)",
+  "dataset": "10k products MySQL 8.0.46",
+  "status": "MEASURED_LATENCY_FAIL"
+}

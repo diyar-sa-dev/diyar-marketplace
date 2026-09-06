@@ -18,3 +18,40 @@ export function isAdminQueryKey(queryKey: readonly unknown[]): boolean {
 
   return typeof first === 'string' && first.startsWith('admin');
 }
+
+const PUBLIC_MARKETPLACE_SECTIONS = new Set([
+  'blog',
+  'projects',
+  'catalog',
+  'products',
+  'services',
+  'vendors',
+  'providers',
+  'search',
+  'health',
+]);
+
+/** Public catalog/content queries must survive guest session resets (e.g. /auth/me → 401). */
+export function shouldRemoveQueryOnSessionClear(queryKey: readonly unknown[]): boolean {
+  if (isAdminQueryKey(queryKey)) {
+    return false;
+  }
+
+  const root = queryKey[0];
+
+  if (root === 'marketplace') {
+    const section = queryKey[1];
+
+    if (typeof section === 'string' && PUBLIC_MARKETPLACE_SECTIONS.has(section)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  if (root === 'cart' || root === 'wishlist' || root === 'chat') {
+    return true;
+  }
+
+  return false;
+}

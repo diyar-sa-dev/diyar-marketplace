@@ -33,6 +33,7 @@ export type ChatMessage = {
   edited_at?: string | null;
   deleted_at?: string | null;
   is_deleted?: boolean;
+  reported_by_me?: boolean;
   attachments: ChatMessageAttachment[];
   created_at: string;
 };
@@ -50,6 +51,7 @@ export type Conversation = {
   last_read_at: string | null;
   participants: ChatParticipant[];
   display_name: string | null;
+  display_avatar_url?: string | null;
   vendor_slug: string | null;
   provider_slug: string | null;
   last_message: {
@@ -57,6 +59,8 @@ export type Conversation = {
     body: string | null;
     sender_id: string;
     message_type: string;
+    is_deleted?: boolean;
+    deleted_at?: string | null;
     created_at: string;
   } | null;
   last_message_at: string | null;
@@ -85,6 +89,11 @@ export type TypingUpdatedPayload = {
   user_id: string;
   name: string | null;
   typing: boolean;
+};
+
+export type ChatTypingEntry = {
+  userId: string;
+  name: string;
 };
 
 export type ChatCrossTabPayload = {

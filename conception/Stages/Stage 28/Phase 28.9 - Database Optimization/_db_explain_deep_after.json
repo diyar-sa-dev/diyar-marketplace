@@ -1,0 +1,143 @@
+﻿
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+{
+    "label": "deep-after",
+    "timestamp_utc": "2026-08-27T12:11:32+00:00",
+    "engine": "10.4.32-MariaDB",
+    "products_count": 500,
+    "queries": [
+        {
+            "name": "products_public_list",
+            "sql": "SELECT id, name, sale_price FROM products WHERE status = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 20",
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "products",
+                    "type": "range",
+                    "possible_keys": "products_status_created_at_index",
+                    "key": "products_status_created_at_index",
+                    "key_len": "1022",
+                    "ref": null,
+                    "rows": "500",
+                    "Extra": "Using where"
+                }
+            ],
+            "explain_analyze_error": "SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'ANALYZE SELECT id, name, sale_price FROM products WHERE status = ? AND delete...' at line 1 (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: diyar, SQL: EXPLAIN ANALYZE SELECT id, name, sale_price FROM products WHERE status = active AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 20)"
+        },
+        {
+            "name": "products_category_list",
+            "sql": "SELECT id FROM products WHERE category_id = ? AND status = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 20",
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "products",
+                    "type": "ref",
+                    "possible_keys": "products_category_id_status_index,products_status_created_at_index,products_category_status_created_at_index",
+                    "key": "products_category_status_created_at_index",
+                    "key_len": "1166",
+                    "ref": "const,const",
+                    "rows": "1",
+                    "Extra": "Using where"
+                }
+            ],
+            "explain_analyze_error": "SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'ANALYZE SELECT id FROM products WHERE category_id = ? AND status = ? AND dele...' at line 1 (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: diyar, SQL: EXPLAIN ANALYZE SELECT id FROM products WHERE category_id = 00000000-0000-0000-0000-000000000001 AND status = active AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 20)"
+        },
+        {
+            "name": "products_vendor_list",
+            "sql": "SELECT id FROM products WHERE vendor_account_id = ? AND status = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 20",
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "products",
+                    "type": "range",
+                    "possible_keys": "products_vendor_account_id_slug_unique,products_vendor_account_id_status_index,products_status_created_at_index,products_vendor_status_created_at_index",
+                    "key": "products_vendor_status_created_at_index",
+                    "key_len": "1166",
+                    "ref": null,
+                    "rows": "1",
+                    "Extra": "Using where"
+                }
+            ],
+            "explain_analyze_error": "SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'ANALYZE SELECT id FROM products WHERE vendor_account_id = ? AND status = ? AN...' at line 1 (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: diyar, SQL: EXPLAIN ANALYZE SELECT id FROM products WHERE vendor_account_id = 00000000-0000-0000-0000-000000000001 AND status = active AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 20)"
+        },
+        {
+            "name": "analytics_events_30d",
+            "sql": "SELECT event_type, COUNT(*) AS c FROM analytics_events WHERE created_at >= ? GROUP BY event_type",
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "analytics_events",
+                    "type": "index",
+                    "possible_keys": "analytics_events_created_at_index",
+                    "key": "analytics_events_event_type_created_at_index",
+                    "key_len": "262",
+                    "ref": null,
+                    "rows": "1",
+                    "Extra": "Using where; Using index"
+                }
+            ],
+            "explain_analyze_error": "SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'ANALYZE SELECT event_type, COUNT(*) AS c FROM analytics_events WHERE created_...' at line 1 (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: diyar, SQL: EXPLAIN ANALYZE SELECT event_type, COUNT(*) AS c FROM analytics_events WHERE created_at >= 2026-07-28 15:11:32 GROUP BY event_type)"
+        },
+        {
+            "name": "orders_admin_list",
+            "sql": "SELECT id FROM orders ORDER BY created_at DESC LIMIT 20",
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "orders",
+                    "type": "index",
+                    "possible_keys": null,
+                    "key": "orders_created_at_index",
+                    "key_len": "5",
+                    "ref": null,
+                    "rows": "3",
+                    "Extra": "Using index"
+                }
+            ],
+            "explain_analyze_error": "SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'ANALYZE SELECT id FROM orders ORDER BY created_at DESC LIMIT 20' at line 1 (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: diyar, SQL: EXPLAIN ANALYZE SELECT id FROM orders ORDER BY created_at DESC LIMIT 20)"
+        },
+        {
+            "name": "orders_admin_status",
+            "sql": "SELECT id FROM orders WHERE status = ? ORDER BY created_at DESC LIMIT 20",
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "orders",
+                    "type": "ref",
+                    "possible_keys": "orders_status_created_at_index",
+                    "key": "orders_status_created_at_index",
+                    "key_len": "130",
+                    "ref": "const",
+                    "rows": "1",
+                    "Extra": "Using where; Using index"
+                }
+            ],
+            "explain_analyze_error": "SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'ANALYZE SELECT id FROM orders WHERE status = ? ORDER BY created_at DESC LIMIT 20' at line 1 (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: diyar, SQL: EXPLAIN ANALYZE SELECT id FROM orders WHERE status = pending ORDER BY created_at DESC LIMIT 20)"
+        },
+        {
+            "name": "orders_user_list",
+            "sql": "SELECT id FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 20",
+            "explain": [
+                {
+                    "id": 1,
+                    "select_type": "SIMPLE",
+                    "table": "orders",
+                    "type": "ref",
+                    "possible_keys": "orders_user_id_idempotency_key_unique,orders_user_id_status_index,orders_user_created_at_index",
+                    "key": "orders_user_created_at_index",
+                    "key_len": "144",
+                    "ref": "const",
+                    "rows": "1",
+                    "Extra": "Using where; Using index"
+                }
+            ],
+            "explain_analyze_error": "SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'ANALYZE SELECT id FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMI...' at line 1 (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: diyar, SQL: EXPLAIN ANALYZE SELECT id FROM orders WHERE user_id = 00000000-0000-0000-0000-000000000001 ORDER BY created_at DESC LIMIT 20)"
+        }
+    ]
+}

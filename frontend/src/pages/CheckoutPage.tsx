@@ -5,7 +5,6 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  CreditCard,
   Plus,
   Receipt,
   ShieldCheck,
@@ -24,13 +23,8 @@ import { LoadingState } from '../components/common/LoadingState.tsx';
 import { CartLineItemCard } from '../components/checkout/CartLineItemCard.tsx';
 import { cartItemToLineProps } from '../lib/cartLineItem.ts';
 import { CheckoutVendorCoupon } from '../components/checkout/CheckoutVendorCoupon.tsx';
-import { CheckoutPaymentMethods } from '../components/checkout/CheckoutPaymentMethods.tsx';
 import { parseApiError } from '../utils/errors.ts';
-import {
-  readStoredPaymentMethod,
-  storePaymentMethod,
-  type CheckoutPaymentMethodId,
-} from '../lib/paymentMethods.ts';
+import { randomUUID } from '../lib/randomUUID.ts';
 import type { Locale } from '../lib/i18n/types.ts';
 import type {
   CheckoutPreview,
@@ -50,7 +44,7 @@ function hasPositiveAmount(value: string | null | undefined): boolean {
 }
 
 function newIdempotencyKey(): string {
-  return crypto.randomUUID();
+  return randomUUID();
 }
 
 type CartVendorGroup = {
@@ -121,7 +115,7 @@ function formatAddressLine(
 
 export default function CheckoutPage() {
   const { t, dir, locale } = useLocale();
-  const { user } = useAuthContext();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuthContext();
   const navigate = useNavigate();
   const { toast } = useToast();
   const currency = t('common.currency');
@@ -139,9 +133,6 @@ export default function CheckoutPage() {
   const lastValidPreviewRef = useRef<CheckoutPreview | null>(null);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [cartFlushed, setCartFlushed] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<CheckoutPaymentMethodId>(
-    () => readStoredPaymentMethod() ?? 'mada',
-  );
 
   const lineLabels = useMemo(
     () => ({
@@ -153,6 +144,15 @@ export default function CheckoutPage() {
     }),
     [currency, t],
   );
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate('/auth', {
+        replace: true,
+        state: { from: '/checkout', reason: 'auth_required' },
+      });
+    }
+  }, [authLoading, isAuthenticated, navigate]);
 
   useEffect(() => {
     void (async () => {
@@ -357,6 +357,20 @@ export default function CheckoutPage() {
   };
 
   const handlePlaceOrder = async () => {
+    if (!isAuthenticated) {
+      navigate('/auth', {
+        replace: true,
+        state: { from: '/checkout', reason: 'auth_required' },
+      });
+      return;
+    }
+
+    if (!hasAddress) {
+      toast.error(t('checkout.addressRequired'));
+      navigate(profileAddressesPath, { state: { from: '/checkout' } });
+      return;
+    }
+
     const activePreview = previewQuery.data?.valid
       ? previewQuery.data
       : lastValidPreviewRef.current;
@@ -375,7 +389,6 @@ export default function CheckoutPage() {
     };
 
     try {
-      storePaymentMethod(selectedPaymentMethod);
       const order = await createOrder.mutateAsync({
         payload: orderPayload,
         idempotencyKey: newIdempotencyKey(),
@@ -386,6 +399,14 @@ export default function CheckoutPage() {
       toast.error(error instanceof Error ? error.message : t('checkout.orderFailed'));
     }
   };
+
+  if (authLoading) {
+    return <LoadingState message={t('common.verifyingSession')} />;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   if (!cartFlushed || addressesLoading || cartLoading) {
     return <LoadingState message={t('checkout.loading')} />;
@@ -691,20 +712,6 @@ export default function CheckoutPage() {
                 );
               })}
             </section>
-
-            <section className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <h2 className="font-bold text-lg text-diyar-dark mb-4 flex items-center gap-2">
-                <CreditCard className="text-diyar-brown" size={20} />
-                {t('checkout.paymentSection')}
-              </h2>
-              <CheckoutPaymentMethods
-                selected={selectedPaymentMethod}
-                onChange={setSelectedPaymentMethod}
-              />
-              <p className="text-sm text-gray-500 leading-relaxed mt-4">
-                {t('checkout.paymentSecureHint')}
-              </p>
-            </section>
           </div>
 
           <aside className="h-fit sticky top-24 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg shadow-gray-200/60">
@@ -796,6 +803,10 @@ export default function CheckoutPage() {
                 <ShieldCheck size={20} strokeWidth={2.5} />
                 {createOrder.isPending ? t('checkout.placingOrder') : t('checkout.placeOrder')}
               </button>
+
+              <p className="text-xs text-gray-500 leading-relaxed text-center px-1">
+                {t('checkout.paymentAfterOrderNote')}
+              </p>
 
               <div className="flex items-center justify-center gap-2 rounded-xl bg-emerald-50/80 border border-emerald-100 px-3 py-2.5">
                 <ShieldCheck size={15} className="shrink-0 text-emerald-600" strokeWidth={2.5} />

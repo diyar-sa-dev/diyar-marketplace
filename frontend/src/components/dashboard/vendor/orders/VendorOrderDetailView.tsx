@@ -12,7 +12,7 @@ import {
 } from './VendorOrderDetailPanels.tsx';
 import { VendorOrderInfoSidebar } from './VendorOrderInfoSidebar.tsx';
 import { VendorOrderShipModal } from './VendorOrderShipModal.tsx';
-import { vendorOrderDisplayNumber, type VendorOrderAction } from './vendorOrderUtils.ts';
+import { vendorOrderDisplayNumber, vendorOrderCanManageStatus, vendorOrderCanCancel, type VendorOrderAction } from './vendorOrderUtils.ts';
 import type { VendorOrder } from '../../../../types/order.ts';
 
 export function VendorOrderDetailView({
@@ -63,6 +63,9 @@ export function VendorOrderDetailView({
     onAction(action);
   };
 
+  const showStatusActions = canWriteOrders && vendorOrderCanManageStatus(order);
+  const showCancelAction = showStatusActions && vendorOrderCanCancel(order);
+
   return (
     <div className="animate-in fade-in space-y-6 duration-300">
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
@@ -95,7 +98,7 @@ export function VendorOrderDetailView({
             {t('vendorOrders.downloadInvoice')}
           </button>
 
-          {canWriteOrders && order.status !== 'delivered' && order.status !== 'cancelled' && (
+          {showStatusActions && (
             <div className="relative">
               <button
                 type="button"
@@ -148,7 +151,7 @@ export function VendorOrderDetailView({
                       {t('vendorOrders.actions.deliver')}
                     </button>
                   )}
-                  {['pending', 'accepted', 'processing'].includes(order.status) && (
+                  {showCancelAction && (
                     <>
                       <div className="my-1 border-t border-gray-100" />
                       <button

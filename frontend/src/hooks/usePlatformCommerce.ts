@@ -16,5 +16,7 @@ export function usePlatformCommerce() {
   return {
     ...query,
     loyaltySarPerPoint: query.data?.loyalty_sar_per_point ?? 50,
+    loyaltyPointsPerUnit: query.data?.loyalty_points_per_unit ?? 1,
+    loyaltyEnabled: query.data?.loyalty_enabled ?? true,
   };
 }

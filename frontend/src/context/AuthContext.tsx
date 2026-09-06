@@ -4,13 +4,16 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
 import { useLocation } from 'react-router-dom';
 import * as authApi from '../api/auth.ts';
 import { registerUnauthorizedHandler } from '../lib/auth/sessionEvents.ts';
-import { isAdminQueryKey } from '../lib/auth/queryKeys.ts';
+import { ensureCsrfCookie, resetCsrfCookie } from '../lib/csrf.ts';
+import { isPaymentAuthRecoveryPath } from '../lib/auth/paymentAuthRecovery.ts';
+import { shouldRemoveQueryOnSessionClear } from '../lib/auth/queryKeys.ts';
 import { queryClient } from '../lib/queryClient.ts';
 import { mergeCart } from '../api/cart.ts';
 import { cartKeys } from '../hooks/cart/queryKeys.ts';
@@ -78,8 +81,26 @@ async function mergeGuestCartAfterAuth(showWarning: (message: string) => void): 
   }
 }
 
-function isGuestAuthPath(pathname: string): boolean {
-  return pathname === '/auth' || pathname.startsWith('/auth/');
+async function fetchCurrentUserWithRecovery(recover: boolean): Promise<AuthUser | null> {
+  if (!recover) {
+    return authApi.fetchCurrentUser();
+  }
+
+  await ensureCsrfCookie();
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const currentUser = await authApi.fetchCurrentUser();
+    if (currentUser !== null) {
+      return currentUser;
+    }
+
+    if (attempt < 2) {
+      await new Promise((resolve) => window.setTimeout(resolve, 250 * (attempt + 1)));
+      await ensureCsrfCookie();
+    }
+  }
+
+  return null;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -87,53 +108,128 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [status, setStatus] = useState<AuthState>('loading');
   const [error, setError] = useState<string | null>(null);
+  const refreshInFlightRef = useRef<Promise<AuthUser | null> | null>(null);
+  const marketplaceBootstrapDoneRef = useRef(false);
+  const wasInAdminRef = useRef(false);
   const { toast } = useToast();
 
   const clearSession = useCallback(() => {
-    setUser(null);
-    setStatus('unauthenticated');
-    invalidateUserScopedQueries();
-    queryClient.removeQueries({
-      predicate: (query) =>
-        query.queryKey[0] === 'marketplace' ||
-        (query.queryKey[0] !== 'admin' && !isAdminQueryKey(query.queryKey)),
+    setUser((current) => {
+      if (current === null) {
+        return current;
+      }
+
+      resetCsrfCookie();
+      invalidateUserScopedQueries();
+      queryClient.removeQueries({
+        predicate: (query) => shouldRemoveQueryOnSessionClear(query.queryKey),
+      });
+
+      return null;
     });
+    setStatus('unauthenticated');
   }, []);
 
   const refreshUser = useCallback(async (): Promise<AuthUser | null> => {
-    setStatus('loading');
+    if (refreshInFlightRef.current) {
+      return refreshInFlightRef.current;
+    }
 
-    try {
-      const currentUser = await authApi.fetchCurrentUser();
+    const recover = isPaymentAuthRecoveryPath(location.pathname, location.search);
 
-      if (currentUser === null) {
+    const run = (async (): Promise<AuthUser | null> => {
+      setStatus((current) => {
+        if (current === 'authenticated' || current === 'unauthenticated') {
+          return current;
+        }
+
+        return 'loading';
+      });
+
+      try {
+        const currentUser = await fetchCurrentUserWithRecovery(recover);
+
+        if (currentUser === null) {
+          let preservedUser: AuthUser | null = null;
+
+          setUser((current) => {
+            if (recover && current !== null) {
+              preservedUser = current;
+              return current;
+            }
+
+            if (current === null) {
+              setStatus('unauthenticated');
+              return current;
+            }
+
+            resetCsrfCookie();
+            invalidateUserScopedQueries();
+            queryClient.removeQueries({
+              predicate: (query) => shouldRemoveQueryOnSessionClear(query.queryKey),
+            });
+            setStatus('unauthenticated');
+            return null;
+          });
+
+          if (preservedUser !== null) {
+            setStatus('authenticated');
+            return preservedUser;
+          }
+
+          return null;
+        }
+
+        setUser(currentUser);
+        setStatus('authenticated');
+        return currentUser;
+      } catch (err) {
+        const parsed = parseApiError(err);
+        const isTransientNetworkFailure = parsed.status === 0;
+
+        if (isTransientNetworkFailure) {
+          setStatus((current) => (current === 'authenticated' ? 'authenticated' : 'unauthenticated'));
+          return null;
+        }
+
         clearSession();
         return null;
       }
+    })();
 
-      setUser(currentUser);
-      setStatus('authenticated');
-      return currentUser;
-    } catch {
-      clearSession();
-      return null;
+    refreshInFlightRef.current = run;
+
+    try {
+      return await run;
+    } finally {
+      refreshInFlightRef.current = null;
     }
-  }, [clearSession]);
+  }, [clearSession, location.pathname, location.search]);
 
   useEffect(() => {
-    if (isAdminArea(location.pathname)) {
+    const inAdmin = isAdminArea(location.pathname);
+
+    if (inAdmin) {
+      wasInAdminRef.current = true;
       setStatus('unauthenticated');
       setUser(null);
       return;
     }
 
-    if (isGuestAuthPath(location.pathname)) {
-      setStatus('unauthenticated');
+    const paymentRecovery = isPaymentAuthRecoveryPath(location.pathname, location.search);
+    const shouldBootstrap =
+      !marketplaceBootstrapDoneRef.current || wasInAdminRef.current || paymentRecovery;
+
+    if (!shouldBootstrap) {
       return;
     }
 
+    if (!paymentRecovery) {
+      marketplaceBootstrapDoneRef.current = true;
+    }
+    wasInAdminRef.current = false;
     void refreshUser();
-  }, [location.pathname, refreshUser]);
+  }, [location.pathname, location.search, refreshUser]);
 
   const updateUser = useCallback((next: AuthUser) => {
     setUser(next);

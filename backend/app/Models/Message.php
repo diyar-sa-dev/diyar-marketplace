@@ -53,4 +53,9 @@ class Message extends Model
     {
         return $this->hasMany(MessageAttachment::class);
     }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(ChatMessageReport::class);
+    }
 }

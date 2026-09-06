@@ -1,0 +1,46 @@
+﻿docker : time="2026-08-27T11:19:55+01:00" level=warning msg="No services to build"
+At C:\Users\APL TECH\AppData\Local\Temp\ps-script-5d84f413-fc62-4987-80a9-99a0cfe2b708.ps1:115 char:166
++ ... sting\raw"; docker compose -f docker-compose.loadtest.yml run --rm -- ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (time="2026-08-2...vices to build":String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+time="2026-08-27T11:19:55+01:00" level=warning msg="No services to build"
+ Container diyar-marketplace-api-run-e824a8d584b1 Creating 
+ Container diyar-marketplace-api-run-e824a8d584b1 Created 
+{
+    "timestamp_utc": "2026-08-27T10:19:56+00:00",
+    "iterations": 10,
+    "note": "First sample in each series includes Laravel bootstrap (already loaded). Raw ping after bootstrap reflects warm PHP process.",
+    "series": {
+        "redis_ping_first_after_bootstrap_ms": 2.7511119842529297,
+        "redis_ping_warm_ms": {
+            "min": 0.1,
+            "median": 0.11,
+            "p95": 0.17,
+            "max": 0.17,
+            "samples": 10
+        },
+        "redis_raw_set_get_del_ms": {
+            "min": 0.29,
+            "median": 0.33,
+            "p95": 0.43,
+            "max": 0.43,
+            "samples": 10
+        },
+        "laravel_cache_roundtrip_ms": {
+            "min": 0.33,
+            "median": 0.37,
+            "p95": 1.35,
+            "max": 1.35,
+            "samples": 10
+        },
+        "laravel_queue_size_ms": {
+            "min": 0.11,
+            "median": 0.14,
+            "p95": 1.61,
+            "max": 1.61,
+            "samples": 10
+        }
+    }
+}

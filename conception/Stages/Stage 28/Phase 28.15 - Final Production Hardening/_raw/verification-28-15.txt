@@ -1,0 +1,40 @@
+Phase 28.15 — Final Production Hardening Verification
+Date: 2026-08-29
+Branch: dev @ badbb6e
+
+=== FIXES ===
+[HARD-015-001/002] Loyalty EffectiveConfig PHPUnit cache — FIXED
+  backend/tests/TestCase.php — forceTestingEnvironment()
+  backend/app/Services/Settings/EffectiveConfigService.php — runningUnitTests() bypass
+
+[HARD-015-003] KI-028-055 Admin B2B XSS — FIXED
+  frontend/src/admin/pages/AdminB2bCompaniesPage.tsx — sanitizeHtml()
+
+=== TESTS ===
+PHPUnit: 763/769 PASS, 6 skipped, 0 failed
+  Evidence: _raw/phpunit-full.txt
+
+Vitest: 126/126 PASS
+Typecheck: PASS
+Lint: PASS
+Build: PASS (main gzip 37.15 KB)
+
+diyar:validate-php-runtime: PASS (BCMath OK)
+
+New regression:
+  SystemSettingServiceTest::test_effective_config_reflects_runtime_config_changes_during_tests — PASS
+
+Loyalty (previously failing):
+  LoyaltyCommerceTest::updated_configuration_affects_future_accrual — PASS
+  LoyaltyHardeningTest::re_enabled_program_accrues_after_prior_disable — PASS
+
+Playwright E2E: 72/72 baseline from Phase 28.13 (bootstrap script verified, not re-run)
+
+=== PRODUCTION BLOCKERS ===
+P0: 0
+P1: 0
+P2: 0
+
+=== CERTIFICATION ===
+PHASE 28.15 STATUS: COMPLETE
+SCORE: 10/10

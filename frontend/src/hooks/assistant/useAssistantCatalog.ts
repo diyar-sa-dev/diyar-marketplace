@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchProducts } from '../../api/catalog.ts';
 import { useCategories } from '../catalog/useCatalog.ts';
 import { useServiceCategories, useServices } from '../services/useServices.ts';
+import { listCategoryChildren } from '../../lib/categoryChildren.ts';
+import type { Category } from '../../types/catalog.ts';
 
 const CACHE_KEY = ['assistant-catalog-context'] as const;
 
@@ -10,7 +12,7 @@ function buildCatalogContext(
   productCategories: Array<{
     name: string;
     slug: string;
-    children?: Array<{ name: string; slug: string }>;
+    children?: Category['children'] | { data?: Category['children'] };
   }>,
   products: Array<{
     name: string;
@@ -30,7 +32,7 @@ function buildCatalogContext(
   const categoryLines = productCategories
     .slice(0, 12)
     .map((category) => {
-      const children = (category.children ?? [])
+      const children = listCategoryChildren(category.children)
         .slice(0, 6)
         .map((child) => child.name)
         .join(', ');

@@ -17,6 +17,7 @@ use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
+use RuntimeException;
 
 class ProfileController extends Controller
 {
@@ -68,6 +69,8 @@ class ProfileController extends Controller
             );
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
+        } catch (RuntimeException $exception) {
+            return ApiResponse::error($exception->getMessage(), 503);
         }
 
         return ApiResponse::success(

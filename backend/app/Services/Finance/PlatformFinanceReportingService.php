@@ -14,8 +14,10 @@ use App\Models\AffiliateCommission;
 use App\Models\AffiliatePayout;
 use App\Models\FinancialTransaction;
 use App\Models\PaymentVendorAllocation;
+use App\Models\ProviderPayout;
 use App\Models\VendorOrder;
 use App\Models\VendorPayout;
+use App\Services\Analytics\AnalyticsTimeBuckets;
 use App\Services\Finance\DTO\PlatformFinancePeriodReport;
 use App\Services\Finance\DTO\PlatformFinanceSummary;
 use Carbon\CarbonImmutable;
@@ -58,6 +60,7 @@ final class PlatformFinanceReportingService
 
         $orderStats = $this->orderStatsForWindow($from, $to);
         $summary = $this->summary($currency);
+        $granularity = $period->analyticsGranularity();
 
         return new PlatformFinancePeriodReport(
             periodType: $period,
@@ -72,9 +75,12 @@ final class PlatformFinanceReportingService
             platformEarnings: $summary->platformEarnings,
             pendingEscrow: $summary->pendingEscrow,
             pendingVendorPayouts: $summary->pendingVendorPayouts,
+            pendingProviderPayouts: $this->pendingPayoutTotal(ProviderPayout::class, $currency),
             pendingAffiliatePayouts: $summary->pendingAffiliatePayouts,
             completedOrders: $orderStats['completed'],
             averageOrderValue: $orderStats['average'],
+            granularity: $granularity,
+            series: $this->chartSeriesForWindow($currency, $from, $to, $granularity),
         );
     }
 
@@ -126,7 +132,7 @@ final class PlatformFinanceReportingService
     }
 
     /**
-     * @param  class-string<VendorPayout|AffiliatePayout>  $modelClass
+     * @param  class-string<VendorPayout|AffiliatePayout|ProviderPayout>  $modelClass
      */
     private function pendingPayoutTotal(string $modelClass, string $currency): string
     {
@@ -212,6 +218,131 @@ final class PlatformFinanceReportingService
             'completed' => $completed,
             'average' => $average,
         ];
+    }
+
+    /**
+     * @return list<array{label: string, gross_sales: string, platform_commission: string, affiliate_commission: string, net_earnings: string}>
+     */
+    private function chartSeriesForWindow(
+        string $currency,
+        CarbonImmutable $from,
+        CarbonImmutable $to,
+        string $granularity,
+    ): array {
+        $buckets = AnalyticsTimeBuckets::build($from, $to, $granularity);
+        $gross = $this->zeroedBucketMap($buckets);
+        $commission = $this->zeroedBucketMap($buckets);
+        $affiliate = $this->zeroedBucketMap($buckets);
+        $refunds = $this->zeroedBucketMap($buckets);
+
+        $allocations = PaymentVendorAllocation::query()
+            ->join('payments', 'payments.id', '=', 'payment_vendor_allocations.payment_id')
+            ->where('payment_vendor_allocations.currency', $currency)
+            ->where('payments.status', PaymentStatus::Paid->value)
+            ->whereNotNull('payments.paid_at')
+            ->whereBetween('payments.paid_at', [$from, $to])
+            ->selectRaw(
+                'payments.paid_at as paid_at, payment_vendor_allocations.vendor_gross_total as vendor_gross_total, payment_vendor_allocations.platform_commission_amount as platform_commission_amount',
+            )
+            ->get();
+
+        foreach ($allocations as $row) {
+            $label = $this->bucketLabelFor($buckets, CarbonImmutable::parse((string) $row->paid_at));
+            if ($label === null) {
+                continue;
+            }
+            $gross[$label] = bcadd($gross[$label], number_format((float) $row->vendor_gross_total, 2, '.', ''), 2);
+            $commission[$label] = bcadd(
+                $commission[$label],
+                number_format((float) $row->platform_commission_amount, 2, '.', ''),
+                2,
+            );
+        }
+
+        $commissionRows = AffiliateCommission::query()
+            ->where('currency', $currency)
+            ->whereNotIn('status', [
+                AffiliateCommissionStatus::Cancelled->value,
+                AffiliateCommissionStatus::Reversed->value,
+            ])
+            ->whereBetween('created_at', [$from, $to])
+            ->get(['created_at', 'commission_amount']);
+
+        foreach ($commissionRows as $row) {
+            $label = $this->bucketLabelFor($buckets, CarbonImmutable::parse((string) $row->created_at));
+            if ($label === null) {
+                continue;
+            }
+            $affiliate[$label] = bcadd(
+                $affiliate[$label],
+                number_format((float) $row->commission_amount, 2, '.', ''),
+                2,
+            );
+        }
+
+        $refundRows = FinancialTransaction::query()
+            ->whereNull('vendor_account_id')
+            ->where('currency', $currency)
+            ->where('transaction_type', FinancialTransactionType::Refund->value)
+            ->where('balance_bucket', BalanceBucket::PlatformCommission->value)
+            ->where('direction', FinancialDirection::Debit->value)
+            ->whereBetween('created_at', [$from, $to])
+            ->get(['created_at', 'amount']);
+
+        foreach ($refundRows as $row) {
+            $label = $this->bucketLabelFor($buckets, CarbonImmutable::parse((string) $row->created_at));
+            if ($label === null) {
+                continue;
+            }
+            $refunds[$label] = bcadd($refunds[$label], number_format((float) $row->amount, 2, '.', ''), 2);
+        }
+
+        $series = [];
+        foreach ($buckets as $bucket) {
+            $label = $bucket['label'];
+            $net = bcsub(bcsub($commission[$label], $affiliate[$label], 2), $refunds[$label], 2);
+            if (bccomp($net, '0.00', 2) < 0) {
+                $net = '0.00';
+            }
+
+            $series[] = [
+                'label' => $label,
+                'gross_sales' => $gross[$label],
+                'platform_commission' => $commission[$label],
+                'affiliate_commission' => $affiliate[$label],
+                'net_earnings' => $net,
+            ];
+        }
+
+        return $series;
+    }
+
+    /**
+     * @param  list<array{label: string, from: CarbonImmutable, to: CarbonImmutable}>  $buckets
+     * @return array<string, string>
+     */
+    private function zeroedBucketMap(array $buckets): array
+    {
+        $map = [];
+        foreach ($buckets as $bucket) {
+            $map[$bucket['label']] = '0.00';
+        }
+
+        return $map;
+    }
+
+    /**
+     * @param  list<array{label: string, from: CarbonImmutable, to: CarbonImmutable}>  $buckets
+     */
+    private function bucketLabelFor(array $buckets, CarbonImmutable $at): ?string
+    {
+        foreach ($buckets as $bucket) {
+            if ($at->greaterThanOrEqualTo($bucket['from']) && $at->lessThanOrEqualTo($bucket['to'])) {
+                return $bucket['label'];
+            }
+        }
+
+        return null;
     }
 
     private function sumPlatformBucket(string $currency, BalanceBucket $bucket, FinancialDirection $direction): string

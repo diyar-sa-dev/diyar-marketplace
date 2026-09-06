@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { AlertTriangle, CheckCircle2, Info, X, XCircle } from 'lucide-react';
 import { ToastContext } from './toast-context.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { randomUUID } from '../../lib/randomUUID.ts';
 import type { Toast, ToastVariant } from '../../types/toast.ts';
 
 const AUTO_DISMISS_MS = 5000;
@@ -69,7 +70,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const showToast = useCallback(
     (message: string, variant: ToastVariant = 'info') => {
-      const id = crypto.randomUUID();
+      const id = randomUUID();
       setToasts((current) => [...current, { id, message, variant }]);
       window.setTimeout(() => dismissToast(id), AUTO_DISMISS_MS);
     },

@@ -78,7 +78,7 @@ export default function AdminLayout() {
                 end={end}
                 onClick={() => window.innerWidth < 768 && setSidebarOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all ${
+                  `flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all cursor-pointer ${
                     isActive
                       ? 'bg-[#f3ecdb] text-[#1f3d3a] shadow-sm'
                       : 'text-white/80 hover:bg-white/10 hover:text-white'

@@ -60,6 +60,42 @@ class CatalogSearchRequest extends FormRequest
             $validated['q'] = preg_replace('/\s+/u', ' ', trim((string) $validated['q'])) ?: null;
         }
 
+        $colors = $this->normalizeColors(
+            $validated['colors'] ?? null,
+            $validated['color'] ?? null,
+        );
+
+        unset($validated['color']);
+
+        if ($colors !== []) {
+            $validated['colors'] = $colors;
+        } else {
+            unset($validated['colors']);
+        }
+
         return $validated;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function normalizeColors(mixed $colors, mixed $color): array
+    {
+        $values = [];
+
+        if (is_string($colors) && trim($colors) !== '') {
+            $values = array_merge($values, explode(',', $colors));
+        }
+
+        if (is_string($color) && trim($color) !== '') {
+            $values[] = (string) $color;
+        }
+
+        $normalized = array_values(array_unique(array_filter(array_map(
+            static fn (string $value): string => trim($value),
+            array_map(strval(...), $values),
+        ))));
+
+        return $normalized;
     }
 }

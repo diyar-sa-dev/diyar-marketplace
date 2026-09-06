@@ -6,9 +6,10 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\VendorAccount;
-use App\Support\Cache\CatalogCacheVersion;
+use App\Support\Cache\CacheKeys;
+use App\Support\Cache\StampedeSafeCache;
+use App\Support\Cache\VersionedCache;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Cache;
 
 final class CatalogSearchSuggestionService
 {
@@ -31,37 +32,42 @@ final class CatalogSearchSuggestionService
             ];
         }
 
-        $version = CatalogCacheVersion::current();
-        $cacheKey = 'diyar:search:suggestions:v'.$version.'.'.md5(mb_strtolower($normalized)).'.'.$limit;
-        $ttl = (int) config('diyar.catalog.search_suggestions_seconds', 45);
+        $version = VersionedCache::version(CacheKeys::CATALOG_VERSION);
+        $cacheKey = CacheKeys::catalogSearchSuggestions($normalized, $limit, $version);
+        $ttlSeconds = (int) config('diyar.catalog.cache.search_suggestions_seconds', 45);
 
-        return Cache::remember($cacheKey, $ttl, function () use ($normalized, $limit): array {
-            $prefix = $normalized.'%';
-            $contains = '%'.$normalized.'%';
+        return StampedeSafeCache::remember(
+            $cacheKey,
+            $ttlSeconds,
+            function () use ($normalized, $limit): array {
+                $prefix = $normalized.'%';
+                $contains = '%'.$normalized.'%';
 
-            $suggestions = collect()
-                ->merge($this->productSuggestions($prefix, $contains, min(4, $limit)))
-                ->merge($this->vendorSuggestions($prefix, $contains, min(2, $limit)))
-                ->merge($this->categorySuggestions($prefix, $contains, min(2, $limit)))
-                ->merge($this->serviceSuggestions($prefix, $contains, min(2, $limit)))
-                ->sortByDesc('score')
-                ->values()
-                ->take($limit)
-                ->map(fn (array $item): array => [
-                    'id' => $item['id'],
-                    'type' => $item['type'],
-                    'label' => $item['label'],
-                    'slug' => $item['slug'],
-                    'subtitle' => $item['subtitle'],
-                    'href' => $item['href'],
-                ])
-                ->all();
+                $suggestions = collect()
+                    ->merge($this->productSuggestions($prefix, $contains, min(4, $limit)))
+                    ->merge($this->vendorSuggestions($prefix, $contains, min(2, $limit)))
+                    ->merge($this->categorySuggestions($prefix, $contains, min(2, $limit)))
+                    ->merge($this->serviceSuggestions($prefix, $contains, min(2, $limit)))
+                    ->sortByDesc('score')
+                    ->values()
+                    ->take($limit)
+                    ->map(fn (array $item): array => [
+                        'id' => $item['id'],
+                        'type' => $item['type'],
+                        'label' => $item['label'],
+                        'slug' => $item['slug'],
+                        'subtitle' => $item['subtitle'],
+                        'href' => $item['href'],
+                    ])
+                    ->all();
 
-            return [
-                'query' => $normalized,
-                'suggestions' => $suggestions,
-            ];
-        });
+                return [
+                    'query' => $normalized,
+                    'suggestions' => $suggestions,
+                ];
+            },
+            'lock:'.$cacheKey,
+        );
     }
 
     /**

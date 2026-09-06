@@ -81,6 +81,8 @@ export const PASSWORD_REQUIREMENT_KEYS = [
 
 /** Saudi mobile without country code: 5XXXXXXXX (9 digits). */
 export const SAUDI_PHONE_DIGITS = 9;
+export const SAUDI_PHONE_COUNTRY_PREFIX = '+966';
+export const SAUDI_PHONE_INPUT_MAX_LENGTH = SAUDI_PHONE_COUNTRY_PREFIX.length + SAUDI_PHONE_DIGITS;
 export const SAUDI_PHONE_PATTERN = /^5\d{8}$/;
 
 export const NAME_MIN_LENGTH = 2;
@@ -98,6 +100,12 @@ export function sanitizeSaudiPhoneInput(value: string): string {
   }
 
   return digits.slice(0, SAUDI_PHONE_DIGITS);
+}
+
+/** National digits → single editable input value (+9665xxxxxxxx). */
+export function formatSaudiPhoneInputDisplay(national: string): string {
+  const digits = sanitizeSaudiPhoneInput(national);
+  return digits ? `+966${digits}` : '';
 }
 
 /** API/storage format (9665xxxxxxxx) → national input (5xxxxxxxx). */

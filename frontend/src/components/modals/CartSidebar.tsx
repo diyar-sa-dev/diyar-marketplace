@@ -14,6 +14,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCart } from '../../hooks/cart/useCart.ts';
 import { cartKeys } from '../../hooks/cart/queryKeys.ts';
 import { cartSync } from '../../hooks/cart/cartSync.ts';
+import { useBodyScrollLock } from '../../hooks/useBodyScrollLock.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { CartLineItemCard } from '../checkout/CartLineItemCard.tsx';
 import { cartItemToLineProps } from '../../lib/cartLineItem.ts';
@@ -33,6 +34,7 @@ function formatMoney(value: string | number, currency: string): string {
 
 export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
   const { t, dir } = useLocale();
+  useBodyScrollLock(isOpen);
   const queryClient = useQueryClient();
   const currency = t('vendor.products.table.currency');
   const isRtl = dir === 'rtl';
@@ -81,17 +83,20 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
   return (
     <>
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-60 backdrop-blur-sm transition-opacity"
+        <button
+          type="button"
+          className="fixed inset-0 bg-black/40 z-60 backdrop-blur-sm transition-opacity cursor-pointer"
+          aria-label={t('common.close')}
           onClick={onClose}
         />
       )}
 
       <div
         dir={dir}
-        className={`fixed top-0 bottom-0 ${sidebarPosition} w-full md:w-100 bg-white z-70 shadow-2xl transition-transform duration-300 ease-in-out transform ${
+        aria-hidden={!isOpen}
+        className={`fixed top-0 bottom-0 ${sidebarPosition} w-full md:w-100 max-w-full bg-white z-70 shadow-2xl transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : sidebarHiddenTransform
-        } flex flex-col`}
+        } ${isOpen ? '' : 'pointer-events-none invisible'} flex flex-col overscroll-none`}
       >
         <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-100">
           <div className="flex items-center gap-3 text-diyar-dark">
@@ -112,7 +117,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y p-4 md:p-6 space-y-4">
           {mergeWarnings.length > 0 && (
             <div
               role="alert"

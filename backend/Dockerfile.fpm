@@ -1,0 +1,34 @@
+# DIYAR PHP-FPM production image (Phase 28.14 — production-like stack)
+FROM php:8.3-fpm-bookworm
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git unzip libzip-dev libicu-dev \
+    && docker-php-ext-install -j$(nproc) \
+        bcmath \
+        intl \
+        pcntl \
+        pdo_mysql \
+        zip \
+        opcache \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/diyar/backend
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+
+COPY . .
+RUN composer dump-autoload --optimize
+
+RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs storage/app/public/media bootstrap/cache \
+    && rm -rf public/storage \
+    && ln -snf ../storage/app/public public/storage \
+    && chown -R www-data:www-data storage bootstrap/cache public/storage
+
+USER www-data
+EXPOSE 9000
+CMD ["php-fpm", "-F"]

@@ -40,37 +40,29 @@ final class EmailNotificationChannel implements NotificationChannelInterface
             throw new RuntimeException('Email notifications are disabled for this user.');
         }
 
-        if ($this->circuitBreaker->isOpen('email')) {
-            throw new RuntimeException('Email circuit breaker is open.');
-        }
+        $this->circuitBreaker->assertAvailable('email');
 
-        try {
-            $locale = UserNotificationPreferences::mailLocale($recipient);
-            $subject = $notification->title;
-            $actionUrl = is_string($payload['action_url'] ?? null) ? $payload['action_url'] : null;
-            $detailLines = is_array($payload['detail_lines'] ?? null) ? $payload['detail_lines'] : [];
+        $locale = UserNotificationPreferences::mailLocale($recipient);
+        $subject = $notification->title;
+        $actionUrl = is_string($payload['action_url'] ?? null) ? $payload['action_url'] : null;
+        $detailLines = is_array($payload['detail_lines'] ?? null) ? $payload['detail_lines'] : [];
 
-            $body = $this->mailContent->notificationBody(
-                $locale,
-                $recipient->name,
-                $notification->title,
-                $notification->body,
-                $actionUrl,
-                $detailLines,
-            );
+        $body = $this->mailContent->notificationBody(
+            $locale,
+            $recipient->name,
+            $notification->title,
+            $notification->body,
+            $actionUrl,
+            $detailLines,
+        );
 
-            $this->mailer->send(
-                toEmail: $recipient->email,
-                subject: $subject,
-                locale: $locale,
-                title: $subject,
-                bodyHtml: $body,
-            );
-
-            $this->circuitBreaker->recordSuccess('email');
-        } catch (\Throwable $exception) {
-            $this->circuitBreaker->recordFailure('email');
-            throw $exception;
-        }
+        $this->mailer->send(
+            toEmail: $recipient->email,
+            subject: $subject,
+            locale: $locale,
+            title: $subject,
+            bodyHtml: $body,
+            strict: true,
+        );
     }
 }

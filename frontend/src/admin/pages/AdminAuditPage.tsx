@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { Loader2 } from 'lucide-react';
+import { TableLtrValue } from '../../components/common/TableLtrValue.tsx';
 import { AdminTablePagination } from '../components/AdminTablePagination.tsx';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
 import { useAdminListQuery } from '../hooks/useAdminListQuery.ts';
@@ -6,6 +8,8 @@ import { useLocale } from '../../hooks/useLocale.ts';
 import { formatLocaleDateTime } from '../../lib/intlLocale.ts';
 import {
   AUDIT_ACTION_FILTER_OPTIONS,
+  auditActionBadgeClass,
+  auditActionTone,
   localizedAuditAction,
   localizedAuditResource,
 } from '../utils/localizedAudit.ts';
@@ -16,14 +20,26 @@ type AuditLog = {
   resource_type: string;
   resource_id: string;
   created_at?: string;
-  actor?: { name?: string };
+  actor?: { name?: string; email?: string | null };
 };
+
+const FILTER_SELECT =
+  'rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none transition hover:border-diyar-brown focus:border-diyar-brown cursor-pointer';
+
+function shortResourceId(id: string | null | undefined): string {
+  if (!id) {
+    return '—';
+  }
+
+  return id.length > 12 ? `${id.slice(0, 8)}…` : id;
+}
 
 export default function AdminAuditPage() {
   const { t, locale } = useLocale();
   const {
     data,
     isLoading,
+    isFetching,
     isError,
     search,
     setSearch,
@@ -31,6 +47,8 @@ export default function AdminAuditPage() {
     setParamFilter: setActionFilter,
     page,
     setPage,
+    perPage,
+    setPerPage,
   } = useAdminListQuery<AuditLog>({
     resourceKey: 'admin-audit',
     endpoint: '/admin/audit-logs',
@@ -40,6 +58,8 @@ export default function AdminAuditPage() {
 
   const logs = data?.items ?? [];
   const meta = data?.meta;
+  const showListSkeleton = isLoading || (isFetching && logs.length === 0);
+  const isSearching = isFetching && search.trim().length > 0;
 
   const actionOptions = useMemo(
     () =>
@@ -61,7 +81,7 @@ export default function AdminAuditPage() {
         <select
           value={actionFilter}
           onChange={(event) => setActionFilter(event.target.value)}
-          className="rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-diyar-brown cursor-pointer"
+          className={FILTER_SELECT}
         >
           <option value="">{t('admin.audit.allActions')}</option>
           {actionOptions.map((option) => (
@@ -71,16 +91,32 @@ export default function AdminAuditPage() {
           ))}
         </select>
       }
-      isLoading={isLoading}
+      actions={
+        isSearching ? (
+          <span className="inline-flex items-center gap-2 text-xs text-gray-500">
+            <Loader2 size={14} className="animate-spin" />
+            {t('admin.tables.searching')}
+          </span>
+        ) : null
+      }
+      isLoading={showListSkeleton}
       isError={isError}
-      isEmpty={logs.length === 0}
+      isEmpty={!showListSkeleton && logs.length === 0}
       emptyTitle={t('admin.audit.empty')}
       columns={
         <tr>
-          <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.action')}</th>
-          <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.resource')}</th>
-          <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.actor')}</th>
-          <th className="px-4 py-3 text-start font-semibold">{t('admin.tables.createdAt')}</th>
+          <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+            {t('admin.tables.action')}
+          </th>
+          <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+            {t('admin.tables.resource')}
+          </th>
+          <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+            {t('admin.tables.actor')}
+          </th>
+          <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+            {t('admin.tables.createdAt')}
+          </th>
         </tr>
       }
       footer={
@@ -88,26 +124,44 @@ export default function AdminAuditPage() {
           meta={meta}
           page={page}
           onPageChange={setPage}
-          isLoading={isLoading}
+          perPage={perPage}
+          onPerPageChange={setPerPage}
+          isLoading={isFetching}
         />
       }
     >
-      {logs.map((log) => (
-        <tr key={log.id} className="hover:bg-[#f7f4f1]/50">
-          <td className="px-4 py-3 text-sm font-semibold text-diyar-dark">
-            {localizedAuditAction(log.action, t)}
-          </td>
-          <td className="px-4 py-3 text-sm text-gray-600">
-            <span className="font-semibold">{localizedAuditResource(log.resource_type, t)}</span>
-            <span className="mx-1 text-gray-400">·</span>
-            <span className="font-mono text-xs">{log.resource_id}</span>
-          </td>
-          <td className="px-4 py-3 text-sm text-gray-700">{log.actor?.name ?? '—'}</td>
-          <td className="px-4 py-3 text-sm text-gray-500">
-            {log.created_at ? formatLocaleDateTime(log.created_at, locale) : '—'}
-          </td>
-        </tr>
-      ))}
+      {logs.map((log) => {
+        const tone = auditActionTone(log.action);
+
+        return (
+          <tr key={log.id} className="hover:bg-[#f7f4f1]/50 transition-colors">
+            <td className="px-4 py-3">
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${auditActionBadgeClass(tone)}`}
+              >
+                {localizedAuditAction(log.action, t)}
+              </span>
+            </td>
+            <td className="px-4 py-3 text-sm text-gray-600">
+              <p className="font-semibold text-diyar-dark">
+                {localizedAuditResource(log.resource_type, t)}
+              </p>
+              <TableLtrValue className="mt-0.5 font-mono text-xs text-gray-400">
+                {shortResourceId(log.resource_id)}
+              </TableLtrValue>
+            </td>
+            <td className="px-4 py-3">
+              <p className="text-sm font-medium text-gray-800">{log.actor?.name ?? '—'}</p>
+              {log.actor?.email ? (
+                <TableLtrValue className="text-xs text-gray-400">{log.actor.email}</TableLtrValue>
+              ) : null}
+            </td>
+            <td className="px-4 py-3 text-sm text-gray-500">
+              {log.created_at ? formatLocaleDateTime(log.created_at, locale) : '—'}
+            </td>
+          </tr>
+        );
+      })}
     </AdminResourceTable>
   );
 }

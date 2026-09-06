@@ -43,9 +43,7 @@ export async function uploadAvatar(file: File): Promise<ProfileActionResult> {
   formData.append('avatar', file);
 
   const response = await withCsrf(() =>
-    apiClient.post<ProfileResponse>('/profile/avatar', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+    apiClient.post<ProfileResponse>('/profile/avatar', formData),
   );
 
   return {

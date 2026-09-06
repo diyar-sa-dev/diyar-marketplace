@@ -1,0 +1,23 @@
+{
+    "tool": "adversarial-probes",
+    "base": "http:\/\/127.0.0.1:8093",
+    "result": "failed",
+    "checks": {
+        "health_live": {
+            "code": 200,
+            "pass": true
+        },
+        "health_ready": {
+            "code": 200,
+            "pass": true
+        },
+        "xff_spoof_rate_limit": {
+            "pass": false,
+            "note": "Rotating spoofed XFF must not bypass catalog-search limiter"
+        },
+        "error_no_stack_trace": {
+            "code": 404,
+            "pass": true
+        }
+    }
+}

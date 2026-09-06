@@ -1,0 +1,17 @@
+﻿2026-09-03 — Live Octane auth probes (docker-compose.loadtest.yml, 4 Swoole workers, Redis sessions)
+
+Stack: diyar-marketplace-api-1 @ http://127.0.0.1:8000
+Octane: Swoole, OCTANE_WORKERS=4, SESSION_DRIVER=redis
+
+=== Sequential ===
+php scripts/stage2817-auth-sequential-check.php http://127.0.0.1:8000
+login HTTP 200 | me HTTP 200 | logout HTTP 200 | me-after-logout HTTP 401
+RESULT: PASS
+
+=== Concurrent confirmatory (10 rounds x 40, unique jar per slot) ===
+php scripts/stage2817-octane-auth-isolation.php --base=http://127.0.0.1:8000 --rounds=10 --concurrency=40
+total=400 mismatches=0
+RESULT: PASS (0 identity mismatches)
+
+Accounts: customer_a 500000010, customer_b 500000011, guest
+Password: Password123!

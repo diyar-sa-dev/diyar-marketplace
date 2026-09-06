@@ -18,6 +18,7 @@ import { useAdminAuth } from '../auth/AdminAuthContext.tsx';
 import { useAdminDetailQuery } from '../hooks/useAdminDetailQuery.ts';
 import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
 import { invalidateAdminResource, syncAdminUserStatus } from '../utils/adminQueryCache.ts';
+import { AdminUserLoyaltyPanel } from '../components/AdminUserLoyaltyPanel.tsx';
 
 type UserDetail = {
   id: string;
@@ -120,6 +121,7 @@ export default function AdminUserDetailPage() {
     { id: 'profile', label: t('admin.detail.tabs.profile') },
     { id: 'roles', label: t('admin.detail.tabs.roles') },
     { id: 'accounts', label: t('admin.detail.tabs.accounts') },
+    { id: 'loyalty', label: t('admin.detail.tabs.loyalty') },
   ];
 
   return (
@@ -317,6 +319,12 @@ export default function AdminUserDetailPage() {
               </p>
             ) : null}
           </div>
+        ) : null}
+
+        {activeTab === 'loyalty' && userId ? (
+          <PermissionGate permission="loyalty.view">
+            <AdminUserLoyaltyPanel userId={userId} />
+          </PermissionGate>
         ) : null}
       </div>
     </div>

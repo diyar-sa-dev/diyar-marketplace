@@ -34,7 +34,7 @@ export function Footer() {
     { label: t('footer.about'), action: 'about' as const },
     { label: t('footer.shopNow'), to: '/category/all' },
     { label: t('footer.specialOffers'), to: '/category/all' },
-    { label: t('footer.blog'), to: '/blog/1' },
+    { label: t('footer.blog'), to: '/blog' },
     { label: t('footer.joinMerchant'), to: '/auth?role=merchant' },
   ] as const;
 

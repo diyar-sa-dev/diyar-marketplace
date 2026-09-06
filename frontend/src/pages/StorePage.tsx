@@ -161,8 +161,8 @@ export default function StorePage() {
         toast.success(t('store.followed'));
       }
     } catch (error) {
-      const message = parseApiError(error, locale).message;
-      if (message.includes('متابعة متجرك') || message.toLowerCase().includes('follow your own')) {
+      const message = parseApiError(error, locale).message.toLowerCase();
+      if (message.includes('follow your own') || message.includes('own store')) {
         toast.warning(t('store.followOwnStore'));
       } else {
         toast.error(t('store.followError'));
@@ -188,7 +188,7 @@ export default function StorePage() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-16">
+    <div className="bg-gray-50 min-h-screen pb-16" dir={dir}>
       {/* Cover Image */}
       <div
         className="w-full h-48 md:h-80 relative bg-diyar-dark cursor-pointer group"
@@ -205,7 +205,7 @@ export default function StorePage() {
           }}
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
-        <div className="absolute top-4 left-4 flex gap-2" onClick={(e) => e.stopPropagation()}>
+        <div className="absolute top-4 start-4 flex gap-2" onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
             onClick={() => setShareOpen(true)}
@@ -247,7 +247,7 @@ export default function StorePage() {
                 <ShieldCheck className="text-blue-500 w-5 h-5 md:w-6 md:h-6" />
               </div>
               <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-4 max-w-2xl">
-                {vendor.description ?? 'متجر معتمد على منصة ديار.'}
+                {vendor.description ?? t('store.certifiedFallbackDescription')}
               </p>
 
               <div className="flex flex-wrap items-center gap-3 md:gap-6 text-sm text-gray-600">
@@ -337,25 +337,25 @@ export default function StorePage() {
             </div>
 
             <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-5 shadow-sm">
-              <h3 className="font-bold text-lg text-diyar-dark mb-4">مميزات المتجر</h3>
+              <h3 className="font-bold text-lg text-diyar-dark mb-4">{t('store.featuresTitle')}</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
                     <ShieldCheck className="w-4 h-4 text-blue-500" />
                   </div>
-                  <span className="text-gray-700 font-medium">متجر موثوق ومعتمد من ديار</span>
+                  <span className="text-gray-700 font-medium">{t('store.featureTrusted')}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center shrink-0">
                     <Truck className="w-4 h-4 text-green-500" />
                   </div>
-                  <span className="text-gray-700 font-medium">شحن سريع داخل المملكة</span>
+                  <span className="text-gray-700 font-medium">{t('store.featureFastShipping')}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
                     <Award className="w-4 h-4 text-amber-500" />
                   </div>
-                  <span className="text-gray-700 font-medium">ضمان الجودة وسياسة استرجاع مرنة</span>
+                  <span className="text-gray-700 font-medium">{t('store.featureQualityReturns')}</span>
                 </div>
               </div>
             </div>
@@ -376,7 +376,7 @@ export default function StorePage() {
               >
                 <div className="flex items-center gap-2 whitespace-nowrap">
                   <LayoutGrid size={18} />
-                  المنتجات
+                  {t('store.tabProducts')}
                 </div>
               </button>
               <button
@@ -390,7 +390,7 @@ export default function StorePage() {
               >
                 <div className="flex items-center gap-2 whitespace-nowrap">
                   <Info size={18} />
-                  عن المتجر
+                  {t('store.tabAbout')}
                 </div>
               </button>
               <button
@@ -404,7 +404,7 @@ export default function StorePage() {
               >
                 <div className="flex items-center gap-2 whitespace-nowrap">
                   <Star size={18} />
-                  التقييمات
+                  {t('store.tabReviews')}
                 </div>
               </button>
             </div>
@@ -412,20 +412,21 @@ export default function StorePage() {
             {/* Tab Content */}
             {activeTab === 'products' && (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-diyar-dark">جميع المنتجات</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                  <h2 className="text-xl font-bold text-diyar-dark">{t('store.allProductsTitle')}</h2>
                   <select
                     value={sort}
                     onChange={(e) => {
                       setSort(e.target.value);
                       resetPage();
                     }}
-                    className="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg py-2 px-4 outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown"
+                    className="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg py-2 px-4 outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown w-full sm:w-auto"
+                    aria-label={t('catalog.search.filters.sort')}
                   >
-                    <option value="-created_at">الأحدث</option>
-                    <option value="popular">الأكثر شعبية</option>
-                    <option value="price">السعر: من الأقل للأعلى</option>
-                    <option value="-price">السعر: من الأعلى للأقل</option>
+                    <option value="-created_at">{t('catalog.search.filters.sortNewest')}</option>
+                    <option value="popular">{t('catalog.search.filters.sortPopular')}</option>
+                    <option value="price">{t('catalog.search.filters.sortPriceLow')}</option>
+                    <option value="-price">{t('catalog.search.filters.sortPriceHigh')}</option>
                   </select>
                 </div>
 
@@ -464,8 +465,10 @@ export default function StorePage() {
                 ) : (
                   <div className="text-center py-20 bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm">
                     <LayoutGrid className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-bold text-gray-600 mb-2">لا توجد منتجات</h3>
-                    <p className="text-gray-400">هذا المتجر لم يقم بإضافة أي منتجات حتى الآن.</p>
+                    <h3 className="text-lg font-bold text-gray-600 mb-2">
+                      {t('store.emptyProductsTitle')}
+                    </h3>
+                    <p className="text-gray-400">{t('store.emptyProductsDescription')}</p>
                   </div>
                 )}
               </div>
@@ -593,7 +596,8 @@ export default function StorePage() {
         <div className="fixed inset-0 bg-black/95 z-200 flex flex-col justify-center animate-in fade-in duration-300 p-4">
           <button
             onClick={() => setIsGalleryOpen(false)}
-            className="absolute top-6 right-6 text-white hover:text-gray-300 transition z-10 bg-white/10 backdrop-blur-md p-2 rounded-full"
+            className="absolute top-6 end-6 text-white hover:text-gray-300 transition z-10 bg-white/10 backdrop-blur-md p-2 rounded-full cursor-pointer"
+            aria-label={t('store.closeGallery')}
           >
             <X size={24} />
           </button>
@@ -602,7 +606,7 @@ export default function StorePage() {
             <div className="aspect-4/3 md:aspect-video rounded-2xl overflow-hidden shadow-2xl relative bg-black flex items-center justify-center">
               <img
                 src={coverUrl}
-                alt="Store Cover"
+                alt={t('store.coverAlt')}
                 className="max-w-full max-h-full object-contain"
                 referrerPolicy="no-referrer"
                 onError={(e) => {

@@ -14,6 +14,7 @@ use App\Services\Payments\DTO\PaymentSessionRequest;
 use App\Services\Payments\DTO\PaymentSessionResult;
 use App\Services\Payments\DTO\RefundPaymentRequest;
 use App\Services\Payments\DTO\RefundPaymentResult;
+use App\Support\Http\FrontendOrigin;
 
 /**
  * Local/dev payment gateway — simulates MyFatoorah without external API calls.
@@ -35,7 +36,7 @@ final class LocalPaymentGateway implements PaymentGatewayInterface
     {
         return [
             new PaymentMethodCapability(code: 'mada', available: true, label: 'Mada'),
-            new PaymentMethodCapability(code: 'visa_master', available: true, label: 'Visa/Mastercard'),
+            new PaymentMethodCapability(code: 'card', available: true, label: 'Visa/Mastercard'),
             new PaymentMethodCapability(code: 'apple_pay', available: true, label: 'Apple Pay'),
             new PaymentMethodCapability(code: 'tabby', available: true, label: 'Tabby'),
         ];
@@ -54,10 +55,9 @@ final class LocalPaymentGateway implements PaymentGatewayInterface
     public function createPayment(PaymentCreationRequest $request): PaymentCreationResult
     {
         $orderId = $request->metadata['order_id'] ?? '';
-        $frontend = rtrim((string) config('diyar.frontend_url'), '/');
 
         return new PaymentCreationResult(
-            paymentUrl: $frontend.'/checkout/payment/'.$orderId.'/simulate',
+            paymentUrl: FrontendOrigin::url('/checkout/payment/'.$orderId.'/simulate'),
             gatewayPaymentId: self::GATEWAY_PAYMENT_ID.'-'.$request->paymentReference,
             gatewayInvoiceId: 'local-invoice-001',
         );

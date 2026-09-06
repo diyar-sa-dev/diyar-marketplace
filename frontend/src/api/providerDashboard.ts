@@ -12,6 +12,7 @@ import type {
   ProviderSettings,
 } from '../types/providerDashboard.ts';
 import type { ServiceCard } from '../types/services.ts';
+import type { FinancePeriod } from './vendorFinance.ts';
 
 type Paginated<T> = {
   items: T[];
@@ -163,39 +164,54 @@ export async function fetchProviderOwnServices(
   return data.data;
 }
 
-export async function fetchProviderFinanceSummary(): Promise<ProviderFinanceSummary> {
+export async function fetchProviderFinanceSummary(
+  period: FinancePeriod = 'month',
+): Promise<ProviderFinanceSummary> {
   const { data } = await apiClient.get<ApiSuccessResponse<{ summary: ProviderFinanceSummary }>>(
     '/dashboard/provider/finance/summary',
+    { params: { period } },
   );
   return data.data.summary;
 }
 
-export async function fetchProviderFinanceAnalytics(): Promise<ProviderFinanceAnalyticsPoint[]> {
+export async function fetchProviderFinanceAnalytics(period: FinancePeriod = 'month'): Promise<{
+  analytics: ProviderFinanceAnalyticsPoint[];
+  period?: { type: FinancePeriod; from: string; to: string; granularity?: string };
+}> {
   const { data } = await apiClient.get<
-    ApiSuccessResponse<{ analytics: ProviderFinanceAnalyticsPoint[] }>
-  >('/dashboard/provider/finance/analytics');
-  return data.data.analytics;
+    ApiSuccessResponse<{
+      analytics: ProviderFinanceAnalyticsPoint[];
+      period?: { type: FinancePeriod; from: string; to: string; granularity?: string };
+    }>
+  >('/dashboard/provider/finance/analytics', { params: { period } });
+  return data.data;
 }
 
 export async function fetchProviderFinanceTransactions(
   page = 1,
   perPage = 20,
   type?: string,
+  period: FinancePeriod = 'month',
 ): Promise<Paginated<ProviderFinanceTransaction>> {
   const { data } = await apiClient.get<
     ApiSuccessResponse<{
       transactions: ProviderFinanceTransaction[];
       pagination: Paginated<ProviderFinanceTransaction>['pagination'];
     }>
-  >(`/dashboard/provider/finance/transactions${buildQuery({ page, per_page: perPage, type })}`);
+  >(
+    `/dashboard/provider/finance/transactions${buildQuery({ page, per_page: perPage, type, period })}`,
+  );
   return {
     items: data.data.transactions,
     pagination: data.data.pagination,
   };
 }
 
-export async function downloadProviderFinanceReport(): Promise<Blob> {
+export async function downloadProviderFinanceReport(
+  period: FinancePeriod = 'month',
+): Promise<Blob> {
   const { data } = await apiClient.get<Blob>('/dashboard/provider/finance/export', {
+    params: { period },
     responseType: 'blob',
   });
   return data;
@@ -292,7 +308,6 @@ export async function uploadProviderAvatar(file: File): Promise<ProviderSettings
   const { data } = await apiClient.post<ApiSuccessResponse<{ settings: ProviderSettings }>>(
     '/dashboard/provider/settings/avatar',
     formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } },
   );
   return data.data.settings;
 }

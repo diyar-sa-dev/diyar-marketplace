@@ -7,6 +7,8 @@ import { VendorOrderShipModal } from './VendorOrderShipModal.tsx';
 import {
   vendorOrderDisplayNumber,
   vendorOrderItemCount,
+  vendorOrderCanManageStatus,
+  vendorOrderCanCancel,
   type VendorOrderAction,
 } from './vendorOrderUtils.ts';
 import type { VendorOrder } from '../../../../types/order.ts';
@@ -38,6 +40,9 @@ function VendorOrderRowActions({
     onAction(action);
   };
 
+  const showStatusActions = canWriteOrders && vendorOrderCanManageStatus(order);
+  const showCancelAction = showStatusActions && vendorOrderCanCancel(order);
+
   return (
     <>
       <div className="flex gap-2">
@@ -50,7 +55,7 @@ function VendorOrderRowActions({
           <Eye size={18} />
         </button>
 
-        {canWriteOrders && order.status !== 'delivered' && order.status !== 'cancelled' && (
+        {showStatusActions && (
           <div className="group/actions relative">
             <button
               type="button"
@@ -98,7 +103,7 @@ function VendorOrderRowActions({
                   <CheckCircle size={14} /> {t('vendorOrders.actions.deliver')}
                 </button>
               )}
-              {['pending', 'accepted', 'processing'].includes(order.status) && (
+              {showCancelAction && (
                 <>
                   <div className="my-1 border-t border-gray-100" />
                   <button

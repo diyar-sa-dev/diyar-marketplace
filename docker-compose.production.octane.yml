@@ -1,0 +1,20 @@
+# Octane override for docker-compose.production.yml (benchmark / high-throughput profile)
+# Usage: docker compose -f docker-compose.production.yml -f docker-compose.production.octane.yml up -d --build
+
+services:
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.octane
+    command: ['php', 'artisan', 'octane:start', '--server=swoole', '--host=0.0.0.0', '--port=8000', '--workers=${OCTANE_WORKERS:-2}', '--task-workers=1', '--max-requests=500']
+    volumes:
+      - diyar_storage:/var/www/html/storage
+      - ./deploy/php/fpm-pool-kvm2.conf:/dev/null
+    environment:
+      OCTANE_WORKERS: ${OCTANE_WORKERS:-2}
+
+  nginx:
+    volumes:
+      - ./deploy/nginx/kvm2-docker-octane.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./backend/public:/var/www/diyar/backend/public:ro
+      - diyar_storage:/var/www/diyar/backend/storage:ro

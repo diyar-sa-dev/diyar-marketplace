@@ -20,11 +20,10 @@ import {
   Lightbulb,
   SprayCan,
   Zap,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
 import { useCategories } from '../../hooks/catalog/useCatalog.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { RailControls } from './sections/HorizontalRail.tsx';
 
 type Cat = {
   id: string;
@@ -120,45 +119,22 @@ function CategoryRow({
   title,
   items,
   accent,
-  scrollPrevLabel,
-  scrollNextLabel,
 }: {
   title: string;
   items: Cat[];
   accent: 'product' | 'service';
-  scrollPrevLabel: string;
-  scrollNextLabel: string;
 }) {
   const scroller = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState<Record<string, boolean>>({});
-
-  const scroll = (dir: number) => {
-    scroller.current?.scrollBy({ left: dir * 340, behavior: 'smooth' });
-  };
 
   const tileBg =
     accent === 'service' ? 'bg-diyar-brown text-diyar-cream' : 'bg-diyar-cream text-diyar-dark';
 
   return (
     <div className="mb-8 md:mb-10 last:mb-0">
-      <div className="flex items-center justify-between mb-4 px-1">
-        <h2 className="text-lg md:text-xl font-bold text-diyar-dark">{title}</h2>
-        <div className="hidden md:flex items-center gap-2">
-          <button
-            onClick={() => scroll(1)}
-            aria-label={scrollPrevLabel}
-            className="w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:text-diyar-dark hover:border-diyar-brown transition-colors cursor-pointer"
-          >
-            <ChevronRight size={18} />
-          </button>
-          <button
-            onClick={() => scroll(-1)}
-            aria-label={scrollNextLabel}
-            className="w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:text-diyar-dark hover:border-diyar-brown transition-colors cursor-pointer"
-          >
-            <ChevronLeft size={18} />
-          </button>
-        </div>
+      <div className="flex items-center justify-between mb-3 px-1 gap-3">
+        <h2 className="text-lg md:text-xl font-bold text-diyar-dark min-w-0">{title}</h2>
+        <RailControls scroller={scroller} className="shrink-0" />
       </div>
 
       <div
@@ -231,15 +207,11 @@ export default function CategoriesStrip() {
         title={t('home.categoriesStrip.browseCategories')}
         items={productItems}
         accent="product"
-        scrollPrevLabel={t('home.categoriesStrip.scrollPrev')}
-        scrollNextLabel={t('home.categoriesStrip.scrollNext')}
       />
       <CategoryRow
         title={t('home.categoriesStrip.diyarServices')}
         items={serviceItems}
         accent="service"
-        scrollPrevLabel={t('home.categoriesStrip.scrollPrev')}
-        scrollNextLabel={t('home.categoriesStrip.scrollNext')}
       />
     </div>
   );

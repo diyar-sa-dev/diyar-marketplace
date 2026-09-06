@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { adminApi } from '../../api/client.ts';
 import { AdminCategoryModal, type CategoryFormValues } from '../components/AdminCategoryModal.tsx';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
+import { TableLtrValue } from '../../components/common/TableLtrValue.tsx';
 import { AdminStatusBadge } from '../components/AdminStatusBadge.tsx';
 import { PermissionGate } from '../components/PermissionGate.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
@@ -110,22 +111,25 @@ export default function AdminCategoriesPage() {
   const renderCategoryRow = (category: Category) => (
     <tr key={category.id} className="hover:bg-[#f7f4f1]/50">
       <td className="px-4 py-3 font-semibold text-diyar-dark">{category.name}</td>
-      <td className="px-4 py-3 font-mono text-xs text-gray-500" dir="ltr">
-        {category.slug}
+      <td className="px-4 py-3 text-start">
+        <TableLtrValue className="font-mono text-xs text-gray-500">{category.slug}</TableLtrValue>
       </td>
       <td className="px-4 py-3">
         <AdminStatusBadge status={category.is_active ? 'active' : 'inactive'} />
       </td>
       <td className="px-4 py-3">
         <div className="flex justify-end gap-1">
-          <Link
-            to={`/category/${category.slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:border-diyar-brown hover:text-diyar-brown"
-          >
-            <Eye size={14} />
-          </Link>
+          {category.is_active ? (
+            <Link
+              to={`/category/${category.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:border-diyar-brown hover:text-diyar-brown cursor-pointer"
+              aria-label={t('admin.tables.view')}
+            >
+              <Eye size={14} />
+            </Link>
+          ) : null}
           <PermissionGate permission="categories.manage">
             <button
               type="button"

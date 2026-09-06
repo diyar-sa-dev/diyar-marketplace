@@ -3,6 +3,7 @@ import {
   Bell,
   Calendar,
   CreditCard,
+  Building2,
   Gift,
   Heart,
   Info,
@@ -46,6 +47,7 @@ const categoryVisuals: Record<string, { icon: typeof Package; bg: string; color:
   promotions: { icon: Gift, bg: 'bg-rose-50', color: 'text-rose-600' },
   system: { icon: Info, bg: 'bg-gray-100', color: 'text-gray-600' },
   auth: { icon: Shield, bg: 'bg-slate-100', color: 'text-slate-600' },
+  b2b: { icon: Building2, bg: 'bg-cyan-50', color: 'text-cyan-700' },
 };
 
 function categoryHint(t: TranslateFn, key: string, locked: boolean): string {

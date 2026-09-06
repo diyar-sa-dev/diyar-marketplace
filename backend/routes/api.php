@@ -6,20 +6,33 @@ use App\Http\Controllers\Api\V1\Admin\AdminAffiliateCommissionController;
 use App\Http\Controllers\Api\V1\Admin\AdminAffiliateLinkController;
 use App\Http\Controllers\Api\V1\Admin\AdminAffiliatePayoutController;
 use App\Http\Controllers\Api\V1\Admin\AdminAffiliateProfileController;
+use App\Http\Controllers\Api\V1\Admin\AdminAnalyticsController;
+use App\Http\Controllers\Api\V1\Admin\AdminAnnouncementController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuditLogController;
 use App\Http\Controllers\Api\V1\Admin\AdminAuthController;
+use App\Http\Controllers\Api\V1\Admin\AdminB2bCompanyController;
+use App\Http\Controllers\Api\V1\Admin\AdminBlogArticleController;
+use App\Http\Controllers\Api\V1\Admin\AdminBlogCategoryController;
+use App\Http\Controllers\Api\V1\Admin\AdminBlogTagController;
+use App\Http\Controllers\Api\V1\Admin\AdminChatController;
+use App\Http\Controllers\Api\V1\Admin\AdminCmsMediaController;
 use App\Http\Controllers\Api\V1\Admin\AdminCouponController;
 use App\Http\Controllers\Api\V1\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\AdminFinanceController;
 use App\Http\Controllers\Api\V1\Admin\AdminFinancialTransactionController;
 use App\Http\Controllers\Api\V1\Admin\AdminInventoryController;
+use App\Http\Controllers\Api\V1\Admin\AdminLoyaltyController;
+use App\Http\Controllers\Api\V1\Admin\AdminNotificationBroadcastController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
+use App\Http\Controllers\Api\V1\Admin\AdminOperationalHealthController;
 use App\Http\Controllers\Api\V1\Admin\AdminOrderController;
 use App\Http\Controllers\Api\V1\Admin\AdminPaymentController;
 use App\Http\Controllers\Api\V1\Admin\AdminPayoutController;
 use App\Http\Controllers\Api\V1\Admin\AdminPermissionController;
 use App\Http\Controllers\Api\V1\Admin\AdminProductController;
+use App\Http\Controllers\Api\V1\Admin\AdminProjectController;
 use App\Http\Controllers\Api\V1\Admin\AdminProviderAccountController;
+use App\Http\Controllers\Api\V1\Admin\AdminProviderPayoutController;
 use App\Http\Controllers\Api\V1\Admin\AdminReportController;
 use App\Http\Controllers\Api\V1\Admin\AdminReturnController;
 use App\Http\Controllers\Api\V1\Admin\AdminReviewController;
@@ -28,13 +41,22 @@ use App\Http\Controllers\Api\V1\Admin\AdminServiceBookingController;
 use App\Http\Controllers\Api\V1\Admin\AdminServiceRequestController;
 use App\Http\Controllers\Api\V1\Admin\AdminSessionController;
 use App\Http\Controllers\Api\V1\Admin\AdminShipmentController;
+use App\Http\Controllers\Api\V1\Admin\AdminShippingConfigurationController;
 use App\Http\Controllers\Api\V1\Admin\AdminSystemSettingController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Admin\AdminVendorAccountController;
+use App\Http\Controllers\Api\V1\Admin\AdminWebsiteFeedbackController;
 use App\Http\Controllers\Api\V1\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\V1\Affiliate\AffiliateReferralController;
 use App\Http\Controllers\Api\V1\Assistant\AssistantChatController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\B2b\B2bCompanyController;
+use App\Http\Controllers\Api\V1\B2b\B2bCompanyReviewController;
+use App\Http\Controllers\Api\V1\B2b\B2bLeadController;
+use App\Http\Controllers\Api\V1\Blog\BlogArticleController;
+use App\Http\Controllers\Api\V1\Blog\BlogCategoryController;
+use App\Http\Controllers\Api\V1\Blog\BlogEngagementController;
+use App\Http\Controllers\Api\V1\Blog\BlogTagController;
 use App\Http\Controllers\Api\V1\Cart\CartController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchSuggestionsController;
@@ -58,6 +80,10 @@ use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliatePlatformConfigContr
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateProductController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateReportController;
 use App\Http\Controllers\Api\V1\Dashboard\Affiliate\AffiliateSettingsController;
+use App\Http\Controllers\Api\V1\Dashboard\PartnerB2bCompanyController;
+use App\Http\Controllers\Api\V1\Dashboard\PartnerB2bLeadController;
+use App\Http\Controllers\Api\V1\Dashboard\PartnerB2bReviewController;
+use App\Http\Controllers\Api\V1\Dashboard\VendorAnalyticsController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorCouponController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorDashboardController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorFinanceController;
@@ -75,10 +101,14 @@ use App\Http\Controllers\Api\V1\Dashboard\VendorTeamController;
 use App\Http\Controllers\Api\V1\Dashboard\VendorTeamInviteController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Identity\OwnershipController;
+use App\Http\Controllers\Api\V1\LiveHealthController;
+use App\Http\Controllers\Api\V1\Loyalty\LoyaltyController;
 use App\Http\Controllers\Api\V1\Order\OrderController;
 use App\Http\Controllers\Api\V1\Order\OrderStoreReviewController;
+use App\Http\Controllers\Api\V1\Payment\FakePaymentWebhookController;
 use App\Http\Controllers\Api\V1\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\Payment\PaymentWebhookController;
+use App\Http\Controllers\Api\V1\Platform\PlatformAnnouncementController;
 use App\Http\Controllers\Api\V1\Platform\PlatformCommerceController;
 use App\Http\Controllers\Api\V1\Platform\PlatformContactController;
 use App\Http\Controllers\Api\V1\Platform\PlatformThemeController;
@@ -88,9 +118,11 @@ use App\Http\Controllers\Api\V1\Profile\NotificationController;
 use App\Http\Controllers\Api\V1\Profile\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\Profile\WishlistController;
+use App\Http\Controllers\Api\V1\Projects\ProjectController;
 use App\Http\Controllers\Api\V1\ReadinessController;
 use App\Http\Controllers\Api\V1\Return\ReturnController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\DirectServiceBookingController;
+use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderAnalyticsController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderController as ServiceProviderController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderFinanceController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderFollowController;
@@ -104,31 +136,44 @@ use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceEngagementController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceOfferController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceRequestController;
+use App\Http\Controllers\Api\V1\Storefront\HomeStorefrontController;
+use App\Http\Controllers\Api\V1\WebsiteFeedbackController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes — Version 1
+| API Routes Â Version 1
 |--------------------------------------------------------------------------
 |
 | All V1 endpoints are prefixed with /api/v1 (see bootstrap/app.php).
 |
 */
 
+Route::get('/health/live', LiveHealthController::class)->name('api.v1.health.live');
+Route::get('/health/ready', ReadinessController::class)->name('api.v1.health.ready');
 Route::get('/health', HealthController::class)->name('api.v1.health');
 Route::get('/readiness', ReadinessController::class)->name('api.v1.readiness');
 Route::get('/csrf-token', CsrfTokenController::class)->name('api.v1.csrf-token');
 
 Route::post('/assistant/chat', AssistantChatController::class)
-    ->middleware('throttle:30,1')
+    ->middleware('throttle:assistant-chat')
     ->name('api.v1.assistant.chat');
 
 Route::post('/platform/consultation', [PlatformContactController::class, 'consultation'])
     ->middleware('throttle:6,1')
     ->name('api.v1.platform.consultation');
 
+Route::post('/feedback', [WebsiteFeedbackController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('api.v1.feedback.store');
+Route::get('/feedback/status', [WebsiteFeedbackController::class, 'status'])
+    ->name('api.v1.feedback.status');
+
 Route::get('/platform/theme', [PlatformThemeController::class, 'show'])
     ->name('api.v1.platform.theme');
+
+Route::get('/platform/announcement', [PlatformAnnouncementController::class, 'show'])
+    ->name('api.v1.platform.announcement');
 
 Route::get('/platform/commerce', [PlatformCommerceController::class, 'show'])
     ->name('api.v1.platform.commerce');
@@ -137,6 +182,11 @@ Route::post('/webhooks/payments/myfatoorah', [PaymentWebhookController::class, '
     ->middleware('throttle:webhooks')
     ->name('api.v1.webhooks.payments.myfatoorah');
 
+Route::post('/webhooks/payments/fake', FakePaymentWebhookController::class)
+    ->middleware('throttle:webhooks')
+    ->name('api.v1.webhooks.payments.fake');
+
+Route::get('/storefront/home', [HomeStorefrontController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{slug}', [CategoryController::class, 'show']);
 Route::get('/categories/{slug}/items', [CategoryController::class, 'items']);
@@ -158,6 +208,23 @@ Route::get('/providers/{slug}', [ServiceProviderController::class, 'show']);
 Route::get('/providers/{slug}/services', [ServiceProviderController::class, 'services']);
 Route::get('/providers/{slug}/portfolio', [ServiceProviderController::class, 'portfolio']);
 Route::get('/providers/{slug}/reviews', [ProviderReviewController::class, 'index']);
+
+Route::prefix('blog')->group(function () {
+    Route::get('/articles', [BlogArticleController::class, 'index']);
+    Route::get('/articles/{slug}', [BlogArticleController::class, 'show']);
+    Route::get('/categories', [BlogCategoryController::class, 'index']);
+    Route::get('/tags/{slug}', [BlogTagController::class, 'show']);
+});
+
+Route::get('/projects', [ProjectController::class, 'index']);
+Route::get('/projects/{slug}', [ProjectController::class, 'show']);
+
+Route::prefix('b2b')->group(function () {
+    Route::get('/companies', [B2bCompanyController::class, 'index']);
+    Route::get('/companies/{slug}', [B2bCompanyController::class, 'show']);
+    Route::get('/companies/{slug}/reviews', [B2bCompanyReviewController::class, 'index']);
+    Route::get('/categories', [B2bCompanyController::class, 'categories']);
+});
 
 Route::post('/affiliate/referrals/click', [AffiliateReferralController::class, 'trackClick'])
     ->middleware('throttle:affiliate-click')
@@ -198,6 +265,9 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
 
     Route::get('/dashboard', [AdminDashboardController::class, 'show'])
         ->middleware('admin.permission:panel.access');
+
+    Route::get('/system/health', [AdminOperationalHealthController::class, 'show'])
+        ->middleware('admin.permission:system.health.view');
 
     Route::get('/users', [AdminUserController::class, 'index'])
         ->middleware('admin.permission:users.view');
@@ -262,11 +332,22 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
     Route::post('/payouts/{payout}/mark-paid', [AdminPayoutController::class, 'markPaid'])
         ->middleware('admin.permission:payouts.process');
 
+    Route::get('/provider/payouts', [AdminProviderPayoutController::class, 'index'])
+        ->middleware('admin.permission:payouts.view');
+    Route::post('/provider/payouts/{providerPayout}/approve', [AdminProviderPayoutController::class, 'approve'])
+        ->middleware('admin.permission:payouts.approve');
+    Route::post('/provider/payouts/{providerPayout}/reject', [AdminProviderPayoutController::class, 'reject'])
+        ->middleware('admin.permission:payouts.approve');
+    Route::post('/provider/payouts/{providerPayout}/mark-paid', [AdminProviderPayoutController::class, 'markPaid'])
+        ->middleware('admin.permission:payouts.process');
+
     Route::get('/affiliate/payouts', [AdminAffiliatePayoutController::class, 'index'])
         ->middleware('admin.permission:affiliate.view');
     Route::post('/affiliate/payouts/{affiliatePayout}/approve', [AdminAffiliatePayoutController::class, 'approve'])
         ->middleware('admin.permission:affiliate.payouts.process');
     Route::post('/affiliate/payouts/{affiliatePayout}/processing', [AdminAffiliatePayoutController::class, 'markProcessing'])
+        ->middleware('admin.permission:affiliate.payouts.process');
+    Route::post('/affiliate/payouts/{affiliatePayout}/mark-processing', [AdminAffiliatePayoutController::class, 'markProcessing'])
         ->middleware('admin.permission:affiliate.payouts.process');
     Route::post('/affiliate/payouts/{affiliatePayout}/reject', [AdminAffiliatePayoutController::class, 'reject'])
         ->middleware('admin.permission:affiliate.payouts.process');
@@ -352,10 +433,86 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
     Route::get('/shipments/{shipment}', [AdminShipmentController::class, 'show'])
         ->middleware('admin.permission:shipping.view');
 
+    Route::get('/shipping/carriers', [AdminShippingConfigurationController::class, 'carriers'])
+        ->middleware('admin.permission:shipping.view');
+    Route::post('/shipping/carriers', [AdminShippingConfigurationController::class, 'storeCarrier'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::patch('/shipping/carriers/{carrier}', [AdminShippingConfigurationController::class, 'updateCarrier'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::delete('/shipping/carriers/{carrier}', [AdminShippingConfigurationController::class, 'destroyCarrier'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::get('/shipping/zones', [AdminShippingConfigurationController::class, 'zones'])
+        ->middleware('admin.permission:shipping.view');
+    Route::post('/shipping/zones', [AdminShippingConfigurationController::class, 'storeZone'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::patch('/shipping/zones/{zone}', [AdminShippingConfigurationController::class, 'updateZone'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::delete('/shipping/zones/{zone}', [AdminShippingConfigurationController::class, 'destroyZone'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::get('/shipping/methods', [AdminShippingConfigurationController::class, 'methods'])
+        ->middleware('admin.permission:shipping.view');
+    Route::post('/shipping/methods', [AdminShippingConfigurationController::class, 'storeMethod'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::patch('/shipping/methods/{method}', [AdminShippingConfigurationController::class, 'updateMethod'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::delete('/shipping/methods/{method}', [AdminShippingConfigurationController::class, 'destroyMethod'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::get('/shipping/rate-rules', [AdminShippingConfigurationController::class, 'rateRules'])
+        ->middleware('admin.permission:shipping.view');
+    Route::post('/shipping/rate-rules', [AdminShippingConfigurationController::class, 'storeRateRule'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::patch('/shipping/rate-rules/{rateRule}', [AdminShippingConfigurationController::class, 'updateRateRule'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::delete('/shipping/rate-rules/{rateRule}', [AdminShippingConfigurationController::class, 'destroyRateRule'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::get('/shipping/vendor-profiles', [AdminShippingConfigurationController::class, 'vendorProfiles'])
+        ->middleware('admin.permission:shipping.view');
+    Route::post('/shipping/vendor-profiles', [AdminShippingConfigurationController::class, 'storeVendorProfile'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::patch('/shipping/vendor-profiles/{profile}', [AdminShippingConfigurationController::class, 'updateVendorProfile'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::delete('/shipping/vendor-profiles/{profile}', [AdminShippingConfigurationController::class, 'destroyVendorProfile'])
+        ->middleware('admin.permission:shipping.manage');
+
+    Route::get('/notifications/deliveries', [AdminNotificationController::class, 'deliveries'])
+        ->middleware('admin.permission:notifications.view');
+    Route::post('/notifications/deliveries/{delivery}/retry', [AdminNotificationController::class, 'retryDelivery'])
+        ->middleware('admin.permission:notifications.manage');
+    Route::get('/notifications/broadcasts', [AdminNotificationBroadcastController::class, 'index'])
+        ->middleware('admin.permission:notifications.view');
+    Route::post('/notifications/broadcasts', [AdminNotificationBroadcastController::class, 'store'])
+        ->middleware('admin.permission:notifications.manage')
+        ->middleware('throttle:admin-broadcasts');
+    Route::get('/notifications/broadcasts/{broadcast}', [AdminNotificationBroadcastController::class, 'show'])
+        ->middleware('admin.permission:notifications.view');
+
+    Route::get('/feedback', [AdminWebsiteFeedbackController::class, 'index'])
+        ->middleware('admin.permission:feedback.view');
+    Route::delete('/feedback/{websiteFeedback}', [AdminWebsiteFeedbackController::class, 'destroy'])
+        ->middleware('admin.permission:feedback.manage');
+
+    Route::get('/announcement', [AdminAnnouncementController::class, 'show'])
+        ->middleware('admin.permission:settings.view');
+    Route::patch('/announcement', [AdminAnnouncementController::class, 'update'])
+        ->middleware('admin.permission:settings.update');
+
     Route::get('/notifications', [AdminNotificationController::class, 'index'])
         ->middleware('admin.permission:notifications.view');
     Route::get('/notifications/{notification}', [AdminNotificationController::class, 'show'])
         ->middleware('admin.permission:notifications.view');
+
+    Route::get('/chat/conversations', [AdminChatController::class, 'indexConversations'])
+        ->middleware('admin.permission:chat.view');
+    Route::get('/chat/conversations/{conversation}', [AdminChatController::class, 'showConversation'])
+        ->middleware('admin.permission:chat.view');
+    Route::get('/chat/conversations/{conversation}/messages', [AdminChatController::class, 'indexMessages'])
+        ->middleware('admin.permission:chat.view');
+    Route::get('/chat/reports', [AdminChatController::class, 'indexReports'])
+        ->middleware('admin.permission:chat.view');
+    Route::get('/chat/reports/{report}', [AdminChatController::class, 'showReport'])
+        ->middleware('admin.permission:chat.view');
+    Route::patch('/chat/reports/{report}', [AdminChatController::class, 'updateReport'])
+        ->middleware('admin.permission:chat.moderate');
 
     Route::get('/transactions', [AdminFinancialTransactionController::class, 'index'])
         ->middleware('admin.permission:balances.view');
@@ -369,6 +526,23 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
 
     Route::get('/reports/summary', [AdminReportController::class, 'summary'])
         ->middleware('admin.permission:panel.access');
+
+    Route::prefix('analytics')->group(function () {
+        Route::get('/overview', [AdminAnalyticsController::class, 'overview'])
+            ->middleware('admin.permission:analytics.view');
+        Route::get('/sales', [AdminAnalyticsController::class, 'sales'])
+            ->middleware('admin.permission:analytics.view');
+        Route::get('/funnel', [AdminAnalyticsController::class, 'funnel'])
+            ->middleware('admin.permission:analytics.view');
+        Route::get('/cohorts', [AdminAnalyticsController::class, 'cohorts'])
+            ->middleware('admin.permission:analytics.view');
+        Route::get('/search', [AdminAnalyticsController::class, 'search'])
+            ->middleware('admin.permission:search.analytics.view');
+        Route::get('/export', [AdminAnalyticsController::class, 'export'])
+            ->middleware(['admin.permission:analytics.export', 'throttle:analytics-export']);
+    });
+
+    Route::post('/cms/media/image', [AdminCmsMediaController::class, 'uploadImage']);
 
     Route::get('/affiliate/profiles', [AdminAffiliateProfileController::class, 'index'])
         ->middleware('admin.permission:affiliate.view');
@@ -400,6 +574,108 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
         ->middleware('admin.permission:commissions.view');
     Route::get('/affiliate/commissions/{affiliateCommission}', [AdminAffiliateCommissionController::class, 'show'])
         ->middleware('admin.permission:commissions.view');
+
+    Route::prefix('blog')->group(function () {
+        Route::get('/articles', [AdminBlogArticleController::class, 'index'])
+            ->middleware('admin.permission:blog.view');
+        Route::post('/articles', [AdminBlogArticleController::class, 'store'])
+            ->middleware('admin.permission:blog.manage');
+        Route::get('/articles/{article}', [AdminBlogArticleController::class, 'show'])
+            ->middleware('admin.permission:blog.view');
+        Route::patch('/articles/{article}', [AdminBlogArticleController::class, 'update'])
+            ->middleware('admin.permission:blog.manage');
+        Route::delete('/articles/{article}', [AdminBlogArticleController::class, 'destroy'])
+            ->middleware('admin.permission:blog.manage');
+        Route::post('/articles/{article}/publish', [AdminBlogArticleController::class, 'publish'])
+            ->middleware('admin.permission:blog.manage');
+        Route::post('/articles/{article}/unpublish', [AdminBlogArticleController::class, 'unpublish'])
+            ->middleware('admin.permission:blog.manage');
+        Route::post('/articles/{article}/archive', [AdminBlogArticleController::class, 'archive'])
+            ->middleware('admin.permission:blog.manage');
+
+        Route::get('/categories', [AdminBlogCategoryController::class, 'index'])
+            ->middleware('admin.permission:blog.view');
+        Route::post('/categories', [AdminBlogCategoryController::class, 'store'])
+            ->middleware('admin.permission:blog.manage');
+        Route::get('/categories/{category}', [AdminBlogCategoryController::class, 'show'])
+            ->middleware('admin.permission:blog.view');
+        Route::patch('/categories/{category}', [AdminBlogCategoryController::class, 'update'])
+            ->middleware('admin.permission:blog.manage');
+        Route::delete('/categories/{category}', [AdminBlogCategoryController::class, 'destroy'])
+            ->middleware('admin.permission:blog.manage');
+
+        Route::get('/tags', [AdminBlogTagController::class, 'index'])
+            ->middleware('admin.permission:blog.view');
+        Route::post('/tags', [AdminBlogTagController::class, 'store'])
+            ->middleware('admin.permission:blog.manage');
+        Route::get('/tags/{tag}', [AdminBlogTagController::class, 'show'])
+            ->middleware('admin.permission:blog.view');
+        Route::patch('/tags/{tag}', [AdminBlogTagController::class, 'update'])
+            ->middleware('admin.permission:blog.manage');
+        Route::delete('/tags/{tag}', [AdminBlogTagController::class, 'destroy'])
+            ->middleware('admin.permission:blog.manage');
+    });
+
+    Route::prefix('projects')->group(function () {
+        Route::get('/', [AdminProjectController::class, 'index'])
+            ->middleware('admin.permission:projects.view');
+        Route::post('/', [AdminProjectController::class, 'store'])
+            ->middleware('admin.permission:projects.manage');
+        Route::get('/{project}', [AdminProjectController::class, 'show'])
+            ->middleware('admin.permission:projects.view');
+        Route::patch('/{project}', [AdminProjectController::class, 'update'])
+            ->middleware('admin.permission:projects.manage');
+        Route::delete('/{project}', [AdminProjectController::class, 'destroy'])
+            ->middleware('admin.permission:projects.manage');
+        Route::post('/{project}/publish', [AdminProjectController::class, 'publish'])
+            ->middleware('admin.permission:projects.manage');
+        Route::post('/{project}/unpublish', [AdminProjectController::class, 'unpublish'])
+            ->middleware('admin.permission:projects.manage');
+        Route::post('/{project}/archive', [AdminProjectController::class, 'archive'])
+            ->middleware('admin.permission:projects.manage');
+    });
+
+    Route::prefix('b2b')->group(function () {
+        Route::get('/companies', [AdminB2bCompanyController::class, 'index'])
+            ->middleware('admin.permission:b2b.view');
+        Route::post('/companies', [AdminB2bCompanyController::class, 'store'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::get('/companies/{company}', [AdminB2bCompanyController::class, 'show'])
+            ->middleware('admin.permission:b2b.view');
+        Route::patch('/companies/{company}', [AdminB2bCompanyController::class, 'update'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::delete('/companies/{company}', [AdminB2bCompanyController::class, 'destroy'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/publish', [AdminB2bCompanyController::class, 'publish'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/unpublish', [AdminB2bCompanyController::class, 'unpublish'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/archive', [AdminB2bCompanyController::class, 'archive'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/verify', [AdminB2bCompanyController::class, 'verify'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/reject-verification', [AdminB2bCompanyController::class, 'rejectVerification'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/feature', [AdminB2bCompanyController::class, 'feature'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::post('/companies/{company}/unfeature', [AdminB2bCompanyController::class, 'unfeature'])
+            ->middleware('admin.permission:b2b.manage');
+        Route::get('/categories', [AdminB2bCompanyController::class, 'categories'])
+            ->middleware('admin.permission:b2b.view');
+        Route::get('/tags', [AdminB2bCompanyController::class, 'tags'])
+            ->middleware('admin.permission:b2b.view');
+        Route::get('/leads', [AdminB2bCompanyController::class, 'leads'])
+            ->middleware('admin.permission:b2b.leads.view');
+        Route::get('/leads/{lead}', [AdminB2bCompanyController::class, 'showLead'])
+            ->middleware('admin.permission:b2b.leads.view');
+    });
+
+    Route::prefix('loyalty')->group(function () {
+        Route::get('/customers/{user}', [AdminLoyaltyController::class, 'showCustomer'])
+            ->middleware('admin.permission:loyalty.view');
+        Route::post('/customers/{user}/adjust', [AdminLoyaltyController::class, 'adjust'])
+            ->middleware('admin.permission:loyalty.adjust');
+    });
 });
 
 Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
@@ -514,6 +790,7 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::patch('/notification-preferences', [NotificationPreferenceController::class, 'update'])
                 ->middleware('throttle:notification-preferences');
 
+            Route::get('/chat/report-reasons', [MessageController::class, 'reportReasons']);
             Route::get('/conversations/unread-count', [ConversationController::class, 'unreadCount']);
             Route::get('/conversations', [ConversationController::class, 'index']);
             Route::post('/conversations', [ConversationController::class, 'store'])
@@ -530,6 +807,8 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
                 ->middleware('throttle:chat-messages');
             Route::delete('/conversations/{conversationId}/messages/{messageId}', [MessageController::class, 'destroy'])
                 ->middleware('throttle:chat-messages');
+            Route::post('/conversations/{conversationId}/messages/{messageId}/report', [MessageController::class, 'report'])
+                ->middleware('throttle:chat-messages');
             Route::get('/conversations/{conversationId}/attachments/{attachmentId}', [AttachmentController::class, 'show'])
                 ->middleware('throttle:chat-attachments');
         });
@@ -542,6 +821,23 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             ->middleware('throttle:wishlist-toggle');
         Route::post('/services/{identifier}/wishlist', [ServiceEngagementController::class, 'toggleWishlist'])
             ->middleware('throttle:wishlist-toggle');
+        Route::post('/blog/articles/{slug}/wishlist', [BlogEngagementController::class, 'toggleWishlist'])
+            ->middleware('throttle:wishlist-toggle');
+
+        Route::prefix('b2b')->group(function () {
+            Route::post('/companies/{slug}/leads', [B2bLeadController::class, 'store'])
+                ->middleware('throttle:b2b-leads');
+            Route::post('/companies/{slug}/reviews', [B2bCompanyReviewController::class, 'store']);
+            Route::get('/leads', [B2bLeadController::class, 'index']);
+            Route::get('/leads/{lead}', [B2bLeadController::class, 'show']);
+        });
+
+        Route::prefix('loyalty')->group(function () {
+            Route::get('/', [LoyaltyController::class, 'show']);
+            Route::get('/transactions', [LoyaltyController::class, 'transactions']);
+            Route::get('/rewards', [LoyaltyController::class, 'rewards']);
+        });
+
         Route::post('/products/{id}/preorder', [ProductPreorderController::class, 'store']);
         Route::get('/products/{id}/preorder', [ProductPreorderController::class, 'status']);
 
@@ -569,6 +865,18 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::put('/settings/legal', [VendorSettingsController::class, 'updateLegal']);
             Route::put('/settings/bank-account', [VendorSettingsController::class, 'updateBankAccount']);
             Route::put('/settings/working-hours', [VendorSettingsController::class, 'updateWorkingHours']);
+            Route::get('/b2b/categories', [PartnerB2bCompanyController::class, 'categoriesVendor']);
+            Route::get('/b2b/tags', [PartnerB2bCompanyController::class, 'tagsVendor']);
+            Route::get('/b2b/company', [PartnerB2bCompanyController::class, 'showVendor']);
+            Route::post('/b2b/company', [PartnerB2bCompanyController::class, 'storeVendor']);
+            Route::patch('/b2b/company', [PartnerB2bCompanyController::class, 'updateVendor']);
+            Route::post('/b2b/company/media', [PartnerB2bCompanyController::class, 'uploadVendorImage']);
+            Route::post('/b2b/company/portfolio', [PartnerB2bCompanyController::class, 'uploadVendorPortfolio']);
+            Route::delete('/b2b/company/portfolio/{image}', [PartnerB2bCompanyController::class, 'deleteVendorPortfolio']);
+            Route::get('/b2b/leads', [PartnerB2bLeadController::class, 'indexVendor']);
+            Route::get('/b2b/leads/{lead}', [PartnerB2bLeadController::class, 'showVendor']);
+            Route::patch('/b2b/leads/{lead}', [PartnerB2bLeadController::class, 'updateVendor']);
+            Route::get('/b2b/reviews', [PartnerB2bReviewController::class, 'indexVendor']);
             Route::get('/shipping-settings', [VendorShippingSettingsController::class, 'show']);
             Route::put('/shipping-settings', [VendorShippingSettingsController::class, 'update']);
             Route::get('/return-policy', [VendorReturnPolicyController::class, 'show']);
@@ -615,6 +923,11 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::get('/finance/payouts', [VendorFinanceController::class, 'payouts']);
             Route::post('/finance/payouts', [VendorFinanceController::class, 'requestPayout']);
             Route::post('/finance/payouts/{payout}/cancel', [VendorFinanceController::class, 'cancelPayout']);
+            Route::get('/analytics/overview', [VendorAnalyticsController::class, 'overview']);
+            Route::get('/analytics/sales', [VendorAnalyticsController::class, 'sales']);
+            Route::get('/analytics/products', [VendorAnalyticsController::class, 'products']);
+            Route::get('/analytics/export', [VendorAnalyticsController::class, 'export'])
+                ->middleware('throttle:analytics-export');
         });
 
         Route::middleware('role:marketer')->prefix('dashboard/affiliate')->group(function () {
@@ -627,6 +940,7 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::get('/reports', [AffiliateReportController::class, 'index']);
             Route::get('/payouts', [AffiliatePayoutController::class, 'index']);
             Route::post('/payouts', [AffiliatePayoutController::class, 'store']);
+            Route::get('/finance/transactions', [AffiliatePayoutController::class, 'transactions']);
             Route::get('/settings', [AffiliateSettingsController::class, 'show']);
             Route::patch('/settings', [AffiliateSettingsController::class, 'update']);
             Route::get('/platform-config', [AffiliatePlatformConfigController::class, 'show']);
@@ -650,6 +964,11 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::get('/finance/analytics', [ProviderFinanceController::class, 'analytics']);
             Route::get('/finance/export', [ProviderFinanceController::class, 'exportReport']);
             Route::post('/finance/payouts', [ProviderFinanceController::class, 'requestPayout']);
+            Route::get('/analytics/overview', [ProviderAnalyticsController::class, 'overview']);
+            Route::get('/analytics/bookings', [ProviderAnalyticsController::class, 'bookings']);
+            Route::get('/analytics/services', [ProviderAnalyticsController::class, 'services']);
+            Route::get('/analytics/export', [ProviderAnalyticsController::class, 'export'])
+                ->middleware('throttle:analytics-export');
             Route::get('/settings', [ProviderSettingsController::class, 'show']);
             Route::patch('/settings/profile', [ProviderSettingsController::class, 'updateProfile']);
             Route::put('/settings/working-hours', [ProviderSettingsController::class, 'updateWorkingHours']);
@@ -662,6 +981,18 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::get('/settings/work-policy', [ProviderWorkPolicyController::class, 'show']);
             Route::put('/settings/work-policy', [ProviderWorkPolicyController::class, 'update']);
             Route::get('/reviews', [ProviderReviewController::class, 'providerInbox']);
+            Route::get('/b2b/categories', [PartnerB2bCompanyController::class, 'categoriesProvider']);
+            Route::get('/b2b/tags', [PartnerB2bCompanyController::class, 'tagsProvider']);
+            Route::get('/b2b/company', [PartnerB2bCompanyController::class, 'showProvider']);
+            Route::post('/b2b/company', [PartnerB2bCompanyController::class, 'storeProvider']);
+            Route::patch('/b2b/company', [PartnerB2bCompanyController::class, 'updateProvider']);
+            Route::post('/b2b/company/media', [PartnerB2bCompanyController::class, 'uploadProviderImage']);
+            Route::post('/b2b/company/portfolio', [PartnerB2bCompanyController::class, 'uploadProviderPortfolio']);
+            Route::delete('/b2b/company/portfolio/{image}', [PartnerB2bCompanyController::class, 'deleteProviderPortfolio']);
+            Route::get('/b2b/leads', [PartnerB2bLeadController::class, 'indexProvider']);
+            Route::get('/b2b/leads/{lead}', [PartnerB2bLeadController::class, 'showProvider']);
+            Route::patch('/b2b/leads/{lead}', [PartnerB2bLeadController::class, 'updateProvider']);
+            Route::get('/b2b/reviews', [PartnerB2bReviewController::class, 'indexProvider']);
         });
     });
 });

@@ -2,10 +2,19 @@
 
 namespace Tests\Feature\Api\V1\Profile;
 
+use App\Enums\ProviderReviewStatus;
 use App\Enums\ReturnReason;
 use App\Enums\RoleName;
+use App\Enums\ServiceBookingPaymentStatus;
+use App\Enums\ServiceBookingSource;
+use App\Enums\ServiceBookingStatus;
+use App\Enums\ServicePaymentStrategy;
+use App\Enums\ServiceRequestStatus;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProviderReview;
+use App\Models\ServiceBooking;
+use App\Models\ServiceRequest;
 use App\Models\User;
 use App\Models\VendorOrder;
 use App\Models\VendorReturnPolicy;
@@ -128,6 +137,86 @@ class CustomerReviewHistoryTest extends TestCase
         $this->getJsonAsUser('/api/v1/profile/reviews?status=pending&type=store', $customer)
             ->assertOk()
             ->assertJsonCount(0, 'data.items');
+    }
+
+    public function test_pending_rfq_service_review_includes_request_title(): void
+    {
+        $customer = $this->createUserWithRole(RoleName::Customer);
+        $providerUser = $this->createUserWithRole(RoleName::Provider);
+        $providerAccount = $providerUser->providerAccount()->firstOrFail();
+
+        $request = ServiceRequest::query()->create([
+            'user_id' => $customer->id,
+            'provider_account_id' => $providerAccount->id,
+            'reference' => 'SRQ-20260901-0001',
+            'title' => 'تصميم داخلي متكامل للمساحات السكنية (3D & 2D)',
+            'description' => 'أحتاج تصميم شقة كاملة.',
+            'status' => ServiceRequestStatus::OfferAccepted,
+        ]);
+
+        ServiceBooking::query()->create([
+            'user_id' => $customer->id,
+            'provider_account_id' => $providerAccount->id,
+            'service_id' => null,
+            'service_request_id' => $request->id,
+            'service_title_snapshot' => null,
+            'reference' => 'SBK-20260901-0002',
+            'status' => ServiceBookingStatus::Completed,
+            'payment_status' => ServiceBookingPaymentStatus::Paid,
+            'booking_source' => ServiceBookingSource::Rfq,
+            'price' => 2500,
+            'currency' => 'SAR',
+            'payment_strategy' => ServicePaymentStrategy::Full,
+            'completed_at' => now(),
+        ]);
+
+        $this->getJsonAsUser('/api/v1/profile/reviews?status=pending&type=service', $customer)
+            ->assertOk()
+            ->assertJsonPath('data.summary.pending_by_type.service', 1)
+            ->assertJsonPath('data.items.0.type', 'service')
+            ->assertJsonPath('data.items.0.booking_reference', 'SBK-20260901-0002')
+            ->assertJsonPath('data.items.0.booking_source', 'rfq')
+            ->assertJsonPath('data.items.0.request_reference', 'SRQ-20260901-0001')
+            ->assertJsonPath('data.items.0.service.title', 'تصميم داخلي متكامل للمساحات السكنية (3D & 2D)');
+    }
+
+    public function test_published_rfq_service_review_includes_snapshot_title(): void
+    {
+        $customer = $this->createUserWithRole(RoleName::Customer);
+        $providerUser = $this->createUserWithRole(RoleName::Provider);
+        $providerAccount = $providerUser->providerAccount()->firstOrFail();
+
+        $booking = ServiceBooking::query()->create([
+            'user_id' => $customer->id,
+            'provider_account_id' => $providerAccount->id,
+            'service_id' => null,
+            'service_title_snapshot' => 'تصميم داخلي متكامل للمساحات السكنية (3D & 2D)',
+            'reference' => 'SBK-20260901-0002',
+            'status' => ServiceBookingStatus::Completed,
+            'payment_status' => ServiceBookingPaymentStatus::Paid,
+            'booking_source' => ServiceBookingSource::Rfq,
+            'price' => 2500,
+            'currency' => 'SAR',
+            'payment_strategy' => ServicePaymentStrategy::Full,
+            'completed_at' => now(),
+        ]);
+
+        ProviderReview::query()->create([
+            'provider_account_id' => $providerAccount->id,
+            'user_id' => $customer->id,
+            'service_booking_id' => $booking->id,
+            'service_id' => null,
+            'rating' => 5,
+            'comment' => 'عمل ممتاز',
+            'status' => ProviderReviewStatus::Published,
+        ]);
+
+        $this->getJsonAsUser('/api/v1/profile/reviews?status=published&type=service', $customer)
+            ->assertOk()
+            ->assertJsonCount(1, 'data.items')
+            ->assertJsonPath('data.items.0.booking_reference', 'SBK-20260901-0002')
+            ->assertJsonPath('data.items.0.booking_source', 'rfq')
+            ->assertJsonPath('data.items.0.service.title', 'تصميم داخلي متكامل للمساحات السكنية (3D & 2D)');
     }
 
     /**

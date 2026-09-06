@@ -115,6 +115,9 @@ class CatalogSeeder extends Seeder
                     'description' => 'منتج تجريبي من '.$vendor->business_name.'.',
                     'sale_price' => $sample['sale'],
                     'compare_price' => $sample['compare'],
+                    'promotion_ends_at' => $sample['compare'] !== null
+                        ? now()->addHours(2)->addMinutes(14)->addSeconds(25)
+                        : null,
                     'product_type' => ProductType::Single,
                     'availability_mode' => $sample['mode'],
                     'expected_available_at' => $sample['expected'] ?? null,

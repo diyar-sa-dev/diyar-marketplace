@@ -1,0 +1,17 @@
+{
+  "timestamp_utc": "2026-08-29T13:55:55.300Z",
+  "stack": "Octane+Swoole (4 workers) + MySQL8 + Redis7 (docker-compose.loadtest.yml)",
+  "seed": "DatabaseSeeder (base)",
+  "host": "Windows Docker Desktop",
+  "profiles": [
+    { "profile": "rps10", "target_rps": 10, "actual_rps": 10.0, "p50_ms": 41.6, "p95_ms": 91.2, "error_rate": 0, "threshold_pass": true },
+    { "profile": "rps25", "target_rps": 25, "actual_rps": 25.0, "p95_ms": 117.6, "error_rate": 0, "threshold_pass": true },
+    { "profile": "rps50", "target_rps": 50, "actual_rps": 49.7, "p95_ms": 825.0, "error_rate": 0, "threshold_pass": false },
+    { "profile": "rps75", "target_rps": 75, "actual_rps": 50.1, "p95_ms": 4328.9, "error_rate": 0, "threshold_pass": false, "note": "throughput saturated" },
+    { "profile": "rps100", "target_rps": 100, "actual_rps": 51.2, "p95_ms": 5281.2, "error_rate": 0, "threshold_pass": false, "note": "throughput saturated" }
+  ],
+  "safe_sustained_rps": 25,
+  "warning_rps_range": "25-50",
+  "saturation_rps": 50,
+  "rps_278_verified": false
+}

@@ -13,6 +13,10 @@ final class PaymentGatewayManager
 
     public function driver(?string $name = null): PaymentGatewayInterface
     {
+        if (config('diyar.payments.use_fake_gateway')) {
+            return $this->gateway;
+        }
+
         $name ??= (string) config('diyar.payments.gateway', 'myfatoorah');
 
         if ($name !== $this->gateway->name()) {

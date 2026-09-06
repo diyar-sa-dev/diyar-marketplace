@@ -51,6 +51,17 @@ export async function sendMessage(
   attachment?: File,
   options?: { onUploadProgress?: (percent: number) => void },
 ) {
+  const url = `/profile/conversations/${conversationId}/messages`;
+
+  if (!attachment) {
+    const { data } = await apiClient.post<ApiSuccessResponse<{ message: ChatMessage }>>(url, {
+      body: payload.body ?? null,
+      idempotency_key: payload.idempotency_key,
+      reply_to_message_id: payload.reply_to_message_id ?? null,
+    });
+    return data.data.message;
+  }
+
   const formData = new FormData();
   if (payload.body) {
     formData.append('body', payload.body);
@@ -61,15 +72,12 @@ export async function sendMessage(
   if (payload.reply_to_message_id) {
     formData.append('reply_to_message_id', payload.reply_to_message_id);
   }
-  if (attachment) {
-    formData.append('attachment', attachment);
-  }
+  formData.append('attachment', attachment);
 
   const { data } = await apiClient.post<ApiSuccessResponse<{ message: ChatMessage }>>(
-    `/profile/conversations/${conversationId}/messages`,
+    url,
     formData,
     {
-      headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: (event) => {
         if (!event.total) {
           return;
@@ -114,6 +122,32 @@ export async function deleteMessage(conversationId: string, messageId: string) {
     `/profile/conversations/${conversationId}/messages/${messageId}`,
   );
   return data.data.message;
+}
+
+export async function fetchChatReportReasons() {
+  const { data } = await apiClient.get<
+    ApiSuccessResponse<{ reasons: Array<{ value: string; label: string }> }>
+  >('/profile/chat/report-reasons');
+  return data.data.reasons;
+}
+
+export async function reportMessage(
+  conversationId: string,
+  messageId: string,
+  payload: { reason: string; details?: string },
+) {
+  const { data } = await apiClient.post<
+    ApiSuccessResponse<{
+      report: {
+        id: string;
+        message_id: string;
+        reason: string;
+        status: string;
+        created_at: string;
+      };
+    }>
+  >(`/profile/conversations/${conversationId}/messages/${messageId}/report`, payload);
+  return data.data.report;
 }
 
 export async function fetchChatAttachmentBlob(path: string, inline = true) {

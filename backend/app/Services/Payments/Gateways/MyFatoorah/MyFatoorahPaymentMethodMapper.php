@@ -60,6 +60,7 @@ final class MyFatoorahPaymentMethodMapper
             'google_pay', 'gp' => 'GOOGLE_PAY',
             'knet', 'kn' => 'KNET',
             'mada', 'md', 'visa_master', 'vm', 'visa', 'master', 'creditcard', 'card' => 'CARD',
+            'tabby' => 'TABBY',
             default => null,
         };
     }

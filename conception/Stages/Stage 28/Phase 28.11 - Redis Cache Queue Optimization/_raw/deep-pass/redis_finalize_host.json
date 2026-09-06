@@ -1,0 +1,59 @@
+{
+    "timestamp_utc": "2026-08-27T13:28:19+00:00",
+    "environment": {
+        "app_env": "local",
+        "cache_store": "redis",
+        "queue_connection": "redis",
+        "session_driver": "redis",
+        "redis_host": "127.0.0.1",
+        "redis_port": "6379",
+        "redis_cache_db": "1",
+        "redis_default_db": "0",
+        "cache_prefix": "diyar-cache-"
+    },
+    "checks": {
+        "redis_ping": {
+            "ok": true,
+            "latency_ms": 6.75
+        },
+        "laravel_cache_redis": {
+            "ok": true,
+            "latency_ms": 14.37
+        },
+        "versioned_cache_increment": {
+            "ok": true
+        },
+        "cache_lock": {
+            "ok": true
+        },
+        "queue_dispatch_worker": {
+            "ok": true,
+            "exit_code": 0
+        },
+        "rate_limiter": {
+            "ok": true,
+            "hits_before_block": 3
+        },
+        "stampede_safe_cache": {
+            "ok": true
+        },
+        "admin_permission_key_uuid": {
+            "ok": true
+        },
+        "config_uses_redis": {
+            "ok": true
+        }
+    },
+    "benchmark": {
+        "cache_miss_get_ms": {
+            "median": 0.59,
+            "p95": 0.75,
+            "samples": 30
+        }
+    },
+    "stampede": null,
+    "overall": "PASS",
+    "redis_server": {
+        "version": "7.4.7"
+    }
+}

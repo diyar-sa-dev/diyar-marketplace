@@ -1,0 +1,5 @@
+﻿=== Queue runtime duplicate gate ===
+event_id=01a066a8-3f64-70d1-865d-385e7f9b6558
+dispatched duplicate jobs; waiting for workers...
+status=failed attempts=1
+RESULT: PASS (single logical processing attempt)

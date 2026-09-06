@@ -1,0 +1,11 @@
+Phase 28.5 Projects Flakiness — projects.spec.ts x5 (CI-parity stack)
+Date: 2026-08-27
+Stack: SQLite seed + backend :8000 + preview :3000
+
+RUN 1: 1 passed (5.4s)
+RUN 2: 1 passed (5.4s)
+RUN 3: 1 passed (4.1s)
+RUN 4: 1 passed (6.4s)
+RUN 5: 1 passed (5.0s)
+
+Classification: DETERMINISTIC PASS in isolation; FAIL in full suite when homepage ad popup (>5s) intercepts sidebar click.

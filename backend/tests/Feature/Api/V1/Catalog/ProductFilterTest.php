@@ -111,6 +111,23 @@ class ProductFilterTest extends TestCase
             ->assertJsonMissing(['id' => $product->id]);
     }
 
+    public function test_expired_promotions_are_excluded_from_discounted_filter(): void
+    {
+        $product = Product::query()
+            ->whereNotNull('compare_price')
+            ->whereColumn('compare_price', '>', 'sale_price')
+            ->firstOrFail();
+
+        $product->forceFill([
+            'promotion_ends_at' => now()->subMinute(),
+        ])->save();
+
+        $response = $this->getJson('/api/v1/products?discounted=true&per_page=100');
+
+        $response->assertOk();
+        $this->assertNotContains($product->id, collect($response->json('data.items'))->pluck('id')->all());
+    }
+
     public function test_category_slug_filter_on_products_endpoint(): void
     {
         $category = Category::query()->where('slug', 'bedroom')->firstOrFail();

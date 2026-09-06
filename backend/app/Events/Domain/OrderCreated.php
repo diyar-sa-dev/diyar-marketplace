@@ -7,6 +7,7 @@ use App\Enums\NotificationType;
 use App\Models\Order;
 use App\Services\Notifications\NotificationContextBuilder;
 use App\Services\Notifications\NotificationIntent;
+use App\Support\Notifications\NotificationUrlSupport;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
@@ -36,7 +37,7 @@ final class OrderCreated implements TriggersNotification
                 'products' => $products,
                 'customer_name' => (string) ($this->order->user?->name ?? ''),
                 'detail_lines' => $detailLines,
-                'action_url' => rtrim((string) config('diyar.frontend_url'), '/').'/orders/'.$this->order->id,
+                'action_url' => NotificationUrlSupport::orderUrl((string) $this->order->id),
             ],
             entityType: 'order',
             entityId: $this->order->id,

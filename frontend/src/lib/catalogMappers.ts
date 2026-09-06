@@ -20,22 +20,39 @@ export interface UiProductCard {
   ratingAvg?: number | null;
   reviewsCount?: number;
   loyaltyPoints?: number;
+  loyalty_points_estimate?: number;
   userSaved?: boolean;
   isOwnStore?: boolean;
 }
 
-/** Estimated loyalty earn on purchase: 1 point per N SAR (configurable). */
-export function estimateLoyaltyPoints(salePrice: number, sarPerPoint = 50): number {
+/** Estimated loyalty earn on purchase: floor(price / sarPerPoint) * pointsPerUnit (admin-configurable). */
+export function estimateLoyaltyPoints(
+  salePrice: number,
+  sarPerPoint = 50,
+  pointsPerUnit = 1,
+): number {
   if (!Number.isFinite(salePrice) || salePrice <= 0) {
     return 0;
   }
 
   const divisor = Number.isFinite(sarPerPoint) && sarPerPoint > 0 ? sarPerPoint : 50;
+  const multiplier = Number.isFinite(pointsPerUnit) && pointsPerUnit > 0 ? pointsPerUnit : 1;
 
-  return Math.floor(salePrice / divisor);
+  return Math.floor(salePrice / divisor) * multiplier;
 }
 
-export function mapProductCard(product: ProductCard, sarPerPoint = 50): UiProductCard {
+export interface MapProductCardOptions {
+  sarPerPoint?: number;
+  pointsPerUnit?: number;
+}
+
+export function mapProductCard(
+  product: ProductCard,
+  options?: MapProductCardOptions | number,
+): UiProductCard {
+  const loyaltyOptions = typeof options === 'number' || options === undefined ? {} : options;
+  const sarPerPoint = loyaltyOptions.sarPerPoint ?? 50;
+  const pointsPerUnit = loyaltyOptions.pointsPerUnit ?? 1;
   const salePrice = Number(product.sale_price);
   const comparePrice = product.compare_price != null ? Number(product.compare_price) : undefined;
   const discountPercent =
@@ -58,7 +75,10 @@ export function mapProductCard(product: ProductCard, sarPerPoint = 50): UiProduc
     availableQuantity: product.inventory?.available_quantity,
     ratingAvg: product.rating_avg ?? null,
     reviewsCount: product.reviews_count ?? 0,
-    loyaltyPoints: estimateLoyaltyPoints(salePrice, sarPerPoint),
+    loyaltyPoints:
+      product.loyalty_points_estimate ??
+      estimateLoyaltyPoints(salePrice, sarPerPoint, pointsPerUnit),
+    loyalty_points_estimate: product.loyalty_points_estimate,
     userSaved: product.user_saved,
     isOwnStore: product.is_own_store,
   };

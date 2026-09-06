@@ -1,0 +1,1084 @@
+{
+    "timestamp_utc": "2026-08-27T10:53:14+00:00",
+    "schema": "diyar_staging",
+    "driver": "mysql",
+    "engine_version": "8.0.46",
+    "summary": {
+        "total_tables": 119,
+        "total_index_entries": 0,
+        "domains_mapped": 21
+    },
+    "tables": {
+        "addresses": {
+            "domain": "users",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "Address.php",
+            "indexes": []
+        },
+        "admin_audit_logs": {
+            "domain": "admin",
+            "classification": "AUDIT/HISTORICAL",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "AdminAuditLog.php",
+            "indexes": []
+        },
+        "affiliate_attributions": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.094,
+            "model": "AffiliateAttribution.php",
+            "indexes": []
+        },
+        "affiliate_clicks": {
+            "domain": "affiliate",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.109,
+            "model": "AffiliateClick.php",
+            "indexes": []
+        },
+        "affiliate_commissions": {
+            "domain": "affiliate",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.156,
+            "model": "AffiliateCommission.php",
+            "indexes": []
+        },
+        "affiliate_links": {
+            "domain": "affiliate",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "AffiliateLink.php",
+            "indexes": []
+        },
+        "affiliate_payouts": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.063,
+            "model": "AffiliatePayout.php",
+            "indexes": []
+        },
+        "affiliate_profiles": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "AffiliateProfile.php",
+            "indexes": []
+        },
+        "b2b_categories": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": "B2bCategory.php",
+            "indexes": []
+        },
+        "b2b_companies": {
+            "domain": "b2b",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.125,
+            "model": "B2bCompany.php",
+            "indexes": []
+        },
+        "b2b_company_portfolio_images": {
+            "domain": "b2b",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "B2bCompanyPortfolioImage.php",
+            "indexes": []
+        },
+        "b2b_company_project": {
+            "domain": "UNKNOWN",
+            "classification": "UNKNOWN",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": null,
+            "indexes": []
+        },
+        "b2b_company_reviews": {
+            "domain": "reviews",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.063,
+            "model": "B2bCompanyReview.php",
+            "indexes": []
+        },
+        "b2b_company_services": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "B2bCompanyService.php",
+            "indexes": []
+        },
+        "b2b_company_tag": {
+            "domain": "UNKNOWN",
+            "classification": "UNKNOWN",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": null,
+            "indexes": []
+        },
+        "b2b_company_testimonials": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "B2bCompanyTestimonial.php",
+            "indexes": []
+        },
+        "b2b_leads": {
+            "domain": "b2b",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "B2bLead.php",
+            "indexes": []
+        },
+        "b2b_tags": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": "B2bTag.php",
+            "indexes": []
+        },
+        "blog_article_tag": {
+            "domain": "UNKNOWN",
+            "classification": "UNKNOWN",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": null,
+            "indexes": []
+        },
+        "blog_articles": {
+            "domain": "cms",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "BlogArticle.php",
+            "indexes": []
+        },
+        "blog_categories": {
+            "domain": "cms",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": "BlogCategory.php",
+            "indexes": []
+        },
+        "blog_tags": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": "BlogTag.php",
+            "indexes": []
+        },
+        "blog_wishlist_items": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "BlogWishlistItem.php",
+            "indexes": []
+        },
+        "cache": {
+            "domain": "UNKNOWN",
+            "classification": "SUPPORTING",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": null,
+            "indexes": []
+        },
+        "cache_locks": {
+            "domain": "UNKNOWN",
+            "classification": "SUPPORTING",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": null,
+            "indexes": []
+        },
+        "cart_items": {
+            "domain": "cart",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "CartItem.php",
+            "indexes": []
+        },
+        "carts": {
+            "domain": "cart",
+            "classification": "ACTIVE",
+            "approx_rows": 1,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "Cart.php",
+            "indexes": []
+        },
+        "categories": {
+            "domain": "catalog",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "Category.php",
+            "indexes": []
+        },
+        "chat_archive_batches": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "ChatArchiveBatch.php",
+            "indexes": []
+        },
+        "chat_message_reports": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "ChatMessageReport.php",
+            "indexes": []
+        },
+        "commission_rules": {
+            "domain": "finance",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": "CommissionRule.php",
+            "indexes": []
+        },
+        "conversation_participants": {
+            "domain": "chat",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "ConversationParticipant.php",
+            "indexes": []
+        },
+        "conversations": {
+            "domain": "chat",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.109,
+            "model": "Conversation.php",
+            "indexes": []
+        },
+        "failed_jobs": {
+            "domain": "UNKNOWN",
+            "classification": "SUPPORTING",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": null,
+            "indexes": []
+        },
+        "financial_transactions": {
+            "domain": "payments",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.141,
+            "model": "FinancialTransaction.php",
+            "indexes": []
+        },
+        "inventory_movements": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "InventoryMovement.php",
+            "indexes": []
+        },
+        "inventory_reservations": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "InventoryReservation.php",
+            "indexes": []
+        },
+        "job_batches": {
+            "domain": "UNKNOWN",
+            "classification": "UNKNOWN",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": null,
+            "indexes": []
+        },
+        "jobs": {
+            "domain": "UNKNOWN",
+            "classification": "SUPPORTING",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": null,
+            "indexes": []
+        },
+        "loyalty_accounts": {
+            "domain": "loyalty",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "LoyaltyAccount.php",
+            "indexes": []
+        },
+        "loyalty_transactions": {
+            "domain": "loyalty",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "LoyaltyTransaction.php",
+            "indexes": []
+        },
+        "media_files": {
+            "domain": "catalog",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "MediaFile.php",
+            "indexes": []
+        },
+        "message_attachments": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "MessageAttachment.php",
+            "indexes": []
+        },
+        "messages": {
+            "domain": "chat",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.094,
+            "model": "Message.php",
+            "indexes": []
+        },
+        "migrations": {
+            "domain": "UNKNOWN",
+            "classification": "SUPPORTING",
+            "approx_rows": 84,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": null,
+            "indexes": []
+        },
+        "notification_broadcasts": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "NotificationBroadcast.php",
+            "indexes": []
+        },
+        "notification_deliveries": {
+            "domain": "notifications",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "NotificationDelivery.php",
+            "indexes": []
+        },
+        "notification_devices": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "NotificationDevice.php",
+            "indexes": []
+        },
+        "order_items": {
+            "domain": "commerce",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.078,
+            "model": "OrderItem.php",
+            "indexes": []
+        },
+        "order_number_sequences": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": "OrderNumberSequence.php",
+            "indexes": []
+        },
+        "orders": {
+            "domain": "commerce",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.063,
+            "model": "Order.php",
+            "indexes": []
+        },
+        "password_reset_tokens": {
+            "domain": "users",
+            "classification": "UNKNOWN",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": null,
+            "indexes": []
+        },
+        "payment_attempts": {
+            "domain": "payments",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "PaymentAttempt.php",
+            "indexes": []
+        },
+        "payment_vendor_allocations": {
+            "domain": "payments",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.063,
+            "model": "PaymentVendorAllocation.php",
+            "indexes": []
+        },
+        "payment_webhook_events": {
+            "domain": "payments",
+            "classification": "AUDIT/HISTORICAL",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "PaymentWebhookEvent.php",
+            "indexes": []
+        },
+        "payments": {
+            "domain": "payments",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.063,
+            "model": "Payment.php",
+            "indexes": []
+        },
+        "permissions": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 1,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": "Permission.php",
+            "indexes": []
+        },
+        "personal_access_tokens": {
+            "domain": "users",
+            "classification": "UNKNOWN",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": null,
+            "indexes": []
+        },
+        "product_affiliate_settings": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "ProductAffiliateSetting.php",
+            "indexes": []
+        },
+        "product_colors": {
+            "domain": "catalog",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "ProductColor.php",
+            "indexes": []
+        },
+        "product_images": {
+            "domain": "catalog",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "ProductImage.php",
+            "indexes": []
+        },
+        "product_inventory": {
+            "domain": "catalog",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "ProductInventory.php",
+            "indexes": []
+        },
+        "product_likes": {
+            "domain": "catalog",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "ProductLike.php",
+            "indexes": []
+        },
+        "product_preorder_requests": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "ProductPreorderRequest.php",
+            "indexes": []
+        },
+        "product_reviews": {
+            "domain": "catalog",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "ProductReview.php",
+            "indexes": []
+        },
+        "products": {
+            "domain": "catalog",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "Product.php",
+            "indexes": []
+        },
+        "project_images": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "ProjectImage.php",
+            "indexes": []
+        },
+        "projects": {
+            "domain": "cms",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": "Project.php",
+            "indexes": []
+        },
+        "provider_accounts": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "ProviderAccount.php",
+            "indexes": []
+        },
+        "provider_bank_accounts": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "ProviderBankAccount.php",
+            "indexes": []
+        },
+        "provider_follows": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "ProviderFollow.php",
+            "indexes": []
+        },
+        "provider_payouts": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "ProviderPayout.php",
+            "indexes": []
+        },
+        "provider_reviews": {
+            "domain": "services",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.078,
+            "model": "ProviderReview.php",
+            "indexes": []
+        },
+        "provider_work_policies": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "ProviderWorkPolicy.php",
+            "indexes": []
+        },
+        "refund_number_sequences": {
+            "domain": "UNKNOWN",
+            "classification": "UNKNOWN",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": null,
+            "indexes": []
+        },
+        "refunds": {
+            "domain": "returns",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.078,
+            "model": "Refund.php",
+            "indexes": []
+        },
+        "return_evidence": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "ReturnEvidence.php",
+            "indexes": []
+        },
+        "return_items": {
+            "domain": "returns",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "ReturnItem.php",
+            "indexes": []
+        },
+        "return_number_sequences": {
+            "domain": "UNKNOWN",
+            "classification": "UNKNOWN",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": null,
+            "indexes": []
+        },
+        "return_requests": {
+            "domain": "returns",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "ReturnRequest.php",
+            "indexes": []
+        },
+        "role_permissions": {
+            "domain": "UNKNOWN",
+            "classification": "SUPPORTING",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": null,
+            "indexes": []
+        },
+        "roles": {
+            "domain": "users",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": "Role.php",
+            "indexes": []
+        },
+        "service_booking_payments": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "ServiceBookingPayment.php",
+            "indexes": []
+        },
+        "service_bookings": {
+            "domain": "services",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.125,
+            "model": "ServiceBooking.php",
+            "indexes": []
+        },
+        "service_categories": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": "ServiceCategory.php",
+            "indexes": []
+        },
+        "service_offers": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "ServiceOffer.php",
+            "indexes": []
+        },
+        "service_portfolio_items": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "ServicePortfolioItem.php",
+            "indexes": []
+        },
+        "service_request_attachments": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "ServiceRequestAttachment.php",
+            "indexes": []
+        },
+        "service_request_category": {
+            "domain": "UNKNOWN",
+            "classification": "UNKNOWN",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": null,
+            "indexes": []
+        },
+        "service_requests": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.094,
+            "model": "ServiceRequest.php",
+            "indexes": []
+        },
+        "service_wishlist_items": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "ServiceWishlistItem.php",
+            "indexes": []
+        },
+        "services": {
+            "domain": "services",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.109,
+            "model": "Service.php",
+            "indexes": []
+        },
+        "sessions": {
+            "domain": "UNKNOWN",
+            "classification": "SUPPORTING",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": null,
+            "indexes": []
+        },
+        "shipments": {
+            "domain": "commerce",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "Shipment.php",
+            "indexes": []
+        },
+        "shipping_carriers": {
+            "domain": "shipping",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": "ShippingCarrier.php",
+            "indexes": []
+        },
+        "shipping_methods": {
+            "domain": "shipping",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "ShippingMethod.php",
+            "indexes": []
+        },
+        "shipping_rate_rules": {
+            "domain": "shipping",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "ShippingRateRule.php",
+            "indexes": []
+        },
+        "shipping_zones": {
+            "domain": "shipping",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "ShippingZone.php",
+            "indexes": []
+        },
+        "store_reviews": {
+            "domain": "reviews",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.094,
+            "model": "StoreReview.php",
+            "indexes": []
+        },
+        "system_settings": {
+            "domain": "admin",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0,
+            "model": "SystemSetting.php",
+            "indexes": []
+        },
+        "user_notifications": {
+            "domain": "notifications",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.063,
+            "model": "UserNotification.php",
+            "indexes": []
+        },
+        "user_roles": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "UserRole.php",
+            "indexes": []
+        },
+        "users": {
+            "domain": "users",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "User.php",
+            "indexes": []
+        },
+        "vendor_accounts": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "VendorAccount.php",
+            "indexes": []
+        },
+        "vendor_bank_accounts": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "VendorBankAccount.php",
+            "indexes": []
+        },
+        "vendor_coupon_exclusions": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "VendorCouponExclusion.php",
+            "indexes": []
+        },
+        "vendor_coupon_scopes": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "VendorCouponScope.php",
+            "indexes": []
+        },
+        "vendor_coupon_usages": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.063,
+            "model": "VendorCouponUsage.php",
+            "indexes": []
+        },
+        "vendor_coupons": {
+            "domain": "coupons",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "VendorCoupon.php",
+            "indexes": []
+        },
+        "vendor_legal_profiles": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "VendorLegalProfile.php",
+            "indexes": []
+        },
+        "vendor_orders": {
+            "domain": "commerce",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.047,
+            "model": "VendorOrder.php",
+            "indexes": []
+        },
+        "vendor_payouts": {
+            "domain": "finance",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "VendorPayout.php",
+            "indexes": []
+        },
+        "vendor_return_policies": {
+            "domain": "returns",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "VendorReturnPolicy.php",
+            "indexes": []
+        },
+        "vendor_shipping_profiles": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "VendorShippingProfile.php",
+            "indexes": []
+        },
+        "vendor_shipping_settings": {
+            "domain": "shipping",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "VendorShippingSettings.php",
+            "indexes": []
+        },
+        "vendor_store_follows": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.031,
+            "model": "VendorStoreFollow.php",
+            "indexes": []
+        },
+        "vendor_team_members": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.078,
+            "model": "VendorTeamMember.php",
+            "indexes": []
+        },
+        "vendor_working_hours": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE",
+            "approx_rows": 0,
+            "data_mb": 0.016,
+            "index_mb": 0.016,
+            "model": "VendorWorkingHour.php",
+            "indexes": []
+        },
+        "wishlist_items": {
+            "domain": "UNKNOWN",
+            "classification": "ACTIVE-HIGH-TRAFFIC",
+            "approx_rows": 4294967295,
+            "data_mb": 4096,
+            "index_mb": 4096,
+            "model": "WishlistItem.php",
+            "indexes": []
+        }
+    }
+}

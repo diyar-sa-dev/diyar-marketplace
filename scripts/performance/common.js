@@ -1,6 +1,16 @@
 /**
  * Shared k6 helpers for DIYAR performance scripts.
  */
+import http from 'k6/http';
+
+const frontendOrigin = __ENV.FRONTEND_ORIGIN || 'http://127.0.0.1:3000';
+
+function statefulHeaders() {
+  return {
+    Origin: frontendOrigin,
+    Referer: `${frontendOrigin}/`,
+  };
+}
 
 export function apiParams(tag = 'catalog') {
   return {
@@ -28,4 +38,85 @@ export function safeJson(response, path) {
 
 export function checkOk(response) {
   return response && response.status >= 200 && response.status < 300;
+}
+
+function decodeXsrfToken(rawValue) {
+  if (!rawValue) {
+    return '';
+  }
+
+  try {
+    return decodeURIComponent(rawValue);
+  } catch {
+    return rawValue;
+  }
+}
+
+function cookiesForUrl(jar, originUrl) {
+  return jar.cookiesForURL(originUrl) || {};
+}
+
+function cookieHeader(jar, originUrl) {
+  const cookies = cookiesForUrl(jar, originUrl);
+
+  return Object.entries(cookies)
+    .map(([name, values]) => `${name}=${values[0]}`)
+    .join('; ');
+}
+
+function xsrfFromJar(jar, originUrl) {
+  const cookies = cookiesForUrl(jar, originUrl);
+  return decodeXsrfToken(cookies['XSRF-TOKEN']?.[0]);
+}
+
+/**
+ * Session login for k6 — returns Cookie header string for authenticated API calls.
+ */
+export function loginSession(originUrl, apiBaseUrl, loginPath, credentials, tag = 'auth') {
+  const jar = http.cookieJar();
+
+  const csrfResponse = http.get(`${originUrl}/sanctum/csrf-cookie`, {
+    jar,
+    headers: statefulHeaders(),
+    tags: { name: `${tag}-csrf` },
+    timeout: '30s',
+  });
+
+  if (!checkOk(csrfResponse)) {
+    throw new Error(`CSRF bootstrap failed (${csrfResponse.status})`);
+  }
+
+  const xsrf = xsrfFromJar(jar, originUrl);
+  const loginResponse = http.post(`${apiBaseUrl}${loginPath}`, JSON.stringify(credentials), {
+    jar,
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-XSRF-TOKEN': xsrf,
+      ...statefulHeaders(),
+    },
+    tags: { name: `${tag}-login` },
+    timeout: '30s',
+  });
+
+  if (!checkOk(loginResponse)) {
+    throw new Error(`Login failed (${loginResponse.status}): ${loginResponse.body}`);
+  }
+
+  return cookieHeader(jar, originUrl);
+}
+
+export function authedParams(cookieHeaderValue, tag = 'analytics') {
+  return {
+    headers: {
+      Accept: 'application/json',
+      Cookie: cookieHeaderValue,
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-Forwarded-For': `10.${200 + (__VU % 50)}.${__VU % 255}.${__ITER % 255}`,
+      ...statefulHeaders(),
+    },
+    tags: { name: tag },
+    timeout: '60s',
+  };
 }

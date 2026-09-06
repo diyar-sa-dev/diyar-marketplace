@@ -16,6 +16,14 @@ export const RegistrationRoleKey = {
   Marketer: 'marketer',
 } as const;
 
+export const PARTNER_REGISTRATION_ROLE_PARAMS = new Set([
+  'merchant',
+  'vendor',
+  'marketer',
+  'provider',
+  'service_provider',
+]);
+
 export type DashboardPortalKey = 'vendor' | 'service' | 'affiliate';
 
 export type UserRoleLike = {
@@ -123,6 +131,11 @@ export function hasPartnerPortalRole(roles: UserRoleLike[] | undefined): boolean
     hasActiveRole(roles, RoleName.Provider) ||
     hasActiveRole(roles, RoleName.Marketer)
   );
+}
+
+/** Storefront account hub (/profile, orders, wishlist) for customers and partner portal users. */
+export function canAccessStorefrontAccountHub(roles: UserRoleLike[] | undefined): boolean {
+  return hasCustomerRoleAssignment(roles) || hasPartnerPortalRole(roles);
 }
 
 export const ADMIN_PANEL_PATH = '/admin';
@@ -409,6 +422,32 @@ export function resolveSafeReturnPath(
   }
 
   return resolvePostAuthPath(roles);
+}
+
+export function resolvePartnerB2bDashboardPath(roles: UserRoleLike[] | undefined): string | null {
+  if (hasActiveRole(roles, RoleName.Vendor)) {
+    return '/dashboard/vendor/b2b';
+  }
+
+  if (hasActiveRole(roles, RoleName.Provider)) {
+    return '/dashboard/service/b2b';
+  }
+
+  return null;
+}
+
+export function resolvePartnerB2bPortal(
+  roles: UserRoleLike[] | undefined,
+): 'vendor' | 'provider' | null {
+  if (hasActiveRole(roles, RoleName.Vendor)) {
+    return 'vendor';
+  }
+
+  if (hasActiveRole(roles, RoleName.Provider)) {
+    return 'provider';
+  }
+
+  return null;
 }
 
 export function primaryDashboardPath(roles: UserRoleLike[] | undefined): string {

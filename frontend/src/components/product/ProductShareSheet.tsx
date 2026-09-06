@@ -15,8 +15,63 @@ import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
 
+/** Opens mailto/tel/custom schemes without replacing the SPA route. */
+export function openShareHref(href: string): void {
+  const anchor = document.createElement('a');
+  anchor.href = href;
+  anchor.rel = 'noopener noreferrer';
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+}
+
+export function buildGmailComposeUrl(subject: string, body: string): string {
+  return `https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+export function isMobileShareDevice(): boolean {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+export async function copyShareText(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      return copied;
+    } catch {
+      return false;
+    }
+  }
+}
+
+/** Mobile: native mail app. Desktop: Gmail compose (mailto often has no handler on Windows). */
+export function openEmailShare(options: { subject: string; body: string; mailtoHref: string }): void {
+  if (isMobileShareDevice()) {
+    openShareHref(options.mailtoHref);
+    return;
+  }
+
+  const gmailUrl = buildGmailComposeUrl(options.subject, options.body);
+  const opened = window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+  if (!opened) {
+    openShareHref(options.mailtoHref);
+  }
+}
+
 export interface ShareTarget {
-  id: string;
+  id: SharePlatformId;
   label: string;
   href: string;
   color: string;
@@ -24,13 +79,21 @@ export interface ShareTarget {
   external?: boolean;
 }
 
-export function buildShareTargets(url: string, title: string): ShareTarget[] {
+export type SharePlatformId =
+  | 'whatsapp'
+  | 'telegram'
+  | 'facebook'
+  | 'twitter'
+  | 'linkedin'
+  | 'instagram'
+  | 'email';
+
+export function buildShareTargets(url: string, title: string): Omit<ShareTarget, 'label'>[] {
   const text = `${title}\n${url}`;
 
   return [
     {
       id: 'whatsapp',
-      label: 'WhatsApp',
       href: `https://wa.me/?text=${encodeURIComponent(text)}`,
       color: 'bg-[#25D366]',
       icon: <MessageCircle size={22} className="text-white" />,
@@ -38,7 +101,6 @@ export function buildShareTargets(url: string, title: string): ShareTarget[] {
     },
     {
       id: 'telegram',
-      label: 'Telegram',
       href: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
       color: 'bg-[#0088cc]',
       icon: <Send size={20} className="text-white" />,
@@ -46,7 +108,6 @@ export function buildShareTargets(url: string, title: string): ShareTarget[] {
     },
     {
       id: 'facebook',
-      label: 'Facebook',
       href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
       color: 'bg-[#1877F2]',
       icon: <Facebook size={22} className="text-white" />,
@@ -54,7 +115,6 @@ export function buildShareTargets(url: string, title: string): ShareTarget[] {
     },
     {
       id: 'twitter',
-      label: 'X',
       href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
       color: 'bg-black',
       icon: <Twitter size={20} className="text-white" />,
@@ -62,7 +122,6 @@ export function buildShareTargets(url: string, title: string): ShareTarget[] {
     },
     {
       id: 'linkedin',
-      label: 'LinkedIn',
       href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
       color: 'bg-[#0A66C2]',
       icon: <Linkedin size={20} className="text-white" />,
@@ -70,7 +129,6 @@ export function buildShareTargets(url: string, title: string): ShareTarget[] {
     },
     {
       id: 'instagram',
-      label: 'Instagram',
       href: `https://www.instagram.com/`,
       color: 'bg-linear-to-br from-[#f58529] via-[#dd2a7b] to-[#8134af]',
       icon: <Instagram size={22} className="text-white" />,
@@ -78,7 +136,6 @@ export function buildShareTargets(url: string, title: string): ShareTarget[] {
     },
     {
       id: 'email',
-      label: 'Email',
       href: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(text)}`,
       color: 'bg-gray-600',
       icon: <Mail size={20} className="text-white" />,
@@ -91,7 +148,7 @@ interface ProductShareSheetProps {
   onClose: () => void;
   url: string;
   title: string;
-  context?: 'product' | 'store' | 'service' | 'provider';
+  context?: 'product' | 'store' | 'service' | 'provider' | 'blog';
 }
 
 export function ProductShareSheet({
@@ -103,7 +160,10 @@ export function ProductShareSheet({
 }: ProductShareSheetProps) {
   const { t, dir } = useLocale();
   const { toast } = useToast();
-  const targets = buildShareTargets(url, title);
+  const targets = buildShareTargets(url, title).map((target) => ({
+    ...target,
+    label: t(`share.platforms.${target.id}`),
+  }));
   const canNativeShare = typeof navigator.share === 'function';
   const prefix =
     context === 'store'
@@ -112,7 +172,9 @@ export function ProductShareSheet({
         ? 'serviceMarketplace.detail'
         : context === 'provider'
           ? 'serviceMarketplace.providerPage'
-          : 'catalog.productDetail';
+          : context === 'blog'
+            ? 'blog.article'
+            : 'catalog.productDetail';
 
   if (!open) {
     return null;
@@ -139,23 +201,46 @@ export function ProductShareSheet({
     }
   };
 
-  const handleAppShare = async (target: ShareTarget) => {
+  const handleAppShare = (target: ShareTarget) => {
     if (target.id === 'instagram') {
-      try {
-        await navigator.clipboard.writeText(`${title}\n${url}`);
-        toast.success(t(`${prefix}.shareInstagramHint`));
-      } catch {
-        toast.error(t(`${prefix}.shareCopyFailed`));
-      }
-      window.open(target.href, '_blank', 'noopener,noreferrer');
+      void (async () => {
+        try {
+          await navigator.clipboard.writeText(`${title}\n${url}`);
+          toast.success(t(`${prefix}.shareInstagramHint`));
+        } catch {
+          toast.error(t(`${prefix}.shareCopyFailed`));
+        }
+        window.open(target.href, '_blank', 'noopener,noreferrer');
+      })();
+      return;
+    }
+
+    if (target.id === 'email') {
+      const text = `${title}\n${url}`;
+      openEmailShare({ subject: title, body: text, mailtoHref: target.href });
+      void (async () => {
+        const copied = await copyShareText(text);
+        toast.success(
+          t(
+            isMobileShareDevice()
+              ? `${prefix}.shareEmailMobileHint`
+              : `${prefix}.shareEmailWebHint`,
+          ),
+        );
+        if (!copied) {
+          toast.error(t(`${prefix}.shareCopyFailed`));
+        }
+        onClose();
+      })();
       return;
     }
 
     if (target.external) {
       window.open(target.href, '_blank', 'noopener,noreferrer,width=600,height=520');
-    } else {
-      window.location.href = target.href;
+      return;
     }
+
+    openShareHref(target.href);
   };
 
   return (
@@ -188,7 +273,7 @@ export function ProductShareSheet({
               <button
                 key={target.id}
                 type="button"
-                onClick={() => void handleAppShare(target)}
+                onClick={() => handleAppShare(target)}
                 className="flex flex-col items-center gap-2 group cursor-pointer"
               >
                 <span

@@ -2,6 +2,7 @@
 
 namespace App\Services\Payments;
 
+use App\Enums\AnalyticsEventType;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentAttemptStatus;
 use App\Enums\PaymentStatus;
@@ -9,12 +10,14 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentAttempt;
 use App\Models\User;
+use App\Services\Analytics\AnalyticsEventRecorder;
 use App\Services\Order\PaymentStateService;
 use App\Services\Payments\DTO\PaymentMethodCapability;
 use App\Services\Payments\DTO\PaymentMethodsRequest;
 use App\Services\Payments\DTO\PaymentSessionResult;
 use App\Services\Payments\Exceptions\PaymentGatewayException;
-use App\Services\Payments\Gateways\LocalPaymentGateway;
+use App\Services\Payments\Gateways\FakePaymentGateway;
+use App\Support\Http\FrontendOrigin;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -26,6 +29,9 @@ final class PaymentApplicationService
         private readonly PaymentGatewayManager $gateways,
         private readonly PaymentRequestBuilder $requestBuilder,
         private readonly PaymentAllocationSnapshotService $allocations,
+        private readonly PaymentMethodResolver $paymentMethods,
+        private readonly PaymentStateService $paymentStates,
+        private readonly AnalyticsEventRecorder $analyticsEvents,
     ) {}
 
     /**
@@ -121,22 +127,18 @@ final class PaymentApplicationService
      */
     public function submit(Order $order, User $user, string $sessionId, string $idempotencyKey, ?string $paymentMethod = null): array
     {
-        $this->assertPayableOrder($order, $user);
+        $this->assertOrderOwner($order, $user);
 
         $payment = $this->resolvePayment($order);
-        $this->assertPaymentAmountMatchesOrder($payment, $order);
-
-        $gateway = $this->gateways->driver($payment->gateway);
 
         $attempt = $payment->attempts()
             ->where('idempotency_key', $idempotencyKey)
             ->first();
 
-        if ($attempt === null || $attempt->gateway_session_id !== $sessionId) {
-            throw new UnprocessableEntityHttpException(__('diyar.payment.invalid_session'));
-        }
-
-        if ($attempt->status === PaymentAttemptStatus::Submitted && $attempt->gateway_payment_url !== null) {
+        if ($attempt !== null
+            && $attempt->gateway_session_id === $sessionId
+            && $attempt->status === PaymentAttemptStatus::Submitted
+            && $attempt->gateway_payment_url !== null) {
             return [
                 'payment' => $payment->fresh(),
                 'payment_url' => (string) $attempt->gateway_payment_url,
@@ -144,35 +146,128 @@ final class PaymentApplicationService
             ];
         }
 
+        $this->assertPayableOrder($order, $user);
+        $this->assertPaymentAmountMatchesOrder($payment, $order);
+
+        $gateway = $this->gateways->driver($payment->gateway);
+
+        if ($attempt === null || $attempt->gateway_session_id !== $sessionId) {
+            throw new UnprocessableEntityHttpException(__('diyar.payment.invalid_session'));
+        }
+
+        $gatewayMethods = $gateway->listPaymentMethods($this->methodsRequest($payment));
+        $canonicalMethod = $paymentMethod !== null
+            ? $this->paymentMethods->parseRequired($paymentMethod)
+            : null;
+        $gatewayMethodCode = $canonicalMethod !== null
+            ? $this->paymentMethods->assertAvailable($canonicalMethod, $gatewayMethods)
+            : null;
+
+        $lockedState = DB::transaction(function () use ($payment, $idempotencyKey, $sessionId) {
+            $payment = Payment::query()->whereKey($payment->id)->lockForUpdate()->firstOrFail();
+
+            $attempt = PaymentAttempt::query()
+                ->where('payment_id', $payment->id)
+                ->where('idempotency_key', $idempotencyKey)
+                ->lockForUpdate()
+                ->first();
+
+            if ($attempt === null || $attempt->gateway_session_id !== $sessionId) {
+                throw new UnprocessableEntityHttpException(__('diyar.payment.invalid_session'));
+            }
+
+            if ($attempt->status === PaymentAttemptStatus::Submitted && $attempt->gateway_payment_url !== null) {
+                return [
+                    'replay' => true,
+                    'payment' => $payment,
+                    'attempt' => $attempt,
+                ];
+            }
+
+            $this->paymentStates->transition($payment, PaymentStatus::Processing, source: 'submit');
+
+            return [
+                'replay' => false,
+                'payment' => $payment->fresh(),
+                'attempt' => $attempt->fresh(),
+            ];
+        });
+
+        if ($lockedState['replay']) {
+            return [
+                'payment' => $lockedState['payment']->fresh(),
+                'payment_url' => (string) $lockedState['attempt']->gateway_payment_url,
+                'attempt_id' => $lockedState['attempt']->id,
+            ];
+        }
+
+        /** @var Payment $lockedPayment */
+        $lockedPayment = $lockedState['payment'];
+        /** @var PaymentAttempt $lockedAttempt */
+        $lockedAttempt = $lockedState['attempt'];
+
         try {
             $result = $gateway->createPayment(
-                $this->requestBuilder->buildCreationRequest($order, $payment, $user, $sessionId, $paymentMethod)
+                $this->requestBuilder->buildCreationRequest($order, $lockedPayment, $user, $sessionId, $gatewayMethodCode)
             );
         } catch (PaymentGatewayException $exception) {
             throw new UnprocessableEntityHttpException($exception->getMessage());
         }
 
-        $attempt->update([
-            'status' => PaymentAttemptStatus::Submitted,
-            'gateway_payment_id' => $result->gatewayPaymentId,
-            'gateway_invoice_id' => $result->gatewayInvoiceId,
-            'gateway_payment_url' => $result->paymentUrl,
-            'metadata' => array_merge($attempt->metadata ?? [], array_filter([
-                'payment_method' => $paymentMethod,
-            ])),
-        ]);
+        return DB::transaction(function () use (
+            $lockedPayment,
+            $lockedAttempt,
+            $result,
+            $canonicalMethod,
+            $paymentMethod,
+            $user,
+            $order,
+        ) {
+            $payment = Payment::query()->whereKey($lockedPayment->id)->lockForUpdate()->firstOrFail();
 
-        $payment->update(array_filter([
-            'gateway_payment_id' => $result->gatewayPaymentId ?? $payment->gateway_payment_id,
-            'gateway_invoice_id' => $result->gatewayInvoiceId ?? $payment->gateway_invoice_id,
-            'payment_method' => $paymentMethod,
-        ]));
+            $attempt = PaymentAttempt::query()
+                ->whereKey($lockedAttempt->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        return [
-            'payment' => $payment->fresh(),
-            'payment_url' => $result->paymentUrl,
-            'attempt_id' => $attempt->id,
-        ];
+            if ($attempt->status === PaymentAttemptStatus::Submitted && $attempt->gateway_payment_url !== null) {
+                return [
+                    'payment' => $payment->fresh(),
+                    'payment_url' => (string) $attempt->gateway_payment_url,
+                    'attempt_id' => $attempt->id,
+                ];
+            }
+
+            $attempt->update([
+                'status' => PaymentAttemptStatus::Submitted,
+                'gateway_payment_id' => $result->gatewayPaymentId,
+                'gateway_invoice_id' => $result->gatewayInvoiceId,
+                'gateway_payment_url' => $result->paymentUrl,
+                'metadata' => array_merge($attempt->metadata ?? [], array_filter([
+                    'payment_method' => $canonicalMethod?->value ?? $paymentMethod,
+                ])),
+            ]);
+
+            $payment->update(array_filter([
+                'gateway_payment_id' => $result->gatewayPaymentId ?? $payment->gateway_payment_id,
+                'gateway_invoice_id' => $result->gatewayInvoiceId ?? $payment->gateway_invoice_id,
+                'payment_method' => $canonicalMethod?->value ?? $paymentMethod,
+            ]));
+
+            $this->analyticsEvents->record(
+                AnalyticsEventType::PaymentStarted,
+                user: $user,
+                subjectType: 'payment',
+                subjectId: $payment->id,
+                payload: ['order_id' => $order->id, 'attempt_id' => $attempt->id],
+            );
+
+            return [
+                'payment' => $payment->fresh(),
+                'payment_url' => $result->paymentUrl,
+                'attempt_id' => $attempt->id,
+            ];
+        });
     }
 
     /**
@@ -187,6 +282,7 @@ final class PaymentApplicationService
         $this->assertPayableOrder($order, $user);
 
         $payment = $this->resolvePayment($order);
+        $payment = $this->preparePaymentForSimulation($payment);
         $attempt = $payment->attempts()->whereKey($attemptId)->first();
 
         if ($attempt === null) {
@@ -194,13 +290,12 @@ final class PaymentApplicationService
         }
 
         $finalizer = app(PaymentFinalizationService::class);
-        $frontend = rtrim((string) config('diyar.frontend_url'), '/');
-        $redirectBase = $frontend.'/orders?highlight='.$order->id;
+        $redirectBase = FrontendOrigin::url('/orders?highlight='.$order->id);
 
         $payment = match ($outcome) {
             'success' => $finalizer->finalizePaid(
                 $payment->fresh(),
-                $attempt->gateway_payment_id ?? LocalPaymentGateway::GATEWAY_PAYMENT_ID,
+                $attempt->gateway_payment_id ?? FakePaymentGateway::PAYMENT_PREFIX.'-'.$payment->payment_reference,
                 $attempt->gateway_invoice_id ?? 'local-invoice-001',
             ),
             'expired' => $this->markRetryableFailure(
@@ -306,7 +401,14 @@ final class PaymentApplicationService
 
         $payment = $order->payment;
 
-        if ($payment === null || ! in_array($payment->status, [PaymentStatus::Pending, PaymentStatus::Failed, PaymentStatus::Expired], true)) {
+        if ($payment === null || ! in_array($payment->status, [
+            PaymentStatus::Pending,
+            PaymentStatus::Processing,
+            PaymentStatus::RequiresAction,
+            PaymentStatus::Failed,
+            PaymentStatus::Expired,
+            PaymentStatus::Unknown,
+        ], true)) {
             throw new ConflictHttpException(__('diyar.payment.already_processed'));
         }
     }
@@ -350,11 +452,7 @@ final class PaymentApplicationService
         return [
             'payment' => $payment,
             'session' => $sessionData,
-            'methods' => array_map(static fn ($method) => [
-                'code' => $method->code,
-                'available' => $method->available,
-                'label' => $method->label,
-            ], $methods),
+            'methods' => $this->paymentMethods->presentCheckoutMethods($methods),
             'attempt_id' => $attempt->id,
             'simulated' => config('diyar.payments.use_fake_gateway'),
         ];
@@ -366,11 +464,23 @@ final class PaymentApplicationService
         string $reason,
         PaymentStatus $status,
     ): Payment {
-        $finalizer->markFailed($payment->fresh(), $reason, $status);
+        $payment = $finalizer->markFailed($payment->fresh(), $reason, $status);
 
-        return app(PaymentStateService::class)->transition($payment->fresh(), PaymentStatus::Pending, [
+        return $this->paymentStates->transition($payment, PaymentStatus::Pending, [
             'failure_reason' => null,
             'failed_at' => null,
-        ]);
+        ], source: 'simulate_retry');
+    }
+
+    private function preparePaymentForSimulation(Payment $payment): Payment
+    {
+        if (! in_array($payment->status, [PaymentStatus::Failed, PaymentStatus::Expired], true)) {
+            return $payment;
+        }
+
+        return $this->paymentStates->transition($payment, PaymentStatus::Pending, [
+            'failure_reason' => null,
+            'failed_at' => null,
+        ], source: 'simulate_retry');
     }
 }

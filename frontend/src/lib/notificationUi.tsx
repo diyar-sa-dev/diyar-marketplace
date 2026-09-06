@@ -14,7 +14,12 @@ import {
 } from 'lucide-react';
 import type { Notification } from '../types/notification.ts';
 import type { UserRoleLike } from './auth/roles.ts';
-import { resolveChatConversationPath, getPortalFromPath } from './auth/roles.ts';
+import {
+  RoleName,
+  getPortalFromPath,
+  hasActiveRole,
+  resolveChatConversationPath,
+} from './auth/roles.ts';
 
 export function notificationVisual(
   type: string,
@@ -29,6 +34,14 @@ export function notificationVisual(
       icon: <Package size={iconSize} />,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
+    };
+  }
+
+  if (type === 'payment.success') {
+    return {
+      icon: <CreditCard size={iconSize} />,
+      color: 'text-emerald-600',
+      bgColor: 'bg-emerald-50',
     };
   }
 
@@ -111,23 +124,100 @@ export function notificationVisual(
   };
 }
 
+function isProviderServiceNotificationContext(
+  roles?: UserRoleLike[],
+  pathname?: string,
+  type?: string,
+): boolean {
+  if (type === 'offer.accepted') {
+    return true;
+  }
+
+  const portal = pathname ? getPortalFromPath(pathname) : null;
+  if (portal === 'service' || pathname?.includes('/dashboard/service')) {
+    return true;
+  }
+
+  return hasActiveRole(roles, RoleName.Provider) && Boolean(pathname?.startsWith('/dashboard'));
+}
+
+function serviceBookingAppPath(
+  bookingId: string | null,
+  roles?: UserRoleLike[],
+  pathname?: string,
+  type?: string,
+): string {
+  const query = bookingId ? `?highlight=${encodeURIComponent(bookingId)}` : '';
+  if (isProviderServiceNotificationContext(roles, pathname, type)) {
+    return `/dashboard/service/bookings${query}`;
+  }
+
+  return `/profile/service-bookings${query}`;
+}
+
+function extractUuid(path: string, pattern: RegExp): string | null {
+  const match = path.match(pattern);
+  return match?.[1] ?? null;
+}
+
+function normalizeNotificationPath(
+  path: string,
+  roles?: UserRoleLike[],
+  pathname?: string,
+  type?: string,
+): string | null {
+  const trimmed = path.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const [pathnameOnly, search = ''] = trimmed.split('?');
+  const query = search ? `?${search}` : '';
+
+  const orderDetailMatch = pathnameOnly.match(/^\/orders\/([0-9a-f-]{36})$/i);
+  if (orderDetailMatch) {
+    return `/orders?highlight=${orderDetailMatch[1]}`;
+  }
+
+  const legacyProviderRequests = pathnameOnly.match(
+    /^\/dashboard\/service\/requests(?:\/([0-9a-f-]{36}))?$/i,
+  );
+  if (legacyProviderRequests) {
+    return legacyProviderRequests[1]
+      ? `/dashboard/service/client-requests/${legacyProviderRequests[1]}`
+      : '/dashboard/service/client-requests';
+  }
+
+  const bookingId = extractUuid(pathnameOnly, /^\/service-bookings\/([0-9a-f-]{36})(?:\/.*)?$/i);
+  if (bookingId) {
+    return serviceBookingAppPath(bookingId, roles, pathname, type);
+  }
+
+  if (/^\/returns\//i.test(pathnameOnly)) {
+    return '/orders?tab=returns';
+  }
+
+  return `${pathnameOnly}${query}`;
+}
+
 export function resolveNotificationLink(
   notification: Notification,
   roles?: UserRoleLike[],
   pathname?: string,
 ): string | null {
+  const type = notification.type;
   const actionUrl = notification.data.action_url;
   if (typeof actionUrl === 'string' && actionUrl.startsWith('http')) {
     try {
       const url = new URL(actionUrl);
-      return `${url.pathname}${url.search}`;
+      return normalizeNotificationPath(`${url.pathname}${url.search}`, roles, pathname, type);
     } catch {
-      return actionUrl;
+      return null;
     }
   }
 
   if (typeof actionUrl === 'string' && actionUrl.startsWith('/')) {
-    return actionUrl;
+    return normalizeNotificationPath(actionUrl, roles, pathname, type);
   }
 
   if (notification.entity_type === 'conversation' && notification.entity_id) {
@@ -135,12 +225,25 @@ export function resolveNotificationLink(
     return resolveChatConversationPath(roles, notification.entity_id, portal);
   }
 
-  if (notification.entity_type === 'order' && notification.entity_id) {
-    return `/orders/${notification.entity_id}`;
+  if (notification.entity_type === 'chat_message_report' && notification.data.conversation_id) {
+    const conversationId = String(notification.data.conversation_id);
+    const portal = pathname ? getPortalFromPath(pathname) : null;
+    return resolveChatConversationPath(roles, conversationId, portal);
   }
 
-  if (notification.entity_type === 'service_booking' && notification.entity_id) {
-    return `/service-bookings/${notification.entity_id}`;
+  if (notification.entity_type === 'order' && notification.entity_id) {
+    return `/orders?highlight=${notification.entity_id}`;
+  }
+
+  if (notification.entity_type === 'payment' && notification.data.order_id) {
+    return `/orders?highlight=${String(notification.data.order_id)}`;
+  }
+
+  if (notification.entity_type === 'service_booking') {
+    const bookingId =
+      notification.entity_id ??
+      (typeof notification.data.booking_id === 'string' ? notification.data.booking_id : null);
+    return serviceBookingAppPath(bookingId, roles, pathname, type);
   }
 
   return null;

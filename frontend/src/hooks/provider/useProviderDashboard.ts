@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as providerDashboardApi from '../../api/providerDashboard.ts';
 import type { ProviderBookingFilters } from '../../api/providerDashboard.ts';
+import type { FinancePeriod } from '../../api/vendorFinance.ts';
 import type { ProviderInboxFilters } from '../../types/providerDashboard.ts';
 
 export const providerDashboardKeys = {
@@ -12,10 +13,19 @@ export const providerDashboardKeys = {
     [...providerDashboardKeys.all, 'bookings', filters] as const,
   ownServices: (page: number, perPage: number, q?: string) =>
     [...providerDashboardKeys.all, 'own-services', page, perPage, q ?? ''] as const,
-  financeSummary: () => [...providerDashboardKeys.all, 'finance-summary'] as const,
-  financeAnalytics: () => [...providerDashboardKeys.all, 'finance-analytics'] as const,
-  financeTransactions: (page: number, perPage: number, type?: string) =>
-    [...providerDashboardKeys.all, 'finance-transactions', page, perPage, type ?? 'all'] as const,
+  financeSummary: (period: FinancePeriod) =>
+    [...providerDashboardKeys.all, 'finance-summary', period] as const,
+  financeAnalytics: (period: FinancePeriod) =>
+    [...providerDashboardKeys.all, 'finance-analytics', period] as const,
+  financeTransactions: (page: number, perPage: number, type?: string, period?: FinancePeriod) =>
+    [
+      ...providerDashboardKeys.all,
+      'finance-transactions',
+      page,
+      perPage,
+      type ?? 'all',
+      period ?? 'month',
+    ] as const,
   settings: () => [...providerDashboardKeys.all, 'settings'] as const,
 };
 
@@ -127,26 +137,32 @@ export function useProviderOwnServices(page = 1, perPage = 50, q?: string) {
   });
 }
 
-export function useProviderFinanceSummary() {
+export function useProviderFinanceSummary(period: FinancePeriod = 'month') {
   return useQuery({
-    queryKey: providerDashboardKeys.financeSummary(),
-    queryFn: providerDashboardApi.fetchProviderFinanceSummary,
+    queryKey: providerDashboardKeys.financeSummary(period),
+    queryFn: () => providerDashboardApi.fetchProviderFinanceSummary(period),
     refetchOnMount: 'always',
   });
 }
 
-export function useProviderFinanceAnalytics() {
+export function useProviderFinanceAnalytics(period: FinancePeriod = 'month') {
   return useQuery({
-    queryKey: providerDashboardKeys.financeAnalytics(),
-    queryFn: providerDashboardApi.fetchProviderFinanceAnalytics,
+    queryKey: providerDashboardKeys.financeAnalytics(period),
+    queryFn: () => providerDashboardApi.fetchProviderFinanceAnalytics(period),
     refetchOnMount: 'always',
   });
 }
 
-export function useProviderFinanceTransactions(page = 1, type?: string, perPage = 20) {
+export function useProviderFinanceTransactions(
+  page = 1,
+  type?: string,
+  perPage = 20,
+  period: FinancePeriod = 'month',
+) {
   return useQuery({
-    queryKey: providerDashboardKeys.financeTransactions(page, perPage, type),
-    queryFn: () => providerDashboardApi.fetchProviderFinanceTransactions(page, perPage, type),
+    queryKey: providerDashboardKeys.financeTransactions(page, perPage, type, period),
+    queryFn: () =>
+      providerDashboardApi.fetchProviderFinanceTransactions(page, perPage, type, period),
     refetchOnMount: 'always',
   });
 }
@@ -163,7 +179,8 @@ export function useRequestProviderPayout() {
 
 export function useDownloadProviderFinanceReport() {
   return useMutation({
-    mutationFn: providerDashboardApi.downloadProviderFinanceReport,
+    mutationFn: (period: FinancePeriod = 'month') =>
+      providerDashboardApi.downloadProviderFinanceReport(period),
   });
 }
 

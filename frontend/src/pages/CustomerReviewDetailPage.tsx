@@ -13,6 +13,7 @@ import { resolveAccountSettingsBackPath } from '../lib/auth/roles.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { formatRelativeReviewDate } from '../lib/formatRelativeReviewDate.ts';
 import { resolveMediaUrl } from '../lib/media.ts';
+import { customerReviewSubjectImage, customerReviewSubjectTitle, customerReviewServiceSource } from '../lib/customerReviewSubject.ts';
 import type { CustomerReviewType } from '../api/customerReviews.ts';
 
 export default function CustomerReviewDetailPage() {
@@ -21,7 +22,14 @@ export default function CustomerReviewDetailPage() {
   const { user } = useAuth();
   const accountBackPath = resolveAccountSettingsBackPath(user?.roles);
 
-  const reviewType = type === 'store' ? 'store' : 'product';
+  const reviewType =
+    type === 'store'
+      ? 'store'
+      : type === 'service'
+        ? 'service'
+        : type === 'b2b'
+          ? 'b2b'
+          : 'product';
   const {
     data: review,
     isLoading,
@@ -47,18 +55,57 @@ export default function CustomerReviewDetailPage() {
   }
 
   const isProduct = review.type === 'product';
-  const title = isProduct ? review.product?.name : review.store?.name;
-  const subjectImage = isProduct
-    ? resolveMediaUrl(review.product?.image_url)
-    : resolveMediaUrl(review.store?.logo_url);
-  const storeLogo = resolveMediaUrl(review.store?.logo_url);
+  const isService = review.type === 'service';
+  const isB2b = review.type === 'b2b';
+  const untitled =
+    isProduct
+      ? t('customerReviews.typeProduct')
+      : isService
+        ? t('serviceBookings.defaultServiceTitle')
+        : isB2b
+          ? t('customerReviews.typeB2b')
+          : t('customerReviews.typeStore');
+  const title = customerReviewSubjectTitle(review, untitled);
+  const subjectImage = customerReviewSubjectImage(review);
+  const serviceSource = customerReviewServiceSource(review);
+  const storeLogo = resolveMediaUrl(
+    isService
+      ? review.provider?.logo_url
+      : isB2b
+        ? review.company?.logo_url
+        : review.store?.logo_url,
+  );
   const subjectLink = isProduct
     ? review.product?.id && review.product.available
-      ? `/products/${review.product.id}`
+      ? `/product/${review.product.id}`
       : null
-    : review.store?.slug
-      ? `/store/${review.store.slug}`
-      : null;
+    : isService
+      ? review.service?.slug
+        ? `/service/${review.service.slug}`
+        : null
+      : isB2b
+        ? review.company?.slug
+          ? `/b2b/${review.company.slug}`
+          : null
+        : review.store?.slug
+          ? `/store/${review.store.slug}`
+          : null;
+
+  const replyText = isService
+    ? review.provider_response
+    : isB2b
+      ? review.company_reply
+      : review.vendor_reply;
+  const replyAuthor = isService
+    ? review.provider_responded_by ?? review.provider?.name
+    : isB2b
+      ? review.company_replied_by ?? review.company?.name
+      : review.vendor_replied_by ?? review.store?.name;
+  const replyAt = isService
+    ? review.provider_responded_at
+    : isB2b
+      ? review.company_replied_at
+      : review.vendor_replied_at;
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24 md:pb-12" dir={dir}>
@@ -81,7 +128,11 @@ export default function CustomerReviewDetailPage() {
           <h1 className="font-bold text-lg">
             {isProduct
               ? t('customerReviews.productReviewTitle')
-              : t('customerReviews.storeReviewTitle')}
+              : isService
+                ? t('customerReviews.serviceReviewTitle')
+                : isB2b
+                  ? t('customerReviews.b2bReviewTitle')
+                  : t('customerReviews.storeReviewTitle')}
           </h1>
         </div>
 
@@ -99,7 +150,15 @@ export default function CustomerReviewDetailPage() {
             )}
             <div>
               <p className="text-xs text-gray-500">
-                {isProduct ? t('customerReviews.typeProduct') : t('customerReviews.typeStore')}
+                {isProduct
+                  ? t('customerReviews.typeProduct')
+                  : isService
+                    ? serviceSource === 'rfq'
+                      ? t('customerReviews.typeServiceRequest')
+                      : t('customerReviews.typeServiceDirect')
+                    : isB2b
+                      ? t('customerReviews.typeB2b')
+                      : t('customerReviews.typeStore')}
               </p>
               <p className="font-bold text-diyar-dark">{title}</p>
             </div>
@@ -116,7 +175,7 @@ export default function CustomerReviewDetailPage() {
                   <span className="font-bold text-diyar-dark block">
                     {user?.name ?? t('profile.memberFallback')}
                   </span>
-                  <ReviewTypeBadge type={review.type} t={t} />
+                  <ReviewTypeBadge type={review.type} serviceSource={serviceSource} t={t} />
                 </div>
                 <StarRating value={review.rating} readOnly size={18} />
               </div>
@@ -138,20 +197,19 @@ export default function CustomerReviewDetailPage() {
           )}
         </article>
 
-        {review.vendor_reply ? (
+        {replyText ? (
           <VendorReplyBlock
-            reply={review.vendor_reply}
-            repliedBy={
-              review.vendor_replied_by ?? (isProduct ? review.store?.name : review.store?.name)
-            }
-            repliedAt={review.vendor_replied_at}
+            reply={replyText}
+            repliedBy={replyAuthor}
+            repliedAt={replyAt}
             avatarUrl={storeLogo ?? subjectImage}
             locale={locale}
             t={t}
+            variant={isService ? 'provider' : 'vendor'}
           />
         ) : (
           <p className="text-sm text-gray-500 text-center py-8 bg-white rounded-2xl border border-dashed border-gray-200">
-            {t('customerReviews.noVendorReply')}
+            {isService ? t('customerReviews.noProviderReply') : t('customerReviews.noVendorReply')}
           </p>
         )}
       </div>

@@ -6,7 +6,9 @@ use App\Contracts\Notifications\TriggersNotification;
 use App\Enums\NotificationType;
 use App\Models\ServiceBooking;
 use App\Models\User;
+use App\Services\Notifications\NotificationContextBuilder;
 use App\Services\Notifications\NotificationIntent;
+use App\Support\Notifications\NotificationUrlSupport;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
@@ -34,8 +36,10 @@ final class BookingCompleted implements TriggersNotification
             recipients: $recipients,
             payload: [
                 'reference' => $this->booking->reference,
-                'service_title' => $this->booking->service_title_snapshot,
-                'action_url' => rtrim((string) config('diyar.frontend_url'), '/').'/service-bookings/'.$this->booking->id,
+                'service_title' => app(NotificationContextBuilder::class)->bookingServiceTitle($this->booking),
+                'provider_name' => (string) ($this->booking->providerAccount?->business_name ?? ''),
+                'detail_lines' => app(NotificationContextBuilder::class)->bookingDetailLines($this->booking),
+                'action_url' => NotificationUrlSupport::serviceBookingCanonicalUrl((string) $this->booking->id),
             ],
             entityType: 'service_booking',
             entityId: $this->booking->id,

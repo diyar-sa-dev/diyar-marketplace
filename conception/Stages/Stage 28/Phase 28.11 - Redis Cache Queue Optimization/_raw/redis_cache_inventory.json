@@ -1,0 +1,712 @@
+{
+    "timestamp_utc": "2026-08-27T13:17:46+00:00",
+    "environment": {
+        "app_env": "testing",
+        "cache_default": "array",
+        "cache_prefix": "diyar-cache-",
+        "queue_default": "sync",
+        "session_driver": "array",
+        "broadcast_connection": "reverb",
+        "redis_client": "phpredis"
+    },
+    "redis_checks": {
+        "redis_ping": {
+            "ok": false,
+            "error": "No connection could be made because the target machine actively refused it"
+        },
+        "queue_size": {
+            "ok": true,
+            "latency_ms": 4.27,
+            "size": 0
+        }
+    },
+    "queue": {
+        "connections": [
+            "sync",
+            "database",
+            "beanstalkd",
+            "sqs",
+            "redis",
+            "deferred",
+            "failover",
+            "background"
+        ],
+        "default_queue": null
+    },
+    "jobs": [
+        {
+            "file": "app/Jobs/Admin/RecordAdminAuditLogJob.php",
+            "should_queue": true,
+            "should_be_unique": false,
+            "tries": null,
+            "backoff": null
+        },
+        {
+            "file": "app/Jobs/Chat/ArchiveOldMessagesJob.php",
+            "should_queue": true,
+            "should_be_unique": false,
+            "tries": 3,
+            "backoff": "60, 300, 900"
+        },
+        {
+            "file": "app/Jobs/Notifications/DeliverNotificationChannelJob.php",
+            "should_queue": true,
+            "should_be_unique": true,
+            "tries": null,
+            "backoff": null
+        },
+        {
+            "file": "app/Jobs/Notifications/ProcessNotificationBroadcastJob.php",
+            "should_queue": true,
+            "should_be_unique": false,
+            "tries": 3,
+            "backoff": "30, 120, 300"
+        },
+        {
+            "file": "app/Jobs/Payments/ProcessPaymentWebhookJob.php",
+            "should_queue": true,
+            "should_be_unique": true,
+            "tries": 5,
+            "backoff": "10, 30, 60, 120, 300"
+        }
+    ],
+    "cache_usages": {
+        "Cache::remember": {
+            "count": 9,
+            "samples": [
+                {
+                    "file": "app/Services/Affiliate/AffiliateDashboardService.php",
+                    "line": 33,
+                    "snippet": "return Cache::remember($cacheKey, $ttl, function () use ($profile, $from, $to) {"
+                },
+                {
+                    "file": "app/Services/B2b/B2bQueryService.php",
+                    "line": 176,
+                    "snippet": "return Cache::remember($cacheKey, $this->cache->ttl(), fn () => ["
+                },
+                {
+                    "file": "app/Services/Catalog/CatalogSearchService.php",
+                    "line": 73,
+                    "snippet": "return StampedeSafeCache::remember("
+                },
+                {
+                    "file": "app/Services/Catalog/CatalogSearchSuggestionService.php",
+                    "line": 39,
+                    "snippet": "return StampedeSafeCache::remember("
+                },
+                {
+                    "file": "app/Services/Chat/ChatCacheService.php",
+                    "line": 34,
+                    "snippet": "return Cache::remember($this->conversationSummaryKey($conversation->id), $ttl, function () use ($conversation): array {"
+                },
+                {
+                    "file": "app/Services/Chat/ChatUnreadCounterService.php",
+                    "line": 26,
+                    "snippet": "return (int) Cache::remember($key, $ttl, function () use ($user): int {"
+                },
+                {
+                    "file": "app/Services/Infrastructure/PlatformHealthService.php",
+                    "line": 162,
+                    "snippet": "return Cache::remember(\"diyar:health:probe:{$name}\", $ttl, $callback);"
+                },
+                {
+                    "file": "app/Services/Settings/EffectiveConfigService.php",
+                    "line": 17,
+                    "snippet": "return Cache::remember("
+                },
+                {
+                    "file": "app/Services/Shipping/ZoneResolver.php",
+                    "line": 24,
+                    "snippet": "return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($carrierId, $address) {"
+                }
+            ]
+        },
+        "Cache::get": {
+            "count": 25,
+            "samples": [
+                {
+                    "file": "app/Console/Commands/ReconcileNotificationUnreadCountersCommand.php",
+                    "line": 50,
+                    "snippet": "$cached = Cache::get($key);"
+                },
+                {
+                    "file": "app/Services/Admin/AdminPermissionService.php",
+                    "line": 39,
+                    "snippet": "$cached = Cache::get($cacheKey);"
+                },
+                {
+                    "file": "app/Services/Affiliate/AffiliateAttributionService.php",
+                    "line": 136,
+                    "snippet": "$cached = Cache::get($this->userCacheKey($user->id, $productId));"
+                },
+                {
+                    "file": "app/Services/Affiliate/AffiliateAttributionService.php",
+                    "line": 155,
+                    "snippet": "$cached = Cache::get($this->sessionCacheKey($sessionFingerprint, $productId));"
+                },
+                {
+                    "file": "app/Services/Affiliate/AffiliateDashboardService.php",
+                    "line": 415,
+                    "snippet": "$version = (int) Cache::get(\"diyar:affiliate:cache-v:{$profileId}\", 0);"
+                },
+                {
+                    "file": "app/Services/Analytics/AnalyticsCache.php",
+                    "line": 23,
+                    "snippet": "$cached = Cache::get($key);"
+                },
+                {
+                    "file": "app/Services/Analytics/AnalyticsCache.php",
+                    "line": 33,
+                    "snippet": "$cached = Cache::get($key);"
+                },
+                {
+                    "file": "app/Services/Analytics/AnalyticsCache.php",
+                    "line": 52,
+                    "snippet": "$current = (int) Cache::get($versionKey, 0);"
+                },
+                {
+                    "file": "app/Services/Analytics/AnalyticsCache.php",
+                    "line": 83,
+                    "snippet": "return (int) Cache::get($this->versionKey($scope, $scopeId), 0);"
+                },
+                {
+                    "file": "app/Services/Chat/ChatPresenceService.php",
+                    "line": 28,
+                    "snippet": "$state = Cache::get($this->key($user->id));"
+                },
+                {
+                    "file": "app/Services/Identity/EmailOtpCacheStore.php",
+                    "line": 31,
+                    "snippet": "$value = Cache::get($this->key($email, $purpose));"
+                },
+                {
+                    "file": "app/Services/Identity/OtpCacheStore.php",
+                    "line": 31,
+                    "snippet": "$value = Cache::get($this->key($phone, $purpose));"
+                },
+                {
+                    "file": "app/Services/Infrastructure/PlatformHealthService.php",
+                    "line": 106,
+                    "snippet": "$ok = Cache::get($probeKey) === '1';"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationCircuitBreaker.php",
+                    "line": 106,
+                    "snippet": "$state = Cache::get($this->stateKey($provider), self::STATE_CLOSED);"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationCircuitBreaker.php",
+                    "line": 112,
+                    "snippet": "$openedAt = Cache::get($this->openedAtKey($provider));"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationUnreadCounterService.php",
+                    "line": 27,
+                    "snippet": "$cached = Cache::get($key);"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationUnreadCounterService.php",
+                    "line": 67,
+                    "snippet": "$current = (int) Cache::get($key, 0);"
+                },
+                {
+                    "file": "app/Services/Shipping/ShippingConfigCache.php",
+                    "line": 13,
+                    "snippet": "return max(1, (int) Cache::get(self::VERSION_KEY, 1));"
+                },
+                {
+                    "file": "app/Support/Cache/B2bCache.php",
+                    "line": 46,
+                    "snippet": "return (int) Cache::get('diyar:b2b:cache-v', 0);"
+                },
+                {
+                    "file": "app/Support/Cache/BlogProjectCache.php",
+                    "line": 73,
+                    "snippet": "return (int) Cache::get('diyar:blog:cache-v', 0);"
+                },
+                {
+                    "file": "app/Support/Cache/BlogProjectCache.php",
+                    "line": 78,
+                    "snippet": "return (int) Cache::get('diyar:projects:cache-v', 0);"
+                },
+                {
+                    "file": "app/Support/Cache/CachesQueryResults.php",
+                    "line": 136,
+                    "snippet": "$cached = Cache::get($key);"
+                },
+                {
+                    "file": "app/Support/Cache/StampedeSafeCache.php",
+                    "line": 27,
+                    "snippet": "$cached = Cache::get($key);"
+                },
+                {
+                    "file": "app/Support/Cache/StampedeSafeCache.php",
+                    "line": 37,
+                    "snippet": "$cached = Cache::get($key);"
+                },
+                {
+                    "file": "app/Support/Cache/VersionedCache.php",
+                    "line": 11,
+                    "snippet": "return (int) Cache::get($versionKey, 0);"
+                }
+            ]
+        },
+        "Cache::put": {
+            "count": 18,
+            "samples": [
+                {
+                    "file": "app/Services/Admin/AdminPermissionService.php",
+                    "line": 52,
+                    "snippet": "Cache::put($cacheKey, $keys, self::CACHE_TTL_SECONDS);"
+                },
+                {
+                    "file": "app/Services/Affiliate/AffiliateAttributionService.php",
+                    "line": 328,
+                    "snippet": "Cache::put($this->sessionCacheKey($sessionFingerprint, $productId), $payload, $ttl);"
+                },
+                {
+                    "file": "app/Services/Affiliate/AffiliateAttributionService.php",
+                    "line": 338,
+                    "snippet": "Cache::put($this->userCacheKey($userId, $productId), $payload, $ttl);"
+                },
+                {
+                    "file": "app/Services/Analytics/AnalyticsCache.php",
+                    "line": 39,
+                    "snippet": "Cache::put($key, $value, $ttlSeconds);"
+                },
+                {
+                    "file": "app/Services/Chat/ChatPresenceService.php",
+                    "line": 20,
+                    "snippet": "Cache::put($this->key($user->id), ["
+                },
+                {
+                    "file": "app/Services/Chat/ChatTypingService.php",
+                    "line": 37,
+                    "snippet": "Cache::put($this->key($conversationId, $user->id), ["
+                },
+                {
+                    "file": "app/Services/Chat/ChatTypingService.php",
+                    "line": 46,
+                    "snippet": "Cache::put("
+                },
+                {
+                    "file": "app/Services/Identity/EmailOtpCacheStore.php",
+                    "line": 23,
+                    "snippet": "Cache::put($this->key($email, $purpose), $payload, $ttlSeconds);"
+                },
+                {
+                    "file": "app/Services/Identity/OtpCacheStore.php",
+                    "line": 23,
+                    "snippet": "Cache::put($this->key($phone, $purpose), $payload, $ttlSeconds);"
+                },
+                {
+                    "file": "app/Services/Infrastructure/PlatformHealthService.php",
+                    "line": 105,
+                    "snippet": "Cache::put($probeKey, '1', 5);"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationCircuitBreaker.php",
+                    "line": 118,
+                    "snippet": "Cache::put($this->stateKey($provider), self::STATE_HALF_OPEN, $cooldown);"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationCircuitBreaker.php",
+                    "line": 130,
+                    "snippet": "Cache::put($this->stateKey($provider), self::STATE_OPEN, $cooldown * 2);"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationCircuitBreaker.php",
+                    "line": 131,
+                    "snippet": "Cache::put($this->openedAtKey($provider), now(), $cooldown * 2);"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationUnreadCounterService.php",
+                    "line": 69,
+                    "snippet": "Cache::put($key, $next, (int) config('diyar.notifications.cache.unread_ttl', 300));"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationUnreadCounterService.php",
+                    "line": 76,
+                    "snippet": "Cache::put("
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationUnreadCounterService.php",
+                    "line": 93,
+                    "snippet": "Cache::put("
+                },
+                {
+                    "file": "app/Support/Cache/CachesQueryResults.php",
+                    "line": 154,
+                    "snippet": "Cache::put($key, json_encode($value, JSON_THROW_ON_ERROR), $ttl);"
+                },
+                {
+                    "file": "app/Support/Cache/StampedeSafeCache.php",
+                    "line": 43,
+                    "snippet": "Cache::put($key, $value, $ttlSeconds);"
+                }
+            ]
+        },
+        "Cache::lock": {
+            "count": 9,
+            "samples": [
+                {
+                    "file": "app/Console/Commands/ProcessDomainOutboxCommand.php",
+                    "line": 18,
+                    "snippet": "$lock = Cache::lock('outbox:process', 55);"
+                },
+                {
+                    "file": "app/Console/Commands/ProcessScheduledBroadcastsCommand.php",
+                    "line": 19,
+                    "snippet": "$lock = Cache::lock('notifications:broadcasts:dispatch-scheduled', 55);"
+                },
+                {
+                    "file": "app/Console/Commands/ReconcileNotificationDeliveriesCommand.php",
+                    "line": 17,
+                    "snippet": "$lock = Cache::lock('notifications:reconcile-deliveries', 600);"
+                },
+                {
+                    "file": "app/Console/Commands/ReconcilePaymentsCommand.php",
+                    "line": 17,
+                    "snippet": "$lock = Cache::lock('payments:reconcile', 600);"
+                },
+                {
+                    "file": "app/Console/Commands/RecoverDomainOutboxCommand.php",
+                    "line": 17,
+                    "snippet": "$lock = Cache::lock('outbox:recover', 300);"
+                },
+                {
+                    "file": "app/Console/Commands/ReplayDomainOutboxDeadLetterCommand.php",
+                    "line": 20,
+                    "snippet": "$lock = Cache::lock('diyar:outbox:replay-dead-letter', 120);"
+                },
+                {
+                    "file": "app/Services/Analytics/AnalyticsCache.php",
+                    "line": 28,
+                    "snippet": "$lock = Cache::lock('analytics:lock:'.md5($key), 30);"
+                },
+                {
+                    "file": "app/Services/Chat/ChatLockService.php",
+                    "line": 29,
+                    "snippet": "$lock = Cache::lock($this->prefix().$name, $seconds);"
+                },
+                {
+                    "file": "app/Support/Cache/StampedeSafeCache.php",
+                    "line": 32,
+                    "snippet": "$lock = Cache::lock($lockKey ?? 'lock:'.md5($key), $lockSeconds);"
+                }
+            ]
+        },
+        "Cache::flush": {
+            "count": 0,
+            "samples": []
+        },
+        "StampedeSafeCache": {
+            "count": 2,
+            "samples": [
+                {
+                    "file": "app/Services/Catalog/CatalogSearchService.php",
+                    "line": 73,
+                    "snippet": "return StampedeSafeCache::remember("
+                },
+                {
+                    "file": "app/Services/Catalog/CatalogSearchSuggestionService.php",
+                    "line": 39,
+                    "snippet": "return StampedeSafeCache::remember("
+                }
+            ]
+        },
+        "RateLimiter": {
+            "count": 28,
+            "samples": [
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 63,
+                    "snippet": "RateLimiter::for('api', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 68,
+                    "snippet": "RateLimiter::for('catalog-search', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 75,
+                    "snippet": "RateLimiter::for('catalog-search-suggestions', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 82,
+                    "snippet": "RateLimiter::for('webhooks', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 87,
+                    "snippet": "RateLimiter::for('auth', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 92,
+                    "snippet": "RateLimiter::for('otp', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 99,
+                    "snippet": "RateLimiter::for('analytics-export', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 104,
+                    "snippet": "RateLimiter::for('wishlist-toggle', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 111,
+                    "snippet": "RateLimiter::for('b2b-leads', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 118,
+                    "snippet": "RateLimiter::for('notification-devices', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 123,
+                    "snippet": "RateLimiter::for('notification-preferences', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 128,
+                    "snippet": "RateLimiter::for('admin-broadcasts', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 133,
+                    "snippet": "RateLimiter::for('chat-messages', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 140,
+                    "snippet": "RateLimiter::for('chat-conversations', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 147,
+                    "snippet": "RateLimiter::for('chat-typing', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 154,
+                    "snippet": "RateLimiter::for('chat-attachments', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 161,
+                    "snippet": "RateLimiter::for('affiliate-click', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 168,
+                    "snippet": "RateLimiter::for('affiliate-resolve', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 175,
+                    "snippet": "RateLimiter::for('affiliate-link', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 182,
+                    "snippet": "RateLimiter::for('assistant-chat', function (Request $request) {"
+                },
+                {
+                    "file": "app/Providers/AppServiceProvider.php",
+                    "line": 251,
+                    "snippet": "RateLimiter::for($name, $unlimited);"
+                },
+                {
+                    "file": "app/Services/Identity/AuthService.php",
+                    "line": 242,
+                    "snippet": "RateLimiter::hit($this->throttleKey($key, $identifier), decaySeconds: $this->decaySeconds());"
+                },
+                {
+                    "file": "app/Services/Identity/AuthService.php",
+                    "line": 248,
+                    "snippet": "RateLimiter::clear($this->throttleKey($key, $identifier));"
+                },
+                {
+                    "file": "app/Services/Identity/AuthService.php",
+                    "line": 295,
+                    "snippet": "RateLimiter::hit($this->throttleKey($key, $identifier), decaySeconds: $this->decaySeconds());"
+                },
+                {
+                    "file": "app/Services/Identity/AuthService.php",
+                    "line": 301,
+                    "snippet": "RateLimiter::clear($this->throttleKey($key, $identifier));"
+                }
+            ]
+        },
+        "dispatch(": {
+            "count": 21,
+            "samples": [
+                {
+                    "file": "app/Console/Commands/GenerateTestNotificationsCommand.php",
+                    "line": 61,
+                    "snippet": "$dispatcher->dispatch($type, [$user], $payload, $entityType, $entityId, $dedupe);"
+                },
+                {
+                    "file": "app/Console/Commands/NotificationMailTestCommand.php",
+                    "line": 60,
+                    "snippet": "$dispatcher->dispatch("
+                },
+                {
+                    "file": "app/Console/Commands/ProcessScheduledBroadcastsCommand.php",
+                    "line": 57,
+                    "snippet": "ProcessNotificationBroadcastJob::dispatch($broadcast->id)"
+                },
+                {
+                    "file": "app/Console/Commands/RunChatArchiveCommand.php",
+                    "line": 42,
+                    "snippet": "ArchiveOldMessagesJob::dispatch($limit);"
+                },
+                {
+                    "file": "app/Http/Controllers/Api/V1/Admin/AdminNotificationController.php",
+                    "line": 97,
+                    "snippet": "DeliverNotificationChannelJob::dispatch("
+                },
+                {
+                    "file": "app/Jobs/Notifications/ProcessNotificationBroadcastJob.php",
+                    "line": 93,
+                    "snippet": "$dispatcher->dispatch("
+                },
+                {
+                    "file": "app/Jobs/Notifications/ProcessNotificationBroadcastJob.php",
+                    "line": 118,
+                    "snippet": "ProcessNotificationBroadcastJob::dispatch($broadcast->id, $lastUserId)"
+                },
+                {
+                    "file": "app/Listeners/Notifications/DispatchNotificationListener.php",
+                    "line": 28,
+                    "snippet": "$this->dispatcher->dispatch("
+                },
+                {
+                    "file": "app/Services/Admin/AdminAuditService.php",
+                    "line": 57,
+                    "snippet": "RecordAdminAuditLogJob::dispatch($payload)->afterCommit();"
+                },
+                {
+                    "file": "app/Services/Chat/ChatReportNotificationService.php",
+                    "line": 42,
+                    "snippet": "$this->dispatcher->dispatch("
+                },
+                {
+                    "file": "app/Services/Chat/ChatReportNotificationService.php",
+                    "line": 80,
+                    "snippet": "$this->dispatcher->dispatch("
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationBroadcastService.php",
+                    "line": 60,
+                    "snippet": "ProcessNotificationBroadcastJob::dispatch($broadcast->id)"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationDeliveryRecoveryService.php",
+                    "line": 35,
+                    "snippet": "public function redispatch(NotificationDelivery $delivery, array $payload = []): bool"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationDeliveryRecoveryService.php",
+                    "line": 59,
+                    "snippet": "DeliverNotificationChannelJob::dispatch($delivery->id, $payload)"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationDeliveryRecoveryService.php",
+                    "line": 111,
+                    "snippet": "$this->redispatch($claimed);"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationDeliveryRecoveryService.php",
+                    "line": 134,
+                    "snippet": "if ($this->redispatch($delivery)) {"
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationDispatcher.php",
+                    "line": 39,
+                    "snippet": "public function dispatch("
+                },
+                {
+                    "file": "app/Services/Notifications/NotificationDispatcher.php",
+                    "line": 171,
+                    "snippet": "DeliverNotificationChannelJob::dispatch($delivery->id, $payload)"
+                },
+                {
+                    "file": "app/Services/Outbox/DomainOutboxProcessor.php",
+                    "line": 33,
+                    "snippet": "DeliverNotificationChannelJob::dispatch($deliveryId, $payload)"
+                },
+                {
+                    "file": "app/Services/Payments/PaymentWebhookProcessor.php",
+                    "line": 75,
+                    "snippet": "ProcessPaymentWebhookJob::dispatch($event->id, $correlationId);"
+                },
+                {
+                    "file": "app/Services/Payments/PaymentWebhookProcessor.php",
+                    "line": 133,
+                    "snippet": "ProcessPaymentWebhookJob::dispatch($event->id, $correlationId);"
+                }
+            ]
+        }
+    },
+    "rate_limiters": {
+        "api_throttle_middleware": [
+            "assistant-chat",
+            "6,1",
+            "webhooks",
+            "catalog-search",
+            "catalog-search-suggestions",
+            "affiliate-click",
+            "affiliate-resolve",
+            "auth",
+            "otp",
+            "admin-broadcasts",
+            "30,1",
+            "20,1",
+            "10,1",
+            "notification-devices",
+            "notification-preferences",
+            "chat-conversations",
+            "chat-typing",
+            "chat-messages",
+            "chat-attachments",
+            "wishlist-toggle",
+            "b2b-leads",
+            "analytics-export",
+            "affiliate-link"
+        ]
+    },
+    "diyar_cache_config": {
+        "catalog": {
+            "search_facets_seconds": 300,
+            "search_suggestions_seconds": 45
+        },
+        "analytics": {
+            "kpi_seconds": 60,
+            "chart_seconds": 180,
+            "platform_seconds": 180,
+            "funnel_seconds": 300,
+            "cohort_seconds": 900,
+            "search_seconds": 300
+        },
+        "notifications": {
+            "prefix": "diyar:notifications:",
+            "unread_ttl": 300
+        },
+        "chat": {
+            "prefix": "diyar:chat:",
+            "unread_ttl": 300,
+            "summary_ttl": 120
+        },
+        "affiliate_dashboard_seconds": 120
+    },
+    "cache_flush_remaining": 0,
+    "overall": "PARTIAL"
+}

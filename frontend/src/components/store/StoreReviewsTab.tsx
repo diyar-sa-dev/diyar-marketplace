@@ -27,16 +27,18 @@ function formatReviewDate(iso: string | undefined, locale: Locale): string {
 function RatingOverview({
   summary,
   t,
+  dir,
 }: {
   summary: StoreReviewSummary;
   t: (key: string, vars?: Record<string, string | number>) => string;
+  dir: 'ltr' | 'rtl';
 }) {
   const hasReviews = summary.review_count > 0;
 
   return (
     <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-        <div className="text-center md:border-e md:border-gray-150 py-2">
+        <div className={`text-center py-2 ${dir === 'rtl' ? 'md:border-s md:border-gray-150' : 'md:border-e md:border-gray-150'}`}>
           <p className="text-5xl font-extrabold text-diyar-dark mb-2">
             {hasReviews ? summary.average_rating?.toFixed(1) : '—'}
           </p>
@@ -135,7 +137,7 @@ interface StoreReviewsTabProps {
 }
 
 export function StoreReviewsTab({ slug, storeName, storeLogoUrl }: StoreReviewsTabProps) {
-  const { t, locale } = useLocale();
+  const { t, locale, dir } = useLocale();
   const { page, perPage, perPageOptions, onPageChange, onPerPageChange } = usePaginationState({
     initialPerPage: 5,
   });
@@ -159,7 +161,7 @@ export function StoreReviewsTab({ slug, storeName, storeLogoUrl }: StoreReviewsT
 
   return (
     <div className="space-y-6">
-      <RatingOverview summary={summary} t={t} />
+      <RatingOverview summary={summary} t={t} dir={dir} />
 
       <div>
         <h3 className="font-bold text-lg text-diyar-dark mb-4">{t('storeReviews.title')}</h3>

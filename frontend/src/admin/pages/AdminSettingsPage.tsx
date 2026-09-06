@@ -12,6 +12,7 @@ import type { ApiSuccessResponse } from '../../types/api.ts';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
 import { AdminThemeSettingsPanel } from '../components/AdminThemeSettingsPanel.tsx';
 import { AdminMaintenanceModePanel } from '../components/AdminMaintenanceModePanel.tsx';
+import { AdminPlatformHealthPanel } from '../components/AdminPlatformHealthPanel.tsx';
 import { isMaintenanceSetting } from '../utils/maintenanceSettings.ts';
 import {
   localizedSettingGroup,
@@ -243,10 +244,13 @@ export default function AdminSettingsPage() {
       {grouped.map(([group, settings]) => (
         <section key={group} className="space-y-4">
           {group === 'platform' ? (
-            <AdminMaintenanceModePanel
-              settings={settings.filter((setting) => isMaintenanceSetting(setting.full_key))}
-              canUpdate={canUpdate}
-            />
+            <>
+              <AdminPlatformHealthPanel />
+              <AdminMaintenanceModePanel
+                settings={settings.filter((setting) => isMaintenanceSetting(setting.full_key))}
+                canUpdate={canUpdate}
+              />
+            </>
           ) : null}
 
           <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">

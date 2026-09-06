@@ -207,6 +207,24 @@ export function mergeReconciledMessages(
   return merged;
 }
 
+export function markMessageReportedByMe(
+  data: MessagesInfiniteData | undefined,
+  messageId: string,
+): MessagesInfiniteData | undefined {
+  if (!data?.pages?.length) {
+    return data;
+  }
+
+  const pages = data.pages.map((page) => ({
+    ...page,
+    messages: page.messages.map((item) =>
+      item.id === messageId ? { ...item, reported_by_me: true } : item,
+    ),
+  }));
+
+  return { ...data, pages };
+}
+
 export function upsertMessageInInfiniteData(
   data: MessagesInfiniteData | undefined,
   message: ChatMessage,

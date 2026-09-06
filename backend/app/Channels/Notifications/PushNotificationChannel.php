@@ -33,9 +33,7 @@ final class PushNotificationChannel implements NotificationChannelInterface
         NotificationDelivery $delivery,
         array $payload,
     ): void {
-        if ($this->circuitBreaker->isOpen('push')) {
-            throw new RuntimeException('Push circuit breaker is open.');
-        }
+        $this->circuitBreaker->assertAvailable('push');
 
         $devices = NotificationDevice::query()
             ->where('user_id', $recipient->id)
@@ -53,18 +51,11 @@ final class PushNotificationChannel implements NotificationChannelInterface
             if ($result->invalidDeviceIds !== []) {
                 $this->devices->deactivateByIds($recipient, $result->invalidDeviceIds);
             }
-
-            $this->circuitBreaker->recordSuccess('push');
         } catch (PushProviderException $exception) {
-            $this->circuitBreaker->recordFailure('push');
-
             if ($exception->permanent) {
                 throw new RuntimeException($exception->getMessage(), previous: $exception);
             }
 
-            throw $exception;
-        } catch (\Throwable $exception) {
-            $this->circuitBreaker->recordFailure('push');
             throw $exception;
         }
     }

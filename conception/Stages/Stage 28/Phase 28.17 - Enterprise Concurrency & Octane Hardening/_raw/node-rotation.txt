@@ -1,0 +1,7 @@
+
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+=== Node rotation check ===
+base=http://127.0.0.1:8088 requests=30
+  api-a: 15
+  api-b: 15
+RESULT: PASS (saw 2 distinct nodes)

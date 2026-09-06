@@ -31,10 +31,15 @@ type CardInput = Omit<Partial<UiProductCard>, 'id' | 'price'> & {
   reviews?: number;
   reviewsCount?: number;
   loyaltyPoints?: number;
+  loyalty_points_estimate?: number;
   tag?: string;
 };
 
-function normalizeProduct(product: CardInput, sarPerPoint = 50): UiProductCard {
+function normalizeProduct(
+  product: CardInput,
+  sarPerPoint = 50,
+  pointsPerUnit = 1,
+): UiProductCard {
   const price = Number(product.price ?? 0);
   const oldPrice = product.oldPrice ?? product.originalPrice;
   const ratingAvg = product.ratingAvg ?? product.rating ?? null;
@@ -54,7 +59,10 @@ function normalizeProduct(product: CardInput, sarPerPoint = 50): UiProductCard {
     availableQuantity: product.availableQuantity,
     ratingAvg: ratingAvg != null ? Number(ratingAvg) : null,
     reviewsCount: Number(reviewsCount),
-    loyaltyPoints: product.loyaltyPoints ?? estimateLoyaltyPoints(price, sarPerPoint),
+    loyaltyPoints:
+      product.loyalty_points_estimate ??
+      estimateLoyaltyPoints(price, sarPerPoint, pointsPerUnit),
+    loyalty_points_estimate: product.loyalty_points_estimate,
     userSaved: product.userSaved,
     isOwnStore: product.isOwnStore,
   };
@@ -64,10 +72,10 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
   product,
   layout = 'grid',
 }) => {
-  const { loyaltySarPerPoint } = usePlatformCommerce();
+  const { loyaltySarPerPoint, loyaltyPointsPerUnit, loyaltyEnabled } = usePlatformCommerce();
   const item = useMemo(
-    () => normalizeProduct(product, loyaltySarPerPoint),
-    [product, loyaltySarPerPoint],
+    () => normalizeProduct(product, loyaltySarPerPoint, loyaltyPointsPerUnit),
+    [product, loyaltySarPerPoint, loyaltyPointsPerUnit],
   );
   const { t } = useLocale();
   const { isAuthenticated } = useAuth();
@@ -97,7 +105,27 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
   const isPreorder = !item.isOwnStore && mode === 'preorder';
   const showProductRating =
     (item.ratingAvg ?? 0) > 0 && (item.reviewsCount ?? 0) > 0;
-  const showLoyalty = !item.isOwnStore && canPurchase && (item.loyaltyPoints ?? 0) > 0;
+  const displayLoyaltyPoints = useMemo(() => {
+    if (!loyaltyEnabled) {
+      return 0;
+    }
+
+    const serverEstimate = product.loyalty_points_estimate ?? item.loyalty_points_estimate;
+    if (serverEstimate != null) {
+      return serverEstimate;
+    }
+
+    return estimateLoyaltyPoints(item.price, loyaltySarPerPoint, loyaltyPointsPerUnit);
+  }, [
+    loyaltyEnabled,
+    product.loyalty_points_estimate,
+    item.loyalty_points_estimate,
+    item.price,
+    loyaltySarPerPoint,
+    loyaltyPointsPerUnit,
+  ]);
+
+  const showLoyalty = !item.isOwnStore && canPurchase && displayLoyaltyPoints > 0;
 
   const availabilityDetail = item.isOwnStore
     ? stockTone === 'limited' || (mode === 'in_stock' && availableQty > 0 && availableQty <= 5)
@@ -261,7 +289,7 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
               className="inline-flex items-center rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold text-amber-700 border border-amber-100 shrink-0"
               title={t('catalog.product.loyaltyPointsHint', { sar: loyaltySarPerPoint })}
             >
-              {t('catalog.product.loyaltyPoints', { count: item.loyaltyPoints })}
+              {t('catalog.product.loyaltyPoints', { count: displayLoyaltyPoints })}
             </span>
           )}
         </div>

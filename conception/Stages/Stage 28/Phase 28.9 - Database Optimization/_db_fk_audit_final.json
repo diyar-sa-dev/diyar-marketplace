@@ -1,0 +1,2097 @@
+{
+    "timestamp_utc": "2026-08-27T12:39:18+00:00",
+    "schema": "diyar_staging",
+    "foreign_keys": [
+        {
+            "child_table": "addresses",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "addresses_user_id_is_default_index"
+        },
+        {
+            "child_table": "admin_audit_logs",
+            "child_column": "actor_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "admin_audit_logs_actor_id_created_at_index"
+        },
+        {
+            "child_table": "affiliate_attributions",
+            "child_column": "affiliate_click_id",
+            "parent_table": "affiliate_clicks",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_attributions_affiliate_click_id_foreign"
+        },
+        {
+            "child_table": "affiliate_attributions",
+            "child_column": "affiliate_link_id",
+            "parent_table": "affiliate_links",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_attributions_affiliate_link_id_foreign"
+        },
+        {
+            "child_table": "affiliate_attributions",
+            "child_column": "affiliate_profile_id",
+            "parent_table": "affiliate_profiles",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_attributions_affiliate_profile_id_foreign"
+        },
+        {
+            "child_table": "affiliate_attributions",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_attributions_product_id_foreign"
+        },
+        {
+            "child_table": "affiliate_attributions",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_attr_user_product_exp_idx"
+        },
+        {
+            "child_table": "affiliate_clicks",
+            "child_column": "affiliate_commission_id",
+            "parent_table": "affiliate_commissions",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_clicks_affiliate_commission_id_foreign"
+        },
+        {
+            "child_table": "affiliate_clicks",
+            "child_column": "affiliate_link_id",
+            "parent_table": "affiliate_links",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_clicks_link_converted_idx"
+        },
+        {
+            "child_table": "affiliate_clicks",
+            "child_column": "affiliate_profile_id",
+            "parent_table": "affiliate_profiles",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_clicks_profile_created_idx"
+        },
+        {
+            "child_table": "affiliate_clicks",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_clicks_product_created_idx"
+        },
+        {
+            "child_table": "affiliate_commissions",
+            "child_column": "affiliate_click_id",
+            "parent_table": "affiliate_clicks",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_commissions_affiliate_click_id_foreign"
+        },
+        {
+            "child_table": "affiliate_commissions",
+            "child_column": "affiliate_link_id",
+            "parent_table": "affiliate_links",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_commissions_affiliate_link_id_foreign"
+        },
+        {
+            "child_table": "affiliate_commissions",
+            "child_column": "affiliate_payout_id",
+            "parent_table": "affiliate_payouts",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_commissions_affiliate_payout_id_foreign"
+        },
+        {
+            "child_table": "affiliate_commissions",
+            "child_column": "affiliate_profile_id",
+            "parent_table": "affiliate_profiles",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_comm_profile_source_idx"
+        },
+        {
+            "child_table": "affiliate_commissions",
+            "child_column": "order_id",
+            "parent_table": "orders",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_comm_order_idx"
+        },
+        {
+            "child_table": "affiliate_commissions",
+            "child_column": "order_item_id",
+            "parent_table": "order_items",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_comm_order_item_idx"
+        },
+        {
+            "child_table": "affiliate_commissions",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_commissions_product_id_foreign"
+        },
+        {
+            "child_table": "affiliate_commissions",
+            "child_column": "vendor_order_id",
+            "parent_table": "vendor_orders",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_commissions_vendor_order_id_foreign"
+        },
+        {
+            "child_table": "affiliate_links",
+            "child_column": "affiliate_profile_id",
+            "parent_table": "affiliate_profiles",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_links_profile_active_idx"
+        },
+        {
+            "child_table": "affiliate_links",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_links_product_active_idx"
+        },
+        {
+            "child_table": "affiliate_payouts",
+            "child_column": "affiliate_profile_id",
+            "parent_table": "affiliate_profiles",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_payouts_profile_status_idx"
+        },
+        {
+            "child_table": "affiliate_payouts",
+            "child_column": "processed_by",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_payouts_processed_by_foreign"
+        },
+        {
+            "child_table": "affiliate_profiles",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "affiliate_profiles_user_id_unique"
+        },
+        {
+            "child_table": "analytics_events",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "analytics_provider_event_time"
+        },
+        {
+            "child_table": "analytics_events",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "analytics_events_user_id_foreign"
+        },
+        {
+            "child_table": "analytics_events",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "analytics_vendor_event_time"
+        },
+        {
+            "child_table": "b2b_companies",
+            "child_column": "b2b_category_id",
+            "parent_table": "b2b_categories",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_companies_b2b_category_id_index"
+        },
+        {
+            "child_table": "b2b_companies",
+            "child_column": "owner_user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_companies_owner_user_id_index"
+        },
+        {
+            "child_table": "b2b_companies",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_companies_provider_account_id_unique"
+        },
+        {
+            "child_table": "b2b_companies",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_companies_vendor_account_id_unique"
+        },
+        {
+            "child_table": "b2b_company_portfolio_images",
+            "child_column": "b2b_company_id",
+            "parent_table": "b2b_companies",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_company_portfolio_images_b2b_company_id_sort_order_index"
+        },
+        {
+            "child_table": "b2b_company_project",
+            "child_column": "b2b_company_id",
+            "parent_table": "b2b_companies",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_company_project_b2b_company_id_sort_order_index"
+        },
+        {
+            "child_table": "b2b_company_project",
+            "child_column": "project_id",
+            "parent_table": "projects",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_company_project_project_id_foreign"
+        },
+        {
+            "child_table": "b2b_company_reviews",
+            "child_column": "b2b_company_id",
+            "parent_table": "b2b_companies",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_company_reviews_b2b_company_id_created_at_index"
+        },
+        {
+            "child_table": "b2b_company_reviews",
+            "child_column": "b2b_lead_id",
+            "parent_table": "b2b_leads",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_company_reviews_b2b_lead_id_unique"
+        },
+        {
+            "child_table": "b2b_company_reviews",
+            "child_column": "company_replied_by_user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_company_reviews_company_replied_by_user_id_foreign"
+        },
+        {
+            "child_table": "b2b_company_reviews",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_company_reviews_user_id_created_at_index"
+        },
+        {
+            "child_table": "b2b_company_services",
+            "child_column": "b2b_company_id",
+            "parent_table": "b2b_companies",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_company_services_b2b_company_id_sort_order_index"
+        },
+        {
+            "child_table": "b2b_company_tag",
+            "child_column": "b2b_company_id",
+            "parent_table": "b2b_companies",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "PRIMARY"
+        },
+        {
+            "child_table": "b2b_company_tag",
+            "child_column": "b2b_tag_id",
+            "parent_table": "b2b_tags",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_company_tag_b2b_tag_id_foreign"
+        },
+        {
+            "child_table": "b2b_company_testimonials",
+            "child_column": "b2b_company_id",
+            "parent_table": "b2b_companies",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_company_testimonials_b2b_company_id_sort_order_index"
+        },
+        {
+            "child_table": "b2b_leads",
+            "child_column": "b2b_company_id",
+            "parent_table": "b2b_companies",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_leads_b2b_company_id_created_at_index"
+        },
+        {
+            "child_table": "b2b_leads",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "b2b_leads_user_id_created_at_index"
+        },
+        {
+            "child_table": "blog_article_tag",
+            "child_column": "blog_article_id",
+            "parent_table": "blog_articles",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "PRIMARY"
+        },
+        {
+            "child_table": "blog_article_tag",
+            "child_column": "blog_tag_id",
+            "parent_table": "blog_tags",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "blog_article_tag_blog_tag_id_foreign"
+        },
+        {
+            "child_table": "blog_articles",
+            "child_column": "blog_category_id",
+            "parent_table": "blog_categories",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "blog_articles_blog_category_id_index"
+        },
+        {
+            "child_table": "blog_wishlist_items",
+            "child_column": "blog_article_id",
+            "parent_table": "blog_articles",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "blog_wishlist_items_blog_article_id_index"
+        },
+        {
+            "child_table": "blog_wishlist_items",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "blog_wishlist_items_user_id_blog_article_id_unique"
+        },
+        {
+            "child_table": "cart_items",
+            "child_column": "cart_id",
+            "parent_table": "carts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "cart_items_cart_id_index"
+        },
+        {
+            "child_table": "cart_items",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "cart_items_product_id_index"
+        },
+        {
+            "child_table": "carts",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "carts_user_id_status_index"
+        },
+        {
+            "child_table": "categories",
+            "child_column": "parent_id",
+            "parent_table": "categories",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "categories_parent_id_index"
+        },
+        {
+            "child_table": "chat_message_reports",
+            "child_column": "conversation_id",
+            "parent_table": "conversations",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "chat_message_reports_conversation_id_status_index"
+        },
+        {
+            "child_table": "chat_message_reports",
+            "child_column": "message_id",
+            "parent_table": "messages",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "chat_message_reports_message_id_reporter_id_unique"
+        },
+        {
+            "child_table": "chat_message_reports",
+            "child_column": "reporter_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "chat_message_reports_reporter_id_foreign"
+        },
+        {
+            "child_table": "chat_message_reports",
+            "child_column": "reviewed_by",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "chat_message_reports_reviewed_by_foreign"
+        },
+        {
+            "child_table": "conversation_participants",
+            "child_column": "conversation_id",
+            "parent_table": "conversations",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "conversation_participants_conversation_id_user_id_unique"
+        },
+        {
+            "child_table": "conversation_participants",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "conversation_participants_user_id_inbox_hidden_at_index"
+        },
+        {
+            "child_table": "conversations",
+            "child_column": "created_by",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "conversations_created_by_foreign"
+        },
+        {
+            "child_table": "conversations",
+            "child_column": "last_message_id",
+            "parent_table": "messages",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "conversations_last_message_id_foreign"
+        },
+        {
+            "child_table": "conversations",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "conversations_provider_account_id_foreign"
+        },
+        {
+            "child_table": "conversations",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "conversations_vendor_account_id_foreign"
+        },
+        {
+            "child_table": "financial_transactions",
+            "child_column": "created_by",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "financial_transactions_created_by_foreign"
+        },
+        {
+            "child_table": "financial_transactions",
+            "child_column": "order_id",
+            "parent_table": "orders",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "financial_transactions_order_id_index"
+        },
+        {
+            "child_table": "financial_transactions",
+            "child_column": "payment_id",
+            "parent_table": "payments",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "financial_transactions_payment_id_transaction_type_index"
+        },
+        {
+            "child_table": "financial_transactions",
+            "child_column": "payment_vendor_allocation_id",
+            "parent_table": "payment_vendor_allocations",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "financial_transactions_payment_vendor_allocation_id_foreign"
+        },
+        {
+            "child_table": "financial_transactions",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "financial_transactions_vendor_account_id_created_at_index"
+        },
+        {
+            "child_table": "financial_transactions",
+            "child_column": "vendor_payout_id",
+            "parent_table": "vendor_payouts",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "financial_transactions_vendor_payout_id_foreign"
+        },
+        {
+            "child_table": "inventory_movements",
+            "child_column": "created_by",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "inventory_movements_created_by_foreign"
+        },
+        {
+            "child_table": "inventory_movements",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "inventory_movements_product_id_created_at_index"
+        },
+        {
+            "child_table": "inventory_reservations",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "inventory_reservations_product_id_status_index"
+        },
+        {
+            "child_table": "inventory_reservations",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "inventory_reservations_user_id_status_index"
+        },
+        {
+            "child_table": "loyalty_accounts",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "loyalty_accounts_user_id_unique"
+        },
+        {
+            "child_table": "loyalty_transactions",
+            "child_column": "created_by",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "loyalty_transactions_created_by_foreign"
+        },
+        {
+            "child_table": "loyalty_transactions",
+            "child_column": "loyalty_account_id",
+            "parent_table": "loyalty_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "loyalty_transactions_loyalty_account_id_created_at_index"
+        },
+        {
+            "child_table": "loyalty_transactions",
+            "child_column": "order_id",
+            "parent_table": "orders",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "loyalty_transactions_order_id_index"
+        },
+        {
+            "child_table": "media_files",
+            "child_column": "uploaded_by",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "media_files_uploaded_by_index"
+        },
+        {
+            "child_table": "message_attachments",
+            "child_column": "message_id",
+            "parent_table": "messages",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "message_attachments_message_id_index"
+        },
+        {
+            "child_table": "messages",
+            "child_column": "conversation_id",
+            "parent_table": "conversations",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "messages_conversation_id_created_at_id_index"
+        },
+        {
+            "child_table": "messages",
+            "child_column": "reply_to_message_id",
+            "parent_table": "messages",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "messages_reply_to_message_id_foreign"
+        },
+        {
+            "child_table": "messages",
+            "child_column": "sender_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "messages_sender_id_index"
+        },
+        {
+            "child_table": "notification_broadcasts",
+            "child_column": "created_by",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "notification_broadcasts_created_by_index"
+        },
+        {
+            "child_table": "notification_deliveries",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "notification_deliveries_user_id_channel_status_index"
+        },
+        {
+            "child_table": "notification_deliveries",
+            "child_column": "user_notification_id",
+            "parent_table": "user_notifications",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "notification_deliveries_user_notification_id_foreign"
+        },
+        {
+            "child_table": "notification_devices",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "notification_devices_user_id_active_index"
+        },
+        {
+            "child_table": "order_items",
+            "child_column": "affiliate_click_id",
+            "parent_table": "affiliate_clicks",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "order_items_affiliate_click_id_foreign"
+        },
+        {
+            "child_table": "order_items",
+            "child_column": "affiliate_link_id",
+            "parent_table": "affiliate_links",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "order_items_affiliate_link_id_foreign"
+        },
+        {
+            "child_table": "order_items",
+            "child_column": "affiliate_profile_id",
+            "parent_table": "affiliate_profiles",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "order_items_affiliate_profile_id_foreign"
+        },
+        {
+            "child_table": "order_items",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "order_items_product_id_foreign"
+        },
+        {
+            "child_table": "order_items",
+            "child_column": "vendor_order_id",
+            "parent_table": "vendor_orders",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "order_items_vendor_order_id_foreign"
+        },
+        {
+            "child_table": "orders",
+            "child_column": "shipping_address_id",
+            "parent_table": "addresses",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "orders_shipping_address_id_foreign"
+        },
+        {
+            "child_table": "orders",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "orders_user_created_at_index"
+        },
+        {
+            "child_table": "payment_attempts",
+            "child_column": "payment_id",
+            "parent_table": "payments",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "payment_attempts_payment_id_idempotency_key_unique"
+        },
+        {
+            "child_table": "payment_state_transitions",
+            "child_column": "payment_id",
+            "parent_table": "payments",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "payment_state_transitions_payment_id_created_at_index"
+        },
+        {
+            "child_table": "payment_vendor_allocations",
+            "child_column": "payment_attempt_id",
+            "parent_table": "payment_attempts",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "payment_vendor_allocations_payment_attempt_id_foreign"
+        },
+        {
+            "child_table": "payment_vendor_allocations",
+            "child_column": "payment_id",
+            "parent_table": "payments",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "payment_vendor_allocations_payment_id_vendor_order_id_unique"
+        },
+        {
+            "child_table": "payment_vendor_allocations",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "payment_allocations_vendor_index"
+        },
+        {
+            "child_table": "payment_vendor_allocations",
+            "child_column": "vendor_order_id",
+            "parent_table": "vendor_orders",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "payment_vendor_allocations_vendor_order_id_foreign"
+        },
+        {
+            "child_table": "payment_webhook_events",
+            "child_column": "payment_id",
+            "parent_table": "payments",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "payment_webhook_events_payment_id_foreign"
+        },
+        {
+            "child_table": "payments",
+            "child_column": "order_id",
+            "parent_table": "orders",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "payments_order_id_unique"
+        },
+        {
+            "child_table": "product_affiliate_settings",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "product_affiliate_settings_product_id_unique"
+        },
+        {
+            "child_table": "product_colors",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "product_colors_product_id_foreign"
+        },
+        {
+            "child_table": "product_images",
+            "child_column": "media_file_id",
+            "parent_table": "media_files",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "product_images_media_file_id_foreign"
+        },
+        {
+            "child_table": "product_images",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "product_images_product_id_sort_order_index"
+        },
+        {
+            "child_table": "product_inventory",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "product_inventory_product_id_unique"
+        },
+        {
+            "child_table": "product_likes",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "product_likes_product_id_index"
+        },
+        {
+            "child_table": "product_likes",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "product_likes_user_id_product_id_unique"
+        },
+        {
+            "child_table": "product_preorder_requests",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "product_preorder_requests_product_id_foreign"
+        },
+        {
+            "child_table": "product_preorder_requests",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "preorder_user_product_idx"
+        },
+        {
+            "child_table": "product_preorder_requests",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "preorder_vendor_status_created_idx"
+        },
+        {
+            "child_table": "product_reviews",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "product_reviews_product_id_created_at_index"
+        },
+        {
+            "child_table": "product_reviews",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "product_reviews_user_id_product_id_unique"
+        },
+        {
+            "child_table": "product_reviews",
+            "child_column": "vendor_replied_by_user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "product_reviews_vendor_replied_by_user_id_foreign"
+        },
+        {
+            "child_table": "products",
+            "child_column": "category_id",
+            "parent_table": "categories",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "products_category_id_status_index"
+        },
+        {
+            "child_table": "products",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "products_vendor_account_id_slug_unique"
+        },
+        {
+            "child_table": "project_images",
+            "child_column": "project_id",
+            "parent_table": "projects",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "project_images_project_id_sort_order_index"
+        },
+        {
+            "child_table": "provider_accounts",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_accounts_user_id_unique"
+        },
+        {
+            "child_table": "provider_bank_accounts",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_bank_accounts_provider_account_id_is_active_index"
+        },
+        {
+            "child_table": "provider_follows",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_follows_provider_account_id_index"
+        },
+        {
+            "child_table": "provider_follows",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_follows_user_id_provider_account_id_unique"
+        },
+        {
+            "child_table": "provider_payouts",
+            "child_column": "processed_by",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_payouts_processed_by_foreign"
+        },
+        {
+            "child_table": "provider_payouts",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_payouts_provider_account_id_status_index"
+        },
+        {
+            "child_table": "provider_payouts",
+            "child_column": "provider_bank_account_id",
+            "parent_table": "provider_bank_accounts",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_payouts_provider_bank_account_id_foreign"
+        },
+        {
+            "child_table": "provider_reviews",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_reviews_provider_account_id_rating_index"
+        },
+        {
+            "child_table": "provider_reviews",
+            "child_column": "provider_responded_by_user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_reviews_provider_responded_by_user_id_foreign"
+        },
+        {
+            "child_table": "provider_reviews",
+            "child_column": "service_booking_id",
+            "parent_table": "service_bookings",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_reviews_service_booking_id_user_id_unique"
+        },
+        {
+            "child_table": "provider_reviews",
+            "child_column": "service_id",
+            "parent_table": "services",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_reviews_service_id_foreign"
+        },
+        {
+            "child_table": "provider_reviews",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_reviews_user_id_index"
+        },
+        {
+            "child_table": "provider_work_policies",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "provider_work_policies_provider_account_id_unique"
+        },
+        {
+            "child_table": "refunds",
+            "child_column": "order_id",
+            "parent_table": "orders",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "refunds_order_id_foreign"
+        },
+        {
+            "child_table": "refunds",
+            "child_column": "payment_id",
+            "parent_table": "payments",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "refunds_payment_id_index"
+        },
+        {
+            "child_table": "refunds",
+            "child_column": "payment_vendor_allocation_id",
+            "parent_table": "payment_vendor_allocations",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "refunds_payment_vendor_allocation_id_foreign"
+        },
+        {
+            "child_table": "refunds",
+            "child_column": "return_request_id",
+            "parent_table": "return_requests",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "refunds_return_request_id_unique"
+        },
+        {
+            "child_table": "refunds",
+            "child_column": "vendor_order_id",
+            "parent_table": "vendor_orders",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "refunds_vendor_order_id_status_index"
+        },
+        {
+            "child_table": "return_evidence",
+            "child_column": "return_request_id",
+            "parent_table": "return_requests",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "return_evidence_return_request_id_index"
+        },
+        {
+            "child_table": "return_evidence",
+            "child_column": "uploaded_by",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "return_evidence_uploaded_by_foreign"
+        },
+        {
+            "child_table": "return_items",
+            "child_column": "order_item_id",
+            "parent_table": "order_items",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "return_items_order_item_id_index"
+        },
+        {
+            "child_table": "return_items",
+            "child_column": "return_request_id",
+            "parent_table": "return_requests",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "return_items_return_request_id_order_item_id_unique"
+        },
+        {
+            "child_table": "return_requests",
+            "child_column": "order_id",
+            "parent_table": "orders",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "return_requests_order_id_index"
+        },
+        {
+            "child_table": "return_requests",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "return_requests_user_id_status_index"
+        },
+        {
+            "child_table": "return_requests",
+            "child_column": "vendor_order_id",
+            "parent_table": "vendor_orders",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "return_requests_vendor_order_id_status_index"
+        },
+        {
+            "child_table": "role_permissions",
+            "child_column": "permission_id",
+            "parent_table": "permissions",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "role_permissions_permission_id_foreign"
+        },
+        {
+            "child_table": "role_permissions",
+            "child_column": "role_id",
+            "parent_table": "roles",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "role_permissions_role_id_permission_id_unique"
+        },
+        {
+            "child_table": "service_booking_payments",
+            "child_column": "service_booking_id",
+            "parent_table": "service_bookings",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_booking_payments_service_booking_id_index"
+        },
+        {
+            "child_table": "service_bookings",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_bookings_provider_account_id_scheduled_date_status_index"
+        },
+        {
+            "child_table": "service_bookings",
+            "child_column": "service_id",
+            "parent_table": "services",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_bookings_service_id_foreign"
+        },
+        {
+            "child_table": "service_bookings",
+            "child_column": "service_offer_id",
+            "parent_table": "service_offers",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_bookings_service_offer_id_foreign"
+        },
+        {
+            "child_table": "service_bookings",
+            "child_column": "service_request_id",
+            "parent_table": "service_requests",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_bookings_service_request_id_foreign"
+        },
+        {
+            "child_table": "service_bookings",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_bookings_user_id_idempotency_key_unique"
+        },
+        {
+            "child_table": "service_offers",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_offers_provider_account_id_status_index"
+        },
+        {
+            "child_table": "service_offers",
+            "child_column": "service_request_id",
+            "parent_table": "service_requests",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_offers_service_request_id_provider_account_id_unique"
+        },
+        {
+            "child_table": "service_portfolio_items",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_portfolio_items_provider_account_id_sort_order_index"
+        },
+        {
+            "child_table": "service_portfolio_items",
+            "child_column": "service_id",
+            "parent_table": "services",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_portfolio_items_service_id_sort_order_index"
+        },
+        {
+            "child_table": "service_request_attachments",
+            "child_column": "service_request_id",
+            "parent_table": "service_requests",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_request_attachments_service_request_id_index"
+        },
+        {
+            "child_table": "service_request_attachments",
+            "child_column": "uploaded_by",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_request_attachments_uploaded_by_foreign"
+        },
+        {
+            "child_table": "service_request_category",
+            "child_column": "service_category_id",
+            "parent_table": "service_categories",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_request_category_service_category_id_foreign"
+        },
+        {
+            "child_table": "service_request_category",
+            "child_column": "service_request_id",
+            "parent_table": "service_requests",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "PRIMARY"
+        },
+        {
+            "child_table": "service_requests",
+            "child_column": "accepted_offer_id",
+            "parent_table": "service_offers",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_requests_accepted_offer_id_foreign"
+        },
+        {
+            "child_table": "service_requests",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_requests_provider_account_id_foreign"
+        },
+        {
+            "child_table": "service_requests",
+            "child_column": "service_id",
+            "parent_table": "services",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_requests_service_id_foreign"
+        },
+        {
+            "child_table": "service_requests",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_requests_user_id_status_created_at_index"
+        },
+        {
+            "child_table": "service_wishlist_items",
+            "child_column": "service_id",
+            "parent_table": "services",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_wishlist_items_service_id_index"
+        },
+        {
+            "child_table": "service_wishlist_items",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "service_wishlist_items_user_id_service_id_unique"
+        },
+        {
+            "child_table": "services",
+            "child_column": "provider_account_id",
+            "parent_table": "provider_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "services_provider_account_id_is_active_index"
+        },
+        {
+            "child_table": "services",
+            "child_column": "service_category_id",
+            "parent_table": "service_categories",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "services_service_category_id_is_active_index"
+        },
+        {
+            "child_table": "sessions",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "sessions_user_id_index"
+        },
+        {
+            "child_table": "shipments",
+            "child_column": "vendor_order_id",
+            "parent_table": "vendor_orders",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "shipments_vendor_order_id_unique"
+        },
+        {
+            "child_table": "shipping_methods",
+            "child_column": "carrier_id",
+            "parent_table": "shipping_carriers",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "shipping_methods_carrier_id_code_unique"
+        },
+        {
+            "child_table": "shipping_rate_rules",
+            "child_column": "shipping_method_id",
+            "parent_table": "shipping_methods",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "shipping_rate_rules_lookup"
+        },
+        {
+            "child_table": "shipping_rate_rules",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "shipping_rate_rules_vendor_account_id_is_active_index"
+        },
+        {
+            "child_table": "shipping_rate_rules",
+            "child_column": "zone_id",
+            "parent_table": "shipping_zones",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "shipping_rate_rules_zone_id_foreign"
+        },
+        {
+            "child_table": "shipping_zones",
+            "child_column": "carrier_id",
+            "parent_table": "shipping_carriers",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "shipping_zones_carrier_id_is_active_priority_index"
+        },
+        {
+            "child_table": "store_reviews",
+            "child_column": "order_id",
+            "parent_table": "orders",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "store_reviews_order_id_index"
+        },
+        {
+            "child_table": "store_reviews",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "store_reviews_user_id_vendor_account_id_order_id_unique"
+        },
+        {
+            "child_table": "store_reviews",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "store_reviews_vendor_account_id_created_at_index"
+        },
+        {
+            "child_table": "store_reviews",
+            "child_column": "vendor_order_id",
+            "parent_table": "vendor_orders",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "store_reviews_vendor_order_id_foreign"
+        },
+        {
+            "child_table": "store_reviews",
+            "child_column": "vendor_replied_by_user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "store_reviews_vendor_replied_by_user_id_foreign"
+        },
+        {
+            "child_table": "user_notifications",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "user_notifications_user_id_created_at_index"
+        },
+        {
+            "child_table": "user_roles",
+            "child_column": "role_id",
+            "parent_table": "roles",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "user_roles_role_id_status_index"
+        },
+        {
+            "child_table": "user_roles",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "user_roles_user_id_role_id_unique"
+        },
+        {
+            "child_table": "vendor_accounts",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_accounts_user_id_unique"
+        },
+        {
+            "child_table": "vendor_bank_accounts",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_bank_accounts_vendor_account_id_is_active_index"
+        },
+        {
+            "child_table": "vendor_coupon_exclusions",
+            "child_column": "vendor_coupon_id",
+            "parent_table": "vendor_coupons",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_coupon_exclusions_unique"
+        },
+        {
+            "child_table": "vendor_coupon_scopes",
+            "child_column": "vendor_coupon_id",
+            "parent_table": "vendor_coupons",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_coupon_scopes_unique"
+        },
+        {
+            "child_table": "vendor_coupon_usages",
+            "child_column": "order_id",
+            "parent_table": "orders",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_coupon_usages_order_id_foreign"
+        },
+        {
+            "child_table": "vendor_coupon_usages",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_coupon_usages_user_id_foreign"
+        },
+        {
+            "child_table": "vendor_coupon_usages",
+            "child_column": "vendor_coupon_id",
+            "parent_table": "vendor_coupons",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "coupon_usages_coupon_user_idx"
+        },
+        {
+            "child_table": "vendor_coupon_usages",
+            "child_column": "vendor_order_id",
+            "parent_table": "vendor_orders",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_coupon_usages_vendor_order_id_foreign"
+        },
+        {
+            "child_table": "vendor_coupons",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_coupons_vendor_account_id_code_unique"
+        },
+        {
+            "child_table": "vendor_legal_profiles",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_legal_profiles_vendor_account_id_unique"
+        },
+        {
+            "child_table": "vendor_orders",
+            "child_column": "order_id",
+            "parent_table": "orders",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_orders_order_id_foreign"
+        },
+        {
+            "child_table": "vendor_orders",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_orders_vendor_account_id_status_index"
+        },
+        {
+            "child_table": "vendor_orders",
+            "child_column": "vendor_coupon_id",
+            "parent_table": "vendor_coupons",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_orders_vendor_coupon_id_foreign"
+        },
+        {
+            "child_table": "vendor_payouts",
+            "child_column": "processed_by",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_payouts_processed_by_foreign"
+        },
+        {
+            "child_table": "vendor_payouts",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_payouts_vendor_account_id_status_index"
+        },
+        {
+            "child_table": "vendor_return_policies",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_return_policies_vendor_account_id_unique"
+        },
+        {
+            "child_table": "vendor_shipping_profiles",
+            "child_column": "shipping_method_id",
+            "parent_table": "shipping_methods",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_shipping_profiles_shipping_method_id_foreign"
+        },
+        {
+            "child_table": "vendor_shipping_profiles",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_ship_profiles_vendor_idx"
+        },
+        {
+            "child_table": "vendor_shipping_settings",
+            "child_column": "shipping_profile_id",
+            "parent_table": "vendor_shipping_profiles",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_shipping_settings_shipping_profile_id_foreign"
+        },
+        {
+            "child_table": "vendor_shipping_settings",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_shipping_settings_vendor_account_id_unique"
+        },
+        {
+            "child_table": "vendor_store_follows",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_store_follows_user_id_vendor_account_id_unique"
+        },
+        {
+            "child_table": "vendor_store_follows",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_store_follows_vendor_account_id_index"
+        },
+        {
+            "child_table": "vendor_team_members",
+            "child_column": "invited_by_user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_team_members_invited_by_user_id_foreign"
+        },
+        {
+            "child_table": "vendor_team_members",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_team_members_user_id_status_index"
+        },
+        {
+            "child_table": "vendor_team_members",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_team_members_vendor_account_id_email_unique"
+        },
+        {
+            "child_table": "vendor_working_hours",
+            "child_column": "vendor_account_id",
+            "parent_table": "vendor_accounts",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "vendor_working_hours_vendor_account_id_day_unique"
+        },
+        {
+            "child_table": "wishlist_items",
+            "child_column": "product_id",
+            "parent_table": "products",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "wishlist_items_product_id_index"
+        },
+        {
+            "child_table": "wishlist_items",
+            "child_column": "user_id",
+            "parent_table": "users",
+            "parent_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "NO ACTION",
+            "child_indexed": true,
+            "covering_index": "wishlist_items_user_id_product_id_unique"
+        }
+    ],
+    "unindexed_foreign_keys": []
+}
