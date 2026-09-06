@@ -25,6 +25,7 @@ import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
 import { ServiceTypeBadge } from '../components/services/ServiceTypeBadge.tsx';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useLocale } from '../hooks/useLocale.ts';
+import { usePageSeo } from '../hooks/usePageSeo.ts';
 import { useToast } from '../hooks/useToast.ts';
 import { useRelatedServices, useService } from '../hooks/services/useServices.ts';
 import { SERVICE_IMAGE_FALLBACK } from '../lib/services/serviceUi.ts';
@@ -85,6 +86,19 @@ export default function ServicePage() {
 
   const { data: service, isLoading, isError } = useService(id);
   const { data: relatedServices = [] } = useRelatedServices(id);
+  const seo = useMemo(() => {
+    if (!service) {
+      return null;
+    }
+
+    return {
+      title: t('seo.serviceTitle', { name: service.title }),
+      description: t('seo.serviceDescription', { name: service.title }),
+      image: service.image_url ? resolveMediaUrl(service.image_url) : undefined,
+      canonicalPath: `/service/${service.slug ?? id}`,
+    };
+  }, [service, id, t]);
+  usePageSeo(seo);
   const wishlist = useServiceWishlistMutation(id);
   const { startProviderChat, isStarting: isStartingChat } = useStartChat();
 

@@ -29,6 +29,24 @@ export const en = {
     title: 'Marketplace under maintenance',
     description: 'We are improving your experience. We will be back soon.',
   },
+  seo: {
+    homeTitle: 'DIYAR — Furniture & Services Marketplace',
+    homeDescription:
+      'Shop furniture, book design and installation services, and discover trusted stores on DIYAR — Saudi Arabia\'s home marketplace.',
+    productTitle: '{{name}} | DIYAR',
+    productDescription: 'Buy {{name}} on DIYAR. Trusted furniture marketplace with secure checkout and fast delivery.',
+    categoryTitle: '{{name}} | DIYAR Marketplace',
+    categoryDescription: 'Browse {{name}} on DIYAR — curated furniture and home services from trusted sellers.',
+    storeTitle: '{{name}} | DIYAR Store',
+    storeDescription: 'Shop {{name}} on DIYAR. Discover products, reviews, and offers from this trusted store.',
+    searchTitle: 'Search: {{query}} | DIYAR',
+    searchDescription: 'Search results for "{{query}}" on DIYAR marketplace.',
+    searchEmptyTitle: 'Search | DIYAR Marketplace',
+    blogTitle: '{{title}} | DIYAR Blog',
+    blogDescription: '{{excerpt}}',
+    serviceTitle: '{{name}} | DIYAR Services',
+    serviceDescription: 'Book {{name}} on DIYAR — trusted home and design services in Saudi Arabia.',
+  },
   share: {
     platforms: {
       whatsapp: 'WhatsApp',

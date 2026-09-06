@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { OptimizedPicture } from '../common/OptimizedPicture.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
 
 const SLIDE_CONFIG = [
@@ -81,9 +82,14 @@ export default function Hero() {
             }`}
             aria-hidden={i !== current}
           >
-            <img
+            <OptimizedPicture
               src={slide.img}
               alt=""
+              width={1920}
+              height={1080}
+              decoding="async"
+              fetchPriority={i === 0 ? 'high' : 'auto'}
+              loading={i === 0 ? 'eager' : 'lazy'}
               referrerPolicy="no-referrer"
               className="absolute inset-0 w-full h-full object-cover scale-105 animate-[heroKenBurns_18s_ease-in-out_infinite_alternate]"
               onError={(e) => {

@@ -8,6 +8,22 @@ export function PageRouteFallback() {
   );
 }
 
-export function LazyRoute({ children }: { children: ReactNode }) {
-  return <Suspense fallback={<PageRouteFallback />}>{children}</Suspense>;
+/** Matches Hero min-height so the home route does not jump while HomePage chunk loads. */
+export function HomeRouteFallback() {
+  return (
+    <div
+      className="h-[min(88vh,720px)] md:h-[calc(100vh-48px)] w-full rounded-b-3xl md:rounded-b-4xl animate-pulse bg-gray-50"
+      aria-hidden
+    />
+  );
+}
+
+export function LazyRoute({
+  children,
+  fallback,
+}: {
+  children: ReactNode;
+  fallback?: ReactNode;
+}) {
+  return <Suspense fallback={fallback ?? <PageRouteFallback />}>{children}</Suspense>;
 }

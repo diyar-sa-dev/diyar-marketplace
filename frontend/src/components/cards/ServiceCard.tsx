@@ -199,6 +199,10 @@ const ServiceCard: React.FC<{
             <img
               src={imageUrl}
               alt={title}
+              width={400}
+              height={300}
+              decoding="async"
+              loading="lazy"
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
               onError={(e) => {
@@ -263,6 +267,10 @@ const ServiceCard: React.FC<{
           <img
             src={imageUrl}
             alt={title}
+            width={400}
+            height={300}
+            decoding="async"
+            loading="lazy"
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
             onError={(e) => {

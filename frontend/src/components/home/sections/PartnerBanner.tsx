@@ -20,6 +20,7 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
+import { OptimizedPicture } from '../../common/OptimizedPicture.tsx';
 import { RailArrows } from './RailArrows.tsx';
 import {
   Star,
@@ -185,11 +186,15 @@ export function PartnerBanner() {
                 <span>{t('home.partners.dashboardDemo')}</span>
               </button>
             </div>
-            <div className="w-full sm:w-[40%] flex justify-center opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
-              <img
+            <div className="w-full sm:w-[40%] flex justify-center opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 aspect-[4/3] max-w-56">
+              <OptimizedPicture
                 src="/laptop.png"
                 alt="لوحة تحكم"
-                className="w-40 md:w-56 object-contain drop-shadow-md"
+                width={224}
+                height={168}
+                decoding="async"
+                loading="lazy"
+                className="w-40 md:w-56 h-full object-contain drop-shadow-md"
               />
             </div>
           </div>

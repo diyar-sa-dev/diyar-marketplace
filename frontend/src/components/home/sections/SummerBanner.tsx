@@ -20,6 +20,7 @@ import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
+import { OptimizedPicture } from '../../common/OptimizedPicture.tsx';
 import { RailArrows } from './RailArrows.tsx';
 import {
   Star,
@@ -55,11 +56,15 @@ import {
 export function SummerBanner() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 md:py-8">
-      <div className="rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group">
-        <img
+      <div className="rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group aspect-[21/9]">
+        <OptimizedPicture
           src="/بنر عروض الصيف.png"
           alt="عروض الصيف"
-          className="w-full h-auto object-cover group-hover:scale-[1.02] transition-transform duration-700"
+          width={1680}
+          height={720}
+          decoding="async"
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700"
         />
       </div>
     </div>

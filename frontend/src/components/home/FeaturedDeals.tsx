@@ -32,17 +32,22 @@ export default function FeaturedDeals() {
       <div className="flex justify-between items-center mb-6 md:mb-8">
         <h2 className="text-2xl md:text-3xl font-sans font-bold">{t('home.featuredDeals.title')}</h2>
         <div className="flex items-center gap-3">
-          {showCountdown && countdown && (
-            <div
-              className="text-sm md:text-xl font-bold bg-diyar-cream p-2 md:p-3 rounded-lg text-diyar-brown tabular-nums"
-              dir={countdown.isClock ? 'ltr' : undefined}
-              aria-live="polite"
-              aria-label={t('home.featuredDeals.countdownLabel')}
-              title={t('home.featuredDeals.countdownHint')}
-            >
-              {countdown.label}
-            </div>
-          )}
+          <div
+            className="min-w-[7.5rem] md:min-w-[10rem] min-h-[2.5rem] md:min-h-[3.25rem] flex items-center justify-end"
+            aria-hidden={!showCountdown}
+          >
+            {showCountdown && countdown && (
+              <div
+                className="text-sm md:text-xl font-bold bg-diyar-cream p-2 md:p-3 rounded-lg text-diyar-brown tabular-nums"
+                dir={countdown.isClock ? 'ltr' : undefined}
+                aria-live="polite"
+                aria-label={t('home.featuredDeals.countdownLabel')}
+                title={t('home.featuredDeals.countdownHint')}
+              >
+                {countdown.label}
+              </div>
+            )}
+          </div>
           <Link
             to="/category/all?discounted=1&sort=-discount"
             className="hidden sm:inline-flex text-diyar-brown text-sm font-bold hover:text-diyar-dark transition cursor-pointer"

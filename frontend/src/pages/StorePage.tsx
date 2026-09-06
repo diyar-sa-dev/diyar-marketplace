@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import {
   MapPin,
@@ -33,6 +33,7 @@ import { StoreReviewsTab } from '../components/store/StoreReviewsTab.tsx';
 import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
 import { StarRating } from '../components/product/StarRating.tsx';
 import { useLocale } from '../hooks/useLocale.ts';
+import { usePageSeo } from '../hooks/usePageSeo.ts';
 import { usePaginationState } from '../hooks/usePaginationState.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useStoreFollow } from '../hooks/store/useStoreFollow.ts';
@@ -66,6 +67,20 @@ export default function StorePage() {
     error: vendorErr,
     refetch: refetchVendor,
   } = useVendor(slug);
+
+  const seo = useMemo(() => {
+    if (!vendor) {
+      return null;
+    }
+
+    return {
+      title: t('seo.storeTitle', { name: vendor.store_name }),
+      description: t('seo.storeDescription', { name: vendor.store_name }),
+      image: resolveMediaUrl(vendor.logo_url) ?? undefined,
+      canonicalPath: `/store/${slug}`,
+    };
+  }, [vendor, slug, t]);
+  usePageSeo(seo);
 
   const vendorUnavailable = isNotFoundError(vendorErr);
 

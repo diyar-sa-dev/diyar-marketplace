@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Smartphone, Scan, Box } from 'lucide-react';
+import { OptimizedPicture } from '../../common/OptimizedPicture.tsx';
 import { useLocale } from '../../../hooks/useLocale.ts';
 
 /** Avoid `/app*.png` — Vite Reverb proxy prefix is `/app/`. */
@@ -124,7 +125,7 @@ export function AppPromo() {
             className={`w-full md:w-[48%] lg:w-[46%] flex items-end justify-center px-6 pb-4 md:px-4 md:pb-0 md:pt-8 overflow-visible shrink-0 ${phonePlacement}`}
           >
             <div className="translate-y-5 md:translate-y-7 lg:translate-y-9 transition-transform duration-500 ease-out hover:scale-[1.03] md:hover:scale-105 lg:hover:scale-[1.06] will-change-transform origin-bottom">
-              <img
+              <OptimizedPicture
                 src={mockupSrc}
                 alt={t('home.appPromo.mockupAlt')}
                 width={400}

@@ -28,6 +28,7 @@ export function AnnouncementBar() {
   const { t, locale } = useLocale();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+  const [isClosing, setIsClosing] = useState(false);
 
   const { data: customAnnouncement } = useQuery({
     queryKey: ['platform-announcement', locale],
@@ -95,15 +96,13 @@ export function AnnouncementBar() {
   }, [customAnnouncement?.enabled, customAnnouncement?.text]);
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible || isClosing) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % announcements.length);
     }, 6000);
 
     return () => clearInterval(interval);
-  }, [isVisible, announcements.length]);
-
-  if (!isVisible) return null;
+  }, [isVisible, isClosing, announcements.length]);
 
   const current = announcements[currentIndex] ?? announcements[0];
 
@@ -120,7 +119,17 @@ export function AnnouncementBar() {
   return (
     <div
       id="top-announcement-bar"
-      className="w-full bg-linear-to-r from-[#132624] via-[#1a3330] to-[#132624] text-diyar-cream border-b border-[#2a4a44] text-xs font-medium py-2.5 relative overflow-hidden"
+      className={`w-full bg-linear-to-r from-[#132624] via-[#1a3330] to-[#132624] text-diyar-cream border-b border-[#2a4a44] text-xs font-medium relative overflow-hidden transition-[max-height,opacity,padding] duration-300 ease-out ${
+        isVisible && !isClosing
+          ? 'max-h-16 opacity-100 py-2.5'
+          : 'max-h-0 opacity-0 py-0 border-transparent pointer-events-none'
+      }`}
+      aria-hidden={!isVisible || isClosing}
+      onTransitionEnd={() => {
+        if (isClosing) {
+          setIsVisible(false);
+        }
+      }}
     >
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff06_1px,transparent_1px),linear-gradient(to_bottom,#ffffff06_1px,transparent_1px)] bg-size-[24px_24px] pointer-events-none" />
 
@@ -177,7 +186,7 @@ export function AnnouncementBar() {
           </button>
 
           <button
-            onClick={() => setIsVisible(false)}
+            onClick={() => setIsClosing(true)}
             className="text-white/50 hover:text-diyar-cream hover:bg-white/10 p-1.5 rounded-full transition-all cursor-pointer shrink-0"
             title={t('home.announcements.close')}
             aria-label={t('home.announcements.close')}

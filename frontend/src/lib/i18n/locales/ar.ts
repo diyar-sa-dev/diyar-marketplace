@@ -29,6 +29,24 @@ export const ar = {
     title: 'المنصة قيد الصيانة',
     description: 'نعمل على تحسين تجربتكم. سنعود قريباً.',
   },
+  seo: {
+    homeTitle: 'ديار — سوق الأثاث والخدمات',
+    homeDescription:
+      'تسوق الأثاث، احجز خدمات التصميم والتركيب، واكتشف متاجر موثوقة على منصة ديار في المملكة.',
+    productTitle: '{{name}} | ديار',
+    productDescription: 'اشتري {{name}} من ديار. منصة أثاث موثوقة مع دفع آمن وتوصيل سريع.',
+    categoryTitle: '{{name}} | ديار',
+    categoryDescription: 'تصفح {{name}} على ديار — أثاث وخدمات منزلية من بائعين موثوقين.',
+    storeTitle: '{{name}} | متجر ديار',
+    storeDescription: 'تسوق من {{name}} على ديار. اكتشف المنتجات والعروض والتقييمات.',
+    searchTitle: 'بحث: {{query}} | ديار',
+    searchDescription: 'نتائج البحث عن «{{query}}» في منصة ديار.',
+    searchEmptyTitle: 'البحث | ديار',
+    blogTitle: '{{title}} | مدونة ديار',
+    blogDescription: '{{excerpt}}',
+    serviceTitle: '{{name}} | خدمات ديار',
+    serviceDescription: 'احجز {{name}} عبر ديار — خدمات تصميم وصيانة موثوقة في المملكة.',
+  },
   share: {
     platforms: {
       whatsapp: 'واتساب',

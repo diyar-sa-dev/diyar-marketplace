@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "dev:prod-api": "vite --mode prod-api --port=3000 --host=0.0.0.0",
-    "build": "vite build",
+    "build": "npm run optimize:images && vite build",
+    "optimize:images": "node scripts/optimize-public-images.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/{api,lib,utils,hooks,types,admin,components/common,components/routes,components/coupon,components/services,components/checkout,routes,test}/**/*.{ts,tsx}\" \"src/pages/dashboard/VendorCoupons.tsx\" --max-warnings 0",
@@ -20,6 +21,10 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@fontsource/alexandria": "^5.2.5",
+    "@fontsource/inter": "^5.2.5",
+    "@fontsource/outfit": "^5.2.5",
+    "@fontsource/tajawal": "^5.2.5",
     "@tanstack/react-query": "^5.101.4",
     "axios": "^1.19.0",
     "laravel-echo": "^2.4.0",
@@ -48,6 +53,7 @@
     "globals": "^17.11.0",
     "jsdom": "^27.0.1",
     "prettier": "^3.9.6",
+    "sharp": "^0.34.3",
     "tailwindcss": "^4.1.14",
     "typescript": "~5.8.2",
     "typescript-eslint": "^8.67.0",

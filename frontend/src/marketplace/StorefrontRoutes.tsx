@@ -5,7 +5,7 @@ import { CustomerProfileRoute } from '../components/routes/CustomerProfileRoute.
 import { GuestRoute } from '../components/routes/GuestRoute.tsx';
 import { AccountStatusRoute } from '../components/routes/AccountStatusRoute.tsx';
 import { MarketplaceCommerceRoute } from '../components/routing/MarketplaceCommerceRoute.tsx';
-import { LazyRoute, PageRouteFallback } from './LazyRoute.tsx';
+import { LazyRoute, HomeRouteFallback, PageRouteFallback } from './LazyRoute.tsx';
 import {
   AIDesignerPage,
   AddressesPage,
@@ -63,7 +63,7 @@ function ServiceBookingCanonicalRedirect() {
 export default function StorefrontRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<LazyRoute><HomePage /></LazyRoute>} />
+      <Route path="/" element={<LazyRoute fallback={<HomeRouteFallback />}><HomePage /></LazyRoute>} />
       <Route path="/team-invite" element={<ProtectedRoute><LazyRoute><TeamInvitePage /></LazyRoute></ProtectedRoute>} />
       <Route path="/auth" element={<GuestRoute><LazyRoute><AuthPage /></LazyRoute></GuestRoute>} />
       <Route path="/account/pending" element={<AccountStatusRoute allowed="pending"><LazyRoute><PendingAccountPage /></LazyRoute></AccountStatusRoute>} />

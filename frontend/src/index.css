@@ -1,4 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&family=Cairo:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+@import '@fontsource/alexandria/400.css';
+@import '@fontsource/alexandria/500.css';
+@import '@fontsource/alexandria/600.css';
+@import '@fontsource/alexandria/700.css';
+@import '@fontsource/outfit/400.css';
+@import '@fontsource/outfit/500.css';
+@import '@fontsource/outfit/600.css';
+@import '@fontsource/outfit/700.css';
+@import '@fontsource/tajawal/400.css';
+@import '@fontsource/tajawal/500.css';
+@import '@fontsource/tajawal/700.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
 @import 'tailwindcss';
 
 @theme {
@@ -27,6 +40,7 @@
   }
   body {
     -webkit-tap-highlight-color: transparent;
+    font-family: var(--diyar-theme-font, 'Alexandria', 'Outfit', 'Tajawal', system-ui, sans-serif);
   }
 }
 
