@@ -18,10 +18,10 @@ applyLandingSeo(getLandingCatalog(bootLocale), bootLocale);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <LandingLocaleProvider initialLocale={bootLocale}>
-      <BrowserRouter>
+    <BrowserRouter>
+      <LandingLocaleProvider>
         <LandingApp />
-      </BrowserRouter>
-    </LandingLocaleProvider>
+      </LandingLocaleProvider>
+    </BrowserRouter>
   </StrictMode>,
 );
