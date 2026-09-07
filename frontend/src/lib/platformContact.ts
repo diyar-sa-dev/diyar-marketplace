@@ -1,5 +1,5 @@
 const DEFAULT_PHONE = '+966500000000';
-const DEFAULT_EMAIL = 'support@diyar.com';
+const DEFAULT_EMAIL = 'support@deyarhome.com';
 const DEFAULT_HOURS = '9:00 - 18:00';
 
 export function getPlatformSupportPhone(): string {

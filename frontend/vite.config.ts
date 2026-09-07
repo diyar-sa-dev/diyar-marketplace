@@ -33,10 +33,10 @@ function reverbProxyOptions(target: string) {
 
 function seoStaticFilesPlugin(mode: string): Plugin {
   const env = loadEnv(mode, frontendRoot, '');
-  const siteUrl = (env.VITE_SITE_URL ?? 'https://diyar.com').replace(/\/$/, '');
+  const siteUrl = (env.VITE_SITE_URL ?? 'https://deyarhome.com').replace(/\/$/, '');
   const landingMode = env.VITE_LANDING_MODE === 'true';
   const paths = landingMode
-    ? ['/', '/en', '/fr']
+    ? ['/', '/en']
     : ['/', '/category/all', '/services', '/blog', '/b2b', '/loyalty'];
 
   return {

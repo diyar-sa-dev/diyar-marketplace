@@ -1,6 +1,6 @@
-export type LandingLocale = 'ar' | 'en' | 'fr';
+export type LandingLocale = 'ar' | 'en';
 
-export const LANDING_LOCALES: LandingLocale[] = ['ar', 'en', 'fr'];
+export const LANDING_LOCALES: LandingLocale[] = ['ar', 'en'];
 
 export const DEFAULT_LANDING_LOCALE: LandingLocale = 'ar';
 
@@ -39,6 +39,7 @@ export type LandingMessages = {
     primaryCta: string;
     secondaryCta: string;
     imageAlt: string;
+    accentAlt: string;
   };
   intro: {
     title: string;
@@ -94,6 +95,5 @@ export type LandingMessages = {
     label: string;
     ar: string;
     en: string;
-    fr: string;
   };
 };

@@ -27,6 +27,7 @@ export const landingEn: LandingMessages = {
     primaryCta: 'Explore DIYAR',
     secondaryCta: 'Contact us',
     imageAlt: 'Preview of the DIYAR experience on mobile',
+    accentAlt: 'Home and design services on DIYAR',
   },
   intro: {
     title: 'What is DIYAR?',
@@ -53,7 +54,7 @@ export const landingEn: LandingMessages = {
       'Request services or compare offers',
       'Choose the provider that fits your need',
       'Follow bookings in a clear lifecycle',
-      'Localized experience in Arabic, English, and French',
+      'Localized experience in Arabic and English',
     ],
   },
   providers: {
@@ -106,6 +107,5 @@ export const landingEn: LandingMessages = {
     label: 'Language',
     ar: 'العربية',
     en: 'English',
-    fr: 'Français',
   },
 };

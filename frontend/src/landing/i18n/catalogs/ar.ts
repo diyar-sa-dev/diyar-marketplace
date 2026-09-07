@@ -27,6 +27,7 @@ export const landingAr: LandingMessages = {
     primaryCta: 'تعرّف على ديار',
     secondaryCta: 'تواصل معنا',
     imageAlt: 'معاينة تجربة ديار على الهاتف',
+    accentAlt: 'خدمات منزلية وتصميم داخلي على ديار',
   },
   intro: {
     title: 'ما هي ديار؟',
@@ -53,7 +54,7 @@ export const landingAr: LandingMessages = {
       'طلب خدمة أو مقارنة عروض',
       'اختيار مقدم يناسب احتياجك',
       'متابعة الحجز في مسار واضح',
-      'تجربة محلية بالعربية والإنجليزية والفرنسية',
+      'تجربة محلية بالعربية والإنجليزية',
     ],
   },
   providers: {
@@ -106,6 +107,5 @@ export const landingAr: LandingMessages = {
     label: 'اللغة',
     ar: 'العربية',
     en: 'English',
-    fr: 'Français',
   },
 };
