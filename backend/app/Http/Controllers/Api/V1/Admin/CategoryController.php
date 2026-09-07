@@ -96,6 +96,51 @@ class CategoryController extends Controller
         return ApiResponse::success();
     }
 
+    public function uploadImage(Request $request, string $category): JsonResponse
+    {
+        $model = Category::query()->find($category);
+        if ($model === null) {
+            throw new NotFoundHttpException(__('diyar.catalog.category_not_found'));
+        }
+
+        $this->authorize('update', $model);
+
+        $maxKb = (int) config('diyar_media.max_upload_kb', 5120);
+        $validated = $request->validate([
+            'image' => ['required', 'file', 'max:'.$maxKb, 'mimes:jpg,jpeg,png,webp'],
+        ]);
+
+        try {
+            $updated = $this->adminCategories->uploadImage(
+                $model,
+                $validated['image'],
+                $this->adminActor($request),
+            );
+        } catch (\InvalidArgumentException $exception) {
+            return ApiResponse::error($exception->getMessage(), 422);
+        }
+
+        return ApiResponse::success(data: [
+            'category' => new CategoryResource($updated),
+        ]);
+    }
+
+    public function deleteImage(Request $request, string $category): JsonResponse
+    {
+        $model = Category::query()->find($category);
+        if ($model === null) {
+            throw new NotFoundHttpException(__('diyar.catalog.category_not_found'));
+        }
+
+        $this->authorize('update', $model);
+
+        $updated = $this->adminCategories->deleteImage($model, $this->adminActor($request));
+
+        return ApiResponse::success(data: [
+            'category' => new CategoryResource($updated),
+        ]);
+    }
+
     private function adminActor(Request $request): User
     {
         /** @var User $admin */

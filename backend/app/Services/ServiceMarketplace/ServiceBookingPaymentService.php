@@ -15,6 +15,10 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 final class ServiceBookingPaymentService
 {
+    public function __construct(
+        private readonly ServiceBookingService $bookings,
+    ) {}
+
     /**
      * @return array{payment: ServiceBookingPayment, booking: ServiceBooking}
      */
@@ -24,9 +28,8 @@ final class ServiceBookingPaymentService
             throw new AccessDeniedHttpException(__('diyar.auth.forbidden'));
         }
 
-        if ($booking->status !== ServiceBookingStatus::PendingPayment) {
-            throw new InvalidArgumentException(__('diyar.services.payments.not_payable'));
-        }
+        $freshBooking = $booking->fresh(['payment', 'providerAccount']);
+        $this->bookings->assertPayable($freshBooking);
 
         $payment = $booking->payment()->firstOrCreate(
             ['service_booking_id' => $booking->id],
@@ -38,9 +41,17 @@ final class ServiceBookingPaymentService
             ],
         );
 
+        if ($payment->status === ServiceBookingPaymentStatus::Failed) {
+            $payment->update([
+                'status' => ServiceBookingPaymentStatus::Pending,
+                'failed_at' => null,
+                'failure_reason' => null,
+            ]);
+        }
+
         return [
             'payment' => $payment->fresh(),
-            'booking' => $booking->fresh(['payment', 'providerAccount']),
+            'booking' => $freshBooking->fresh(['payment', 'providerAccount']),
         ];
     }
 
@@ -48,6 +59,14 @@ final class ServiceBookingPaymentService
     {
         if ($booking->user_id !== $user->id) {
             throw new AccessDeniedHttpException(__('diyar.auth.forbidden'));
+        }
+
+        $current = $booking->fresh(['payment', 'providerAccount', 'serviceRequest']);
+
+        if (! ($outcome === 'paid'
+            && $current->status === ServiceBookingStatus::Confirmed
+            && $current->payment?->status === ServiceBookingPaymentStatus::Paid)) {
+            $this->bookings->assertPayable($current);
         }
 
         return DB::transaction(function () use ($user, $booking, $outcome) {

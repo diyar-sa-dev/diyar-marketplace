@@ -25,9 +25,15 @@ class AdminSystemSettingController extends Controller
     {
         /** @var array<string, array<string, mixed>> $definitions */
         $definitions = config('system_settings.definitions', []);
+        /** @var list<string> $excluded */
+        $excluded = config('system_settings.admin_ui_excluded_full_keys', []);
+        $excludedSet = array_fill_keys($excluded, true);
         $items = [];
 
         foreach ($definitions as $fullKey => $definition) {
+            if (isset($excludedSet[$fullKey])) {
+                continue;
+            }
             $group = SystemSettingGroup::from((string) $definition['group']);
             $key = (string) $definition['key'];
             $type = SystemSettingType::from((string) $definition['type']);

@@ -17,6 +17,11 @@ export const ARABIC_FONT_OPTIONS: SettingFontOption[] = [
     value: 'IBM Plex Sans Arabic, Tajawal, sans-serif',
     labelKey: 'admin.settings.fonts.arIbmPlexTajawal',
   },
+  {
+    value: 'Noto Sans Arabic, Tajawal, sans-serif',
+    labelKey: 'admin.settings.fonts.arNotoSansTajawal',
+  },
+  { value: 'Almarai, Tajawal, sans-serif', labelKey: 'admin.settings.fonts.arAlmaraiTajawal' },
 ];
 
 export const ENGLISH_FONT_OPTIONS: SettingFontOption[] = [

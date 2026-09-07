@@ -57,17 +57,27 @@ function seoStaticFilesPlugin(): Plugin {
 function deliveryPreconnectPlugin(): Plugin {
   return {
     name: 'diyar-delivery-preconnect',
-    transformIndexHtml(html) {
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
       const backendOrigin = process.env.VITE_BACKEND_URL?.replace(/\/$/, '') ?? '';
       const preconnect = backendOrigin
         ? `<link rel="preconnect" href="${backendOrigin}" crossorigin />\n    <link rel="dns-prefetch" href="${backendOrigin}" />`
         : '';
-      const lcpPreload =
-        '<link rel="preload" as="image" href="/hero_1.webp" type="image/webp" fetchpriority="high" imagesizes="100vw" />';
+      let chunkPreload = '';
+      if (ctx.bundle) {
+        const localeFile = Object.keys(ctx.bundle).find((file) => file.includes('vendor-locale'));
+        if (localeFile) {
+          const base = cdnBase ? `${cdnBase}/` : '/';
+          chunkPreload = `<link rel="modulepreload" href="${base}${localeFile}" crossorigin />`;
+        }
+      }
 
       return html
         .replace('<!-- diyar-preconnect -->', preconnect)
-        .replace('<!-- diyar-lcp-preload -->', lcpPreload);
+        .replace('<!-- diyar-lcp-preload -->', '')
+        .replace('<!-- diyar-chunk-preload -->', chunkPreload);
+      },
     },
   };
 }

@@ -2,9 +2,11 @@
 FROM php:8.3-fpm-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git unzip libzip-dev libicu-dev \
+    git unzip libzip-dev libicu-dev libpng-dev libjpeg62-turbo-dev libwebp-dev ghostscript \
+    && docker-php-ext-configure gd --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
         bcmath \
+        gd \
         intl \
         pcntl \
         pdo_mysql \

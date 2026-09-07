@@ -42,3 +42,8 @@ export async function ensureLocaleCatalog(locale: Locale): Promise<LocaleCatalog
 export async function preloadLocaleCatalogs(locales: readonly Locale[]): Promise<void> {
   await Promise.all(locales.map((locale) => ensureLocaleCatalog(locale)));
 }
+
+/** Start fetching the default locale catalog as early as possible. */
+export function kickstartLocaleCatalog(locale: Locale): void {
+  void ensureLocaleCatalog(locale);
+}

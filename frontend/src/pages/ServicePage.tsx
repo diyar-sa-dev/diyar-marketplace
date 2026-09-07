@@ -307,6 +307,7 @@ export default function ServicePage() {
                 name={provider?.display_name}
                 avatarUrl={providerAvatarUrl}
                 shape="square"
+                variant="storefront"
                 className="w-full h-full text-xl md:text-2xl"
               />
             </Link>

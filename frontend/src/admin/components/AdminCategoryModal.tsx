@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Loader2, X } from 'lucide-react';
+import { AdminCategoryImageField } from './AdminCategoryImageField.tsx';
 import { useLocale } from '../../hooks/useLocale.ts';
 
 export type CategoryFormValues = {
@@ -12,12 +14,15 @@ export type CategoryFormValues = {
 type AdminCategoryModalProps = {
   open: boolean;
   mode: 'create' | 'edit';
+  categoryId?: string;
   initial?: CategoryFormValues;
+  initialImageUrl?: string | null;
   existingSlugs: string[];
   currentSlug?: string;
   isSaving: boolean;
   onClose: () => void;
-  onSubmit: (values: CategoryFormValues) => void;
+  onSubmit: (values: CategoryFormValues, pendingImage: File | null) => void;
+  onImageUrlChange?: (url: string | null) => void;
 };
 
 function slugifyName(name: string): string {
@@ -41,22 +46,28 @@ function uniqueSlug(base: string, existing: string[], ignore?: string): string {
 
 type CategoryFormProps = {
   mode: 'create' | 'edit';
+  categoryId?: string;
   initial?: CategoryFormValues;
+  initialImageUrl?: string | null;
   existingSlugs: string[];
   currentSlug?: string;
   isSaving: boolean;
   onClose: () => void;
-  onSubmit: (values: CategoryFormValues) => void;
+  onSubmit: (values: CategoryFormValues, pendingImage: File | null) => void;
+  onImageUrlChange?: (url: string | null) => void;
 };
 
 function CategoryForm({
   mode,
+  categoryId,
   initial,
+  initialImageUrl,
   existingSlugs,
   currentSlug,
   isSaving,
   onClose,
   onSubmit,
+  onImageUrlChange,
 }: CategoryFormProps) {
   const { t } = useLocale();
   const [name, setName] = useState(initial?.name ?? '');
@@ -64,6 +75,9 @@ function CategoryForm({
   const [type, setType] = useState<'product' | 'service'>(initial?.type ?? 'product');
   const [isActive, setIsActive] = useState(initial?.is_active ?? true);
   const [slugTouched, setSlugTouched] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(initialImageUrl ?? null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingPreview, setPendingPreview] = useState<string | null>(null);
 
   const suggestedSlug = useMemo(() => {
     const base = slugifyName(name);
@@ -72,6 +86,11 @@ function CategoryForm({
 
   const displaySlug = slugTouched ? slug : initial?.slug || suggestedSlug;
 
+  const handleImageUrlChange = (url: string | null) => {
+    setImageUrl(url);
+    onImageUrlChange?.(url);
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const trimmedSlug = displaySlug.trim();
@@ -79,12 +98,15 @@ function CategoryForm({
       ? uniqueSlug(trimmedSlug, existingSlugs, mode === 'edit' ? currentSlug : undefined)
       : suggestedSlug;
 
-    onSubmit({
-      name: name.trim(),
-      slug: finalSlug,
-      type,
-      is_active: isActive,
-    });
+    onSubmit(
+      {
+        name: name.trim(),
+        slug: finalSlug,
+        type,
+        is_active: isActive,
+      },
+      pendingFile,
+    );
   };
 
   return (
@@ -106,6 +128,19 @@ function CategoryForm({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        <AdminCategoryImageField
+          categoryId={categoryId}
+          imageUrl={imageUrl}
+          disabled={isSaving}
+          pendingFile={pendingFile}
+          pendingPreview={pendingPreview}
+          onPendingFileChange={(file, preview) => {
+            setPendingFile(file);
+            setPendingPreview(preview);
+          }}
+          onImageUrlChange={handleImageUrlChange}
+        />
+
         <div>
           <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500">
             {t('admin.tables.name')}
@@ -192,39 +227,46 @@ function CategoryForm({
 export function AdminCategoryModal({
   open,
   mode,
+  categoryId,
   initial,
+  initialImageUrl,
   existingSlugs,
   currentSlug,
   isSaving,
   onClose,
   onSubmit,
+  onImageUrlChange,
 }: AdminCategoryModalProps) {
   const { t } = useLocale();
 
   if (!open) return null;
 
-  const formKey = `${mode}-${currentSlug ?? initial?.slug ?? 'new'}`;
+  const formKey = `${mode}-${currentSlug ?? initial?.slug ?? 'new'}-${initialImageUrl ?? 'no-image'}`;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <button
         type="button"
         className="absolute inset-0 bg-black/45"
         onClick={onClose}
         aria-label={t('common.cancel')}
       />
-      <div className="relative w-full max-w-lg rounded-2xl border border-gray-100 bg-white p-6 shadow-2xl">
+      <div className="relative z-10 w-full max-w-lg rounded-2xl border border-gray-100 bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
         <CategoryForm
           key={formKey}
           mode={mode}
+          categoryId={categoryId}
           initial={initial}
+          initialImageUrl={initialImageUrl}
           existingSlugs={existingSlugs}
           currentSlug={currentSlug}
           isSaving={isSaving}
           onClose={onClose}
           onSubmit={onSubmit}
+          onImageUrlChange={onImageUrlChange}
         />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

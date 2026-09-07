@@ -178,6 +178,7 @@ export default function ProviderPage() {
                 name={provider.display_name}
                 avatarUrl={avatarUrl}
                 shape="square"
+                variant="storefront"
                 className="w-full h-full text-2xl md:text-3xl"
               />
             </div>
