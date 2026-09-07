@@ -3,8 +3,11 @@ import {
   CalendarCheck,
   Compass,
   GitCompare,
+  Globe2,
   LayoutGrid,
+  Layers3,
   Mail,
+  MapPin,
   Phone,
   Rocket,
   Search,
@@ -14,6 +17,7 @@ import {
   UserCheck,
   Users,
   Wrench,
+  Zap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLandingLocale } from '../hooks/useLandingLocale.ts';
@@ -29,19 +33,23 @@ import { LandingSectionShell } from './LandingSectionShell.tsx';
 const CUSTOMER_ICONS: LucideIcon[] = [Compass, GitCompare, UserCheck, CalendarCheck];
 const PROVIDER_ICONS: LucideIcon[] = [Store, Rocket, LayoutGrid, Sparkles];
 const ECOSYSTEM_ICONS: LucideIcon[] = [Users, Wrench, Search];
+const TRUST_ICONS: LucideIcon[] = [Layers3, Search, CalendarCheck, MapPin, Zap];
 
-function StepList({ steps, tone = 'light' }: { steps: string[]; tone?: 'light' | 'dark' }) {
+const STEP_ICONS: LucideIcon[] = [Search, GitCompare, UserCheck, CalendarCheck, BadgeCheck];
+
+function StepList({ steps }: { steps: string[] }) {
   return (
     <ol className="grid gap-3">
-      {steps.map((step, index) => (
-        <li
-          key={step}
-          className={`landing-step-item ${tone === 'dark' ? 'landing-step-item-dark' : ''}`}
-        >
-          <span className="landing-step-index">{index + 1}</span>
-          <span>{step}</span>
-        </li>
-      ))}
+      {steps.map((step, index) => {
+        const Icon = STEP_ICONS[index] ?? BadgeCheck;
+        return (
+          <li key={step} className="landing-step-item group">
+            <span className="landing-step-index">{index + 1}</span>
+            <Icon size={16} className="shrink-0 text-diyar-cream/80 transition-transform group-hover:scale-110" aria-hidden />
+            <span>{step}</span>
+          </li>
+        );
+      })}
     </ol>
   );
 }
@@ -54,35 +62,39 @@ export default function LandingBelowFold() {
 
   return (
     <>
-      <LandingSectionShell id="about" title={messages.intro.title} tone="light">
+      <LandingSectionShell id="about" title={messages.intro.title} icon={Sparkles} tone="light">
         <div className="grid items-center gap-8 md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-          <p className="text-lg leading-relaxed text-gray-700 md:text-xl">{messages.intro.body}</p>
-          <LandingImage
-            src={LANDING_ASSETS.laptop}
-            alt=""
-            width={720}
-            height={480}
-            wrapperClassName="rounded-3xl border border-diyar-brown/10 shadow-xl"
-            className="rounded-3xl"
-          />
+          <div className="landing-intro-copy">
+            <p className="text-lg leading-relaxed text-gray-700 md:text-xl">{messages.intro.body}</p>
+          </div>
+          <div className="landing-intro-visual">
+            <LandingImage
+              src={LANDING_ASSETS.laptop}
+              alt=""
+              width={720}
+              height={480}
+              wrapperClassName="rounded-3xl border border-diyar-brown/10 shadow-xl"
+              className="rounded-3xl"
+            />
+          </div>
         </div>
       </LandingSectionShell>
 
-      <LandingSectionShell id="how" title={messages.how.title} tone="how" className="landing-section-how">
+      <LandingSectionShell id="how" title={messages.how.title} icon={Layers3} tone="how" className="landing-section-how">
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="landing-flow-panel landing-flow-panel-gradient">
             <h3 className="landing-flow-title">
-              <Search size={18} className="text-diyar-cream" aria-hidden />
+              <Users size={18} className="text-diyar-cream" aria-hidden />
               {messages.how.customersTitle}
             </h3>
-            <StepList steps={messages.how.customerSteps} tone="dark" />
+            <StepList steps={messages.how.customerSteps} />
           </div>
           <div className="landing-flow-panel landing-flow-panel-gradient-alt">
             <h3 className="landing-flow-title">
               <Wrench size={18} className="text-diyar-cream" aria-hidden />
               {messages.how.providersTitle}
             </h3>
-            <StepList steps={messages.how.providerSteps} tone="dark" />
+            <StepList steps={messages.how.providerSteps} />
           </div>
         </div>
       </LandingSectionShell>
@@ -91,24 +103,27 @@ export default function LandingBelowFold() {
         id="customers"
         title={messages.customers.title}
         subtitle={messages.customers.subtitle}
+        icon={UserCheck}
         tone="cream"
       >
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center">
-          <LandingImage
-            src={LANDING_ASSETS.appMockup}
-            alt=""
-            width={640}
-            height={720}
-            wrapperClassName="rounded-3xl border border-diyar-brown/10 shadow-lg"
-            className="rounded-3xl"
-          />
+          <div className="landing-float-visual">
+            <LandingImage
+              src={LANDING_ASSETS.appMockup}
+              alt=""
+              width={640}
+              height={720}
+              wrapperClassName="rounded-3xl border border-diyar-brown/10 shadow-lg"
+              className="rounded-3xl"
+            />
+          </div>
           <ul className="grid gap-4 sm:grid-cols-2">
             {messages.customers.items.map((item, index) => {
               const Icon = CUSTOMER_ICONS[index] ?? BadgeCheck;
               return (
-                <li key={item.title} className="landing-feature-card">
+                <li key={item.title} className="landing-feature-card group">
                   <span className="landing-feature-icon">
-                    <Icon size={20} aria-hidden />
+                    <Icon size={20} className="transition-transform group-hover:scale-110" aria-hidden />
                   </span>
                   <div>
                     <p className="landing-feature-title">{item.title}</p>
@@ -125,15 +140,16 @@ export default function LandingBelowFold() {
         id="providers"
         title={messages.providers.title}
         subtitle={messages.providers.subtitle}
+        icon={Store}
       >
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center">
           <ul className="grid gap-4 sm:grid-cols-2">
             {messages.providers.items.map((item, index) => {
               const Icon = PROVIDER_ICONS[index] ?? Store;
               return (
-                <li key={item.title} className="landing-feature-card">
+                <li key={item.title} className="landing-feature-card group">
                   <span className="landing-feature-icon landing-feature-icon-alt">
-                    <Icon size={20} aria-hidden />
+                    <Icon size={20} className="transition-transform group-hover:scale-110" aria-hidden />
                   </span>
                   <div>
                     <p className="landing-feature-title">{item.title}</p>
@@ -144,24 +160,25 @@ export default function LandingBelowFold() {
             })}
           </ul>
           <div className="grid grid-cols-2 gap-3">
-            {LANDING_ASSETS.categories.map((src) => (
-              <LandingImage
-                key={src}
-                src={src}
-                alt=""
-                width={320}
-                height={240}
-                wrapperClassName="rounded-2xl border border-diyar-brown/10 shadow-sm"
-                className="rounded-2xl"
-              />
+            {LANDING_ASSETS.categories.map((src, index) => (
+              <div key={src} className={`landing-category-tile landing-stagger-item-${index + 1}`}>
+                <LandingImage
+                  src={src}
+                  alt=""
+                  width={320}
+                  height={240}
+                  wrapperClassName="rounded-2xl border border-diyar-brown/10 shadow-sm"
+                  className="rounded-2xl"
+                />
+              </div>
             ))}
           </div>
         </div>
       </LandingSectionShell>
 
-      <section id="ecosystem" className="scroll-mt-24 py-16 md:py-24">
+      <section id="ecosystem" className="scroll-mt-24 py-16 md:py-24 landing-section">
         <div className="mx-auto max-w-6xl px-4 md:px-6">
-          <div className="landing-ecosystem-banner">
+          <div className="landing-ecosystem-banner landing-reveal">
             <div className="pointer-events-none absolute inset-0 landing-ecosystem-glow" aria-hidden />
 
             <div className="relative grid gap-10 lg:grid-cols-2 lg:items-center">
@@ -183,9 +200,9 @@ export default function LandingBelowFold() {
                 {messages.ecosystem.cards.map((card, index) => {
                   const Icon = ECOSYSTEM_ICONS[index] ?? Users;
                   return (
-                    <article key={card.title} className="landing-ecosystem-card">
+                    <article key={card.title} className="landing-ecosystem-card group">
                       <span className="landing-ecosystem-card-icon">
-                        <Icon size={24} aria-hidden />
+                        <Icon size={24} className="transition-transform group-hover:scale-110" aria-hidden />
                       </span>
                       <h3 className="mb-2 text-lg font-bold text-white">{card.title}</h3>
                       <p className="text-sm leading-relaxed text-white/65">{card.description}</p>
@@ -197,7 +214,10 @@ export default function LandingBelowFold() {
 
             <div className="relative mt-6 grid gap-6 overflow-hidden rounded-3xl border border-diyar-brown/25 bg-diyar-brown/10 p-6 md:p-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center">
               <div className="text-start">
-                <h3 className="mb-2 text-xl font-bold text-white md:text-2xl">{messages.ecosystem.hubTitle}</h3>
+                <div className="mb-3 inline-flex items-center gap-2 text-diyar-cream">
+                  <CalendarCheck size={20} aria-hidden />
+                  <span className="text-sm font-bold uppercase tracking-wide">{messages.ecosystem.hubTitle}</span>
+                </div>
                 <p className="text-sm leading-relaxed text-white/70 md:text-base">{messages.ecosystem.hubSubtitle}</p>
               </div>
               <LandingImage
@@ -213,35 +233,41 @@ export default function LandingBelowFold() {
         </div>
       </section>
 
-      <LandingSectionShell id="trust" title={messages.trust.title} tone="gradient">
+      <LandingSectionShell id="trust" title={messages.trust.title} icon={ShieldCheck} tone="gradient">
         <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {messages.trust.items.map((item) => (
-            <li key={item} className="landing-trust-card">
-              <ShieldCheck size={18} className="mt-0.5 shrink-0 text-diyar-brown" aria-hidden />
-              <span>{item}</span>
-            </li>
-          ))}
+          {messages.trust.items.map((item, index) => {
+            const Icon = TRUST_ICONS[index] ?? ShieldCheck;
+            return (
+              <li key={item} className="landing-trust-card group">
+                <span className="landing-trust-icon">
+                  <Icon size={18} className="transition-transform group-hover:scale-110" aria-hidden />
+                </span>
+                <span>{item}</span>
+              </li>
+            );
+          })}
         </ul>
       </LandingSectionShell>
 
-      <LandingSectionShell id="coming" title={messages.coming.title} tone="cream">
-        <div className="landing-coming-card">
+      <LandingSectionShell id="coming" title={messages.coming.title} icon={Rocket} tone="cream">
+        <div className="landing-coming-card group">
+          <Rocket size={28} className="mb-4 text-diyar-brown transition-transform group-hover:-translate-y-1" aria-hidden />
           <p className="mb-4 text-lg leading-relaxed text-gray-700 md:text-xl">{messages.coming.body}</p>
           <p className="text-sm text-gray-500">{messages.coming.note}</p>
         </div>
       </LandingSectionShell>
 
-      <LandingSectionShell id="contact" title={messages.cta.title} subtitle={messages.cta.body} tone="contact">
+      <LandingSectionShell id="contact" title={messages.cta.title} subtitle={messages.cta.body} icon={Globe2} tone="contact">
         <div className="grid gap-4 sm:grid-cols-2">
-          <a href={mailHref} className="landing-contact-card landing-contact-card-primary">
-            <Mail size={22} aria-hidden />
+          <a href={mailHref} className="landing-contact-card landing-contact-card-primary group">
+            <Mail size={22} className="transition-transform group-hover:scale-110" aria-hidden />
             <span>{messages.cta.email}</span>
           </a>
-          <a href={telHref} className="landing-contact-card">
-            <Phone size={22} aria-hidden />
+          <a href={telHref} className="landing-contact-card group">
+            <Phone size={22} className="transition-transform group-hover:scale-110" aria-hidden />
             <span>
               {messages.cta.phone}{' '}
-              <span className="text-gray-500 font-medium" dir="ltr">
+              <span className="font-medium text-gray-500" dir="ltr">
                 ({phoneDisplay})
               </span>
             </span>

@@ -1,3 +1,4 @@
+import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 type SectionTone = 'light' | 'cream' | 'dark' | 'gradient' | 'how' | 'contact';
@@ -6,6 +7,7 @@ export function LandingSectionShell({
   id,
   title,
   subtitle,
+  icon: Icon,
   children,
   tone = 'light',
   className = '',
@@ -13,6 +15,7 @@ export function LandingSectionShell({
   id: string;
   title: string;
   subtitle?: string;
+  icon?: LucideIcon;
   children: ReactNode;
   tone?: SectionTone;
   className?: string;
@@ -37,6 +40,11 @@ export function LandingSectionShell({
     >
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <header className="mb-10 max-w-2xl landing-reveal">
+          {Icon ? (
+            <span className="landing-section-icon mb-4 inline-flex">
+              <Icon size={20} aria-hidden />
+            </span>
+          ) : null}
           <h2
             className={`mb-3 text-2xl font-bold md:text-3xl ${
               tone === 'dark' ? 'text-white' : 'text-diyar-dark'
@@ -54,7 +62,7 @@ export function LandingSectionShell({
             </p>
           ) : null}
         </header>
-        <div className="landing-reveal landing-reveal-delay">{children}</div>
+        <div className="landing-reveal landing-reveal-delay landing-stagger">{children}</div>
       </div>
     </section>
   );
