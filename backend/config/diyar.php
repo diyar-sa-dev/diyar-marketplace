@@ -203,6 +203,7 @@ return [
     'services' => [
         'platform_commission_rate' => env('DIYAR_SERVICE_COMMISSION_RATE', '0.10'),
         'default_booking_duration_minutes' => (int) env('DIYAR_DEFAULT_BOOKING_DURATION_MINUTES', 60),
+        'payment_window_minutes' => (int) env('DIYAR_SERVICE_PAYMENT_WINDOW_MINUTES', 1440),
         'rfq' => [
             // Categories a provider may see/respond to beyond their listed service categories.
             'related_categories' => [

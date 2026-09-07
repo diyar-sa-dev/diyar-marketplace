@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Eye, Pencil, Plus, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { adminApi } from '../../api/client.ts';
+import { uploadAdminCategoryImage } from '../../api/adminCategories.ts';
 import { AdminCategoryModal, type CategoryFormValues } from '../components/AdminCategoryModal.tsx';
 import { AdminResourceTable } from '../components/AdminResourceTable.tsx';
 import { TableLtrValue } from '../../components/common/TableLtrValue.tsx';
@@ -12,6 +13,7 @@ import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
 import { confirmDeleteCategory } from '../../lib/confirmDialog.ts';
 import { parseApiError } from '../../utils/errors.ts';
+import { categoryKeys } from '../../hooks/catalog/queryKeys.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
 
 type Category = {
@@ -20,6 +22,7 @@ type Category = {
   slug: string;
   type: string;
   is_active?: boolean;
+  image_url?: string | null;
 };
 
 async function fetchCategories() {
@@ -43,7 +46,13 @@ export default function AdminCategoriesPage() {
   const existingSlugs = useMemo(() => (query.data ?? []).map((c) => c.slug), [query.data]);
 
   const saveMutation = useMutation({
-    mutationFn: async (values: CategoryFormValues) => {
+    mutationFn: async ({
+      values,
+      pendingImage,
+    }: {
+      values: CategoryFormValues;
+      pendingImage: File | null;
+    }) => {
       const payload = {
         name: values.name,
         type: values.type,
@@ -53,8 +62,19 @@ export default function AdminCategoriesPage() {
 
       if (editing) {
         await adminApi.patch(`/admin/categories/${editing.id}`, payload);
-      } else {
-        await adminApi.post('/admin/categories', payload);
+        if (pendingImage) {
+          await uploadAdminCategoryImage(editing.id, pendingImage);
+        }
+        return;
+      }
+
+      const response = await adminApi.post<ApiSuccessResponse<{ category: Category }>>(
+        '/admin/categories',
+        payload,
+      );
+      const created = response.data.data.category;
+      if (pendingImage && created?.id) {
+        await uploadAdminCategoryImage(created.id, pendingImage);
       }
     },
     onSuccess: async () => {
@@ -62,6 +82,7 @@ export default function AdminCategoriesPage() {
       setModalOpen(false);
       setEditing(null);
       await queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] });
+      await queryClient.invalidateQueries({ queryKey: categoryKeys.all });
     },
     onError: (error) => {
       const message = parseApiError(error, locale).message;
@@ -172,6 +193,7 @@ export default function AdminCategoriesPage() {
       <AdminCategoryModal
         open={modalOpen}
         mode={editing ? 'edit' : 'create'}
+        categoryId={editing?.id}
         initial={
           editing
             ? {
@@ -182,6 +204,7 @@ export default function AdminCategoriesPage() {
               }
             : undefined
         }
+        initialImageUrl={editing?.image_url}
         existingSlugs={existingSlugs}
         currentSlug={editing?.slug}
         isSaving={saveMutation.isPending}
@@ -189,7 +212,7 @@ export default function AdminCategoriesPage() {
           setModalOpen(false);
           setEditing(null);
         }}
-        onSubmit={(values) => saveMutation.mutate(values)}
+        onSubmit={(values, pendingImage) => saveMutation.mutate({ values, pendingImage })}
       />
 
       <AdminResourceTable

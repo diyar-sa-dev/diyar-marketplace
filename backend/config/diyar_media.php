@@ -22,4 +22,30 @@ return [
         'b2b_portfolio' => 'cms/b2b/portfolio',
     ],
     'default_cms_directory' => 'cms/misc',
+    'optimization' => [
+        'enabled' => filter_var(env('DIYAR_MEDIA_OPTIMIZE', true), FILTER_VALIDATE_BOOL),
+        'webp_quality' => (int) env('DIYAR_MEDIA_WEBP_QUALITY', 82),
+        'profiles' => [
+            'avatar' => [
+                'max_width' => 512,
+                'max_height' => 512,
+            ],
+            'cover' => [
+                'max_width' => 1920,
+                'max_height' => 1080,
+            ],
+            'product' => [
+                'max_width' => 2000,
+                'max_height' => 2000,
+            ],
+            'default' => [
+                'max_width' => 2400,
+                'max_height' => 2400,
+            ],
+        ],
+        'pdf' => [
+            'enabled' => filter_var(env('DIYAR_MEDIA_OPTIMIZE_PDF', true), FILTER_VALIDATE_BOOL),
+            'ghostscript_quality' => env('DIYAR_MEDIA_PDF_QUALITY', '/ebook'),
+        ],
+    ],
 ];

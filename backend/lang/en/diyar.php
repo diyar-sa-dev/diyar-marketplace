@@ -191,6 +191,7 @@ return [
             'not_acceptable' => 'This offer cannot be accepted.',
             'not_rejectable' => 'This offer cannot be rejected.',
             'rejected' => 'Offer rejected successfully.',
+            'expired' => 'This offer has expired and can no longer be accepted.',
         ],
         'bookings' => [
             'already_exists' => 'A booking already exists for this request.',
@@ -222,6 +223,7 @@ return [
             'not_payable' => 'This booking is not awaiting payment.',
             'not_initialized' => 'Payment has not been initialized.',
             'simulation_failed' => 'Simulated payment failed.',
+            'window_expired' => 'The payment window for this booking has expired.',
         ],
         'catalog' => [
             'created' => 'Service created successfully.',

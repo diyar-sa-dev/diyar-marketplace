@@ -2,10 +2,6 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import '@fontsource/alexandria/400.css';
-import '@fontsource/alexandria/700.css';
-import '@fontsource/tajawal/400.css';
-import '@fontsource/tajawal/700.css';
 import App from './App.tsx';
 import { AuthProvider } from './context/AuthContext.tsx';
 import { ErrorBoundary } from './components/common/ErrorBoundary.tsx';
@@ -14,12 +10,17 @@ import { AboutModalProvider } from './context/AboutModalContext.tsx';
 import { LocaleProvider } from './lib/i18n/LocaleProvider.tsx';
 import { PlatformThemeProvider } from './components/theme/PlatformThemeProvider.tsx';
 import { MarketplaceMessagingProviders } from './components/providers/MarketplaceMessagingProviders.tsx';
+import { kickstartLocaleCatalog } from './lib/i18n/localeCatalog.ts';
+import { ensureLocaleFonts } from './lib/i18n/localeFonts.ts';
 import { applyDocumentLocale, readStoredLocale } from './lib/i18n/storage.ts';
 import { applyPageSeo, DEFAULT_SEO } from './lib/seo/pageSeo.ts';
 import { queryClient } from './lib/queryClient.ts';
 import './index.css';
 
-applyDocumentLocale(readStoredLocale());
+const bootLocale = readStoredLocale();
+applyDocumentLocale(bootLocale);
+kickstartLocaleCatalog(bootLocale);
+void ensureLocaleFonts(bootLocale);
 applyPageSeo({
   title: DEFAULT_SEO.title,
   description: DEFAULT_SEO.description,

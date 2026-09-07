@@ -28,6 +28,10 @@ import {
   resolveServiceCategorySlug,
 } from '../lib/serviceCategoryTypes.ts';
 import { resolveMediaUrl } from '../lib/media.ts';
+import {
+  PLACEHOLDER_CATEGORY_IMG,
+  resolveCategoryImageUrl,
+} from '../lib/homeCategoryAssets.ts';
 import { isValidStoreSlug, storePath } from '../lib/storePath.ts';
 import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
@@ -81,21 +85,6 @@ const CATEGORIES = {
   },
 };
 
-const PLACEHOLDER_CATEGORY_IMG =
-  'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1200';
-
-const CATEGORY_ICONS: Record<string, string> = {
-  bedroom: '/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.webp',
-  'living-room': '/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.webp',
-  kitchen: '/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.webp',
-  office: '/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.webp',
-  decor: '/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.webp',
-  'interior-design':
-    '/categories/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%AF%D8%A7%D8%AE%D9%84%D9%8A.webp',
-  maintenance:
-    '/categories/%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%20%D9%88%D8%B5%D9%8A%D8%A7%D9%86%D8%A9.webp',
-};
-
 const MAX_PRICE = 20000;
 
 type AvailabilityValue = 'in_stock' | 'out_of_stock' | 'preorder';
@@ -105,6 +94,23 @@ interface AccordionProps {
   children: React.ReactNode;
   defaultOpen?: boolean;
   key?: React.Key;
+}
+
+function CategoryHeaderImage({ src, alt }: { src: string; alt: string }) {
+  const [failed, setFailed] = useState(false);
+  const displaySrc = failed ? PLACEHOLDER_CATEGORY_IMG : src;
+
+  return (
+    <img
+      src={displaySrc}
+      alt={alt}
+      className="w-full h-full object-cover"
+      loading="lazy"
+      decoding="async"
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 function Accordion({ title, children, defaultOpen = true }: AccordionProps) {
@@ -274,7 +280,10 @@ function CategoryAllLanding() {
               >
                 <div className="w-full aspect-4/3 rounded-3xl overflow-hidden relative shadow-sm border border-gray-100 transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-xl bg-gray-100">
                   <img
-                    src={CATEGORY_ICONS[cat.slug] ?? PLACEHOLDER_CATEGORY_IMG}
+                    src={
+                      resolveCategoryImageUrl(cat.slug, cat.image_url, 'product') ??
+                      PLACEHOLDER_CATEGORY_IMG
+                    }
                     alt={cat.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
@@ -342,11 +351,26 @@ function CategoryAllLanding() {
                   to={`/category/${service.slug}`}
                   className="bg-white rounded-3xl p-6 flex items-center gap-6 border border-gray-100 hover:shadow-lg hover:border-diyar-brown/30 transition group"
                 >
-                  <div className="w-20 h-20 rounded-2xl bg-diyar-cream/30 flex items-center justify-center shrink-0">
-                    {service.slug.includes('design') ? (
-                      <Palette className="w-10 h-10 text-diyar-brown group-hover:scale-110 transition" />
+                  <div className="w-20 h-20 rounded-2xl overflow-hidden bg-diyar-cream/30 shrink-0">
+                    {resolveCategoryImageUrl(service.slug, service.image_url, 'service') ? (
+                      <img
+                        src={
+                          resolveCategoryImageUrl(service.slug, service.image_url, 'service')!
+                        }
+                        alt=""
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : service.slug.includes('design') ? (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Palette className="w-10 h-10 text-diyar-brown group-hover:scale-110 transition" />
+                      </div>
                     ) : (
-                      <Wrench className="w-10 h-10 text-diyar-brown group-hover:scale-110 transition" />
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Wrench className="w-10 h-10 text-diyar-brown group-hover:scale-110 transition" />
+                      </div>
                     )}
                   </div>
                   <div>
@@ -663,7 +687,10 @@ export default function CategoryPage() {
   const error = isServiceCategory ? servicesErr : productsErr;
   const refetch = isServiceCategory ? refetchServices : refetchProducts;
   const categoryName = apiCategory?.name ?? staticMeta?.name ?? slug;
-  const categoryImg = CATEGORY_ICONS[slug] ?? staticMeta?.img ?? PLACEHOLDER_CATEGORY_IMG;
+  const categoryKind: 'product' | 'service' =
+    apiCategory?.type === 'service' || isServiceCategory ? 'service' : 'product';
+  const categoryImg =
+    resolveCategoryImageUrl(slug, apiCategory?.image_url, categoryKind) ?? PLACEHOLDER_CATEGORY_IMG;
   const subcategories = staticMeta && 'subcategories' in staticMeta ? staticMeta.subcategories : [];
   const products = productsData?.items.map(mapProductCard) ?? [];
   const services = servicesData?.items ?? [];
@@ -709,7 +736,7 @@ export default function CategoryPage() {
       <div className="bg-white border-b border-gray-200 pt-4 pb-4 md:pt-6 md:pb-8 px-4">
         <div className="max-w-7xl mx-auto flex flex-row items-center gap-4 md:gap-6">
           <div className="w-16 h-16 md:w-28 md:h-28 rounded-2xl md:rounded-3xl overflow-hidden shrink-0 flex items-center justify-center bg-gray-100 shadow-sm border border-gray-100">
-            <img src={categoryImg} alt={categoryName} className="w-full h-full object-cover" />
+            <CategoryHeaderImage src={categoryImg} alt={categoryName} />
           </div>
           <div className="text-right flex-1">
             <h1 className="text-xl md:text-4xl font-bold text-diyar-dark mb-1 md:mb-2">
@@ -717,8 +744,8 @@ export default function CategoryPage() {
             </h1>
             <p className="text-gray-500 max-w-2xl text-xs md:text-base leading-relaxed line-clamp-2 md:line-clamp-none">
               {isServiceCategory
-                ? t('catalog.category.serviceCategoryDescription', { category: categoryName })
-                : t('catalog.category.productCategoryDescription', { category: categoryName })}
+                ? t('catalog.category.serviceCategoryDescription')
+                : t('catalog.category.productCategoryDescription')}
             </p>
           </div>
         </div>

@@ -122,4 +122,41 @@ class CategoryAdminTest extends TestCase
         $this->postJson('/api/v1/admin/categories', ['name' => 'Test'])->assertUnauthorized();
         $this->deleteJson('/api/v1/admin/categories/'.$category->id)->assertUnauthorized();
     }
+
+    public function test_admin_can_upload_and_delete_category_image(): void
+    {
+        $admin = $this->createUserWithRole(RoleName::Admin);
+        $category = Category::factory()->create();
+
+        $png = base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+            true,
+        );
+        $tmp = tempnam(sys_get_temp_dir(), 'category');
+        file_put_contents($tmp, (string) $png);
+
+        $upload = $this->actingAs($admin, 'admin')->postJson(
+            '/api/v1/admin/categories/'.$category->id.'/image',
+            ['image' => new \Illuminate\Http\UploadedFile($tmp, 'category.png', 'image/png', null, true)],
+        );
+
+        $upload->assertOk()
+            ->assertJsonPath('data.category.id', $category->id);
+
+        $this->assertNotNull($upload->json('data.category.image_url'));
+        $this->assertDatabaseHas('categories', [
+            'id' => $category->id,
+        ]);
+        $this->assertNotNull(Category::query()->find($category->id)?->image_path);
+        if (extension_loaded('gd') && function_exists('imagewebp')) {
+            $this->assertStringEndsWith('.webp', (string) Category::query()->find($category->id)?->image_path);
+        }
+
+        $this->actingAs($admin, 'admin')
+            ->deleteJson('/api/v1/admin/categories/'.$category->id.'/image')
+            ->assertOk()
+            ->assertJsonPath('data.category.image_url', null);
+
+        $this->assertNull(Category::query()->find($category->id)?->image_path);
+    }
 }

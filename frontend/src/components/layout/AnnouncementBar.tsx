@@ -62,7 +62,7 @@ export function AnnouncementBar() {
         link: '/category/all?sort=-popular',
       },
       {
-        icon: <Sparkles className="w-4 h-4 text-yellow-400 shrink-0 animate-pulse" />,
+        icon: <Sparkles className="w-4 h-4 text-yellow-400 shrink-0" />,
         text: t('home.announcements.item2Text'),
         cta: t('home.announcements.item2Cta'),
         link: '/ai-designer',
@@ -78,7 +78,7 @@ export function AnnouncementBar() {
     if (customAnnouncement?.enabled && customAnnouncement.text) {
       return [
         {
-          icon: <Megaphone className="w-4 h-4 text-amber-300 shrink-0 animate-pulse" />,
+          icon: <Megaphone className="w-4 h-4 text-amber-300 shrink-0" />,
           text: customAnnouncement.text,
           cta: customAnnouncement.cta,
           link: customAnnouncement.link || '/',
@@ -137,7 +137,7 @@ export function AnnouncementBar() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between relative z-10 gap-2">
         <button
           onClick={handlePrev}
-          className="hidden md:flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer min-w-11 min-h-11 hover:bg-white/10 rounded-full shrink-0"
+          className="hidden md:flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer min-w-11 min-h-11 hover:bg-white/10 rounded-full shrink-0"
           title={t('home.announcements.prev')}
           aria-label={t('home.announcements.prev')}
           id="btn-announcement-prev"
@@ -172,7 +172,7 @@ export function AnnouncementBar() {
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={handleNext}
-            className="hidden md:flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer min-w-11 min-h-11 hover:bg-white/10 rounded-full"
+            className="hidden md:flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer min-w-11 min-h-11 hover:bg-white/10 rounded-full"
             title={t('home.announcements.next')}
             aria-label={t('home.announcements.next')}
             id="btn-announcement-next"
@@ -182,7 +182,7 @@ export function AnnouncementBar() {
 
           <button
             onClick={() => setIsClosing(true)}
-            className="text-white/50 hover:text-diyar-cream hover:bg-white/10 min-w-11 min-h-11 inline-flex items-center justify-center p-1.5 rounded-full transition-all cursor-pointer shrink-0"
+            className="text-white/70 hover:text-diyar-cream hover:bg-white/10 min-w-11 min-h-11 inline-flex items-center justify-center p-1.5 rounded-full transition-all cursor-pointer shrink-0"
             title={t('home.announcements.close')}
             aria-label={t('home.announcements.close')}
             id="btn-announcement-close"

@@ -24,6 +24,7 @@ final class ServiceBookingService
 {
     public function __construct(
         private readonly ProviderAvailabilityService $availability,
+        private readonly ServiceBookingRfqSyncService $rfqSync,
     ) {}
 
     /**
@@ -310,15 +311,20 @@ final class ServiceBookingService
             throw new InvalidArgumentException(__('diyar.services.bookings.invalid_transition'));
         }
 
-        $booking->update([
-            'status' => ServiceBookingStatus::Cancelled,
-            'cancelled_at' => now(),
-            'proposed_scheduled_date' => null,
-            'proposed_scheduled_time' => null,
-            'schedule_proposed_at' => null,
-        ]);
+        return DB::transaction(function () use ($booking) {
+            $booking->update([
+                'status' => ServiceBookingStatus::Cancelled,
+                'cancelled_at' => now(),
+                'proposed_scheduled_date' => null,
+                'proposed_scheduled_time' => null,
+                'schedule_proposed_at' => null,
+            ]);
 
-        return $booking->fresh(['payment', 'providerAccount', 'service']);
+            $fresh = $booking->fresh(['payment', 'providerAccount', 'service']);
+            $this->rfqSync->reconcileAfterPrePaymentCancellation($fresh);
+
+            return $fresh;
+        });
     }
 
     public function cancelByCustomer(User $user, ServiceBooking $booking): ServiceBooking
@@ -335,12 +341,17 @@ final class ServiceBookingService
             throw new InvalidArgumentException(__('diyar.services.bookings.invalid_transition'));
         }
 
-        $booking->update([
-            'status' => ServiceBookingStatus::Cancelled,
-            'cancelled_at' => now(),
-        ]);
+        return DB::transaction(function () use ($booking) {
+            $booking->update([
+                'status' => ServiceBookingStatus::Cancelled,
+                'cancelled_at' => now(),
+            ]);
 
-        return $booking->fresh(['payment', 'providerAccount', 'service']);
+            $fresh = $booking->fresh(['payment', 'providerAccount', 'service']);
+            $this->rfqSync->reconcileAfterPrePaymentCancellation($fresh);
+
+            return $fresh;
+        });
     }
 
     public function cancelByProvider(User $user, ServiceBooking $booking): ServiceBooking
@@ -359,17 +370,90 @@ final class ServiceBookingService
             throw new InvalidArgumentException(__('diyar.services.bookings.invalid_transition'));
         }
 
-        $booking->update([
-            'status' => ServiceBookingStatus::Cancelled,
-            'cancelled_at' => now(),
-        ]);
+        return DB::transaction(function () use ($booking) {
+            $booking->update([
+                'status' => ServiceBookingStatus::Cancelled,
+                'cancelled_at' => now(),
+            ]);
 
-        return $booking->fresh(['payment', 'providerAccount']);
+            $fresh = $booking->fresh(['payment', 'providerAccount']);
+            $this->rfqSync->reconcileAfterPrePaymentCancellation($fresh);
+
+            return $fresh;
+        });
+    }
+
+    public function assertPayable(ServiceBooking $booking): void
+    {
+        if ($booking->status !== ServiceBookingStatus::PendingPayment) {
+            throw new InvalidArgumentException(__('diyar.services.payments.not_payable'));
+        }
+
+        if ($this->isPaymentWindowExpired($booking)) {
+            $this->expireUnpaidBooking($booking);
+            throw new InvalidArgumentException(__('diyar.services.payments.window_expired'));
+        }
+    }
+
+    public function expireUnpaidBooking(ServiceBooking $booking): ServiceBooking
+    {
+        return DB::transaction(function () use ($booking) {
+            $locked = ServiceBooking::query()
+                ->whereKey($booking->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($locked->status !== ServiceBookingStatus::PendingPayment
+                || $locked->payment_status === ServiceBookingPaymentStatus::Paid
+                || ! $this->isPaymentWindowExpired($locked)) {
+                return $locked;
+            }
+
+            $locked->update([
+                'status' => ServiceBookingStatus::Cancelled,
+                'cancelled_at' => now(),
+            ]);
+
+            $fresh = $locked->fresh(['payment', 'providerAccount', 'serviceRequest']);
+            $this->rfqSync->reconcileAfterPrePaymentCancellation($fresh);
+
+            return $fresh;
+        });
+    }
+
+    public function expireDueUnpaidBookings(): int
+    {
+        $expired = 0;
+
+        ServiceBooking::query()
+            ->where('status', ServiceBookingStatus::PendingPayment)
+            ->where('payment_status', ServiceBookingPaymentStatus::Pending)
+            ->whereNotNull('payment_due_at')
+            ->where('payment_due_at', '<=', now())
+            ->orderBy('id')
+            ->chunkById(50, function ($bookings) use (&$expired) {
+                foreach ($bookings as $booking) {
+                    $this->expireUnpaidBooking($booking);
+                    $expired++;
+                }
+            });
+
+        return $expired;
+    }
+
+    private function isPaymentWindowExpired(ServiceBooking $booking): bool
+    {
+        return $booking->payment_due_at !== null && $booking->payment_due_at->isPast();
     }
 
     private function moveToPendingPayment(ServiceBooking $booking): void
     {
-        $booking->update(['status' => ServiceBookingStatus::PendingPayment]);
+        $windowMinutes = max(1, (int) config('diyar.services.payment_window_minutes', 1440));
+
+        $booking->update([
+            'status' => ServiceBookingStatus::PendingPayment,
+            'payment_due_at' => now()->addMinutes($windowMinutes),
+        ]);
 
         ServiceBookingPayment::query()->firstOrCreate(
             ['service_booking_id' => $booking->id],

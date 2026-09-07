@@ -17,10 +17,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
-use RuntimeException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -262,6 +259,12 @@ final class ServiceOfferService
             throw new InvalidArgumentException(__('diyar.services.offers.not_acceptable'));
         }
 
+        if ($offer->expires_at !== null && $offer->expires_at->isPast()) {
+            $offer->update(['status' => ServiceOfferStatus::Expired]);
+
+            throw new InvalidArgumentException(__('diyar.services.offers.expired'));
+        }
+
         if (! in_array($request->status, [
             ServiceRequestStatus::Pending,
             ServiceRequestStatus::OffersReceived,
@@ -329,19 +332,15 @@ final class ServiceOfferService
             throw new InvalidArgumentException(__('diyar.media.invalid_type'));
         }
 
-        $disk = $this->media->diskName();
-        $directory = sprintf('service-offers/%s', $request->id);
-        $extension = strtolower((string) $file->getClientOriginalExtension());
-        $filename = Str::uuid()->toString().'.'.$extension;
-
-        $stored = Storage::disk($disk)->putFileAs($directory, $file, $filename);
-        if ($stored === false) {
-            throw new RuntimeException(__('diyar.media.upload_failed'));
-        }
+        $stored = $this->media->storeAttachment(
+            sprintf('service-offers/%s', $request->id),
+            $file,
+            'default',
+        );
 
         return [
-            'disk' => $disk,
-            'path' => $directory.'/'.$filename,
+            'disk' => $this->media->diskName(),
+            'path' => $stored->path,
             'original_name' => (string) $file->getClientOriginalName(),
         ];
     }

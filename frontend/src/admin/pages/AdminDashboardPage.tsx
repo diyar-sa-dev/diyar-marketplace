@@ -12,6 +12,7 @@ import {
   TrendingUp,
   Users,
   Wallet,
+  Wrench,
 } from 'lucide-react';
 import { fetchAdminDashboard } from '../api/adminDashboard.ts';
 import { adminApi } from '../../api/client.ts';
@@ -59,6 +60,7 @@ function MetricCard({
   accent = 'bg-[#f7f4f1] text-diyar-brown',
   hint,
   to,
+  emphasis = false,
 }: {
   label: string;
   value: number | string;
@@ -66,26 +68,32 @@ function MetricCard({
   accent?: string;
   hint?: string;
   to?: string;
+  emphasis?: boolean;
 }) {
   const { locale } = useLocale();
 
   const content = (
-    <div className="flex h-full min-h-30 items-start justify-between gap-3">
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold text-gray-500 sm:text-sm">{label}</p>
-        <p className="mt-2 text-2xl font-extrabold text-diyar-dark tabular-nums sm:text-3xl">
-          {typeof value === 'number' ? formatLocaleNumber(value, locale) : value}
-        </p>
-        {hint ? (
-          <p className="mt-1 line-clamp-2 text-[11px] text-gray-500 sm:text-xs">{hint}</p>
+    <div className="flex h-full flex-col justify-between gap-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className={`shrink-0 rounded-xl p-2.5 ${accent}`}>{icon}</div>
+        {emphasis ? (
+          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+            !
+          </span>
         ) : null}
       </div>
-      <div className={`shrink-0 rounded-xl p-2.5 ${accent}`}>{icon}</div>
+      <div className="min-w-0">
+        <p className="text-xs font-semibold leading-snug text-gray-500">{label}</p>
+        <p className="mt-1.5 text-2xl font-extrabold tabular-nums text-diyar-dark sm:text-3xl">
+          {typeof value === 'number' ? formatLocaleNumber(value, locale) : value}
+        </p>
+        {hint ? <p className="mt-1 line-clamp-2 text-[11px] text-gray-400">{hint}</p> : null}
+      </div>
     </div>
   );
 
-  const className = `h-full rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5${
-    to ? ' transition hover:border-diyar-brown/30 hover:shadow-md' : ''
+  const className = `h-full min-h-36 rounded-2xl border bg-linear-to-br from-white to-[#faf8f5]/80 p-4 shadow-sm transition sm:p-5 ${
+    emphasis ? 'border-amber-200/90 ring-1 ring-amber-100' : 'border-gray-100 hover:border-diyar-brown/20 hover:shadow-md'
   }`;
 
   if (to) {
@@ -340,62 +348,82 @@ export default function AdminDashboardPage() {
 
       {metrics && (
         <>
-          <section className="grid grid-cols-1 gap-3 min-[520px]:grid-cols-2 lg:grid-cols-3 lg:gap-4">
-            {hasPermission('chat.view') && (
+          <section className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
+            <div className="mb-5">
+              <h3 className="text-lg font-extrabold text-diyar-dark">
+                {t('admin.dashboard.metricsOverview')}
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">{t('admin.dashboard.metricsOverviewHint')}</p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {hasPermission('chat.view') ? (
+                <MetricCard
+                  to="/admin/chat"
+                  label={t('admin.dashboard.quickActions.chatReports')}
+                  value={chatReportsQuery.isLoading ? '…' : (chatReportsQuery.data ?? 0)}
+                  hint={t('admin.dashboard.quickActions.chatReportsHint')}
+                  icon={<MessageSquare size={20} />}
+                  accent={
+                    (chatReportsQuery.data ?? 0) > 0
+                      ? 'bg-rose-100 text-rose-700'
+                      : 'bg-emerald-100 text-emerald-700'
+                  }
+                  emphasis={(chatReportsQuery.data ?? 0) > 0}
+                />
+              ) : null}
               <MetricCard
-                to="/admin/chat"
-                label={t('admin.dashboard.quickActions.chatReports')}
-                value={
-                  chatReportsQuery.isLoading
-                    ? '…'
-                    : formatLocaleNumber(chatReportsQuery.data ?? 0, locale)
-                }
-                hint={t('admin.dashboard.quickActions.chatReportsHint')}
-                icon={<MessageSquare size={20} />}
+                label={t('admin.dashboard.metrics.ordersToday')}
+                value={metrics.orders_today}
+                icon={<Package size={20} />}
+                accent="bg-sky-50 text-sky-700"
               />
-            )}
-            <MetricCard
-              label={t('admin.dashboard.metrics.ordersToday')}
-              value={metrics.orders_today}
-              icon={<Package size={20} />}
-            />
-            <MetricCard
-              label={t('admin.dashboard.metrics.activeUsers')}
-              value={metrics.active_users}
-              icon={<Users size={20} />}
-            />
-            <MetricCard
-              label={t('admin.dashboard.metrics.vendors')}
-              value={metrics.vendors}
-              icon={<Store size={20} />}
-            />
-            <MetricCard
-              label={t('admin.dashboard.metrics.providers')}
-              value={metrics.providers}
-              icon={<Store size={20} />}
-            />
-            <MetricCard
-              label={t('admin.dashboard.metrics.pendingVendorPayouts')}
-              value={metrics.pending_vendor_payouts}
-              icon={<Wallet size={20} />}
-              accent="bg-amber-50 text-amber-700"
-            />
-            <MetricCard
-              label={t('admin.dashboard.metrics.pendingAffiliatePayouts')}
-              value={metrics.pending_affiliate_payouts}
-              icon={<Wallet size={20} />}
-              accent="bg-amber-50 text-amber-700"
-            />
-            <MetricCard
-              label={t('admin.dashboard.metrics.openServiceRequests')}
-              value={metrics.service_requests_open}
-              icon={<Activity size={20} />}
-            />
-            <MetricCard
-              label={t('admin.dashboard.metrics.activeBookings')}
-              value={metrics.bookings_active}
-              icon={<CalendarCheck size={20} />}
-            />
+              <MetricCard
+                label={t('admin.dashboard.metrics.activeUsers')}
+                value={metrics.active_users}
+                icon={<Users size={20} />}
+                accent="bg-violet-50 text-violet-700"
+              />
+              <MetricCard
+                label={t('admin.dashboard.metrics.vendors')}
+                value={metrics.vendors}
+                icon={<Store size={20} />}
+                accent="bg-[#f7f4f1] text-diyar-brown"
+              />
+              <MetricCard
+                label={t('admin.dashboard.metrics.providers')}
+                value={metrics.providers}
+                icon={<Wrench size={20} />}
+                accent="bg-teal-50 text-teal-700"
+              />
+              <MetricCard
+                label={t('admin.dashboard.metrics.pendingVendorPayouts')}
+                value={metrics.pending_vendor_payouts}
+                icon={<Wallet size={20} />}
+                accent="bg-amber-50 text-amber-700"
+                emphasis={metrics.pending_vendor_payouts > 0}
+              />
+              <MetricCard
+                label={t('admin.dashboard.metrics.pendingAffiliatePayouts')}
+                value={metrics.pending_affiliate_payouts}
+                icon={<Wallet size={20} />}
+                accent="bg-amber-50 text-amber-700"
+                emphasis={metrics.pending_affiliate_payouts > 0}
+              />
+              <MetricCard
+                label={t('admin.dashboard.metrics.openServiceRequests')}
+                value={metrics.service_requests_open}
+                icon={<Activity size={20} />}
+                accent="bg-indigo-50 text-indigo-700"
+                emphasis={metrics.service_requests_open > 0}
+              />
+              <MetricCard
+                label={t('admin.dashboard.metrics.activeBookings')}
+                value={metrics.bookings_active}
+                icon={<CalendarCheck size={20} />}
+                accent="bg-emerald-50 text-emerald-700"
+              />
+            </div>
           </section>
 
           {report && (

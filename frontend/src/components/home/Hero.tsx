@@ -73,28 +73,34 @@ export default function Hero() {
         onFocus={() => setPaused(true)}
         onBlur={() => setPaused(false)}
       >
-        {SLIDE_CONFIG.map((slide, i) => (
+        {SLIDE_CONFIG.map((slide, i) => {
+          const isActive = i === current;
+          const TitleTag = isActive ? 'h1' : 'p';
+
+          return (
           <div
             key={slide.titleKey}
             className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
-              i === current ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+              isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
             }`}
-            {...(i !== current ? { inert: true } : {})}
+            {...(!isActive ? { inert: true, 'aria-hidden': true } : {})}
           >
-            <img
-              src={slide.img}
-              alt=""
-              width={1920}
-              height={1080}
-              decoding="async"
-              fetchPriority={i === 0 ? 'high' : 'auto'}
-              loading={i === 0 ? 'eager' : 'lazy'}
-              referrerPolicy="no-referrer"
-              className="absolute inset-0 w-full h-full object-cover scale-105 will-change-transform"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = FALLBACK_HERO;
-              }}
-            />
+            {isActive ? (
+              <img
+                src={slide.img}
+                alt=""
+                width={1920}
+                height={1080}
+                decoding="async"
+                fetchPriority="high"
+                loading="eager"
+                referrerPolicy="no-referrer"
+                className="absolute inset-0 w-full h-full object-cover scale-105"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = FALLBACK_HERO;
+                }}
+              />
+            ) : null}
             <div
               className={`absolute inset-0 bg-linear-to-t from-black/85 via-black/45 to-black/20 md:from-black/75 md:via-black/35 md:to-transparent ${
                 dir === 'rtl' ? 'md:bg-linear-to-l' : 'md:bg-linear-to-r'
@@ -105,9 +111,9 @@ export default function Hero() {
                 <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold backdrop-blur-md">
                   {i + 1} / {slideCount}
                 </span>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-bold leading-snug tracking-tight">
+                <TitleTag className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-bold leading-snug tracking-tight">
                   {t(slide.titleKey)}
-                </h1>
+                </TitleTag>
                 <p className="text-sm sm:text-base md:text-lg leading-relaxed text-white/90 max-w-prose mx-auto md:mx-0">
                   {t(slide.subKey)}
                 </p>
@@ -120,7 +126,7 @@ export default function Hero() {
               </div>
             </div>
           </div>
-        ))}
+        );})}
 
         <button
           type="button"

@@ -101,8 +101,14 @@ export function AdminThemeSettingsPanel({
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="text-sm font-bold text-diyar-dark">{t('admin.settings.templates.title')}</h4>
-        <p className="mt-1 text-xs text-gray-500">{t('admin.settings.templates.subtitle')}</p>
+        <div className="mb-4 flex items-center gap-2">
+          <div className="h-px flex-1 bg-gray-100" />
+          <h4 className="text-xs font-bold uppercase tracking-wide text-gray-400">
+            {t('admin.settings.templates.title')}
+          </h4>
+          <div className="h-px flex-1 bg-gray-100" />
+        </div>
+        <p className="mb-4 text-center text-xs text-gray-500">{t('admin.settings.templates.subtitle')}</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {THEME_COLOR_TEMPLATES.map((template) => {
             const isActive = activeTemplate?.id === template.id;
@@ -156,10 +162,16 @@ export function AdminThemeSettingsPanel({
       </div>
 
       <div>
-        <h4 className="text-sm font-bold text-diyar-dark">
-          {t('admin.settings.templates.customTitle')}
-        </h4>
-        <p className="mt-1 text-xs text-gray-500">{t('admin.settings.templates.customSubtitle')}</p>
+        <div className="mb-4 flex items-center gap-2">
+          <div className="h-px flex-1 bg-gray-100" />
+          <h4 className="text-xs font-bold uppercase tracking-wide text-gray-400">
+            {t('admin.settings.templates.customTitle')}
+          </h4>
+          <div className="h-px flex-1 bg-gray-100" />
+        </div>
+        <p className="mb-4 text-center text-xs text-gray-500">
+          {t('admin.settings.templates.customSubtitle')}
+        </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {colorSettings.map((setting) => {
             const hint = localizedSettingHint(setting.full_key, t);
@@ -168,7 +180,7 @@ export function AdminThemeSettingsPanel({
             return (
               <form
                 key={setting.full_key}
-                className="rounded-2xl border border-gray-100 bg-[#f7f4f1]/30 p-4"
+                className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition hover:border-diyar-brown/20 hover:shadow-md"
                 onSubmit={(event) => {
                   event.preventDefault();
                   if (!canUpdate) return;
@@ -220,10 +232,14 @@ export function AdminThemeSettingsPanel({
 
       {fontSettings.length > 0 ? (
         <div>
-          <h4 className="text-sm font-bold text-diyar-dark">
-            {t('admin.settings.templates.fontsTitle')}
-          </h4>
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="mb-4 flex items-center gap-2">
+            <div className="h-px flex-1 bg-gray-100" />
+            <h4 className="text-xs font-bold uppercase tracking-wide text-gray-400">
+              {t('admin.settings.templates.fontsTitle')}
+            </h4>
+            <div className="h-px flex-1 bg-gray-100" />
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
             {fontSettings.map((setting) => {
               const hint = localizedSettingHint(setting.full_key, t);
               const defaultValue = String(setting.effective_value ?? '');
@@ -233,7 +249,7 @@ export function AdminThemeSettingsPanel({
               return (
                 <div
                   key={setting.full_key}
-                  className="rounded-2xl border border-gray-100 bg-[#f7f4f1]/30 p-4"
+                  className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition hover:border-diyar-brown/20 hover:shadow-md"
                 >
                   <p className="text-sm font-bold text-diyar-dark">
                     {localizedSettingLabel(setting.full_key, t)}

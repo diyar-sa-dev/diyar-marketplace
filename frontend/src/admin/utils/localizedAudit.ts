@@ -5,6 +5,8 @@ const ACTION_KEYS: Record<string, string> = {
   'category.create': 'admin.audit.actions.categoryCreate',
   'category.update': 'admin.audit.actions.categoryUpdate',
   'category.delete': 'admin.audit.actions.categoryDelete',
+  'category.image.upload': 'admin.audit.actions.categoryImageUpload',
+  'category.image.delete': 'admin.audit.actions.categoryImageDelete',
   'user.suspend': 'admin.audit.actions.userSuspend',
   'user.activate': 'admin.audit.actions.userActivate',
   'user.role.assign': 'admin.audit.actions.userRoleAssign',
@@ -162,6 +164,7 @@ const CREDIT_ACTION_TOKENS = [
   'unhide',
   'mark_paid',
   'mark_received',
+  'upload',
 ];
 
 function actionTokenMatches(lastSegment: string, tokens: string[]): boolean {

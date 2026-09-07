@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\ServiceBookingPaymentStatus;
 use App\Enums\ServiceBookingStatus;
 use App\Models\ServiceBooking;
 use App\Models\User;
@@ -111,27 +112,29 @@ class ServiceBookingResource extends JsonResource
                 ? new ProviderReviewResource($this->providerReview)
                 : null),
             'completed_at' => $this->completed_at?->toIso8601String(),
+            'payment_due_at' => $this->payment_due_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }
 
     private function canParticipantCancel(User $user): bool
     {
+        if ($this->payment_status === ServiceBookingPaymentStatus::Paid) {
+            return false;
+        }
+
+        $cancellable = [
+            ServiceBookingStatus::PendingProviderConfirmation,
+            ServiceBookingStatus::PendingCustomerAcceptance,
+            ServiceBookingStatus::PendingPayment,
+        ];
+
         if ($user->id === $this->user_id) {
-            return in_array($this->status, [
-                ServiceBookingStatus::PendingProviderConfirmation,
-                ServiceBookingStatus::PendingCustomerAcceptance,
-                ServiceBookingStatus::PendingPayment,
-            ], true);
+            return in_array($this->status, $cancellable, true);
         }
 
         if ($user->providerAccount?->id === $this->provider_account_id) {
-            return in_array($this->status, [
-                ServiceBookingStatus::PendingProviderConfirmation,
-                ServiceBookingStatus::PendingCustomerAcceptance,
-                ServiceBookingStatus::PendingPayment,
-                ServiceBookingStatus::Confirmed,
-            ], true);
+            return in_array($this->status, $cancellable, true);
         }
 
         return false;

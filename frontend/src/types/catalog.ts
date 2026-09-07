@@ -10,6 +10,7 @@ export interface Category {
   type: CategoryType;
   sort_order: number;
   is_active: boolean;
+  image_url?: string | null;
   children?: Category[];
 }
 

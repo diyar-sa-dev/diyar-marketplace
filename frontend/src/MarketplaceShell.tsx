@@ -47,7 +47,7 @@ import {
 import { shouldHideMarketplaceCommerce } from './lib/marketplaceCommerce.ts';
 
 function HeaderWidgetFallback() {
-  return <span className="inline-block w-8 h-8" aria-hidden />;
+  return <span className="inline-block w-8 h-8" aria-hidden="true" />;
 }
 
 export default function MarketplaceShell() {

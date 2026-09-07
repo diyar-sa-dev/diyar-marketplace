@@ -89,10 +89,13 @@ export function HomePromoPopup() {
       className="fixed inset-0 bg-black/65 backdrop-blur-sm z-40 flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-300"
       role="dialog"
       aria-modal="true"
-      aria-label={t(currentAd.altKey)}
+      aria-labelledby="home-promo-popup-title"
       data-testid="home-ad-popup"
     >
       <div className="relative w-full max-w-3xl bg-white flex flex-col rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 ring-1 ring-white/20">
+        <h2 id="home-promo-popup-title" className="sr-only">
+          {t(currentAd.altKey)}
+        </h2>
         <div className="absolute top-3 inset-x-3 z-20 flex items-center justify-between pointer-events-none">
           <div className="flex items-center gap-1.5 pointer-events-auto">
             {ads.length > 1 && (
@@ -135,7 +138,9 @@ export function HomePromoPopup() {
         >
           <img
             src={currentAd.imageSrc}
-            alt={t(currentAd.altKey)}
+            alt=""
+            width={960}
+            height={540}
             className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.01]"
             loading="lazy"
             decoding="async"
@@ -154,6 +159,7 @@ export function HomePromoPopup() {
                   index === adIndex ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/80'
                 }`}
                 aria-label={t('home.adPopup.goTo', { n: String(index + 1) })}
+                aria-pressed={index === adIndex}
               />
             ))}
           </div>

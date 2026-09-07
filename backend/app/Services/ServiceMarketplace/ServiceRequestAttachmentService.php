@@ -7,10 +7,7 @@ use App\Models\ServiceRequestAttachment;
 use App\Models\User;
 use App\Services\Media\MediaUploadService;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
-use RuntimeException;
 
 final class ServiceRequestAttachmentService
 {
@@ -43,25 +40,20 @@ final class ServiceRequestAttachmentService
 
         $this->validateAttachment($file);
 
-        $disk = $this->media->diskName();
-        $directory = sprintf('service-requests/%s', $serviceRequest->id);
-        $extension = strtolower((string) $file->getClientOriginalExtension());
-        $filename = Str::uuid()->toString().'.'.$extension;
-        $path = $directory.'/'.$filename;
-
-        $stored = Storage::disk($disk)->putFileAs($directory, $file, $filename);
-        if ($stored === false) {
-            throw new RuntimeException(__('diyar.media.upload_failed'));
-        }
+        $stored = $this->media->storeAttachment(
+            sprintf('service-requests/%s', $serviceRequest->id),
+            $file,
+            'default',
+        );
 
         return ServiceRequestAttachment::query()->create([
             'service_request_id' => $serviceRequest->id,
             'uploaded_by' => $user->id,
-            'disk' => $disk,
-            'path' => $path,
+            'disk' => $this->media->diskName(),
+            'path' => $stored->path,
             'original_name' => (string) $file->getClientOriginalName(),
-            'mime_type' => (string) $file->getMimeType(),
-            'size_bytes' => (int) $file->getSize(),
+            'mime_type' => $stored->mimeType,
+            'size_bytes' => $stored->sizeBytes,
         ]);
     }
 

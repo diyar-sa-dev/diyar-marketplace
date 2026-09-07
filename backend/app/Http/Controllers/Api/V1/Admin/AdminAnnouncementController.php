@@ -13,6 +13,15 @@ use Illuminate\Http\Request;
 
 class AdminAnnouncementController extends Controller
 {
+    /** Content keys managed here and in Admin → Feedback (not the generic settings UI). */
+    private const CONTENT_KEYS = [
+        'text_ar' => ['key' => 'announcement_text_ar', 'max' => 240],
+        'text_en' => ['key' => 'announcement_text_en', 'max' => 240],
+        'cta_ar' => ['key' => 'announcement_cta_ar', 'max' => 48],
+        'cta_en' => ['key' => 'announcement_cta_en', 'max' => 48],
+        'link' => ['key' => 'announcement_link', 'max' => 255],
+    ];
+
     public function show(EffectiveConfigService $config): JsonResponse
     {
         return ApiResponse::success(data: [
@@ -35,32 +44,25 @@ class AdminAnnouncementController extends Controller
         $settings = app(SystemSettingService::class);
         $actor = $request->user('admin');
 
-        $map = [
-            'platform.announcement_enabled' => $validated['enabled'],
-            'platform.announcement_text_ar' => $validated['text_ar'],
-            'platform.announcement_text_en' => $validated['text_en'],
-            'platform.announcement_cta_ar' => $validated['cta_ar'],
-            'platform.announcement_cta_en' => $validated['cta_en'],
-            'platform.announcement_link' => $validated['link'],
-        ];
+        $settings->set(
+            group: SystemSettingGroup::Platform,
+            key: 'announcement_enabled',
+            value: $validated['enabled'],
+            type: SystemSettingType::Boolean,
+            actor: $actor,
+            isPublic: true,
+            rules: ['required', 'boolean'],
+        );
 
-        foreach ($map as $fullKey => $value) {
-            /** @var array<string, array<string, mixed>> $definitions */
-            $definitions = config('system_settings.definitions', []);
-            $definition = $definitions[$fullKey] ?? null;
-            if ($definition === null) {
-                continue;
-            }
-
+        foreach (self::CONTENT_KEYS as $field => $meta) {
             $settings->set(
-                group: SystemSettingGroup::from((string) $definition['group']),
-                key: (string) $definition['key'],
-                value: $value,
-                type: SystemSettingType::from((string) $definition['type']),
+                group: SystemSettingGroup::Platform,
+                key: $meta['key'],
+                value: $validated[$field],
+                type: SystemSettingType::String,
                 actor: $actor,
-                isPublic: (bool) ($definition['is_public'] ?? false),
-                description: isset($definition['description']) ? (string) $definition['description'] : null,
-                rules: is_array($definition['validation'] ?? null) ? $definition['validation'] : [],
+                isPublic: true,
+                rules: ['required', 'string', 'max:'.$meta['max']],
             );
         }
 

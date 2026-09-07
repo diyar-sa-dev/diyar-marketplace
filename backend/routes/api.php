@@ -303,6 +303,10 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
         ->middleware('admin.permission:categories.manage');
     Route::delete('/categories/{category}', [AdminCategoryController::class, 'destroy'])
         ->middleware('admin.permission:categories.manage');
+    Route::post('/categories/{category}/image', [AdminCategoryController::class, 'uploadImage'])
+        ->middleware('admin.permission:categories.manage');
+    Route::delete('/categories/{category}/image', [AdminCategoryController::class, 'deleteImage'])
+        ->middleware('admin.permission:categories.manage');
 
     Route::get('/orders', [AdminOrderController::class, 'index'])
         ->middleware('admin.permission:orders.view');

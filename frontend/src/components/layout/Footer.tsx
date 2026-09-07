@@ -33,7 +33,7 @@ export function Footer() {
   const quickLinks = [
     { label: t('footer.about'), action: 'about' as const },
     { label: t('footer.shopNow'), to: '/category/all' },
-    { label: t('footer.specialOffers'), to: '/category/all' },
+    { label: t('footer.specialOffers'), to: '/category/all?discounted=1&sort=-discount' },
     { label: t('footer.blog'), to: '/blog' },
     { label: t('footer.joinMerchant'), to: '/auth?role=merchant' },
   ] as const;

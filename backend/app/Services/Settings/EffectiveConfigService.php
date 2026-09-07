@@ -5,6 +5,7 @@ namespace App\Services\Settings;
 use App\Enums\SystemSettingGroup;
 use App\Models\SystemSetting;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\QueryException;
 
 final class EffectiveConfigService
 {
@@ -89,10 +90,14 @@ final class EffectiveConfigService
     {
         [$group, $key] = $this->parseFullKey($fullKey);
 
-        $setting = SystemSetting::query()
-            ->where('group', $group)
-            ->where('key', $key)
-            ->first();
+        try {
+            $setting = SystemSetting::query()
+                ->where('group', $group)
+                ->where('key', $key)
+                ->first();
+        } catch (QueryException) {
+            $setting = null;
+        }
 
         if ($setting !== null) {
             return app(SystemSettingService::class)->cast($setting->rawValue(), $setting->type);
