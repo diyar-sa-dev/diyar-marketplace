@@ -36,7 +36,7 @@ export function LandingSectionShell({
   return (
     <section
       id={id}
-      className={`relative scroll-mt-24 py-16 md:py-24 landing-section ${toneClass} ${className}`}
+      className={`relative scroll-mt-24 py-20 md:py-32 landing-section ${toneClass} ${className}`}
     >
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <header className="mb-10 max-w-2xl landing-reveal">

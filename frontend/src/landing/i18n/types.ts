@@ -76,8 +76,6 @@ export type LandingMessages = {
     titleHighlight: string;
     body: string;
     cards: LandingEcosystemCard[];
-    hubTitle: string;
-    hubSubtitle: string;
   };
   trust: {
     title: string;

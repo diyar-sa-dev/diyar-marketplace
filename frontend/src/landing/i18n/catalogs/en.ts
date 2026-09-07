@@ -100,9 +100,11 @@ export const landingEn: LandingMessages = {
         title: 'Services',
         description: 'Clear categories covering home, design, maintenance, and more.',
       },
+      {
+        title: 'Bookings',
+        description: 'A structured booking path connecting both sides through service delivery.',
+      },
     ],
-    hubTitle: 'Bookings',
-    hubSubtitle: 'A structured booking path connecting both sides through service delivery.',
   },
   trust: {
     title: 'Why DIYAR?',
