@@ -250,8 +250,7 @@ function ServiceBookingCard({
           )}
 
           {booking.can_cancel &&
-            !['pending_customer_acceptance'].includes(booking.status) &&
-            booking.status !== 'pending_payment' && (
+            !['pending_customer_acceptance'].includes(booking.status) && (
               <button
                 type="button"
                 disabled={isBusy}

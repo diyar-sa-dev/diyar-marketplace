@@ -9,7 +9,7 @@ type UserAvatarProps = {
   size?: 'sm' | 'md' | 'lg';
   shape?: 'circle' | 'square';
   className?: string;
-  variant?: 'default' | 'onDark';
+  variant?: 'default' | 'onDark' | 'storefront';
   editable?: boolean;
   isUploading?: boolean;
   isDeleting?: boolean;
@@ -60,12 +60,27 @@ export function UserAvatar({
     (size === 'lg' ? 'w-24 h-24 text-3xl' : size === 'md' ? 'w-16 h-16 text-xl' : 'w-9 h-9 text-xs');
   const borderWidth = size === 'sm' ? 'border-2' : 'border-4';
   const roundedClass = shape === 'square' ? 'rounded-xl md:rounded-2xl' : 'rounded-full';
-  const shellClassName =
-    variant === 'onDark'
-      ? showImage
+  const shellClassName = (() => {
+    if (variant === 'storefront') {
+      return showImage
+        ? 'border-white bg-white'
+        : 'border-white bg-linear-to-br from-diyar-cream via-[#ebe2d3] to-diyar-brown/35 text-diyar-dark ring-1 ring-diyar-brown/15 shadow-md';
+    }
+
+    if (variant === 'onDark') {
+      return showImage
         ? 'border-white/50'
-        : 'bg-white text-diyar-dark border-white/80'
+        : 'bg-white text-diyar-dark border-white/80';
+    }
+
+    return showImage
+      ? 'border-white bg-white'
       : 'bg-diyar-brown/10 text-diyar-dark border-white';
+  })();
+  const initialsClassName =
+    variant === 'storefront'
+      ? 'relative z-10 font-bold tracking-tight text-diyar-brown drop-shadow-sm'
+      : '';
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -111,7 +126,21 @@ export function UserAvatar({
               onError={() => setImageFailed(true)}
             />
           ) : (
-            <span>{initialsFromName(name)}</span>
+            <>
+              {variant === 'storefront' && (
+                <>
+                  <div
+                    className="pointer-events-none absolute inset-0 bg-linear-to-br from-white/55 via-transparent to-diyar-brown/20"
+                    aria-hidden
+                  />
+                  <div
+                    className="pointer-events-none absolute -inset-6 opacity-[0.14] bg-[radial-gradient(circle_at_28%_22%,#947961_0%,transparent_52%)]"
+                    aria-hidden
+                  />
+                </>
+              )}
+              <span className={initialsClassName}>{initialsFromName(name)}</span>
+            </>
           )}
         </div>
 

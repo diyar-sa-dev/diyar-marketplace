@@ -5,6 +5,8 @@ $arFontStacks = [
     'Tajawal, Alexandria, sans-serif',
     'Cairo, Tajawal, sans-serif',
     'IBM Plex Sans Arabic, Tajawal, sans-serif',
+    'Noto Sans Arabic, Tajawal, sans-serif',
+    'Almarai, Tajawal, sans-serif',
 ];
 
 $enFontStacks = [
@@ -39,6 +41,20 @@ return [
         'token',
         'credential',
         'private_key',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Keys excluded from Admin → Settings (managed elsewhere)
+    |--------------------------------------------------------------------------
+    */
+
+    'admin_ui_excluded_full_keys' => [
+        'platform.announcement_text_ar',
+        'platform.announcement_text_en',
+        'platform.announcement_cta_ar',
+        'platform.announcement_cta_en',
+        'platform.announcement_link',
     ],
 
     /*
@@ -82,6 +98,39 @@ return [
             'is_public' => true,
             'validation' => ['required', 'boolean'],
         ],
+        'platform.media_optimize_enabled' => [
+            'group' => 'platform',
+            'key' => 'media_optimize_enabled',
+            'type' => 'boolean',
+            'config_path' => 'diyar_media.optimization.enabled',
+            'is_public' => false,
+            'validation' => ['required', 'boolean'],
+        ],
+        'platform.media_webp_quality' => [
+            'group' => 'platform',
+            'key' => 'media_webp_quality',
+            'type' => 'integer',
+            'config_path' => 'diyar_media.optimization.webp_quality',
+            'is_public' => false,
+            'validation' => ['required', 'integer', 'min:1', 'max:100'],
+        ],
+        'platform.media_optimize_pdf' => [
+            'group' => 'platform',
+            'key' => 'media_optimize_pdf',
+            'type' => 'boolean',
+            'config_path' => 'diyar_media.optimization.pdf.enabled',
+            'is_public' => false,
+            'validation' => ['required', 'boolean'],
+        ],
+        'platform.media_pdf_quality' => [
+            'group' => 'platform',
+            'key' => 'media_pdf_quality',
+            'type' => 'string',
+            'config_path' => 'diyar_media.optimization.pdf.ghostscript_quality',
+            'is_public' => false,
+            'allowed_values' => ['/screen', '/ebook', '/printer', '/prepress'],
+            'validation' => ['required', 'string'],
+        ],
         'platform.marketplace_maintenance_enabled' => [
             'group' => 'platform',
             'key' => 'marketplace_maintenance_enabled',
@@ -112,41 +161,6 @@ return [
             'type' => 'boolean',
             'is_public' => true,
             'validation' => ['required', 'boolean'],
-        ],
-        'platform.announcement_text_ar' => [
-            'group' => 'platform',
-            'key' => 'announcement_text_ar',
-            'type' => 'string',
-            'is_public' => true,
-            'validation' => ['required', 'string', 'max:240'],
-        ],
-        'platform.announcement_text_en' => [
-            'group' => 'platform',
-            'key' => 'announcement_text_en',
-            'type' => 'string',
-            'is_public' => true,
-            'validation' => ['required', 'string', 'max:240'],
-        ],
-        'platform.announcement_cta_ar' => [
-            'group' => 'platform',
-            'key' => 'announcement_cta_ar',
-            'type' => 'string',
-            'is_public' => true,
-            'validation' => ['required', 'string', 'max:48'],
-        ],
-        'platform.announcement_cta_en' => [
-            'group' => 'platform',
-            'key' => 'announcement_cta_en',
-            'type' => 'string',
-            'is_public' => true,
-            'validation' => ['required', 'string', 'max:48'],
-        ],
-        'platform.announcement_link' => [
-            'group' => 'platform',
-            'key' => 'announcement_link',
-            'type' => 'string',
-            'is_public' => true,
-            'validation' => ['required', 'string', 'max:255'],
         ],
 
         // Affiliate

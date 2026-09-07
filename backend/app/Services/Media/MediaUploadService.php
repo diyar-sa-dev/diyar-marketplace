@@ -5,6 +5,8 @@ namespace App\Services\Media;
 use App\Models\MediaFile;
 use App\Models\User;
 use App\Support\Media\ImageContentValidator;
+use App\Support\Media\OptimizedMedia;
+use App\Support\Media\StoredMedia;
 use App\Support\Media\SvgSafetyValidator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -14,6 +16,10 @@ use RuntimeException;
 
 final class MediaUploadService
 {
+    public function __construct(
+        private readonly MediaOptimizationService $optimizer,
+    ) {}
+
     public function diskName(): string
     {
         return (string) config('diyar_media.disk', 'media');
@@ -60,147 +66,115 @@ final class MediaUploadService
     {
         $this->validateImage($file);
 
-        $extension = $this->resolveExtension($file);
-        $directory = sprintf(
-            '%s/%s/avatar',
-            config('diyar_media.avatar_directory', 'users'),
-            $user->id,
-        );
-        $filename = Str::uuid()->toString().'.'.$extension;
-        $path = $directory.'/'.$filename;
-
-        $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
-        if ($stored === false) {
-            throw new RuntimeException(__('diyar.media.upload_failed'));
-        }
-
-        return $path;
+        return $this->persistOptimizedRaster(
+            sprintf('%s/%s/avatar', config('diyar_media.avatar_directory', 'users'), $user->id),
+            $file,
+            'avatar',
+        )->path;
     }
 
     public function storeVendorLogo(string $vendorAccountId, UploadedFile $file): string
     {
         $this->validateVendorLogo($file);
 
-        $extension = $this->resolveVendorLogoExtension($file);
         $directory = sprintf(
             '%s/%s/logo',
             config('diyar_media.vendor_directory', 'vendors'),
             $vendorAccountId,
         );
-        $filename = Str::uuid()->toString().'.'.$extension;
-        $path = $directory.'/'.$filename;
 
-        if ($extension === 'svg') {
-            $contents = file_get_contents($file->getRealPath() ?: '');
-            if ($contents === false) {
-                throw new InvalidArgumentException(__('diyar.media.invalid_upload'));
-            }
-            SvgSafetyValidator::assertSafe($contents);
-            $stored = Storage::disk($this->diskName())->put($path, $contents);
-        } else {
-            $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
+        if ($file->getMimeType() === 'image/svg+xml') {
+            return $this->persistRawUpload($directory, $file, 'svg')->path;
         }
 
-        if ($stored === false) {
-            throw new RuntimeException(__('diyar.media.upload_failed'));
-        }
-
-        return $path;
+        return $this->persistOptimizedRaster($directory, $file, 'avatar')->path;
     }
 
     public function storeVendorCover(string $vendorAccountId, UploadedFile $file): string
     {
         $this->validateVendorCover($file);
 
-        $extension = $this->resolveVendorCoverExtension($file);
-        $directory = sprintf(
-            '%s/%s/cover',
-            config('diyar_media.vendor_directory', 'vendors'),
-            $vendorAccountId,
-        );
-        $filename = Str::uuid()->toString().'.'.$extension;
-        $path = $directory.'/'.$filename;
-
-        $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
-        if ($stored === false) {
-            throw new RuntimeException(__('diyar.media.upload_failed'));
-        }
-
-        return $path;
+        return $this->persistOptimizedRaster(
+            sprintf('%s/%s/cover', config('diyar_media.vendor_directory', 'vendors'), $vendorAccountId),
+            $file,
+            'cover',
+        )->path;
     }
 
     public function storeProviderAvatar(string $providerAccountId, UploadedFile $file): string
     {
         $this->validateImage($file);
 
-        $extension = $this->resolveExtension($file);
-        $directory = sprintf('providers/%s/avatar', $providerAccountId);
-        $filename = Str::uuid()->toString().'.'.$extension;
-        $path = $directory.'/'.$filename;
-
-        $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
-        if ($stored === false) {
-            throw new RuntimeException(__('diyar.media.upload_failed'));
-        }
-
-        return $path;
+        return $this->persistOptimizedRaster(
+            sprintf('providers/%s/avatar', $providerAccountId),
+            $file,
+            'avatar',
+        )->path;
     }
 
     public function storeServiceCover(string $serviceId, UploadedFile $file): string
     {
         $this->validateImage($file);
 
-        $extension = $this->resolveExtension($file);
-        $directory = sprintf('services/%s/cover', $serviceId);
-        $filename = Str::uuid()->toString().'.'.$extension;
-        $path = $directory.'/'.$filename;
-
-        $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
-        if ($stored === false) {
-            throw new RuntimeException(__('diyar.media.upload_failed'));
-        }
-
-        return $path;
+        return $this->persistOptimizedRaster(
+            sprintf('services/%s/cover', $serviceId),
+            $file,
+            'cover',
+        )->path;
     }
 
     public function storeCmsImage(User $user, UploadedFile $file, string $directory): string
     {
+        unset($user);
         $this->validateImage($file);
 
-        $extension = $this->resolveExtension($file);
-        $directory = trim($directory, '/');
-        $filename = Str::uuid()->toString().'.'.$extension;
-        $path = $directory.'/'.$filename;
+        return $this->persistOptimizedRaster(trim($directory, '/'), $file, 'cover')->path;
+    }
 
-        $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
-        if ($stored === false) {
-            throw new RuntimeException(__('diyar.media.upload_failed'));
-        }
+    public function storeCategoryImage(string $categoryId, UploadedFile $file): string
+    {
+        $this->validateImage($file);
 
-        return $path;
+        return $this->persistOptimizedRaster(
+            sprintf('categories/%s', $categoryId),
+            $file,
+            'default',
+        )->path;
     }
 
     public function storeProductImage(User $user, string $productId, UploadedFile $file): MediaFile
     {
         $this->validateImage($file);
 
-        $extension = $this->resolveExtension($file);
-        $directory = sprintf('products/%s', $productId);
-        $filename = Str::uuid()->toString().'.'.$extension;
-        $path = $directory.'/'.$filename;
-
-        $stored = Storage::disk($this->diskName())->putFileAs($directory, $file, $filename);
-        if ($stored === false) {
-            throw new RuntimeException(__('diyar.media.upload_failed'));
-        }
+        $stored = $this->persistOptimizedRaster(
+            sprintf('products/%s', $productId),
+            $file,
+            'product',
+        );
 
         return MediaFile::query()->create([
             'disk' => $this->diskName(),
-            'path' => $path,
-            'mime_type' => (string) $file->getMimeType(),
-            'size_bytes' => (int) $file->getSize(),
+            'path' => $stored->path,
+            'mime_type' => $stored->mimeType,
+            'size_bytes' => $stored->sizeBytes,
             'uploaded_by' => $user->id,
         ]);
+    }
+
+    /**
+     * Shared entry for chat, returns, service-request attachments, quotations, etc.
+     */
+    public function storeAttachment(string $directory, UploadedFile $file, string $profile = 'default'): StoredMedia
+    {
+        $mime = (string) $file->getMimeType();
+
+        if ($mime === 'application/pdf') {
+            return $this->persistOptimizedPdf($directory, $file);
+        }
+
+        $this->validateImage($file);
+
+        return $this->persistOptimizedRaster($directory, $file, $profile);
     }
 
     public function deleteMediaFile(?MediaFile $mediaFile): void
@@ -238,16 +212,6 @@ final class MediaUploadService
         }
 
         return $disk->url($path);
-    }
-
-    private function resolveExtension(UploadedFile $file): string
-    {
-        return match ($file->getMimeType()) {
-            'image/jpeg' => 'jpg',
-            'image/png' => 'png',
-            'image/webp' => 'webp',
-            default => throw new InvalidArgumentException(__('diyar.media.invalid_type')),
-        };
     }
 
     public function validateVendorLogo(UploadedFile $file): void
@@ -303,18 +267,62 @@ final class MediaUploadService
         }
     }
 
-    private function resolveVendorLogoExtension(UploadedFile $file): string
-    {
-        return match ($file->getMimeType()) {
-            'image/jpeg' => 'jpg',
-            'image/png' => 'png',
-            'image/svg+xml' => 'svg',
-            default => throw new InvalidArgumentException(__('diyar.media.invalid_type')),
-        };
+    private function persistOptimizedRaster(
+        string $directory,
+        UploadedFile $file,
+        string $profile,
+    ): StoredMedia {
+        $optimized = $this->optimizer->optimizeRasterImage($file, $profile);
+
+        return $this->writeOptimizedMedia($directory, $optimized);
     }
 
-    private function resolveVendorCoverExtension(UploadedFile $file): string
+    private function persistOptimizedPdf(string $directory, UploadedFile $file): StoredMedia
     {
-        return $this->resolveExtension($file);
+        $optimized = $this->optimizer->optimizePdf($file);
+
+        return $this->writeOptimizedMedia($directory, $optimized);
+    }
+
+    private function persistRawUpload(string $directory, UploadedFile $file, string $extension): StoredMedia
+    {
+        $contents = (string) file_get_contents($file->getRealPath() ?: '');
+        if ($extension === 'svg') {
+            SvgSafetyValidator::assertSafe($contents);
+        }
+
+        $filename = Str::uuid()->toString().'.'.$extension;
+        $path = trim($directory, '/').'/'.$filename;
+
+        $stored = Storage::disk($this->diskName())->put($path, $contents);
+        if ($stored === false) {
+            throw new RuntimeException(__('diyar.media.upload_failed'));
+        }
+
+        return new StoredMedia(
+            path: $path,
+            mimeType: (string) $file->getMimeType(),
+            sizeBytes: strlen($contents),
+            extension: $extension,
+        );
+    }
+
+    private function writeOptimizedMedia(string $directory, OptimizedMedia $optimized): StoredMedia
+    {
+        $directory = trim($directory, '/');
+        $filename = Str::uuid()->toString().'.'.$optimized->extension;
+        $path = $directory.'/'.$filename;
+
+        $stored = Storage::disk($this->diskName())->put($path, $optimized->contents);
+        if ($stored === false) {
+            throw new RuntimeException(__('diyar.media.upload_failed'));
+        }
+
+        return new StoredMedia(
+            path: $path,
+            mimeType: $optimized->mimeType,
+            sizeBytes: $optimized->sizeBytes,
+            extension: $optimized->extension,
+        );
     }
 }

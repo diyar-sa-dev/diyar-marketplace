@@ -4,6 +4,8 @@ const THEME_FONT_LINK_ID = 'diyar-theme-google-fonts';
 const GOOGLE_FONT_SPECS: Record<string, string> = {
   Cairo: 'Cairo:wght@400;600;700',
   'IBM Plex Sans Arabic': 'IBM+Plex+Sans+Arabic:wght@400;600;700',
+  'Noto Sans Arabic': 'Noto+Sans+Arabic:wght@400;600;700',
+  Almarai: 'Almarai:wght@400;700',
   'Plus Jakarta Sans': 'Plus+Jakarta+Sans:wght@400;600;700',
 };
 

@@ -25,11 +25,13 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
     let cancelled = false;
 
-    void Promise.all([ensureLocaleCatalog(locale), ensureLocaleFonts(locale)]).then(() => {
+    void ensureLocaleCatalog(locale).then(() => {
       if (!cancelled) {
         setBootstrappedLocale(locale);
       }
     });
+
+    void ensureLocaleFonts(locale);
 
     return () => {
       cancelled = true;
@@ -44,10 +46,11 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      void Promise.all([ensureLocaleCatalog(next), ensureLocaleFonts(next)]).then(() => {
+      void ensureLocaleCatalog(next).then(() => {
         setLocaleState(next);
         writeStoredLocale(next);
         applyDocumentLocale(next);
+        void ensureLocaleFonts(next);
       });
     },
     [locale],

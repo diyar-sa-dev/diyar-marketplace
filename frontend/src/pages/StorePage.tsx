@@ -32,6 +32,7 @@ import { isValidStoreSlug } from '../lib/storePath.ts';
 import { StoreReviewsTab } from '../components/store/StoreReviewsTab.tsx';
 import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
 import { StarRating } from '../components/product/StarRating.tsx';
+import { UserAvatar } from '../components/profile/UserAvatar.tsx';
 import { useLocale } from '../hooks/useLocale.ts';
 import { usePageSeo } from '../hooks/usePageSeo.ts';
 import { usePaginationState } from '../hooks/usePaginationState.ts';
@@ -40,7 +41,7 @@ import { useStoreFollow } from '../hooks/store/useStoreFollow.ts';
 import { useStartChat } from '../hooks/chat/useStartChat.ts';
 import { useToast } from '../hooks/useToast.ts';
 
-import { PLACEHOLDER_STORE_COVER, PLACEHOLDER_STORE_LOGO } from '../lib/storeMediaDefaults.ts';
+import { PLACEHOLDER_STORE_COVER } from '../lib/storeMediaDefaults.ts';
 
 export default function StorePage() {
   const { t, locale, dir } = useLocale();
@@ -150,7 +151,7 @@ export default function StorePage() {
 
   const storeSlug = canonicalSlug ?? slug;
   const coverUrl = resolveMediaUrl(vendor.cover_url) ?? PLACEHOLDER_STORE_COVER;
-  const logoUrl = resolveMediaUrl(vendor.logo_url) ?? PLACEHOLDER_STORE_LOGO;
+  const logoUrl = resolveMediaUrl(vendor.logo_url);
   const products = productsData?.items.map(mapProductCard) ?? [];
   const productsCount = vendor.products_count ?? productsData?.pagination.total ?? products.length;
 
@@ -237,16 +238,13 @@ export default function StorePage() {
         <div className="relative bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 p-6 -mt-16 md:-mt-24 mb-8 z-10">
           <div className="flex flex-col md:flex-row gap-6 md:items-end">
             {/* Logo */}
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl md:rounded-2xl border-4 border-white shadow-md overflow-hidden bg-white shrink-0 -mt-16 md:-mt-20">
-              <img
-                src={logoUrl}
-                alt={vendor.store_name}
-                className="w-full h-full object-cover bg-white"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'https://images.unsplash.com/photo-1544333346-64e4fe18274b?auto=format&fit=crop&q=80&w=200';
-                }}
+            <div className="w-24 h-24 md:w-32 md:h-32 shrink-0 self-start -mt-16 md:-mt-20">
+              <UserAvatar
+                name={vendor.store_name}
+                avatarUrl={logoUrl}
+                shape="square"
+                variant="storefront"
+                className="w-full h-full text-2xl md:text-3xl"
               />
             </div>
 

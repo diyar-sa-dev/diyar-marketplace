@@ -13,7 +13,7 @@ export function HomeRouteFallback() {
   return (
     <div
       className="h-[min(88vh,720px)] md:h-[calc(100vh-48px)] w-full rounded-b-3xl md:rounded-b-4xl animate-pulse bg-gray-50"
-      aria-hidden
+      aria-hidden="true"
     />
   );
 }

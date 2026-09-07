@@ -1,16 +1,36 @@
-/** Shared product category imagery for homepage sections (room grid, style grid, strip). */
-export const CATEGORY_IMAGES: Record<string, string> = {
-  bedroom: '/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.webp',
-  'living-room': '/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.webp',
-  kitchen: '/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.webp',
+import { resolveMediaUrl } from './media.ts';
+import { staticAsset } from './media/pictureSources.ts';
+
+/** Product category WebP tiles shipped in /public/categories (keyed by slug). */
+export const PRODUCT_CATEGORY_WEBP: Record<string, string> = {
+  bedroom: '/categories/غرف النوم.webp',
+  'living-room': '/categories/الصالونات.webp',
+  kitchen: '/categories/المطابخ.webp',
   dining: '/categories/غرف الطعام.webp',
-  office: '/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.webp',
-  decor: '/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.webp',
+  office: '/categories/المكاتب.webp',
+  decor: '/categories/ديكورات.webp',
   lighting: '/categories/الإضاءة.webp',
   curtains: '/categories/الستائر.webp',
   outdoor: '/categories/أثاث خارجي.webp',
   bathroom: '/categories/الحمامات.webp',
 };
+
+/** Service category WebP tiles shipped in /public/categories (keyed by slug). */
+export const SERVICE_CATEGORY_WEBP: Record<string, string> = {
+  'interior-design': '/categories/تصميم داخلي.webp',
+  maintenance: '/categories/تركيب وصيانة.webp',
+  painting: '/categories/دهانات.webp',
+  upholstery: '/categories/تنجيد وتجديد.webp',
+  carpentry: '/categories/نجارة مخصصة.webp',
+  consultation: '/categories/استشارات تصميم.webp',
+  moving: '/categories/نقل وتغليف.webp',
+  cleaning: '/categories/تنظيف وتلميع.webp',
+  electrical: '/categories/إضاءة وكهرباء.webp',
+  'curtains-install': '/categories/تركيب الستائر.webp',
+};
+
+/** @deprecated Use PRODUCT_CATEGORY_WEBP — kept for room/style grids. */
+export const CATEGORY_IMAGES: Record<string, string> = PRODUCT_CATEGORY_WEBP;
 
 /** Room-focused categories for the Shop by room grid. */
 export const HOME_ROOM_SLUGS = [
@@ -25,11 +45,34 @@ export const HOME_ROOM_SLUGS = [
 /** Accent / finish categories for the Shop by style bento grid. */
 export const HOME_STYLE_SLUGS = ['decor', 'lighting', 'curtains', 'bathroom', 'kitchen'] as const;
 
-const PLACEHOLDER_CATEGORY_IMG =
+export const PLACEHOLDER_CATEGORY_IMG =
   'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=60&w=800';
 
+export function staticCategoryWebp(slug: string, type: 'product' | 'service' = 'product'): string | undefined {
+  if (type === 'service') {
+    return SERVICE_CATEGORY_WEBP[slug] ?? PRODUCT_CATEGORY_WEBP[slug];
+  }
+
+  return PRODUCT_CATEGORY_WEBP[slug];
+}
+
+/** Uploaded API image wins, then static WebP for known slugs. */
+export function resolveCategoryImageUrl(
+  slug: string,
+  apiImageUrl?: string | null,
+  type: 'product' | 'service' = 'product',
+): string | undefined {
+  const uploaded = resolveMediaUrl(apiImageUrl);
+  if (uploaded) {
+    return uploaded;
+  }
+
+  const staticPath = staticCategoryWebp(slug, type);
+  return staticPath ? staticAsset(staticPath) : undefined;
+}
+
 export function categoryImageForSlug(slug: string): string {
-  return CATEGORY_IMAGES[slug] ?? PLACEHOLDER_CATEGORY_IMG;
+  return resolveCategoryImageUrl(slug) ?? PLACEHOLDER_CATEGORY_IMG;
 }
 
 export function categoryHref(slug: string): string {

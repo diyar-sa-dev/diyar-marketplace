@@ -6,8 +6,6 @@ use App\Models\Message;
 use App\Models\MessageAttachment;
 use App\Services\Media\MediaUploadService;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 final class ChatAttachmentService
 {
@@ -17,26 +15,19 @@ final class ChatAttachmentService
 
     public function attachToMessage(Message $message, UploadedFile $file): MessageAttachment
     {
-        $this->mediaUpload->validateImage($file);
-
-        $disk = $this->mediaUpload->diskName();
-        $extension = strtolower((string) $file->getClientOriginalExtension());
-        $filename = Str::uuid()->toString().'.'.$extension;
-        $path = 'chat/'.$message->conversation_id.'/'.$filename;
-
-        Storage::disk($disk)->putFileAs(
+        $stored = $this->mediaUpload->storeAttachment(
             'chat/'.$message->conversation_id,
             $file,
-            $filename,
+            'default',
         );
 
         return MessageAttachment::query()->create([
             'message_id' => $message->id,
-            'disk' => $disk,
-            'path' => $path,
+            'disk' => $this->mediaUpload->diskName(),
+            'path' => $stored->path,
             'original_name' => $file->getClientOriginalName(),
-            'mime_type' => (string) $file->getMimeType(),
-            'size_bytes' => (int) $file->getSize(),
+            'mime_type' => $stored->mimeType,
+            'size_bytes' => $stored->sizeBytes,
         ]);
     }
 }

@@ -49,6 +49,7 @@ class ServiceBooking extends Model
         'status',
         'completed_at',
         'cancelled_at',
+        'payment_due_at',
     ];
 
     protected function casts(): array
@@ -66,6 +67,7 @@ class ServiceBooking extends Model
             'schedule_proposed_at' => 'datetime',
             'completed_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'payment_due_at' => 'datetime',
         ];
     }
 

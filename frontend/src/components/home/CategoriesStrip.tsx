@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BedDouble,
@@ -23,98 +23,159 @@ import {
 } from 'lucide-react';
 import { useCategories } from '../../hooks/catalog/useCatalog.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
-import { staticAsset } from '../../lib/media/pictureSources.ts';
+import {
+  PRODUCT_CATEGORY_WEBP,
+  SERVICE_CATEGORY_WEBP,
+  resolveCategoryImageUrl,
+  resolveHomeCategoryLabel,
+} from '../../lib/homeCategoryAssets.ts';
 import { RailControls } from './sections/HorizontalRail.tsx';
+
+type CategoryIcon = React.ComponentType<{ className?: string; strokeWidth?: number }>;
 
 type Cat = {
   id: string;
   name: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  img?: string;
+  icon: CategoryIcon;
+  imageUrl?: string;
 };
 
-const PRODUCTS: Cat[] = [
-  {
-    id: 'bedroom',
-    name: 'غرف النوم',
-    icon: BedDouble,
-    img: '/categories/%D8%BA%D8%B1%D9%81%20%D8%A7%D9%84%D9%86%D9%88%D9%85.webp',
-  },
-  {
-    id: 'living-room',
-    name: 'الصالونات',
-    icon: Sofa,
-    img: '/categories/%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D9%88%D9%86%D8%A7%D8%AA.webp',
-  },
-  {
-    id: 'kitchen',
-    name: 'المطابخ',
-    icon: CookingPot,
-    img: '/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.webp',
-  },
-  { id: 'dining', name: 'غرف الطعام', icon: UtensilsCrossed, img: '/categories/غرف الطعام.webp' },
-  {
-    id: 'office',
-    name: 'المكاتب',
-    icon: MonitorSmartphone,
-    img: '/categories/%D8%A7%D9%84%D9%85%D9%83%D8%A7%D8%AA%D8%A8.webp',
-  },
-  {
-    id: 'decor',
-    name: 'ديكورات',
-    icon: PackageSearch,
-    img: '/categories/%D8%AF%D9%8A%D9%83%D9%88%D8%B1%D8%A7%D8%AA.webp',
-  },
-  { id: 'lighting', name: 'الإضاءة', icon: Lamp, img: '/categories/الإضاءة.webp' },
-  { id: 'curtains', name: 'الستائر', icon: Blinds, img: '/categories/الستائر.webp' },
-  { id: 'outdoor', name: 'أثاث خارجي', icon: Trees, img: '/categories/أثاث خارجي.webp' },
-  { id: 'bathroom', name: 'الحمامات', icon: Bath, img: '/categories/الحمامات.webp' },
-];
+const PRODUCT_ICON_BY_SLUG: Record<string, CategoryIcon> = {
+  bedroom: BedDouble,
+  'living-room': Sofa,
+  kitchen: CookingPot,
+  dining: UtensilsCrossed,
+  office: MonitorSmartphone,
+  decor: PackageSearch,
+  lighting: Lamp,
+  curtains: Blinds,
+  outdoor: Trees,
+  bathroom: Bath,
+};
 
-const SERVICES: Cat[] = [
-  {
-    id: 'interior-design',
-    name: 'تصميم داخلي',
-    icon: Paintbrush,
-    img: '/categories/تصميم داخلي.webp',
-  },
-  { id: 'maintenance', name: 'تركيب وصيانة', icon: Wrench, img: '/categories/تركيب وصيانة.webp' },
-  { id: 'painting', name: 'دهانات', icon: PaintRoller, img: '/categories/دهانات.webp' },
-  { id: 'upholstery', name: 'تنجيد وتجديد', icon: Armchair, img: '/categories/تنجيد وتجديد.webp' },
-  { id: 'carpentry', name: 'نجارة مخصصة', icon: Hammer, img: '/categories/نجارة مخصصة.webp' },
-  {
-    id: 'consultation',
-    name: 'استشارات تصميم',
-    icon: Lightbulb,
-    img: '/categories/استشارات تصميم.webp',
-  },
-  { id: 'moving', name: 'نقل وتغليف', icon: Truck, img: '/categories/نقل وتغليف.webp' },
-  { id: 'cleaning', name: 'تنظيف وتلميع', icon: SprayCan, img: '/categories/تنظيف وتلميع.webp' },
-  { id: 'electrical', name: 'إضاءة وكهرباء', icon: Zap, img: '/categories/إضاءة وكهرباء.webp' },
-  {
-    id: 'curtains-install',
-    name: 'تركيب الستائر',
-    icon: Blinds,
-    img: '/categories/تركيب الستائر.webp',
-  },
-];
+const SERVICE_ICON_BY_SLUG: Record<string, CategoryIcon> = {
+  'interior-design': Paintbrush,
+  maintenance: Wrench,
+  painting: PaintRoller,
+  upholstery: Armchair,
+  carpentry: Hammer,
+  consultation: Lightbulb,
+  moving: Truck,
+  cleaning: SprayCan,
+  electrical: Zap,
+  'curtains-install': Blinds,
+};
 
-const STATIC_ICON_BY_SLUG = Object.fromEntries(PRODUCTS.map((cat) => [cat.id, cat.icon])) as Record<
-  string,
-  Cat['icon']
->;
+const SERVICE_FALLBACK_NAMES: Record<string, string> = {
+  'interior-design': 'تصميم داخلي',
+  maintenance: 'تركيب وصيانة',
+  painting: 'دهانات',
+  upholstery: 'تنجيد وتجديد',
+  carpentry: 'نجارة مخصصة',
+  consultation: 'استشارات تصميم',
+  moving: 'نقل وتغليف',
+  cleaning: 'تنظيف وتلميع',
+  electrical: 'إضاءة وكهرباء',
+  'curtains-install': 'تركيب الستائر',
+};
 
-const STATIC_IMG_BY_SLUG = Object.fromEntries(
-  PRODUCTS.filter((cat) => cat.img).map((cat) => [cat.id, cat.img]),
-) as Record<string, string>;
+function fallbackProductCategories(t: (key: string) => string): Cat[] {
+  return Object.keys(PRODUCT_CATEGORY_WEBP).map((slug) => ({
+    id: slug,
+    name: resolveHomeCategoryLabel(slug, t),
+    icon: PRODUCT_ICON_BY_SLUG[slug] ?? PackageSearch,
+    imageUrl: resolveCategoryImageUrl(slug, null, 'product'),
+  }));
+}
 
-const SERVICE_ICON_BY_SLUG = Object.fromEntries(
-  SERVICES.map((cat) => [cat.id, cat.icon]),
-) as Record<string, Cat['icon']>;
+function fallbackServiceCategories(): Cat[] {
+  return Object.keys(SERVICE_CATEGORY_WEBP).map((slug) => ({
+    id: slug,
+    name: SERVICE_FALLBACK_NAMES[slug] ?? slug,
+    icon: SERVICE_ICON_BY_SLUG[slug] ?? Paintbrush,
+    imageUrl: resolveCategoryImageUrl(slug, null, 'service'),
+  }));
+}
 
-const SERVICE_STATIC_IMG_BY_SLUG = Object.fromEntries(
-  SERVICES.filter((cat) => cat.img).map((cat) => [cat.id, cat.img]),
-) as Record<string, string>;
+function CategoryTile({
+  cat,
+  accent,
+}: {
+  cat: Cat;
+  accent: 'product' | 'service';
+}) {
+  const tileRef = useRef<HTMLDivElement>(null);
+  const [shouldLoadImage, setShouldLoadImage] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageFailed, setImageFailed] = useState(!cat.imageUrl);
+  const showIcon = !cat.imageUrl || imageFailed || !imageLoaded;
+
+  useEffect(() => {
+    if (!cat.imageUrl) {
+      return;
+    }
+
+    const node = tileRef.current;
+    if (!node) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setShouldLoadImage(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '120px' },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [cat.imageUrl]);
+
+  const tileBg =
+    accent === 'service' ? 'bg-diyar-brown text-diyar-cream' : 'bg-diyar-cream text-diyar-dark';
+
+  return (
+    <Link
+      to={`/category/${cat.id}`}
+      className="flex flex-col items-center cursor-pointer group snap-start shrink-0 w-24 sm:w-28 md:w-32"
+    >
+      <div
+        ref={tileRef}
+        className={`relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-xl mb-3 overflow-hidden transition duration-300 group-hover:-translate-y-2 group-hover:shadow-md flex items-center justify-center ${tileBg}`}
+      >
+        {cat.imageUrl && shouldLoadImage && !imageFailed ? (
+          <img
+            src={cat.imageUrl}
+            alt=""
+            width={128}
+            height={128}
+            decoding="async"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => {
+              setImageFailed(true);
+              setImageLoaded(false);
+            }}
+          />
+        ) : null}
+        <div
+          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${showIcon ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          aria-hidden="true"
+        >
+          <cat.icon className="w-8 h-8 md:w-10 md:h-10" strokeWidth={1.5} />
+        </div>
+      </div>
+      <span className="font-medium text-diyar-dark group-hover:text-diyar-brown transition text-xs md:text-sm text-center leading-snug">
+        {cat.name}
+      </span>
+    </Link>
+  );
+}
 
 function CategoryRow({
   title,
@@ -126,10 +187,6 @@ function CategoryRow({
   accent: 'product' | 'service';
 }) {
   const scroller = useRef<HTMLDivElement>(null);
-  const [loaded, setLoaded] = useState<Record<string, boolean>>({});
-
-  const tileBg =
-    accent === 'service' ? 'bg-diyar-brown text-diyar-cream' : 'bg-diyar-cream text-diyar-dark';
 
   return (
     <div className="mb-8 md:mb-10 last:mb-0">
@@ -143,38 +200,7 @@ function CategoryRow({
         className="flex gap-3 md:gap-4 overflow-x-auto scrollbar-hide snap-x scroll-smooth py-2 -my-2 px-1 -mx-1"
       >
         {items.map((cat) => (
-          <Link
-            to={`/category/${cat.id}`}
-            key={cat.id}
-            className="flex flex-col items-center cursor-pointer group snap-start shrink-0 w-24 sm:w-28 md:w-32"
-          >
-            <div
-              className={`relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-xl mb-3 overflow-hidden transition duration-300 group-hover:-translate-y-2 group-hover:shadow-md flex items-center justify-center ${tileBg}`}
-            >
-              {cat.img && (
-                <img
-                  src={staticAsset(cat.img)}
-                  alt={cat.name}
-                  width={128}
-                  height={128}
-                  decoding="async"
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover absolute inset-0"
-                  onLoad={() => setLoaded((prev) => ({ ...prev, [cat.id]: true }))}
-                  onError={() => setLoaded((prev) => ({ ...prev, [cat.id]: false }))}
-                />
-              )}
-              <div
-                className={`absolute inset-0 flex items-center justify-center bg-inherit ${cat.img && loaded[cat.id] ? 'opacity-0' : 'opacity-100'}`}
-              >
-                <cat.icon className="w-8 h-8 md:w-10 md:h-10" strokeWidth={1.5} />
-              </div>
-            </div>
-            <span className="font-medium text-diyar-dark group-hover:text-diyar-brown transition text-xs md:text-sm text-center leading-snug">
-              {cat.name}
-            </span>
-          </Link>
+          <CategoryTile key={cat.id} cat={cat} accent={accent} />
         ))}
       </div>
     </div>
@@ -188,22 +214,22 @@ export default function CategoriesStrip() {
 
   const productItems: Cat[] =
     productsLoading || !productCategories?.length
-      ? PRODUCTS
+      ? fallbackProductCategories(t)
       : productCategories.map((cat) => ({
           id: cat.slug,
           name: cat.name,
-          icon: STATIC_ICON_BY_SLUG[cat.slug] ?? PackageSearch,
-          img: STATIC_IMG_BY_SLUG[cat.slug],
+          icon: PRODUCT_ICON_BY_SLUG[cat.slug] ?? PackageSearch,
+          imageUrl: resolveCategoryImageUrl(cat.slug, cat.image_url, 'product'),
         }));
 
   const serviceItems: Cat[] =
     servicesLoading || !serviceCategories?.length
-      ? SERVICES
+      ? fallbackServiceCategories()
       : serviceCategories.map((cat) => ({
           id: cat.slug,
           name: cat.name,
           icon: SERVICE_ICON_BY_SLUG[cat.slug] ?? Paintbrush,
-          img: SERVICE_STATIC_IMG_BY_SLUG[cat.slug] ?? STATIC_IMG_BY_SLUG[cat.slug],
+          imageUrl: resolveCategoryImageUrl(cat.slug, cat.image_url, 'service'),
         }));
 
   return (

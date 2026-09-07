@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\ExpireUnpaidServiceBookingsCommand;
 use App\Console\Commands\ReleaseExpiredInventoryReservations;
 use App\Jobs\Chat\ArchiveOldMessagesJob;
 use Illuminate\Foundation\Inspiring;
@@ -23,6 +24,9 @@ $oneServer = static function ($event) {
 };
 
 $oneServer(Schedule::command(ReleaseExpiredInventoryReservations::class)->everyMinute())
+    ->withoutOverlapping(5);
+
+$oneServer(Schedule::command(ExpireUnpaidServiceBookingsCommand::class)->everyMinute())
     ->withoutOverlapping(5);
 
 $oneServer(Schedule::job(new ArchiveOldMessagesJob)->dailyAt('02:30'))
