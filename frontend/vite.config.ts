@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 
 const frontendRoot = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(frontendRoot, '..');
@@ -31,9 +31,13 @@ function reverbProxyOptions(target: string) {
   };
 }
 
-function seoStaticFilesPlugin(): Plugin {
-  const siteUrl = (process.env.VITE_SITE_URL ?? 'https://diyar.com').replace(/\/$/, '');
-  const paths = ['/', '/category/all', '/services', '/blog', '/b2b', '/loyalty'];
+function seoStaticFilesPlugin(mode: string): Plugin {
+  const env = loadEnv(mode, frontendRoot, '');
+  const siteUrl = (env.VITE_SITE_URL ?? 'https://diyar.com').replace(/\/$/, '');
+  const landingMode = env.VITE_LANDING_MODE === 'true';
+  const paths = landingMode
+    ? ['/', '/en', '/fr']
+    : ['/', '/category/all', '/services', '/blog', '/b2b', '/loyalty'];
 
   return {
     name: 'diyar-seo-static-files',
@@ -82,11 +86,11 @@ function deliveryPreconnectPlugin(): Plugin {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   root: frontendRoot,
   base: cdnBase ? `${cdnBase}/` : '/',
   cacheDir: path.resolve(frontendRoot, 'node_modules/.vite'),
-  plugins: [react(), tailwindcss(), deliveryPreconnectPlugin(), seoStaticFilesPlugin()],
+  plugins: [react(), tailwindcss(), deliveryPreconnectPlugin(), seoStaticFilesPlugin(mode)],
   resolve: {
     dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
   },
@@ -170,4 +174,4 @@ export default defineConfig({
       '/storage': apiProxyOptions(),
     },
   },
-});
+}));

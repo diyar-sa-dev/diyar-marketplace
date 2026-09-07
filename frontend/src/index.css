@@ -702,3 +702,45 @@
     transform: translateY(0);
   }
 }
+
+/* Temporary public landing page */
+.landing-hero-glow {
+  background: radial-gradient(circle at 20% 20%, rgb(148 121 97 / 0.18), transparent 55%),
+    radial-gradient(circle at 80% 0%, rgb(31 61 58 / 0.12), transparent 45%);
+}
+
+.landing-reveal {
+  animation: landing-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-reveal-delay {
+  animation-delay: 120ms;
+}
+
+.landing-reveal-delay-2 {
+  animation-delay: 220ms;
+}
+
+@keyframes landing-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-reveal,
+  .landing-reveal-delay,
+  .landing-reveal-delay-2,
+  .landing-section {
+    animation: none !important;
+  }
+
+  .animate-bounce {
+    animation: none !important;
+  }
+}

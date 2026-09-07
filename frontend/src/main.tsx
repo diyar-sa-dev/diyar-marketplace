@@ -1,53 +1,11 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { QueryClientProvider } from '@tanstack/react-query';
-import App from './App.tsx';
-import { AuthProvider } from './context/AuthContext.tsx';
-import { ErrorBoundary } from './components/common/ErrorBoundary.tsx';
-import { ToastProvider } from './components/common/ToastProvider.tsx';
-import { AboutModalProvider } from './context/AboutModalContext.tsx';
-import { LocaleProvider } from './lib/i18n/LocaleProvider.tsx';
-import { PlatformThemeProvider } from './components/theme/PlatformThemeProvider.tsx';
-import { MarketplaceMessagingProviders } from './components/providers/MarketplaceMessagingProviders.tsx';
-import { kickstartLocaleCatalog } from './lib/i18n/localeCatalog.ts';
-import { ensureLocaleFonts } from './lib/i18n/localeFonts.ts';
-import { applyDocumentLocale, readStoredLocale } from './lib/i18n/storage.ts';
-import { applyPageSeo, DEFAULT_SEO } from './lib/seo/pageSeo.ts';
-import { queryClient } from './lib/queryClient.ts';
-import './index.css';
+import { isLandingMode } from './lib/landing/mode.ts';
 
-const bootLocale = readStoredLocale();
-applyDocumentLocale(bootLocale);
-kickstartLocaleCatalog(bootLocale);
-void ensureLocaleFonts(bootLocale);
-applyPageSeo({
-  title: DEFAULT_SEO.title,
-  description: DEFAULT_SEO.description,
-  image: DEFAULT_SEO.image,
-  canonicalPath: window.location.pathname === '/' ? '/' : undefined,
-});
+async function bootstrap() {
+  if (isLandingMode()) {
+    await import('./main.landing.tsx');
+  } else {
+    await import('./main.marketplace.tsx');
+  }
+}
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <LocaleProvider>
-        <AboutModalProvider>
-          <BrowserRouter>
-            <ToastProvider>
-              <AuthProvider>
-                <ErrorBoundary>
-                  <MarketplaceMessagingProviders>
-                    <PlatformThemeProvider>
-                      <App />
-                    </PlatformThemeProvider>
-                  </MarketplaceMessagingProviders>
-                </ErrorBoundary>
-              </AuthProvider>
-            </ToastProvider>
-          </BrowserRouter>
-        </AboutModalProvider>
-      </LocaleProvider>
-    </QueryClientProvider>
-  </StrictMode>,
-);
+void bootstrap();
