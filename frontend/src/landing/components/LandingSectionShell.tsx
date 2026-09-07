@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-type SectionTone = 'light' | 'cream' | 'dark' | 'gradient';
+type SectionTone = 'light' | 'cream' | 'dark' | 'gradient' | 'how' | 'contact';
 
 export function LandingSectionShell({
   id,
@@ -22,9 +22,13 @@ export function LandingSectionShell({
       ? 'bg-diyar-dark text-white landing-section-dark'
       : tone === 'cream'
         ? 'bg-diyar-cream landing-section-cream'
-        : tone === 'gradient'
-          ? 'landing-section-gradient text-diyar-dark'
-          : 'bg-white landing-section-light';
+        : tone === 'how'
+          ? 'landing-section-how text-diyar-dark'
+          : tone === 'contact'
+            ? 'landing-section-contact text-diyar-dark'
+            : tone === 'gradient'
+              ? 'landing-section-gradient text-diyar-dark'
+              : 'bg-white landing-section-light';
 
   return (
     <section

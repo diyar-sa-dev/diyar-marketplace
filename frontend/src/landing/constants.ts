@@ -4,7 +4,6 @@ export const LANDING_NAV_ITEMS = [
   { key: 'customers', href: '#customers' },
   { key: 'providers', href: '#providers' },
   { key: 'ecosystem', href: '#ecosystem' },
-  { key: 'coming', href: '#coming' },
   { key: 'contact', href: '#contact' },
 ] as const;
 
@@ -15,9 +14,12 @@ export const LANDING_ASSETS = {
   phoneMockup: '/diyar-phone-mockup.webp',
   heroAccent: '/hero_1.webp',
   heroSecondary: '/hero_2.webp',
+  heroTertiary: '/hero_3.webp',
   laptop: '/laptop.webp',
+  appMockup: '/app-mockup.webp',
   panelOne: '/panel%201.webp',
   panelTwo: '/panel%202.webp',
+  panelThree: '/panel%203.webp',
   categories: [
     '/categories/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%AF%D8%A7%D8%AE%D9%84%D9%8A.webp',
     '/categories/%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%20%D9%88%D8%B5%D9%8A%D8%A7%D9%86%D8%A9.webp',
@@ -25,3 +27,8 @@ export const LANDING_ASSETS = {
     '/categories/%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%A8%D8%AE.webp',
   ],
 } as const;
+
+export function resolveLandingLocaleFromPath(pathname: string): 'ar' | 'en' {
+  const segment = pathname.replace(/^\//, '').split('/')[0];
+  return segment === 'en' ? 'en' : 'ar';
+}

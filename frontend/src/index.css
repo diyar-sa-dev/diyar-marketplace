@@ -773,23 +773,254 @@
   transform: translateY(-1px);
 }
 
+.landing-page-ar {
+  font-family: 'Alexandria', 'Tajawal', sans-serif;
+}
+
+.landing-page-en {
+  font-family: 'Outfit', 'Inter', sans-serif;
+}
+
 .landing-hero-visual {
   position: relative;
-  min-height: 22rem;
+  min-height: 24rem;
+  padding-inline: 0.5rem;
 }
 
 .landing-hero-card {
   overflow: hidden;
-  border: 1px solid rgb(148 121 97 / 0.12);
+  border: 1px solid rgb(148 121 97 / 0.14);
   background: #fff;
   box-shadow: var(--landing-shadow);
 }
 
 .landing-hero-card-main {
   position: relative;
-  z-index: 2;
-  padding: 0.85rem;
+  z-index: 3;
+  margin-inline: auto;
+  max-width: 17rem;
+  padding: 0.65rem;
+  border-radius: 1.85rem;
+}
+
+.landing-hero-card-back {
+  position: absolute;
+  z-index: 1;
+  width: 46%;
+  padding: 0.4rem;
+  border-radius: 1.1rem;
+}
+
+.landing-hero-card-back-left {
+  inset-block-start: 10%;
+  inset-inline-start: -2%;
+  transform: rotate(-6deg);
+}
+
+.landing-hero-card-back-right {
+  inset-block-end: 6%;
+  inset-inline-end: -2%;
+  transform: rotate(5deg);
+}
+
+.landing-section-how {
+  background: linear-gradient(180deg, #f3ecdb 0%, #ffffff 100%);
+}
+
+.landing-section-contact {
+  background: linear-gradient(180deg, #ffffff 0%, #f3ecdb 100%);
+}
+
+.landing-flow-panel-gradient {
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: linear-gradient(145deg, rgb(31 61 58 / 0.96), rgb(148 121 97 / 0.88));
+  color: #fff;
+}
+
+.landing-flow-panel-gradient-alt {
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: linear-gradient(145deg, rgb(31 61 58 / 0.92), rgb(90 87 254 / 0.55));
+  color: #fff;
+}
+
+.landing-step-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.08);
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.landing-step-item:hover {
+  transform: translateY(-2px);
+  background: rgb(255 255 255 / 0.14);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.12);
+}
+
+.landing-step-index {
+  display: inline-flex;
+  height: 1.75rem;
+  width: 1.75rem;
+  shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgb(243 236 219 / 0.18);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.landing-feature-card {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  border: 1px solid rgb(148 121 97 / 0.12);
+  border-radius: 1.15rem;
+  background: #fff;
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgb(31 61 58 / 0.05);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.landing-feature-card:hover {
+  transform: translateY(-2px);
+  border-color: rgb(148 121 97 / 0.28);
+  box-shadow: 0 14px 32px rgb(31 61 58 / 0.1);
+}
+
+.landing-feature-icon {
+  display: inline-flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.85rem;
+  background: linear-gradient(145deg, rgb(31 61 58 / 0.12), rgb(148 121 97 / 0.18));
+  color: var(--color-diyar-dark);
+}
+
+.landing-feature-icon-alt {
+  background: linear-gradient(145deg, rgb(90 87 254 / 0.12), rgb(148 121 97 / 0.16));
+}
+
+.landing-feature-title {
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-diyar-dark);
+}
+
+.landing-feature-desc {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgb(75 85 99);
+}
+
+.landing-ecosystem-banner {
+  position: relative;
+  overflow: hidden;
   border-radius: 1.5rem;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  background: linear-gradient(135deg, #1a1a1a 0%, #243634 55%, #1f3d3a 100%);
+  padding: 2rem;
+  box-shadow: var(--landing-shadow);
+}
+
+.landing-ecosystem-glow {
+  background:
+    radial-gradient(circle at 85% 15%, rgb(148 121 97 / 0.22), transparent 45%),
+    radial-gradient(circle at 10% 90%, rgb(90 87 254 / 0.16), transparent 40%);
+}
+
+.landing-gradient-text {
+  background: linear-gradient(to left, #d4b08c, #f5d08a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.landing-ecosystem-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1.25rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 1.25rem;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.landing-ecosystem-card:hover {
+  transform: translateY(-3px);
+  border-color: rgb(255 255 255 / 0.2);
+  background: rgb(255 255 255 / 0.1);
+}
+
+.landing-ecosystem-card-icon {
+  display: inline-flex;
+  height: 3rem;
+  width: 3rem;
+  margin-bottom: 1rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.9rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(148 121 97 / 0.2);
+  color: var(--color-diyar-cream);
+}
+
+.landing-contact-card {
+  display: flex;
+  min-height: 4.5rem;
+  align-items: center;
+  gap: 0.85rem;
+  border: 1px solid rgb(148 121 97 / 0.18);
+  border-radius: 1.15rem;
+  background: #fff;
+  padding: 1.1rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-diyar-dark);
+  box-shadow: 0 8px 24px rgb(31 61 58 / 0.06);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.landing-contact-card:hover {
+  transform: translateY(-2px);
+  border-color: rgb(148 121 97 / 0.35);
+  box-shadow: 0 14px 30px rgb(31 61 58 / 0.1);
+}
+
+.landing-contact-card-primary {
+  background: linear-gradient(145deg, var(--color-diyar-dark), rgb(31 61 58 / 0.92));
+  color: var(--color-diyar-cream);
+  border-color: transparent;
+}
+
+.landing-contact-card-primary:hover {
+  background: #000;
 }
 
 .landing-hero-card-accent {
@@ -855,7 +1086,7 @@
   margin-bottom: 1rem;
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--color-diyar-dark);
+  color: #fff;
 }
 
 .landing-eco-card {

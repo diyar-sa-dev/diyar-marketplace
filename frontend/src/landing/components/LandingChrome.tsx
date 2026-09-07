@@ -1,12 +1,12 @@
 import { useEffect, useId, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-import { DiyarBrandMark } from '../../components/common/DiyarBrandMark.tsx';
 import { LANDING_ASSETS, LANDING_NAV_ITEMS, type LandingNavKey } from '../constants.ts';
 import { useLandingLocale } from '../hooks/useLandingLocale.ts';
 import { landingLocaleHref } from '../landingSeo.ts';
 import { LANDING_LOCALES, type LandingLocale } from '../i18n/types.ts';
 import { getPlatformSupportMailHref } from '../../lib/platformContact.ts';
+import { LandingAnchor } from './LandingAnchor.tsx';
 
 export function LandingHeader() {
   const { locale, messages, setLocale, dir } = useLandingLocale();
@@ -54,42 +54,38 @@ export function LandingHeader() {
 
   return (
     <header
+      dir={dir}
       className={`sticky top-0 z-50 transition-[box-shadow,background-color,border-color] duration-300 ${
         scrolled
-          ? 'border-b border-diyar-brown/15 bg-diyar-cream/95 shadow-[0_10px_30px_rgb(31_61_58_/_0.08)] backdrop-blur-md'
-          : 'border-b border-transparent bg-diyar-cream/80 backdrop-blur-sm'
+          ? 'border-b border-diyar-brown/20 bg-white/92 shadow-[0_8px_32px_rgb(31_61_58_/_0.1)] backdrop-blur-lg'
+          : 'border-b border-diyar-brown/10 bg-white/75 backdrop-blur-md'
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6 md:py-3.5">
-        <a
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:px-6">
+        <LandingAnchor
           href="#top"
-          className="group flex min-w-0 items-center gap-3 shrink-0 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown"
-          aria-label="DIYAR"
+          className="group flex min-w-0 shrink-0 items-center gap-2.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown"
+          ariaLabel="DIYAR"
         >
-          <img src={LANDING_ASSETS.logo} alt="" className="h-8 w-auto transition-transform group-hover:scale-[1.02]" />
-          <span className="hidden sm:inline">
-            <DiyarBrandMark size="sm" />
-          </span>
-        </a>
+          <img src={LANDING_ASSETS.logo} alt="" className="h-9 w-auto transition-transform group-hover:scale-[1.03]" />
+          <span className="hidden text-sm font-black tracking-[0.18em] text-diyar-dark sm:inline">DIYAR</span>
+        </LandingAnchor>
 
-        <nav
-          className="hidden lg:flex items-center gap-0.5 text-sm font-semibold text-diyar-dark/80"
-          aria-label="Primary"
-        >
+        <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Primary">
           {LANDING_NAV_ITEMS.map((item) => (
-            <a
+            <LandingAnchor
               key={item.key}
               href={item.href}
-              className="rounded-xl px-3 py-2 transition-colors hover:bg-white/75 hover:text-diyar-brown focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown cursor-pointer"
+              className="rounded-full px-3.5 py-2 text-sm font-bold text-diyar-dark/75 transition-all hover:bg-diyar-cream hover:text-diyar-brown focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown cursor-pointer"
             >
               {navLabel(item.key)}
-            </a>
+            </LandingAnchor>
           ))}
         </nav>
 
         <div className="flex items-center gap-2">
           <div
-            className="hidden sm:flex items-center gap-1 rounded-xl border border-diyar-brown/15 bg-white/80 p-1 shadow-sm"
+            className="hidden items-center gap-0.5 rounded-full border border-diyar-brown/15 bg-diyar-cream/60 p-1 sm:flex"
             role="group"
             aria-label={messages.language.label}
             dir="ltr"
@@ -99,10 +95,10 @@ export function LandingHeader() {
                 key={code}
                 type="button"
                 onClick={() => switchLocale(code)}
-                className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown ${
+                className={`rounded-full px-3 py-1.5 text-xs font-bold transition-all cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown ${
                   locale === code
                     ? 'bg-diyar-dark text-diyar-cream shadow-sm'
-                    : 'text-diyar-dark/70 hover:bg-diyar-cream'
+                    : 'text-diyar-dark/70 hover:bg-white'
                 }`}
                 aria-pressed={locale === code}
               >
@@ -113,7 +109,7 @@ export function LandingHeader() {
 
           <button
             type="button"
-            className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-diyar-brown/15 bg-white/90 text-diyar-dark shadow-sm transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown cursor-pointer"
+            className="xl:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border border-diyar-brown/15 bg-white text-diyar-dark shadow-sm transition-colors hover:bg-diyar-cream focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown cursor-pointer"
             aria-expanded={menuOpen}
             aria-controls={menuId}
             aria-label={menuOpen ? messages.nav.close : messages.nav.menu}
@@ -125,21 +121,17 @@ export function LandingHeader() {
       </div>
 
       {menuOpen ? (
-        <div
-          id={menuId}
-          className="lg:hidden border-t border-diyar-brown/10 bg-diyar-cream/98 px-4 py-4 shadow-inner"
-          dir={dir}
-        >
+        <div id={menuId} className="border-t border-diyar-brown/10 bg-white/98 px-4 py-4 xl:hidden" dir={dir}>
           <nav className="flex flex-col gap-1" aria-label="Mobile">
             {LANDING_NAV_ITEMS.map((item) => (
-              <a
+              <LandingAnchor
                 key={item.key}
                 href={item.href}
-                className="rounded-xl px-3 py-3 text-sm font-bold text-diyar-dark transition-colors hover:bg-white/85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown cursor-pointer"
-                onClick={() => setMenuOpen(false)}
+                className="rounded-xl px-3 py-3 text-sm font-bold text-diyar-dark transition-colors hover:bg-diyar-cream focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown cursor-pointer"
+                onNavigate={() => setMenuOpen(false)}
               >
                 {navLabel(item.key)}
-              </a>
+              </LandingAnchor>
             ))}
           </nav>
           <div className="mt-4 flex flex-wrap gap-2" dir="ltr">
@@ -148,8 +140,8 @@ export function LandingHeader() {
                 key={code}
                 type="button"
                 onClick={() => switchLocale(code)}
-                className={`rounded-xl px-3 py-2 text-xs font-bold cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown ${
-                  locale === code ? 'bg-diyar-dark text-diyar-cream' : 'bg-white text-diyar-dark'
+                className={`rounded-full px-3 py-2 text-xs font-bold cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown ${
+                  locale === code ? 'bg-diyar-dark text-diyar-cream' : 'bg-diyar-cream text-diyar-dark'
                 }`}
               >
                 {messages.language[code]}
@@ -163,12 +155,12 @@ export function LandingHeader() {
 }
 
 export function LandingFooter() {
-  const { locale, messages } = useLandingLocale();
+  const { locale, messages, dir } = useLandingLocale();
   const year = new Date().getFullYear();
   const mailHref = getPlatformSupportMailHref();
 
   return (
-    <footer className="border-t border-diyar-brown/15 bg-diyar-dark text-white">
+    <footer dir={dir} className="border-t border-diyar-brown/15 bg-diyar-dark text-white">
       <div className="mx-auto max-w-6xl px-4 py-12 md:px-6">
         <div className="grid gap-10 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,0.8fr)]">
           <div className="max-w-md">
@@ -178,14 +170,14 @@ export function LandingFooter() {
 
           <nav className="flex flex-col gap-2 text-sm font-semibold text-white/80" aria-label="Footer">
             <p className="mb-1 text-xs uppercase tracking-[0.18em] text-white/45">{messages.nav.about}</p>
-            {LANDING_NAV_ITEMS.slice(0, 5).map((item) => (
-              <a
+            {LANDING_NAV_ITEMS.slice(0, 4).map((item) => (
+              <LandingAnchor
                 key={item.key}
                 href={item.href}
                 className="rounded-lg py-1 transition-colors hover:text-diyar-cream focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-cream cursor-pointer"
               >
                 {messages.nav[item.key]}
-              </a>
+              </LandingAnchor>
             ))}
           </nav>
 
@@ -202,7 +194,7 @@ export function LandingFooter() {
                 <Link
                   key={code}
                   to={landingLocaleHref(code)}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-cream cursor-pointer ${
+                  className={`rounded-full px-2.5 py-1 text-xs font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-cream cursor-pointer ${
                     locale === code ? 'bg-white/15 text-white' : 'text-white/70 hover:text-white'
                   }`}
                 >
