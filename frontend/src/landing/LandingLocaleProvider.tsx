@@ -1,31 +1,15 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getLandingCatalog } from './i18n/catalogs/index.ts';
 import { LandingLocaleContext } from './i18n/landingContext.ts';
 import {
-  DEFAULT_LANDING_LOCALE,
   isLandingLocale,
   landingLocaleDirection,
   LANDING_LOCALE_STORAGE_KEY,
   type LandingLocale,
 } from './i18n/types.ts';
+import { resolveLandingLocaleFromPath } from './constants.ts';
 import { ensureLandingFonts } from './landingFonts.ts';
-
-function readStoredLandingLocale(): LandingLocale {
-  if (typeof window === 'undefined') {
-    return DEFAULT_LANDING_LOCALE;
-  }
-
-  const stored = window.localStorage.getItem(LANDING_LOCALE_STORAGE_KEY);
-  if (stored && isLandingLocale(stored)) {
-    return stored;
-  }
-
-  if (stored === 'fr') {
-    window.localStorage.removeItem(LANDING_LOCALE_STORAGE_KEY);
-  }
-
-  return DEFAULT_LANDING_LOCALE;
-}
 
 function applyLandingDocumentLocale(locale: LandingLocale): void {
   if (typeof document === 'undefined') {
@@ -36,26 +20,19 @@ function applyLandingDocumentLocale(locale: LandingLocale): void {
   document.documentElement.dir = landingLocaleDirection(locale);
 }
 
-export function LandingLocaleProvider({
-  initialLocale,
-  children,
-}: {
-  initialLocale?: LandingLocale;
-  children: ReactNode;
-}) {
-  const [locale, setLocaleState] = useState<LandingLocale>(() => initialLocale ?? readStoredLandingLocale());
+export function LandingLocaleProvider({ children }: { initialLocale?: LandingLocale; children: ReactNode }) {
+  const location = useLocation();
+  const locale = resolveLandingLocaleFromPath(location.pathname);
 
   useEffect(() => {
     applyLandingDocumentLocale(locale);
+    window.localStorage.setItem(LANDING_LOCALE_STORAGE_KEY, locale);
     void ensureLandingFonts(locale);
   }, [locale]);
 
   const setLocale = useCallback((next: LandingLocale) => {
-    setLocaleState(next);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(LANDING_LOCALE_STORAGE_KEY, next);
-    }
     applyLandingDocumentLocale(next);
+    window.localStorage.setItem(LANDING_LOCALE_STORAGE_KEY, next);
     void ensureLandingFonts(next);
   }, []);
 

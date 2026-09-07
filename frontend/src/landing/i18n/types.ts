@@ -14,6 +14,16 @@ export function landingLocaleDirection(locale: LandingLocale): 'rtl' | 'ltr' {
   return locale === 'ar' ? 'rtl' : 'ltr';
 }
 
+export type LandingEcosystemCard = {
+  title: string;
+  description: string;
+};
+
+export type LandingValueItem = {
+  title: string;
+  description: string;
+};
+
 export type LandingMessages = {
   meta: {
     title: string;
@@ -26,7 +36,6 @@ export type LandingMessages = {
     customers: string;
     providers: string;
     ecosystem: string;
-    coming: string;
     contact: string;
     menu: string;
     close: string;
@@ -35,7 +44,6 @@ export type LandingMessages = {
     eyebrow: string;
     title: string;
     subtitle: string;
-    status: string;
     primaryCta: string;
     secondaryCta: string;
     imageAlt: string;
@@ -55,21 +63,21 @@ export type LandingMessages = {
   customers: {
     title: string;
     subtitle: string;
-    items: string[];
+    items: LandingValueItem[];
   };
   providers: {
     title: string;
     subtitle: string;
-    items: string[];
+    items: LandingValueItem[];
   };
   ecosystem: {
-    title: string;
-    subtitle: string;
-    hub: string;
-    customers: string;
-    providers: string;
-    services: string;
-    bookings: string;
+    badge: string;
+    titleLine1: string;
+    titleHighlight: string;
+    body: string;
+    cards: LandingEcosystemCard[];
+    hubTitle: string;
+    hubSubtitle: string;
   };
   trust: {
     title: string;
