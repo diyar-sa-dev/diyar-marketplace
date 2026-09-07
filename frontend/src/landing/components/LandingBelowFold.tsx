@@ -32,7 +32,7 @@ import { LandingSectionShell } from './LandingSectionShell.tsx';
 
 const CUSTOMER_ICONS: LucideIcon[] = [Compass, GitCompare, UserCheck, CalendarCheck];
 const PROVIDER_ICONS: LucideIcon[] = [Store, Rocket, LayoutGrid, Sparkles];
-const ECOSYSTEM_ICONS: LucideIcon[] = [Users, Wrench, Search];
+const ECOSYSTEM_ICONS: LucideIcon[] = [Users, Wrench, Search, CalendarCheck];
 const TRUST_ICONS: LucideIcon[] = [Layers3, Search, CalendarCheck, MapPin, Zap];
 
 const STEP_ICONS: LucideIcon[] = [Search, GitCompare, UserCheck, CalendarCheck, BadgeCheck];
@@ -107,13 +107,14 @@ export default function LandingBelowFold() {
         tone="cream"
       >
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center">
-          <div className="landing-float-visual">
+          <div className="landing-float-visual landing-phone-visual">
             <LandingImage
               src={LANDING_ASSETS.appMockup}
               alt=""
               width={640}
               height={720}
-              wrapperClassName="rounded-3xl border border-diyar-brown/10 shadow-lg"
+              objectFit="contain"
+              wrapperClassName="rounded-3xl border border-diyar-brown/10 bg-white shadow-lg min-h-[28rem] md:min-h-[32rem]"
               className="rounded-3xl"
             />
           </div>
@@ -176,24 +177,38 @@ export default function LandingBelowFold() {
         </div>
       </LandingSectionShell>
 
-      <section id="ecosystem" className="scroll-mt-24 py-16 md:py-24 landing-section">
+      <section id="ecosystem" className="scroll-mt-24 py-20 md:py-32 landing-section">
         <div className="mx-auto max-w-6xl px-4 md:px-6">
           <div className="landing-ecosystem-banner landing-reveal">
             <div className="pointer-events-none absolute inset-0 landing-ecosystem-glow" aria-hidden />
 
-            <div className="relative grid gap-10 lg:grid-cols-2 lg:items-center">
-              <div className="text-start">
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
-                  <Store size={16} className="text-diyar-cream" aria-hidden />
-                  <span className="text-sm font-bold text-diyar-cream">{messages.ecosystem.badge}</span>
+            <div className="relative grid gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
+              <div className="flex flex-col gap-8 text-start">
+                <div>
+                  <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
+                    <Store size={16} className="text-diyar-cream" aria-hidden />
+                    <span className="text-sm font-bold text-diyar-cream">{messages.ecosystem.badge}</span>
+                  </div>
+                  <h2 className="mb-4 text-3xl font-bold leading-tight text-white md:text-4xl">
+                    {messages.ecosystem.titleLine1}{' '}
+                    <span className="landing-gradient-text">{messages.ecosystem.titleHighlight}</span>
+                  </h2>
+                  <p className="max-w-xl text-base leading-relaxed text-white/70 md:text-lg">
+                    {messages.ecosystem.body}
+                  </p>
                 </div>
-                <h2 className="mb-4 text-3xl font-bold leading-tight text-white md:text-4xl">
-                  {messages.ecosystem.titleLine1}{' '}
-                  <span className="landing-gradient-text">{messages.ecosystem.titleHighlight}</span>
-                </h2>
-                <p className="max-w-xl text-base leading-relaxed text-white/70 md:text-lg">
-                  {messages.ecosystem.body}
-                </p>
+
+                <div className="landing-ecosystem-visual order-last lg:order-none">
+                  <LandingImage
+                    src={LANDING_ASSETS.panelThree}
+                    alt=""
+                    width={480}
+                    height={320}
+                    objectFit="cover"
+                    wrapperClassName="rounded-2xl border border-white/10 shadow-lg"
+                    className="rounded-2xl"
+                  />
+                </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -210,24 +225,6 @@ export default function LandingBelowFold() {
                   );
                 })}
               </div>
-            </div>
-
-            <div className="relative mt-6 grid gap-6 overflow-hidden rounded-3xl border border-diyar-brown/25 bg-diyar-brown/10 p-6 md:p-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center">
-              <div className="text-start">
-                <div className="mb-3 inline-flex items-center gap-2 text-diyar-cream">
-                  <CalendarCheck size={20} aria-hidden />
-                  <span className="text-sm font-bold uppercase tracking-wide">{messages.ecosystem.hubTitle}</span>
-                </div>
-                <p className="text-sm leading-relaxed text-white/70 md:text-base">{messages.ecosystem.hubSubtitle}</p>
-              </div>
-              <LandingImage
-                src={LANDING_ASSETS.panelThree}
-                alt=""
-                width={480}
-                height={320}
-                wrapperClassName="rounded-2xl border border-white/10"
-                className="rounded-2xl"
-              />
             </div>
           </div>
         </div>
@@ -258,17 +255,21 @@ export default function LandingBelowFold() {
       </LandingSectionShell>
 
       <LandingSectionShell id="contact" title={messages.cta.title} subtitle={messages.cta.body} icon={Globe2} tone="contact">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <a href={mailHref} className="landing-contact-card landing-contact-card-primary group">
-            <Mail size={22} className="transition-transform group-hover:scale-110" aria-hidden />
-            <span>{messages.cta.email}</span>
+        <div className="landing-contact-actions">
+          <a href={mailHref} className="landing-contact-btn landing-contact-btn-primary group">
+            <span className="landing-contact-btn-icon">
+              <Mail size={20} className="transition-transform group-hover:scale-110" aria-hidden />
+            </span>
+            <span className="landing-contact-btn-label">{messages.cta.email}</span>
           </a>
-          <a href={telHref} className="landing-contact-card group">
-            <Phone size={22} className="transition-transform group-hover:scale-110" aria-hidden />
-            <span>
-              {messages.cta.phone}{' '}
-              <span className="font-medium text-gray-500" dir="ltr">
-                ({phoneDisplay})
+          <a href={telHref} className="landing-contact-btn group">
+            <span className="landing-contact-btn-icon">
+              <Phone size={20} className="transition-transform group-hover:scale-110" aria-hidden />
+            </span>
+            <span className="landing-contact-btn-text">
+              <span className="landing-contact-btn-label">{messages.cta.phone}</span>
+              <span className="landing-contact-btn-sub" dir="ltr">
+                {phoneDisplay}
               </span>
             </span>
           </a>

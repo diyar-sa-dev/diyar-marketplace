@@ -100,9 +100,11 @@ export const landingAr: LandingMessages = {
         title: 'الخدمات',
         description: 'تصنيفات واضحة تغطي احتياجات المنزل والتصميم والصيانة.',
       },
+      {
+        title: 'الحجوزات',
+        description: 'مسار حجز منظم يربط الطرفين حول تنفيذ الخدمة.',
+      },
     ],
-    hubTitle: 'الحجوزات',
-    hubSubtitle: 'مسار حجز منظم يربط الطرفين حول تنفيذ الخدمة.',
   },
   trust: {
     title: 'لماذا ديار؟',

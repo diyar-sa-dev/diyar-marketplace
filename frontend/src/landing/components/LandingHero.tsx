@@ -8,11 +8,11 @@ export function LandingHero() {
   const { messages } = useLandingLocale();
 
   return (
-    <section className="relative overflow-hidden pb-14 pt-10 md:pb-20 md:pt-14 landing-hero">
+    <section className="relative flex min-h-[100dvh] flex-col justify-center overflow-hidden pb-10 pt-24 md:pb-14 md:pt-28 landing-hero">
       <div className="pointer-events-none absolute inset-0 landing-hero-glow" aria-hidden />
       <div className="pointer-events-none absolute -top-24 start-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-[#5A57FE]/10 blur-3xl" aria-hidden />
 
-      <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 md:grid-cols-2 md:gap-12 md:px-6">
+      <div className="relative mx-auto grid w-full max-w-7xl flex-1 items-center gap-10 px-4 md:grid-cols-2 md:gap-14 md:px-6 lg:gap-16">
         <div className="landing-reveal text-start">
           <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-diyar-brown/15 bg-white/90 px-3.5 py-1.5 text-xs font-bold text-diyar-brown shadow-sm">
             <Sparkles size={14} aria-hidden />
@@ -37,8 +37,8 @@ export function LandingHero() {
           </div>
         </div>
 
-        <div className="relative landing-reveal landing-reveal-delay">
-          <div className="landing-hero-visual mx-auto max-w-md md:max-w-none">
+        <div className="relative landing-reveal landing-reveal-delay w-full">
+          <div className="landing-hero-visual mx-auto w-full max-w-xl md:max-w-none">
             <div className="landing-hero-card landing-hero-card-back landing-hero-card-back-left hidden sm:block">
               <LandingImage
                 src={LANDING_ASSETS.heroAccent}

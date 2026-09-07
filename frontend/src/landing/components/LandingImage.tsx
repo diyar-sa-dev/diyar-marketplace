@@ -8,6 +8,7 @@ type LandingImageProps = {
   priority?: boolean;
   className?: string;
   wrapperClassName?: string;
+  objectFit?: 'cover' | 'contain';
 };
 
 export function LandingImage({
@@ -18,6 +19,7 @@ export function LandingImage({
   priority = false,
   className = '',
   wrapperClassName = '',
+  objectFit = 'cover',
 }: LandingImageProps) {
   const [loaded, setLoaded] = useState(false);
 
@@ -41,9 +43,9 @@ export function LandingImage({
         decoding="async"
         fetchPriority={priority ? 'high' : 'auto'}
         onLoad={() => setLoaded(true)}
-        className={`h-full w-full object-cover transition-opacity duration-500 ${
-          loaded ? 'opacity-100' : 'opacity-0'
-        } ${className}`}
+        className={`h-full w-full transition-opacity duration-500 ${
+          objectFit === 'contain' ? 'object-contain' : 'object-cover'
+        } ${loaded ? 'opacity-100' : 'opacity-0'} ${className}`}
       />
     </div>
   );
