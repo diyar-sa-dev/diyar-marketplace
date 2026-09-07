@@ -1,7 +1,7 @@
 import type { LandingMessages } from './i18n/types.ts';
 import { LANDING_LOCALES, type LandingLocale } from './i18n/types.ts';
 
-const siteUrl = (import.meta.env.VITE_SITE_URL ?? 'https://diyar.com').replace(/\/$/, '');
+const siteUrl = (import.meta.env.VITE_SITE_URL ?? 'https://deyarhome.com').replace(/\/$/, '');
 
 function localePath(locale: LandingLocale): string {
   return locale === 'ar' ? '/' : `/${locale}`;
@@ -23,6 +23,21 @@ function upsertLink(rel: string, href: string, hreflang?: string) {
   node.href = href;
 }
 
+function upsertMeta(property: string, content: string, isName = false) {
+  const selector = isName ? `meta[name="${property}"]` : `meta[property="${property}"]`;
+  let node = document.querySelector<HTMLMetaElement>(selector);
+  if (!node) {
+    node = document.createElement('meta');
+    if (isName) {
+      node.name = property;
+    } else {
+      node.setAttribute('property', property);
+    }
+    document.head.appendChild(node);
+  }
+  node.content = content;
+}
+
 export function applyLandingSeo(messages: LandingMessages, localePathKey: string): void {
   if (typeof document === 'undefined') {
     return;
@@ -30,22 +45,19 @@ export function applyLandingSeo(messages: LandingMessages, localePathKey: string
 
   const canonicalPath = localePathKey === 'ar' ? '/' : `/${localePathKey}`;
   const canonical = `${siteUrl}${canonicalPath === '/' ? '' : canonicalPath}`;
+  const ogImage = `${siteUrl}/logo_diyar.svg`;
 
   document.title = messages.meta.title;
 
-  const setMeta = (selector: string, content: string) => {
-    const node = document.querySelector<HTMLMetaElement>(selector);
-    if (node) {
-      node.content = content;
-    }
-  };
-
-  setMeta('meta[name="description"]', messages.meta.description);
-  setMeta('meta[property="og:title"]', messages.meta.title);
-  setMeta('meta[property="og:description"]', messages.meta.description);
-  setMeta('meta[property="og:locale"]', messages.meta.ogLocale);
-  setMeta('meta[name="twitter:title"]', messages.meta.title);
-  setMeta('meta[name="twitter:description"]', messages.meta.description);
+  upsertMeta('description', messages.meta.description, true);
+  upsertMeta('og:title', messages.meta.title);
+  upsertMeta('og:description', messages.meta.description);
+  upsertMeta('og:locale', messages.meta.ogLocale);
+  upsertMeta('og:url', canonical);
+  upsertMeta('og:image', ogImage);
+  upsertMeta('twitter:title', messages.meta.title, true);
+  upsertMeta('twitter:description', messages.meta.description, true);
+  upsertMeta('twitter:image', ogImage, true);
 
   upsertLink('canonical', canonical);
 

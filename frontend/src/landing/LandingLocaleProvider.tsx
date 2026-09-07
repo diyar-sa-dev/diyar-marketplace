@@ -16,7 +16,15 @@ function readStoredLandingLocale(): LandingLocale {
   }
 
   const stored = window.localStorage.getItem(LANDING_LOCALE_STORAGE_KEY);
-  return stored && isLandingLocale(stored) ? stored : DEFAULT_LANDING_LOCALE;
+  if (stored && isLandingLocale(stored)) {
+    return stored;
+  }
+
+  if (stored === 'fr') {
+    window.localStorage.removeItem(LANDING_LOCALE_STORAGE_KEY);
+  }
+
+  return DEFAULT_LANDING_LOCALE;
 }
 
 function applyLandingDocumentLocale(locale: LandingLocale): void {

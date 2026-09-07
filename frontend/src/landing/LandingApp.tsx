@@ -4,9 +4,15 @@ import { isLandingLocale } from './i18n/types.ts';
 
 function LandingLocaleGate() {
   const { locale } = useParams();
+
+  if (locale === 'fr') {
+    return <Navigate to="/" replace />;
+  }
+
   if (locale && !isLandingLocale(locale)) {
     return <Navigate to="/" replace />;
   }
+
   return <LandingPage />;
 }
 

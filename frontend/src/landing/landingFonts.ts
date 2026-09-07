@@ -15,7 +15,7 @@ export async function ensureLandingFonts(locale: LandingLocale): Promise<void> {
     return;
   }
 
-  if ((locale === 'en' || locale === 'fr') && !latinFontsLoaded) {
+  if (locale === 'en' && !latinFontsLoaded) {
     await Promise.all([
       import('@fontsource/outfit/400.css'),
       import('@fontsource/outfit/700.css'),
