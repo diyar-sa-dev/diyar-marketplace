@@ -66,7 +66,7 @@ export default function LandingBelowFold() {
   return (
     <>
       <LandingSectionShell id="about" title={messages.intro.title} icon={Sparkles} tone="light">
-        <div className="grid items-center gap-8 md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <div className="landing-intro-panel grid items-center gap-8 md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
           <div className="landing-intro-copy">
             <p className="text-lg leading-relaxed text-gray-700 md:text-xl">{messages.intro.body}</p>
           </div>
@@ -129,7 +129,7 @@ export default function LandingBelowFold() {
             {messages.customers.items.map((item, index) => {
               const Icon = CUSTOMER_ICONS[index] ?? BadgeCheck;
               return (
-                <li key={item.title} className="landing-feature-card group">
+                <li key={item.title} className="landing-feature-card landing-feature-card-warm group">
                   <span className="landing-feature-icon">
                     <Icon size={20} className="transition-transform group-hover:scale-110" aria-hidden />
                   </span>
@@ -155,7 +155,7 @@ export default function LandingBelowFold() {
             {messages.providers.items.map((item, index) => {
               const Icon = PROVIDER_ICONS[index] ?? Store;
               return (
-                <li key={item.title} className="landing-feature-card group">
+                <li key={item.title} className="landing-feature-card landing-feature-card-warm group">
                   <span className="landing-feature-icon landing-feature-icon-alt">
                     <Icon size={20} className="transition-transform group-hover:scale-110" aria-hidden />
                   </span>
@@ -194,6 +194,11 @@ export default function LandingBelowFold() {
 
             <div className="relative grid gap-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-stretch">
               <div className="flex flex-col gap-8 text-start">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
+                  <Store size={16} className="text-diyar-cream" aria-hidden />
+                  <span className="text-sm font-bold text-diyar-cream">{messages.ecosystem.badge}</span>
+                </div>
+
                 <div className="landing-ecosystem-visual">
                   <LandingImage
                     src={LANDING_ASSETS.ecosystemHero}
@@ -201,16 +206,12 @@ export default function LandingBelowFold() {
                     width={520}
                     height={360}
                     objectFit="cover"
-                    wrapperClassName="rounded-2xl border border-white/10 shadow-xl min-h-[14rem] md:min-h-[16rem]"
+                    wrapperClassName="rounded-2xl border border-white/10 shadow-xl min-h-[12rem] md:min-h-[14rem]"
                     className="rounded-2xl"
                   />
                 </div>
 
                 <div>
-                  <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
-                    <Store size={16} className="text-diyar-cream" aria-hidden />
-                    <span className="text-sm font-bold text-diyar-cream">{messages.ecosystem.badge}</span>
-                  </div>
                   <h2 className="mb-4 text-3xl font-bold leading-tight text-white md:text-4xl">
                     {messages.ecosystem.titleLine1}{' '}
                     <span className="landing-gradient-text">{messages.ecosystem.titleHighlight}</span>
@@ -225,7 +226,8 @@ export default function LandingBelowFold() {
                 {messages.ecosystem.cards.map((card, index) => {
                   const Icon = ECOSYSTEM_ICONS[index] ?? Users;
                   return (
-                    <article key={card.title} className="landing-ecosystem-card group">
+                    <article key={card.title} className={`landing-ecosystem-card landing-ecosystem-card-${index + 1} group`}>
+                      <span className="landing-ecosystem-card-badge">{String(index + 1).padStart(2, '0')}</span>
                       <span className="landing-ecosystem-card-icon">
                         <Icon size={24} className="transition-transform group-hover:scale-110" aria-hidden />
                       </span>
@@ -241,19 +243,22 @@ export default function LandingBelowFold() {
       </section>
 
       <LandingSectionShell id="trust" title={messages.trust.title} icon={ShieldCheck} tone="gradient" className="landing-section-trust">
-        <ul className="landing-trust-grid">
-          {messages.trust.items.map((item, index) => {
-            const Icon = TRUST_ICONS[index] ?? ShieldCheck;
-            return (
-              <li key={item} className="landing-trust-card group">
-                <span className="landing-trust-icon">
-                  <Icon size={18} className="transition-transform group-hover:scale-110" aria-hidden />
-                </span>
-                <span className="landing-trust-text">{item}</span>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="landing-trust-showcase">
+          <ul className="landing-trust-grid">
+            {messages.trust.items.map((item, index) => {
+              const Icon = TRUST_ICONS[index] ?? ShieldCheck;
+              return (
+                <li key={item} className={`landing-trust-card landing-trust-card-${index + 1} group`}>
+                  <span className="landing-trust-index">{index + 1}</span>
+                  <span className="landing-trust-icon">
+                    <Icon size={20} className="transition-transform group-hover:scale-110" aria-hidden />
+                  </span>
+                  <span className="landing-trust-text">{item}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </LandingSectionShell>
 
       <LandingSectionShell id="coming" title={messages.coming.title} icon={Rocket} tone="cream" className="landing-section-coming">
@@ -268,7 +273,9 @@ export default function LandingBelowFold() {
       </LandingSectionShell>
 
       <LandingSectionShell id="contact" title={messages.cta.title} subtitle={messages.cta.body} icon={Globe2} tone="contact">
-        <div className="landing-contact-actions">
+        <div className="landing-contact-panel">
+          <p className="landing-contact-reassurance">{messages.cta.reassurance}</p>
+          <div className="landing-contact-actions">
           <a href={mailHref} className="landing-contact-btn landing-contact-btn-primary group">
             <span className="landing-contact-btn-icon">
               <Mail size={20} className="transition-transform group-hover:scale-110" aria-hidden />
@@ -286,6 +293,7 @@ export default function LandingBelowFold() {
               </span>
             </span>
           </a>
+        </div>
         </div>
       </LandingSectionShell>
     </>

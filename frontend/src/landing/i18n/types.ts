@@ -43,9 +43,11 @@ export type LandingMessages = {
   hero: {
     eyebrow: string;
     title: string;
+    titleHighlight: string;
     subtitle: string;
     primaryCta: string;
     secondaryCta: string;
+    highlights: string[];
     imageAlt: string;
     accentAlt: string;
   };
@@ -91,6 +93,7 @@ export type LandingMessages = {
     body: string;
     email: string;
     phone: string;
+    reassurance: string;
   };
   footer: {
     tagline: string;
