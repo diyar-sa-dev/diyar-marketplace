@@ -75,7 +75,7 @@ export function LandingHeader() {
             <LandingAnchor
               key={item.key}
               href={item.href}
-              className="rounded-full px-3.5 py-2 text-sm font-bold text-diyar-dark/75 transition-all hover:bg-diyar-cream hover:text-diyar-brown focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown cursor-pointer"
+              className="landing-nav-link rounded-full px-3.5 py-2 text-sm font-bold text-diyar-dark/75 transition-all hover:bg-diyar-cream hover:text-diyar-brown focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown cursor-pointer"
             >
               {navLabel(item.key)}
             </LandingAnchor>

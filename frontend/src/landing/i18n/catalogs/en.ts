@@ -19,11 +19,13 @@ export const landingEn: LandingMessages = {
   },
   hero: {
     eyebrow: 'Digital service marketplace',
-    title: 'Discover services and connect with trusted providers — in one place',
+    title: 'Discover services and connect with trusted providers —',
+    titleHighlight: 'in one place',
     subtitle:
       'DIYAR brings customers and providers into one clear journey: discover, compare, request, book, and follow through.',
     primaryCta: 'Explore',
     secondaryCta: 'Contact',
+    highlights: ['Transparent booking', 'Local experience', 'Organized discovery'],
     imageAlt: 'DIYAR mobile experience preview',
     accentAlt: 'Home and design services',
   },
@@ -126,6 +128,7 @@ export const landingEn: LandingMessages = {
     body: 'Public registration is not open yet. You can contact us directly for inquiries.',
     email: 'Email us',
     phone: 'Call us',
+    reassurance: 'The DIYAR team is happy to answer your questions and tell you more about the platform.',
   },
   footer: {
     tagline: 'Digital service marketplace — DIYAR.',

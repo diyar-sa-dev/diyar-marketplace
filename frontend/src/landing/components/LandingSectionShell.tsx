@@ -39,14 +39,15 @@ export function LandingSectionShell({
       className={`relative scroll-mt-24 py-20 md:py-32 landing-section ${toneClass} ${className}`}
     >
       <div className="mx-auto max-w-6xl px-4 md:px-6">
-        <header className="mb-10 max-w-2xl landing-reveal">
+        <header className="landing-section-header mb-10 max-w-2xl landing-reveal">
           {Icon ? (
             <span className="landing-section-icon mb-4 inline-flex">
               <Icon size={20} aria-hidden />
             </span>
           ) : null}
+          <div className="landing-section-accent" aria-hidden />
           <h2
-            className={`mb-3 text-2xl font-bold md:text-3xl ${
+            className={`mb-3 text-2xl font-bold md:text-3xl lg:text-[2rem] ${
               tone === 'dark' ? 'text-white' : 'text-diyar-dark'
             }`}
           >

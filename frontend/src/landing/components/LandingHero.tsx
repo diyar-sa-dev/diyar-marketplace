@@ -8,7 +8,7 @@ export function LandingHero() {
   const { messages } = useLandingLocale();
 
   return (
-    <section className="relative flex min-h-[100dvh] flex-col justify-center overflow-hidden pb-10 pt-24 md:pb-14 md:pt-28 landing-hero">
+    <section className="relative flex min-h-[100dvh] flex-col justify-center overflow-x-hidden pb-10 pt-24 md:pb-14 md:pt-28 landing-hero">
       <div className="pointer-events-none absolute inset-0 landing-hero-glow" aria-hidden />
       <div className="pointer-events-none absolute -top-24 start-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-[#5A57FE]/10 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute bottom-0 end-0 h-64 w-64 rounded-full bg-diyar-brown/10 blur-3xl" aria-hidden />
@@ -20,33 +20,46 @@ export function LandingHero() {
             {messages.hero.eyebrow}
           </p>
 
-          <h1 className="mb-4 max-w-xl text-3xl font-bold leading-[1.2] text-diyar-dark md:text-4xl lg:text-[2.65rem]">
-            {messages.hero.title}
+          <h1 className="landing-hero-title mb-4 max-w-xl text-3xl font-bold leading-[1.2] text-diyar-dark md:text-4xl lg:text-[2.65rem]">
+            {messages.hero.title}{' '}
+            <span className="landing-hero-title-highlight">{messages.hero.titleHighlight}</span>
           </h1>
 
           <p className="mb-8 max-w-xl text-base leading-relaxed text-gray-600 md:text-lg">
             {messages.hero.subtitle}
           </p>
 
-          <div className="flex flex-wrap gap-3">
-            <LandingAnchor href="#about" className="landing-btn landing-btn-primary">
+          <div className="mb-6 flex flex-wrap gap-3">
+            <LandingAnchor href="#about" className="landing-btn landing-btn-primary landing-btn-shine">
               {messages.hero.primaryCta}
             </LandingAnchor>
             <LandingAnchor href="#contact" className="landing-btn landing-btn-secondary">
               {messages.hero.secondaryCta}
             </LandingAnchor>
           </div>
+
+          <ul className="landing-hero-highlights" aria-label="Highlights">
+            {messages.hero.highlights.map((item) => (
+              <li key={item} className="landing-hero-highlight">
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="relative landing-reveal landing-reveal-delay w-full">
-          <div className="landing-hero-visual mx-auto w-full max-w-xl md:max-w-none">
+        <div className="relative landing-reveal landing-reveal-delay w-full px-2 sm:px-4">
+          <div className="landing-hero-stage mx-auto w-full max-w-xl md:max-w-none">
+            <div className="landing-hero-orbit landing-hero-orbit-left" aria-hidden />
+            <div className="landing-hero-orbit landing-hero-orbit-right" aria-hidden />
+
             <div className="landing-hero-card landing-hero-card-back landing-hero-card-back-left landing-hero-float-up">
               <LandingImage
                 src={LANDING_ASSETS.heroAccent}
                 alt={messages.hero.accentAlt}
                 width={420}
                 height={280}
-                wrapperClassName="rounded-2xl"
+                objectFit="cover"
+                wrapperClassName="rounded-2xl aspect-[3/2]"
                 className="rounded-2xl"
               />
             </div>
@@ -56,17 +69,19 @@ export function LandingHero() {
                 alt=""
                 width={360}
                 height={240}
-                wrapperClassName="rounded-2xl"
+                objectFit="cover"
+                wrapperClassName="rounded-2xl aspect-[3/2]"
                 className="rounded-2xl"
               />
             </div>
-            <div className="landing-hero-card landing-hero-card-back landing-hero-card-back-top landing-hero-float-up-slow hidden sm:block">
+            <div className="landing-hero-card landing-hero-card-back landing-hero-card-back-top landing-hero-float-up-slow">
               <LandingImage
                 src={LANDING_ASSETS.heroTertiary}
                 alt=""
                 width={320}
                 height={220}
-                wrapperClassName="rounded-2xl"
+                objectFit="cover"
+                wrapperClassName="rounded-2xl aspect-[3/2]"
                 className="rounded-2xl"
               />
             </div>
