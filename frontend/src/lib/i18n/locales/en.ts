@@ -2392,9 +2392,21 @@ export const en = {
       twoFactorDescription:
         'Two-factor authentication will be enabled in a later phase. Current OTP is used for registration and password recovery.',
       devicesTitle: 'Connected devices',
-      devicesHint: 'In development — preview UI only',
+      devicesHint: 'Review where your account is signed in and sign out devices you do not recognize.',
       devicesDescription:
         'Managing active sessions on multiple devices will be added later. You can sign out from My account.',
+      currentDevice: 'This device',
+      unknownDevice: 'Unknown device',
+      approximateLocation: 'approx.',
+      lastActive: 'Last active',
+      signOutDevice: 'Sign out',
+      logoutOthers: 'Sign out others',
+      logoutOthersTitle: 'Sign out other devices?',
+      logoutOthersDescription:
+        'This will end all other active sessions. You will stay signed in on this device.',
+      logoutOthersConfirm: 'Sign out others',
+      noSessions: 'No active sessions were found.',
+      sessionsLoadError: 'Could not load active sessions. Please try again.',
     },
   },
   vendor: {

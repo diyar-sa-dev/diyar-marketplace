@@ -40,6 +40,15 @@ return [
         'login_decay_minutes' => (int) env('DIYAR_LOGIN_DECAY_MINUTES', 15),
     ],
 
+    'security' => [
+        'session_activity_throttle_seconds' => (int) env('DIYAR_SESSION_ACTIVITY_THROTTLE_SECONDS', 300),
+        'session_backfill_throttle_seconds' => (int) env('DIYAR_SESSION_BACKFILL_THROTTLE_SECONDS', 60),
+        'max_active_sessions_per_user' => (int) env('DIYAR_MAX_ACTIVE_SESSIONS', 25),
+        'revoked_session_retention_days' => (int) env('DIYAR_REVOKED_SESSION_RETENTION_DAYS', 90),
+        'ip_geolocation_enabled' => (bool) env('DIYAR_IP_GEOLOCATION_ENABLED', false),
+        'trust_geo_proxy_headers' => (bool) env('DIYAR_TRUST_GEO_PROXY_HEADERS', false),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Local demo seed credentials (never used in production seeders)

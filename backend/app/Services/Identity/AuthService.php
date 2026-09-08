@@ -7,6 +7,7 @@ use App\Enums\RoleName;
 use App\Enums\UserStatus;
 use App\Models\User;
 use App\Services\Cart\CartService;
+use App\Services\Security\UserSessionService;
 use App\Support\Identity\MarketplaceAccess;
 use App\Support\User\UserNotificationPreferences;
 use Illuminate\Auth\Events\Lockout;
@@ -24,6 +25,7 @@ final class AuthService
         private readonly OtpService $otp,
         private readonly EmailOtpService $emailOtp,
         private readonly WelcomeEmailService $welcomeEmail,
+        private readonly UserSessionService $userSessions,
     ) {}
 
     public function establishSession(User $user, bool $remember = false): User
@@ -47,6 +49,10 @@ final class AuthService
             $user,
             UserNotificationPreferences::mailLocale($user, App::getLocale()),
         );
+
+        if (request()->hasSession()) {
+            $this->userSessions->registerFromRequest($user, request());
+        }
 
         return $user;
     }
@@ -154,6 +160,10 @@ final class AuthService
         $webUser = Auth::guard('web')->user();
 
         if ($webUser !== null) {
+            if (request()->hasSession()) {
+                $this->userSessions->revokeByLaravelSessionId(request()->session()->getId());
+            }
+
             $webUser->forceFill(['remember_token' => null])->save();
         }
 

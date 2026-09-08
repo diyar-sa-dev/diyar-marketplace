@@ -74,6 +74,13 @@ return [
         'building_prefix' => 'مبنى :value',
         'apartment_prefix' => 'شقة :value',
         'notifications_saved' => 'تم حفظ إعدادات الإشعارات بنجاح.',
+        'security' => [
+            'session_not_found' => 'الجلسة غير موجودة أو تم تسجيل الخروج منها مسبقاً.',
+            'cannot_revoke_current_session' => 'لا يمكنك تسجيل الخروج من هذا الجهاز من هنا. استخدم تسجيل الخروج.',
+            'session_revoked' => 'تم تسجيل الخروج من الجهاز بنجاح.',
+            'other_sessions_revoked' => 'تم تسجيل الخروج من الأجهزة الأخرى بنجاح.',
+            'session_required' => 'يلزم وجود جلسة نشطة لهذا الإجراء.',
+        ],
     ],
 
     'media' => [
@@ -179,6 +186,7 @@ return [
             'invalid_categories' => 'أحد التصنيفات المحددة غير صالح.',
             'description_required' => 'صف الخدمة المطلوبة.',
             'attachment_limit_reached' => 'تم الوصول إلى الحد الأقصى للمرفقات.',
+            'cannot_request_own_service' => 'لا يمكنك طلب خدمتك الخاصة.',
         ],
         'offers' => [
             'submitted' => 'تم تقديم العرض بنجاح.',

@@ -4,6 +4,7 @@ namespace App\Services\Profile;
 
 use App\Models\User;
 use App\Services\Media\MediaUploadService;
+use App\Services\Security\UserSessionService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +14,7 @@ final class ProfileService
 {
     public function __construct(
         private readonly MediaUploadService $media,
+        private readonly UserSessionService $userSessions,
     ) {}
 
     /**
@@ -58,10 +60,18 @@ final class ProfileService
             ]);
         }
 
+        $oldSessionId = request()->hasSession() ? request()->session()->getId() : null;
+
         $user->forceFill(['password' => $newPassword])->save();
 
-        if (request()->hasSession()) {
+        if ($oldSessionId !== null) {
+            $this->userSessions->revokeOthers($user, $oldSessionId);
             request()->session()->regenerate();
+            $this->userSessions->syncSessionIdAfterRegeneration(
+                $user,
+                $oldSessionId,
+                request()->session()->getId(),
+            );
         }
     }
 

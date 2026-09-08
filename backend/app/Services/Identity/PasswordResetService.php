@@ -5,12 +5,14 @@ namespace App\Services\Identity;
 use App\Enums\OtpPurpose;
 use App\Enums\UserStatus;
 use App\Models\User;
+use App\Services\Security\UserSessionService;
 use Illuminate\Validation\ValidationException;
 
 final class PasswordResetService
 {
     public function __construct(
         private readonly OtpService $otp,
+        private readonly UserSessionService $userSessions,
     ) {}
 
     public function requestReset(string $phoneRaw): void
@@ -45,7 +47,10 @@ final class PasswordResetService
 
         $user->forceFill([
             'password' => $password,
+            'remember_token' => null,
         ])->save();
+
+        $this->userSessions->revokeAllForUser($user);
 
         return $user;
     }
