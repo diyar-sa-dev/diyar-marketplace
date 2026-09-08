@@ -11,11 +11,12 @@ export function LandingHero() {
     <section className="relative flex min-h-[100dvh] flex-col justify-center overflow-hidden pb-10 pt-24 md:pb-14 md:pt-28 landing-hero">
       <div className="pointer-events-none absolute inset-0 landing-hero-glow" aria-hidden />
       <div className="pointer-events-none absolute -top-24 start-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-[#5A57FE]/10 blur-3xl" aria-hidden />
+      <div className="pointer-events-none absolute bottom-0 end-0 h-64 w-64 rounded-full bg-diyar-brown/10 blur-3xl" aria-hidden />
 
       <div className="relative mx-auto grid w-full max-w-7xl flex-1 items-center gap-10 px-4 md:grid-cols-2 md:gap-14 md:px-6 lg:gap-16">
         <div className="landing-reveal text-start">
           <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-diyar-brown/15 bg-white/90 px-3.5 py-1.5 text-xs font-bold text-diyar-brown shadow-sm">
-            <Sparkles size={14} aria-hidden />
+            <Sparkles size={14} className="landing-hero-sparkle" aria-hidden />
             {messages.hero.eyebrow}
           </p>
 
@@ -39,7 +40,7 @@ export function LandingHero() {
 
         <div className="relative landing-reveal landing-reveal-delay w-full">
           <div className="landing-hero-visual mx-auto w-full max-w-xl md:max-w-none">
-            <div className="landing-hero-card landing-hero-card-back landing-hero-card-back-left hidden sm:block">
+            <div className="landing-hero-card landing-hero-card-back landing-hero-card-back-left landing-hero-float-up">
               <LandingImage
                 src={LANDING_ASSETS.heroAccent}
                 alt={messages.hero.accentAlt}
@@ -49,7 +50,7 @@ export function LandingHero() {
                 className="rounded-2xl"
               />
             </div>
-            <div className="landing-hero-card landing-hero-card-back landing-hero-card-back-right hidden md:block">
+            <div className="landing-hero-card landing-hero-card-back landing-hero-card-back-right landing-hero-float-down">
               <LandingImage
                 src={LANDING_ASSETS.heroSecondary}
                 alt=""
@@ -59,14 +60,25 @@ export function LandingHero() {
                 className="rounded-2xl"
               />
             </div>
-            <div className="landing-hero-card landing-hero-card-main">
+            <div className="landing-hero-card landing-hero-card-back landing-hero-card-back-top landing-hero-float-up-slow hidden sm:block">
+              <LandingImage
+                src={LANDING_ASSETS.heroTertiary}
+                alt=""
+                width={320}
+                height={220}
+                wrapperClassName="rounded-2xl"
+                className="rounded-2xl"
+              />
+            </div>
+            <div className="landing-hero-card landing-hero-card-main landing-hero-float-main">
               <LandingImage
                 src={LANDING_ASSETS.phoneMockup}
                 alt={messages.hero.imageAlt}
                 width={640}
                 height={800}
                 priority
-                wrapperClassName="rounded-[1.75rem]"
+                objectFit="contain"
+                wrapperClassName="rounded-[1.75rem] bg-white"
                 className="rounded-[1.75rem]"
               />
             </div>
