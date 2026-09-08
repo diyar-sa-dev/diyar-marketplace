@@ -67,8 +67,7 @@ export function LandingHeader() {
           className="group flex min-w-0 shrink-0 items-center gap-2.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-diyar-brown"
           ariaLabel="DIYAR"
         >
-          <img src={LANDING_ASSETS.logo} alt="" className="h-9 w-auto transition-transform group-hover:scale-[1.03]" />
-          <span className="hidden text-sm font-black tracking-[0.18em] text-diyar-dark sm:inline">DIYAR</span>
+          <img src={LANDING_ASSETS.logo} alt="DIYAR" className="h-10 w-auto transition-transform group-hover:scale-[1.03]" />
         </LandingAnchor>
 
         <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Primary">
