@@ -116,6 +116,7 @@ use App\Http\Controllers\Api\V1\Profile\CustomerReviewController;
 use App\Http\Controllers\Api\V1\Profile\NotificationController;
 use App\Http\Controllers\Api\V1\Profile\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
+use App\Http\Controllers\Api\V1\Profile\ProfileSecuritySessionController;
 use App\Http\Controllers\Api\V1\Profile\WishlistController;
 use App\Http\Controllers\Api\V1\Projects\ProjectController;
 use App\Http\Controllers\Api\V1\ReadinessController;
@@ -679,7 +680,12 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
     });
 });
 
-Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
+Route::middleware([
+    'auth:sanctum',
+    'account.active',
+    \App\Http\Middleware\EnsureUserSessionNotRevoked::class,
+    \App\Http\Middleware\UserSessionActivityMiddleware::class,
+])->group(function () {
     Route::middleware('marketplace.access')->group(function () {
         Route::prefix('auth')->group(function () {
             Route::get('/me', [AuthController::class, 'me']);
@@ -764,6 +770,12 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
                 ->middleware('throttle:otp');
             Route::post('/email/verify', [ProfileController::class, 'verifyEmailVerification'])
                 ->middleware('throttle:otp');
+
+            Route::get('/security/sessions', [ProfileSecuritySessionController::class, 'index']);
+            Route::delete('/security/sessions/{session}', [ProfileSecuritySessionController::class, 'destroy'])
+                ->middleware('throttle:20,1');
+            Route::post('/security/sessions/logout-others', [ProfileSecuritySessionController::class, 'logoutOthers'])
+                ->middleware('throttle:10,1');
 
             Route::get('/addresses', [AddressController::class, 'index']);
             Route::post('/addresses', [AddressController::class, 'store']);

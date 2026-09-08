@@ -2357,9 +2357,21 @@ export const ar = {
       twoFactorDescription:
         'سيتم تفعيل التحقق بخطوتين في مرحلة لاحقة. OTP الحالي يُستخدم للتسجيل واستعادة كلمة المرور.',
       devicesTitle: 'الأجهزة المتصلة',
-      devicesHint: 'قيد التطوير — واجهة تجريبية فقط',
+      devicesHint: 'راجع الأجهزة التي يُستخدم فيها حسابك وسجّل الخروج مما لا تعرفه.',
       devicesDescription:
         'إدارة الجلسات النشطة على أجهزة متعددة ستُضاف لاحقاً. يمكنك تسجيل الخروج من صفحة حسابي.',
+      currentDevice: 'هذا الجهاز',
+      unknownDevice: 'جهاز غير معروف',
+      approximateLocation: 'موقع تقريبي',
+      lastActive: 'آخر نشاط',
+      signOutDevice: 'تسجيل الخروج',
+      logoutOthers: 'تسجيل خروج الآخرين',
+      logoutOthersTitle: 'تسجيل الخروج من الأجهزة الأخرى؟',
+      logoutOthersDescription:
+        'سيُنهي هذا جميع الجلسات النشطة الأخرى. ستبقى مسجّل الدخول على هذا الجهاز.',
+      logoutOthersConfirm: 'تسجيل خروج الآخرين',
+      noSessions: 'لا توجد جلسات نشطة.',
+      sessionsLoadError: 'تعذّر تحميل الجلسات النشطة. حاول مرة أخرى.',
     },
   },
   vendor: {

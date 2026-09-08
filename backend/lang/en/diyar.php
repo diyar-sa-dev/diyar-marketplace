@@ -74,6 +74,13 @@ return [
         'building_prefix' => 'Building :value',
         'apartment_prefix' => 'Apt :value',
         'notifications_saved' => 'Notification settings saved successfully.',
+        'security' => [
+            'session_not_found' => 'Session not found or already signed out.',
+            'cannot_revoke_current_session' => 'You cannot sign out the current device from this screen. Use log out instead.',
+            'session_revoked' => 'Device signed out successfully.',
+            'other_sessions_revoked' => 'Other devices were signed out successfully.',
+            'session_required' => 'An active session is required for this action.',
+        ],
     ],
 
     'media' => [
@@ -179,6 +186,7 @@ return [
             'invalid_categories' => 'One or more selected categories are invalid.',
             'description_required' => 'Describe the service you need.',
             'attachment_limit_reached' => 'Maximum number of attachments reached.',
+            'cannot_request_own_service' => 'You cannot request your own service.',
         ],
         'offers' => [
             'submitted' => 'Your offer was submitted successfully.',
