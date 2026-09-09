@@ -4,6 +4,27 @@ import { LANDING_ASSETS } from '../constants.ts';
 import { LandingImage } from './LandingImage.tsx';
 import { LandingAnchor } from './LandingAnchor.tsx';
 
+const HERO_SATELLITES = [
+  {
+    src: LANDING_ASSETS.heroAccent,
+    altKey: 'accentAlt' as const,
+    slot: 1,
+    float: 'landing-hero-float-up',
+  },
+  {
+    src: LANDING_ASSETS.heroSecondary,
+    altKey: null,
+    slot: 2,
+    float: 'landing-hero-float-down',
+  },
+  {
+    src: LANDING_ASSETS.heroTertiary,
+    altKey: null,
+    slot: 3,
+    float: 'landing-hero-float-up-slow',
+  },
+];
+
 export function LandingHero() {
   const { messages } = useLandingLocale();
 
@@ -48,55 +69,43 @@ export function LandingHero() {
         </div>
 
         <div className="relative landing-reveal landing-reveal-delay w-full px-2 sm:px-4">
-          <div className="landing-hero-stage mx-auto w-full max-w-xl md:max-w-none">
-            <div className="landing-hero-orbit landing-hero-orbit-left" aria-hidden />
-            <div className="landing-hero-orbit landing-hero-orbit-right" aria-hidden />
+          <div className="landing-hero-solar">
+            <div className="landing-hero-orbit-ring landing-hero-orbit-ring-outer" aria-hidden />
+            <div className="landing-hero-orbit-ring landing-hero-orbit-ring-inner" aria-hidden />
 
-            <div className="landing-hero-card landing-hero-card-back landing-hero-card-back-left landing-hero-float-up">
-              <LandingImage
-                src={LANDING_ASSETS.heroAccent}
-                alt={messages.hero.accentAlt}
-                width={420}
-                height={280}
-                objectFit="cover"
-                wrapperClassName="rounded-2xl aspect-[3/2]"
-                className="rounded-2xl"
-              />
+            <div className="landing-hero-sun-slot">
+              <div className="landing-hero-card landing-hero-sun landing-hero-float-main">
+                <LandingImage
+                  src={LANDING_ASSETS.phoneMockup}
+                  alt={messages.hero.imageAlt}
+                  width={640}
+                  height={800}
+                  priority
+                  objectFit="contain"
+                  wrapperClassName="rounded-[1.75rem] bg-white"
+                  className="rounded-[1.75rem]"
+                />
+              </div>
             </div>
-            <div className="landing-hero-card landing-hero-card-back landing-hero-card-back-right landing-hero-float-down">
-              <LandingImage
-                src={LANDING_ASSETS.heroSecondary}
-                alt=""
-                width={360}
-                height={240}
-                objectFit="cover"
-                wrapperClassName="rounded-2xl aspect-[3/2]"
-                className="rounded-2xl"
-              />
-            </div>
-            <div className="landing-hero-card landing-hero-card-back landing-hero-card-back-top landing-hero-float-up-slow">
-              <LandingImage
-                src={LANDING_ASSETS.heroTertiary}
-                alt=""
-                width={320}
-                height={220}
-                objectFit="cover"
-                wrapperClassName="rounded-2xl aspect-[3/2]"
-                className="rounded-2xl"
-              />
-            </div>
-            <div className="landing-hero-card landing-hero-card-main landing-hero-float-main">
-              <LandingImage
-                src={LANDING_ASSETS.phoneMockup}
-                alt={messages.hero.imageAlt}
-                width={640}
-                height={800}
-                priority
-                objectFit="contain"
-                wrapperClassName="rounded-[1.75rem] bg-white"
-                className="rounded-[1.75rem]"
-              />
-            </div>
+
+            {HERO_SATELLITES.map((satellite) => (
+              <div
+                key={satellite.src}
+                className={`landing-hero-planet-slot landing-hero-planet-slot-${satellite.slot}`}
+              >
+                <div className={`landing-hero-card landing-hero-planet ${satellite.float}`}>
+                  <LandingImage
+                    src={satellite.src}
+                    alt={satellite.altKey ? messages.hero[satellite.altKey] : ''}
+                    width={320}
+                    height={220}
+                    objectFit="cover"
+                    wrapperClassName="rounded-xl aspect-[4/3]"
+                    className="rounded-xl"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

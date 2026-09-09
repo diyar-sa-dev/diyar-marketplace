@@ -931,53 +931,102 @@
   transform: translateY(-1px);
 }
 
-.landing-hero-visual,
-.landing-hero-stage {
+.landing-hero-solar {
   position: relative;
-  min-height: clamp(26rem, 62vh, 42rem);
-  width: 100%;
-  padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 6vw, 3rem);
+  width: min(100%, 26rem);
+  aspect-ratio: 1;
+  margin-inline: auto;
   overflow: visible;
+  container-type: inline-size;
 }
 
-.landing-hero-orbit {
+@media (min-width: 768px) {
+  .landing-hero-solar {
+    width: min(100%, 34rem);
+  }
+}
+
+.landing-hero-orbit-ring {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
   border-radius: 9999px;
-  border: 1px dashed rgb(148 121 97 / 0.16);
+  border: 1px dashed rgb(148 121 97 / 0.18);
   pointer-events: none;
 }
 
-.landing-hero-orbit-left {
-  inset-block-start: 8%;
-  inset-inline-start: 4%;
-  width: 78%;
-  height: 84%;
-  animation: landing-hero-orbit-spin 24s linear infinite;
+.landing-hero-orbit-ring-outer {
+  width: 92%;
+  height: 92%;
+  animation: landing-hero-orbit-spin 36s linear infinite;
 }
 
-.landing-hero-orbit-right {
-  inset-block-start: 14%;
-  inset-inline-end: 6%;
-  width: 52%;
-  height: 58%;
-  animation: landing-hero-orbit-spin-reverse 18s linear infinite;
+.landing-hero-orbit-ring-inner {
+  width: 68%;
+  height: 68%;
+  border-color: rgb(90 87 254 / 0.14);
+  animation: landing-hero-orbit-spin-reverse 28s linear infinite;
+}
+
+.landing-hero-sun-slot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 5;
+  width: clamp(9rem, 34%, 11.5rem);
+  translate: -50% -50%;
+}
+
+.landing-hero-sun {
+  padding: 0.65rem;
+  border-radius: 1.85rem;
+}
+
+.landing-hero-planet-slot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 6;
+  width: clamp(4.75rem, 20%, 6.25rem);
+  transform: translate(-50%, -50%) rotate(var(--orbit-angle)) translateY(calc(-1 * var(--orbit-radius)));
+}
+
+.landing-hero-planet-slot-1 {
+  --orbit-angle: -54deg;
+  --orbit-radius: 46cqw;
+}
+
+.landing-hero-planet-slot-2 {
+  --orbit-angle: 58deg;
+  --orbit-radius: 46cqw;
+}
+
+.landing-hero-planet-slot-3 {
+  --orbit-angle: 176deg;
+  --orbit-radius: 44cqw;
+}
+
+.landing-hero-planet {
+  padding: 0.35rem;
+  border-radius: 1rem;
 }
 
 @keyframes landing-hero-orbit-spin {
   from {
-    transform: rotate(0deg);
+    rotate: 0deg;
   }
   to {
-    transform: rotate(360deg);
+    rotate: 360deg;
   }
 }
 
 @keyframes landing-hero-orbit-spin-reverse {
   from {
-    transform: rotate(360deg);
+    rotate: 360deg;
   }
   to {
-    transform: rotate(0deg);
+    rotate: 0deg;
   }
 }
 
@@ -1054,42 +1103,6 @@
   border: 1px solid rgb(148 121 97 / 0.14);
   background: #fff;
   box-shadow: var(--landing-shadow);
-}
-
-.landing-hero-card-main {
-  position: relative;
-  z-index: 4;
-  margin-inline: auto;
-  max-width: clamp(18rem, 40vw, 24rem);
-  padding: 0.7rem;
-  border-radius: 1.85rem;
-}
-
-.landing-hero-card-back {
-  position: absolute;
-  z-index: 2;
-  width: clamp(34%, 38%, 42%);
-  padding: 0.4rem;
-  border-radius: 1.1rem;
-  opacity: 0.98;
-  box-shadow: 0 16px 36px rgb(31 61 58 / 0.14);
-}
-
-.landing-hero-card-back-left {
-  inset-block-start: 12%;
-  inset-inline-start: 2%;
-}
-
-.landing-hero-card-back-right {
-  inset-block-end: 10%;
-  inset-inline-end: 2%;
-}
-
-.landing-hero-card-back-top {
-  inset-block-start: 4%;
-  inset-inline-end: 8%;
-  width: clamp(30%, 34%, 38%);
-  z-index: 1;
 }
 
 .landing-section-how {
@@ -1928,8 +1941,8 @@
   .landing-hero-float-up-slow,
   .landing-hero-sparkle,
   .landing-ecosystem-visual,
-  .landing-hero-orbit-left,
-  .landing-hero-orbit-right {
+  .landing-hero-orbit-ring-outer,
+  .landing-hero-orbit-ring-inner {
     animation: none !important;
   }
 
