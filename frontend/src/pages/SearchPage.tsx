@@ -35,7 +35,12 @@ import { usePageSeo } from '../hooks/usePageSeo.ts';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.ts';
 import { mapProductCard } from '../lib/catalogMappers.ts';
 import { SearchAutocomplete } from '../components/search/SearchAutocomplete.tsx';
+import { SuggestedFiltersSection } from '../components/search/SuggestedFiltersSection.tsx';
+import { useFilterSuggestions } from '../hooks/catalog/useFilterSuggestions.ts';
+import { applyFilterSuggestion } from '../lib/applyFilterSuggestion.ts';
+import { suggestionSectionKey } from '../lib/filterSuggestionContext.ts';
 import type { CatalogSearchFilters } from '../types/catalogSearch.ts';
+import type { FilterSuggestionItem } from '../types/filterSuggestions.ts';
 
 const VISUAL_SEARCH_QUERY = 'visual_search_results';
 const PER_PAGE_OPTIONS = [12, 24, 36, 48] as const;
@@ -247,6 +252,54 @@ export default function SearchPage() {
   const panelFilters = draftFilters ?? filters;
   const debouncedPanelFilters = useDebouncedValue(panelFilters, 400);
 
+  const {
+    data: suggestionData,
+    isLoading: suggestionsLoading,
+    isError: suggestionsError,
+    isRefetching: suggestionsRefetching,
+    isSuggestionsEnabled,
+    refetch: refetchSuggestions,
+  } = useFilterSuggestions(
+    {
+      ...Object.fromEntries(searchParams.entries()),
+      type: debouncedPanelFilters.type ?? 'all',
+      q: debouncedQuery,
+    },
+    {
+      enabled: searchEnabled && !isVisualSearch,
+      debouncedQuery,
+    },
+  );
+
+  const suggestionSectionKeyValue = suggestionSectionKey({
+    type: debouncedPanelFilters.type ?? 'all',
+  });
+  const suggestionSection = suggestionData?.[suggestionSectionKeyValue];
+
+  const handleSuggestionSelect = (suggestion: FilterSuggestionItem) => {
+    if (!suggestion.apply) {
+      return;
+    }
+
+    if (suggestion.apply.mode === 'focus') {
+      document.getElementById('catalog-filter-price-range')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+      return;
+    }
+
+    const next = applyFilterSuggestion(new URLSearchParams(searchParams), suggestion.apply);
+    if (rawQuery) {
+      next.set('q', rawQuery);
+    }
+    setSearchParams(next, { replace: true });
+    setDraftFilters((current) => ({
+      ...(current ?? filters),
+      ...Object.fromEntries(next.entries()),
+    }));
+  };
+
   const { data: draftPreviewData } = useQuery({
     queryKey: ['search-page-draft-preview', debouncedPanelFilters],
     queryFn: () =>
@@ -430,15 +483,61 @@ export default function SearchPage() {
               {showInitialSkeleton && searchEnabled ? (
                 <SearchFiltersSkeleton />
               ) : (
-                <div className="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm">
-                  <CatalogSearchFiltersPanel
-                    filters={filters}
-                    facets={facets}
-                    onChange={updateFilters}
-                    onClear={clearFilters}
-                    maxPrice={MAX_PRICE}
-                    variant="plain"
-                  />
+                <div className="space-y-4">
+                  <div className="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm">
+                    <SuggestedFiltersSection
+                      suggestions={suggestionSection?.suggestions ?? []}
+                      initializedFilters={suggestionSection?.initialized_filters ?? []}
+                      displayMode={suggestionSection?.display_mode}
+                      degraded={suggestionSection?.degraded}
+                      isEnabled={isSuggestionsEnabled}
+                      isLoading={suggestionsLoading}
+                      isError={suggestionsError}
+                      isRefetching={suggestionsRefetching}
+                      onRetry={() => refetchSuggestions()}
+                      onSelect={(suggestion) => {
+                        if (!suggestion.apply) {
+                          return;
+                        }
+
+                        if (suggestion.apply.mode === 'focus') {
+                          document
+                            .getElementById('catalog-filter-price-range')
+                            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          return;
+                        }
+
+                        const next = applyFilterSuggestion(
+                          new URLSearchParams(searchParams),
+                          suggestion.apply,
+                        );
+                        if (rawQuery) {
+                          next.set('q', rawQuery);
+                        }
+                        setSearchParams(next, { replace: true });
+                      }}
+                      onFocusManual={() => {
+                        document.getElementById('catalog-filter-price-range')?.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'start',
+                        });
+                      }}
+                      compact
+                    />
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm">
+                    <h3 className="mb-3 text-sm font-bold text-diyar-dark">
+                      {t('catalog.search.suggestedFilters.allFiltersHeading')}
+                    </h3>
+                    <CatalogSearchFiltersPanel
+                      filters={filters}
+                      facets={facets}
+                      onChange={updateFilters}
+                      onClear={clearFilters}
+                      maxPrice={MAX_PRICE}
+                      variant="plain"
+                    />
+                  </div>
                 </div>
               )}
             </aside>
@@ -617,20 +716,44 @@ export default function SearchPage() {
                 <X size={18} />
               </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y p-4">
-              <CatalogSearchFiltersPanel
-                filters={panelFilters}
-                facets={facets}
-                onChange={(patch) =>
-                  setDraftFilters((current) => ({
-                    ...(current ?? filters),
-                    ...patch,
-                  }))
-                }
-                onClear={() => setDraftFilters({ q: rawQuery || undefined })}
-                maxPrice={MAX_PRICE}
-                variant="plain"
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y p-4 space-y-6">
+              <SuggestedFiltersSection
+                suggestions={suggestionSection?.suggestions ?? []}
+                initializedFilters={suggestionSection?.initialized_filters ?? []}
+                displayMode={suggestionSection?.display_mode}
+                degraded={suggestionSection?.degraded}
+                isEnabled={isSuggestionsEnabled}
+                isLoading={suggestionsLoading}
+                isError={suggestionsError}
+                isRefetching={suggestionsRefetching}
+                onRetry={() => refetchSuggestions()}
+                onSelect={handleSuggestionSelect}
+                onFocusManual={() => {
+                  document.getElementById('catalog-filter-price-range')?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                  });
+                }}
+                compact
               />
+              <div className="border-t border-gray-100 pt-2">
+                <h3 className="mb-3 text-sm font-bold text-diyar-dark">
+                  {t('catalog.search.suggestedFilters.allFiltersHeading')}
+                </h3>
+                <CatalogSearchFiltersPanel
+                  filters={panelFilters}
+                  facets={facets}
+                  onChange={(patch) =>
+                    setDraftFilters((current) => ({
+                      ...(current ?? filters),
+                      ...patch,
+                    }))
+                  }
+                  onClear={() => setDraftFilters({ q: rawQuery || undefined })}
+                  maxPrice={MAX_PRICE}
+                  variant="plain"
+                />
+              </div>
             </div>
             <div className="flex shrink-0 gap-3 border-t border-gray-100 bg-white p-4 pb-safe">
               <button

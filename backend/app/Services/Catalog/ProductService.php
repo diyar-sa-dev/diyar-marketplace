@@ -60,6 +60,20 @@ final class ProductService
     }
 
     /**
+     * Filtered publicly visible product query without sort — for aggregate summaries.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return Builder<Product>
+     */
+    public function filteredPublicQuery(array $filters): Builder
+    {
+        $query = $this->publicQuery();
+        $this->applyPublicFilters($query, $filters);
+
+        return $query->clone()->reorder();
+    }
+
+    /**
      * @param  array<string, mixed>  $filters
      */
     public function searchPublic(array $filters = [], ?User $user = null): LengthAwarePaginator
@@ -368,33 +382,35 @@ final class ProductService
      */
     private function applyFilters(Builder $query, array $filters): void
     {
+        $table = $query->getModel()->getTable();
+
         if (! empty($filters['q'])) {
             $raw = mb_substr((string) $filters['q'], 0, 120);
 
             if (DB::connection()->getDriverName() === 'mysql') {
-                $query->whereFullText(['name', 'description'], $raw);
+                $query->whereFullText(["{$table}.name", "{$table}.description"], $raw);
             } else {
                 $term = '%'.$raw.'%';
-                $query->where(function (Builder $q) use ($term) {
-                    $q->where('name', 'like', $term)
-                        ->orWhere('description', 'like', $term);
+                $query->where(function (Builder $q) use ($term, $table) {
+                    $q->where("{$table}.name", 'like', $term)
+                        ->orWhere("{$table}.description", 'like', $term);
                 });
             }
         }
 
         if (! empty($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
+            $query->where("{$table}.category_id", $filters['category_id']);
         }
 
         if (! empty($filters['category_slug'])) {
             $category = Category::query()->active()->where('slug', $filters['category_slug'])->first();
             if ($category !== null) {
-                $query->where('category_id', $category->id);
+                $query->where("{$table}.category_id", $category->id);
             }
         }
 
         if (! empty($filters['vendor_id'])) {
-            $query->where('vendor_account_id', $filters['vendor_id']);
+            $query->where("{$table}.vendor_account_id", $filters['vendor_id']);
         }
 
         if (! empty($filters['vendor_slug'])) {
@@ -404,7 +420,7 @@ final class ProductService
                 ->value('id');
 
             if ($vendorId !== null) {
-                $query->where('vendor_account_id', $vendorId);
+                $query->where("{$table}.vendor_account_id", $vendorId);
             } else {
                 $query->whereRaw('0 = 1');
             }
@@ -417,24 +433,24 @@ final class ProductService
 
         if (! empty($filters['material'])) {
             $material = (string) $filters['material'];
-            $query->where(function (Builder $materialQuery) use ($material) {
+            $query->where(function (Builder $materialQuery) use ($material, $table) {
                 $materialQuery
-                    ->where('materials', 'like', '%'.$material.'%')
-                    ->orWhereJsonContains('materials', $material);
+                    ->where("{$table}.materials", 'like', '%'.$material.'%')
+                    ->orWhereJsonContains("{$table}.materials", $material);
             });
         }
 
         if (! empty($filters['availability_mode'])) {
             $mode = AvailabilityMode::tryFrom((string) $filters['availability_mode']);
             if ($mode !== null) {
-                $query->where('availability_mode', $mode);
+                $query->where("{$table}.availability_mode", $mode);
             }
         }
 
         if (! empty($filters['product_type'])) {
             $type = ProductType::tryFrom((string) $filters['product_type']);
             if ($type !== null) {
-                $query->where('product_type', $type);
+                $query->where("{$table}.product_type", $type);
             }
         }
 
@@ -443,11 +459,11 @@ final class ProductService
         }
 
         if (isset($filters['min_price'])) {
-            $query->where('sale_price', '>=', $filters['min_price']);
+            $query->where("{$table}.sale_price", '>=', $filters['min_price']);
         }
 
         if (isset($filters['max_price'])) {
-            $query->where('sale_price', '<=', $filters['max_price']);
+            $query->where("{$table}.sale_price", '<=', $filters['max_price']);
         }
 
         $sort = $filters['sort'] ?? '-created_at';

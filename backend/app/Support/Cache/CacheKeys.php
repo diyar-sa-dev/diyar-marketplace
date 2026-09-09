@@ -37,6 +37,35 @@ final class CacheKeys
         );
     }
 
+    public static function catalogFilterContextSummary(string $contextSignature, int $version = 0): string
+    {
+        return sprintf(
+            'diyar:catalog:filter-context:v1:%d:%s',
+            $version,
+            $contextSignature,
+        );
+    }
+
+    public static function catalogFilterSuggestions(string $contextSignature, int $version, string $locale): string
+    {
+        return sprintf(
+            'diyar:catalog:filter-suggestions:v1:%d:%s:%s',
+            $version,
+            $contextSignature,
+            $locale,
+        );
+    }
+
+    public static function catalogFilterSuggestionsStale(string $contextSignature, int $version, string $locale): string
+    {
+        return sprintf(
+            'diyar:catalog:filter-suggestions:stale:v1:%d:%s:%s',
+            $version,
+            $contextSignature,
+            $locale,
+        );
+    }
+
     public static function adminPermissions(string $userId, int $version = 0): string
     {
         return sprintf('diyar:admin:permissions:v4:%s:%d', $userId, $version);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Catalog;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Catalog\ProductListRequest;
 use App\Http\Resources\ProductCardResource;
 use App\Http\Resources\ProductDetailResource;
 use App\Services\Analytics\ProductViewAnalyticsService;
@@ -19,9 +20,9 @@ class ProductController extends Controller
         private readonly ProductViewAnalyticsService $productViewAnalytics,
     ) {}
 
-    public function index(Request $request): JsonResponse
+    public function index(ProductListRequest $request): JsonResponse
     {
-        $paginator = $this->products->listPublic($request->query(), $request->user());
+        $paginator = $this->products->listPublic($request->validatedFilters(), $request->user());
 
         return ApiResponse::success(data: $this->paginatedProducts($paginator));
     }

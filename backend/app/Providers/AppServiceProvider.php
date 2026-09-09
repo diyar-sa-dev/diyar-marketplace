@@ -85,6 +85,13 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->ip());
         });
 
+        RateLimiter::for('catalog-filter-suggestions', function (Request $request) {
+            $limit = (int) config('diyar.rate_limits.catalog_filter_suggestions_per_minute', 90);
+
+            return Limit::perMinute($limit)
+                ->by($request->ip());
+        });
+
         RateLimiter::for('webhooks', function (Request $request) {
             return Limit::perMinute((int) config('diyar.rate_limits.webhooks_per_minute', 120))
                 ->by($request->ip());
@@ -238,6 +245,7 @@ class AppServiceProvider extends ServiceProvider
             'api',
             'catalog-search',
             'catalog-search-suggestions',
+            'catalog-filter-suggestions',
             'webhooks',
             'auth',
             'otp',

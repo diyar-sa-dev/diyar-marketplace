@@ -136,9 +136,11 @@ class Product extends Model
 
     public function scopePubliclyVisible($query)
     {
+        $table = $query->getModel()->getTable();
+
         return $query
-            ->where('status', ProductStatus::Active)
-            ->whereIn('vendor_account_id', function ($subquery) {
+            ->where("{$table}.status", ProductStatus::Active)
+            ->whereIn("{$table}.vendor_account_id", function ($subquery) {
                 $subquery->select('id')
                     ->from('vendor_accounts')
                     ->where('status', 'active');

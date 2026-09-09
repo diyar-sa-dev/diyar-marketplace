@@ -59,6 +59,7 @@ use App\Http\Controllers\Api\V1\Blog\BlogEngagementController;
 use App\Http\Controllers\Api\V1\Blog\BlogTagController;
 use App\Http\Controllers\Api\V1\Cart\CartController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchController;
+use App\Http\Controllers\Api\V1\Catalog\FilterSuggestionsController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchSuggestionsController;
 use App\Http\Controllers\Api\V1\Catalog\CategoryController;
 use App\Http\Controllers\Api\V1\Catalog\ProductController;
@@ -194,6 +195,7 @@ Route::get('/products/{id}/reviews', [ProductEngagementController::class, 'revie
 Route::get('/search', SearchController::class)->middleware('throttle:catalog-search');
 Route::get('/catalog/search', CatalogSearchController::class)->middleware('throttle:catalog-search');
 Route::get('/catalog/search/suggestions', CatalogSearchSuggestionsController::class)->middleware('throttle:catalog-search-suggestions');
+Route::get('/catalog/search/filter-suggestions', FilterSuggestionsController::class)->middleware('throttle:catalog-filter-suggestions');
 Route::get('/vendors', [VendorController::class, 'index']);
 Route::get('/vendors/{slug}', [VendorController::class, 'show']);
 Route::get('/vendors/{slug}/products', [VendorController::class, 'products']);
@@ -773,6 +775,8 @@ Route::middleware([
 
             Route::get('/security/sessions', [ProfileSecuritySessionController::class, 'index']);
             Route::delete('/security/sessions/{session}', [ProfileSecuritySessionController::class, 'destroy'])
+                ->middleware('throttle:20,1');
+            Route::delete('/security/devices/{fingerprint}', [ProfileSecuritySessionController::class, 'revokeDevice'])
                 ->middleware('throttle:20,1');
             Route::post('/security/sessions/logout-others', [ProfileSecuritySessionController::class, 'logoutOthers'])
                 ->middleware('throttle:10,1');

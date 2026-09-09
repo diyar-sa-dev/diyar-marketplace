@@ -74,6 +74,29 @@ final class ServiceCatalogService
     }
 
     /**
+     * @param  Builder<Service>  $query
+     * @param  array<string, mixed>  $filters
+     */
+    public function applyPublicFilters(Builder $query, array $filters): void
+    {
+        $this->applyFilters($query, $filters);
+    }
+
+    /**
+     * Filtered publicly visible service query without sort — for aggregate summaries.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return Builder<Service>
+     */
+    public function filteredPublicQuery(array $filters): Builder
+    {
+        $query = $this->publicQuery();
+        $this->applyFilters($query, $filters);
+
+        return $query->clone()->reorder();
+    }
+
+    /**
      * @return Builder<Service>
      */
     private function publicQuery(): Builder

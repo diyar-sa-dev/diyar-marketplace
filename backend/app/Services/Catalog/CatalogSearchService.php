@@ -13,6 +13,7 @@ use App\Services\ServiceMarketplace\ServiceCatalogService;
 use App\Support\Cache\CacheKeys;
 use App\Support\Cache\StampedeSafeCache;
 use App\Support\Cache\VersionedCache;
+use App\Support\Catalog\Filters\CatalogFilterNormalizer;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -25,6 +26,7 @@ final class CatalogSearchService
     public function __construct(
         private readonly ProductService $products,
         private readonly ServiceCatalogService $services,
+        private readonly CatalogFilterNormalizer $filterNormalizer,
     ) {}
 
     /**
@@ -39,6 +41,9 @@ final class CatalogSearchService
      */
     public function search(array $filters, ?User $user = null): array
     {
+        $filters['page'] ??= 1;
+        $filters['per_page'] ??= 24;
+
         $type = (string) ($filters['type'] ?? 'all');
         $payload = [
             'type' => $type,
@@ -47,12 +52,18 @@ final class CatalogSearchService
         ];
 
         if ($type === 'all' || $type === 'products') {
-            $productPaginator = $this->products->listPublic($this->productFilters($filters), $user);
+            $productPaginator = $this->products->listPublic(
+                $this->filterNormalizer->productEngineFilters($filters),
+                $user,
+            );
             $payload['products'] = $this->paginatedPayload($productPaginator, ProductCardResource::class);
         }
 
         if ($type === 'all' || $type === 'services') {
-            $servicePaginator = $this->services->listPublic($this->serviceFilters($filters), $user);
+            $servicePaginator = $this->services->listPublic(
+                $this->filterNormalizer->serviceEngineFilters($filters),
+                $user,
+            );
             $payload['services'] = $this->paginatedPayload($servicePaginator, ServiceCardResource::class);
         }
 
@@ -83,93 +94,6 @@ final class CatalogSearchService
     }
 
     /**
-     * @param  array<string, mixed>  $filters
-     * @return array<string, mixed>
-     */
-    private function productFilters(array $filters): array
-    {
-        $colors = $this->normalizeColorFilters($filters);
-
-        return array_filter([
-            'q' => $filters['q'] ?? null,
-            'category_slug' => $filters['category_slug'] ?? null,
-            'vendor_id' => $filters['vendor_id'] ?? null,
-            'vendor_slug' => $filters['vendor_slug'] ?? null,
-            'min_price' => $filters['min_price'] ?? null,
-            'max_price' => $filters['max_price'] ?? null,
-            'colors' => $colors !== [] ? $colors : null,
-            'material' => $filters['material'] ?? null,
-            'availability_mode' => $filters['availability_mode'] ?? null,
-            'discounted' => $filters['discounted'] ?? null,
-            'sort' => $this->mapProductSort($filters['sort'] ?? null),
-            'page' => $filters['page'] ?? 1,
-            'per_page' => $filters['per_page'] ?? 24,
-        ], fn ($value) => $value !== null && $value !== '');
-    }
-
-    /**
-     * @param  array<string, mixed>  $filters
-     * @return list<string>
-     */
-    private function normalizeColorFilters(array $filters): array
-    {
-        if (! empty($filters['colors'])) {
-            $raw = $filters['colors'];
-            $values = is_array($raw) ? $raw : explode(',', (string) $raw);
-
-            return array_values(array_filter(array_map(
-                static fn (mixed $color): string => trim((string) $color),
-                $values,
-            )));
-        }
-
-        if (! empty($filters['color'])) {
-            return [trim((string) $filters['color'])];
-        }
-
-        return [];
-    }
-
-    /**
-     * @param  array<string, mixed>  $filters
-     * @return array<string, mixed>
-     */
-    private function serviceFilters(array $filters): array
-    {
-        return array_filter([
-            'q' => $filters['q'] ?? null,
-            'category' => $filters['category_slug'] ?? null,
-            'min_price' => $filters['min_price'] ?? null,
-            'max_price' => $filters['max_price'] ?? null,
-            'sort' => $this->mapServiceSort($filters['sort'] ?? null),
-            'page' => $filters['page'] ?? 1,
-            'per_page' => $filters['per_page'] ?? 24,
-        ], fn ($value) => $value !== null && $value !== '');
-    }
-
-    private function mapProductSort(?string $sort): string
-    {
-        return match ($sort) {
-            'latest', '-created_at', null, '' => '-created_at',
-            '-popular' => '-popular',
-            '-discount', 'discount' => '-discount',
-            'price', '-price', 'name', '-name', 'created_at' => $sort,
-            default => '-created_at',
-        };
-    }
-
-    private function mapServiceSort(?string $sort): string
-    {
-        return match ($sort) {
-            'rating', '-popular' => 'rating',
-            'price' => 'price_asc',
-            '-price' => 'price_desc',
-            'latest', '-created_at', null, '' => 'latest',
-            default => 'latest',
-        };
-    }
-
-    /**
      * @param  class-string  $resourceClass
      * @return array{items: mixed, pagination: array<string, int>}
      */
@@ -195,7 +119,7 @@ final class CatalogSearchService
         $facetFilters = $this->filtersForFacets($filters);
 
         $query = Product::query()->publiclyVisible();
-        $this->products->applyPublicFilters($query, $this->productFilters($facetFilters));
+        $this->products->applyPublicFilters($query, $this->filterNormalizer->productEngineFilters($facetFilters));
 
         $rows = $query
             ->reorder()
@@ -259,7 +183,7 @@ final class CatalogSearchService
 
         $productIds = Product::query()
             ->publiclyVisible()
-            ->tap(fn (Builder $query) => $this->products->applyPublicFilters($query, $this->productFilters($facetFilters)))
+            ->tap(fn (Builder $query) => $this->products->applyPublicFilters($query, $this->filterNormalizer->productEngineFilters($facetFilters)))
             ->limit(500)
             ->pluck('id');
 

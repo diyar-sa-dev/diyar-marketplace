@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Catalog;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Catalog\ProductListRequest;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductCardResource;
 use App\Services\Catalog\CategoryService;
@@ -38,10 +39,10 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function items(Request $request, string $slug): JsonResponse
+    public function items(ProductListRequest $request, string $slug): JsonResponse
     {
         $category = $this->categories->findActiveBySlug($slug);
-        $paginator = $this->products->listForCategory($category, $request->query(), $request->user());
+        $paginator = $this->products->listForCategory($category, $request->validatedFilters(), $request->user());
 
         return ApiResponse::success(data: $this->paginatedProducts($paginator));
     }
