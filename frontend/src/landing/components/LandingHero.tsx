@@ -97,8 +97,8 @@ export function LandingHero() {
                   <LandingImage
                     src={satellite.src}
                     alt={satellite.altKey ? messages.hero[satellite.altKey] : ''}
-                    width={320}
-                    height={220}
+                    width={380}
+                    height={260}
                     objectFit="cover"
                     wrapperClassName="rounded-xl aspect-[4/3]"
                     className="rounded-xl"
