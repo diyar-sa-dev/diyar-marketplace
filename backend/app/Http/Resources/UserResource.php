@@ -29,6 +29,7 @@ class UserResource extends JsonResource
             'status' => $this->status->value,
             'phone_verified_at' => $this->phone_verified_at?->toIso8601String(),
             'email_verified_at' => $this->email_verified_at?->toIso8601String(),
+            'two_factor_enabled' => $this->hasTwoFactorEnabled(),
             'roles' => $this->whenLoaded('roles', fn () => $this->roles->map(fn ($role) => [
                 'id' => $role->id,
                 'name' => $role->name->value,

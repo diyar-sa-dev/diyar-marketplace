@@ -20,23 +20,26 @@ import {
   firstFieldError,
   isEmailVerificationRequired,
   isPhoneVerificationRequired,
+  isTwoFactorRequired,
   isUnexpectedServerError,
 } from '../utils/errors.ts';
 import { PrivacyPolicyModal } from '../components/modals/PrivacyPolicyModal.tsx';
 import { AuthEmailInput, AuthFieldLabel } from '../components/auth/AuthInputIcon.tsx';
+import { OtpCodeField } from '../components/auth/OtpCodeField.tsx';
+import { OtpResendAction } from '../components/auth/OtpResendAction.tsx';
 import { PasswordInput, PasswordStrengthField } from '../components/auth/PasswordStrengthField.tsx';
 import { SaudiPhoneInput } from '../components/auth/SaudiPhoneInput.tsx';
 import { useAuthFieldDirection, useLocale } from '../lib/i18n/localeContext.ts';
 
 type AuthView = 'login' | 'register' | 'forgot' | 'otp' | 'reset';
-type OtpContext = 'register' | 'forgot' | 'email_verify';
+type OtpContext = 'register' | 'forgot' | 'email_verify' | 'two_factor_login';
 type LoginMethod = 'phone' | 'email';
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { t, locale } = useLocale();
+  const { t, locale, dir } = useLocale();
   const fieldDirection = useAuthFieldDirection();
   const nameHint = t('validation.nameHint', { min: NAME_MIN_LENGTH, max: NAME_MAX_LENGTH });
   const saudiPhoneHint = t('validation.saudiPhoneHint');
@@ -51,6 +54,8 @@ export default function AuthPage() {
     resendEmailOtp,
     forgotPassword,
     verifyPasswordResetOtp,
+    verifyTwoFactor,
+    resendTwoFactor,
     resetPassword,
     error,
     clearError,
@@ -76,6 +81,7 @@ export default function AuthPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [otpCode, setOtpCode] = useState('');
+  const [twoFactorChallengeId, setTwoFactorChallengeId] = useState('');
   const [resetPasswordValue, setResetPasswordValue] = useState('');
   const [resetPasswordConfirm, setResetPasswordConfirm] = useState('');
 
@@ -240,6 +246,23 @@ export default function AuthPage() {
         return;
       }
 
+      const twoFactor = isTwoFactorRequired(err);
+      if (twoFactor) {
+        setTwoFactorChallengeId(twoFactor.challengeId);
+        setPendingPhone(
+          twoFactor.phone || (loginMethod === 'phone' ? loginPhone.trim() : ''),
+        );
+        setOtpContext('two_factor_login');
+        setOtpCode('');
+        startCooldown();
+        switchView('otp');
+        resetMessages();
+        toast.info(
+          firstFieldError(err, 'two_factor_required') ?? t('auth.toasts.twoFactorRequired'),
+        );
+        return;
+      }
+
       handleApiError(err);
     } finally {
       setIsLoading(false);
@@ -340,6 +363,16 @@ export default function AuthPage() {
         return;
       }
 
+      if (otpContext === 'two_factor_login') {
+        const result = await verifyTwoFactor({
+          challenge_id: twoFactorChallengeId,
+          code: otpCode,
+        });
+        toast.success(result.message ?? t('auth.toasts.loginSuccess'));
+        redirectAfterAuth(result.user.roles);
+        return;
+      }
+
       const result = await verifyPasswordResetOtp({
         phone: pendingPhone.trim(),
         code: otpCode,
@@ -407,7 +440,9 @@ export default function AuthPage() {
           ? await resendOtp(pendingPhone.trim())
           : otpContext === 'email_verify'
             ? await resendEmailOtp(pendingEmail.trim())
-            : await forgotPassword(pendingPhone.trim());
+            : otpContext === 'two_factor_login'
+              ? await resendTwoFactor(twoFactorChallengeId)
+              : await forgotPassword(pendingPhone.trim());
       startCooldown();
       toast.info(result.message ?? t('auth.toasts.resendSuccess'));
     } catch (err) {
@@ -792,52 +827,43 @@ export default function AuthPage() {
                 <p className="text-gray-600 text-sm">
                   {otpContext === 'email_verify'
                     ? t('auth.otp.emailDescription')
-                    : t('auth.otp.description')}
+                    : otpContext === 'two_factor_login'
+                      ? t('auth.otp.twoFactorDescription')
+                      : t('auth.otp.description')}
                 </p>
                 {otpContext === 'email_verify' ? (
                   <p className="font-bold text-diyar-dark mt-1 tabular-nums" dir="ltr">
                     {maskEmailForDisplay(pendingEmail)}
                   </p>
-                ) : (
+                ) : otpContext === 'two_factor_login' || pendingPhone ? (
                   <p className="font-bold text-diyar-dark mt-1 tracking-wide" dir="ltr">
                     +966 {maskPhoneForDisplay(pendingPhone)}
                   </p>
-                )}
+                ) : null}
               </div>
 
               <form onSubmit={handleVerifyOtp} className="space-y-6">
-                <div>
-                  <AuthFieldLabel required className="text-center">
-                    {t('auth.fields.otpCode')}
-                  </AuthFieldLabel>
-                  <div className="flex justify-center" dir="ltr">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      className="w-full max-w-xs min-w-0 text-center text-xl sm:text-2xl font-bold border border-gray-200 rounded-xl py-3 focus:ring-2 focus:ring-diyar-brown focus:border-diyar-brown outline-none transition-colors tracking-[0.35em] sm:tracking-[0.5em]"
-                      placeholder="000000"
-                      required
-                    />
-                  </div>
-                </div>
+                <OtpCodeField
+                  label={t('auth.fields.otpCode')}
+                  placeholder={t('auth.otp.placeholder')}
+                  value={otpCode}
+                  onChange={setOtpCode}
+                  disabled={isLoading}
+                  required
+                  centered
+                  labelDir={dir}
+                  autoFocus
+                />
 
-                <div className="text-center mt-6">
-                  <p className="text-sm text-gray-500 mb-2">{t('auth.otp.notReceived')}</p>
-                  <button
-                    type="button"
-                    onClick={handleResendOtp}
-                    disabled={isLoading || isCoolingDown}
-                    className="text-sm font-bold text-diyar-brown hover:text-diyar-dark cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isCoolingDown
-                      ? t('auth.otp.resendCooldown', { seconds: secondsLeft })
-                      : t('auth.otp.resend')}
-                  </button>
-                </div>
+                <OtpResendAction
+                  onResend={handleResendOtp}
+                  disabled={isLoading}
+                  isCoolingDown={isCoolingDown}
+                  secondsLeft={secondsLeft}
+                  resendLabel={t('auth.otp.resend')}
+                  cooldownLabelKey="auth.otp.resendCooldown"
+                  notReceivedLabel={t('auth.otp.notReceived')}
+                />
 
                 <button
                   type="submit"
@@ -848,6 +874,8 @@ export default function AuthPage() {
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : otpContext === 'register' || otpContext === 'email_verify' ? (
                     t('auth.otp.verifyRegister')
+                  ) : otpContext === 'two_factor_login' ? (
+                    t('auth.otp.verifyLogin')
                   ) : (
                     t('common.continue')
                   )}

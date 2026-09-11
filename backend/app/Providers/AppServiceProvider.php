@@ -103,10 +103,13 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('otp', function (Request $request) {
-            $phone = (string) $request->input('phone', 'unknown');
+            $subject = (string) ($request->input('challenge_id')
+                ?: $request->input('phone')
+                ?: $request->input('identifier')
+                ?: 'unknown');
 
             return Limit::perMinute((int) config('diyar.rate_limits.otp_per_minute', 10))
-                ->by($phone.'|'.$request->ip());
+                ->by($subject.'|'.$request->ip());
         });
 
         RateLimiter::for('analytics-export', function (Request $request) {

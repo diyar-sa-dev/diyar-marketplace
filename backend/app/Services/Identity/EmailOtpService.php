@@ -8,6 +8,7 @@ use App\Infrastructure\Mail\LogEmailOtpProvider;
 use App\Services\Mail\DiyarMailContent;
 use App\Services\Mail\DiyarPhpMailer;
 use App\Support\Identity\OtpTestCodeResolver;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -119,10 +120,19 @@ final class EmailOtpService
      */
     public function verify(string $email, OtpPurpose $purpose, string $code): array
     {
-        $state = $this->validateCode($email, $purpose, $code);
-        $this->cache->forget($this->normalizeEmail($email), $purpose);
+        $normalizedEmail = $this->normalizeEmail($email);
+        $lock = Cache::lock($this->cache->key($normalizedEmail, $purpose).':verify', 10);
 
-        return $state;
+        try {
+            $lock->block(5);
+
+            $state = $this->validateCode($email, $purpose, $code);
+            $this->cache->forget($normalizedEmail, $purpose);
+
+            return $state;
+        } finally {
+            optional($lock)->release();
+        }
     }
 
     /**

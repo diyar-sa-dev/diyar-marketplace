@@ -22,9 +22,12 @@ test.describe('Security sessions — browser E2E', () => {
       headers: await sessionRequestHeaders(requestA),
     });
     expect(listA.ok()).toBeTruthy();
-    const sessions = ((await listA.json()) as { data: { sessions: Array<{ id: string; is_current: boolean }> } })
-      .data.sessions;
-    const remote = sessions.find((item) => !item.is_current);
+    const devices = ((await listA.json()) as {
+      data: { devices: Array<{ sessions: Array<{ id: string; is_current: boolean }> }> };
+    }).data.devices;
+    const remote = devices
+      .flatMap((device) => device.sessions)
+      .find((item) => !item.is_current);
     expect(remote).toBeTruthy();
 
     const revoke = await requestA.delete(`${apiBaseUrl()}/profile/security/sessions/${remote!.id}`, {

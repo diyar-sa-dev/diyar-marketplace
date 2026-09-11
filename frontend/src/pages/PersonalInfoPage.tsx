@@ -26,6 +26,8 @@ import {
 import { SaudiPhoneInput } from '../components/auth/SaudiPhoneInput.tsx';
 import { ReadOnlySaudiPhoneDisplay } from '../components/auth/ReadOnlySaudiPhoneDisplay.tsx';
 import { AuthEmailInput, AuthFieldLabel } from '../components/auth/AuthInputIcon.tsx';
+import { OtpCodeField } from '../components/auth/OtpCodeField.tsx';
+import { OtpResendAction } from '../components/auth/OtpResendAction.tsx';
 import { useAuthFieldDirection, useLocale } from '../lib/i18n/localeContext.ts';
 import { collectDisplayErrors, isUnexpectedServerError } from '../utils/errors.ts';
 
@@ -450,36 +452,25 @@ export default function PersonalInfoPage() {
                       +966 {maskPhoneForDisplay(newPhone)}
                     </span>
                   </p>
-                  <AuthFieldLabel required className="text-center">
-                    {t('auth.fields.otpCode')}
-                  </AuthFieldLabel>
-                  <div className="flex justify-center" dir="ltr">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={(event) =>
-                        setOtpCode(event.target.value.replace(/\D/g, '').slice(0, 6))
-                      }
-                      className="w-full max-w-xs text-center text-xl font-bold border border-gray-200 rounded-xl py-3 focus:ring-2 focus:ring-diyar-brown focus:border-diyar-brown outline-none tracking-[0.35em]"
-                      placeholder="000000"
-                      required
-                    />
-                  </div>
-                  <div className="text-center">
-                    <button
-                      type="button"
-                      onClick={() => void handleResendPhoneOtp()}
-                      disabled={phoneChangeBusy || isCoolingDown}
-                      className="text-sm font-bold text-diyar-brown hover:text-diyar-dark cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isCoolingDown
-                        ? t('auth.otp.resendCooldown', { seconds: secondsLeft })
-                        : t('auth.otp.resend')}
-                    </button>
-                  </div>
+                  <OtpCodeField
+                    label={t('auth.fields.otpCode')}
+                    placeholder={t('auth.otp.placeholder')}
+                    value={otpCode}
+                    onChange={setOtpCode}
+                    disabled={phoneChangeBusy}
+                    required
+                    centered
+                    labelDir={dir}
+                    autoFocus
+                  />
+                  <OtpResendAction
+                    onResend={() => void handleResendPhoneOtp()}
+                    disabled={phoneChangeBusy}
+                    isCoolingDown={isCoolingDown}
+                    secondsLeft={secondsLeft}
+                    resendLabel={t('auth.otp.resend')}
+                    cooldownLabelKey="auth.otp.resendCooldown"
+                  />
                   <button
                     type="submit"
                     disabled={phoneChangeBusy || otpCode.length !== 6}
@@ -560,36 +551,25 @@ export default function PersonalInfoPage() {
                   >
                     {maskEmailForDisplay(user?.email)}
                   </p>
-                  <AuthFieldLabel required className="text-center">
-                    {t('auth.fields.otpCode')}
-                  </AuthFieldLabel>
-                  <div className="flex justify-center" dir="ltr">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      maxLength={6}
-                      value={emailOtpCode}
-                      onChange={(event) =>
-                        setEmailOtpCode(event.target.value.replace(/\D/g, '').slice(0, 6))
-                      }
-                      className="w-full max-w-xs text-center text-xl font-bold border border-gray-200 rounded-xl py-3 focus:ring-2 focus:ring-diyar-brown focus:border-diyar-brown outline-none tracking-[0.35em]"
-                      placeholder="000000"
-                      required
-                    />
-                  </div>
-                  <div className="text-center">
-                    <button
-                      type="button"
-                      onClick={() => void handleResendEmailOtp()}
-                      disabled={emailVerifyBusy || isCoolingDown}
-                      className="text-sm font-bold text-diyar-brown hover:text-diyar-dark cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isCoolingDown
-                        ? t('auth.otp.resendCooldown', { seconds: secondsLeft })
-                        : t('auth.otp.resend')}
-                    </button>
-                  </div>
+                  <OtpCodeField
+                    label={t('auth.fields.otpCode')}
+                    placeholder={t('auth.otp.placeholder')}
+                    value={emailOtpCode}
+                    onChange={setEmailOtpCode}
+                    disabled={emailVerifyBusy}
+                    required
+                    centered
+                    labelDir={dir}
+                    autoFocus
+                  />
+                  <OtpResendAction
+                    onResend={() => void handleResendEmailOtp()}
+                    disabled={emailVerifyBusy}
+                    isCoolingDown={isCoolingDown}
+                    secondsLeft={secondsLeft}
+                    resendLabel={t('auth.otp.resend')}
+                    cooldownLabelKey="auth.otp.resendCooldown"
+                  />
                   <button
                     type="submit"
                     disabled={emailVerifyBusy || emailOtpCode.length !== 6}

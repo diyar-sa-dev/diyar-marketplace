@@ -192,7 +192,6 @@ export default function ServicePage() {
     resolveMediaUrl(provider?.cover_url) ??
     resolveMediaUrl(service.image_url) ??
     SERVICE_IMAGE_FALLBACK;
-  const providerAvatarUrl = resolveMediaUrl(provider?.avatar_url);
   const features = service.features ?? [];
   const isDirectBooking = service.booking_mode === 'direct';
   const isOwnProvider = Boolean(service.provider?.is_own_provider);
@@ -305,7 +304,7 @@ export default function ServicePage() {
             >
               <UserAvatar
                 name={provider?.display_name}
-                avatarUrl={providerAvatarUrl}
+                avatarUrl={provider?.avatar_url}
                 shape="square"
                 variant="storefront"
                 className="w-full h-full text-xl md:text-2xl"

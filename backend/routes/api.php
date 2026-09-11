@@ -118,6 +118,7 @@ use App\Http\Controllers\Api\V1\Profile\NotificationController;
 use App\Http\Controllers\Api\V1\Profile\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\Profile\ProfileSecuritySessionController;
+use App\Http\Controllers\Api\V1\Profile\ProfileTwoFactorController;
 use App\Http\Controllers\Api\V1\Profile\WishlistController;
 use App\Http\Controllers\Api\V1\Projects\ProjectController;
 use App\Http\Controllers\Api\V1\ReadinessController;
@@ -250,6 +251,8 @@ Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/resend-email-otp', [AuthController::class, 'resendEmailOtp'])->middleware('throttle:otp');
     Route::post('/resend-otp', [AuthController::class, 'resendOtp'])->middleware('throttle:otp');
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/verify-two-factor', [AuthController::class, 'verifyTwoFactor'])->middleware('throttle:otp');
+    Route::post('/resend-two-factor', [AuthController::class, 'resendTwoFactor'])->middleware('throttle:otp');
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:otp');
     Route::post('/verify-password-reset-otp', [AuthController::class, 'verifyPasswordResetOtp'])->middleware('throttle:otp');
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:otp');
@@ -780,6 +783,14 @@ Route::middleware([
                 ->middleware('throttle:20,1');
             Route::post('/security/sessions/logout-others', [ProfileSecuritySessionController::class, 'logoutOthers'])
                 ->middleware('throttle:10,1');
+
+            Route::get('/security/two-factor', [ProfileTwoFactorController::class, 'show']);
+            Route::post('/security/two-factor/enable', [ProfileTwoFactorController::class, 'enable'])
+                ->middleware('throttle:otp');
+            Route::post('/security/two-factor/confirm', [ProfileTwoFactorController::class, 'confirm'])
+                ->middleware('throttle:otp');
+            Route::post('/security/two-factor/disable', [ProfileTwoFactorController::class, 'disable'])
+                ->middleware('throttle:otp');
 
             Route::get('/addresses', [AddressController::class, 'index']);
             Route::post('/addresses', [AddressController::class, 'store']);

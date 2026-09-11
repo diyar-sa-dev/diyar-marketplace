@@ -26,7 +26,18 @@ return [
         'max_attempts' => (int) env('DIYAR_OTP_MAX_ATTEMPTS', 5),
         'max_resends_per_hour' => (int) env('DIYAR_OTP_MAX_RESENDS', 5),
         'resend_cooldown_seconds' => (int) env('DIYAR_OTP_RESEND_COOLDOWN', 60),
-        'test_code' => env('DIYAR_OTP_TEST_CODE'),
+        'test_mode' => filter_var(env('DIYAR_OTP_TEST_MODE', false), FILTER_VALIDATE_BOOL),
+        'test_code' => env('DIYAR_OTP_TEST_CODE', '123456'),
+    ],
+
+    'sms' => [
+        // auto | log | msegat — local Docker should use log
+        'driver' => env('DIYAR_SMS_DRIVER', 'auto'),
+    ],
+
+    'two_factor' => [
+        'enabled' => filter_var(env('DIYAR_TWO_FACTOR_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'login_challenge_ttl_minutes' => (int) env('DIYAR_TWO_FACTOR_CHALLENGE_TTL', 15),
     ],
 
     /*

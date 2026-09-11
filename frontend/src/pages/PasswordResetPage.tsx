@@ -11,7 +11,8 @@ import {
   passwordsMatch,
 } from '../lib/auth/validation.ts';
 import { collectDisplayErrors, isUnexpectedServerError } from '../utils/errors.ts';
-import { AuthFieldLabel } from '../components/auth/AuthInputIcon.tsx';
+import { OtpCodeField } from '../components/auth/OtpCodeField.tsx';
+import { OtpResendAction } from '../components/auth/OtpResendAction.tsx';
 import { PasswordStrengthField } from '../components/auth/PasswordStrengthField.tsx';
 import { useAuthFieldDirection, useLocale } from '../lib/i18n/localeContext.ts';
 
@@ -256,37 +257,26 @@ export default function PasswordResetPage() {
                 </p>
               </div>
 
-              <div>
-                <AuthFieldLabel required className="text-center">
-                  {t('auth.fields.otpCode')}
-                </AuthFieldLabel>
-                <div className="flex justify-center" dir="ltr">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    maxLength={6}
-                    value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    className="w-full max-w-xs min-w-0 text-center text-xl font-bold border border-gray-200 rounded-xl py-3 focus:ring-2 focus:ring-diyar-brown focus:border-diyar-brown outline-none tracking-[0.35em]"
-                    placeholder="000000"
-                    required
-                  />
-                </div>
-              </div>
+              <OtpCodeField
+                label={t('auth.fields.otpCode')}
+                placeholder={t('auth.otp.placeholder')}
+                value={otpCode}
+                onChange={setOtpCode}
+                disabled={isLoading}
+                required
+                centered
+                labelDir={dir}
+                autoFocus
+              />
 
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={() => void handleResendOtp()}
-                  disabled={isLoading || isCoolingDown}
-                  className="text-sm font-bold text-diyar-brown hover:text-diyar-dark cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isCoolingDown
-                    ? t('auth.otp.resendCooldown', { seconds: secondsLeft })
-                    : t('auth.otp.resend')}
-                </button>
-              </div>
+              <OtpResendAction
+                onResend={() => void handleResendOtp()}
+                disabled={isLoading}
+                isCoolingDown={isCoolingDown}
+                secondsLeft={secondsLeft}
+                resendLabel={t('auth.otp.resend')}
+                cooldownLabelKey="auth.otp.resendCooldown"
+              />
 
               <button
                 type="submit"

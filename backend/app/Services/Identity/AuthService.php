@@ -7,6 +7,7 @@ use App\Enums\RoleName;
 use App\Enums\UserStatus;
 use App\Models\User;
 use App\Services\Cart\CartService;
+use App\Services\Security\TwoFactorLoginChallengeService;
 use App\Services\Security\UserSessionService;
 use App\Support\Identity\MarketplaceAccess;
 use App\Support\User\UserNotificationPreferences;
@@ -26,6 +27,7 @@ final class AuthService
         private readonly EmailOtpService $emailOtp,
         private readonly WelcomeEmailService $welcomeEmail,
         private readonly UserSessionService $userSessions,
+        private readonly TwoFactorLoginChallengeService $twoFactorLogin,
     ) {}
 
     public function establishSession(User $user, bool $remember = false): User
@@ -315,6 +317,10 @@ final class AuthService
             throw ValidationException::withMessages([
                 'credentials' => [__('auth.failed')],
             ]);
+        }
+
+        if ($user->hasTwoFactorEnabled() && config('diyar.two_factor.enabled', true)) {
+            $this->twoFactorLogin->begin($user, $remember);
         }
 
         return $this->establishMarketplaceSession($user, $remember);

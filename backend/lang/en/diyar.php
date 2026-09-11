@@ -30,6 +30,22 @@ return [
         'cooldown' => 'Please wait before requesting a new code.',
         'too_many_resends' => 'Too many resend attempts. Try again later.',
         'too_many_attempts' => 'Too many invalid attempts. Request a new code.',
+        'already_used' => 'This verification code has already been used.',
+        'delivery_failed' => 'Unable to send the verification code. Please try again later.',
+    ],
+
+    'two_factor' => [
+        'required' => 'Two-factor authentication is required. Enter the code sent to your phone.',
+        'challenge_expired' => 'Your sign-in session expired. Sign in again with your password.',
+        'enabled' => 'Two-factor authentication is now enabled.',
+        'disabled' => 'Two-factor authentication has been disabled.',
+        'setup_started' => 'A verification code was sent to your phone.',
+        'disable_started' => 'A verification code was sent to confirm disabling two-factor authentication.',
+        'already_enabled' => 'Two-factor authentication is already enabled.',
+        'not_enabled' => 'Two-factor authentication is not enabled.',
+        'unavailable' => 'Two-factor authentication is not available right now.',
+        'phone_required' => 'Verify your phone number before enabling two-factor authentication.',
+        'invalid_password' => 'The password is incorrect.',
     ],
 
     'registration' => [

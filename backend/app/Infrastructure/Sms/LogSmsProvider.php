@@ -26,6 +26,13 @@ final class LogSmsProvider implements SmsProvider
             'phone' => $phone,
             'message' => $message,
         ];
+
+        if (self::shouldExposePlainOtp()) {
+            Log::info('sms.log_provider.sent', [
+                'phone' => $phone,
+                'message' => $message,
+            ]);
+        }
     }
 
     public static function exposeForDevelopment(
@@ -60,15 +67,7 @@ final class LogSmsProvider implements SmsProvider
             return false;
         }
 
-        if (! app()->environment(['local', 'testing'])) {
-            return false;
-        }
-
-        if (self::msegatCredentialsConfigured()) {
-            return false;
-        }
-
-        return true;
+        return app()->environment(['local', 'testing']);
     }
 
     public static function isProductionEnvironment(): bool

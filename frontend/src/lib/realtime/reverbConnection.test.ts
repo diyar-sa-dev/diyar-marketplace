@@ -17,6 +17,25 @@ describe('broadcastingAuthEndpoint', () => {
 });
 
 describe('resolveReverbConnectionOptions', () => {
+  it('prefers an explicit Reverb host in development over the Vite /app/ proxy', () => {
+    expect(
+      resolveReverbConnectionOptions({
+        isDev: true,
+        sameOriginApi: true,
+        configuredHost: '127.0.0.1',
+        configuredPort: 8093,
+        configuredScheme: 'http',
+        location: { hostname: 'localhost', port: '3000', protocol: 'http:' },
+      }),
+    ).toEqual({
+      wsHost: '127.0.0.1',
+      wsPort: 8093,
+      wssPort: 8093,
+      forceTLS: false,
+      enabledTransports: ['ws'],
+    });
+  });
+
   it('uses an explicit Reverb host when API is on a separate origin (split SPA+API)', () => {
     expect(
       resolveReverbConnectionOptions({
@@ -36,12 +55,12 @@ describe('resolveReverbConnectionOptions', () => {
     });
   });
 
-  it('proxies through the current Vite origin in development when API is same-origin', () => {
+  it('proxies through the current Vite origin in development when host is not configured', () => {
     expect(
       resolveReverbConnectionOptions({
         isDev: true,
         sameOriginApi: true,
-        configuredHost: 'localhost',
+        configuredHost: '',
         configuredPort: 8090,
         configuredScheme: 'http',
         location: { hostname: '192.168.1.20', port: '3001', protocol: 'http:' },

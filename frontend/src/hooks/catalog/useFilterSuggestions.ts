@@ -19,7 +19,7 @@ function shouldRetrySuggestionRequest(failureCount: number, error: unknown): boo
   }
 
   const status = (error as { response?: { status?: number } })?.response?.status;
-  if (status === 422 || status === 429) {
+  if (status === 404 || status === 422 || status === 429) {
     return false;
   }
 

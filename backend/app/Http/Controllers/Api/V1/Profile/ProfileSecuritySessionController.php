@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Profile;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserSessionResource;
+use App\Http\Resources\UserSessionDeviceResource;
 use App\Services\Security\UserSessionService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -17,11 +17,28 @@ class ProfileSecuritySessionController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $items = $this->sessions->listActiveForUser($request->user());
+        $currentSessionId = $request->hasSession() ? $request->session()->getId() : null;
+        $devices = $this->sessions->listGroupedDevicesForUser($request->user(), $currentSessionId);
 
         return ApiResponse::success(data: [
-            'sessions' => UserSessionResource::collection($items),
+            'devices' => UserSessionDeviceResource::collection($devices),
         ]);
+    }
+
+    public function revokeDevice(Request $request, string $fingerprint): JsonResponse
+    {
+        $currentSessionId = $request->hasSession() ? $request->session()->getId() : null;
+
+        $count = $this->sessions->revokeDeviceGroup(
+            user: $request->user(),
+            fingerprint: $fingerprint,
+            currentLaravelSessionId: $currentSessionId,
+        );
+
+        return ApiResponse::success(
+            data: ['revoked_count' => $count],
+            message: __('diyar.profile.security.device_revoked'),
+        );
     }
 
     public function destroy(Request $request, string $session): JsonResponse

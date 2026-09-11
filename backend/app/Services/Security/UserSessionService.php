@@ -4,8 +4,11 @@ namespace App\Services\Security;
 
 use App\Models\User;
 use App\Models\UserSession;
+use App\Support\Security\DeviceFingerprint;
 use App\Support\Security\RevokedSessionCache;
 use App\Support\Security\SessionLookupHash;
+use App\Support\Security\UserSessionDeviceGroup;
+use App\Support\Security\UserSessionDeviceGrouper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -176,6 +179,54 @@ final class UserSessionService
             ->get();
     }
 
+    /**
+     * @return Collection<int, UserSessionDeviceGroup>
+     */
+    public function listGroupedDevicesForUser(User $user, ?string $currentLaravelSessionId): Collection
+    {
+        $currentHash = $currentLaravelSessionId !== null
+            ? SessionLookupHash::make($currentLaravelSessionId)
+            : null;
+
+        $this->pruneDuplicateSessionsForUser($user, $currentHash);
+
+        $sessions = $this->listActiveForUser($user);
+
+        foreach ($sessions as $session) {
+            $this->enrichLocationForDisplay($session);
+        }
+
+        return UserSessionDeviceGrouper::group($sessions, $currentHash);
+    }
+
+    public function revokeDeviceGroup(User $user, string $fingerprint, ?string $currentLaravelSessionId): int
+    {
+        $currentHash = $currentLaravelSessionId !== null
+            ? SessionLookupHash::make($currentLaravelSessionId)
+            : null;
+
+        $revoked = 0;
+
+        foreach ($this->listActiveForUser($user) as $session) {
+            if (DeviceFingerprint::forSession($session) !== $fingerprint) {
+                continue;
+            }
+
+            if ($currentHash !== null && $session->session_lookup_hash === $currentHash) {
+                continue;
+            }
+
+            $this->revokeSessionRecord($session, invalidateRememberToken: false);
+            $revoked++;
+        }
+
+        if ($revoked > 0) {
+            $this->invalidateRememberToken($user);
+        }
+
+        return $revoked;
+    }
+
     public function findActiveOwnedSession(User $user, string $publicSessionId): UserSession
     {
         $session = UserSession::query()
@@ -313,6 +364,70 @@ final class UserSessionService
         } catch (\Throwable $exception) {
             report($exception);
         }
+    }
+
+    private function enrichLocationForDisplay(UserSession $session): void
+    {
+        if ($session->city !== null || $session->country !== null) {
+            return;
+        }
+
+        $location = $this->geolocation->resolveForStoredIp($session->ip_address);
+        if ($location['location_source'] === 'unknown') {
+            return;
+        }
+
+        $session->forceFill($location)->save();
+    }
+
+    private function pruneDuplicateSessionsForUser(User $user, ?string $currentHash): void
+    {
+        $limit = max((int) config('diyar.security.max_sessions_per_device_fingerprint', 2), 1);
+        $sessions = $this->listActiveForUser($user);
+
+        $sessions
+            ->groupBy(fn (UserSession $session): string => DeviceFingerprint::forSession($session))
+            ->each(function (Collection $group) use ($currentHash, $limit): void {
+                if ($group->count() <= $limit) {
+                    return;
+                }
+
+                $sorted = $group
+                    ->sortByDesc(fn (UserSession $session): int => (int) $session->last_activity_at?->getTimestamp())
+                    ->values();
+
+                $keepers = collect();
+
+                if ($currentHash !== null) {
+                    $current = $sorted->first(
+                        fn (UserSession $session): bool => $session->session_lookup_hash === $currentHash,
+                    );
+
+                    if ($current !== null) {
+                        $keepers->push($current);
+                    }
+                }
+
+                foreach ($sorted as $session) {
+                    if ($keepers->count() >= $limit) {
+                        break;
+                    }
+
+                    if ($keepers->contains(fn (UserSession $keeper): bool => $keeper->id === $session->id)) {
+                        continue;
+                    }
+
+                    $keepers->push($session);
+                }
+
+                $keeperIds = $keepers->pluck('id')->all();
+
+                $sorted
+                    ->reject(fn (UserSession $session): bool => in_array($session->id, $keeperIds, true))
+                    ->each(function (UserSession $session): void {
+                        $this->revokeSessionRecord($session, invalidateRememberToken: false);
+                    });
+            });
     }
 
     private function enforceActiveSessionLimit(User $user): void

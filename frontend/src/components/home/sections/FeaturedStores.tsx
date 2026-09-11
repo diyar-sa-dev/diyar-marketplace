@@ -19,6 +19,7 @@ import { skipDashboardTutorial } from '../../../lib/dashboardTutorialStorage.ts'
 import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
 import { StarRating } from '../../product/StarRating.tsx';
 import { mapProductCard } from '../../../lib/catalogMappers.ts';
+import { resolveMediaUrl } from '../../../lib/media.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
 import { HorizontalRail } from './HorizontalRail.tsx';
 import {
@@ -101,7 +102,7 @@ export function FeaturedStores() {
                     <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gray-100 p-1 mb-3 overflow-hidden border border-gray-200 shrink-0">
                       <img
                         src={
-                          store.logo_url ??
+                          resolveMediaUrl(store.logo_url) ??
                           'https://images.unsplash.com/photo-1555529733-0e670560f7e1?auto=format&fit=crop&q=60&w=200'
                         }
                         alt={store.store_name}

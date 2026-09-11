@@ -69,6 +69,10 @@ final class EnvironmentSafetyValidator
             $issues[] = 'DIYAR_LOADTEST_MODE must be false in production (disables rate limits and auth throttles)';
         }
 
+        if (config('diyar.otp.test_mode')) {
+            $issues[] = 'DIYAR_OTP_TEST_MODE must be false in production';
+        }
+
         if (filter_var(env('MYFATOORAH_TEST_MODE', true), FILTER_VALIDATE_BOOL)) {
             $issues[] = 'MYFATOORAH_TEST_MODE must be false in production';
         }
@@ -98,6 +102,10 @@ final class EnvironmentSafetyValidator
 
         if (config('diyar.loadtest.enabled')) {
             $issues[] = 'DIYAR_LOADTEST_MODE must be false in staging (use only for local E2E/load tests)';
+        }
+
+        if (config('diyar.otp.test_mode')) {
+            $issues[] = 'DIYAR_OTP_TEST_MODE must be false in staging';
         }
 
         if ($this->looksLikeProductionDatabase()) {
