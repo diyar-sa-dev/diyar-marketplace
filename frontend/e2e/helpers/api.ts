@@ -47,6 +47,7 @@ export async function loginMarketplaceApi(
   request: APIRequestContext,
   identifier: string,
   password = E2E_PASSWORD,
+  otpCode = '123456',
 ): Promise<void> {
   const xsrf = await ensureCsrf(request);
   const response = await request.post(`${apiBaseUrl()}/auth/login`, {
@@ -57,6 +58,33 @@ export async function loginMarketplaceApi(
       ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
     },
   });
+
+  if (response.status() === 422) {
+    const body = (await response.json()) as { errors?: Record<string, string[]> };
+    const challengeId = body.errors?.two_factor_required?.length
+      ? body.errors?.challenge_id?.[0]
+      : undefined;
+
+    if (!challengeId) {
+      throw new Error(`Marketplace login failed: ${response.status()} ${JSON.stringify(body)}`);
+    }
+
+    const verify = await request.post(`${apiBaseUrl()}/auth/verify-two-factor`, {
+      data: { challenge_id: challengeId, code: otpCode },
+      headers: {
+        ...statefulApiHeaders(),
+        'Content-Type': 'application/json',
+        ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
+      },
+    });
+
+    if (!verify.ok()) {
+      throw new Error(`2FA verification failed: ${verify.status()} ${await verify.text()}`);
+    }
+
+    return;
+  }
+
   if (!response.ok()) {
     throw new Error(`Marketplace login failed: ${response.status()} ${await response.text()}`);
   }

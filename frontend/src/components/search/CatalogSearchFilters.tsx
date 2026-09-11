@@ -240,7 +240,8 @@ export function CatalogSearchFiltersPanel({
         </div>
       </Accordion>
 
-      <Accordion title={t('catalog.search.filters.price')}>
+      <div id="catalog-filter-price-range">
+        <Accordion title={t('catalog.search.filters.price')}>
         <div className="grid grid-cols-2 gap-3">
           <input
             type="text"
@@ -269,7 +270,8 @@ export function CatalogSearchFiltersPanel({
             className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
           />
         </div>
-      </Accordion>
+        </Accordion>
+      </div>
 
       {facets.colors.length > 0 && (
         <Accordion title={t('catalog.search.filters.color')}>

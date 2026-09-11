@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api\V1\Catalog;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Catalog\ProductListRequest;
 use App\Http\Resources\ProductCardResource;
 use App\Services\Catalog\ProductService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
@@ -15,9 +15,9 @@ class SearchController extends Controller
         private readonly ProductService $products,
     ) {}
 
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(ProductListRequest $request): JsonResponse
     {
-        $paginator = $this->products->searchPublic($request->query(), $request->user());
+        $paginator = $this->products->searchPublic($request->validatedFilters(), $request->user());
 
         return ApiResponse::success(data: [
             'items' => ProductCardResource::collection($paginator->getCollection())->resolve(),

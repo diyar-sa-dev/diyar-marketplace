@@ -10,6 +10,7 @@ import type {
   ResetPasswordPayload,
   VerifyEmailOtpPayload,
   VerifyOtpPayload,
+  VerifyTwoFactorPayload,
 } from '../types/auth.ts';
 import type { ApiSuccessResponse } from '../types/api.ts';
 
@@ -97,6 +98,25 @@ export async function login(payload: LoginPayload): Promise<AuthUserResult> {
     user: response.data.data.user,
     message: extractMessage(response),
   };
+}
+
+export async function verifyTwoFactor(payload: VerifyTwoFactorPayload): Promise<AuthUserResult> {
+  const response = await withCsrf(() =>
+    marketplaceApi.post<UserResponse>('/auth/verify-two-factor', payload),
+  );
+  resetCsrfCookie();
+  await ensureCsrfCookie();
+  return {
+    user: response.data.data.user,
+    message: extractMessage(response),
+  };
+}
+
+export async function resendTwoFactor(challengeId: string): Promise<AuthActionResult> {
+  const response = await withCsrf(() =>
+    marketplaceApi.post<MessageResponse>('/auth/resend-two-factor', { challenge_id: challengeId }),
+  );
+  return { message: extractMessage(response) };
 }
 
 export async function logout(): Promise<AuthActionResult> {

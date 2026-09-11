@@ -40,6 +40,43 @@ class EnvironmentSafetyValidatorTest extends TestCase
         );
     }
 
+    public function test_production_rejects_otp_test_mode(): void
+    {
+        app()->detectEnvironment(fn () => 'production');
+
+        config([
+            'app.debug' => false,
+            'diyar.payments.use_fake_gateway' => false,
+            'diyar.loadtest.enabled' => false,
+            'diyar.otp.test_mode' => true,
+        ]);
+
+        putenv('MYFATOORAH_TEST_MODE=false');
+
+        $violations = app(EnvironmentSafetyValidator::class)->violations();
+
+        $this->assertContains('DIYAR_OTP_TEST_MODE must be false in production', $violations);
+    }
+
+    public function test_staging_rejects_otp_test_mode(): void
+    {
+        app()->detectEnvironment(fn () => 'staging');
+
+        config([
+            'app.debug' => false,
+            'diyar.payments.use_fake_gateway' => true,
+            'diyar.loadtest.enabled' => false,
+            'diyar.otp.test_mode' => true,
+            'database.default' => 'sqlite',
+            'database.connections.sqlite.database' => 'diyar_staging',
+            'database.redis.options.prefix' => 'diyar-staging-database-',
+        ]);
+
+        $violations = app(EnvironmentSafetyValidator::class)->violations();
+
+        $this->assertContains('DIYAR_OTP_TEST_MODE must be false in staging', $violations);
+    }
+
     public function test_staging_rejects_loadtest_mode(): void
     {
         app()->detectEnvironment(fn () => 'staging');
@@ -85,6 +122,7 @@ class EnvironmentSafetyValidatorTest extends TestCase
             'app.debug' => false,
             'diyar.payments.use_fake_gateway' => true,
             'diyar.loadtest.enabled' => false,
+            'diyar.otp.test_mode' => false,
             'database.default' => 'sqlite',
             'database.connections.sqlite.database' => 'diyar_staging',
             'database.redis.options.prefix' => 'diyar-staging-database-',

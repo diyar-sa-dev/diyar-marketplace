@@ -85,6 +85,13 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->ip());
         });
 
+        RateLimiter::for('catalog-filter-suggestions', function (Request $request) {
+            $limit = (int) config('diyar.rate_limits.catalog_filter_suggestions_per_minute', 90);
+
+            return Limit::perMinute($limit)
+                ->by($request->ip());
+        });
+
         RateLimiter::for('webhooks', function (Request $request) {
             return Limit::perMinute((int) config('diyar.rate_limits.webhooks_per_minute', 120))
                 ->by($request->ip());
@@ -96,10 +103,13 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('otp', function (Request $request) {
-            $phone = (string) $request->input('phone', 'unknown');
+            $subject = (string) ($request->input('challenge_id')
+                ?: $request->input('phone')
+                ?: $request->input('identifier')
+                ?: 'unknown');
 
             return Limit::perMinute((int) config('diyar.rate_limits.otp_per_minute', 10))
-                ->by($phone.'|'.$request->ip());
+                ->by($subject.'|'.$request->ip());
         });
 
         RateLimiter::for('analytics-export', function (Request $request) {
@@ -238,6 +248,7 @@ class AppServiceProvider extends ServiceProvider
             'api',
             'catalog-search',
             'catalog-search-suggestions',
+            'catalog-filter-suggestions',
             'webhooks',
             'auth',
             'otp',

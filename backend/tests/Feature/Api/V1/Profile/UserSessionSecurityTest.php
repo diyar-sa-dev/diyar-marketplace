@@ -5,6 +5,7 @@ namespace Tests\Feature\Api\V1\Profile;
 use App\Enums\RoleName;
 use App\Models\User;
 use App\Models\UserSession;
+use App\Support\Security\DeviceFingerprint;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -125,13 +126,16 @@ class UserSessionSecurityTest extends TestCase
 
         $list = $this->getStatefulJson('/api/v1/profile/security/sessions')
             ->assertOk()
-            ->assertJsonCount(2, 'data.sessions');
+            ->assertJsonCount(1, 'data.devices')
+            ->assertJsonPath('data.devices.0.session_count', 2);
 
-        $current = collect($list->json('data.sessions'))->firstWhere('is_current', true);
-        $other = collect($list->json('data.sessions'))->firstWhere('is_current', false);
+        $sessions = $this->flattenDeviceSessions($list->json());
+        $current = collect($sessions)->firstWhere('is_current', true);
+        $other = collect($sessions)->firstWhere('is_current', false);
 
         $this->assertNotNull($current);
         $this->assertNotNull($other);
+        $this->assertArrayHasKey('ip_address', $other);
         $this->assertArrayNotHasKey('laravel_session_id', $other);
         $this->assertArrayNotHasKey('session_lookup_hash', $other);
 
@@ -140,7 +144,8 @@ class UserSessionSecurityTest extends TestCase
 
         $this->getStatefulJson('/api/v1/profile/security/sessions')
             ->assertOk()
-            ->assertJsonCount(1, 'data.sessions');
+            ->assertJsonCount(1, 'data.devices')
+            ->assertJsonPath('data.devices.0.session_count', 1);
 
         $this->assertNotNull(UserSession::query()->find($sessionA->id)?->revoked_at);
 
@@ -172,7 +177,7 @@ class UserSessionSecurityTest extends TestCase
             'password' => 'Password123!',
         ])->assertOk();
 
-        $other = collect($this->getStatefulJson('/api/v1/profile/security/sessions')->json('data.sessions'))
+        $other = collect($this->flattenDeviceSessions($this->getStatefulJson('/api/v1/profile/security/sessions')->json()))
             ->firstWhere('is_current', false);
 
         $this->deleteStatefulJson('/api/v1/profile/security/sessions/'.$other['id'])
@@ -269,8 +274,91 @@ class UserSessionSecurityTest extends TestCase
         $this->assertNotNull(UserSession::query()->find($otherSession->id)?->revoked_at);
         $this->getStatefulJson('/api/v1/profile/security/sessions')
             ->assertOk()
-            ->assertJsonCount(1, 'data.sessions');
+            ->assertJsonCount(1, 'data.devices');
 
+        $this->getStatefulJson('/api/v1/auth/me')->assertOk();
+        $this->assertRevokedSessionCannotAuthenticate($sessionCookieName, (string) $sessionCookieA);
+    }
+
+    #[Test]
+    public function duplicate_sessions_on_same_device_are_grouped_and_pruned(): void
+    {
+        $user = $this->createUserWithRole(RoleName::Customer, [
+            'phone' => '966501060606',
+            'password' => 'Password123!',
+        ]);
+
+        $this->postStatefulJson('/api/v1/auth/login', [
+            'method' => 'phone',
+            'identifier' => '501060606',
+            'password' => 'Password123!',
+        ])->assertOk();
+
+        $current = UserSession::query()->where('user_id', $user->id)->firstOrFail();
+        $base = $current->only([
+            'device_type',
+            'browser',
+            'browser_version',
+            'platform',
+            'platform_version',
+            'device_name',
+            'ip_address',
+        ]);
+
+        foreach (['ghost-a', 'ghost-b'] as $suffix) {
+            UserSession::query()->create([
+                'user_id' => $user->id,
+                'session_lookup_hash' => hash('sha256', $suffix),
+                'laravel_session_id' => 'fake-session-'.$suffix,
+                ...$base,
+                'first_seen_at' => now()->subMinutes(30),
+                'last_activity_at' => now()->subMinutes(20),
+            ]);
+        }
+
+        $this->assertSame(3, UserSession::query()->where('user_id', $user->id)->whereNull('revoked_at')->count());
+
+        $list = $this->getStatefulJson('/api/v1/profile/security/sessions')
+            ->assertOk()
+            ->assertJsonCount(1, 'data.devices')
+            ->assertJsonPath('data.devices.0.session_count', 2);
+
+        $this->assertSame(2, UserSession::query()->where('user_id', $user->id)->whereNull('revoked_at')->count());
+        $this->assertCount(2, $this->flattenDeviceSessions($list->json()));
+    }
+
+    #[Test]
+    public function user_can_revoke_entire_device_group(): void
+    {
+        $user = $this->createUserWithRole(RoleName::Customer, [
+            'phone' => '966501070707',
+            'password' => 'Password123!',
+        ]);
+
+        $loginA = $this->postStatefulJson('/api/v1/auth/login', [
+            'method' => 'phone',
+            'identifier' => '501070707',
+            'password' => 'Password123!',
+        ])->assertOk();
+
+        $otherSession = UserSession::query()->where('user_id', $user->id)->firstOrFail();
+        $sessionCookieName = config('session.cookie');
+        $sessionCookieA = $this->extractCookieValue($loginA, $sessionCookieName);
+        $fingerprint = DeviceFingerprint::forSession($otherSession);
+
+        $this->resetStatefulSession();
+
+        $this->postStatefulJson('/api/v1/auth/login', [
+            'method' => 'phone',
+            'identifier' => '501070707',
+            'password' => 'Password123!',
+        ])->assertOk();
+
+        $this->deleteStatefulJson('/api/v1/profile/security/devices/'.$fingerprint)
+            ->assertOk()
+            ->assertJsonPath('data.revoked_count', 1);
+
+        $this->assertNotNull(UserSession::query()->find($otherSession->id)?->revoked_at);
         $this->getStatefulJson('/api/v1/auth/me')->assertOk();
         $this->assertRevokedSessionCannotAuthenticate($sessionCookieName, (string) $sessionCookieA);
     }
@@ -470,6 +558,18 @@ class UserSessionSecurityTest extends TestCase
         $this->assertSame('SA', $session->country);
         $this->assertSame('Riyadh', $session->city);
         $this->assertSame('proxy_header', $session->location_source);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return list<array<string, mixed>>
+     */
+    private function flattenDeviceSessions(array $payload): array
+    {
+        return collect($payload['data']['devices'] ?? [])
+            ->flatMap(fn (array $device): array => $device['sessions'] ?? [])
+            ->values()
+            ->all();
     }
 
     private function assertRevokedSessionCannotAuthenticate(string $sessionCookieName, string $sessionCookieValue): void

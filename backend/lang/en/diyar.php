@@ -30,6 +30,22 @@ return [
         'cooldown' => 'Please wait before requesting a new code.',
         'too_many_resends' => 'Too many resend attempts. Try again later.',
         'too_many_attempts' => 'Too many invalid attempts. Request a new code.',
+        'already_used' => 'This verification code has already been used.',
+        'delivery_failed' => 'Unable to send the verification code. Please try again later.',
+    ],
+
+    'two_factor' => [
+        'required' => 'Two-factor authentication is required. Enter the code sent to your phone.',
+        'challenge_expired' => 'Your sign-in session expired. Sign in again with your password.',
+        'enabled' => 'Two-factor authentication is now enabled.',
+        'disabled' => 'Two-factor authentication has been disabled.',
+        'setup_started' => 'A verification code was sent to your phone.',
+        'disable_started' => 'A verification code was sent to confirm disabling two-factor authentication.',
+        'already_enabled' => 'Two-factor authentication is already enabled.',
+        'not_enabled' => 'Two-factor authentication is not enabled.',
+        'unavailable' => 'Two-factor authentication is not available right now.',
+        'phone_required' => 'Verify your phone number before enabling two-factor authentication.',
+        'invalid_password' => 'The password is incorrect.',
     ],
 
     'registration' => [
@@ -78,6 +94,7 @@ return [
             'session_not_found' => 'Session not found or already signed out.',
             'cannot_revoke_current_session' => 'You cannot sign out the current device from this screen. Use log out instead.',
             'session_revoked' => 'Device signed out successfully.',
+            'device_revoked' => 'All sessions on this device were signed out successfully.',
             'other_sessions_revoked' => 'Other devices were signed out successfully.',
             'session_required' => 'An active session is required for this action.',
         ],
@@ -123,6 +140,32 @@ return [
         'product_updated' => 'Product updated successfully.',
         'product_archived' => 'Product archived successfully.',
         'category_has_products' => 'Cannot delete a category that has products.',
+        'filter_suggestions' => [
+            'filters' => [
+                'price_range' => 'Price',
+                'vendor_slug' => 'Vendor',
+                'colors' => 'Color',
+                'availability_mode' => 'Availability',
+                'discounted' => 'Offers',
+                'pricing_mode' => 'Pricing mode',
+                'min_rating' => 'Rating',
+                'remote' => 'Remote',
+                'provider' => 'Provider',
+            ],
+            'reasons' => [
+                'high_distribution_value' => 'Most common options can help narrow results.',
+                'wide_price_range' => 'Choose a budget range to reduce results.',
+                'popular_discounts' => 'Many items are currently on sale.',
+                'balanced_availability' => 'Availability varies — filter by stock status.',
+                'highly_rated_providers' => 'Highly rated options are available.',
+                'remote_options_available' => 'Remote and on-site options are both available.',
+                'pricing_mode_variety' => 'Different pricing models are available.',
+                'provider_choice' => 'Multiple providers serve this category.',
+                'zero_results_relax_filters' => 'Try removing a filter to see more results.',
+                'low_results_avoid_narrowing' => 'Results are already limited — avoid adding more filters.',
+                'start_narrowing' => 'Tap to refine results using this filter.',
+            ],
+        ],
     ],
 
     'blog' => [

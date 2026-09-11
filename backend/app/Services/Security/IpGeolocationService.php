@@ -3,6 +3,7 @@
 namespace App\Services\Security;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 final class IpGeolocationService
@@ -44,11 +45,53 @@ final class IpGeolocationService
         }
 
         $ip = $request->ip();
-        if ($ip === null || $this->isPrivateOrLocal($ip)) {
+        if ($ip === null || self::isPrivateOrLocal($ip)) {
             return $this->emptyResult('unknown');
         }
 
         return $this->lookupRemote($ip);
+    }
+
+    /**
+     * Cached lookup for session list display — never used on auth hot paths.
+     *
+     * @return array{
+     *     country: string|null,
+     *     city: string|null,
+     *     region: string|null,
+     *     location_source: string
+     * }
+     */
+    public function resolveForStoredIp(?string $ip): array
+    {
+        if ($ip === null || trim($ip) === '') {
+            return $this->emptyResult('unknown');
+        }
+
+        if (self::isPrivateOrLocal($ip)) {
+            return $this->emptyResult('local_network');
+        }
+
+        if (! (bool) config('diyar.security.ip_geolocation_enabled', false)) {
+            return $this->emptyResult('unknown');
+        }
+
+        $cacheTtl = (int) config('diyar.security.ip_geolocation_cache_seconds', 86_400);
+
+        return Cache::remember(
+            'ip_geo:'.hash('sha256', $ip),
+            max($cacheTtl, 60),
+            fn (): array => $this->lookupRemote($ip),
+        );
+    }
+
+    public static function isPrivateOrLocal(string $ip): bool
+    {
+        return filter_var(
+            $ip,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE,
+        ) === false;
     }
 
     /**
@@ -143,15 +186,6 @@ final class IpGeolocationService
         }
 
         return null;
-    }
-
-    private function isPrivateOrLocal(string $ip): bool
-    {
-        return filter_var(
-            $ip,
-            FILTER_VALIDATE_IP,
-            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE,
-        ) === false;
     }
 
     /**

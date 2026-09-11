@@ -40,6 +40,8 @@
         <env name="DIYAR_MAIL_ENABLED" value="false"/>
         <env name="DIYAR_OUTBOX_ENABLED" value="false"/>
         <env name="DIYAR_LOADTEST_MODE" value="false"/>
+        <env name="DIYAR_OTP_TEST_MODE" value="true"/>
+        <env name="DIYAR_OTP_TEST_CODE" value="123456"/>
         <ini name="memory_limit" value="512M"/>
     </php>
 </phpunit>

@@ -75,8 +75,12 @@ class RedisSessionSecurityIntegrationTest extends TestCase
             'password' => 'Password123!',
         ])->assertOk();
 
-        $other = collect($this->getStatefulJson('/api/v1/profile/security/sessions')->json('data.sessions'))
-            ->firstWhere('is_current', false);
+        $payload = $this->getStatefulJson('/api/v1/profile/security/sessions')->json();
+        $other = collect(
+            collect($payload['data']['devices'] ?? [])
+                ->flatMap(fn (array $device): array => $device['sessions'] ?? [])
+                ->all(),
+        )->firstWhere('is_current', false);
         $this->assertNotNull($other);
 
         $this->deleteStatefulJson('/api/v1/profile/security/sessions/'.$other['id'])

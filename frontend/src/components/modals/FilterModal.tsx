@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   X,
@@ -13,21 +13,39 @@ import { fetchCatalogSearch } from '../../api/catalogSearch.ts';
 import { fetchServiceCategories, fetchServices } from '../../api/services.ts';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue.ts';
 import { useBodyScrollLock } from '../../hooks/useBodyScrollLock.ts';
+import { useFilterSuggestions } from '../../hooks/catalog/useFilterSuggestions.ts';
+import { normalizeCatalogSearchFilters } from '../../hooks/catalog/useCatalogSearch.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { applyFilterSuggestion } from '../../lib/applyFilterSuggestion.ts';
+import { catalogFiltersToSearchParams } from '../../lib/catalogFiltersToParams.ts';
+import {
+  normalizeFilterSuggestionContext,
+  suggestionSectionKey,
+} from '../../lib/filterSuggestionContext.ts';
 import { parsePriceDigits } from '../../lib/priceInput.ts';
 import type { CatalogSearchFilters } from '../../types/catalogSearch.ts';
+import type { FilterSuggestionItem } from '../../types/filterSuggestions.ts';
 import type { ServiceListFilters } from '../../types/services.ts';
+import { SuggestedFiltersSection } from '../search/SuggestedFiltersSection.tsx';
 import { ColorMultiSelect } from '../search/filterFields/ColorMultiSelect.tsx';
 import { PriceRangeFields } from '../search/filterFields/PriceRangeFields.tsx';
 import { VendorPicker } from '../search/filterFields/VendorPicker.tsx';
 
-type FilterTab = 'products' | 'services' | 'ai';
+type FilterTab = 'suggested' | 'products' | 'services';
 type ServiceSort = NonNullable<ServiceListFilters['sort']>;
+
+const PRICE_SECTION_ID = 'catalog-filter-price-range';
 
 export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { t, locale, dir } = useLocale();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<FilterTab>('products');
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const manualFiltersRef = useRef<HTMLDivElement>(null);
+
+  const isSearchRoute = location.pathname === '/search';
+  const [activeTab, setActiveTab] = useState<FilterTab>('suggested');
+  const [manualType, setManualType] = useState<'products' | 'services'>('products');
 
   const [searchType, setSearchType] = useState<'products' | 'services' | 'all'>('products');
   const [minPrice, setMinPrice] = useState('');
@@ -43,6 +61,83 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const [serviceSort, setServiceSort] = useState<ServiceSort>('latest');
   const [serviceMinPrice, setServiceMinPrice] = useState('');
   const [serviceMaxPrice, setServiceMaxPrice] = useState('');
+
+  const urlFilters = useMemo(() => {
+    if (!isSearchRoute) {
+      return null;
+    }
+
+    return normalizeCatalogSearchFilters(Object.fromEntries(searchParams.entries()));
+  }, [isSearchRoute, searchParams]);
+
+  const suggestionContextRaw = useMemo(() => {
+    if (isSearchRoute && urlFilters) {
+      return {
+        ...Object.fromEntries(searchParams.entries()),
+        type: manualType === 'services' ? 'services' : urlFilters.type ?? 'products',
+      };
+    }
+
+    if (manualType === 'services') {
+      return {
+        type: 'services',
+        category: serviceCategorySlug || undefined,
+        min_price: parsePriceDigits(serviceMinPrice),
+        max_price: parsePriceDigits(serviceMaxPrice),
+        sort: serviceSort,
+      };
+    }
+
+    return {
+      type: searchType === 'all' ? 'products' : searchType,
+      category_slug: categorySlug || undefined,
+      vendor_slug: vendorSlug || undefined,
+      min_price: parsePriceDigits(minPrice),
+      max_price: parsePriceDigits(maxPrice),
+      colors: selectedColors.length > 0 ? selectedColors : undefined,
+      discounted: offersOnly ? 1 : undefined,
+      availability_mode: inStockOnly ? 'in_stock' : undefined,
+      sort,
+    };
+  }, [
+    isSearchRoute,
+    urlFilters,
+    searchParams,
+    manualType,
+    serviceCategorySlug,
+    serviceMinPrice,
+    serviceMaxPrice,
+    serviceSort,
+    searchType,
+    categorySlug,
+    vendorSlug,
+    minPrice,
+    maxPrice,
+    selectedColors,
+    offersOnly,
+    inStockOnly,
+    sort,
+  ]);
+
+  const debouncedSuggestionContext = useDebouncedValue(suggestionContextRaw, 400);
+
+  const {
+    data: suggestionData,
+    isLoading: suggestionsLoading,
+    isError: suggestionsError,
+    isRefetching: suggestionsRefetching,
+    isSuggestionsEnabled,
+    refetch: refetchSuggestions,
+  } = useFilterSuggestions(debouncedSuggestionContext, {
+    enabled: isOpen && activeTab === 'suggested',
+  });
+
+  const suggestionSection = useMemo(() => {
+    const sectionKey = suggestionSectionKey({
+      type: manualType === 'services' ? 'services' : 'products',
+    });
+    return suggestionData?.[sectionKey];
+  }, [manualType, suggestionData]);
 
   const previewFilters = useMemo<CatalogSearchFilters>(
     () => ({
@@ -89,21 +184,21 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const { data: facetData } = useQuery({
     queryKey: ['filter-modal-facets'],
     queryFn: () => fetchCatalogSearch({ type: 'products', per_page: 1, page: 1 }),
-    enabled: isOpen && activeTab === 'products',
+    enabled: isOpen && (activeTab === 'products' || activeTab === 'suggested'),
     staleTime: 60_000,
   });
 
   const { data: serviceCategories = [] } = useQuery({
     queryKey: ['filter-modal-service-categories'],
     queryFn: () => fetchServiceCategories(),
-    enabled: isOpen && activeTab === 'services',
+    enabled: isOpen && (activeTab === 'services' || (activeTab === 'suggested' && manualType === 'services')),
     staleTime: 60_000,
   });
 
   const { data: previewData } = useQuery({
     queryKey: ['filter-modal-preview', debouncedPreviewFilters],
     queryFn: () => fetchCatalogSearch(debouncedPreviewFilters),
-    enabled: isOpen && activeTab === 'products',
+    enabled: isOpen && (activeTab === 'products' || (activeTab === 'suggested' && manualType === 'products')),
     placeholderData: keepPreviousData,
     staleTime: 10_000,
   });
@@ -111,7 +206,7 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const { data: servicePreviewData } = useQuery({
     queryKey: ['filter-modal-services-preview', debouncedServicePreviewFilters],
     queryFn: () => fetchServices(debouncedServicePreviewFilters),
-    enabled: isOpen && activeTab === 'services',
+    enabled: isOpen && (activeTab === 'services' || (activeTab === 'suggested' && manualType === 'services')),
     placeholderData: keepPreviousData,
     staleTime: 10_000,
   });
@@ -123,7 +218,7 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   );
 
   const resultCount = useMemo(() => {
-    if (activeTab === 'services') {
+    if (activeTab === 'services' || (activeTab === 'suggested' && manualType === 'services')) {
       return servicePreviewData?.pagination.total ?? 0;
     }
 
@@ -142,7 +237,7 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     return (
       (previewData.products?.pagination.total ?? 0) + (previewData.services?.pagination.total ?? 0)
     );
-  }, [activeTab, previewData, searchType, servicePreviewData?.pagination.total]);
+  }, [activeTab, manualType, previewData, searchType, servicePreviewData?.pagination.total]);
 
   useBodyScrollLock(isOpen);
 
@@ -151,8 +246,9 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       return;
     }
 
-    setActiveTab('products');
-  }, [isOpen]);
+    setActiveTab('suggested');
+    setManualType(urlFilters?.type === 'services' ? 'services' : 'products');
+  }, [isOpen, urlFilters?.type]);
 
   if (!isOpen) {
     return null;
@@ -231,7 +327,7 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   };
 
   const applyFilters = () => {
-    if (activeTab === 'services') {
+    if (activeTab === 'services' || (activeTab === 'suggested' && manualType === 'services')) {
       applyServiceFilters();
       return;
     }
@@ -255,10 +351,52 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     setServiceMaxPrice('');
   };
 
+  const focusManualFilter = (filterKey: string) => {
+    if (manualType === 'services') {
+      setActiveTab('services');
+    } else {
+      setActiveTab('products');
+    }
+
+    window.requestAnimationFrame(() => {
+      const targetId = filterKey === 'price_range' ? PRICE_SECTION_ID : undefined;
+      const node = targetId
+        ? document.getElementById(targetId)
+        : manualFiltersRef.current;
+      node?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
+  const handleSuggestionSelect = (suggestion: FilterSuggestionItem) => {
+    if (!suggestion.apply) {
+      return;
+    }
+
+    if (suggestion.apply.mode === 'focus') {
+      focusManualFilter(suggestion.apply.focus_filter_key ?? suggestion.filter_key);
+      return;
+    }
+
+    const base = isSearchRoute
+      ? new URLSearchParams(searchParams)
+      : catalogFiltersToSearchParams(
+          normalizeFilterSuggestionContext({
+            ...debouncedSuggestionContext,
+            type: manualType === 'services' ? 'services' : 'products',
+          }),
+        );
+
+    const next = applyFilterSuggestion(base, suggestion.apply);
+    next.set('per_page', manualType === 'services' ? '12' : '48');
+
+    onClose();
+    navigate(`/search?${next.toString()}`);
+  };
+
   const categoryLabel = (nameAr: string, nameEn: string) => (locale === 'ar' ? nameAr : nameEn);
 
   const renderProductFilters = () => (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div ref={manualType === 'products' ? manualFiltersRef : undefined} className="space-y-8 animate-in fade-in duration-300">
       <div className="space-y-3">
         <h3 className="font-bold text-sm text-diyar-dark">{t('catalog.search.filters.type')}</h3>
         <div className="flex flex-wrap gap-2">
@@ -312,13 +450,15 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         </div>
       )}
 
-      <PriceRangeFields
-        minPrice={minPrice}
-        maxPrice={maxPrice}
-        onMinChange={setMinPrice}
-        onMaxChange={setMaxPrice}
-        layout="grid"
-      />
+      <div id={PRICE_SECTION_ID}>
+        <PriceRangeFields
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          onMinChange={setMinPrice}
+          onMaxChange={setMaxPrice}
+          layout="grid"
+        />
+      </div>
 
       {facets?.colors && (
         <ColorMultiSelect
@@ -404,7 +544,7 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   );
 
   const renderServiceFilters = () => (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div ref={manualType === 'services' ? manualFiltersRef : undefined} className="space-y-8 animate-in fade-in duration-300">
       <p className="text-sm text-gray-500">{t('catalog.search.filters.servicesHint')}</p>
 
       {serviceCategories.length > 0 && (
@@ -440,13 +580,15 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         </div>
       )}
 
-      <PriceRangeFields
-        minPrice={serviceMinPrice}
-        maxPrice={serviceMaxPrice}
-        onMinChange={setServiceMinPrice}
-        onMaxChange={setServiceMaxPrice}
-        layout="grid"
-      />
+      <div id={PRICE_SECTION_ID}>
+        <PriceRangeFields
+          minPrice={serviceMinPrice}
+          maxPrice={serviceMaxPrice}
+          onMinChange={setServiceMinPrice}
+          onMaxChange={setServiceMaxPrice}
+          layout="grid"
+        />
+      </div>
 
       <div className="space-y-3 pt-4 border-t border-gray-100">
         <h3 className="font-bold text-sm text-diyar-dark">{t('catalog.search.filters.sort')}</h3>
@@ -482,19 +624,44 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     </div>
   );
 
-  const renderAIFilters = () => (
+  const renderSuggestedTab = () => (
     <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-xl flex items-start gap-3">
-        <Sparkles className="text-yellow-600 mt-0.5 shrink-0" size={20} />
-        <div>
-          <h4 className="font-bold text-sm text-yellow-800 mb-1">
-            {t('catalog.search.aiFilters.title')}
-          </h4>
-          <p className="text-xs text-yellow-700/80">{t('catalog.search.aiFilters.description')}</p>
-        </div>
+      <div className="flex flex-wrap gap-2">
+        {(['products', 'services'] as const).map((type) => (
+          <button
+            key={type}
+            type="button"
+            onClick={() => setManualType(type)}
+            className={`px-4 py-2 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
+              manualType === type
+                ? 'border-diyar-brown bg-diyar-brown text-white'
+                : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            {t(`catalog.search.filters.type_${type}`)}
+          </button>
+        ))}
       </div>
-      <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-500">
-        {t('catalog.search.comingSoon')}
+
+      <SuggestedFiltersSection
+        suggestions={suggestionSection?.suggestions ?? []}
+        initializedFilters={suggestionSection?.initialized_filters ?? []}
+        displayMode={suggestionSection?.display_mode}
+        degraded={suggestionSection?.degraded}
+        isEnabled={isSuggestionsEnabled}
+        isLoading={suggestionsLoading}
+        isError={suggestionsError}
+        isRefetching={suggestionsRefetching}
+        onRetry={() => refetchSuggestions()}
+        onSelect={handleSuggestionSelect}
+        onFocusManual={focusManualFilter}
+      />
+
+      <div className="border-t border-gray-100 pt-6">
+        <h3 className="mb-4 text-sm font-bold text-diyar-dark">
+          {t('catalog.search.suggestedFilters.allFiltersHeading')}
+        </h3>
+        {manualType === 'services' ? renderServiceFilters() : renderProductFilters()}
       </div>
     </div>
   );
@@ -536,6 +703,17 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           <div className="flex gap-1 overflow-x-auto px-3 pb-2 scrollbar-hide sm:px-4">
             <button
               type="button"
+              onClick={() => setActiveTab('suggested')}
+              className={`py-2 px-4 whitespace-nowrap rounded-xl text-sm font-bold flex items-center gap-2 transition-all flex-1 justify-center cursor-pointer ${
+                activeTab === 'suggested'
+                  ? 'bg-[#132624] text-white'
+                  : 'text-yellow-800 bg-yellow-50 border border-yellow-100 hover:bg-yellow-100/80'
+              }`}
+            >
+              <Sparkles size={16} /> {t('catalog.search.suggestedFilters.tab')}
+            </button>
+            <button
+              type="button"
               onClick={() => setActiveTab('products')}
               className={`py-2 px-4 whitespace-nowrap rounded-xl text-sm font-bold flex items-center gap-2 transition-all flex-1 justify-center cursor-pointer ${
                 activeTab === 'products' ? 'bg-[#132624] text-white' : 'text-gray-500 hover:bg-gray-50'
@@ -552,21 +730,13 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             >
               <Wrench size={16} /> {t('catalog.search.filters.type_services')}
             </button>
-            <button
-              type="button"
-              disabled
-              title={t('catalog.search.comingSoon')}
-              className="py-2 px-4 whitespace-nowrap rounded-xl text-sm font-bold flex items-center gap-2 transition-all flex-1 justify-center opacity-50 cursor-not-allowed text-yellow-700 bg-yellow-50 border border-yellow-100"
-            >
-              <Sparkles size={16} /> {t('catalog.search.aiFilters.tab')}
-            </button>
           </div>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y bg-white p-4 sm:p-6">
+          {activeTab === 'suggested' && renderSuggestedTab()}
           {activeTab === 'products' && renderProductFilters()}
           {activeTab === 'services' && renderServiceFilters()}
-          {activeTab === 'ai' && renderAIFilters()}
         </div>
 
         <div className="sticky bottom-0 z-20 flex shrink-0 gap-3 border-t border-gray-100 bg-white p-4 pb-safe sm:p-5">
@@ -580,10 +750,9 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           <button
             type="button"
             onClick={applyFilters}
-            disabled={activeTab === 'ai'}
-            className="flex-1 bg-diyar-brown text-white py-3 rounded-xl text-sm font-bold hover:bg-[#7a6450] transition-colors shadow-lg shadow-diyar-brown/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-diyar-brown text-white py-3 rounded-xl text-sm font-bold hover:bg-[#7a6450] transition-colors shadow-lg shadow-diyar-brown/20 flex items-center justify-center gap-2 cursor-pointer"
           >
-            {activeTab === 'services'
+            {activeTab === 'services' || (activeTab === 'suggested' && manualType === 'services')
               ? t('catalog.search.filters.browseServicesWithCount', { count: resultCount })
               : t('catalog.search.showResults', { count: resultCount })}
           </button>

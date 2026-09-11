@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  fetchSecuritySessions,
+  fetchSecurityDevices,
   logoutOtherSecuritySessions,
+  revokeSecurityDevice,
   revokeSecuritySession,
 } from '../../api/profileSecurity.ts';
 import { marketplaceQueryKey } from '../../lib/auth/queryKeys.ts';
@@ -14,8 +15,19 @@ export const securitySessionKeys = {
 export function useSecuritySessions() {
   return useQuery({
     queryKey: securitySessionKeys.list(),
-    queryFn: fetchSecuritySessions,
+    queryFn: fetchSecurityDevices,
     staleTime: 30_000,
+  });
+}
+
+export function useRevokeSecurityDevice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: revokeSecurityDevice,
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: securitySessionKeys.all });
+    },
   });
 }
 

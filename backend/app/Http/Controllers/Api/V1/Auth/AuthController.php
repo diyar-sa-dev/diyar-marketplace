@@ -9,14 +9,17 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResendEmailOtpRequest;
 use App\Http\Requests\Auth\ResendOtpRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\ResendTwoFactorRequest;
 use App\Http\Requests\Auth\VerifyEmailOtpRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Http\Requests\Auth\VerifyTwoFactorRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\Identity\AuthService;
 use App\Services\Identity\EmailVerificationService;
 use App\Services\Identity\PasswordResetService;
 use App\Services\Identity\RegistrationService;
+use App\Services\Security\TwoFactorLoginChallengeService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,6 +32,7 @@ class AuthController extends Controller
         private readonly AuthService $auth,
         private readonly PasswordResetService $passwordReset,
         private readonly EmailVerificationService $emailVerification,
+        private readonly TwoFactorLoginChallengeService $twoFactorLogin,
     ) {}
 
     public function register(RegisterRequest $request): JsonResponse
@@ -163,5 +167,27 @@ class AuthController extends Controller
         );
 
         return ApiResponse::success(message: __('diyar.auth.password_reset_success'));
+    }
+
+    public function verifyTwoFactor(VerifyTwoFactorRequest $request): JsonResponse
+    {
+        $result = $this->twoFactorLogin->verify(
+            challengeId: $request->string('challenge_id')->toString(),
+            code: $request->string('code')->toString(),
+        );
+
+        $user = $this->auth->establishMarketplaceSession($result['user'], $result['remember']);
+
+        return ApiResponse::success(
+            data: ['user' => new UserResource($user)],
+            message: __('diyar.auth.login_success'),
+        );
+    }
+
+    public function resendTwoFactor(ResendTwoFactorRequest $request): JsonResponse
+    {
+        $this->twoFactorLogin->resend($request->string('challenge_id')->toString());
+
+        return ApiResponse::success(message: __('diyar.auth.otp_resent'));
     }
 }

@@ -59,6 +59,7 @@ use App\Http\Controllers\Api\V1\Blog\BlogEngagementController;
 use App\Http\Controllers\Api\V1\Blog\BlogTagController;
 use App\Http\Controllers\Api\V1\Cart\CartController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchController;
+use App\Http\Controllers\Api\V1\Catalog\FilterSuggestionsController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchSuggestionsController;
 use App\Http\Controllers\Api\V1\Catalog\CategoryController;
 use App\Http\Controllers\Api\V1\Catalog\ProductController;
@@ -118,6 +119,7 @@ use App\Http\Controllers\Api\V1\Profile\NotificationController;
 use App\Http\Controllers\Api\V1\Profile\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\Profile\ProfileSecuritySessionController;
+use App\Http\Controllers\Api\V1\Profile\ProfileTwoFactorController;
 use App\Http\Controllers\Api\V1\Profile\WishlistController;
 use App\Http\Controllers\Api\V1\Projects\ProjectController;
 use App\Http\Controllers\Api\V1\ReadinessController;
@@ -196,6 +198,7 @@ Route::get('/products/{id}/reviews', [ProductEngagementController::class, 'revie
 Route::get('/search', SearchController::class)->middleware('throttle:catalog-search');
 Route::get('/catalog/search', CatalogSearchController::class)->middleware('throttle:catalog-search');
 Route::get('/catalog/search/suggestions', CatalogSearchSuggestionsController::class)->middleware('throttle:catalog-search-suggestions');
+Route::get('/catalog/search/filter-suggestions', FilterSuggestionsController::class)->middleware('throttle:catalog-filter-suggestions');
 Route::get('/vendors', [VendorController::class, 'index']);
 Route::get('/vendors/{slug}', [VendorController::class, 'show']);
 Route::get('/vendors/{slug}/products', [VendorController::class, 'products']);
@@ -250,6 +253,8 @@ Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/resend-email-otp', [AuthController::class, 'resendEmailOtp'])->middleware('throttle:otp');
     Route::post('/resend-otp', [AuthController::class, 'resendOtp'])->middleware('throttle:otp');
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/verify-two-factor', [AuthController::class, 'verifyTwoFactor'])->middleware('throttle:otp');
+    Route::post('/resend-two-factor', [AuthController::class, 'resendTwoFactor'])->middleware('throttle:otp');
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:otp');
     Route::post('/verify-password-reset-otp', [AuthController::class, 'verifyPasswordResetOtp'])->middleware('throttle:otp');
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:otp');
@@ -776,8 +781,18 @@ Route::middleware([
             Route::get('/security/sessions', [ProfileSecuritySessionController::class, 'index']);
             Route::delete('/security/sessions/{session}', [ProfileSecuritySessionController::class, 'destroy'])
                 ->middleware('throttle:20,1');
+            Route::delete('/security/devices/{fingerprint}', [ProfileSecuritySessionController::class, 'revokeDevice'])
+                ->middleware('throttle:20,1');
             Route::post('/security/sessions/logout-others', [ProfileSecuritySessionController::class, 'logoutOthers'])
                 ->middleware('throttle:10,1');
+
+            Route::get('/security/two-factor', [ProfileTwoFactorController::class, 'show']);
+            Route::post('/security/two-factor/enable', [ProfileTwoFactorController::class, 'enable'])
+                ->middleware('throttle:otp');
+            Route::post('/security/two-factor/confirm', [ProfileTwoFactorController::class, 'confirm'])
+                ->middleware('throttle:otp');
+            Route::post('/security/two-factor/disable', [ProfileTwoFactorController::class, 'disable'])
+                ->middleware('throttle:otp');
 
             Route::get('/addresses', [AddressController::class, 'index']);
             Route::post('/addresses', [AddressController::class, 'store']);

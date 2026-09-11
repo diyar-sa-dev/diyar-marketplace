@@ -205,13 +205,28 @@ final class MediaUploadService
             return null;
         }
 
+        if (preg_match('#^https?://#i', $path) === 1) {
+            return $path;
+        }
+
+        $normalized = str_replace('\\', '/', ltrim($path, '/'));
+
+        if (str_starts_with($normalized, 'storage/media/')) {
+            return '/'.$normalized;
+        }
+
+        if (str_starts_with($normalized, 'storage/')) {
+            return '/'.$normalized;
+        }
+
         $disk = Storage::disk($this->diskName());
 
-        if (! $disk->exists($path)) {
+        if (! $disk->exists($normalized)) {
             return null;
         }
 
-        return $disk->url($path);
+        // App-relative URLs work with the SPA proxy (/storage) regardless of APP_URL/LAN host.
+        return '/storage/media/'.$normalized;
     }
 
     public function validateVendorLogo(UploadedFile $file): void
