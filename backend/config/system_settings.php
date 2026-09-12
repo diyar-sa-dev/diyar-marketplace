@@ -372,6 +372,14 @@ return [
             'is_public' => false,
             'validation' => ['required', 'boolean'],
         ],
+        'feature.visual_search_min_similarity' => [
+            'group' => 'feature',
+            'key' => 'visual_search_min_similarity',
+            'type' => 'decimal',
+            'config_path' => 'diyar.visual_search.min_similarity',
+            'is_public' => true,
+            'validation' => ['required', 'numeric', 'min:0.1', 'max:1'],
+        ],
 
         // Theme (public tokens for storefront bootstrap)
         'theme.primary_color' => [

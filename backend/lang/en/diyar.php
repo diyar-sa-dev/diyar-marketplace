@@ -109,6 +109,21 @@ return [
         'unsafe_svg' => 'SVG file contains unsafe content.',
     ],
 
+    'visual_search' => [
+        'disabled' => 'Visual search is currently unavailable.',
+        'unavailable' => 'Visual search is temporarily unavailable.',
+        'index_empty' => 'Visual search index is not ready yet.',
+        'invalid_upload' => 'Invalid image upload.',
+        'invalid_type' => 'Unsupported image type.',
+        'invalid_extension' => 'Unsupported image extension.',
+        'file_too_large' => 'Image exceeds the 2 MB limit.',
+        'invalid_image' => 'Unable to read the uploaded image.',
+        'decode_failed' => 'Unable to decode the uploaded image.',
+        'invalid_dimensions' => 'Invalid image dimensions.',
+        'dimensions_exceeded' => 'Image dimensions exceed the allowed limit.',
+        'pixel_count_exceeded' => 'Image pixel count exceeds the allowed limit.',
+    ],
+
     'catalog' => [
         'category_not_found' => 'Category not found.',
         'product_not_found' => 'Product not found.',

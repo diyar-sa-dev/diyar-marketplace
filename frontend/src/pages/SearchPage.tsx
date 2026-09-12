@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Camera,
   ChevronLeft,
@@ -25,6 +25,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { fetchCatalogSearch } from '../api/catalogSearch.ts';
 import { useDebouncedValue } from '../hooks/useDebouncedValue.ts';
 import { usePlatformCommerce } from '../hooks/usePlatformCommerce.ts';
+import { usePlatformSearch } from '../hooks/usePlatformSearch.ts';
 import {
   hasCatalogSearchContext,
   normalizeCatalogSearchFilters,
@@ -41,8 +42,24 @@ import { applyFilterSuggestion } from '../lib/applyFilterSuggestion.ts';
 import { suggestionSectionKey } from '../lib/filterSuggestionContext.ts';
 import type { CatalogSearchFilters } from '../types/catalogSearch.ts';
 import type { FilterSuggestionItem } from '../types/filterSuggestions.ts';
-
-const VISUAL_SEARCH_QUERY = 'visual_search_results';
+import {
+  VISUAL_SEARCH_DEFAULT_PER_PAGE,
+  VISUAL_SEARCH_QUERY,
+  type VisualSearchLocationState,
+  type VisualSearchResponse,
+} from '../types/visualSearch.ts';
+import { ImageSearchModal } from '../components/modals/ImageSearchModal.tsx';
+import { VisualSearchResultsSection } from '../components/search/VisualSearchResultsSection.tsx';
+import { useVisualSearchResults } from '../hooks/useVisualSearchResults.ts';
+import {
+  buildVisualSearchLocationState,
+  buildVisualSearchPath,
+} from '../lib/visualSearchNavigation.ts';
+import {
+  getVisualSearchSession,
+  getVisualSearchPreviewUrl,
+  releaseVisualSearchSession,
+} from '../lib/visualSearchSession.ts';
 const PER_PAGE_OPTIONS = [12, 24, 36, 48] as const;
 const MAX_PRICE = 20000;
 
@@ -59,16 +76,95 @@ function readFiltersFromParams(
 
 export default function SearchPage() {
   const { t, dir } = useLocale();
-  const location = useLocation();
+  const location = useLocation() as { state?: VisualSearchLocationState | null };
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [draftFilters, setDraftFilters] = useState<CatalogSearchFilters | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [mobileSearchQuery, setMobileSearchQuery] = useState('');
+  const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
+  const navigate = useNavigate();
 
   const rawQuery = searchParams.get('q')?.replace(/\s+/g, ' ').trim() ?? '';
   const debouncedQuery = useDebouncedValue(rawQuery, 300);
   const isVisualSearch = rawQuery === VISUAL_SEARCH_QUERY;
+  const { loyaltySarPerPoint, loyaltyPointsPerUnit } = usePlatformCommerce();
+  const { visualSearchMinSimilarity, visualSearchMinSimilarityPercent } = usePlatformSearch();
+  const visualSearchState = location.state?.visualSearch;
+  const visualSearchId = searchParams.get('search_id');
+  const visualPage = Math.max(1, Number(searchParams.get('page') ?? 1) || 1);
+  const visualPerPage = Math.max(
+    1,
+    Number(searchParams.get('per_page') ?? VISUAL_SEARCH_DEFAULT_PER_PAGE) ||
+      VISUAL_SEARCH_DEFAULT_PER_PAGE,
+  );
+
+  const visualInitialResponse = useMemo((): VisualSearchResponse | undefined => {
+    if (!visualSearchState?.items?.length || !visualSearchState.meta) {
+      return undefined;
+    }
+
+    const pagination = visualSearchState.pagination ?? {
+      current_page: visualPage,
+      last_page: 1,
+      per_page: visualPerPage,
+      total: visualSearchState.items.length,
+    };
+
+    return {
+      success: true,
+      data: {
+        items: visualSearchState.items,
+        pagination,
+      },
+      meta: visualSearchState.meta,
+    };
+  }, [visualPage, visualPerPage, visualSearchState]);
+
+  const {
+    data: visualData,
+    isLoading: isVisualLoading,
+    isFetching: isVisualFetching,
+    isError: isVisualError,
+    error: visualError,
+    refetch: refetchVisualSearch,
+  } = useVisualSearchResults(
+    visualSearchId,
+    visualPage,
+    visualPerPage,
+    isVisualSearch,
+    visualInitialResponse,
+  );
+
+  const visualSession = getVisualSearchSession(visualSearchId);
+  const visualPreviewUrl = getVisualSearchPreviewUrl(visualSearchId);
+  const visualItems = visualData?.data.items ?? visualSearchState?.items ?? [];
+  const visualHighMatchCount = visualItems.filter(
+    (item) => (item.similarity ?? 0) >= visualSearchMinSimilarity,
+  ).length;
+  const visualPagination = visualData?.data.pagination ?? visualSearchState?.pagination;
+
+  const updateVisualPagination = useCallback(
+    (patch: { page?: number; per_page?: number }) => {
+      const next = new URLSearchParams(searchParams);
+      if (patch.page !== undefined) {
+        next.set('page', String(patch.page));
+      }
+      if (patch.per_page !== undefined) {
+        next.set('per_page', String(patch.per_page));
+        next.set('page', '1');
+      }
+      setSearchParams(next, { replace: true, state: location.state });
+    },
+    [location.state, searchParams, setSearchParams],
+  );
+
+  useEffect(() => {
+    if (!isVisualSearch) {
+      releaseVisualSearchSession(visualSearchId);
+    }
+  }, [isVisualSearch, visualSearchId]);
+
   const shouldFocusMobileSearch = Boolean(
     (location.state as { focusSearch?: boolean } | null)?.focusSearch,
   );
@@ -97,7 +193,6 @@ export default function SearchPage() {
   );
   usePageSeo(seo);
 
-  const { loyaltySarPerPoint, loyaltyPointsPerUnit } = usePlatformCommerce();
   const searchEnabled = !isVisualSearch && hasCatalogSearchContext(filters, rawQuery);
 
   const {
@@ -426,7 +521,9 @@ export default function SearchPage() {
                 value={mobileSearchQuery}
                 onChange={setMobileSearchQuery}
                 onSubmit={submitMobileSearch}
-                showImageSearch={false}
+                showImageSearch
+                imageSearchDisabled={false}
+                onImageSearchClick={() => setIsImageSearchOpen(true)}
                 autoFocus={shouldFocusMobileSearch || !rawQuery}
               />
             </div>
@@ -459,6 +556,14 @@ export default function SearchPage() {
               </span>
             )}
           </h1>
+          {isVisualSearch && !isVisualLoading && !isVisualError && visualHighMatchCount > 0 ? (
+            <p className="text-gray-500 text-sm">
+              {t('catalog.search.visualSearchHighMatchCount', {
+                count: visualHighMatchCount,
+                percent: visualSearchMinSimilarityPercent,
+              })}
+            </p>
+          ) : null}
           {searchEnabled && !showInitialSkeleton && !isError && (
             <p className="text-gray-500 text-sm">
               {t('catalog.search.resultsCount', { count: displayTotalResults })}
@@ -473,10 +578,33 @@ export default function SearchPage() {
         </div>
 
         {isVisualSearch ? (
-          <EmptyState
-            title={t('catalog.search.visualSearchSoon')}
-            description={t('catalog.search.visualSearchSoonDescription')}
-          />
+          visualSearchId && (visualSession || visualSearchState) ? (
+            <VisualSearchResultsSection
+              previewUrl={visualPreviewUrl}
+              items={visualItems}
+              pagination={visualPagination}
+              page={visualPage}
+              perPage={visualPerPage}
+              isLoading={isVisualLoading}
+              isFetching={isVisualFetching}
+              isError={isVisualError}
+              error={visualError}
+              onRetry={() => {
+                void refetchVisualSearch();
+              }}
+              onPageChange={(page) => updateVisualPagination({ page })}
+              onPerPageChange={(perPage) => updateVisualPagination({ per_page: perPage })}
+              sarPerPoint={loyaltySarPerPoint}
+              pointsPerUnit={loyaltyPointsPerUnit}
+              minSimilarity={visualSearchMinSimilarity}
+              minSimilarityPercent={visualSearchMinSimilarityPercent}
+            />
+          ) : (
+            <EmptyState
+              title={t('catalog.search.visualSearchSoon')}
+              description={t('catalog.search.visualSearchSoonDescription')}
+            />
+          )
         ) : (
           <div className="flex flex-col md:flex-row gap-6 md:gap-8">
             <aside className="hidden md:block w-72 shrink-0 self-start">
@@ -778,6 +906,17 @@ export default function SearchPage() {
           </div>
         </div>
       )}
+
+      <ImageSearchModal
+        isOpen={isImageSearchOpen}
+        onClose={() => setIsImageSearchOpen(false)}
+        onResults={(response: VisualSearchResponse) => {
+          setIsImageSearchOpen(false);
+          navigate(buildVisualSearchPath(response), {
+            state: buildVisualSearchLocationState(response),
+          });
+        }}
+      />
     </div>
   );
 }

@@ -1,20 +1,99 @@
-import React, { useRef } from 'react';
-import { Camera, X, UploadCloud, Search } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Camera, Loader2, Search, UploadCloud, X } from 'lucide-react';
 import { useLocale } from '../../hooks/useLocale.ts';
+import { useVisualSearch } from '../../hooks/useVisualSearch.ts';
+import { resolveVisualSearchErrorKey, validateVisualSearchFile } from '../../api/visualSearch.ts';
+import { saveVisualSearchSession } from '../../lib/visualSearchSession.ts';
+import { VISUAL_SEARCH_DEFAULT_PER_PAGE, type VisualSearchResponse } from '../../types/visualSearch.ts';
 
 interface ImageSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  disabled?: boolean;
+  onResults: (payload: VisualSearchResponse) => void;
 }
 
-export function ImageSearchModal({ isOpen, onClose, disabled = false }: ImageSearchModalProps) {
+export function ImageSearchModal({ isOpen, onClose, onResults }: ImageSearchModalProps) {
   const { t } = useLocale();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<string | null>(null);
+  const visualSearch = useVisualSearch();
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   if (!isOpen) {
     return null;
   }
+
+  const clearSelection = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setErrorKey(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const validationError = validateVisualSearchFile(file);
+    if (validationError) {
+      setErrorKey(validationError);
+      clearSelection();
+      return;
+    }
+
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setErrorKey(null);
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedFile || !previewUrl) {
+      return;
+    }
+
+    setErrorKey(null);
+
+    try {
+      const response = await visualSearch.mutateAsync({
+        file: selectedFile,
+        page: 1,
+        perPage: VISUAL_SEARCH_DEFAULT_PER_PAGE,
+      });
+      await saveVisualSearchSession({
+        searchId: response.meta.search_id,
+        file: selectedFile,
+      });
+      onResults(response);
+      onClose();
+      clearSelection();
+    } catch (error) {
+      setErrorKey(resolveVisualSearchErrorKey(error));
+    }
+  };
+
+  const errorMessage = errorKey
+    ? t(`catalog.search.visualSearchErrors.${errorKey}`)
+    : null;
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
@@ -46,30 +125,71 @@ export function ImageSearchModal({ isOpen, onClose, disabled = false }: ImageSea
           </button>
         </div>
 
-        <div className="p-6">
-          {disabled ? (
-            <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-10 text-center">
+        <div className="p-6 space-y-4">
+          {!selectedFile ? (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-10 text-center cursor-pointer hover:border-diyar-brown/40 transition-colors"
+            >
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm">
-                <UploadCloud size={28} className="text-gray-300" />
+                <UploadCloud size={28} className="text-diyar-brown" />
               </div>
-              <h3 className="font-bold text-lg text-diyar-dark mb-2">
-                {t('catalog.search.visualSearchSoon')}
-              </h3>
-              <p className="text-sm text-gray-500">{t('catalog.search.visualSearchSoonDescription')}</p>
-            </div>
+              <p className="font-bold text-lg text-diyar-dark mb-2">{t('catalog.search.imageSearchUploadTitle')}</p>
+              <p className="text-sm text-gray-500">{t('catalog.search.imageSearchUploadHint')}</p>
+            </button>
           ) : (
-            <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-10 text-center">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-6 py-3 text-sm font-bold text-white cursor-pointer"
-              >
-                <Search size={18} />
-                {t('catalog.search.imageSearch')}
-              </button>
-              <input ref={fileInputRef} type="file" className="hidden" accept="image/*" />
+            <div className="space-y-4">
+              <div className="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
+                <img
+                  src={previewUrl ?? undefined}
+                  alt={t('catalog.search.uploadedImage')}
+                  className="mx-auto max-h-64 w-full object-contain"
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={clearSelection}
+                  className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm font-bold text-gray-600 cursor-pointer"
+                >
+                  {t('catalog.search.imageSearchRemove')}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={visualSearch.isPending}
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-diyar-dark px-4 py-3 text-sm font-bold text-white cursor-pointer disabled:opacity-60"
+                >
+                  {visualSearch.isPending ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      {t('catalog.search.imageSearchSearching')}
+                    </>
+                  ) : (
+                    <>
+                      <Search size={18} />
+                      {t('catalog.search.imageSearch')}
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           )}
+
+          {errorMessage ? (
+            <p className="text-sm text-red-600" role="alert">
+              {errorMessage}
+            </p>
+          ) : null}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleFileChange}
+          />
         </div>
       </div>
     </div>

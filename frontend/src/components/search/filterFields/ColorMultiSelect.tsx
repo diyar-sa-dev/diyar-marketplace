@@ -1,5 +1,18 @@
+import { useMemo } from 'react';
 import type { CatalogSearchColorFacet } from '../../../types/catalogSearch.ts';
 import { useLocale } from '../../../hooks/useLocale.ts';
+
+function uniqueColorFacets(colors: CatalogSearchColorFacet[]): CatalogSearchColorFacet[] {
+  const seen = new Map<string, CatalogSearchColorFacet>();
+
+  for (const color of colors) {
+    if (!seen.has(color.name)) {
+      seen.set(color.name, color);
+    }
+  }
+
+  return Array.from(seen.values());
+}
 
 type ColorMultiSelectProps = {
   colors: CatalogSearchColorFacet[];
@@ -15,8 +28,9 @@ export function ColorMultiSelect({
   showTitle = true,
 }: ColorMultiSelectProps) {
   const { t } = useLocale();
+  const uniqueColors = useMemo(() => uniqueColorFacets(colors), [colors]);
 
-  if (colors.length === 0) {
+  if (uniqueColors.length === 0) {
     return null;
   }
 
@@ -42,12 +56,13 @@ export function ColorMultiSelect({
         </div>
       )}
       <div className="flex flex-wrap gap-2">
-        {colors.map((color) => {
+        {uniqueColors.map((color) => {
           const isActive = selected.includes(color.name);
+          const colorKey = color.hex_code ? `${color.name}:${color.hex_code}` : color.name;
 
           return (
             <button
-              key={color.name}
+              key={colorKey}
               type="button"
               onClick={() => toggleColor(color.name)}
               className={`rounded-full border px-3 py-1 text-xs font-bold cursor-pointer transition-colors ${

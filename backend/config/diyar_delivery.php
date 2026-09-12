@@ -58,11 +58,13 @@ return [
         'b2b/categories',
         'platform/theme',
         'platform/commerce',
+        'platform/search',
     ],
 
     'platform_config_paths' => [
         'platform/theme',
         'platform/commerce',
+        'platform/search',
     ],
 
     /*

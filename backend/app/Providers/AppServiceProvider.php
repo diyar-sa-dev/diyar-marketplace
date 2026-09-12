@@ -13,6 +13,7 @@ use App\Services\Infrastructure\EnvironmentSafetyValidator;
 use App\Services\Payments\Gateways\FakePaymentGateway;
 use App\Services\Payments\Gateways\MyFatoorah\MyFatoorahGateway;
 use App\Services\Payments\PaymentGatewayManager;
+use App\Support\VisualSearch\Dhash64Generator;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\DevCommands;
 use Illuminate\Http\Request;
@@ -41,6 +42,10 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->singleton(PaymentGatewayManager::class, fn ($app) => new PaymentGatewayManager(
             $app->make(PaymentGatewayInterface::class),
+        ));
+
+        $this->app->singleton(Dhash64Generator::class, fn () => new Dhash64Generator(
+            (int) config('diyar.visual_search.working_dimension_px', 256),
         ));
     }
 
@@ -90,6 +95,13 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute($limit)
                 ->by($request->ip());
+        });
+
+        RateLimiter::for('visual-search', function (Request $request) {
+            $limit = (int) config('diyar.rate_limits.visual_search_per_minute', 20);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
         });
 
         RateLimiter::for('webhooks', function (Request $request) {
@@ -249,6 +261,7 @@ class AppServiceProvider extends ServiceProvider
             'catalog-search',
             'catalog-search-suggestions',
             'catalog-filter-suggestions',
+            'visual-search',
             'webhooks',
             'auth',
             'otp',

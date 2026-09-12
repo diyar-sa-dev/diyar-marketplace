@@ -10,6 +10,8 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\User;
 use App\Models\VendorAccount;
+use App\Jobs\Search\IndexProductImageJob;
+use App\Jobs\Search\RemoveVisualIndexEntryJob;
 use App\Services\Media\MediaUploadService;
 use App\Services\Vendor\VendorAccessService;
 use App\Support\Pagination\PaginationBounds;
@@ -117,6 +119,29 @@ final class ProductService
             ->limit($limit);
 
         return $query->get();
+    }
+
+    /**
+     * @param  list<string>  $ids
+     * @return Collection<int, Product>
+     */
+    public function listPublicByIds(array $ids, ?User $user = null): Collection
+    {
+        if ($ids === []) {
+            return collect();
+        }
+
+        $cap = (int) config('diyar.visual_search.candidate_limit', 50);
+        if (count($ids) > $cap) {
+            $ids = array_slice($ids, 0, $cap);
+        }
+
+        $products = $this->cardQuery($user)->whereIn('id', $ids)->get();
+        $order = array_flip($ids);
+
+        return $products
+            ->sortBy(fn (Product $product): int => $order[$product->id] ?? PHP_INT_MAX)
+            ->values();
     }
 
     /**
@@ -244,7 +269,12 @@ final class ProductService
         $this->inventory->assertProductOwnership($user, $product);
 
         $product->forceFill(['status' => ProductStatus::Archived])->save();
+        $imageIds = $product->images()->pluck('id');
         $product->delete();
+
+        foreach ($imageIds as $imageId) {
+            RemoveVisualIndexEntryJob::dispatch($imageId);
+        }
 
         app(CatalogCacheInvalidator::class)->invalidateSearchCachesAfterCommit();
 
@@ -286,8 +316,10 @@ final class ProductService
         }
 
         DB::transaction(function () use ($image) {
+            $imageId = $image->id;
             $this->media->deleteMediaFile($image->mediaFile);
             $image->delete();
+            RemoveVisualIndexEntryJob::dispatch($imageId);
         });
     }
 
@@ -604,10 +636,12 @@ final class ProductService
         foreach ($files as $file) {
             $sortOrder++;
             $mediaFile = $this->media->storeProductImage($user, $product->id, $file);
-            $product->images()->create([
+            $productImage = $product->images()->create([
                 'media_file_id' => $mediaFile->id,
                 'sort_order' => $sortOrder,
             ]);
+
+            IndexProductImageJob::dispatch($productImage->id);
         }
     }
 

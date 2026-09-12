@@ -684,6 +684,7 @@ return [
             'feature.reviews_enabled' => 'تفعيل تقييمات المنتجات والمتاجر.',
             'feature.services_enabled' => 'تفعيل سوق الخدمات.',
             'feature.coupons_enabled' => 'تفعيل كوبونات التجار.',
+            'feature.visual_search_min_similarity' => 'الحد الأدنى للتشابه البصري (10%–100%) لنتائج البحث بالصورة. القيمة الافتراضية 90% تعرض المنتجات عالية التطابق فقط.',
             'theme.primary_color' => 'اللون الأساسي للعلامة في الواجهة.',
             'theme.primary_dark' => 'اللون الداكن للعناوين والتنقل.',
             'theme.surface_color' => 'لون خلفية السطح.',
