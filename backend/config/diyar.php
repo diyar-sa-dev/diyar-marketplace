@@ -79,8 +79,36 @@ return [
         'catalog_search_per_minute' => (int) env('DIYAR_CATALOG_SEARCH_RATE_LIMIT', 60),
         'catalog_search_suggestions_per_minute' => (int) env('DIYAR_CATALOG_SEARCH_SUGGESTIONS_RATE_LIMIT', 90),
         'catalog_filter_suggestions_per_minute' => (int) env('DIYAR_CATALOG_FILTER_SUGGESTIONS_RATE_LIMIT', 90),
+        'visual_search_per_minute' => (int) env('DIYAR_VISUAL_SEARCH_RATE_LIMIT', 20),
         'webhooks_per_minute' => (int) env('DIYAR_WEBHOOKS_RATE_LIMIT', 120),
         'assistant_chat_per_minute' => (int) env('DIYAR_ASSISTANT_CHAT_RATE_LIMIT', 30),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Visual Search (Stage 29)
+    |--------------------------------------------------------------------------
+    */
+
+    'visual_search' => [
+        'enabled' => filter_var(env('DIYAR_VISUAL_SEARCH_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'engine_version' => env('DIYAR_VISUAL_SEARCH_ENGINE_VERSION', 'perceptual-v1'),
+        'representation_version' => env('DIYAR_VISUAL_SEARCH_REPRESENTATION_VERSION', 'dhash-64-v1'),
+        'ranking_version' => env('DIYAR_VISUAL_SEARCH_RANKING_VERSION', 'ranking-v1'),
+        'index_version' => env('DIYAR_VISUAL_SEARCH_INDEX_VERSION', 'catalog-v1'),
+        'min_similarity' => (float) env('DIYAR_VISUAL_SEARCH_MIN_SIMILARITY', 0.90),
+        'max_hamming_distance' => (int) env('DIYAR_VISUAL_SEARCH_MAX_HAMMING', 19),
+        'candidate_limit' => (int) env('DIYAR_VISUAL_SEARCH_CANDIDATE_LIMIT', 50),
+        'sql_prefetch_cap' => (int) env('DIYAR_VISUAL_SEARCH_SQL_PREFETCH_CAP', 1500),
+        'bucket_prefix_bits' => (int) env('DIYAR_VISUAL_SEARCH_BUCKET_BITS', 12),
+        'bucket_probe_radius' => (int) env('DIYAR_VISUAL_SEARCH_BUCKET_PROBE_RADIUS', 3),
+        'max_upload_kb' => (int) env('DIYAR_VISUAL_SEARCH_MAX_UPLOAD_KB', 2048),
+        'max_dimension_px' => (int) env('DIYAR_VISUAL_SEARCH_MAX_DIMENSION_PX', 8192),
+        'max_pixels' => (int) env('DIYAR_VISUAL_SEARCH_MAX_PIXELS', 33_000_000),
+        'working_dimension_px' => (int) env('DIYAR_VISUAL_SEARCH_WORKING_DIMENSION_PX', 256),
+        'cache_ttl_seconds' => (int) env('DIYAR_VISUAL_SEARCH_CACHE_TTL_SECONDS', 300),
+        'allowed_mimes' => ['image/jpeg', 'image/png', 'image/webp'],
+        'allowed_extensions' => ['jpg', 'jpeg', 'png', 'webp'],
     ],
 
     /*
@@ -732,6 +760,7 @@ return [
         'search_engine_enabled' => filter_var(env('DIYAR_SEARCH_ENGINE_ENABLED', false), FILTER_VALIDATE_BOOL),
         'search_fallback_enabled' => filter_var(env('DIYAR_SEARCH_FALLBACK_ENABLED', true), FILTER_VALIDATE_BOOL),
         'search_analytics_enabled' => filter_var(env('DIYAR_SEARCH_ANALYTICS_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'visual_search_enabled' => filter_var(env('DIYAR_FEATURE_VISUAL_SEARCH_ENABLED', true), FILTER_VALIDATE_BOOL),
     ],
 
     /*

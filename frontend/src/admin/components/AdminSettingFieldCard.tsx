@@ -2,6 +2,13 @@ import { Loader2, Save } from 'lucide-react';
 import type { FormEvent, ReactNode } from 'react';
 import type { TranslateFn } from '../../lib/i18n/types.ts';
 import { fontOptionsForSetting } from '../utils/settingFontOptions.ts';
+import {
+  formatAdminPercentEffective,
+  fromAdminPercentInput,
+  getPercentSettingConfig,
+  isPercentAdminSetting,
+  toAdminPercentDisplay,
+} from '../utils/settingPercentFormat.ts';
 import { selectOptionsForSetting } from '../utils/settingSelectOptions.ts';
 
 const inputClassName =
@@ -139,6 +146,33 @@ function SettingControl({
 
   if (setting.type === 'integer' || setting.type === 'decimal') {
     const isLoyaltySetting = setting.full_key === 'commerce.loyalty_sar_per_point';
+    const isPercentSetting = isPercentAdminSetting(setting.full_key);
+
+    if (isPercentSetting) {
+      const percentConfig = getPercentSettingConfig(setting.full_key);
+
+      return (
+        <div
+          className="flex items-stretch overflow-hidden rounded-xl border border-gray-200/90 bg-white shadow-sm"
+          dir="ltr"
+        >
+          <input
+            name="value"
+            type="number"
+            inputMode="decimal"
+            step={percentConfig?.step ?? 1}
+            min={percentConfig?.min ?? 0}
+            max={percentConfig?.max ?? 100}
+            defaultValue={defaultValue}
+            disabled={disabled}
+            className="min-w-0 flex-1 border-0 bg-transparent px-3.5 py-2.5 text-sm text-diyar-dark outline-none focus:ring-0 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400"
+          />
+          <span className="flex shrink-0 items-center border-s border-gray-200/90 bg-[#faf8f5] px-3 text-sm font-semibold text-gray-500">
+            %
+          </span>
+        </div>
+      );
+    }
 
     return (
       <input
@@ -199,17 +233,20 @@ export function AdminSettingFieldCard({
     if (disabled) return;
     const formData = new FormData(event.currentTarget);
     const raw = formData.get('value');
-    onSave(raw instanceof File ? '' : String(raw ?? ''));
+    const rawValue = raw instanceof File ? '' : String(raw ?? '');
+    onSave(fromAdminPercentInput(setting.full_key, rawValue));
   };
 
   const footer: ReactNode = (
-    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-4">
+    <div className="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0 flex-1">
         {showEffective ? (
-          <p className="truncate text-xs text-gray-500">
+          <p className="text-xs text-gray-500 sm:truncate">
             <span className="font-medium text-gray-400">{effectiveLabel}:</span>{' '}
             <span className="font-mono text-gray-700" dir="ltr">
-              {String(setting.effective_value)}
+              {isPercentAdminSetting(setting.full_key)
+                ? formatAdminPercentEffective(setting.full_key, setting.effective_value)
+                : String(setting.effective_value)}
             </span>
           </p>
         ) : (
@@ -219,7 +256,7 @@ export function AdminSettingFieldCard({
       <button
         type="submit"
         disabled={disabled || isSaving}
-        className="inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-diyar-dark/90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+        className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-diyar-dark px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-diyar-dark/90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer sm:w-auto"
       >
         {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
         {saveLabel}
@@ -230,7 +267,7 @@ export function AdminSettingFieldCard({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition duration-200 hover:border-diyar-brown/20 hover:shadow-md ${
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white p-4 shadow-sm transition duration-200 hover:border-diyar-brown/20 hover:shadow-md sm:p-5 ${
         setting.has_override ? 'border-diyar-brown/25 ring-1 ring-diyar-brown/10' : 'border-gray-100'
       }`}
     >
@@ -256,7 +293,7 @@ export function AdminSettingFieldCard({
         <SettingControl
           setting={setting}
           disabled={disabled}
-          defaultValue={String(setting.effective_value ?? '')}
+          defaultValue={toAdminPercentDisplay(setting.full_key, setting.effective_value)}
           booleanOnLabel={booleanOnLabel}
           booleanOffLabel={booleanOffLabel}
           t={t}

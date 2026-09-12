@@ -8,6 +8,7 @@ import { useAdminAuth } from '../auth/AdminAuthContext.tsx';
 import { UserAvatar } from '../../components/profile/UserAvatar.tsx';
 import { platformThemeKeys } from '../../hooks/usePlatformTheme.ts';
 import { platformCommerceKeys } from '../../hooks/usePlatformCommerce.ts';
+import { platformSearchKeys } from '../../hooks/usePlatformSearch.ts';
 import { adminQueryKey } from '../../lib/auth/queryKeys.ts';
 import type { ApiSuccessResponse } from '../../types/api.ts';
 import { AdminPageSkeleton } from '../components/AdminPageSkeleton.tsx';
@@ -85,6 +86,7 @@ export default function AdminSettingsPage() {
       void queryClient.invalidateQueries({ queryKey: ['health', 'maintenance'] });
       void queryClient.invalidateQueries({ queryKey: platformThemeKeys.all });
       void queryClient.invalidateQueries({ queryKey: platformCommerceKeys.all });
+      void queryClient.invalidateQueries({ queryKey: platformSearchKeys.all });
     },
     onError: () => toast.error(t('admin.settings.saveError')),
     onSettled: () => setSavingKey(null),
@@ -119,30 +121,30 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="space-y-6 pb-8 sm:space-y-8">
       <header className="space-y-1">
-        <h2 className="text-2xl font-extrabold tracking-tight text-diyar-dark">
+        <h2 className="text-xl font-extrabold tracking-tight text-diyar-dark sm:text-2xl">
           {t('admin.nav.settings')}
         </h2>
         <p className="max-w-2xl text-sm leading-relaxed text-gray-500">{t('admin.settings.subtitle')}</p>
       </header>
 
       <section className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
-        <div className="border-b border-gray-100 bg-linear-to-r from-[#faf8f5] to-white px-6 py-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-diyar-dark/8 text-diyar-dark">
+        <div className="border-b border-gray-100 bg-linear-to-r from-[#faf8f5] to-white px-4 py-4 sm:px-6 sm:py-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-diyar-dark/8 text-diyar-dark sm:h-11 sm:w-11">
               <UserCircle2 size={22} />
             </div>
-            <div>
-              <h3 className="text-lg font-extrabold text-diyar-dark">
+            <div className="min-w-0">
+              <h3 className="text-base font-extrabold text-diyar-dark sm:text-lg">
                 {t('admin.settings.accountTitle')}
               </h3>
               <p className="text-xs text-gray-500">{t('admin.settings.accountHint')}</p>
             </div>
           </div>
         </div>
-        <div className="grid gap-4 p-6 lg:grid-cols-[1fr_1.2fr]">
-          <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-[#faf8f5]/60 p-5">
+        <div className="grid gap-4 p-4 sm:p-6 lg:grid-cols-[1fr_1.2fr]">
+          <div className="flex min-w-0 items-center gap-4 rounded-2xl border border-gray-100 bg-[#faf8f5]/60 p-4 sm:p-5">
             <UserAvatar name={user?.name} avatarUrl={user?.avatar_url} size="lg" />
             <div>
               <p className="font-bold text-diyar-dark">{user?.name}</p>
@@ -152,8 +154,8 @@ export default function AdminSettingsPage() {
               </p>
             </div>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-gray-100 bg-white p-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="min-w-0 rounded-2xl border border-gray-100 bg-white p-4">
               <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
                 <Mail size={13} />
                 {t('admin.settings.email')}
@@ -162,7 +164,7 @@ export default function AdminSettingsPage() {
                 {user?.email ?? '—'}
               </dd>
             </div>
-            <div className="rounded-2xl border border-gray-100 bg-white p-4">
+            <div className="min-w-0 rounded-2xl border border-gray-100 bg-white p-4">
               <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
                 <Phone size={13} />
                 {t('admin.settings.phone')}

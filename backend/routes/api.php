@@ -110,6 +110,7 @@ use App\Http\Controllers\Api\V1\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\Payment\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\Platform\PlatformAnnouncementController;
 use App\Http\Controllers\Api\V1\Platform\PlatformCommerceController;
+use App\Http\Controllers\Api\V1\Platform\PlatformSearchController;
 use App\Http\Controllers\Api\V1\Platform\PlatformContactController;
 use App\Http\Controllers\Api\V1\Platform\PlatformThemeController;
 use App\Http\Controllers\Api\V1\Profile\AddressController;
@@ -178,6 +179,9 @@ Route::get('/platform/announcement', [PlatformAnnouncementController::class, 'sh
 Route::get('/platform/commerce', [PlatformCommerceController::class, 'show'])
     ->name('api.v1.platform.commerce');
 
+Route::get('/platform/search', [PlatformSearchController::class, 'show'])
+    ->name('api.v1.platform.search');
+
 Route::post('/webhooks/payments/myfatoorah', [PaymentWebhookController::class, 'myfatoorah'])
     ->middleware('throttle:webhooks')
     ->name('api.v1.webhooks.payments.myfatoorah');
@@ -195,6 +199,9 @@ Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/products/{id}/reviews', [ProductEngagementController::class, 'reviews']);
 Route::get('/search', SearchController::class)->middleware('throttle:catalog-search');
 Route::get('/catalog/search', CatalogSearchController::class)->middleware('throttle:catalog-search');
+Route::post('/search/visual', \App\Http\Controllers\Api\V1\Search\VisualSearchController::class)
+    ->middleware('throttle:visual-search')
+    ->name('api.v1.search.visual');
 Route::get('/catalog/search/suggestions', CatalogSearchSuggestionsController::class)->middleware('throttle:catalog-search-suggestions');
 Route::get('/catalog/search/filter-suggestions', FilterSuggestionsController::class)->middleware('throttle:catalog-filter-suggestions');
 Route::get('/vendors', [VendorController::class, 'index']);

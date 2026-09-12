@@ -109,6 +109,21 @@ return [
         'unsafe_svg' => 'ملف SVG يحتوي على محتوى غير آمن.',
     ],
 
+    'visual_search' => [
+        'disabled' => 'البحث البصري غير متاح حالياً.',
+        'unavailable' => 'البحث البصري غير متاح مؤقتاً.',
+        'index_empty' => 'فهرس البحث البصري غير جاهز بعد.',
+        'invalid_upload' => 'ملف الصورة غير صالح.',
+        'invalid_type' => 'نوع الصورة غير مدعوم.',
+        'invalid_extension' => 'امتداد الصورة غير مدعوم.',
+        'file_too_large' => 'حجم الصورة يتجاوز حد 2 ميجابايت.',
+        'invalid_image' => 'تعذر قراءة الصورة المرفوعة.',
+        'decode_failed' => 'تعذر فك ترميز الصورة المرفوعة.',
+        'invalid_dimensions' => 'أبعاد الصورة غير صالحة.',
+        'dimensions_exceeded' => 'أبعاد الصورة تتجاوز الحد المسموح.',
+        'pixel_count_exceeded' => 'عدد بكسل الصورة يتجاوز الحد المسموح.',
+    ],
+
     'catalog' => [
         'category_not_found' => 'التصنيف غير موجود.',
         'product_not_found' => 'المنتج غير موجود.',
