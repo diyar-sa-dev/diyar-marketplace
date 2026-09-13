@@ -5,7 +5,6 @@ namespace Tests\Feature\Api\V1\Auth;
 use App\Contracts\Sms\SmsProvider;
 use App\Enums\RoleName;
 use App\Infrastructure\Sms\LogSmsProvider;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;
@@ -387,5 +386,4 @@ class TwoFactorAuthenticationTest extends TestCase
 
         $this->getStatefulJson('/api/v1/profile/security/two-factor')->assertUnauthorized();
     }
-
 }

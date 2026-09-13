@@ -76,7 +76,7 @@ final class FixtureGenerator
         return $path;
     }
 
-    private static function drawMarker(\GdImage $image, string $seed, int $w, int $h): void
+    private static function drawMarker(GdImage $image, string $seed, int $w, int $h): void
     {
         $white = imagecolorallocate($image, 255, 255, 255);
         $black = imagecolorallocate($image, 0, 0, 0);
@@ -121,10 +121,10 @@ final class FixtureGenerator
     }
 
     /**
-     * @param float $x Start fraction
-     * @param float $y Start fraction
-     * @param float $w Width fraction
-     * @param float $h Height fraction
+     * @param  float  $x  Start fraction
+     * @param  float  $y  Start fraction
+     * @param  float  $w  Width fraction
+     * @param  float  $h  Height fraction
      */
     private static function crop(string $source, string $dest, float $x, float $y, float $w, float $h): string
     {

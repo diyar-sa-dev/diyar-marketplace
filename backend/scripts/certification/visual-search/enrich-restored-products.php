@@ -12,11 +12,12 @@ declare(strict_types=1);
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductColor;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Str;
 
 require __DIR__.'/../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $dryRun = in_array('--dry-run', $argv, true);
 $manifestPath = __DIR__.'/restored-product-catalog.json';

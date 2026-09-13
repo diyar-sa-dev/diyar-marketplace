@@ -6,12 +6,12 @@ declare(strict_types=1);
  * Isolated Phase 5 §5 security runner — clears rate limiter before adversarial cases.
  */
 
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\RateLimiter;
 
 require __DIR__.'/../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $baseDir = $argv[1] ?? storage_path('certification/visual-search/phase5/'.gmdate('Y-m-d_His').'/05-security');
 if (! is_dir($baseDir)) {

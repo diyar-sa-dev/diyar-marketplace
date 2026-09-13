@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Api\V1\Catalog;
 
-use App\Services\Catalog\CachedFilterSuggestionService;
 use App\Services\Catalog\CachedFilterContextSummaryService;
+use App\Services\Catalog\CachedFilterSuggestionService;
 use App\Services\Catalog\FilterSuggestionService;
 use App\Services\Catalog\FilterSuggestionTelemetry;
 use App\Support\Cache\CacheKeys;

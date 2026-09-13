@@ -16,6 +16,8 @@ declare(strict_types=1);
  *   php scripts/certification/run-phase8-certification.php --quick
  */
 
+use App\Services\Catalog\CachedFilterSuggestionService;
+use App\Support\Catalog\Filters\CatalogFilterNormalizer;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -193,8 +195,8 @@ gate($report, 'C_explain_analyze', $explain['exit'] === 0 ? 'PASS' : 'FAIL', ['e
 // --- Query budget (real application) ---
 $queryBudgetEvidence = [];
 try {
-    $normalizer = app(\App\Support\Catalog\Filters\CatalogFilterNormalizer::class);
-    $service = app(\App\Services\Catalog\CachedFilterSuggestionService::class);
+    $normalizer = app(CatalogFilterNormalizer::class);
+    $service = app(CachedFilterSuggestionService::class);
     $filters = $normalizer->normalizeForCatalogSearch(['type' => 'products', 'category_slug' => 'bedroom']);
 
     Cache::flush();

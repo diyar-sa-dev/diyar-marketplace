@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 use App\Models\VisualIndexEntry;
 use App\Services\Search\Visual\VisualIndexingService;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 
 require __DIR__.'/../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $indexVersion = (string) config('diyar.visual_search.index_version');
 $groups = DB::table('visual_index_entries')

@@ -8,11 +8,12 @@ declare(strict_types=1);
 
 use App\Jobs\Search\IndexProductImageJob;
 use App\Models\ProductImage;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Storage;
 
 require __DIR__.'/../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $disk = (string) config('diyar_media.disk', 'media');
 $images = ProductImage::query()

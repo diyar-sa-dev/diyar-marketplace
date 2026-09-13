@@ -78,7 +78,7 @@ final class VisualHash
         ];
     }
 
-    public static function decode(string $path): \GdImage
+    public static function decode(string $path): GdImage
     {
         $info = @getimagesize($path);
         if ($info === false) {
@@ -99,7 +99,7 @@ final class VisualHash
         return $image;
     }
 
-    public static function normalize256Grayscale(\GdImage $source): \GdImage
+    public static function normalize256Grayscale(GdImage $source): GdImage
     {
         $srcW = imagesx($source);
         $srcH = imagesy($source);
@@ -138,7 +138,7 @@ final class VisualHash
         return $canvas;
     }
 
-    public static function dHashFromNormalized(\GdImage $normalized256): string
+    public static function dHashFromNormalized(GdImage $normalized256): string
     {
         $small = imagecreatetruecolor(self::DHASH_WIDTH, self::DHASH_HEIGHT);
         if ($small === false) {

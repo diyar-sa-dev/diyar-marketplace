@@ -111,6 +111,6 @@ if (! is_dir(dirname($outPath))) {
 file_put_contents($outPath, json_encode($output, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
 
 echo "SQL EXPLAIN benchmark complete.\n";
-echo "Rows returned: ".count($rows)."\n";
-echo "Execution ms: ".round($elapsedMs, 3)."\n";
+echo 'Rows returned: '.count($rows)."\n";
+echo 'Execution ms: '.round($elapsedMs, 3)."\n";
 echo "Results: {$outPath}\n";

@@ -4,6 +4,7 @@ namespace Tests\Integration\Security;
 
 use App\Models\User;
 use App\Models\UserSession;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -67,7 +68,7 @@ class UserSessionsMigrationIntegrationTest extends TestCase
             'last_activity_at' => now(),
         ]);
 
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
         UserSession::query()->create([
             'user_id' => $user->id,
             'session_lookup_hash' => $hash,

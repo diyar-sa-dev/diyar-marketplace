@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\Search\Visual;
 
+use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
@@ -34,7 +35,7 @@ class VisualCandidateRetrieverTest extends TestCase
         $product = Product::factory()->create();
 
         for ($i = 0; $i < 5; $i++) {
-            $media = \App\Models\MediaFile::query()->create([
+            $media = MediaFile::query()->create([
                 'disk' => 'media',
                 'path' => "products/{$product->id}/{$i}.png",
                 'mime_type' => 'image/png',
@@ -73,7 +74,7 @@ class VisualCandidateRetrieverTest extends TestCase
         $queryHash = random_bytes(8);
         $bucket = VisualHashBits::bucketFromHashBits($queryHash);
         $product = Product::factory()->create();
-        $media = \App\Models\MediaFile::query()->create([
+        $media = MediaFile::query()->create([
             'disk' => 'media',
             'path' => "products/{$product->id}/far.png",
             'mime_type' => 'image/png',
@@ -114,7 +115,7 @@ class VisualCandidateRetrieverTest extends TestCase
     {
         $queryHash = random_bytes(8);
         $product = Product::factory()->create();
-        $media = \App\Models\MediaFile::query()->create([
+        $media = MediaFile::query()->create([
             'disk' => 'media',
             'path' => "products/{$product->id}/inactive.png",
             'mime_type' => 'image/png',

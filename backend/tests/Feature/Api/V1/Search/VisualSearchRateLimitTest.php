@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Search;
 
+use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
@@ -51,7 +52,7 @@ class VisualSearchRateLimitTest extends TestCase
         Storage::fake('media');
         $product = Product::factory()->create();
         $png = $this->samplePngBytes();
-        $mediaFile = \App\Models\MediaFile::query()->create([
+        $mediaFile = MediaFile::query()->create([
             'disk' => 'media',
             'path' => 'products/'.$product->id.'/seed.png',
             'mime_type' => 'image/png',

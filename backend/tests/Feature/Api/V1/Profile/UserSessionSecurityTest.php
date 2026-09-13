@@ -3,7 +3,6 @@
 namespace Tests\Feature\Api\V1\Profile;
 
 use App\Enums\RoleName;
-use App\Models\User;
 use App\Models\UserSession;
 use App\Support\Security\DeviceFingerprint;
 use Database\Seeders\RoleSeeder;

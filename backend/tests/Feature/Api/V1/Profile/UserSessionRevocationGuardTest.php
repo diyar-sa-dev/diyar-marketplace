@@ -7,6 +7,7 @@ use App\Models\UserSession;
 use App\Support\Security\RevokedSessionCache;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;
@@ -53,7 +54,7 @@ class UserSessionRevocationGuardTest extends TestCase
             ->assertUnauthorized();
     }
 
-    private function extractCookieValue(\Illuminate\Testing\TestResponse $response, string $name): ?string
+    private function extractCookieValue(TestResponse $response, string $name): ?string
     {
         foreach ($response->headers->getCookies() as $cookie) {
             if ($cookie->getName() === $name) {

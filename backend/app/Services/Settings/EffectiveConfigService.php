@@ -4,8 +4,8 @@ namespace App\Services\Settings;
 
 use App\Enums\SystemSettingGroup;
 use App\Models\SystemSetting;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Cache;
 
 final class EffectiveConfigService
 {

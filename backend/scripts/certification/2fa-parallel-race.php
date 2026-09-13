@@ -6,7 +6,6 @@ declare(strict_types=1);
  * Parallel 2FA verify race probe (curl_multi).
  * Usage: php scripts/certification/2fa-parallel-race.php <challenge_id> <otp> [concurrency]
  */
-
 $challenge = $argv[1] ?? null;
 $otp = $argv[2] ?? null;
 $parallel = max(1, (int) ($argv[3] ?? 8));

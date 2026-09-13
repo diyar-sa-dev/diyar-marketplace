@@ -16,11 +16,15 @@ declare(strict_types=1);
 use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Enums\RoleStatus;
+use App\Infrastructure\Sms\LogSmsProvider;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Identity\OtpService;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 require __DIR__.'/../../vendor/autoload.php';
@@ -208,7 +212,7 @@ function ensureCertUser(string $phone, bool $twoFactor = true): User
     $fullPhone = '9665'.$phone;
 
     if (! Role::query()->where('name', RoleName::Customer->value)->exists()) {
-        (new Database\Seeders\RoleSeeder)->run();
+        (new RoleSeeder)->run();
     }
 
     $role = Role::query()->where('name', RoleName::Customer->value)->firstOrFail();
@@ -245,7 +249,7 @@ $results['configuration'] = [
     'app_env' => config('app.env'),
     'app_debug' => (bool) config('app.debug'),
     'otp_test_mode' => (bool) config('diyar.otp.test_mode'),
-    'otp_provider' => App\Infrastructure\Sms\LogSmsProvider::msegatCredentialsConfigured() ? 'msegat' : 'log',
+    'otp_provider' => LogSmsProvider::msegatCredentialsConfigured() ? 'msegat' : 'log',
     'cache_driver' => config('cache.default'),
     'session_driver' => config('session.driver'),
     'db_host' => config('database.connections.mysql.host'),
@@ -277,7 +281,7 @@ try {
 }
 
 // --- Migration ---
-$migrationRan = Illuminate\Support\Facades\Schema::hasColumn('users', 'two_factor_enabled');
+$migrationRan = Schema::hasColumn('users', 'two_factor_enabled');
 gate($results, 'migration_two_factor_columns', $migrationRan ? 'PASS' : 'FAIL');
 
 // --- Test OTP gate (hard) ---
@@ -319,9 +323,9 @@ sleep(1);
 $otp = extractOtpFromLogs($phone1);
 if ($otp === null) {
     // Fallback: issue via internal service for cert continuation
-    $otpService = app(App\Services\Identity\OtpService::class);
+    $otpService = app(OtpService::class);
     $otpService->issue('9665'.$phone1, OtpPurpose::Login, metadata: ['cert' => true]);
-    $dev = App\Infrastructure\Sms\LogSmsProvider::lastDevelopmentOtp();
+    $dev = LogSmsProvider::lastDevelopmentOtp();
     $otp = $dev['otp'] ?? null;
 }
 

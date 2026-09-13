@@ -10,6 +10,7 @@ use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -100,7 +101,7 @@ class VisualIndexingLifecycleTest extends TestCase
         ]);
 
         VisualIndexEntry::query()->create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'product_id' => $product->id,
             'product_image_id' => $image->id,
             'media_file_id' => $media->id,

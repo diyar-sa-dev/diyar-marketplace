@@ -11,8 +11,10 @@ use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
 use App\Models\VisualSearchEvent;
 use App\Services\Search\Visual\VisualSearchService;
+use App\Support\Cache\CacheKeys;
 use App\Support\VisualSearch\BucketProbe;
 use App\Support\VisualSearch\VisualHashBits;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +23,7 @@ use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 
 require __DIR__.'/../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $baseDir = $argv[1] ?? storage_path('certification/visual-search/enterprise/'.gmdate('Y-m-d_His'));
 foreach (['06-performance', '07-cache', '08-queue', '12-observability', '13-production', '14-final'] as $s) {
@@ -113,7 +115,7 @@ $eventsBefore = VisualSearchEvent::query()->count();
 $mediaBefore = DB::table('media_files')->where('path', 'like', 'query/%')->orWhere('path', 'like', 'uploads/query%')->count();
 try {
     app(VisualSearchService::class)->search(makeUpload());
-} catch (\Throwable) {
+} catch (Throwable) {
 }
 wjson("{$baseDir}/13-production/privacy-audit.json", [
     'events_before' => $eventsBefore,
@@ -134,7 +136,7 @@ if ($entry?->productImage?->mediaFile && Storage::disk($entry->productImage->med
     wjson("{$baseDir}/07-cache/cache-results.json", [
         'first_cache' => $r1['meta']['cache'] ?? null,
         'second_cache' => $r2['meta']['cache'] ?? null,
-        'generation_after_index' => \App\Support\Cache\CacheKeys::visualSearchCacheGeneration(),
+        'generation_after_index' => CacheKeys::visualSearchCacheGeneration(),
     ]);
 }
 
@@ -145,6 +147,7 @@ function makeUpload(?string $bytes = null): UploadedFile
     $bytes ??= tempPng(64, 64);
     $tmp = tempnam(sys_get_temp_dir(), 'vs-rt-');
     file_put_contents($tmp, $bytes);
+
     return new UploadedFile($tmp, 'q.png', 'image/png', null, true);
 }
 
@@ -156,5 +159,6 @@ function tempPng(int $w, int $h): string
     imagepng($img);
     $b = ob_get_clean();
     imagedestroy($img);
+
     return (string) $b;
 }

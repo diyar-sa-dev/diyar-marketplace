@@ -59,9 +59,9 @@ use App\Http\Controllers\Api\V1\Blog\BlogEngagementController;
 use App\Http\Controllers\Api\V1\Blog\BlogTagController;
 use App\Http\Controllers\Api\V1\Cart\CartController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchController;
-use App\Http\Controllers\Api\V1\Catalog\FilterSuggestionsController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchSuggestionsController;
 use App\Http\Controllers\Api\V1\Catalog\CategoryController;
+use App\Http\Controllers\Api\V1\Catalog\FilterSuggestionsController;
 use App\Http\Controllers\Api\V1\Catalog\ProductController;
 use App\Http\Controllers\Api\V1\Catalog\ProductEngagementController;
 use App\Http\Controllers\Api\V1\Catalog\ProductPreorderController;
@@ -110,8 +110,8 @@ use App\Http\Controllers\Api\V1\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\Payment\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\Platform\PlatformAnnouncementController;
 use App\Http\Controllers\Api\V1\Platform\PlatformCommerceController;
-use App\Http\Controllers\Api\V1\Platform\PlatformSearchController;
 use App\Http\Controllers\Api\V1\Platform\PlatformContactController;
+use App\Http\Controllers\Api\V1\Platform\PlatformSearchController;
 use App\Http\Controllers\Api\V1\Platform\PlatformThemeController;
 use App\Http\Controllers\Api\V1\Profile\AddressController;
 use App\Http\Controllers\Api\V1\Profile\CustomerReviewController;
@@ -124,6 +124,7 @@ use App\Http\Controllers\Api\V1\Profile\WishlistController;
 use App\Http\Controllers\Api\V1\Projects\ProjectController;
 use App\Http\Controllers\Api\V1\ReadinessController;
 use App\Http\Controllers\Api\V1\Return\ReturnController;
+use App\Http\Controllers\Api\V1\Search\VisualSearchController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\DirectServiceBookingController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderAnalyticsController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderController as ServiceProviderController;
@@ -139,7 +140,10 @@ use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceEngagementController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceOfferController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceRequestController;
+use App\Http\Controllers\Api\V1\Storefront\HomeStorefrontController;
 use App\Http\Controllers\Api\V1\WebsiteFeedbackController;
+use App\Http\Middleware\EnsureUserSessionNotRevoked;
+use App\Http\Middleware\UserSessionActivityMiddleware;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -190,7 +194,7 @@ Route::post('/webhooks/payments/fake', FakePaymentWebhookController::class)
     ->middleware('throttle:webhooks')
     ->name('api.v1.webhooks.payments.fake');
 
-Route::get('/storefront/home', [\App\Http\Controllers\Api\V1\Storefront\HomeStorefrontController::class, 'show']);
+Route::get('/storefront/home', [HomeStorefrontController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{slug}', [CategoryController::class, 'show']);
 Route::get('/categories/{slug}/items', [CategoryController::class, 'items']);
@@ -199,7 +203,7 @@ Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/products/{id}/reviews', [ProductEngagementController::class, 'reviews']);
 Route::get('/search', SearchController::class)->middleware('throttle:catalog-search');
 Route::get('/catalog/search', CatalogSearchController::class)->middleware('throttle:catalog-search');
-Route::post('/search/visual', \App\Http\Controllers\Api\V1\Search\VisualSearchController::class)
+Route::post('/search/visual', VisualSearchController::class)
     ->middleware('throttle:visual-search')
     ->name('api.v1.search.visual');
 Route::get('/catalog/search/suggestions', CatalogSearchSuggestionsController::class)->middleware('throttle:catalog-search-suggestions');
@@ -695,8 +699,8 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
 Route::middleware([
     'auth:sanctum',
     'account.active',
-    \App\Http\Middleware\EnsureUserSessionNotRevoked::class,
-    \App\Http\Middleware\UserSessionActivityMiddleware::class,
+    EnsureUserSessionNotRevoked::class,
+    UserSessionActivityMiddleware::class,
 ])->group(function () {
     Route::middleware('marketplace.access')->group(function () {
         Route::prefix('auth')->group(function () {

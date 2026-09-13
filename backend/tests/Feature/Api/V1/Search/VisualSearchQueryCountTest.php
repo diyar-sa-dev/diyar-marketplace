@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Search;
 
+use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
@@ -30,7 +31,7 @@ class VisualSearchQueryCountTest extends TestCase
         @unlink($tempPath);
 
         $product = Product::factory()->create();
-        $mediaFile = \App\Models\MediaFile::query()->create([
+        $mediaFile = MediaFile::query()->create([
             'disk' => 'media',
             'path' => 'products/'.$product->id.'/sample.png',
             'mime_type' => 'image/png',

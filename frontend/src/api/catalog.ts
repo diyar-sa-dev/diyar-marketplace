@@ -17,15 +17,15 @@ import type {
 export function normalizeProductListFilters(filters: ProductListFilters = {}): ProductListFilters {
   const next: ProductListFilters = { ...filters };
   let min = next.min_price;
-  let max = next.max_price;
+  const max = next.max_price;
 
   if (max !== undefined && min === undefined) {
     min = 0;
   }
 
-    if (min !== undefined && max !== undefined && min > max) {
-      min = max;
-    }
+  if (min !== undefined && max !== undefined && min > max) {
+    min = max;
+  }
 
   next.min_price = min;
   next.max_price = max;

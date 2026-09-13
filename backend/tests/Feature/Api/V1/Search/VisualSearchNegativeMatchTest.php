@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Search;
 
+use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
@@ -46,7 +47,7 @@ class VisualSearchNegativeMatchTest extends TestCase
     {
         $product = Product::factory()->create();
         $png = $this->makePatternPng(400, 400, $seed);
-        $mediaFile = \App\Models\MediaFile::query()->create([
+        $mediaFile = MediaFile::query()->create([
             'disk' => 'media',
             'path' => 'products/'.$product->id.'/gradient.png',
             'mime_type' => 'image/png',

@@ -10,8 +10,8 @@ use App\Support\Catalog\Filters\FilterCapabilityRegistry;
 use App\Support\Catalog\Filters\FilterPresentation;
 use App\Support\Catalog\Filters\Suggestions\FilterSuggestion;
 use App\Support\Catalog\Filters\Suggestions\FilterSuggestionAction;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestionGroup;
 use App\Support\Catalog\Filters\Suggestions\FilterSuggestionEligibility;
+use App\Support\Catalog\Filters\Suggestions\FilterSuggestionGroup;
 use App\Support\Catalog\Filters\Suggestions\FilterSuggestionReasonCode;
 use App\Support\Catalog\Filters\Suggestions\ScoredFilterSuggestion;
 
@@ -316,5 +316,4 @@ final class FilterSuggestionRankingService
     {
         return (int) config('diyar.catalog.filter_suggestions.max_suggestions', 5);
     }
-
 }
