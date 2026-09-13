@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronDown, X } from 'lucide-react';
 import { useLocale } from '../../hooks/useLocale.ts';
-import { parsePriceDigits, sanitizePriceDigits } from '../../lib/priceInput.ts';
+import { parsePriceDigits } from '../../lib/priceInput.ts';
 import type {
   CatalogSearchColorFacet,
   CatalogSearchCategoryFacet,
@@ -9,6 +9,7 @@ import type {
   CatalogSearchVendorFacet,
 } from '../../types/catalogSearch.ts';
 import { ColorMultiSelect } from './filterFields/ColorMultiSelect.tsx';
+import { PriceRangeFields } from './filterFields/PriceRangeFields.tsx';
 import { VendorPicker } from './filterFields/VendorPicker.tsx';
 
 const MAX_PRICE = 20000;
@@ -153,9 +154,18 @@ export function CatalogSearchFiltersPanel({
   }, [facets.categories, filters, maxPrice, onChange, selectedColors, t]);
 
   const commitPrice = (nextMin: string, nextMax: string) => {
+    let minVal = parsePriceDigits(nextMin);
+    let maxVal = parsePriceDigits(nextMax);
+
+    if (minVal !== undefined && maxVal !== undefined && minVal > maxVal) {
+      const temp = minVal;
+      minVal = maxVal;
+      maxVal = temp;
+    }
+
     onChange({
-      min_price: parsePriceDigits(nextMin),
-      max_price: parsePriceDigits(nextMax),
+      min_price: minVal,
+      max_price: maxVal,
     });
   };
 
@@ -242,34 +252,20 @@ export function CatalogSearchFiltersPanel({
 
       <div id="catalog-filter-price-range">
         <Accordion title={t('catalog.search.filters.price')}>
-        <div className="grid grid-cols-2 gap-3">
-          <input
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            value={minPriceInput}
-            onChange={(event) => {
-              const next = sanitizePriceDigits(event.target.value);
+          <PriceRangeFields
+            minPrice={minPriceInput}
+            maxPrice={maxPriceInput}
+            maxCeiling={maxPrice}
+            showTitle={false}
+            onMinChange={(next) => {
               setMinPriceInput(next);
               commitPrice(next, maxPriceInput);
             }}
-            placeholder={t('catalog.search.filters.minPrice')}
-            className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
-          />
-          <input
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            value={maxPriceInput}
-            onChange={(event) => {
-              const next = sanitizePriceDigits(event.target.value);
+            onMaxChange={(next) => {
               setMaxPriceInput(next);
               commitPrice(minPriceInput, next);
             }}
-            placeholder={t('catalog.search.filters.maxPrice')}
-            className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
           />
-        </div>
         </Accordion>
       </div>
 
@@ -294,7 +290,9 @@ export function CatalogSearchFiltersPanel({
       <Accordion title={t('catalog.search.filters.sort')}>
         <select
           value={filters.sort ?? '-created_at'}
-          onChange={(event) => onChange({ sort: event.target.value as CatalogSearchFilters['sort'] }, true)}
+          onChange={(event) =>
+            onChange({ sort: event.target.value as CatalogSearchFilters['sort'] }, true)
+          }
           className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm cursor-pointer"
         >
           <option value="-created_at">{t('catalog.search.filters.sortNewest')}</option>

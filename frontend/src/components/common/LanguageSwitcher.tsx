@@ -9,8 +9,12 @@ const options: Array<{ id: Locale; label: string }> = [
   { id: 'en', label: 'EN' },
 ];
 
+type LanguageSwitcherProps = {
+  className?: string;
+};
+
 /** Marketplace-only: persists locale preference to profile when authenticated. */
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
   const { locale, setLocale } = useLocale();
   const { isAuthenticated, user } = useMarketplaceAuth();
   const updateProfile = useUpdateProfile();
@@ -35,7 +39,7 @@ export function LanguageSwitcher() {
 
   return (
     <div
-      className="inline-flex items-center rounded-lg border border-gray-200 bg-gray-50 p-0.5"
+      className={`inline-flex items-center rounded-lg border border-gray-200 bg-gray-50 p-0.5 ${className ?? ''}`}
       dir="ltr"
       role="group"
       aria-label="Language"

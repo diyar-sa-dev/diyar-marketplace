@@ -60,6 +60,7 @@ export async function uploadServiceRequestAttachment(
   const { data } = await apiClient.post<
     ApiSuccessResponse<{ attachment: ServiceRequestAttachment }>
   >(`/service-requests/${requestId}/attachments`, formData, {
+    adapter: 'xhr',
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: (event) => {
       if (event.total) {

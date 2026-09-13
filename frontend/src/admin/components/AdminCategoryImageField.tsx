@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Check, ImageIcon, Loader2, Trash2, Upload, X } from 'lucide-react';
+import { Check, ImageIcon, Loader2, Trash2, Upload } from 'lucide-react';
 import { deleteAdminCategoryImage, uploadAdminCategoryImage } from '../../api/adminCategories.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { useToast } from '../../hooks/useToast.ts';
@@ -61,7 +61,8 @@ export function AdminCategoryImageField({
 
     const validationError = validateImageFiles([file]);
     if (validationError) {
-      const message = translateVendorFormError(validationError, t) ?? t('admin.categories.imageUploadError');
+      const message =
+        translateVendorFormError(validationError, t) ?? t('admin.categories.imageUploadError');
       setError(message);
       toast.error(message);
       return;
@@ -137,7 +138,9 @@ export function AdminCategoryImageField({
           ) : null}
           {uploadProgress !== null ? (
             <div className="absolute inset-x-0 bottom-0 bg-black/55 px-3 py-2 text-white text-xs font-semibold">
-              <div className="mb-1">{t('admin.categories.imageUploading', { percent: uploadProgress })}</div>
+              <div className="mb-1">
+                {t('admin.categories.imageUploading', { percent: uploadProgress })}
+              </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-white/25">
                 <div
                   className="h-full rounded-full bg-diyar-brown transition-all"

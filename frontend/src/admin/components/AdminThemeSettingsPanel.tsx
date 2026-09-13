@@ -108,7 +108,9 @@ export function AdminThemeSettingsPanel({
           </h4>
           <div className="h-px flex-1 bg-gray-100" />
         </div>
-        <p className="mb-4 text-center text-xs text-gray-500">{t('admin.settings.templates.subtitle')}</p>
+        <p className="mb-4 text-center text-xs text-gray-500">
+          {t('admin.settings.templates.subtitle')}
+        </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {THEME_COLOR_TEMPLATES.map((template) => {
             const isActive = activeTemplate?.id === template.id;

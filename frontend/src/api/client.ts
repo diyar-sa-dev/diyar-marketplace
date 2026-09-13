@@ -10,7 +10,7 @@ import { isApiErrorDetail, parseApiError } from '../utils/errors.ts';
 
 type RetryableConfig = InternalAxiosRequestConfig & { _csrfRetry?: boolean };
 
-function createApiClient(): AxiosInstance {
+function createApiClient(adapter?: 'fetch' | 'xhr'): AxiosInstance {
   return axios.create({
     baseURL: env.apiUrl,
     headers: {
@@ -21,6 +21,7 @@ function createApiClient(): AxiosInstance {
     xsrfCookieName: 'XSRF-TOKEN',
     xsrfHeaderName: 'X-XSRF-TOKEN',
     timeout: 30_000,
+    ...(adapter ? { adapter } : {}),
   });
 }
 
@@ -121,7 +122,7 @@ function attachInterceptors(client: AxiosInstance): AxiosInstance {
 }
 
 /** Marketplace storefront API client — `/api/v1/*` excluding admin routes. */
-export const marketplaceApi = attachInterceptors(createApiClient());
+export const marketplaceApi = attachInterceptors(createApiClient('fetch'));
 
 /** Admin operations API client — `/api/v1/admin/*`. */
 export const adminApi = attachInterceptors(createApiClient());

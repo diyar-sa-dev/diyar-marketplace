@@ -1,63 +1,27 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { Paintbrush } from 'lucide-react';
 import { useQueries } from '@tanstack/react-query';
-import ProductCard from '../../cards/ProductCard.tsx';
 import ServiceCard from '../../cards/ServiceCard.tsx';
-import { useCategories, useProducts, useVendors } from '../../../hooks/catalog/useCatalog.ts';
-import { useBlogArticles } from '../../../hooks/blog/useBlogArticles.ts';
-import { formatBlogReadingTime } from '../../../lib/formatBlogReadingTime.ts';
-import { formatLocaleDate } from '../../../lib/intlLocale.ts';
 import { serviceKeys } from '../../../hooks/services/queryKeys.ts';
 import { fetchServices } from '../../../api/services.ts';
+import { useServiceCategories } from '../../../hooks/services/useServices.ts';
 import { useLocale } from '../../../hooks/useLocale.ts';
-import { validateNewsletterEmail } from '../../../lib/platformForms.ts';
-import { parseApiError } from '../../../utils/errors.ts';
-import { subscribeNewsletter } from '../../../api/platform.ts';
-import { useAuth } from '../../../hooks/auth/useAuth.ts';
-import { useLoyaltySummary } from '../../../hooks/loyalty/useLoyalty.ts';
-import { skipDashboardTutorial } from '../../../lib/dashboardTutorialStorage.ts';
-import { isValidStoreSlug, storePath } from '../../../lib/storePath.ts';
-import { StarRating } from '../../product/StarRating.tsx';
-import { mapProductCard } from '../../../lib/catalogMappers.ts';
+import { resolveCategoryImageUrl } from '../../../lib/homeCategoryAssets.ts';
 import SectionEmptyState from '../SectionEmptyState.tsx';
+import { HomeSectionHeader } from '../HomeSectionHeader.tsx';
 import { HorizontalRail } from './HorizontalRail.tsx';
-import {
-  Star,
-  Quote,
-  ArrowLeft,
-  Send,
-  Sparkles,
-  UploadCloud,
-  Store,
-  Briefcase,
-  Paintbrush,
-  Smartphone,
-  Scan,
-  Box,
-  BellRing,
-  Wrench,
-  ShieldCheck,
-  Truck,
-  HeadphonesIcon,
-  CreditCard,
-  PenTool,
-  Twitter,
-  Instagram,
-  MessageCircle,
-  Heart,
-  Bookmark,
-  Eye,
-  Gift,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+
+const CATEGORY_CARD =
+  'flex h-full w-[min(100%,16.5rem)] shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:w-56';
 
 export function ServicesSection() {
-  const { t, dir } = useLocale();
-  const { data: serviceCategories, isLoading } = useCategories('service');
-  const ViewAllIcon = dir === 'rtl' ? ChevronLeft : ArrowLeft;
-  const featuredCategories = (serviceCategories ?? []).slice(0, 6);
-  const showEmpty = !isLoading && (serviceCategories ?? []).length === 0;
+  const { t, locale } = useLocale();
+  const { data: serviceCategories = [], isLoading } = useServiceCategories();
+  const featuredCategories = serviceCategories.slice(0, 6);
+  const showEmpty = !isLoading && serviceCategories.length === 0;
+
+  const categoryLabel = (nameAr: string, nameEn: string) => (locale === 'ar' ? nameAr : nameEn);
+
   const categoryServiceQueries = useQueries({
     queries: featuredCategories.map((category) => ({
       queryKey: serviceKeys.list({ category: category.slug, per_page: 3, sort: 'latest' }),
@@ -65,47 +29,22 @@ export function ServicesSection() {
       enabled: Boolean(category.slug),
     })),
   });
-  const STATIC_IMG: Record<string, string> = {
-    'interior-design': '/categories/تصميم داخلي.webp',
-    maintenance: '/categories/تركيب وصيانة.webp',
-    painting: '/categories/دهانات.webp',
-    upholstery: '/categories/تنجيد وتجديد.webp',
-    carpentry: '/categories/نجارة مخصصة.webp',
-    consultation: '/categories/استشارات تصميم.webp',
-    moving: '/categories/نقل وتغليف.webp',
-    cleaning: '/categories/تنظيف وتلميع.webp',
-    electrical: '/categories/إضاءة وكهرباء.webp',
-    'curtains-install': '/categories/تركيب الستائر.webp',
-    'floor-plan': '/categories/مخططات معمارية.webp',
-    other: '/logo_diyar.svg',
-  };
 
   return (
-    <div className="py-6 md:py-8 bg-gray-50 border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-end mb-6">
-          <div>
-            <span className="text-purple-600 text-sm font-bold mb-2 block">
-              {t('home.diyarServices.badge')}
-            </span>
-            <h2 className="text-2xl md:text-3xl font-sans font-bold text-diyar-dark flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center">
-                <Paintbrush size={20} />
-              </div>
-              {t('home.diyarServices.title')}
-            </h2>
-          </div>
-          <Link
-            to="/services"
-            className="text-diyar-brown font-bold flex items-center gap-2 hover:text-diyar-dark transition cursor-pointer text-sm md:text-base shrink-0"
-          >
-            {t('home.diyarServices.viewAll')} <ViewAllIcon size={18} />
-          </Link>
-        </div>
+    <div className="border-b border-gray-100 bg-gray-50 py-6 md:py-10">
+      <div className="mx-auto max-w-7xl px-4">
+        <HomeSectionHeader
+          badge={t('home.diyarServices.badge')}
+          badgeClassName="text-purple-600 font-bold"
+          title={t('home.diyarServices.title')}
+          linkTo="/services"
+          linkLabel={t('home.diyarServices.viewAll')}
+        />
+
         {isLoading ? (
-          <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x pt-2">
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="min-w-56 h-48 bg-white rounded-lg animate-pulse shrink-0" />
+              <div key={i} className={`${CATEGORY_CARD} h-48 animate-pulse bg-white`} />
             ))}
           </div>
         ) : showEmpty ? (
@@ -117,28 +56,40 @@ export function ServicesSection() {
             icon={Paintbrush}
           />
         ) : (
-          <HorizontalRail className="flex overflow-x-auto gap-4 md:grid md:grid-cols-5 pb-2 scrollbar-hide snap-x pt-1">
-            {(serviceCategories ?? []).slice(0, 10).map((category) => (
+          <HorizontalRail className="flex gap-4 overflow-x-auto pb-2 pt-1 scrollbar-hide snap-x">
+            {serviceCategories.map((category) => {
+              const imageUrl =
+                resolveCategoryImageUrl(category.slug, category.image_url, 'service') ??
+                '/logo_diyar.svg';
+              const label = categoryLabel(category.name_ar, category.name_en);
+
+              return (
                 <Link
-                  to={`/category/${category.slug}`}
+                  to={`/services?category=${encodeURIComponent(category.slug)}`}
                   key={category.id}
-                  className="min-w-56 md:min-w-0 bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all snap-start group cursor-pointer shrink-0"
+                  className={`${CATEGORY_CARD} group cursor-pointer`}
                 >
-                  <div className="h-36 relative overflow-hidden bg-diyar-brown/10">
+                  <div className="relative h-32 shrink-0 overflow-hidden bg-diyar-brown/10 sm:h-36">
                     <img
-                      src={STATIC_IMG[category.slug] ?? '/logo_diyar.svg'}
-                      alt={category.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      src={imageUrl}
+                      alt={label}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-diyar-dark text-base">{category.name}</h3>
-                    <p className="text-xs text-gray-500 mt-1">
+                  <div className="flex min-h-0 flex-1 flex-col justify-center p-3 sm:p-4">
+                    <h3
+                      className="truncate text-sm font-bold text-diyar-dark sm:text-base"
+                      title={label}
+                    >
+                      {label}
+                    </h3>
+                    <p className="mt-1 truncate text-xs text-gray-500">
                       {t('home.diyarServices.browseCategory')}
                     </p>
                   </div>
                 </Link>
-              ))}
+              );
+            })}
           </HorizontalRail>
         )}
 
@@ -149,23 +100,26 @@ export function ServicesSection() {
               return null;
             }
 
+            const label = categoryLabel(category.name_ar, category.name_en);
+
             return (
-              <div key={category.id} className="mt-8">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold text-diyar-dark">{category.name}</h3>
-                  <Link
-                    to={`/category/${category.slug}`}
-                    className="text-diyar-brown text-sm font-bold hover:text-diyar-dark transition cursor-pointer"
-                  >
-                    {t('home.diyarServices.viewAllCategory')}{' '}
-                    <ViewAllIcon size={16} className="inline ms-1" />
-                  </Link>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div key={category.id} className="mt-10 md:mt-12">
+                <HomeSectionHeader
+                  title={label}
+                  linkTo={`/services?category=${encodeURIComponent(category.slug)}`}
+                  linkLabel={t('home.diyarServices.viewAllCategory')}
+                  className="mb-4 md:mb-6"
+                />
+                <HorizontalRail className="flex gap-4 overflow-x-auto py-2 scrollbar-hide snap-x md:grid md:grid-cols-3 md:gap-4 md:overflow-visible">
                   {items.map((service) => (
-                    <ServiceCard key={service.id} service={service} />
+                    <div
+                      key={service.id}
+                      className="w-full min-w-[16rem] shrink-0 snap-start md:min-w-0"
+                    >
+                      <ServiceCard service={service} />
+                    </div>
                   ))}
-                </div>
+                </HorizontalRail>
               </div>
             );
           })}

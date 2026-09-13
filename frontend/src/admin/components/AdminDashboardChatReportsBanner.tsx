@@ -42,9 +42,7 @@ export function AdminDashboardChatReportsBanner({
               </h3>
               <span
                 className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${
-                  hasPending
-                    ? 'bg-rose-200/80 text-rose-900'
-                    : 'bg-emerald-100 text-emerald-800'
+                  hasPending ? 'bg-rose-200/80 text-rose-900' : 'bg-emerald-100 text-emerald-800'
                 }`}
               >
                 {isLoading
@@ -70,7 +68,10 @@ export function AdminDashboardChatReportsBanner({
           }`}
         >
           {t('admin.dashboard.quickActions.chatReportsAction')}
-          <Arrow size={16} className="transition group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+          <Arrow
+            size={16}
+            className="transition group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5"
+          />
         </span>
       </div>
     </Link>

@@ -63,7 +63,9 @@ export function AdminRecentActivityFeed({
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-gray-400 shadow-sm">
           <Activity size={22} />
         </div>
-        <p className="mt-3 text-sm font-medium text-gray-600">{t('admin.dashboard.noRecentActivity')}</p>
+        <p className="mt-3 text-sm font-medium text-gray-600">
+          {t('admin.dashboard.noRecentActivity')}
+        </p>
       </div>
     );
   }

@@ -3774,8 +3774,7 @@ export const ar = {
       emptyProductsTitle: 'لا توجد منتجات',
       emptyProductsDescription: 'جرّب تغيير الفلاتر أو العودة لاحقاً.',
       serviceCategoryDescription: 'تصفّح مقدمي خدمة معتمدين على منصة ديار.',
-      productCategoryDescription:
-        'تشكيلة واسعة من منتجات موثوقة من أعرق المتاجر على ديار.',
+      productCategoryDescription: 'تشكيلة واسعة من منتجات موثوقة من أعرق المتاجر على ديار.',
       subcategoryAll: 'الكل',
       filterServices: 'تصفية الخدمات',
       filterResults: 'تصفية النتائج',

@@ -16,9 +16,9 @@ describe('resolveMediaUrl', () => {
   });
 
   it('rewrites absolute APP_URL storage links to same-origin paths', () => {
-    expect(
-      resolveMediaUrl('http://192.168.1.3:8080/storage/media/providers/1/avatar/a.png'),
-    ).toBe('/storage/media/providers/1/avatar/a.png');
+    expect(resolveMediaUrl('http://192.168.1.3:8080/storage/media/providers/1/avatar/a.png')).toBe(
+      '/storage/media/providers/1/avatar/a.png',
+    );
   });
 
   it('normalizes bare media disk paths', () => {

@@ -50,12 +50,7 @@ export interface FilterSuggestionSection {
   degraded?: boolean;
   fallback_reason?: string;
   resolution_path?:
-    | 'fresh_cache'
-    | 'fresh_generate'
-    | 'stale_cache'
-    | 'registry_only'
-    | 'disabled'
-    | 'unavailable';
+    'fresh_cache' | 'fresh_generate' | 'stale_cache' | 'registry_only' | 'disabled' | 'unavailable';
   suggestions: FilterSuggestionItem[];
   initialized_filters: FilterSuggestionItem[];
 }

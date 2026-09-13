@@ -32,20 +32,24 @@ export const en = {
   seo: {
     homeTitle: 'DIYAR — Furniture & Services Marketplace',
     homeDescription:
-      'Shop furniture, book design and installation services, and discover trusted stores on DIYAR — Saudi Arabia\'s home marketplace.',
+      "Shop furniture, book design and installation services, and discover trusted stores on DIYAR — Saudi Arabia's home marketplace.",
     productTitle: '{{name}} | DIYAR',
-    productDescription: 'Buy {{name}} on DIYAR. Trusted furniture marketplace with secure checkout and fast delivery.',
+    productDescription:
+      'Buy {{name}} on DIYAR. Trusted furniture marketplace with secure checkout and fast delivery.',
     categoryTitle: '{{name}} | DIYAR Marketplace',
-    categoryDescription: 'Browse {{name}} on DIYAR — curated furniture and home services from trusted sellers.',
+    categoryDescription:
+      'Browse {{name}} on DIYAR — curated furniture and home services from trusted sellers.',
     storeTitle: '{{name}} | DIYAR Store',
-    storeDescription: 'Shop {{name}} on DIYAR. Discover products, reviews, and offers from this trusted store.',
+    storeDescription:
+      'Shop {{name}} on DIYAR. Discover products, reviews, and offers from this trusted store.',
     searchTitle: 'Search: {{query}} | DIYAR',
     searchDescription: 'Search results for "{{query}}" on DIYAR marketplace.',
     searchEmptyTitle: 'Search | DIYAR Marketplace',
     blogTitle: '{{title}} | DIYAR Blog',
     blogDescription: '{{excerpt}}',
     serviceTitle: '{{name}} | DIYAR Services',
-    serviceDescription: 'Book {{name}} on DIYAR — trusted home and design services in Saudi Arabia.',
+    serviceDescription:
+      'Book {{name}} on DIYAR — trusted home and design services in Saudi Arabia.',
   },
   share: {
     platforms: {
@@ -2120,7 +2124,8 @@ export const en = {
     otp: {
       description: 'Enter the 6-digit verification code.',
       emailDescription: 'Enter the verification code sent to your email.',
-      twoFactorDescription: 'Two-factor authentication is enabled. Enter the SMS code to finish signing in.',
+      twoFactorDescription:
+        'Two-factor authentication is enabled. Enter the SMS code to finish signing in.',
       notReceived: "Didn't receive the code?",
       resend: 'Resend code',
       resendCooldown: 'Resend in :seconds s',
@@ -2410,10 +2415,12 @@ export const en = {
       twoFactorCancel: 'Cancel',
       twoFactorResend: 'Resend code',
       twoFactorResendCooldown: 'Resend in :seconds s',
-      twoFactorSetupPrompt: 'We sent a verification code to your phone. Enter it below to enable 2FA.',
+      twoFactorSetupPrompt:
+        'We sent a verification code to your phone. Enter it below to enable 2FA.',
       twoFactorDisablePrompt:
         'Enter your current password. We will send an SMS code to confirm disabling 2FA.',
-      twoFactorDisableOtpPrompt: 'Enter the SMS code to confirm disabling two-factor authentication.',
+      twoFactorDisableOtpPrompt:
+        'Enter the SMS code to confirm disabling two-factor authentication.',
       twoFactorPasswordLabel: 'Current password',
       twoFactorEnabledSuccess: 'Two-factor authentication is now enabled.',
       twoFactorDisabledSuccess: 'Two-factor authentication has been disabled.',
@@ -2422,7 +2429,8 @@ export const en = {
       twoFactorUnavailable:
         'Two-factor settings are not available on this server yet. Restart or update the API, then run migrations.',
       devicesTitle: 'Connected devices',
-      devicesHint: 'Review where your account is signed in and sign out devices you do not recognize.',
+      devicesHint:
+        'Review where your account is signed in and sign out devices you do not recognize.',
       devicesDescription:
         'Managing active sessions on multiple devices will be added later. You can sign out from My account.',
       currentDevice: 'This device',
@@ -3703,7 +3711,8 @@ export const en = {
       noStores: 'No stores found',
       noStoresDescription: 'We could not find stores matching your search.',
       visualSearchSoon: 'Visual search coming soon',
-      visualSearchSoonDescription: 'Upload an image from the header search to find similar products.',
+      visualSearchSoonDescription:
+        'Upload an image from the header search to find similar products.',
       visualSearchEmptyTitle: 'No high-confidence matches found',
       visualSearchEmptyDescription:
         'We only show products with :percent% visual similarity or higher. Try a clearer photo of the product.',
@@ -3715,7 +3724,8 @@ export const en = {
       visualSearchErrors: {
         invalid_type: 'Please choose a JPEG, PNG, or WebP image.',
         file_too_large: 'Image must be 2 MB or smaller.',
-        dimensions_exceeded: 'Image is too large. Try a smaller photo or crop closer to the product.',
+        dimensions_exceeded:
+          'Image is too large. Try a smaller photo or crop closer to the product.',
         pixel_count_exceeded: 'Image resolution is too high. Try a smaller photo.',
         invalid_dimensions: 'Could not read image dimensions. Try another photo.',
         request_failed: 'Visual search failed. Please try again.',
@@ -3824,8 +3834,7 @@ export const en = {
       emptyProductsTitle: 'No products',
       emptyProductsDescription: 'Try changing filters or check back later.',
       serviceCategoryDescription: 'Browse verified service providers on Diyar.',
-      productCategoryDescription:
-        'A wide selection of trusted products from top stores on Diyar.',
+      productCategoryDescription: 'A wide selection of trusted products from top stores on Diyar.',
       subcategoryAll: 'All',
       filterServices: 'Filter services',
       filterResults: 'Filter results',

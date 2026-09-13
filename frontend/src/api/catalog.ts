@@ -13,9 +13,30 @@ import type {
   VendorsResponse,
 } from '../types/catalog.ts';
 
+/** Ensure price filters satisfy backend validation (max_price >= min_price). */
+export function normalizeProductListFilters(filters: ProductListFilters = {}): ProductListFilters {
+  const next: ProductListFilters = { ...filters };
+  let min = next.min_price;
+  let max = next.max_price;
+
+  if (max !== undefined && min === undefined) {
+    min = 0;
+  }
+
+    if (min !== undefined && max !== undefined && min > max) {
+      min = max;
+    }
+
+  next.min_price = min;
+  next.max_price = max;
+
+  return next;
+}
+
 function buildQuery(filters: ProductListFilters = {}): string {
   const params = new URLSearchParams();
-  Object.entries(filters).forEach(([key, value]) => {
+  const normalized = normalizeProductListFilters(filters);
+  Object.entries(normalized).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
       params.set(key, String(value));
     }

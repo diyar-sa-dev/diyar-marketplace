@@ -59,7 +59,10 @@ export function resolveMediaUrl(url: string | null | undefined): string | undefi
   }
 
   try {
-    const parsed = new URL(trimmed, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+    const parsed = new URL(
+      trimmed,
+      typeof window !== 'undefined' ? window.location.origin : 'http://localhost',
+    );
     if (parsed.pathname.startsWith('/storage/') || parsed.pathname === '/storage') {
       return toPublicStorageUrl(`${parsed.pathname}${parsed.search}`);
     }

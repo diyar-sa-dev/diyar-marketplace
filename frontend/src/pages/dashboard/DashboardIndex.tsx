@@ -28,7 +28,7 @@ export default function DashboardIndex() {
   }
 
   return (
-    <div className="h-full flex flex-col items-center justify-center -mt-16">
+    <div className="flex h-full flex-col items-center justify-center md:-mt-16">
       <div className="text-center mb-10">
         <h2 className="text-3xl font-bold text-diyar-dark mb-4">بوابات الشركاء</h2>
         <p className="text-gray-500 max-w-md mx-auto">

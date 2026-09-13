@@ -23,16 +23,12 @@ import {
 import { useServices } from '../hooks/services/useServices.ts';
 import { mapProductCard } from '../lib/catalogMappers.ts';
 import {
+  getServiceTypeOptionsForCategory,
   KNOWN_SERVICE_CATEGORY_SLUGS,
   mapCatalogSortToServiceSort,
   resolveServiceCategorySlug,
 } from '../lib/serviceCategoryTypes.ts';
-import { resolveMediaUrl } from '../lib/media.ts';
-import {
-  PLACEHOLDER_CATEGORY_IMG,
-  resolveCategoryImageUrl,
-} from '../lib/homeCategoryAssets.ts';
-import { isValidStoreSlug, storePath } from '../lib/storePath.ts';
+import { PLACEHOLDER_CATEGORY_IMG, resolveCategoryImageUrl } from '../lib/homeCategoryAssets.ts';
 import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { EmptyState } from '../components/common/EmptyState.tsx';
@@ -40,6 +36,7 @@ import NotFoundPage from './errors/NotFoundPage.tsx';
 import { isNotFoundError } from '../utils/errors.ts';
 import { useLocale } from '../hooks/useLocale.ts';
 import { usePageSeo } from '../hooks/usePageSeo.ts';
+import { VerifiedStoresRail } from '../components/catalog/VerifiedStoresRail.tsx';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.ts';
 
 const CATEGORIES = {
@@ -86,6 +83,32 @@ const CATEGORIES = {
 };
 
 const MAX_PRICE = 20000;
+
+function clampCategoryMinPrice(raw: string, maxPrice: number): string | undefined {
+  if (!raw) {
+    return undefined;
+  }
+
+  let val = Number(raw);
+  if (!Number.isFinite(val)) {
+    return undefined;
+  }
+
+  return String(Math.max(0, Math.min(val, maxPrice)));
+}
+
+function clampCategoryMaxPrice(raw: string, minPrice: number): string | undefined {
+  if (!raw) {
+    return undefined;
+  }
+
+  let val = Number(raw);
+  if (!Number.isFinite(val)) {
+    return undefined;
+  }
+
+  return String(Math.max(minPrice, Math.min(val, MAX_PRICE)));
+}
 
 type AvailabilityValue = 'in_stock' | 'out_of_stock' | 'preorder';
 
@@ -303,37 +326,7 @@ function CategoryAllLanding() {
           {vendorsLoading ? (
             <LoadingState className="min-h-24" />
           ) : (
-            <div className="flex gap-4 md:gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x">
-              {(vendorsData?.items ?? [])
-                .filter((vendor) => isValidStoreSlug(vendor.slug))
-                .map((vendor) => (
-                  <Link
-                    key={vendor.id}
-                    to={storePath(vendor.slug)!}
-                    className="min-w-30 md:min-w-40 aspect-square rounded-2xl bg-white border border-gray-100 shadow-sm flex flex-col items-center justify-center p-4 snap-start hover:shadow-md transition group text-center"
-                  >
-                    {vendor.logo_url ? (
-                      <img
-                        src={resolveMediaUrl(vendor.logo_url) ?? ''}
-                        alt={vendor.store_name}
-                        className="w-14 h-14 rounded-full object-cover mb-2"
-                      />
-                    ) : (
-                      <div className="w-14 h-14 rounded-full bg-diyar-cream/40 flex items-center justify-center mb-2 text-diyar-brown font-bold">
-                        {vendor.store_name.charAt(0)}
-                      </div>
-                    )}
-                    <span className="font-bold text-sm text-diyar-dark group-hover:text-diyar-brown transition line-clamp-2">
-                      {vendor.store_name}
-                    </span>
-                    {vendor.product_count != null && (
-                      <span className="text-xs text-gray-400 mt-1">
-                        {t('catalog.category.productCount', { count: vendor.product_count })}
-                      </span>
-                    )}
-                  </Link>
-                ))}
-            </div>
+            <VerifiedStoresRail vendors={vendorsData?.items ?? []} mode="link" />
           )}
         </div>
 
@@ -354,9 +347,7 @@ function CategoryAllLanding() {
                   <div className="w-20 h-20 rounded-2xl overflow-hidden bg-diyar-cream/30 shrink-0">
                     {resolveCategoryImageUrl(service.slug, service.image_url, 'service') ? (
                       <img
-                        src={
-                          resolveCategoryImageUrl(service.slug, service.image_url, 'service')!
-                        }
+                        src={resolveCategoryImageUrl(service.slug, service.image_url, 'service')!}
                         alt=""
                         className="h-full w-full object-cover"
                         loading="lazy"
@@ -446,18 +437,26 @@ function CatalogFilterPanel({
               max={String(MAX_PRICE)}
               step="100"
               value={maxPrice}
-              onChange={(e) => onPatch({ max_price: e.target.value })}
+              onChange={(e) =>
+                onPatch({
+                  max_price: String(Math.max(minPrice, Number(e.target.value))),
+                })
+              }
               className="w-full accent-diyar-brown cursor-pointer"
             />
             <div className="flex items-center justify-between gap-4">
               <label className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center w-full">
-                <span className="text-xs text-gray-500 block mb-1">{t('catalog.category.from')}</span>
+                <span className="text-xs text-gray-500 block mb-1">
+                  {t('catalog.category.from')}
+                </span>
                 <input
                   type="number"
                   min={0}
                   max={maxPrice}
                   value={minPrice}
-                  onChange={(e) => onPatch({ min_price: e.target.value || undefined })}
+                  onChange={(e) =>
+                    onPatch({ min_price: clampCategoryMinPrice(e.target.value, maxPrice) })
+                  }
                   className="w-full bg-transparent text-center font-bold text-sm outline-none"
                 />
               </label>
@@ -468,7 +467,9 @@ function CatalogFilterPanel({
                   min={minPrice}
                   max={MAX_PRICE}
                   value={maxPrice}
-                  onChange={(e) => onPatch({ max_price: e.target.value || undefined })}
+                  onChange={(e) =>
+                    onPatch({ max_price: clampCategoryMaxPrice(e.target.value, minPrice) })
+                  }
                   className="w-full bg-transparent text-center font-bold text-sm outline-none"
                 />
               </label>
@@ -503,7 +504,11 @@ function CatalogFilterPanel({
             max={String(MAX_PRICE)}
             step="100"
             value={maxPrice}
-            onChange={(e) => onPatch({ max_price: e.target.value })}
+            onChange={(e) =>
+              onPatch({
+                max_price: String(Math.max(minPrice, Number(e.target.value))),
+              })
+            }
             className="w-full accent-diyar-brown"
           />
           <div className="flex items-center justify-between gap-4">
@@ -514,7 +519,9 @@ function CatalogFilterPanel({
                 min={0}
                 max={maxPrice}
                 value={minPrice}
-                onChange={(e) => onPatch({ min_price: e.target.value || undefined })}
+                onChange={(e) =>
+                  onPatch({ min_price: clampCategoryMinPrice(e.target.value, maxPrice) })
+                }
                 className="w-full bg-transparent text-center font-bold text-sm outline-none"
               />
             </label>
@@ -525,7 +532,9 @@ function CatalogFilterPanel({
                 min={minPrice}
                 max={MAX_PRICE}
                 value={maxPrice}
-                onChange={(e) => onPatch({ max_price: e.target.value || undefined })}
+                onChange={(e) =>
+                  onPatch({ max_price: clampCategoryMaxPrice(e.target.value, minPrice) })
+                }
                 className="w-full bg-transparent text-center font-bold text-sm outline-none"
               />
             </label>
@@ -534,24 +543,12 @@ function CatalogFilterPanel({
       </Accordion>
 
       <Accordion title={t('catalog.category.verifiedStores')}>
-        <div className="space-y-2 max-h-48 overflow-y-auto pr-1 pl-3">
-          {vendors.map((vendor) => (
-            <label key={vendor.id} className="flex items-center gap-3 cursor-pointer group">
-              <input
-                type="radio"
-                name="vendor_id"
-                checked={vendorId === vendor.id}
-                onChange={() =>
-                  onPatch({ vendor_id: vendorId === vendor.id ? undefined : vendor.id })
-                }
-                className="accent-diyar-brown"
-              />
-              <span className="text-sm text-gray-600 group-hover:text-diyar-dark transition-colors">
-                {vendor.store_name}
-              </span>
-            </label>
-          ))}
-        </div>
+        <VerifiedStoresRail
+          vendors={vendors}
+          mode="filter"
+          selectedVendorId={vendorId}
+          onSelectVendor={(id) => onPatch({ vendor_id: id })}
+        />
       </Accordion>
 
       <Accordion title={t('catalog.category.availability')}>
@@ -612,6 +609,17 @@ export default function CategoryPage() {
           next.set(key, value);
         }
       });
+
+      const minRaw = next.get('min_price');
+      const maxRaw = next.get('max_price');
+      if (minRaw !== null && maxRaw !== null) {
+        const min = Number(minRaw);
+        const max = Number(maxRaw);
+        if (Number.isFinite(min) && Number.isFinite(max) && min > max) {
+          next.set('min_price', String(max));
+        }
+      }
+
       if (resetPage) {
         next.delete('page');
       }
@@ -624,19 +632,44 @@ export default function CategoryPage() {
     setSearchParams({}, { replace: true });
   }, [setSearchParams]);
 
-  const filters = useMemo(
-    () => ({
+  const filters = useMemo(() => {
+    const rawMin = searchParams.has('min_price') ? minPrice : undefined;
+    const rawMax = searchParams.has('max_price') ? maxPrice : undefined;
+    const validMin = rawMin !== undefined && !isNaN(rawMin) ? rawMin : undefined;
+    const validMax = rawMax !== undefined && !isNaN(rawMax) ? rawMax : undefined;
+
+    let normalizedMin = validMin;
+    let normalizedMax = validMax;
+
+    if (
+      normalizedMin !== undefined &&
+      normalizedMax !== undefined &&
+      normalizedMin > normalizedMax
+    ) {
+      normalizedMin = normalizedMax;
+    }
+
+    return {
       q: searchQuery,
-      min_price: minPrice > 0 ? minPrice : undefined,
-      max_price: maxPrice < MAX_PRICE ? maxPrice : undefined,
+      min_price: normalizedMin,
+      max_price: normalizedMax,
       vendor_id: vendorId,
       availability_mode: availabilityMode as 'in_stock' | 'out_of_stock' | 'preorder' | undefined,
       per_page: perPage,
       page,
       sort,
-    }),
-    [searchQuery, minPrice, maxPrice, vendorId, availabilityMode, page, perPage, sort],
-  );
+    };
+  }, [
+    searchParams,
+    searchQuery,
+    minPrice,
+    maxPrice,
+    vendorId,
+    availabilityMode,
+    page,
+    perPage,
+    sort,
+  ]);
 
   const { data: apiCategory, error: categoryError } = useCategory(slug);
   const categorySeoName = apiCategory?.name ?? staticMeta?.name ?? slug;
@@ -652,18 +685,19 @@ export default function CategoryPage() {
   const isServiceCategory =
     apiCategory?.type === 'service' || KNOWN_SERVICE_CATEGORY_SLUGS.has(slug);
 
-  const serviceFilters = useMemo(
-    () => ({
+  const serviceFilters = useMemo(() => {
+    const minP = filters.min_price;
+    const maxP = filters.max_price;
+    return {
       category: resolveServiceCategorySlug(slug),
       q: searchQuery,
-      min_price: minPrice > 0 ? minPrice : undefined,
-      max_price: maxPrice < MAX_PRICE ? maxPrice : undefined,
+      min_price: minP,
+      max_price: maxP,
       sort: mapCatalogSortToServiceSort(sort),
       page,
       per_page: perPage,
-    }),
-    [slug, searchQuery, minPrice, maxPrice, sort, page, perPage],
-  );
+    };
+  }, [slug, searchQuery, filters.min_price, filters.max_price, sort, page, perPage]);
 
   const { data: vendorsData } = useVendors({ per_page: 50 });
   const {
@@ -691,7 +725,14 @@ export default function CategoryPage() {
     apiCategory?.type === 'service' || isServiceCategory ? 'service' : 'product';
   const categoryImg =
     resolveCategoryImageUrl(slug, apiCategory?.image_url, categoryKind) ?? PLACEHOLDER_CATEGORY_IMG;
-  const subcategories = staticMeta && 'subcategories' in staticMeta ? staticMeta.subcategories : [];
+  const serviceTypeOptions = isServiceCategory
+    ? getServiceTypeOptionsForCategory(resolveServiceCategorySlug(slug))
+    : [];
+  const productSubcategories =
+    !isServiceCategory && staticMeta && 'subcategories' in staticMeta
+      ? staticMeta.subcategories
+      : [];
+  const subcategories = isServiceCategory ? serviceTypeOptions : productSubcategories;
   const products = productsData?.items.map(mapProductCard) ?? [];
   const services = servicesData?.items ?? [];
   const totalResults = isServiceCategory
@@ -751,7 +792,7 @@ export default function CategoryPage() {
         </div>
       </div>
 
-      {/* Subcategories (only if it has subcategories) */}
+      {/* Product subcategories or service type filters */}
       {subcategories.length > 0 && (
         <div className="bg-white border-b border-gray-100 shadow-sm relative z-10 w-full mb-6">
           <div className="max-w-7xl mx-auto px-4 py-3 md:py-4">
@@ -885,7 +926,8 @@ export default function CategoryPage() {
               )}
               {vendorId && (
                 <span className="bg-diyar-dark text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
-                  {vendors.find((v) => v.id === vendorId)?.store_name ?? t('catalog.category.storeFallback')}
+                  {vendors.find((v) => v.id === vendorId)?.store_name ??
+                    t('catalog.category.storeFallback')}
                   <button
                     type="button"
                     aria-label={t('catalog.category.removeStoreFilter')}
@@ -981,7 +1023,7 @@ export default function CategoryPage() {
 
       {/* Mobile Filter Modal */}
       {isMobileFilterOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden overscroll-none">
+        <div className="fixed inset-0 z-[60] flex md:hidden overscroll-none">
           <button
             type="button"
             className="absolute inset-0 bg-black/50 cursor-pointer"
@@ -990,7 +1032,9 @@ export default function CategoryPage() {
           />
           <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] bg-white rounded-t-3xl shadow-xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-full duration-300">
             <div className="flex items-center justify-between p-4 border-b border-gray-100 shrink-0">
-              <h3 className="font-bold text-lg text-diyar-dark">{t('catalog.category.filterResults')}</h3>
+              <h3 className="font-bold text-lg text-diyar-dark">
+                {t('catalog.category.filterResults')}
+              </h3>
               <button
                 type="button"
                 onClick={() => setIsMobileFilterOpen(false)}
@@ -1000,7 +1044,7 @@ export default function CategoryPage() {
               </button>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y p-4 pb-24">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y p-4 pb-28">
               <CatalogFilterPanel
                 minPrice={minPrice}
                 maxPrice={maxPrice}
@@ -1013,7 +1057,7 @@ export default function CategoryPage() {
               />
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 flex gap-3 shrink-0">
+            <div className="sticky bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 flex gap-3 shrink-0 z-10">
               <button
                 type="button"
                 onClick={resetFilters}

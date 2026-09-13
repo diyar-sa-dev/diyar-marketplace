@@ -4,7 +4,14 @@ import {
 } from '../hooks/catalog/useCatalogSearch.ts';
 import type { FilterSuggestionsRequest } from '../types/filterSuggestions.ts';
 
-const SERVICE_KEYS = ['category', 'location', 'pricing_mode', 'min_rating', 'remote', 'provider'] as const;
+const SERVICE_KEYS = [
+  'category',
+  'location',
+  'pricing_mode',
+  'min_rating',
+  'remote',
+  'provider',
+] as const;
 
 export function normalizeFilterSuggestionContext(
   raw: Record<string, string | number | boolean | null | undefined | string[]>,
@@ -79,8 +86,6 @@ export function hasFilterSuggestionContext(
   });
 }
 
-export function suggestionSectionKey(
-  filters: FilterSuggestionsRequest,
-): 'products' | 'services' {
+export function suggestionSectionKey(filters: FilterSuggestionsRequest): 'products' | 'services' {
   return filters.type === 'services' ? 'services' : 'products';
 }
