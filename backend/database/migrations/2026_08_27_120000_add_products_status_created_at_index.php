@@ -14,9 +14,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->index(['status', 'created_at'], 'products_status_created_at_index');
-        });
+        if (Schema::hasTable('products') && ! Schema::hasIndex('products', 'products_status_created_at_index')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->index(['status', 'created_at'], 'products_status_created_at_index');
+            });
+        }
     }
 
     public function down(): void

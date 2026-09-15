@@ -1,5 +1,5 @@
 import { marketplaceApi } from './client.ts';
-import { authRequestConfig, bootstrapCsrfToken, resetCsrfCookie } from '../lib/csrf.ts';
+import { authRequestConfig, bootstrapCsrfToken, ensureCsrfCookie, resetCsrfCookie } from '../lib/csrf.ts';
 import { withColdStartRetry } from '../lib/coldStartRetry.ts';
 import type {
   AuthActionResult,

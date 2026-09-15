@@ -114,6 +114,38 @@ final class PlatformHealthService
     }
 
     /**
+     * Detect an unmigrated database — the usual cause of blanket 500s after a fresh deploy.
+     *
+     * @return array{ok: bool, session_driver: string, missing_tables?: list<string>}
+     */
+    public function probeSchema(): array
+    {
+        return $this->rememberProbe('schema', function (): array {
+            $sessionDriver = (string) config('session.driver');
+            $required = ['users', 'sessions', 'products', 'categories'];
+
+            try {
+                $schema = DB::getSchemaBuilder();
+                $missing = array_values(array_filter(
+                    $required,
+                    static fn (string $table): bool => ! $schema->hasTable($table),
+                ));
+
+                return array_filter([
+                    'ok' => $missing === [],
+                    'session_driver' => $sessionDriver,
+                    'missing_tables' => $missing === [] ? null : $missing,
+                ], static fn ($value) => $value !== null);
+            } catch (Throwable) {
+                return [
+                    'ok' => false,
+                    'session_driver' => $sessionDriver,
+                ];
+            }
+        });
+    }
+
+    /**
      * @return array{ok: bool, driver: string, used_memory_human?: string, connected_clients?: int}
      */
     public function probeCache(): array

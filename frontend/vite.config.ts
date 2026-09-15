@@ -3,15 +3,16 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 
 const frontendRoot = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(frontendRoot, '..');
-const cdnBase = process.env.VITE_CDN_BASE_URL?.replace(/\/$/, '');
+const env = loadEnv(process.env.NODE_ENV ?? 'development', frontendRoot, '');
+const cdnBase = (process.env.VITE_CDN_BASE_URL ?? env.VITE_CDN_BASE_URL)?.replace(/\/$/, '');
 /** Local prod stack: scripts/local/start-frontend-prod-api.ps1 sets this to http://<LAN-IP>:8093 */
-const apiProxyTarget = process.env.DIYAR_API_PROXY_TARGET?.replace(/\/$/, '') ?? 'http://localhost:8093';
+const apiProxyTarget = (process.env.DIYAR_API_PROXY_TARGET ?? env.DIYAR_API_PROXY_TARGET)?.replace(/\/$/, '') ?? 'http://127.0.0.1:8000';
 const reverbProxyTarget =
-  process.env.DIYAR_REVERB_PROXY_TARGET?.replace(/\/$/, '') ?? apiProxyTarget;
+  (process.env.DIYAR_REVERB_PROXY_TARGET ?? env.DIYAR_REVERB_PROXY_TARGET)?.replace(/\/$/, '') ?? apiProxyTarget;
 
 function apiProxyOptions() {
   return {

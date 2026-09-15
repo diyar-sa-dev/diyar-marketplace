@@ -8,30 +8,46 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->index('created_at', 'orders_created_at_index');
-        });
+        if (Schema::hasTable('orders') && ! Schema::hasIndex('orders', 'orders_created_at_index')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->index('created_at', 'orders_created_at_index');
+            });
+        }
 
-        Schema::table('payments', function (Blueprint $table) {
-            $table->index(['status', 'paid_at'], 'payments_status_paid_at_index');
-            $table->index('created_at', 'payments_created_at_index');
-        });
+        if (Schema::hasTable('payments')) {
+            Schema::table('payments', function (Blueprint $table) {
+                if (! Schema::hasIndex('payments', 'payments_status_paid_at_index')) {
+                    $table->index(['status', 'paid_at'], 'payments_status_paid_at_index');
+                }
+                if (! Schema::hasIndex('payments', 'payments_created_at_index')) {
+                    $table->index('created_at', 'payments_created_at_index');
+                }
+            });
+        }
 
-        Schema::table('vendor_orders', function (Blueprint $table) {
-            $table->index(['vendor_account_id', 'status', 'updated_at'], 'vendor_orders_vendor_status_updated_index');
-        });
+        if (Schema::hasTable('vendor_orders') && ! Schema::hasIndex('vendor_orders', 'vendor_orders_vendor_status_updated_index')) {
+            Schema::table('vendor_orders', function (Blueprint $table) {
+                $table->index(['vendor_account_id', 'status', 'updated_at'], 'vendor_orders_vendor_status_updated_index');
+            });
+        }
 
-        Schema::table('payment_vendor_allocations', function (Blueprint $table) {
-            $table->index('vendor_account_id', 'payment_allocations_vendor_index');
-        });
+        if (Schema::hasTable('payment_vendor_allocations') && ! Schema::hasIndex('payment_vendor_allocations', 'payment_allocations_vendor_index')) {
+            Schema::table('payment_vendor_allocations', function (Blueprint $table) {
+                $table->index('vendor_account_id', 'payment_allocations_vendor_index');
+            });
+        }
 
-        Schema::table('cart_items', function (Blueprint $table) {
-            $table->index('created_at', 'cart_items_created_at_index');
-        });
+        if (Schema::hasTable('cart_items') && ! Schema::hasIndex('cart_items', 'cart_items_created_at_index')) {
+            Schema::table('cart_items', function (Blueprint $table) {
+                $table->index('created_at', 'cart_items_created_at_index');
+            });
+        }
 
-        Schema::table('analytics_events', function (Blueprint $table) {
-            $table->index(['provider_account_id', 'event_type', 'created_at'], 'analytics_provider_event_time');
-        });
+        if (Schema::hasTable('analytics_events') && ! Schema::hasIndex('analytics_events', 'analytics_provider_event_time')) {
+            Schema::table('analytics_events', function (Blueprint $table) {
+                $table->index(['provider_account_id', 'event_type', 'created_at'], 'analytics_provider_event_time');
+            });
+        }
     }
 
     public function down(): void
