@@ -135,4 +135,12 @@ class ProductTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.pagination.current_page', 200);
     }
+
+    public function test_publicly_visible_does_not_inject_join_or_select(): void
+    {
+        $query = Product::query()->publiclyVisible()->getQuery();
+
+        $this->assertNull($query->columns);
+        $this->assertEmpty($query->joins ?? []);
+    }
 }

@@ -139,13 +139,15 @@ class Product extends Model
     {
         $table = $query->getModel()->getTable();
 
+        // EXISTS keeps the column list intact so MySQL aggregates (filter suggestions) stay valid.
         return $query
             ->where("{$table}.status", ProductStatus::Active)
-            ->join('vendor_accounts', function ($join) use ($table) {
-                $join->on('vendor_accounts.id', '=', "{$table}.vendor_account_id")
-                    ->where('vendor_accounts.status', '=', 'active');
-            })
-            ->select("{$table}.*");
+            ->whereExists(function ($subquery) use ($table) {
+                $subquery->selectRaw('1')
+                    ->from('vendor_accounts')
+                    ->whereColumn('vendor_accounts.id', "{$table}.vendor_account_id")
+                    ->where('vendor_accounts.status', 'active');
+            });
     }
 
     /**
