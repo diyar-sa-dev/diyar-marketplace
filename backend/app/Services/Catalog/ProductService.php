@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -380,12 +379,26 @@ final class ProductService
             $raw = mb_substr((string) $filters['q'], 0, 120);
 
             if (DB::connection()->getDriverName() === 'mysql') {
-                $query->whereFullText(['name', 'description'], $raw);
+                $clean = preg_replace('/[+\-><()~*"@]/u', ' ', $raw);
+                $booleanQuery = collect(preg_split('/\s+/u', (string) $clean))
+                    ->filter(fn ($t) => mb_strlen((string) $t) > 0)
+                    ->map(fn ($t) => '+'.$t.'*')
+                    ->implode(' ');
+
+                $query->where(function (Builder $q) use ($raw, $booleanQuery) {
+                    if ($booleanQuery !== '') {
+                        $q->whereRaw(
+                            'MATCH(products.name, products.description) AGAINST (? IN BOOLEAN MODE)',
+                            [$booleanQuery]
+                        );
+                    }
+                    $q->orWhere('products.name', 'like', '%'.$raw.'%');
+                });
             } else {
                 $term = '%'.$raw.'%';
                 $query->where(function (Builder $q) use ($term) {
-                    $q->where('name', 'like', $term)
-                        ->orWhere('description', 'like', $term);
+                    $q->where('products.name', 'like', $term)
+                        ->orWhere('products.description', 'like', $term);
                 });
             }
         }
@@ -460,13 +473,13 @@ final class ProductService
             '-price' => $query->orderByDesc('sale_price'),
             'name' => $query->orderBy('name'),
             '-name' => $query->orderByDesc('name'),
-            'created_at' => $query->oldest(),
-            '-created_at' => $query->latest(),
+            'created_at' => $query->oldest('products.created_at'),
+            '-created_at' => $query->latest('products.created_at'),
             'discount', '-discount' => $query
-                ->orderByRaw('(compare_price - sale_price) '.($sort === '-discount' ? 'DESC' : 'ASC'))
-                ->latest(),
+                ->orderBy('discount_amount', $sort === '-discount' ? 'desc' : 'asc')
+                ->latest('products.created_at'),
             'popular', '-popular' => $this->applyPopularSort($query, $sort),
-            default => $query->latest(),
+            default => $query->latest('products.created_at'),
         };
     }
 
@@ -475,11 +488,7 @@ final class ProductService
      */
     private function applyPopularSort(Builder $query, string $sort): void
     {
-        if (Schema::hasTable('product_likes')) {
-            $query->withCount('likes')->orderBy('likes_count', $sort === '-popular' ? 'desc' : 'asc');
-        } else {
-            $query->latest();
-        }
+        $query->withCount('likes')->orderBy('likes_count', $sort === '-popular' ? 'desc' : 'asc');
     }
 
     private function isTruthy(mixed $value): bool

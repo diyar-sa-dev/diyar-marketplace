@@ -59,6 +59,7 @@ class Product extends Model
         return [
             'sale_price' => 'decimal:2',
             'compare_price' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
             'promotion_ends_at' => 'datetime',
             'width' => 'decimal:2',
             'height' => 'decimal:2',
@@ -137,12 +138,12 @@ class Product extends Model
     public function scopePubliclyVisible($query)
     {
         return $query
-            ->where('status', ProductStatus::Active)
-            ->whereIn('vendor_account_id', function ($subquery) {
-                $subquery->select('id')
-                    ->from('vendor_accounts')
-                    ->where('status', 'active');
-            });
+            ->where('products.status', ProductStatus::Active)
+            ->join('vendor_accounts', function ($join) {
+                $join->on('vendor_accounts.id', '=', 'products.vendor_account_id')
+                    ->where('vendor_accounts.status', '=', 'active');
+            })
+            ->select('products.*');
     }
 
     /**

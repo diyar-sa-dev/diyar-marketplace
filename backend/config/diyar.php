@@ -82,6 +82,7 @@ return [
         'cache' => [
             'search_facets_seconds' => (int) env('DIYAR_CATALOG_SEARCH_FACETS_CACHE_SECONDS', 300),
             'search_suggestions_seconds' => (int) env('DIYAR_CATALOG_SEARCH_SUGGESTIONS_CACHE_SECONDS', 45),
+            'search_results_seconds' => (int) env('DIYAR_CATALOG_SEARCH_RESULTS_CACHE_SECONDS', 60),
         ],
     ],
 

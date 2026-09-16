@@ -64,7 +64,6 @@ use App\Http\Controllers\Api\V1\Catalog\CategoryController;
 use App\Http\Controllers\Api\V1\Catalog\ProductController;
 use App\Http\Controllers\Api\V1\Catalog\ProductEngagementController;
 use App\Http\Controllers\Api\V1\Catalog\ProductPreorderController;
-use App\Http\Controllers\Api\V1\Catalog\SearchController;
 use App\Http\Controllers\Api\V1\Catalog\StoreReviewController;
 use App\Http\Controllers\Api\V1\Catalog\VendorController;
 use App\Http\Controllers\Api\V1\Catalog\VendorFollowController;
@@ -136,6 +135,7 @@ use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceEngagementController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceOfferController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceRequestController;
+use App\Http\Controllers\Api\V1\Storefront\HomeStorefrontController;
 use App\Http\Controllers\Api\V1\WebsiteFeedbackController;
 use Illuminate\Support\Facades\Route;
 
@@ -185,14 +185,14 @@ Route::post('/webhooks/payments/fake', FakePaymentWebhookController::class)
     ->middleware('throttle:webhooks')
     ->name('api.v1.webhooks.payments.fake');
 
-Route::get('/storefront/home', [\App\Http\Controllers\Api\V1\Storefront\HomeStorefrontController::class, 'show']);
+Route::get('/storefront/home', [HomeStorefrontController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{slug}', [CategoryController::class, 'show']);
 Route::get('/categories/{slug}/items', [CategoryController::class, 'items']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/products/{id}/reviews', [ProductEngagementController::class, 'reviews']);
-Route::get('/search', SearchController::class)->middleware('throttle:catalog-search');
+Route::get('/search', CatalogSearchController::class)->middleware('throttle:catalog-search');
 Route::get('/catalog/search', CatalogSearchController::class)->middleware('throttle:catalog-search');
 Route::get('/catalog/search/suggestions', CatalogSearchSuggestionsController::class)->middleware('throttle:catalog-search-suggestions');
 Route::get('/vendors', [VendorController::class, 'index']);

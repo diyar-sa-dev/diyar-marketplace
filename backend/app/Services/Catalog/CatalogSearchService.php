@@ -47,13 +47,11 @@ final class CatalogSearchService
         ];
 
         if ($type === 'all' || $type === 'products') {
-            $productPaginator = $this->products->listPublic($this->productFilters($filters), $user);
-            $payload['products'] = $this->paginatedPayload($productPaginator, ProductCardResource::class);
+            $payload['products'] = $this->cachedProductResults($filters, $user);
         }
 
         if ($type === 'all' || $type === 'services') {
-            $servicePaginator = $this->services->listPublic($this->serviceFilters($filters), $user);
-            $payload['services'] = $this->paginatedPayload($servicePaginator, ServiceCardResource::class);
+            $payload['services'] = $this->cachedServiceResults($filters, $user);
         }
 
         return $payload;
@@ -73,13 +71,63 @@ final class CatalogSearchService
         return StampedeSafeCache::remember(
             $cacheKey,
             $ttlSeconds,
-            fn (): array => [
-                'vendors' => $this->vendorFacets($filters),
-                'categories' => $this->categoryFacets($filters),
-                'colors' => $this->colorFacets($filters),
-            ],
+            function () use ($filters): array {
+                [$vendors, $colors] = $this->productFacets($filters);
+
+                return [
+                    'vendors' => $vendors,
+                    'categories' => $this->categoryFacets($filters),
+                    'colors' => $colors,
+                ];
+            },
             'lock:'.$cacheKey,
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return array{items: mixed, pagination: array<string, int>}
+     */
+    private function cachedProductResults(array $filters, ?User $user): array
+    {
+        if ($user !== null) {
+            $paginator = $this->products->listPublic($this->productFilters($filters), $user);
+
+            return $this->paginatedPayload($paginator, ProductCardResource::class);
+        }
+
+        $version = VersionedCache::version(CacheKeys::CATALOG_VERSION);
+        $cacheKey = 'diyar:catalog:search:products:v1:'.$version.':'.md5(json_encode($this->productFilters($filters)));
+        $ttl = (int) config('diyar.catalog.cache.search_results_seconds', 60);
+
+        return StampedeSafeCache::remember($cacheKey, $ttl, function () use ($filters): array {
+            $paginator = $this->products->listPublic($this->productFilters($filters));
+
+            return $this->paginatedPayload($paginator, ProductCardResource::class);
+        }, 'lock:'.$cacheKey);
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return array{items: mixed, pagination: array<string, int>}
+     */
+    private function cachedServiceResults(array $filters, ?User $user): array
+    {
+        if ($user !== null) {
+            $paginator = $this->services->listPublic($this->serviceFilters($filters), $user);
+
+            return $this->paginatedPayload($paginator, ServiceCardResource::class);
+        }
+
+        $version = VersionedCache::version(CacheKeys::CATALOG_VERSION);
+        $cacheKey = 'diyar:catalog:search:services:v1:'.$version.':'.md5(json_encode($this->serviceFilters($filters)));
+        $ttl = (int) config('diyar.catalog.cache.search_results_seconds', 60);
+
+        return StampedeSafeCache::remember($cacheKey, $ttl, function () use ($filters): array {
+            $paginator = $this->services->listPublic($this->serviceFilters($filters));
+
+            return $this->paginatedPayload($paginator, ServiceCardResource::class);
+        }, 'lock:'.$cacheKey);
     }
 
     /**
@@ -102,7 +150,7 @@ final class CatalogSearchService
             'availability_mode' => $filters['availability_mode'] ?? null,
             'discounted' => $filters['discounted'] ?? null,
             'sort' => $this->mapProductSort($filters['sort'] ?? null),
-            'page' => $filters['page'] ?? 1,
+            'page' => $filters['product_page'] ?? $filters['page'] ?? 1,
             'per_page' => $filters['per_page'] ?? 24,
         ], fn ($value) => $value !== null && $value !== '');
     }
@@ -142,7 +190,7 @@ final class CatalogSearchService
             'min_price' => $filters['min_price'] ?? null,
             'max_price' => $filters['max_price'] ?? null,
             'sort' => $this->mapServiceSort($filters['sort'] ?? null),
-            'page' => $filters['page'] ?? 1,
+            'page' => $filters['service_page'] ?? $filters['page'] ?? 1,
             'per_page' => $filters['per_page'] ?? 24,
         ], fn ($value) => $value !== null && $value !== '');
     }
@@ -188,19 +236,22 @@ final class CatalogSearchService
 
     /**
      * @param  array<string, mixed>  $filters
-     * @return list<array{id: string, store_name: string, slug: string, product_count: int}>
+     * @return array{0: list<array{id: string, store_name: string, slug: string, product_count: int}>, 1: list<array{name: string, hex_code: string|null}>}
      */
-    private function vendorFacets(array $filters): array
+    private function productFacets(array $filters): array
     {
         $facetFilters = $this->filtersForFacets($filters);
 
-        $query = Product::query()->publiclyVisible();
-        $this->products->applyPublicFilters($query, $this->productFilters($facetFilters));
+        $baseQuery = Product::query()
+            ->publiclyVisible()
+            ->tap(fn (Builder $q) => $this->products->applyPublicFilters($q, $this->productFilters($facetFilters)));
 
-        $rows = $query
+        // 1. Vendor facet aggregation
+        $rows = (clone $baseQuery)
             ->reorder()
-            ->selectRaw('vendor_account_id, COUNT(*) as product_count')
-            ->groupBy('vendor_account_id')
+            ->select('products.vendor_account_id')
+            ->selectRaw('COUNT(*) as product_count')
+            ->groupBy('products.vendor_account_id')
             ->orderByDesc('product_count')
             ->limit(self::FACET_VENDOR_LIMIT)
             ->get();
@@ -211,7 +262,7 @@ final class CatalogSearchService
             ->get(['id', 'business_name', 'slug'])
             ->keyBy('id');
 
-        return $rows
+        $vendorList = $rows
             ->map(function ($row) use ($vendors) {
                 $vendor = $vendors->get($row->vendor_account_id);
                 if ($vendor === null) {
@@ -228,6 +279,27 @@ final class CatalogSearchService
             ->filter()
             ->values()
             ->all();
+
+        // 2. Color facet aggregation
+        $productIds = (clone $baseQuery)->reorder()->limit(500)->pluck('products.id');
+
+        $colors = [];
+        if ($productIds->isNotEmpty()) {
+            $colors = ProductColor::query()
+                ->whereIn('product_id', $productIds)
+                ->select(['name', 'hex_code'])
+                ->distinct()
+                ->orderBy('name')
+                ->limit(self::FACET_COLOR_LIMIT)
+                ->get()
+                ->map(fn (ProductColor $color): array => [
+                    'name' => $color->name,
+                    'hex_code' => $color->hex_code,
+                ])
+                ->all();
+        }
+
+        return [$vendorList, $colors];
     }
 
     /**
@@ -236,47 +308,27 @@ final class CatalogSearchService
      */
     private function categoryFacets(array $filters): array
     {
+        $facetFilters = $this->filtersForFacets($filters);
+        unset($facetFilters['category_slug']);
+
+        $matchingCategoryIds = Product::query()
+            ->publiclyVisible()
+            ->tap(fn (Builder $q) => $this->products->applyPublicFilters($q, $this->productFilters($facetFilters)))
+            ->reorder()
+            ->select('products.category_id')
+            ->distinct()
+            ->pluck('products.category_id');
+
         return Category::query()
             ->active()
+            ->whereIn('id', $matchingCategoryIds)
             ->whereIn('type', ['product', 'both', 'service'])
             ->orderBy('sort_order')
             ->get(['slug', 'name', 'type'])
-            ->map(fn (Category $category) => [
+            ->map(fn (Category $category): array => [
                 'slug' => $category->slug,
                 'name' => $category->name,
                 'type' => $category->type->value ?? (string) $category->type,
-            ])
-            ->all();
-    }
-
-    /**
-     * @param  array<string, mixed>  $filters
-     * @return list<array{name: string, hex_code: string|null}>
-     */
-    private function colorFacets(array $filters): array
-    {
-        $facetFilters = $this->filtersForFacets($filters);
-
-        $productIds = Product::query()
-            ->publiclyVisible()
-            ->tap(fn (Builder $query) => $this->products->applyPublicFilters($query, $this->productFilters($facetFilters)))
-            ->limit(500)
-            ->pluck('id');
-
-        if ($productIds->isEmpty()) {
-            return [];
-        }
-
-        return ProductColor::query()
-            ->whereIn('product_id', $productIds)
-            ->select(['name', 'hex_code'])
-            ->distinct()
-            ->orderBy('name')
-            ->limit(self::FACET_COLOR_LIMIT)
-            ->get()
-            ->map(fn (ProductColor $color) => [
-                'name' => $color->name,
-                'hex_code' => $color->hex_code,
             ])
             ->all();
     }
@@ -292,6 +344,8 @@ final class CatalogSearchService
         $facetFilters = $filters;
         unset(
             $facetFilters['page'],
+            $facetFilters['product_page'],
+            $facetFilters['service_page'],
             $facetFilters['per_page'],
             $facetFilters['vendor_id'],
             $facetFilters['vendor_slug'],

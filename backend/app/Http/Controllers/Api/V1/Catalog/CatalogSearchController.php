@@ -25,16 +25,28 @@ class CatalogSearchController extends Controller
 
         $query = trim((string) ($filters['q'] ?? ''));
         if ($query !== '') {
-            $this->analytics->record(
+            $userId = $request->user()?->id;
+            $sessionId = $request->header('X-Search-Session');
+            $locale = $request->getPreferredLanguage();
+            $resultCount = $this->analytics->countResults($payload);
+            $searchType = (string) ($filters['type'] ?? 'all');
+
+            $recordCallback = fn () => $this->analytics->record(
                 query: $query,
-                searchType: (string) ($filters['type'] ?? 'all'),
-                resultCount: $this->analytics->countResults($payload),
-                userId: $request->user()?->id,
-                sessionId: $request->header('X-Search-Session'),
-                locale: $request->getPreferredLanguage(),
+                searchType: $searchType,
+                resultCount: $resultCount,
+                userId: $userId,
+                sessionId: $sessionId,
+                locale: $locale,
                 filters: $filters,
                 durationMs: $durationMs,
             );
+
+            if (app()->runningUnitTests()) {
+                $recordCallback();
+            } else {
+                app()->terminating($recordCallback);
+            }
         }
 
         return ApiResponse::success(data: $payload);

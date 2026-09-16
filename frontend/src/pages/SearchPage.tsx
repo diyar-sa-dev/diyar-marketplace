@@ -166,6 +166,8 @@ export default function SearchPage() {
 
       if (resetPage) {
         next.delete('page');
+        next.delete('product_page');
+        next.delete('service_page');
       }
 
       setSearchParams(next, { replace: true });
@@ -303,11 +305,11 @@ export default function SearchPage() {
         {productPagination && (
           <PaginationBar
             pagination={productPagination}
-            page={filters.page ?? 1}
+            page={filters.product_page ?? filters.page ?? 1}
             perPage={filters.per_page ?? 48}
             perPageOptions={[...PER_PAGE_OPTIONS]}
-            onPageChange={(page) => updateFilters({ page }, false)}
-            onPerPageChange={(perPage) => updateFilters({ per_page: perPage, page: 1 }, false)}
+            onPageChange={(page) => updateFilters({ product_page: page }, false)}
+            onPerPageChange={(perPage) => updateFilters({ per_page: perPage, product_page: 1 }, false)}
             alwaysShow={productPagination.total > 0}
           />
         )}
@@ -333,11 +335,11 @@ export default function SearchPage() {
         {servicePagination && (
           <PaginationBar
             pagination={servicePagination}
-            page={filters.page ?? 1}
+            page={filters.service_page ?? filters.page ?? 1}
             perPage={filters.per_page ?? 48}
             perPageOptions={[...PER_PAGE_OPTIONS]}
-            onPageChange={(page) => updateFilters({ page }, false)}
-            onPerPageChange={(perPage) => updateFilters({ per_page: perPage, page: 1 }, false)}
+            onPageChange={(page) => updateFilters({ service_page: page }, false)}
+            onPerPageChange={(perPage) => updateFilters({ per_page: perPage, service_page: 1 }, false)}
             alwaysShow={servicePagination.total > 0}
           />
         )}

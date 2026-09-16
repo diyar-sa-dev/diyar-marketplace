@@ -45,6 +45,8 @@ class CatalogSearchRequest extends FormRequest
                 'rating',
             ])],
             'page' => ['nullable', 'integer', 'min:1'],
+            'product_page' => ['nullable', 'integer', 'min:1'],
+            'service_page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
         ];
     }
