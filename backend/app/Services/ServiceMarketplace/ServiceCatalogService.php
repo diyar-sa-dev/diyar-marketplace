@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class ServiceCatalogService
@@ -18,7 +19,10 @@ final class ServiceCatalogService
     public function listPublic(array $filters = [], ?User $user = null): LengthAwarePaginator
     {
         $query = $this->publicQuery()
-            ->with(['providerAccount', 'category']);
+            ->with([
+                'providerAccount:id,business_name,slug,avatar_path,verified',
+                'category:id,name_ar,name_en,slug',
+            ]);
 
         $query->withUserSaved($user);
 
@@ -123,13 +127,35 @@ final class ServiceCatalogService
         }
 
         if (! empty($filters['q'])) {
-            $term = '%'.$filters['q'].'%';
-            $query->where(function (Builder $q) use ($term) {
-                $q->where('title', 'like', $term)
-                    ->orWhere('description', 'like', $term)
-                    ->orWhereHas('providerAccount', fn (Builder $provider) => $provider
-                        ->where('business_name', 'like', $term));
-            });
+            $raw = mb_substr((string) $filters['q'], 0, 120);
+
+            if (DB::connection()->getDriverName() === 'mysql') {
+                $clean = preg_replace('/[+\-><()~*"@]/u', ' ', $raw);
+                $booleanQuery = collect(preg_split('/\s+/u', (string) $clean))
+                    ->filter(fn ($t) => mb_strlen((string) $t) > 0)
+                    ->map(fn ($t) => '+'.$t.'*')
+                    ->implode(' ');
+
+                $query->where(function (Builder $q) use ($raw, $booleanQuery) {
+                    if ($booleanQuery !== '') {
+                        $q->whereRaw(
+                            'MATCH(services.title, services.description) AGAINST (? IN BOOLEAN MODE)',
+                            [$booleanQuery]
+                        );
+                    }
+                    $q->orWhere('services.title', 'like', '%'.$raw.'%')
+                        ->orWhereHas('providerAccount', fn (Builder $provider) => $provider
+                            ->where('business_name', 'like', '%'.$raw.'%'));
+                });
+            } else {
+                $term = '%'.$raw.'%';
+                $query->where(function (Builder $q) use ($term) {
+                    $q->where('services.title', 'like', $term)
+                        ->orWhere('services.description', 'like', $term)
+                        ->orWhereHas('providerAccount', fn (Builder $provider) => $provider
+                            ->where('business_name', 'like', $term));
+                });
+            }
         }
 
         if (! empty($filters['location'])) {

@@ -65,7 +65,6 @@ use App\Http\Controllers\Api\V1\Catalog\FilterSuggestionsController;
 use App\Http\Controllers\Api\V1\Catalog\ProductController;
 use App\Http\Controllers\Api\V1\Catalog\ProductEngagementController;
 use App\Http\Controllers\Api\V1\Catalog\ProductPreorderController;
-use App\Http\Controllers\Api\V1\Catalog\SearchController;
 use App\Http\Controllers\Api\V1\Catalog\StoreReviewController;
 use App\Http\Controllers\Api\V1\Catalog\VendorController;
 use App\Http\Controllers\Api\V1\Catalog\VendorFollowController;
@@ -201,7 +200,7 @@ Route::get('/categories/{slug}/items', [CategoryController::class, 'items']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/products/{id}/reviews', [ProductEngagementController::class, 'reviews']);
-Route::get('/search', SearchController::class)->middleware('throttle:catalog-search');
+Route::get('/search', CatalogSearchController::class)->middleware('throttle:catalog-search');
 Route::get('/catalog/search', CatalogSearchController::class)->middleware('throttle:catalog-search');
 Route::post('/search/visual', VisualSearchController::class)
     ->middleware('throttle:visual-search')

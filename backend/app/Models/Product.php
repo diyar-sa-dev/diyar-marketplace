@@ -59,6 +59,7 @@ class Product extends Model
         return [
             'sale_price' => 'decimal:2',
             'compare_price' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
             'promotion_ends_at' => 'datetime',
             'width' => 'decimal:2',
             'height' => 'decimal:2',
@@ -140,11 +141,11 @@ class Product extends Model
 
         return $query
             ->where("{$table}.status", ProductStatus::Active)
-            ->whereIn("{$table}.vendor_account_id", function ($subquery) {
-                $subquery->select('id')
-                    ->from('vendor_accounts')
-                    ->where('status', 'active');
-            });
+            ->join('vendor_accounts', function ($join) use ($table) {
+                $join->on('vendor_accounts.id', '=', "{$table}.vendor_account_id")
+                    ->where('vendor_accounts.status', '=', 'active');
+            })
+            ->select("{$table}.*");
     }
 
     /**

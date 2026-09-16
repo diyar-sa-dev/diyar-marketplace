@@ -10,6 +10,7 @@ use App\Support\Cache\CacheKeys;
 use App\Support\Cache\StampedeSafeCache;
 use App\Support\Cache\VersionedCache;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 final class CatalogSearchSuggestionService
 {
@@ -40,26 +41,30 @@ final class CatalogSearchSuggestionService
             $cacheKey,
             $ttlSeconds,
             function () use ($normalized, $limit): array {
-                $prefix = $normalized.'%';
-                $contains = '%'.$normalized.'%';
+                if (DB::connection()->getDriverName() === 'mysql') {
+                    $suggestions = $this->combinedSuggestions($normalized, $limit);
+                } else {
+                    $prefix = $normalized.'%';
+                    $contains = '%'.$normalized.'%';
 
-                $suggestions = collect()
-                    ->merge($this->productSuggestions($prefix, $contains, min(4, $limit)))
-                    ->merge($this->vendorSuggestions($prefix, $contains, min(2, $limit)))
-                    ->merge($this->categorySuggestions($prefix, $contains, min(2, $limit)))
-                    ->merge($this->serviceSuggestions($prefix, $contains, min(2, $limit)))
-                    ->sortByDesc('score')
-                    ->values()
-                    ->take($limit)
-                    ->map(fn (array $item): array => [
-                        'id' => $item['id'],
-                        'type' => $item['type'],
-                        'label' => $item['label'],
-                        'slug' => $item['slug'],
-                        'subtitle' => $item['subtitle'],
-                        'href' => $item['href'],
-                    ])
-                    ->all();
+                    $suggestions = collect()
+                        ->merge($this->productSuggestions($prefix, $contains, min(4, $limit)))
+                        ->merge($this->vendorSuggestions($prefix, $contains, min(2, $limit)))
+                        ->merge($this->categorySuggestions($prefix, $contains, min(2, $limit)))
+                        ->merge($this->serviceSuggestions($prefix, $contains, min(2, $limit)))
+                        ->sortByDesc('score')
+                        ->values()
+                        ->take($limit)
+                        ->map(fn (array $item): array => [
+                            'id' => $item['id'],
+                            'type' => $item['type'],
+                            'label' => $item['label'],
+                            'slug' => $item['slug'],
+                            'subtitle' => $item['subtitle'],
+                            'href' => $item['href'],
+                        ])
+                        ->all();
+                }
 
                 return [
                     'query' => $normalized,
@@ -71,19 +76,91 @@ final class CatalogSearchSuggestionService
     }
 
     /**
+     * @return list<array{id: string, type: string, label: string, slug: string, subtitle: string|null, href: string}>
+     */
+    private function combinedSuggestions(string $normalized, int $limit): array
+    {
+        $prefix = $normalized.'%';
+        $contains = '%'.$normalized.'%';
+
+        $sql = <<<'SQL'
+            (SELECT p.id, 'product' AS entity_type, p.name AS label, p.slug,
+                    CONCAT(CAST(p.sale_price AS UNSIGNED), ' SAR') AS subtitle,
+                    CONCAT('/product/', p.slug) AS href,
+                    CASE WHEN p.name LIKE ? THEN 100 ELSE 80 END AS score
+             FROM products p
+             JOIN vendor_accounts va ON va.id = p.vendor_account_id AND va.status = 'active'
+             WHERE p.status = 'active' AND p.deleted_at IS NULL
+               AND (p.name LIKE ? OR p.name LIKE ?)
+             ORDER BY score DESC, p.created_at DESC
+             LIMIT ?)
+            UNION ALL
+            (SELECT id, 'vendor', business_name, slug, NULL,
+                    CONCAT('/store/', slug),
+                    CASE WHEN business_name LIKE ? THEN 90 ELSE 70 END
+             FROM vendor_accounts
+             WHERE status = 'active'
+               AND (business_name LIKE ? OR business_name LIKE ?)
+             ORDER BY CASE WHEN business_name LIKE ? THEN 0 ELSE 1 END
+             LIMIT ?)
+            UNION ALL
+            (SELECT id, 'category', name, slug, NULL,
+                    CONCAT('/category/', slug),
+                    CASE WHEN name LIKE ? THEN 85 ELSE 65 END
+             FROM categories
+             WHERE is_active = 1
+               AND (name LIKE ? OR name LIKE ?)
+             ORDER BY CASE WHEN name LIKE ? THEN 0 ELSE 1 END, sort_order
+             LIMIT ?)
+            UNION ALL
+            (SELECT s.id, 'service', s.title, s.slug,
+                    CASE WHEN s.starting_price IS NOT NULL
+                         THEN CONCAT('من ', CAST(s.starting_price AS UNSIGNED), ' SAR')
+                         ELSE NULL END,
+                    CONCAT('/service/', s.slug),
+                    CASE WHEN s.title LIKE ? THEN 75 ELSE 60 END
+             FROM services s
+             JOIN provider_accounts pa ON pa.id = s.provider_account_id AND pa.status = 'active'
+             WHERE s.is_active = 1
+               AND (s.title LIKE ? OR s.title LIKE ?)
+             ORDER BY CASE WHEN s.title LIKE ? THEN 0 ELSE 1 END, s.requests_count DESC
+             LIMIT ?)
+            ORDER BY score DESC
+            LIMIT ?
+        SQL;
+
+        $rows = DB::select($sql, [
+            $prefix, $prefix, $contains, min(4, $limit),
+            $prefix, $prefix, $contains, $prefix, min(2, $limit),
+            $prefix, $prefix, $contains, $prefix, min(2, $limit),
+            $prefix, $prefix, $contains, $prefix, min(2, $limit),
+            $limit,
+        ]);
+
+        return array_map(static fn (object $item): array => [
+            'id' => (string) $item->id,
+            'type' => (string) $item->entity_type,
+            'label' => (string) $item->label,
+            'slug' => (string) $item->slug,
+            'subtitle' => $item->subtitle !== null ? (string) $item->subtitle : null,
+            'href' => (string) $item->href,
+        ], $rows);
+    }
+
+    /**
      * @return list<array{id: string, type: string, label: string, slug: string, subtitle: string|null, href: string, score: int}>
      */
     private function productSuggestions(string $prefix, string $contains, int $limit): array
     {
         return Product::query()
             ->publiclyVisible()
-            ->select(['id', 'name', 'slug', 'sale_price'])
+            ->select(['products.id', 'products.name', 'products.slug', 'products.sale_price'])
             ->where(function (Builder $query) use ($prefix, $contains): void {
-                $query->where('name', 'like', $prefix)
-                    ->orWhere('name', 'like', $contains);
+                $query->where('products.name', 'like', $prefix)
+                    ->orWhere('products.name', 'like', $contains);
             })
-            ->orderByRaw('CASE WHEN name LIKE ? THEN 0 ELSE 1 END', [$prefix])
-            ->orderByDesc('created_at')
+            ->orderByRaw('CASE WHEN products.name LIKE ? THEN 0 ELSE 1 END', [$prefix])
+            ->orderByDesc('products.created_at')
             ->limit($limit)
             ->get()
             ->map(fn (Product $product): array => [
@@ -176,8 +253,8 @@ final class CatalogSearchSuggestionService
                 'label' => (string) $service->title,
                 'slug' => (string) $service->slug,
                 'subtitle' => $service->starting_price !== null
-                  ? 'من '.number_format((float) $service->starting_price, 0).' SAR'
-                  : null,
+                    ? 'من '.number_format((float) $service->starting_price, 0).' SAR'
+                    : null,
                 'href' => '/service/'.(string) $service->slug,
                 'score' => str_starts_with(mb_strtolower((string) $service->title), mb_strtolower(rtrim($prefix, '%'))) ? 75 : 60,
             ])
