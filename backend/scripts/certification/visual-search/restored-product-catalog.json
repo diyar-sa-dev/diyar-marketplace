@@ -1,0 +1,90 @@
+{
+  "01a00acb-7fb4-733c-a3bb-c2793fbfaa03": {
+    "name": "طقم غرفة نوم بانوراما",
+    "category": "bedroom",
+    "sale_price": 4299,
+    "compare_price": 4799,
+    "description": "طقم غرفة نوم كامل من متجر ديار للأثاث — سرير، دولاب، وتسريحة بتصميم عصري.",
+    "color": { "name": "خشبي فاتح", "hex": "#C4A882" }
+  },
+  "01a00ad9-3019-70a0-8dda-4dab67cba8ed": {
+    "name": "طقم غرفة نوم ملكي",
+    "category": "bedroom",
+    "sale_price": 3899,
+    "compare_price": 4299,
+    "description": "طقم غرفة نوم فاخر بخامات عالية الجودة وتشطيبات أنيقة.",
+    "color": { "name": "كريمي", "hex": "#F5F5DC" }
+  },
+  "01a00ae1-dfe7-7118-8d24-4b7e35c24a3b": {
+    "name": "كومودينو خشبي",
+    "category": "bedroom",
+    "sale_price": 649,
+    "compare_price": null,
+    "description": "كومودينو بجانب السرير بتصميم بسيط وعملي.",
+    "color": { "name": "بني", "hex": "#8B4513" }
+  },
+  "01a00e8a-53c0-70b5-a4e8-b01e8e0f164f": {
+    "name": "سرير أطفال مودرن",
+    "category": "bedroom",
+    "sale_price": 1599,
+    "compare_price": 1799,
+    "description": "سرير أطفال آمن ومريح يناسب غرف النوم العصرية.",
+    "color": { "name": "أبيض", "hex": "#FFFFFF" }
+  },
+  "01a00eb3-57b5-735c-ac57-af54d066879a": {
+    "name": "تسريحة غرفة نوم",
+    "category": "bedroom",
+    "sale_price": 1199,
+    "compare_price": null,
+    "description": "تسريحة أنيقة مع مرآة وتخزين عملي لغرفة النوم.",
+    "color": { "name": "رمادي", "hex": "#9CA3AF" }
+  },
+  "01a00ef4-ed59-7365-8e0d-9e6b8ee94c4e": {
+    "name": "دولاب ملابس مدمج",
+    "category": "bedroom",
+    "sale_price": 2799,
+    "compare_price": 3099,
+    "description": "دولاب ملابس بمساحة تخزين واسعة وتصميم مدمج.",
+    "color": { "name": "خشبي", "hex": "#8B7355" }
+  },
+  "01a02d89-3b0f-7334-b972-55731d3dc4c3": {
+    "name": "طاولة زاوية للصالة",
+    "category": "living-room",
+    "sale_price": 899,
+    "compare_price": null,
+    "description": "طاولة زاوية عملية تستغل المساحة في غرفة المعيشة.",
+    "color": { "name": "بيج", "hex": "#F5F5DC" }
+  },
+  "01a05183-f04d-70c5-b7f6-c3212298c17c": {
+    "name": "خزانة أحذية",
+    "category": "bedroom",
+    "sale_price": 749,
+    "compare_price": 899,
+    "description": "خزانة أحذية بتصميم مرتب يناسب المداخل وغرف النوم.",
+    "color": { "name": "أبيض", "hex": "#FFFFFF" }
+  },
+  "01a051da-baa9-7252-a4bc-f4ba6988f88c": {
+    "name": "سرير كينگ مع لوح رأس",
+    "category": "bedroom",
+    "sale_price": 2199,
+    "compare_price": 2499,
+    "description": "سرير كينگ مريح مع لوح رأس أنيق من مجموعة ديار.",
+    "color": { "name": "رمادي داكن", "hex": "#4B5563" }
+  },
+  "01a052b9-6a2e-73af-a96b-a55a17eed37e": {
+    "name": "سرير كينگ مخملي",
+    "category": "bedroom",
+    "sale_price": 2399,
+    "compare_price": 2699,
+    "description": "سرير كينگ بتنجيد مخملي فاخر وإطار متين.",
+    "color": { "name": "بيج مخملي", "hex": "#D6CFC4" }
+  },
+  "01a057d4-5a88-7208-ae5c-f28db2c28f66": {
+    "name": "غرفة نوم ماستر",
+    "category": "bedroom",
+    "sale_price": 3599,
+    "compare_price": 3999,
+    "description": "تشكيلة غرفة نوم ماستر متكاملة بأسلوب عصري.",
+    "color": { "name": "خشبي غامق", "hex": "#5C4033" }
+  }
+}

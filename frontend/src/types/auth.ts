@@ -16,6 +16,7 @@ export type AuthUser = {
   status: 'pending' | 'active' | 'suspended' | 'rejected';
   phone_verified_at: string | null;
   email_verified_at: string | null;
+  two_factor_enabled?: boolean;
   roles?: UserRole[];
   vendor_account?: {
     id: string;
@@ -49,6 +50,11 @@ export type VerifyOtpPayload = {
 
 export type VerifyEmailOtpPayload = {
   email: string;
+  code: string;
+};
+
+export type VerifyTwoFactorPayload = {
+  challenge_id: string;
   code: string;
 };
 

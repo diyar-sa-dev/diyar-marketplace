@@ -9,7 +9,6 @@ services:
     command: ['php', 'artisan', 'octane:start', '--server=swoole', '--host=0.0.0.0', '--port=8000', '--workers=${OCTANE_WORKERS:-2}', '--task-workers=1', '--max-requests=500']
     volumes:
       - diyar_storage:/var/www/html/storage
-      - ./deploy/php/fpm-pool-kvm2.conf:/dev/null
     environment:
       OCTANE_WORKERS: ${OCTANE_WORKERS:-2}
 

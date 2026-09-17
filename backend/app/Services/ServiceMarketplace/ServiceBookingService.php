@@ -14,6 +14,7 @@ use App\Models\ServiceBooking;
 use App\Models\ServiceBookingPayment;
 use App\Models\ServiceOffer;
 use App\Models\User;
+use App\Support\ServiceMarketplace\ProviderSelfInteractionGuard;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -60,6 +61,10 @@ final class ServiceBookingService
 
         if ($request->booking()->exists()) {
             throw new InvalidArgumentException(__('diyar.services.bookings.already_exists'));
+        }
+
+        if ($request->service !== null) {
+            ProviderSelfInteractionGuard::assertNotOwnProviderService($user, $request->service);
         }
 
         return DB::transaction(function () use ($user, $offer, $request, $payload) {

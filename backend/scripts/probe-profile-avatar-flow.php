@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
+use App\Http\Resources\ProfileResource;
 use App\Models\User;
 use App\Services\Profile\ProfileService;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 
 require __DIR__.'/../vendor/autoload.php';
 $app = require __DIR__.'/../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $user = User::query()->where('email', 'customer@diyar.local')->first();
 if ($user === null) {
@@ -27,7 +29,7 @@ $file = new UploadedFile($tmp, 'avatar.png', 'image/png', null, true);
 try {
     $profile = app(ProfileService::class);
     $updated = $profile->uploadAvatar($user, $file);
-    $resource = new App\Http\Resources\ProfileResource($updated);
+    $resource = new ProfileResource($updated);
     $payload = $resource->toArray(request());
     echo 'avatar_url='.$payload['avatar_url']."\n";
     echo "ok\n";

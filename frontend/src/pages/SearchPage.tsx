@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Camera,
   ChevronLeft,
@@ -25,6 +25,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { fetchCatalogSearch } from '../api/catalogSearch.ts';
 import { useDebouncedValue } from '../hooks/useDebouncedValue.ts';
 import { usePlatformCommerce } from '../hooks/usePlatformCommerce.ts';
+import { usePlatformSearch } from '../hooks/usePlatformSearch.ts';
 import {
   hasCatalogSearchContext,
   normalizeCatalogSearchFilters,
@@ -35,9 +36,30 @@ import { usePageSeo } from '../hooks/usePageSeo.ts';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock.ts';
 import { mapProductCard } from '../lib/catalogMappers.ts';
 import { SearchAutocomplete } from '../components/search/SearchAutocomplete.tsx';
+import { SuggestedFiltersSection } from '../components/search/SuggestedFiltersSection.tsx';
+import { useFilterSuggestions } from '../hooks/catalog/useFilterSuggestions.ts';
+import { applyFilterSuggestion } from '../lib/applyFilterSuggestion.ts';
+import { suggestionSectionKey } from '../lib/filterSuggestionContext.ts';
 import type { CatalogSearchFilters } from '../types/catalogSearch.ts';
-
-const VISUAL_SEARCH_QUERY = 'visual_search_results';
+import type { FilterSuggestionItem } from '../types/filterSuggestions.ts';
+import {
+  VISUAL_SEARCH_DEFAULT_PER_PAGE,
+  VISUAL_SEARCH_QUERY,
+  type VisualSearchLocationState,
+  type VisualSearchResponse,
+} from '../types/visualSearch.ts';
+import { ImageSearchModal } from '../components/modals/ImageSearchModal.tsx';
+import { VisualSearchResultsSection } from '../components/search/VisualSearchResultsSection.tsx';
+import { useVisualSearchResults } from '../hooks/useVisualSearchResults.ts';
+import {
+  buildVisualSearchLocationState,
+  buildVisualSearchPath,
+} from '../lib/visualSearchNavigation.ts';
+import {
+  getVisualSearchSession,
+  getVisualSearchPreviewUrl,
+  releaseVisualSearchSession,
+} from '../lib/visualSearchSession.ts';
 const PER_PAGE_OPTIONS = [12, 24, 36, 48] as const;
 const MAX_PRICE = 20000;
 
@@ -54,16 +76,95 @@ function readFiltersFromParams(
 
 export default function SearchPage() {
   const { t, dir } = useLocale();
-  const location = useLocation();
+  const location = useLocation() as { state?: VisualSearchLocationState | null };
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [draftFilters, setDraftFilters] = useState<CatalogSearchFilters | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [mobileSearchQuery, setMobileSearchQuery] = useState('');
+  const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
+  const navigate = useNavigate();
 
   const rawQuery = searchParams.get('q')?.replace(/\s+/g, ' ').trim() ?? '';
   const debouncedQuery = useDebouncedValue(rawQuery, 300);
   const isVisualSearch = rawQuery === VISUAL_SEARCH_QUERY;
+  const { loyaltySarPerPoint, loyaltyPointsPerUnit } = usePlatformCommerce();
+  const { visualSearchMinSimilarity, visualSearchMinSimilarityPercent } = usePlatformSearch();
+  const visualSearchState = location.state?.visualSearch;
+  const visualSearchId = searchParams.get('search_id');
+  const visualPage = Math.max(1, Number(searchParams.get('page') ?? 1) || 1);
+  const visualPerPage = Math.max(
+    1,
+    Number(searchParams.get('per_page') ?? VISUAL_SEARCH_DEFAULT_PER_PAGE) ||
+      VISUAL_SEARCH_DEFAULT_PER_PAGE,
+  );
+
+  const visualInitialResponse = useMemo((): VisualSearchResponse | undefined => {
+    if (!visualSearchState?.items?.length || !visualSearchState.meta) {
+      return undefined;
+    }
+
+    const pagination = visualSearchState.pagination ?? {
+      current_page: visualPage,
+      last_page: 1,
+      per_page: visualPerPage,
+      total: visualSearchState.items.length,
+    };
+
+    return {
+      success: true,
+      data: {
+        items: visualSearchState.items,
+        pagination,
+      },
+      meta: visualSearchState.meta,
+    };
+  }, [visualPage, visualPerPage, visualSearchState]);
+
+  const {
+    data: visualData,
+    isLoading: isVisualLoading,
+    isFetching: isVisualFetching,
+    isError: isVisualError,
+    error: visualError,
+    refetch: refetchVisualSearch,
+  } = useVisualSearchResults(
+    visualSearchId,
+    visualPage,
+    visualPerPage,
+    isVisualSearch,
+    visualInitialResponse,
+  );
+
+  const visualSession = getVisualSearchSession(visualSearchId);
+  const visualPreviewUrl = getVisualSearchPreviewUrl(visualSearchId);
+  const visualItems = visualData?.data.items ?? visualSearchState?.items ?? [];
+  const visualHighMatchCount = visualItems.filter(
+    (item) => (item.similarity ?? 0) >= visualSearchMinSimilarity,
+  ).length;
+  const visualPagination = visualData?.data.pagination ?? visualSearchState?.pagination;
+
+  const updateVisualPagination = useCallback(
+    (patch: { page?: number; per_page?: number }) => {
+      const next = new URLSearchParams(searchParams);
+      if (patch.page !== undefined) {
+        next.set('page', String(patch.page));
+      }
+      if (patch.per_page !== undefined) {
+        next.set('per_page', String(patch.per_page));
+        next.set('page', '1');
+      }
+      setSearchParams(next, { replace: true, state: location.state });
+    },
+    [location.state, searchParams, setSearchParams],
+  );
+
+  useEffect(() => {
+    if (!isVisualSearch) {
+      releaseVisualSearchSession(visualSearchId);
+    }
+  }, [isVisualSearch, visualSearchId]);
+
   const shouldFocusMobileSearch = Boolean(
     (location.state as { focusSearch?: boolean } | null)?.focusSearch,
   );
@@ -92,7 +193,6 @@ export default function SearchPage() {
   );
   usePageSeo(seo);
 
-  const { loyaltySarPerPoint, loyaltyPointsPerUnit } = usePlatformCommerce();
   const searchEnabled = !isVisualSearch && hasCatalogSearchContext(filters, rawQuery);
 
   const {
@@ -249,6 +349,54 @@ export default function SearchPage() {
   const panelFilters = draftFilters ?? filters;
   const debouncedPanelFilters = useDebouncedValue(panelFilters, 400);
 
+  const {
+    data: suggestionData,
+    isLoading: suggestionsLoading,
+    isError: suggestionsError,
+    isRefetching: suggestionsRefetching,
+    isSuggestionsEnabled,
+    refetch: refetchSuggestions,
+  } = useFilterSuggestions(
+    {
+      ...Object.fromEntries(searchParams.entries()),
+      type: debouncedPanelFilters.type ?? 'all',
+      q: debouncedQuery,
+    },
+    {
+      enabled: searchEnabled && !isVisualSearch,
+      debouncedQuery,
+    },
+  );
+
+  const suggestionSectionKeyValue = suggestionSectionKey({
+    type: debouncedPanelFilters.type ?? 'all',
+  });
+  const suggestionSection = suggestionData?.[suggestionSectionKeyValue];
+
+  const handleSuggestionSelect = (suggestion: FilterSuggestionItem) => {
+    if (!suggestion.apply) {
+      return;
+    }
+
+    if (suggestion.apply.mode === 'focus') {
+      document.getElementById('catalog-filter-price-range')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+      return;
+    }
+
+    const next = applyFilterSuggestion(new URLSearchParams(searchParams), suggestion.apply);
+    if (rawQuery) {
+      next.set('q', rawQuery);
+    }
+    setSearchParams(next, { replace: true });
+    setDraftFilters((current) => ({
+      ...(current ?? filters),
+      ...Object.fromEntries(next.entries()),
+    }));
+  };
+
   const { data: draftPreviewData } = useQuery({
     queryKey: ['search-page-draft-preview', debouncedPanelFilters],
     queryFn: () =>
@@ -375,7 +523,9 @@ export default function SearchPage() {
                 value={mobileSearchQuery}
                 onChange={setMobileSearchQuery}
                 onSubmit={submitMobileSearch}
-                showImageSearch={false}
+                showImageSearch
+                imageSearchDisabled={false}
+                onImageSearchClick={() => setIsImageSearchOpen(true)}
                 autoFocus={shouldFocusMobileSearch || !rawQuery}
               />
             </div>
@@ -408,6 +558,14 @@ export default function SearchPage() {
               </span>
             )}
           </h1>
+          {isVisualSearch && !isVisualLoading && !isVisualError && visualHighMatchCount > 0 ? (
+            <p className="text-gray-500 text-sm">
+              {t('catalog.search.visualSearchHighMatchCount', {
+                count: visualHighMatchCount,
+                percent: visualSearchMinSimilarityPercent,
+              })}
+            </p>
+          ) : null}
           {searchEnabled && !showInitialSkeleton && !isError && (
             <p className="text-gray-500 text-sm">
               {t('catalog.search.resultsCount', { count: displayTotalResults })}
@@ -422,25 +580,94 @@ export default function SearchPage() {
         </div>
 
         {isVisualSearch ? (
-          <EmptyState
-            title={t('catalog.search.visualSearchSoon')}
-            description={t('catalog.search.visualSearchSoonDescription')}
-          />
+          visualSearchId && (visualSession || visualSearchState) ? (
+            <VisualSearchResultsSection
+              previewUrl={visualPreviewUrl}
+              items={visualItems}
+              pagination={visualPagination}
+              page={visualPage}
+              perPage={visualPerPage}
+              isLoading={isVisualLoading}
+              isFetching={isVisualFetching}
+              isError={isVisualError}
+              error={visualError}
+              onRetry={() => {
+                void refetchVisualSearch();
+              }}
+              onPageChange={(page) => updateVisualPagination({ page })}
+              onPerPageChange={(perPage) => updateVisualPagination({ per_page: perPage })}
+              sarPerPoint={loyaltySarPerPoint}
+              pointsPerUnit={loyaltyPointsPerUnit}
+              minSimilarity={visualSearchMinSimilarity}
+              minSimilarityPercent={visualSearchMinSimilarityPercent}
+            />
+          ) : (
+            <EmptyState
+              title={t('catalog.search.visualSearchSoon')}
+              description={t('catalog.search.visualSearchSoonDescription')}
+            />
+          )
         ) : (
           <div className="flex flex-col md:flex-row gap-6 md:gap-8">
             <aside className="hidden md:block w-72 shrink-0 self-start">
               {showInitialSkeleton && searchEnabled ? (
                 <SearchFiltersSkeleton />
               ) : (
-                <div className="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm">
-                  <CatalogSearchFiltersPanel
-                    filters={filters}
-                    facets={facets}
-                    onChange={updateFilters}
-                    onClear={clearFilters}
-                    maxPrice={MAX_PRICE}
-                    variant="plain"
-                  />
+                <div className="space-y-4">
+                  <div className="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm">
+                    <SuggestedFiltersSection
+                      suggestions={suggestionSection?.suggestions ?? []}
+                      initializedFilters={suggestionSection?.initialized_filters ?? []}
+                      displayMode={suggestionSection?.display_mode}
+                      degraded={suggestionSection?.degraded}
+                      isEnabled={isSuggestionsEnabled}
+                      isLoading={suggestionsLoading}
+                      isError={suggestionsError}
+                      isRefetching={suggestionsRefetching}
+                      onRetry={() => refetchSuggestions()}
+                      onSelect={(suggestion) => {
+                        if (!suggestion.apply) {
+                          return;
+                        }
+
+                        if (suggestion.apply.mode === 'focus') {
+                          document
+                            .getElementById('catalog-filter-price-range')
+                            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          return;
+                        }
+
+                        const next = applyFilterSuggestion(
+                          new URLSearchParams(searchParams),
+                          suggestion.apply,
+                        );
+                        if (rawQuery) {
+                          next.set('q', rawQuery);
+                        }
+                        setSearchParams(next, { replace: true });
+                      }}
+                      onFocusManual={() => {
+                        document.getElementById('catalog-filter-price-range')?.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'start',
+                        });
+                      }}
+                      compact
+                    />
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm">
+                    <h3 className="mb-3 text-sm font-bold text-diyar-dark">
+                      {t('catalog.search.suggestedFilters.allFiltersHeading')}
+                    </h3>
+                    <CatalogSearchFiltersPanel
+                      filters={filters}
+                      facets={facets}
+                      onChange={updateFilters}
+                      onClear={clearFilters}
+                      maxPrice={MAX_PRICE}
+                      variant="plain"
+                    />
+                  </div>
                 </div>
               )}
             </aside>
@@ -619,20 +846,44 @@ export default function SearchPage() {
                 <X size={18} />
               </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y p-4">
-              <CatalogSearchFiltersPanel
-                filters={panelFilters}
-                facets={facets}
-                onChange={(patch) =>
-                  setDraftFilters((current) => ({
-                    ...(current ?? filters),
-                    ...patch,
-                  }))
-                }
-                onClear={() => setDraftFilters({ q: rawQuery || undefined })}
-                maxPrice={MAX_PRICE}
-                variant="plain"
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y p-4 space-y-6">
+              <SuggestedFiltersSection
+                suggestions={suggestionSection?.suggestions ?? []}
+                initializedFilters={suggestionSection?.initialized_filters ?? []}
+                displayMode={suggestionSection?.display_mode}
+                degraded={suggestionSection?.degraded}
+                isEnabled={isSuggestionsEnabled}
+                isLoading={suggestionsLoading}
+                isError={suggestionsError}
+                isRefetching={suggestionsRefetching}
+                onRetry={() => refetchSuggestions()}
+                onSelect={handleSuggestionSelect}
+                onFocusManual={() => {
+                  document.getElementById('catalog-filter-price-range')?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                  });
+                }}
+                compact
               />
+              <div className="border-t border-gray-100 pt-2">
+                <h3 className="mb-3 text-sm font-bold text-diyar-dark">
+                  {t('catalog.search.suggestedFilters.allFiltersHeading')}
+                </h3>
+                <CatalogSearchFiltersPanel
+                  filters={panelFilters}
+                  facets={facets}
+                  onChange={(patch) =>
+                    setDraftFilters((current) => ({
+                      ...(current ?? filters),
+                      ...patch,
+                    }))
+                  }
+                  onClear={() => setDraftFilters({ q: rawQuery || undefined })}
+                  maxPrice={MAX_PRICE}
+                  variant="plain"
+                />
+              </div>
             </div>
             <div className="flex shrink-0 gap-3 border-t border-gray-100 bg-white p-4 pb-safe">
               <button
@@ -657,6 +908,17 @@ export default function SearchPage() {
           </div>
         </div>
       )}
+
+      <ImageSearchModal
+        isOpen={isImageSearchOpen}
+        onClose={() => setIsImageSearchOpen(false)}
+        onResults={(response: VisualSearchResponse) => {
+          setIsImageSearchOpen(false);
+          navigate(buildVisualSearchPath(response), {
+            state: buildVisualSearchLocationState(response),
+          });
+        }}
+      />
     </div>
   );
 }

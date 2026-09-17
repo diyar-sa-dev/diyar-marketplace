@@ -1,15 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import {
-  Search,
-  Star,
-  Filter,
-  Wrench,
-  LayoutDashboard,
-  Plus,
-  User,
-  Loader2,
-} from 'lucide-react';
+import { Search, Star, Filter, Wrench, LayoutDashboard, Plus, User, Loader2 } from 'lucide-react';
 import { RequestServiceModal } from '../components/modals/RequestServiceModal.tsx';
 import { ServiceRequestListCard } from '../components/services/ServiceRequestListCard.tsx';
 import { ServiceTypeBadge } from '../components/services/ServiceTypeBadge.tsx';
@@ -23,6 +14,10 @@ import { parsePriceDigits } from '../lib/priceInput.ts';
 import type { ServiceListFilters } from '../types/services.ts';
 import { serviceCategoryIcon, SERVICE_IMAGE_FALLBACK } from '../lib/services/serviceUi.ts';
 import { resolveServiceTypeLabel } from '../lib/serviceBookingDisplay.ts';
+import { HorizontalRail } from '../components/home/sections/HorizontalRail.tsx';
+
+const CATEGORY_CHIP =
+  'flex-none w-[7.25rem] snap-start sm:w-32 md:w-36 flex flex-col items-center justify-center rounded-2xl border p-4 sm:p-5 transition-all duration-300 cursor-pointer';
 
 const SERVICE_SORTS: ServiceListFilters['sort'][] = [
   'latest',
@@ -182,18 +177,26 @@ export default function ServicesPage() {
     isAuthenticated,
   );
 
-  const filters = useMemo(
-    () => ({
+  const filters = useMemo(() => {
+    let min = parsePriceDigits(minPrice);
+    let max = parsePriceDigits(maxPrice);
+
+    if (min !== undefined && max !== undefined && min > max) {
+      const temp = min;
+      min = max;
+      max = temp;
+    }
+
+    return {
       q: debouncedSearch.trim() || undefined,
       category: selectedCategory ?? undefined,
       sort,
       page,
       per_page: perPage,
-      min_price: parsePriceDigits(minPrice),
-      max_price: parsePriceDigits(maxPrice),
-    }),
-    [debouncedSearch, selectedCategory, sort, page, perPage, minPrice, maxPrice],
-  );
+      min_price: min,
+      max_price: max,
+    };
+  }, [debouncedSearch, selectedCategory, sort, page, perPage, minPrice, maxPrice]);
 
   const { data, isLoading, isFetching, isError } = useServices(filters);
   const services = data?.items ?? [];
@@ -284,19 +287,20 @@ export default function ServicesPage() {
           </div>
         )}
 
-        <div className="flex overflow-x-auto snap-x gap-4 mb-8 pb-4 scrollbar-hide">
+        <HorizontalRail className="mb-8 flex snap-x gap-3 overflow-x-auto pb-2 scrollbar-hide sm:gap-4">
           <button
+            type="button"
             onClick={() => updateCategory(null)}
-            className={`flex-none min-w-30 sm:flex-1 flex flex-col items-center justify-center p-6 rounded-2xl border transition-all duration-300 snap-center cursor-pointer ${
+            className={`${CATEGORY_CHIP} ${
               selectedCategory === null
-                ? 'bg-diyar-dark border-diyar-dark text-white shadow-lg'
-                : 'bg-white border-gray-100 text-gray-600 hover:border-diyar-brown/30 hover:shadow-md'
+                ? 'border-diyar-dark bg-diyar-dark text-white shadow-lg'
+                : 'border-gray-100 bg-white text-gray-600 hover:border-diyar-brown/30 hover:shadow-md'
             }`}
           >
             <LayoutDashboard
-              className={`w-8 h-8 mb-3 ${selectedCategory === null ? 'text-white' : 'text-diyar-brown'}`}
+              className={`mb-2 h-7 w-7 sm:mb-3 sm:h-8 sm:w-8 ${selectedCategory === null ? 'text-white' : 'text-diyar-brown'}`}
             />
-            <span className="font-bold text-sm">
+            <span className="text-center text-xs font-bold leading-tight sm:text-sm">
               {t('serviceMarketplace.catalog.allCategories')}
             </span>
           </button>
@@ -305,7 +309,7 @@ export default function ServicesPage() {
             [...Array(5)].map((_, index) => (
               <div
                 key={index}
-                className="flex-none min-w-30 sm:flex-1 h-30 rounded-2xl bg-gray-100 animate-pulse"
+                className={`${CATEGORY_CHIP} h-28 animate-pulse border-gray-100 bg-gray-100`}
               />
             ))}
 
@@ -317,22 +321,25 @@ export default function ServicesPage() {
 
               return (
                 <button
+                  type="button"
                   key={category.id}
                   onClick={() => updateCategory(category.slug)}
-                  className={`flex-none min-w-30 sm:flex-1 flex flex-col items-center justify-center p-6 rounded-2xl border transition-all duration-300 snap-center cursor-pointer ${
+                  className={`${CATEGORY_CHIP} ${
                     isActive
-                      ? 'bg-diyar-dark border-diyar-dark text-white shadow-lg'
-                      : 'bg-white border-gray-100 text-gray-600 hover:border-diyar-brown/30 hover:shadow-md'
+                      ? 'border-diyar-dark bg-diyar-dark text-white shadow-lg'
+                      : 'border-gray-100 bg-white text-gray-600 hover:border-diyar-brown/30 hover:shadow-md'
                   }`}
                 >
                   <Icon
-                    className={`w-8 h-8 mb-3 ${isActive ? 'text-white' : 'text-diyar-brown'}`}
+                    className={`mb-2 h-7 w-7 sm:mb-3 sm:h-8 sm:w-8 ${isActive ? 'text-white' : 'text-diyar-brown'}`}
                   />
-                  <span className="font-bold text-sm text-center">{label}</span>
+                  <span className="line-clamp-2 text-center text-xs font-bold leading-tight sm:text-sm">
+                    {label}
+                  </span>
                 </button>
               );
             })}
-        </div>
+        </HorizontalRail>
 
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 mb-4">
           <div className="relative flex-1">

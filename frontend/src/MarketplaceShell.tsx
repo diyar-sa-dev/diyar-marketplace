@@ -45,6 +45,11 @@ import {
   shouldShowStorefrontDashboardLink,
 } from './lib/auth/roles.ts';
 import { shouldHideMarketplaceCommerce } from './lib/marketplaceCommerce.ts';
+import type { VisualSearchResponse } from './types/visualSearch.ts';
+import {
+  buildVisualSearchLocationState,
+  buildVisualSearchPath,
+} from './lib/visualSearchNavigation.ts';
 
 function HeaderWidgetFallback() {
   return <span className="inline-block w-8 h-8" aria-hidden="true" />;
@@ -55,11 +60,11 @@ export default function MarketplaceShell() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
+  const navigate = useNavigate();
   const [isRequestServiceOpen, setIsRequestServiceOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
   const location = useLocation();
   const { count: cartCount } = useCart();
   const { isAuthenticated, logout, user } = useAuth();
@@ -134,7 +139,16 @@ export default function MarketplaceShell() {
   }, [hideMarketplaceChrome]);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-diyar-dark pb-17.5 md:pb-0 overflow-x-hidden" dir={dir}>
+    <div
+      className={
+        isDashboardPage
+          ? 'h-dvh overflow-hidden bg-white font-sans text-diyar-dark'
+          : hideMarketplaceChrome
+            ? 'min-h-screen bg-white font-sans text-diyar-dark'
+            : 'min-h-screen bg-white font-sans text-diyar-dark pb-17.5 md:pb-0 overflow-x-hidden'
+      }
+      dir={dir}
+    >
       {!hideMarketplaceChrome && <AnnouncementBar />}
       {!hideMarketplaceChrome && (
         <div
@@ -218,7 +232,7 @@ export default function MarketplaceShell() {
                     className="flex-1 min-w-0"
                     value={searchQuery}
                     onChange={setSearchQuery}
-                    imageSearchDisabled
+                    imageSearchDisabled={false}
                     onImageSearchClick={() => setIsImageSearchOpen(true)}
                   />
                   <button
@@ -352,7 +366,11 @@ export default function MarketplaceShell() {
           <ImageSearchModal
             isOpen={isImageSearchOpen}
             onClose={() => setIsImageSearchOpen(false)}
-            disabled
+            onResults={(response: VisualSearchResponse) => {
+              navigate(buildVisualSearchPath(response), {
+                state: buildVisualSearchLocationState(response),
+              });
+            }}
           />
         </Suspense>
       ) : null}

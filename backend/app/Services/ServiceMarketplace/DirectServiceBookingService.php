@@ -12,6 +12,7 @@ use App\Events\Domain\BookingCreated;
 use App\Models\Service;
 use App\Models\ServiceBooking;
 use App\Models\User;
+use App\Support\ServiceMarketplace\ProviderSelfInteractionGuard;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -31,6 +32,9 @@ final class DirectServiceBookingService
     {
         $service = $this->resolveDirectBookableService($service);
         $provider = $service->providerAccount;
+
+        ProviderSelfInteractionGuard::assertNotOwnProviderService($user, $service);
+
         $durationMinutes = $this->availability->defaultDurationMinutes($service->duration_minutes);
         $scheduledDate = (string) ($payload['scheduled_date'] ?? '');
         $scheduledTime = (string) ($payload['scheduled_time'] ?? '');
@@ -86,9 +90,7 @@ final class DirectServiceBookingService
         $service = $this->resolveDirectBookableService($service);
         $provider = $service->providerAccount;
 
-        if ($provider->user_id === $user->id) {
-            throw new InvalidArgumentException(__('diyar.services.bookings.cannot_book_own_service'));
-        }
+        ProviderSelfInteractionGuard::assertNotOwnProviderService($user, $service);
 
         $activeBooking = app(ServiceBookingService::class)->findActiveForUserAndService($user, $service);
 

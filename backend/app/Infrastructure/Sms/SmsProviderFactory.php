@@ -10,16 +10,24 @@ final class SmsProviderFactory
 {
     public static function make(): SmsProvider
     {
-        if (LogSmsProvider::msegatCredentialsConfigured()) {
-            $config = config('services.msegat');
+        $driver = strtolower((string) config('diyar.sms.driver', 'auto'));
 
-            return new MsegatSmsProvider(
-                username: (string) $config['username'],
-                apiKey: (string) $config['api_key'],
-                senderId: (string) $config['sender_id'],
-                lang: (string) $config['lang'],
-                baseUrl: (string) $config['base_url'],
-            );
+        if ($driver === 'log') {
+            return new LogSmsProvider;
+        }
+
+        if (LogSmsProvider::msegatCredentialsConfigured()) {
+            if ($driver === 'msegat' || $driver === 'auto') {
+                $config = config('services.msegat');
+
+                return new MsegatSmsProvider(
+                    username: (string) $config['username'],
+                    apiKey: (string) $config['api_key'],
+                    senderId: (string) $config['sender_id'],
+                    lang: (string) $config['lang'],
+                    baseUrl: (string) $config['base_url'],
+                );
+            }
         }
 
         if (self::isProductionEnvironment()) {

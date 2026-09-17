@@ -187,3 +187,22 @@ export function isEmailVerificationRequired(error: unknown): { email: string } |
     email: fields.verification_email?.[0]?.trim() ?? '',
   };
 }
+
+export function isTwoFactorRequired(error: unknown): { challengeId: string; phone: string } | null {
+  const fields = getFieldErrors(error);
+
+  if (!fields.two_factor_required?.length) {
+    return null;
+  }
+
+  const challengeId = fields.challenge_id?.[0]?.trim() ?? '';
+
+  if (!challengeId) {
+    return null;
+  }
+
+  return {
+    challengeId,
+    phone: fields.verification_phone?.[0]?.trim() ?? '',
+  };
+}

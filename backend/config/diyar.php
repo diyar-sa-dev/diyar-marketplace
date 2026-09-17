@@ -26,7 +26,18 @@ return [
         'max_attempts' => (int) env('DIYAR_OTP_MAX_ATTEMPTS', 5),
         'max_resends_per_hour' => (int) env('DIYAR_OTP_MAX_RESENDS', 5),
         'resend_cooldown_seconds' => (int) env('DIYAR_OTP_RESEND_COOLDOWN', 60),
-        'test_code' => env('DIYAR_OTP_TEST_CODE'),
+        'test_mode' => filter_var(env('DIYAR_OTP_TEST_MODE', false), FILTER_VALIDATE_BOOL),
+        'test_code' => env('DIYAR_OTP_TEST_CODE', '123456'),
+    ],
+
+    'sms' => [
+        // auto | log | msegat — local Docker should use log
+        'driver' => env('DIYAR_SMS_DRIVER', 'auto'),
+    ],
+
+    'two_factor' => [
+        'enabled' => filter_var(env('DIYAR_TWO_FACTOR_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'login_challenge_ttl_minutes' => (int) env('DIYAR_TWO_FACTOR_CHALLENGE_TTL', 15),
     ],
 
     /*
@@ -38,6 +49,17 @@ return [
     'auth' => [
         'login_max_attempts' => (int) env('DIYAR_LOGIN_MAX_ATTEMPTS', 5),
         'login_decay_minutes' => (int) env('DIYAR_LOGIN_DECAY_MINUTES', 15),
+    ],
+
+    'security' => [
+        'session_activity_throttle_seconds' => (int) env('DIYAR_SESSION_ACTIVITY_THROTTLE_SECONDS', 300),
+        'session_backfill_throttle_seconds' => (int) env('DIYAR_SESSION_BACKFILL_THROTTLE_SECONDS', 60),
+        'max_active_sessions_per_user' => (int) env('DIYAR_MAX_ACTIVE_SESSIONS', 25),
+        'revoked_session_retention_days' => (int) env('DIYAR_REVOKED_SESSION_RETENTION_DAYS', 90),
+        'ip_geolocation_enabled' => (bool) env('DIYAR_IP_GEOLOCATION_ENABLED', false),
+        'ip_geolocation_cache_seconds' => (int) env('DIYAR_IP_GEOLOCATION_CACHE_SECONDS', 86_400),
+        'trust_geo_proxy_headers' => (bool) env('DIYAR_TRUST_GEO_PROXY_HEADERS', false),
+        'max_sessions_per_device_fingerprint' => (int) env('DIYAR_MAX_SESSIONS_PER_DEVICE', 2),
     ],
 
     /*
@@ -56,8 +78,37 @@ return [
         'otp_per_minute' => (int) env('DIYAR_OTP_RATE_LIMIT', 10),
         'catalog_search_per_minute' => (int) env('DIYAR_CATALOG_SEARCH_RATE_LIMIT', 60),
         'catalog_search_suggestions_per_minute' => (int) env('DIYAR_CATALOG_SEARCH_SUGGESTIONS_RATE_LIMIT', 90),
+        'catalog_filter_suggestions_per_minute' => (int) env('DIYAR_CATALOG_FILTER_SUGGESTIONS_RATE_LIMIT', 90),
+        'visual_search_per_minute' => (int) env('DIYAR_VISUAL_SEARCH_RATE_LIMIT', 20),
         'webhooks_per_minute' => (int) env('DIYAR_WEBHOOKS_RATE_LIMIT', 120),
         'assistant_chat_per_minute' => (int) env('DIYAR_ASSISTANT_CHAT_RATE_LIMIT', 30),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Visual Search (Stage 29)
+    |--------------------------------------------------------------------------
+    */
+
+    'visual_search' => [
+        'enabled' => filter_var(env('DIYAR_VISUAL_SEARCH_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'engine_version' => env('DIYAR_VISUAL_SEARCH_ENGINE_VERSION', 'perceptual-v1'),
+        'representation_version' => env('DIYAR_VISUAL_SEARCH_REPRESENTATION_VERSION', 'dhash-64-v1'),
+        'ranking_version' => env('DIYAR_VISUAL_SEARCH_RANKING_VERSION', 'ranking-v1'),
+        'index_version' => env('DIYAR_VISUAL_SEARCH_INDEX_VERSION', 'catalog-v1'),
+        'min_similarity' => (float) env('DIYAR_VISUAL_SEARCH_MIN_SIMILARITY', 0.90),
+        'max_hamming_distance' => (int) env('DIYAR_VISUAL_SEARCH_MAX_HAMMING', 19),
+        'candidate_limit' => (int) env('DIYAR_VISUAL_SEARCH_CANDIDATE_LIMIT', 50),
+        'sql_prefetch_cap' => (int) env('DIYAR_VISUAL_SEARCH_SQL_PREFETCH_CAP', 1500),
+        'bucket_prefix_bits' => (int) env('DIYAR_VISUAL_SEARCH_BUCKET_BITS', 12),
+        'bucket_probe_radius' => (int) env('DIYAR_VISUAL_SEARCH_BUCKET_PROBE_RADIUS', 3),
+        'max_upload_kb' => (int) env('DIYAR_VISUAL_SEARCH_MAX_UPLOAD_KB', 2048),
+        'max_dimension_px' => (int) env('DIYAR_VISUAL_SEARCH_MAX_DIMENSION_PX', 8192),
+        'max_pixels' => (int) env('DIYAR_VISUAL_SEARCH_MAX_PIXELS', 33_000_000),
+        'working_dimension_px' => (int) env('DIYAR_VISUAL_SEARCH_WORKING_DIMENSION_PX', 256),
+        'cache_ttl_seconds' => (int) env('DIYAR_VISUAL_SEARCH_CACHE_TTL_SECONDS', 300),
+        'allowed_mimes' => ['image/jpeg', 'image/png', 'image/webp'],
+        'allowed_extensions' => ['jpg', 'jpeg', 'png', 'webp'],
     ],
 
     /*
@@ -83,6 +134,48 @@ return [
             'search_facets_seconds' => (int) env('DIYAR_CATALOG_SEARCH_FACETS_CACHE_SECONDS', 300),
             'search_suggestions_seconds' => (int) env('DIYAR_CATALOG_SEARCH_SUGGESTIONS_CACHE_SECONDS', 45),
             'search_results_seconds' => (int) env('DIYAR_CATALOG_SEARCH_RESULTS_CACHE_SECONDS', 60),
+            'filter_context_seconds' => (int) env('DIYAR_CATALOG_FILTER_CONTEXT_CACHE_SECONDS', 300),
+            'filter_suggestions_seconds' => (int) env('DIYAR_CATALOG_FILTER_SUGGESTIONS_CACHE_SECONDS', 120),
+            'filter_suggestions_stale_seconds' => (int) env('DIYAR_CATALOG_FILTER_SUGGESTIONS_STALE_SECONDS', 86_400),
+        ],
+        'filter_context' => [
+            'top_values_limit' => (int) env('DIYAR_FILTER_CONTEXT_TOP_VALUES', 10),
+            'max_aggregate_queries' => (int) env('DIYAR_FILTER_CONTEXT_MAX_AGGREGATE_QUERIES', 6),
+            'result_density' => [
+                'very_low_max' => (int) env('DIYAR_FILTER_DENSITY_VERY_LOW_MAX', 5),
+                'low_max' => (int) env('DIYAR_FILTER_DENSITY_LOW_MAX', 50),
+                'medium_max' => (int) env('DIYAR_FILTER_DENSITY_MEDIUM_MAX', 500),
+                'high_max' => (int) env('DIYAR_FILTER_DENSITY_HIGH_MAX', 5000),
+            ],
+        ],
+        'filter_suggestions' => [
+            'enabled' => (bool) env('DIYAR_FILTER_SUGGESTIONS_ENABLED', true),
+            'telemetry_enabled' => (bool) env('DIYAR_FILTER_SUGGESTIONS_TELEMETRY', true),
+            'max_suggestions' => (int) env('DIYAR_FILTER_SUGGESTIONS_MAX', 5),
+            'max_initialized_filters' => (int) env('DIYAR_FILTER_SUGGESTIONS_MAX_INITIALIZED', 4),
+            'max_values_per_suggestion' => (int) env('DIYAR_FILTER_SUGGESTIONS_MAX_VALUES', 5),
+            'price_range_spread_ratio' => (float) env('DIYAR_FILTER_SUGGESTIONS_PRICE_SPREAD', 2.5),
+            'dominant_share_penalty_threshold' => (float) env('DIYAR_FILTER_SUGGESTIONS_DOMINANT_THRESHOLD', 0.85),
+            'weights' => [
+                'vendor_slug' => 1.0,
+                'colors' => 1.1,
+                'availability_mode' => 0.9,
+                'discounted' => 1.0,
+                'pricing_mode' => 1.0,
+                'remote' => 0.95,
+                'provider' => 1.0,
+            ],
+            'initialization_weights' => [
+                'price_range' => 100.0,
+                'vendor_slug' => 75.0,
+                'colors' => 80.0,
+                'availability_mode' => 70.0,
+                'discounted' => 65.0,
+                'pricing_mode' => 72.0,
+                'min_rating' => 78.0,
+                'remote' => 68.0,
+                'provider' => 74.0,
+            ],
         ],
     ],
 
@@ -226,7 +319,6 @@ return [
     'vendor' => [
         'store_domain' => env('DIYAR_STORE_DOMAIN', 'diyar.sa'),
         'low_stock_threshold' => (int) env('DIYAR_LOW_STOCK_THRESHOLD', 5),
-        'dashboard_cache_seconds' => (int) env('DIYAR_VENDOR_DASHBOARD_CACHE_SECONDS', 90),
         'reserved_slugs' => [
             'admin',
             'api',
@@ -321,7 +413,6 @@ return [
         'realtime_enabled' => filter_var(env('DIYAR_NOTIFICATIONS_REALTIME', true), FILTER_VALIDATE_BOOL),
         'reconciliation_poll_seconds' => (int) env('DIYAR_NOTIFICATIONS_RECONCILE_SECONDS', 120),
         'poll_interval_seconds' => (int) env('DIYAR_NOTIFICATIONS_POLL_SECONDS', 120),
-        'unread_count_cache_seconds' => (int) env('DIYAR_NOTIFICATIONS_UNREAD_CACHE_SECONDS', 30),
         'queues' => [
             'high' => env('DIYAR_NOTIFICATIONS_QUEUE_HIGH', 'notifications-high'),
             'normal' => env('DIYAR_NOTIFICATIONS_QUEUE', 'notifications'),
@@ -647,7 +738,6 @@ return [
     'admin' => [
         'default_locale' => env('DIYAR_ADMIN_DEFAULT_LOCALE', 'ar'),
         'supported_locales' => ['ar', 'en'],
-        'dashboard_cache_seconds' => (int) env('DIYAR_ADMIN_DASHBOARD_CACHE_SECONDS', 60),
     ],
 
     /*
@@ -671,6 +761,7 @@ return [
         'search_engine_enabled' => filter_var(env('DIYAR_SEARCH_ENGINE_ENABLED', false), FILTER_VALIDATE_BOOL),
         'search_fallback_enabled' => filter_var(env('DIYAR_SEARCH_FALLBACK_ENABLED', true), FILTER_VALIDATE_BOOL),
         'search_analytics_enabled' => filter_var(env('DIYAR_SEARCH_ANALYTICS_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'visual_search_enabled' => filter_var(env('DIYAR_FEATURE_VISUAL_SEARCH_ENABLED', true), FILTER_VALIDATE_BOOL),
     ],
 
     /*

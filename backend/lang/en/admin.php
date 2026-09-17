@@ -687,6 +687,7 @@ return [
             'feature.reviews_enabled' => 'Enable product and store reviews.',
             'feature.services_enabled' => 'Enable service marketplace features.',
             'feature.coupons_enabled' => 'Enable vendor coupon features.',
+            'feature.visual_search_min_similarity' => 'Minimum visual similarity (10%–100%) required for image search results. Default 90% shows high-confidence matches.',
             'theme.primary_color' => 'Primary brand color for the storefront.',
             'theme.primary_dark' => 'Dark brand color for headings and navigation.',
             'theme.surface_color' => 'Surface background accent color.',

@@ -88,6 +88,17 @@ class CatalogSearchTest extends TestCase
             ]);
     }
 
+    public function test_catalog_search_applies_service_filters_on_unified_endpoint(): void
+    {
+        $this->getJson('/api/v1/catalog/search?q=تصميم&type=services&category_slug=interior-design&min_rating=4')
+            ->assertOk()
+            ->assertJsonPath('data.services.pagination.total', 4);
+
+        $this->getJson('/api/v1/catalog/search?type=services&location=invalid-sql&sort=;drop table')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['sort']);
+    }
+
     public function test_catalog_search_vendor_facets_are_contextual(): void
     {
         $response = $this->getJson('/api/v1/catalog/search?q=كنب&type=products')->assertOk();

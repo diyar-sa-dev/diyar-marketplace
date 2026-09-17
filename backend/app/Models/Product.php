@@ -137,13 +137,17 @@ class Product extends Model
 
     public function scopePubliclyVisible($query)
     {
+        $table = $query->getModel()->getTable();
+
+        // EXISTS keeps the column list intact so MySQL aggregates (filter suggestions) stay valid.
         return $query
-            ->where('products.status', ProductStatus::Active)
-            ->join('vendor_accounts', function ($join) {
-                $join->on('vendor_accounts.id', '=', 'products.vendor_account_id')
-                    ->where('vendor_accounts.status', '=', 'active');
-            })
-            ->select('products.*');
+            ->where("{$table}.status", ProductStatus::Active)
+            ->whereExists(function ($subquery) use ($table) {
+                $subquery->selectRaw('1')
+                    ->from('vendor_accounts')
+                    ->whereColumn('vendor_accounts.id', "{$table}.vendor_account_id")
+                    ->where('vendor_accounts.status', 'active');
+            });
     }
 
     /**
@@ -170,21 +174,6 @@ class Product extends Model
 
         $query->withExists([
             'wishlistItems as user_saved' => fn (Builder $wishlistQuery) => $wishlistQuery
-                ->where('user_id', $user->id),
-        ]);
-    }
-
-    /**
-     * @param  Builder<Product>  $query
-     */
-    public function scopeWithUserLiked(Builder $query, ?User $user): void
-    {
-        if ($user === null || ! Schema::hasTable('product_likes')) {
-            return;
-        }
-
-        $query->withExists([
-            'likes as user_liked' => fn (Builder $likeQuery) => $likeQuery
                 ->where('user_id', $user->id),
         ]);
     }

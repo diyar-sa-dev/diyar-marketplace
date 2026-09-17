@@ -6,7 +6,6 @@ use App\Enums\SystemSettingGroup;
 use App\Models\SystemSetting;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Schema;
 
 final class EffectiveConfigService
 {
@@ -63,10 +62,6 @@ final class EffectiveConfigService
 
     public function invalidateGroup(SystemSettingGroup $group): void
     {
-        if (! Schema::hasTable('system_settings')) {
-            return;
-        }
-
         SystemSetting::query()
             ->where('group', $group->value)
             ->pluck('key')
@@ -78,10 +73,6 @@ final class EffectiveConfigService
      */
     public function publicThemeTokens(): array
     {
-        if (! Schema::hasTable('system_settings')) {
-            return [];
-        }
-
         return SystemSetting::query()
             ->where('group', SystemSettingGroup::Theme->value)
             ->where('is_public', true)
@@ -99,19 +90,17 @@ final class EffectiveConfigService
     {
         [$group, $key] = $this->parseFullKey($fullKey);
 
-        if (Schema::hasTable('system_settings')) {
-            try {
-                $setting = SystemSetting::query()
-                    ->where('group', $group)
-                    ->where('key', $key)
-                    ->first();
-            } catch (QueryException) {
-                $setting = null;
-            }
+        try {
+            $setting = SystemSetting::query()
+                ->where('group', $group)
+                ->where('key', $key)
+                ->first();
+        } catch (QueryException) {
+            $setting = null;
+        }
 
-            if ($setting !== null) {
-                return app(SystemSettingService::class)->cast($setting->rawValue(), $setting->type);
-            }
+        if ($setting !== null) {
+            return app(SystemSettingService::class)->cast($setting->rawValue(), $setting->type);
         }
 
         $definitions = config('system_settings.definitions', []);

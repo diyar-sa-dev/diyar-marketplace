@@ -97,6 +97,7 @@ export async function createVendorProduct(
 
   const response = await withCsrf(() =>
     apiClient.post<ProductDetailResponse>('/dashboard/vendor/products', formData, {
+      adapter: 'xhr',
       headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: (event) => {
         if (event.total) {
@@ -145,6 +146,7 @@ export async function uploadVendorProductImages(
       `/dashboard/vendor/products/${productId}/images`,
       formData,
       {
+        adapter: 'xhr',
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (event) => {
           if (event.total) {

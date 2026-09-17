@@ -7,6 +7,7 @@ import {
   formatFieldErrors,
   collectDisplayErrors,
   isPhoneVerificationRequired,
+  isTwoFactorRequired,
   isUnexpectedServerError,
   sanitizeErrorMessage,
 } from './errors.ts';
@@ -112,6 +113,29 @@ describe('parseApiError', () => {
     };
 
     expect(isPhoneVerificationRequired(error)).toEqual({ phone: '503333333' });
+  });
+
+  it('detects two-factor required login responses', () => {
+    const error = {
+      response: {
+        status: 422,
+        data: {
+          message: 'The given data was invalid.',
+          errors: {
+            two_factor_required: ['Two-factor authentication is required.'],
+            challenge_id: ['f47ac10b-58cc-4372-a567-0e02b2c3d479'],
+            verification_phone: ['503333333'],
+          },
+        },
+      },
+      message: 'Request failed',
+      isAxiosError: true,
+    };
+
+    expect(isTwoFactorRequired(error)).toEqual({
+      challengeId: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+      phone: '503333333',
+    });
   });
 
   it('sanitizes technical database errors', () => {

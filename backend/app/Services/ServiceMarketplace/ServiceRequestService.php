@@ -7,6 +7,7 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
 use App\Models\User;
+use App\Support\ServiceMarketplace\ProviderSelfInteractionGuard;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -45,6 +46,8 @@ final class ServiceRequestService
             if ($service === null) {
                 throw new NotFoundHttpException(__('diyar.services.not_found'));
             }
+
+            ProviderSelfInteractionGuard::assertNotOwnServiceForRequest($user, $service);
         }
 
         $description = trim((string) ($payload['description'] ?? ''));

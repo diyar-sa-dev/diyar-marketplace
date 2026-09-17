@@ -30,6 +30,22 @@ return [
         'cooldown' => 'يرجى الانتظار قبل طلب رمز تحقق جديد.',
         'too_many_resends' => 'تم تجاوز عدد محاولات إعادة الإرسال. حاول لاحقاً.',
         'too_many_attempts' => 'تم تجاوز عدد محاولات التحقق. اطلب رمزاً جديداً.',
+        'already_used' => 'تم استخدام رمز التحقق هذا مسبقاً.',
+        'delivery_failed' => 'تعذّر إرسال رمز التحقق. يرجى المحاولة لاحقاً.',
+    ],
+
+    'two_factor' => [
+        'required' => 'التحقق بخطوتين مطلوب. أدخل الرمز المرسل إلى جوالك.',
+        'challenge_expired' => 'انتهت جلسة تسجيل الدخول. سجّل الدخول بكلمة المرور مرة أخرى.',
+        'enabled' => 'تم تفعيل التحقق بخطوتين.',
+        'disabled' => 'تم إيقاف التحقق بخطوتين.',
+        'setup_started' => 'تم إرسال رمز التحقق إلى جوالك.',
+        'disable_started' => 'تم إرسال رمز التحقق لتأكيد إيقاف التحقق بخطوتين.',
+        'already_enabled' => 'التحقق بخطوتين مفعّل بالفعل.',
+        'not_enabled' => 'التحقق بخطوتين غير مفعّل.',
+        'unavailable' => 'التحقق بخطوتين غير متاح حالياً.',
+        'phone_required' => 'يجب التحقق من رقم الجوال قبل تفعيل التحقق بخطوتين.',
+        'invalid_password' => 'كلمة المرور غير صحيحة.',
     ],
 
     'registration' => [
@@ -74,6 +90,14 @@ return [
         'building_prefix' => 'مبنى :value',
         'apartment_prefix' => 'شقة :value',
         'notifications_saved' => 'تم حفظ إعدادات الإشعارات بنجاح.',
+        'security' => [
+            'session_not_found' => 'الجلسة غير موجودة أو تم تسجيل الخروج منها مسبقاً.',
+            'cannot_revoke_current_session' => 'لا يمكنك تسجيل الخروج من هذا الجهاز من هنا. استخدم تسجيل الخروج.',
+            'session_revoked' => 'تم تسجيل الخروج من الجهاز بنجاح.',
+            'device_revoked' => 'تم تسجيل الخروج من جميع الجلسات على هذا الجهاز بنجاح.',
+            'other_sessions_revoked' => 'تم تسجيل الخروج من الأجهزة الأخرى بنجاح.',
+            'session_required' => 'يلزم وجود جلسة نشطة لهذا الإجراء.',
+        ],
     ],
 
     'media' => [
@@ -83,6 +107,21 @@ return [
         'file_too_large' => 'حجم الملف أكبر من الحد المسموح.',
         'upload_failed' => 'تعذر رفع الملف.',
         'unsafe_svg' => 'ملف SVG يحتوي على محتوى غير آمن.',
+    ],
+
+    'visual_search' => [
+        'disabled' => 'البحث البصري غير متاح حالياً.',
+        'unavailable' => 'البحث البصري غير متاح مؤقتاً.',
+        'index_empty' => 'فهرس البحث البصري غير جاهز بعد.',
+        'invalid_upload' => 'ملف الصورة غير صالح.',
+        'invalid_type' => 'نوع الصورة غير مدعوم.',
+        'invalid_extension' => 'امتداد الصورة غير مدعوم.',
+        'file_too_large' => 'حجم الصورة يتجاوز حد 2 ميجابايت.',
+        'invalid_image' => 'تعذر قراءة الصورة المرفوعة.',
+        'decode_failed' => 'تعذر فك ترميز الصورة المرفوعة.',
+        'invalid_dimensions' => 'أبعاد الصورة غير صالحة.',
+        'dimensions_exceeded' => 'أبعاد الصورة تتجاوز الحد المسموح.',
+        'pixel_count_exceeded' => 'عدد بكسل الصورة يتجاوز الحد المسموح.',
     ],
 
     'catalog' => [
@@ -116,6 +155,32 @@ return [
         'product_updated' => 'تم تحديث المنتج بنجاح.',
         'product_archived' => 'تم أرشفة المنتج بنجاح.',
         'category_has_products' => 'لا يمكن حذف تصنيف يحتوي على منتجات.',
+        'filter_suggestions' => [
+            'filters' => [
+                'price_range' => 'السعر',
+                'vendor_slug' => 'المتجر',
+                'colors' => 'اللون',
+                'availability_mode' => 'التوفر',
+                'discounted' => 'العروض',
+                'pricing_mode' => 'طريقة التسعير',
+                'min_rating' => 'التقييم',
+                'remote' => 'العمل عن بعد',
+                'provider' => 'مقدم الخدمة',
+            ],
+            'reasons' => [
+                'high_distribution_value' => 'الأكثر شيوعاً — قلّل النتائج حسب الخيارات الأكثر صلة.',
+                'wide_price_range' => 'نطاق سعري واسع — اختر ميزانية مناسبة لتقليل النتائج.',
+                'popular_discounts' => 'عدد كبير من العناصر متاحة بأسعار مخفّضة.',
+                'balanced_availability' => 'حالة التوفر متنوعة — فلتر حسب المخزون.',
+                'highly_rated_providers' => 'خيارات بتقييمات عالية متاحة.',
+                'remote_options_available' => 'خيارات عن بُعد وحضوري متاحة.',
+                'pricing_mode_variety' => 'طرق تسعير مختلفة متاحة.',
+                'provider_choice' => 'عدة مقدمي خدمة في هذا التصنيف.',
+                'zero_results_relax_filters' => 'جرّب إزالة أحد الفلاتر لعرض المزيد من النتائج.',
+                'low_results_avoid_narrowing' => 'النتائج محدودة بالفعل — تجنّب إضافة فلاتر أكثر.',
+                'start_narrowing' => 'اضغط لتضييق النتائج باستخدام هذا الفلتر.',
+            ],
+        ],
     ],
 
     'blog' => [
@@ -179,6 +244,7 @@ return [
             'invalid_categories' => 'أحد التصنيفات المحددة غير صالح.',
             'description_required' => 'صف الخدمة المطلوبة.',
             'attachment_limit_reached' => 'تم الوصول إلى الحد الأقصى للمرفقات.',
+            'cannot_request_own_service' => 'لا يمكنك طلب خدمتك الخاصة.',
         ],
         'offers' => [
             'submitted' => 'تم تقديم العرض بنجاح.',

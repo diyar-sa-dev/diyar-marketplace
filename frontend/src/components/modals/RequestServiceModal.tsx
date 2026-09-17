@@ -333,378 +333,391 @@ export function RequestServiceModal({ isOpen, onClose, context }: RequestService
   return (
     <>
       {isOpen ? (
-    <div
-      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-0 md:p-4 backdrop-blur-sm cursor-pointer"
-      dir={dir}
-      onClick={onClose}
-      role="presentation"
-    >
-      <div
-        className="bg-white rounded-none md:rounded-3xl w-full h-dvh md:h-auto max-w-2xl shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col md:max-h-[90vh] cursor-default"
-        onClick={(event) => event.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="request-service-title"
-      >
-        <div className="bg-gray-50 border-b border-gray-100 px-6 pb-6 md:px-8 md:pb-7 pt-[calc(env(safe-area-inset-top,0px)+2rem)] flex justify-between items-start gap-4 relative overflow-hidden shrink-0 rounded-none md:rounded-t-3xl">
-          <div className="absolute inset-0 bg-diyar-cream/20"></div>
-          <div className="relative z-10 flex items-start gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-diyar-brown/10 text-diyar-brown flex items-center justify-center shrink-0 border border-diyar-brown/15">
-              <ConciergeBell size={22} />
-            </div>
-            <div className="pt-0.5">
-              <h2
-                id="request-service-title"
-                className="text-xl md:text-2xl font-bold text-diyar-dark leading-snug"
-              >
-                {t('serviceMarketplace.requestModal.title')}
-              </h2>
-              <p className="text-gray-500 text-sm mt-2 leading-relaxed">
-                {t('serviceMarketplace.requestModal.subtitle')}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={submitting}
-            className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors shadow-sm relative z-10 shrink-0 mr-4 cursor-pointer disabled:opacity-60"
+        <div
+          className="fixed inset-0 z-[120] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm md:items-center md:p-4 cursor-pointer"
+          dir={dir}
+          onClick={onClose}
+          role="presentation"
+        >
+          <div
+            className="flex h-[100dvh] w-full max-w-2xl cursor-default flex-col overflow-hidden rounded-none bg-white shadow-2xl animate-in zoom-in-95 duration-200 md:h-auto md:max-h-[min(90vh,52rem)] md:rounded-3xl"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="request-service-title"
           >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="p-5 md:p-8 flex-1 overflow-y-auto custom-scrollbar rounded-none md:rounded-b-3xl">
-          {isSubmitted ? (
-            <div className="text-center py-10">
-              <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 size={40} className="text-green-500" />
+            <div className="bg-gray-50 border-b border-gray-100 px-6 pb-6 md:px-8 md:pb-7 pt-[calc(env(safe-area-inset-top,0px)+2rem)] flex justify-between items-start gap-4 relative overflow-hidden shrink-0 rounded-none md:rounded-t-3xl">
+              <div className="absolute inset-0 bg-diyar-cream/20"></div>
+              <div className="relative z-10 flex items-start gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-diyar-brown/10 text-diyar-brown flex items-center justify-center shrink-0 border border-diyar-brown/15">
+                  <ConciergeBell size={22} />
+                </div>
+                <div className="pt-0.5">
+                  <h2
+                    id="request-service-title"
+                    className="text-xl md:text-2xl font-bold text-diyar-dark leading-snug"
+                  >
+                    {t('serviceMarketplace.requestModal.title')}
+                  </h2>
+                  <p className="text-gray-500 text-sm mt-2 leading-relaxed">
+                    {t('serviceMarketplace.requestModal.subtitle')}
+                  </p>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold text-diyar-dark mb-2">
-                {t('serviceMarketplace.requestModal.successTitle')}
-              </h3>
-              <p className="text-gray-500">
-                {t('serviceMarketplace.requestModal.successDescription')}
-              </p>
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={submitting}
+                className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors shadow-sm relative z-10 shrink-0 mr-4 cursor-pointer disabled:opacity-60"
+              >
+                <X size={20} />
+              </button>
             </div>
-          ) : (
-            <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
-              <div>
-                <label className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                  <FileText size={16} className="text-diyar-brown" />
-                  {t('serviceMarketplace.requestModal.descriptionLabel')} <RequiredMark />
-                </label>
-                <textarea
-                  required
-                  rows={4}
-                  value={description}
-                  onChange={(e) => {
-                    setDescription(e.target.value);
-                    setErrors((prev) => ({ ...prev, description: undefined }));
-                  }}
-                  placeholder={t('serviceMarketplace.requestModal.descriptionPlaceholder')}
-                  className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all resize-none ${
-                    errors.description ? 'border-red-300 bg-red-50/40' : 'border-gray-200'
-                  }`}
-                />
-                {errors.description && (
-                  <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.description}</p>
-                )}
-              </div>
 
-              <div>
-                <label className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2 flex-wrap">
-                  <Tags size={16} className="text-diyar-brown" />
-                  {t('serviceMarketplace.requestModal.categoryLabel')} <RequiredMark />
-                  <span className="text-gray-400 font-medium text-xs">
-                    {selectedCategoryIds.length > 0
-                      ? t('serviceMarketplace.requestModal.categorySelected', {
-                          count: selectedCategoryIds.length,
-                        })
-                      : t('serviceMarketplace.requestModal.categoryMultiHint')}
-                  </span>
-                </label>
-                {categoriesLoading ? (
-                  <div className="flex justify-center py-6">
-                    <Loader2 className="w-6 h-6 animate-spin text-diyar-brown" />
+            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto p-5 md:p-8">
+              {isSubmitted ? (
+                <div className="py-10 text-center">
+                  <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-50">
+                    <CheckCircle2 size={40} className="text-green-500" />
                   </div>
-                ) : (
-                  <>
-                    <div className="flex flex-wrap gap-2">
-                      {categories.map((category) => {
-                        const active = selectedCategoryIds.includes(category.id);
-                        return (
+                  <h3 className="mb-2 text-2xl font-bold text-diyar-dark">
+                    {t('serviceMarketplace.requestModal.successTitle')}
+                  </h3>
+                  <p className="text-gray-500">
+                    {t('serviceMarketplace.requestModal.successDescription')}
+                  </p>
+                </div>
+              ) : (
+                <form
+                  id="request-service-form"
+                  onSubmit={(e) => void handleSubmit(e)}
+                  className="space-y-6"
+                >
+                  <div>
+                    <label className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                      <FileText size={16} className="text-diyar-brown" />
+                      {t('serviceMarketplace.requestModal.descriptionLabel')} <RequiredMark />
+                    </label>
+                    <textarea
+                      required
+                      rows={4}
+                      value={description}
+                      onChange={(e) => {
+                        setDescription(e.target.value);
+                        setErrors((prev) => ({ ...prev, description: undefined }));
+                      }}
+                      placeholder={t('serviceMarketplace.requestModal.descriptionPlaceholder')}
+                      className={`w-full bg-gray-50 border rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all resize-none ${
+                        errors.description ? 'border-red-300 bg-red-50/40' : 'border-gray-200'
+                      }`}
+                    />
+                    {errors.description && (
+                      <p className="mt-1.5 text-xs text-red-600 font-medium">
+                        {errors.description}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2 flex-wrap">
+                      <Tags size={16} className="text-diyar-brown" />
+                      {t('serviceMarketplace.requestModal.categoryLabel')} <RequiredMark />
+                      <span className="text-gray-400 font-medium text-xs">
+                        {selectedCategoryIds.length > 0
+                          ? t('serviceMarketplace.requestModal.categorySelected', {
+                              count: selectedCategoryIds.length,
+                            })
+                          : t('serviceMarketplace.requestModal.categoryMultiHint')}
+                      </span>
+                    </label>
+                    {categoriesLoading ? (
+                      <div className="flex justify-center py-6">
+                        <Loader2 className="w-6 h-6 animate-spin text-diyar-brown" />
+                      </div>
+                    ) : (
+                      <>
+                        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 scrollbar-hide sm:flex-wrap sm:overflow-visible">
+                          {categories.map((category) => {
+                            const active = selectedCategoryIds.includes(category.id);
+                            return (
+                              <button
+                                type="button"
+                                key={category.id}
+                                onClick={() => toggleCategory(category.id)}
+                                aria-pressed={active}
+                                className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium border transition-all cursor-pointer ${active ? 'bg-diyar-brown text-white border-diyar-brown shadow-sm shadow-diyar-brown/20' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-diyar-brown/40 hover:text-diyar-dark'}`}
+                              >
+                                {active && <Check size={15} />}
+                                {categoryLabel(category)}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {isOtherSelected && (
+                          <div className="mt-3">
+                            <label className="text-xs font-bold text-gray-600 mb-1.5 block">
+                              {t('serviceMarketplace.requestModal.customCategoryLabel')}{' '}
+                              <RequiredMark />
+                            </label>
+                            <input
+                              type="text"
+                              value={customCategoryText}
+                              onChange={(e) => {
+                                setCustomCategoryText(e.target.value);
+                                setErrors((prev) => ({ ...prev, customCategory: undefined }));
+                              }}
+                              placeholder={t(
+                                'serviceMarketplace.requestModal.customCategoryPlaceholder',
+                              )}
+                              className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all ${
+                                errors.customCategory
+                                  ? 'border-red-300 bg-red-50/40'
+                                  : 'border-gray-200'
+                              }`}
+                            />
+                            {errors.customCategory && (
+                              <p className="mt-1.5 text-xs text-red-600 font-medium">
+                                {errors.customCategory}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
+                    {errors.categories && (
+                      <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.categories}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                      <DollarSign size={16} className="text-diyar-brown" />
+                      {t('serviceMarketplace.requestModal.budgetLabel')}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={budget}
+                        onChange={(e) => {
+                          setBudget(sanitizeBudgetInput(e.target.value));
+                          setErrors((prev) => ({ ...prev, budget: undefined }));
+                        }}
+                        placeholder={t('serviceMarketplace.requestModal.budgetPlaceholder')}
+                        className={`w-full bg-gray-50 border rounded-xl ps-12 pe-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all ${
+                          errors.budget ? 'border-red-300 bg-red-50/40' : 'border-gray-200'
+                        }`}
+                      />
+                      <span className="absolute inset-s-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">
+                        {t('providerDashboard.common.currency')}
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-xs text-gray-400">
+                      {t('serviceMarketplace.requestModal.budgetHint')}
+                    </p>
+                    {errors.budget && (
+                      <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.budget}</p>
+                    )}
+                  </div>
+
+                  <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                    <h4 className="text-sm font-bold text-gray-700 mb-4">
+                      {t('serviceMarketplace.requestModal.attachmentsTitle')}
+                    </h4>
+                    <div className="space-y-4">
+                      {pendingAttachments.length > 0 && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                          {pendingAttachments.map((item) => (
+                            <div
+                              key={item.id}
+                              className="relative rounded-xl overflow-hidden border border-gray-200 bg-white aspect-square group"
+                            >
+                              {item.preview ? (
+                                <img
+                                  src={item.preview}
+                                  alt={item.file.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex flex-col items-center justify-center gap-2 p-3 text-center bg-gray-50">
+                                  <FileText size={28} className="text-diyar-brown" />
+                                  <span className="text-[10px] font-bold text-gray-600 line-clamp-2">
+                                    {item.file.name}
+                                  </span>
+                                </div>
+                              )}
+
+                              {(item.status === 'uploading' || item.status === 'done') && (
+                                <div className="absolute inset-x-0 bottom-0 bg-black/60 px-2 py-1.5">
+                                  <div className="h-1.5 rounded-full bg-white/30 overflow-hidden">
+                                    <div
+                                      className="h-full bg-diyar-brown transition-all duration-300"
+                                      style={{ width: `${item.progress ?? 0}%` }}
+                                    />
+                                  </div>
+                                  <p className="text-[10px] text-white mt-1 text-center">
+                                    {item.status === 'done'
+                                      ? t('serviceMarketplace.requestModal.uploadDone')
+                                      : `${item.progress ?? 0}%`}
+                                  </p>
+                                </div>
+                              )}
+
+                              {item.status === 'pending' && (
+                                <>
+                                  <button
+                                    type="button"
+                                    disabled={submitting}
+                                    onClick={() => removeAttachment(item.id)}
+                                    className="absolute top-1.5 inset-s-1.5 cursor-pointer w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center opacity-90 hover:opacity-100 disabled:opacity-50"
+                                    aria-label={t('serviceMarketplace.requestModal.deleteFile')}
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    disabled={submitting}
+                                    onClick={() => {
+                                      replacingAttachmentId.current = item.id;
+                                      replaceInputRef.current?.click();
+                                    }}
+                                    className="absolute bottom-1.5 inset-x-1.5 cursor-pointer rounded-lg bg-black/55 text-white text-[10px] font-bold py-1 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-40"
+                                  >
+                                    {t('serviceMarketplace.requestModal.replace')}
+                                  </button>
+                                </>
+                              )}
+
+                              <span className="absolute top-1.5 inset-e-1.5 text-[9px] bg-black/55 text-white px-1.5 py-0.5 rounded flex items-center gap-1">
+                                <File size={10} />
+                                {formatFileSize(item.file.size)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <div>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          className="hidden"
+                          multiple
+                          accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                          onChange={(e) => {
+                            addFiles(Array.from(e.target.files ?? []));
+                            e.target.value = '';
+                          }}
+                        />
+                        <input
+                          type="file"
+                          ref={replaceInputRef}
+                          className="hidden"
+                          accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            const targetId = replacingAttachmentId.current;
+                            if (file && targetId) {
+                              replaceAttachment(targetId, file);
+                            }
+                            replacingAttachmentId.current = null;
+                            e.target.value = '';
+                          }}
+                        />
+                        {canAddMoreAttachments ? (
                           <button
                             type="button"
-                            key={category.id}
-                            onClick={() => toggleCategory(category.id)}
-                            aria-pressed={active}
-                            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium border transition-all cursor-pointer ${active ? 'bg-diyar-brown text-white border-diyar-brown shadow-sm shadow-diyar-brown/20' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-diyar-brown/40 hover:text-diyar-dark'}`}
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={submitting}
+                            className="w-full border-2 border-dashed border-gray-300 rounded-xl py-6 flex flex-col items-center justify-center text-gray-500 hover:border-diyar-brown hover:bg-diyar-cream/10 transition-colors group cursor-pointer disabled:opacity-60"
                           >
-                            {active && <Check size={15} />}
-                            {categoryLabel(category)}
+                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3 group-hover:text-diyar-brown">
+                              <Upload size={20} />
+                            </div>
+                            <span className="font-medium text-sm">
+                              {t('serviceMarketplace.requestModal.uploadPrompt')}
+                            </span>
+                            <span className="text-xs text-gray-400 mt-1">
+                              {t('serviceMarketplace.requestModal.uploadFormats', {
+                                current: pendingAttachments.length,
+                                max: MAX_SERVICE_REQUEST_ATTACHMENTS,
+                              })}
+                            </span>
                           </button>
-                        );
-                      })}
-                    </div>
-                    {isOtherSelected && (
-                      <div className="mt-3">
-                        <label className="text-xs font-bold text-gray-600 mb-1.5 block">
-                          {t('serviceMarketplace.requestModal.customCategoryLabel')}{' '}
-                          <RequiredMark />
-                        </label>
-                        <input
-                          type="text"
-                          value={customCategoryText}
-                          onChange={(e) => {
-                            setCustomCategoryText(e.target.value);
-                            setErrors((prev) => ({ ...prev, customCategory: undefined }));
-                          }}
-                          placeholder={t(
-                            'serviceMarketplace.requestModal.customCategoryPlaceholder',
-                          )}
-                          className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all ${
-                            errors.customCategory
-                              ? 'border-red-300 bg-red-50/40'
-                              : 'border-gray-200'
-                          }`}
-                        />
-                        {errors.customCategory && (
+                        ) : (
+                          <p className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
+                            {t('serviceMarketplace.requestModal.maxAttachments', {
+                              max: MAX_SERVICE_REQUEST_ATTACHMENTS,
+                            })}
+                          </p>
+                        )}
+                        {errors.attachments && (
                           <p className="mt-1.5 text-xs text-red-600 font-medium">
-                            {errors.customCategory}
+                            {errors.attachments}
                           </p>
                         )}
                       </div>
-                    )}
-                  </>
-                )}
-                {errors.categories && (
-                  <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.categories}</p>
-                )}
-              </div>
 
-              <div>
-                <label className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                  <DollarSign size={16} className="text-diyar-brown" />
-                  {t('serviceMarketplace.requestModal.budgetLabel')}
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={budget}
-                    onChange={(e) => {
-                      setBudget(sanitizeBudgetInput(e.target.value));
-                      setErrors((prev) => ({ ...prev, budget: undefined }));
-                    }}
-                    placeholder={t('serviceMarketplace.requestModal.budgetPlaceholder')}
-                    className={`w-full bg-gray-50 border rounded-xl ps-12 pe-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all ${
-                      errors.budget ? 'border-red-300 bg-red-50/40' : 'border-gray-200'
-                    }`}
-                  />
-                  <span className="absolute inset-s-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">
-                    {t('providerDashboard.common.currency')}
-                  </span>
-                </div>
-                <p className="mt-1.5 text-xs text-gray-400">
-                  {t('serviceMarketplace.requestModal.budgetHint')}
-                </p>
-                {errors.budget && (
-                  <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.budget}</p>
-                )}
-              </div>
-
-              <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                <h4 className="text-sm font-bold text-gray-700 mb-4">
-                  {t('serviceMarketplace.requestModal.attachmentsTitle')}
-                </h4>
-                <div className="space-y-4">
-                  {pendingAttachments.length > 0 && (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {pendingAttachments.map((item) => (
-                        <div
-                          key={item.id}
-                          className="relative rounded-xl overflow-hidden border border-gray-200 bg-white aspect-square group"
-                        >
-                          {item.preview ? (
-                            <img
-                              src={item.preview}
-                              alt={item.file.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center gap-2 p-3 text-center bg-gray-50">
-                              <FileText size={28} className="text-diyar-brown" />
-                              <span className="text-[10px] font-bold text-gray-600 line-clamp-2">
-                                {item.file.name}
-                              </span>
-                            </div>
+                      <div>
+                        <label className="text-xs font-bold text-gray-500 mb-2 flex items-center gap-1.5">
+                          <LinkIcon size={14} />
+                          {t('serviceMarketplace.requestModal.referenceLinks')}
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={links}
+                          onChange={(e) => {
+                            setLinks(e.target.value);
+                            setErrors((prev) => ({ ...prev, links: undefined }));
+                          }}
+                          placeholder={t(
+                            'serviceMarketplace.requestModal.referenceLinksPlaceholder',
                           )}
-
-                          {(item.status === 'uploading' || item.status === 'done') && (
-                            <div className="absolute inset-x-0 bottom-0 bg-black/60 px-2 py-1.5">
-                              <div className="h-1.5 rounded-full bg-white/30 overflow-hidden">
-                                <div
-                                  className="h-full bg-diyar-brown transition-all duration-300"
-                                  style={{ width: `${item.progress ?? 0}%` }}
-                                />
-                              </div>
-                              <p className="text-[10px] text-white mt-1 text-center">
-                                {item.status === 'done'
-                                  ? t('serviceMarketplace.requestModal.uploadDone')
-                                  : `${item.progress ?? 0}%`}
-                              </p>
-                            </div>
-                          )}
-
-                          {item.status === 'pending' && (
-                            <>
-                              <button
-                                type="button"
-                                disabled={submitting}
-                                onClick={() => removeAttachment(item.id)}
-                                className="absolute top-1.5 inset-s-1.5 cursor-pointer w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center opacity-90 hover:opacity-100 disabled:opacity-50"
-                                aria-label={t('serviceMarketplace.requestModal.deleteFile')}
-                              >
-                                <X size={14} />
-                              </button>
-                              <button
-                                type="button"
-                                disabled={submitting}
-                                onClick={() => {
-                                  replacingAttachmentId.current = item.id;
-                                  replaceInputRef.current?.click();
-                                }}
-                                className="absolute bottom-1.5 inset-x-1.5 cursor-pointer rounded-lg bg-black/55 text-white text-[10px] font-bold py-1 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-40"
-                              >
-                                {t('serviceMarketplace.requestModal.replace')}
-                              </button>
-                            </>
-                          )}
-
-                          <span className="absolute top-1.5 inset-e-1.5 text-[9px] bg-black/55 text-white px-1.5 py-0.5 rounded flex items-center gap-1">
-                            <File size={10} />
-                            {formatFileSize(item.file.size)}
-                          </span>
-                        </div>
-                      ))}
+                          className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all resize-none ${
+                            errors.links ? 'border-red-300 bg-red-50/40' : 'border-gray-200'
+                          }`}
+                        />
+                        {errors.links && (
+                          <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.links}</p>
+                        )}
+                      </div>
                     </div>
-                  )}
+                  </div>
+                </form>
+              )}
+            </div>
 
-                  <div>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      className="hidden"
-                      multiple
-                      accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
-                      onChange={(e) => {
-                        addFiles(Array.from(e.target.files ?? []));
-                        e.target.value = '';
-                      }}
-                    />
-                    <input
-                      type="file"
-                      ref={replaceInputRef}
-                      className="hidden"
-                      accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        const targetId = replacingAttachmentId.current;
-                        if (file && targetId) {
-                          replaceAttachment(targetId, file);
-                        }
-                        replacingAttachmentId.current = null;
-                        e.target.value = '';
-                      }}
-                    />
-                    {canAddMoreAttachments ? (
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={submitting}
-                        className="w-full border-2 border-dashed border-gray-300 rounded-xl py-6 flex flex-col items-center justify-center text-gray-500 hover:border-diyar-brown hover:bg-diyar-cream/10 transition-colors group cursor-pointer disabled:opacity-60"
-                      >
-                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3 group-hover:text-diyar-brown">
-                          <Upload size={20} />
-                        </div>
-                        <span className="font-medium text-sm">
-                          {t('serviceMarketplace.requestModal.uploadPrompt')}
-                        </span>
-                        <span className="text-xs text-gray-400 mt-1">
-                          {t('serviceMarketplace.requestModal.uploadFormats', {
-                            current: pendingAttachments.length,
-                            max: MAX_SERVICE_REQUEST_ATTACHMENTS,
-                          })}
-                        </span>
-                      </button>
+            {!isSubmitted && (
+              <div className="shrink-0 border-t border-gray-100 bg-white px-5 py-4 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)] md:rounded-b-3xl md:px-8">
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    form="request-service-form"
+                    disabled={selectedCategoryIds.length === 0 || submitting}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-diyar-brown py-3.5 font-bold text-white shadow-lg shadow-diyar-brown/20 transition-colors hover:bg-[#8A6D46] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none cursor-pointer"
+                  >
+                    {submitting ? (
+                      <Loader2 size={18} className="animate-spin" />
                     ) : (
-                      <p className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
-                        {t('serviceMarketplace.requestModal.maxAttachments', {
-                          max: MAX_SERVICE_REQUEST_ATTACHMENTS,
-                        })}
-                      </p>
+                      <>
+                        <Send size={18} />
+                        {t('serviceMarketplace.requestModal.submit')}
+                      </>
                     )}
-                    {errors.attachments && (
-                      <p className="mt-1.5 text-xs text-red-600 font-medium">
-                        {errors.attachments}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-gray-500 mb-2 flex items-center gap-1.5">
-                      <LinkIcon size={14} />
-                      {t('serviceMarketplace.requestModal.referenceLinks')}
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={links}
-                      onChange={(e) => {
-                        setLinks(e.target.value);
-                        setErrors((prev) => ({ ...prev, links: undefined }));
-                      }}
-                      placeholder={t('serviceMarketplace.requestModal.referenceLinksPlaceholder')}
-                      className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-diyar-brown focus:border-transparent outline-none transition-all resize-none ${
-                        errors.links ? 'border-red-300 bg-red-50/40' : 'border-gray-200'
-                      }`}
-                    />
-                    {errors.links && (
-                      <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.links}</p>
-                    )}
-                  </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    disabled={submitting}
+                    className="rounded-xl bg-gray-100 px-5 py-3.5 font-bold text-gray-700 transition-colors hover:bg-gray-200 cursor-pointer disabled:opacity-60 sm:px-6"
+                  >
+                    {t('providerDashboard.common.cancel')}
+                  </button>
                 </div>
               </div>
-
-              <div className="pt-4 flex gap-3">
-                <button
-                  type="submit"
-                  disabled={selectedCategoryIds.length === 0 || submitting}
-                  className="flex-1 bg-diyar-brown text-white py-3.5 rounded-xl font-bold hover:bg-[#8A6D46] transition-colors shadow-lg shadow-diyar-brown/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer"
-                >
-                  {submitting ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <>
-                      <Send size={18} />
-                      {t('serviceMarketplace.requestModal.submit')}
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  disabled={submitting}
-                  className="px-6 bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-colors cursor-pointer disabled:opacity-60"
-                >
-                  {t('providerDashboard.common.cancel')}
-                </button>
-              </div>
-            </form>
-          )}
+            )}
+          </div>
         </div>
-      </div>
-    </div>
       ) : null}
 
       <AuthPromptModal

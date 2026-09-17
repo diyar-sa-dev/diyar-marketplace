@@ -31,6 +31,7 @@ import type {
   ResetPasswordPayload,
   VerifyEmailOtpPayload,
   VerifyOtpPayload,
+  VerifyTwoFactorPayload,
 } from '../types/auth.ts';
 import { parseApiError } from '../utils/errors.ts';
 
@@ -49,6 +50,8 @@ type AuthContextValue = {
   resendEmailOtp: (email: string) => Promise<AuthActionResult>;
   forgotPassword: (phone: string) => Promise<AuthActionResult>;
   verifyPasswordResetOtp: (payload: VerifyOtpPayload) => Promise<AuthActionResult>;
+  verifyTwoFactor: (payload: VerifyTwoFactorPayload) => Promise<AuthUserResult>;
+  resendTwoFactor: (challengeId: string) => Promise<AuthActionResult>;
   resetPassword: (payload: ResetPasswordPayload) => Promise<AuthActionResult>;
   logout: () => Promise<AuthActionResult>;
   refreshUser: () => Promise<AuthUser | null>;
@@ -291,6 +294,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       resendEmailOtp: (email) => wrap(() => authApi.resendEmailOtp(email)),
       forgotPassword: (phone) => wrap(() => authApi.forgotPassword(phone)),
       verifyPasswordResetOtp: (payload) => wrap(() => authApi.verifyPasswordResetOtp(payload)),
+      verifyTwoFactor: (payload) =>
+        wrap(async () => {
+          const result = await authApi.verifyTwoFactor(payload);
+          setUser(result.user);
+          setStatus('authenticated');
+          invalidateUserScopedQueries();
+          await mergeGuestCartAfterAuth((message) => toast.warning(message));
+          return result;
+        }),
+      resendTwoFactor: (challengeId) => wrap(() => authApi.resendTwoFactor(challengeId)),
       resetPassword: (payload) => wrap(() => authApi.resetPassword(payload)),
       logout: () =>
         wrap(async () => {

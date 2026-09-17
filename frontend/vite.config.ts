@@ -7,16 +7,25 @@ import { defineConfig, loadEnv, type Plugin } from 'vite';
 
 const frontendRoot = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(frontendRoot, '..');
-const env = loadEnv(process.env.NODE_ENV ?? 'development', frontendRoot, '');
-const cdnBase = (process.env.VITE_CDN_BASE_URL ?? env.VITE_CDN_BASE_URL)?.replace(/\/$/, '');
-/** Local prod stack: scripts/local/start-frontend-prod-api.ps1 sets this to http://<LAN-IP>:8093 */
-const apiProxyTarget = (process.env.DIYAR_API_PROXY_TARGET ?? env.DIYAR_API_PROXY_TARGET)?.replace(/\/$/, '') ?? 'http://127.0.0.1:8000';
-const reverbProxyTarget =
-  (process.env.DIYAR_REVERB_PROXY_TARGET ?? env.DIYAR_REVERB_PROXY_TARGET)?.replace(/\/$/, '') ?? apiProxyTarget;
+const cdnBase = process.env.VITE_CDN_BASE_URL?.replace(/\/$/, '');
 
-function apiProxyOptions() {
+function resolveProxyTarget(mode: string, envKey: string, fallback: string): string {
+  const fromProcess = process.env[envKey]?.replace(/\/$/, '');
+  if (fromProcess) {
+    return fromProcess;
+  }
+
+  const fromEnvFile = loadEnv(mode, frontendRoot, '')[envKey]?.replace(/\/$/, '');
+  if (fromEnvFile) {
+    return fromEnvFile;
+  }
+
+  return fallback;
+}
+
+function apiProxyOptions(target: string) {
   return {
-    target: apiProxyTarget,
+    target,
     changeOrigin: true,
     secure: false,
   };
@@ -32,9 +41,13 @@ function reverbProxyOptions(target: string) {
   };
 }
 
-function seoStaticFilesPlugin(): Plugin {
-  const siteUrl = (process.env.VITE_SITE_URL ?? 'https://diyar.com').replace(/\/$/, '');
-  const paths = ['/', '/category/all', '/services', '/blog', '/b2b', '/loyalty'];
+function seoStaticFilesPlugin(mode: string): Plugin {
+  const env = loadEnv(mode, frontendRoot, '');
+  const siteUrl = (env.VITE_SITE_URL ?? 'https://deyarhome.com').replace(/\/$/, '');
+  const landingMode = env.VITE_LANDING_MODE === 'true';
+  const paths = landingMode
+    ? ['/', '/en']
+    : ['/', '/category/all', '/services', '/blog', '/b2b', '/loyalty'];
 
   return {
     name: 'diyar-seo-static-files',
@@ -83,11 +96,37 @@ function deliveryPreconnectPlugin(): Plugin {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  /**
+   * API default: Laravel `php artisan serve` (:8000).
+   * Reverb default: diyar-production nginx (:8093) — artisan serve cannot upgrade WebSockets on /app/.
+   */
+  const apiProxyTarget = resolveProxyTarget(mode, 'DIYAR_API_PROXY_TARGET', 'http://127.0.0.1:8000');
+  const reverbProxyTarget = resolveProxyTarget(
+    mode,
+    'DIYAR_REVERB_PROXY_TARGET',
+    'http://127.0.0.1:8093',
+  );
+
+  return {
   root: frontendRoot,
   base: cdnBase ? `${cdnBase}/` : '/',
   cacheDir: path.resolve(frontendRoot, 'node_modules/.vite'),
-  plugins: [react(), tailwindcss(), deliveryPreconnectPlugin(), seoStaticFilesPlugin()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    deliveryPreconnectPlugin(),
+    seoStaticFilesPlugin(mode),
+    {
+      name: 'diyar-dev-proxy-log',
+      configureServer() {
+        if (mode !== 'production') {
+          console.log(`[diyar] API proxy → ${apiProxyTarget}`);
+          console.log(`[diyar] Reverb WS proxy → ${reverbProxyTarget}`);
+        }
+      },
+    },
+  ],
   resolve: {
     dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
   },
@@ -144,11 +183,11 @@ export default defineConfig({
     port: 3000,
     host: '0.0.0.0',
     proxy: {
-      '/api': apiProxyOptions(),
-      '/sanctum': apiProxyOptions(),
-      '/broadcasting': apiProxyOptions(),
+      '/api': apiProxyOptions(apiProxyTarget),
+      '/sanctum': apiProxyOptions(apiProxyTarget),
+      '/broadcasting': apiProxyOptions(apiProxyTarget),
       '/app/': reverbProxyOptions(reverbProxyTarget),
-      '/storage': apiProxyOptions(),
+      '/storage': apiProxyOptions(apiProxyTarget),
     },
     watch: {
       ignored: [
@@ -164,11 +203,12 @@ export default defineConfig({
     host: '0.0.0.0',
     strictPort: true,
     proxy: {
-      '/api': apiProxyOptions(),
-      '/sanctum': apiProxyOptions(),
-      '/broadcasting': apiProxyOptions(),
+      '/api': apiProxyOptions(apiProxyTarget),
+      '/sanctum': apiProxyOptions(apiProxyTarget),
+      '/broadcasting': apiProxyOptions(apiProxyTarget),
       '/app/': reverbProxyOptions(reverbProxyTarget),
-      '/storage': apiProxyOptions(),
+      '/storage': apiProxyOptions(apiProxyTarget),
     },
   },
+};
 });

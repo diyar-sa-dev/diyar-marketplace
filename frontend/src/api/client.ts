@@ -2,30 +2,27 @@ import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestCo
 import { getAffiliateSessionFingerprint } from '../lib/affiliateSession.ts';
 import { resolveApiContextFromUrl } from '../lib/auth/applicationContext.ts';
 import { notifyUnauthorized } from '../lib/auth/sessionEvents.ts';
-import { ensureCsrfCookie, readXsrfToken, resetCsrfCookie } from '../lib/csrf.ts';
+import { ensureCsrfCookie, readXsrfToken } from '../lib/csrf.ts';
 import { readStoredLocale } from '../lib/i18n/storage.ts';
-import { apiBaseUrl, env } from '../lib/env.ts';
+import { env } from '../lib/env.ts';
 import type { ApiErrorResponse } from '../types/api.ts';
 import { isApiErrorDetail, parseApiError } from '../utils/errors.ts';
 
 type RetryableConfig = InternalAxiosRequestConfig & { _csrfRetry?: boolean };
 
-function createApiClient(): AxiosInstance {
-  const client = axios.create({
+function createApiClient(adapter?: 'fetch' | 'xhr'): AxiosInstance {
+  return axios.create({
+    baseURL: env.apiUrl,
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
     withCredentials: true,
-    timeout: env.isDev ? 30_000 : 90_000,
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+    timeout: 30_000,
+    ...(adapter ? { adapter } : {}),
   });
-
-  client.interceptors.request.use((config) => {
-    config.baseURL = apiBaseUrl();
-    return config;
-  });
-
-  return client;
 }
 
 function prepareRequestBody(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
@@ -55,7 +52,7 @@ function attachAffiliateSessionHeader(
 
 function attachCsrfHeader(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
   const method = config.method?.toLowerCase();
-  if (method && method !== 'get' && method !== 'head' && !config.headers.has('X-XSRF-TOKEN')) {
+  if (method && method !== 'get' && method !== 'head') {
     const token = readXsrfToken();
     if (token) {
       config.headers.set('X-XSRF-TOKEN', token);
@@ -103,8 +100,7 @@ function attachInterceptors(client: AxiosInstance): AxiosInstance {
 
       if (error.response?.status === 419 && config && !config._csrfRetry) {
         config._csrfRetry = true;
-        resetCsrfCookie();
-        await ensureCsrfCookie({ refresh: true });
+        await ensureCsrfCookie();
         const token = readXsrfToken();
         if (token) {
           config.headers.set('X-XSRF-TOKEN', token);
@@ -126,7 +122,7 @@ function attachInterceptors(client: AxiosInstance): AxiosInstance {
 }
 
 /** Marketplace storefront API client — `/api/v1/*` excluding admin routes. */
-export const marketplaceApi = attachInterceptors(createApiClient());
+export const marketplaceApi = attachInterceptors(createApiClient('fetch'));
 
 /** Admin operations API client — `/api/v1/admin/*`. */
 export const adminApi = attachInterceptors(createApiClient());

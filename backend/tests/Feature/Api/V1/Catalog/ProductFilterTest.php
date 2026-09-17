@@ -106,7 +106,7 @@ class ProductFilterTest extends TestCase
         $product->forceFill(['status' => 'archived'])->save();
         $product->delete();
 
-        $this->getJson('/api/v1/products?per_page=100')
+        $this->getJson('/api/v1/products?per_page=50')
             ->assertOk()
             ->assertJsonMissing(['id' => $product->id]);
     }
@@ -122,7 +122,7 @@ class ProductFilterTest extends TestCase
             'promotion_ends_at' => now()->subMinute(),
         ])->save();
 
-        $response = $this->getJson('/api/v1/products?discounted=true&per_page=100');
+        $response = $this->getJson('/api/v1/products?discounted=true&per_page=50');
 
         $response->assertOk();
         $this->assertNotContains($product->id, collect($response->json('data.items'))->pluck('id')->all());

@@ -35,6 +35,8 @@ class User extends Authenticatable
         'status',
         'phone_verified_at',
         'email_verified_at',
+        'two_factor_enabled',
+        'two_factor_confirmed_at',
         'welcome_email_sent_at',
     ];
 
@@ -49,6 +51,8 @@ class User extends Authenticatable
             'status' => UserStatus::class,
             'phone_verified_at' => 'datetime',
             'email_verified_at' => 'datetime',
+            'two_factor_enabled' => 'boolean',
+            'two_factor_confirmed_at' => 'datetime',
             'welcome_email_sent_at' => 'datetime',
             'password' => 'hashed',
             'preferences' => 'array',
@@ -135,5 +139,11 @@ class User extends Authenticatable
     public function isActive(): bool
     {
         return $this->status === UserStatus::Active;
+    }
+
+    public function hasTwoFactorEnabled(): bool
+    {
+        return (bool) $this->two_factor_enabled
+            && $this->two_factor_confirmed_at !== null;
     }
 }

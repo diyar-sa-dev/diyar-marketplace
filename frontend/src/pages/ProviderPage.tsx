@@ -465,7 +465,7 @@ export default function ProviderPage() {
               <ProviderReviewsTab
                 slug={provider.slug}
                 providerName={provider.display_name}
-                providerAvatarUrl={avatarUrl ?? provider.avatar_url}
+                providerAvatarUrl={provider.avatar_url}
               />
             )}
           </div>

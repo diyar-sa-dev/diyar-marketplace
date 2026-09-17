@@ -31,20 +31,8 @@ export function resolveReverbConnectionOptions(input: {
   const configuredHost = input.configuredHost.trim();
   const useDevProxy = input.isDev && input.sameOriginApi !== false && location;
 
-  // Vite dev server proxies /app/* to Reverb — always prefer that when API is same-origin.
-  if (useDevProxy) {
-    const devPort = location.port ? Number(location.port) : 3000;
-
-    return {
-      wsHost: location.hostname,
-      wsPort: devPort,
-      wssPort: devPort,
-      forceTLS: pageIsHttps,
-      enabledTransports: pageIsHttps ? ['wss'] : ['ws'],
-    };
-  }
-
-  // Explicit Reverb host (split SPA + API in production preview / deployed builds).
+  // Explicit host wins in all environments (e.g. diyar-production nginx on :8093).
+  // Avoids relying on Vite's WebSocket proxy, which is flaky on some Windows setups.
   if (configuredHost) {
     const forceTLS = input.configuredScheme === 'https' || pageIsHttps;
     let port = input.configuredPort;
@@ -60,6 +48,19 @@ export function resolveReverbConnectionOptions(input: {
       wssPort: port,
       forceTLS,
       enabledTransports: forceTLS ? ['wss'] : ['ws'],
+    };
+  }
+
+  // Vite dev server proxies /app/* to Reverb when host is not configured explicitly.
+  if (useDevProxy) {
+    const devPort = location.port ? Number(location.port) : 3000;
+
+    return {
+      wsHost: location.hostname,
+      wsPort: devPort,
+      wssPort: devPort,
+      forceTLS: pageIsHttps,
+      enabledTransports: pageIsHttps ? ['wss'] : ['ws'],
     };
   }
 

@@ -121,6 +121,11 @@ function Sync-ProductionEnv {
     Set-EnvMapValue -Map $map -Key 'REVERB_PORT' -Value $gatewayPort
     Set-EnvMapValue -Map $map -Key 'REVERB_SCHEME' -Value 'http'
 
+    $reverbKey = [string]$map['REVERB_APP_KEY']
+    if ([string]::IsNullOrWhiteSpace($reverbKey) -or $reverbKey.StartsWith('base64:')) {
+        Set-EnvMapValue -Map $map -Key 'REVERB_APP_KEY' -Value 'diyar_local_reverb_key'
+    }
+
     Write-EnvFile -Path $envFile -Map $map -KeyOrder @(
         'DIYAR_GATEWAY_HOST', 'DIYAR_LAN_HOST', 'GATEWAY_PORT', 'HTTP_PORT', 'FRONTEND_PORT',
         'APP_URL', 'FRONTEND_URL', 'DIYAR_FRONTEND_URL', 'REVERB_HOST', 'REVERB_PORT', 'REVERB_SCHEME'

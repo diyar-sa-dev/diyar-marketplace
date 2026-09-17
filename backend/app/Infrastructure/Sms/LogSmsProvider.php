@@ -26,6 +26,13 @@ final class LogSmsProvider implements SmsProvider
             'phone' => $phone,
             'message' => $message,
         ];
+
+        if (self::shouldExposePlainOtp()) {
+            Log::info('sms.log_provider.sent', [
+                'phone' => $phone,
+                'message' => $message,
+            ]);
+        }
     }
 
     public static function exposeForDevelopment(
@@ -60,26 +67,7 @@ final class LogSmsProvider implements SmsProvider
             return false;
         }
 
-        if (self::testCodeConfigured()) {
-            return true;
-        }
-
-        if (! app()->environment(['local', 'testing', 'staging'])) {
-            return false;
-        }
-
-        if (self::msegatCredentialsConfigured()) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private static function testCodeConfigured(): bool
-    {
-        $code = config('diyar.otp.test_code');
-
-        return is_string($code) && $code !== '';
+        return app()->environment(['local', 'testing']);
     }
 
     public static function isProductionEnvironment(): bool

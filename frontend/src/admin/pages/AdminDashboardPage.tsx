@@ -93,7 +93,9 @@ function MetricCard({
   );
 
   const className = `h-full min-h-36 rounded-2xl border bg-linear-to-br from-white to-[#faf8f5]/80 p-4 shadow-sm transition sm:p-5 ${
-    emphasis ? 'border-amber-200/90 ring-1 ring-amber-100' : 'border-gray-100 hover:border-diyar-brown/20 hover:shadow-md'
+    emphasis
+      ? 'border-amber-200/90 ring-1 ring-amber-100'
+      : 'border-gray-100 hover:border-diyar-brown/20 hover:shadow-md'
   }`;
 
   if (to) {
@@ -353,7 +355,9 @@ export default function AdminDashboardPage() {
               <h3 className="text-lg font-extrabold text-diyar-dark">
                 {t('admin.dashboard.metricsOverview')}
               </h3>
-              <p className="mt-1 text-sm text-gray-500">{t('admin.dashboard.metricsOverviewHint')}</p>
+              <p className="mt-1 text-sm text-gray-500">
+                {t('admin.dashboard.metricsOverviewHint')}
+              </p>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">

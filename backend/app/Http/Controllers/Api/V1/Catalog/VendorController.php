@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Catalog;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Catalog\ProductListRequest;
 use App\Http\Resources\ProductCardResource;
 use App\Http\Resources\VendorCardResource;
 use App\Http\Resources\VendorPublicResource;
@@ -44,10 +45,10 @@ class VendorController extends Controller
         ]);
     }
 
-    public function products(Request $request, string $slug): JsonResponse
+    public function products(ProductListRequest $request, string $slug): JsonResponse
     {
         $vendor = $this->vendors->findActiveBySlug($slug);
-        $paginator = $this->products->listForVendorPublic($vendor, $request->query(), $request->user());
+        $paginator = $this->products->listForVendorPublic($vendor, $request->validatedFilters(), $request->user());
 
         return ApiResponse::success(data: $this->paginatedProducts($paginator));
     }

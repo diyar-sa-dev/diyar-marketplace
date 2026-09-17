@@ -29,6 +29,8 @@ const CONNECT_TIMEOUT_MS = 12_000;
 const BASE_RECONNECT_DELAY_MS = 1_000;
 const MAX_RECONNECT_DELAY_MS = 30_000;
 const EVENT_DEDUPE_TTL_MS = 30_000;
+/** Avoid disconnecting during React StrictMode remount (release → immediate retain). */
+const TEARDOWN_GRACE_MS = 300;
 
 let reconnectAttempt = 0;
 
@@ -87,6 +89,7 @@ let connectionHandlersBound = false;
 let refCount = 0;
 let connectTimeoutId: number | undefined;
 let reconnectTimeoutId: number | undefined;
+let teardownTimerId: number | undefined;
 let csrfPrepared = false;
 let isTearingDown = false;
 let suppressChannelLeave = false;
@@ -138,6 +141,10 @@ function safePusherConnect(): void {
   }
 
   if (state === 'closing' || state === 'closed') {
+    if (refCount === 0) {
+      return;
+    }
+
     echoInstance = null;
     connectionHandlersBound = false;
     ensureEcho();
@@ -351,6 +358,9 @@ function ensureEcho(): Echo<'reverb'> | null {
     forceTLS: connection.forceTLS,
     enabledTransports: connection.enabledTransports,
     disableStats: true,
+    // Reduce spurious activity-check reconnects through the Vite /app/ WebSocket proxy.
+    activityTimeout: 120_000,
+    pongTimeout: 30_000,
     authEndpoint: broadcastingAuthEndpoint(env.backendUrl),
     auth: {
       headers: broadcastingAuthHeaders,
@@ -406,7 +416,40 @@ function attachChannelHandlers(subscription: ChannelSubscription): void {
   });
 }
 
+function cancelScheduledTeardown(): void {
+  window.clearTimeout(teardownTimerId);
+  teardownTimerId = undefined;
+}
+
+function teardownConnection(): void {
+  if (refCount > 0) {
+    return;
+  }
+
+  isTearingDown = true;
+  suppressChannelLeave = true;
+  window.clearTimeout(connectTimeoutId);
+  clearReconnectTimer();
+  channelSubscriptions.forEach((subscription) => {
+    detachSubscription(subscription);
+  });
+  channelSubscriptions.clear();
+  if (echoInstance) {
+    try {
+      echoInstance.disconnect();
+    } catch {
+      // Ignore disconnect races during hot reload / Strict Mode teardown.
+    }
+    echoInstance = null;
+  }
+  connectionHandlersBound = false;
+  isTearingDown = false;
+  suppressChannelLeave = false;
+  notifyState('idle');
+}
+
 function acquireConnection(): void {
+  cancelScheduledTeardown();
   refCount += 1;
   if (refCount === 1) {
     if (isRealtimeEnabled()) {
@@ -420,26 +463,11 @@ function acquireConnection(): void {
 function releaseConnection(): void {
   refCount = Math.max(0, refCount - 1);
   if (refCount === 0) {
-    isTearingDown = true;
-    suppressChannelLeave = true;
-    window.clearTimeout(connectTimeoutId);
-    clearReconnectTimer();
-    channelSubscriptions.forEach((subscription) => {
-      detachSubscription(subscription);
-    });
-    channelSubscriptions.clear();
-    if (echoInstance) {
-      try {
-        echoInstance.disconnect();
-      } catch {
-        // Ignore disconnect races during hot reload / Strict Mode teardown.
-      }
-      echoInstance = null;
-    }
-    connectionHandlersBound = false;
-    isTearingDown = false;
-    suppressChannelLeave = false;
-    notifyState('idle');
+    cancelScheduledTeardown();
+    teardownTimerId = window.setTimeout(() => {
+      teardownTimerId = undefined;
+      teardownConnection();
+    }, TEARDOWN_GRACE_MS);
   }
 }
 
@@ -537,9 +565,11 @@ export function createEcho(): Echo<'reverb'> {
 }
 
 export function disconnectEcho(): void {
+  cancelScheduledTeardown();
   while (refCount > 0) {
-    releaseConnection();
+    refCount -= 1;
   }
+  teardownConnection();
 }
 
 export function getEcho(): Echo<'reverb'> | null {

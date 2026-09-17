@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\ServiceMarketplace;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Catalog\ServiceListRequest;
 use App\Http\Resources\ServiceCardResource;
 use App\Http\Resources\ServiceDetailResource;
 use App\Services\ServiceMarketplace\ServiceCatalogService;
@@ -17,9 +18,9 @@ class ServiceController extends Controller
         private readonly ServiceCatalogService $services,
     ) {}
 
-    public function index(Request $request): JsonResponse
+    public function index(ServiceListRequest $request): JsonResponse
     {
-        $paginator = $this->services->listPublic($request->query(), $request->user());
+        $paginator = $this->services->listPublic($request->validatedFilters(), $request->user());
 
         return ApiResponse::success(data: $this->paginatedServices($paginator));
     }

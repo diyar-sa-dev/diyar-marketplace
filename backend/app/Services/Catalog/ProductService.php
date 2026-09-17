@@ -5,6 +5,8 @@ namespace App\Services\Catalog;
 use App\Enums\AvailabilityMode;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
+use App\Jobs\Search\IndexProductImageJob;
+use App\Jobs\Search\RemoveVisualIndexEntryJob;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
@@ -59,6 +61,20 @@ final class ProductService
     }
 
     /**
+     * Filtered publicly visible product query without sort — for aggregate summaries.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return Builder<Product>
+     */
+    public function filteredPublicQuery(array $filters): Builder
+    {
+        $query = $this->publicQuery();
+        $this->applyPublicFilters($query, $filters);
+
+        return $query->clone()->reorder();
+    }
+
+    /**
      * @param  array<string, mixed>  $filters
      */
     public function searchPublic(array $filters = [], ?User $user = null): LengthAwarePaginator
@@ -80,7 +96,6 @@ final class ProductService
         }
 
         $query->withUserSaved($user);
-        $query->withUserLiked($user);
 
         $product = $query->first();
 
@@ -103,6 +118,29 @@ final class ProductService
             ->limit($limit);
 
         return $query->get();
+    }
+
+    /**
+     * @param  list<string>  $ids
+     * @return Collection<int, Product>
+     */
+    public function listPublicByIds(array $ids, ?User $user = null): Collection
+    {
+        if ($ids === []) {
+            return collect();
+        }
+
+        $cap = (int) config('diyar.visual_search.candidate_limit', 50);
+        if (count($ids) > $cap) {
+            $ids = array_slice($ids, 0, $cap);
+        }
+
+        $products = $this->cardQuery($user)->whereIn('id', $ids)->get();
+        $order = array_flip($ids);
+
+        return $products
+            ->sortBy(fn (Product $product): int => $order[$product->id] ?? PHP_INT_MAX)
+            ->values();
     }
 
     /**
@@ -230,7 +268,12 @@ final class ProductService
         $this->inventory->assertProductOwnership($user, $product);
 
         $product->forceFill(['status' => ProductStatus::Archived])->save();
+        $imageIds = $product->images()->pluck('id');
         $product->delete();
+
+        foreach ($imageIds as $imageId) {
+            RemoveVisualIndexEntryJob::dispatch($imageId);
+        }
 
         app(CatalogCacheInvalidator::class)->invalidateSearchCachesAfterCommit();
 
@@ -272,8 +315,10 @@ final class ProductService
         }
 
         DB::transaction(function () use ($image) {
+            $imageId = $image->id;
             $this->media->deleteMediaFile($image->mediaFile);
             $image->delete();
+            RemoveVisualIndexEntryJob::dispatch($imageId);
         });
     }
 
@@ -335,22 +380,18 @@ final class ProductService
     }
 
     /**
-     * @param  Builder<Product>  $query
+     * @return Builder<Product>
      */
-    public function applyCardPresentation(Builder $query, ?User $user = null): Builder
-    {
-        return $query
-            ->with($this->cardEagerLoads())
-            ->withCount(['reviews'])
-            ->withAvg('reviews', 'rating')
-            ->tap(function (Builder $builder) use ($user): void {
-                $builder->withUserSaved($user);
-            });
-    }
-
     private function cardQuery(?User $user = null): Builder
     {
-        return $this->applyCardPresentation($this->publicQuery(), $user);
+        $query = $this->publicQuery()
+            ->with($this->cardEagerLoads())
+            ->withCount(['reviews'])
+            ->withAvg('reviews', 'rating');
+
+        $query->withUserSaved($user);
+
+        return $query;
     }
 
     /**
@@ -359,13 +400,10 @@ final class ProductService
     private function cardEagerLoads(): array
     {
         return [
-            'vendorAccount:id,business_name,slug,logo_path',
-            'category:id,name,slug,type',
-            'images' => fn ($query) => $query
-                ->orderBy('sort_order')
-                ->limit(1)
-                ->with('mediaFile:id,path'),
-            'inventory:id,product_id,available_quantity,stock_quantity,reserved_quantity',
+            'vendorAccount',
+            'category',
+            'images.mediaFile',
+            'inventory',
         ];
     }
 
@@ -375,6 +413,8 @@ final class ProductService
      */
     private function applyFilters(Builder $query, array $filters): void
     {
+        $table = $query->getModel()->getTable();
+
         if (! empty($filters['q'])) {
             $raw = mb_substr((string) $filters['q'], 0, 120);
 
@@ -385,37 +425,37 @@ final class ProductService
                     ->map(fn ($t) => '+'.$t.'*')
                     ->implode(' ');
 
-                $query->where(function (Builder $q) use ($raw, $booleanQuery) {
+                $query->where(function (Builder $q) use ($raw, $booleanQuery, $table) {
                     if ($booleanQuery !== '') {
                         $q->whereRaw(
-                            'MATCH(products.name, products.description) AGAINST (? IN BOOLEAN MODE)',
+                            "MATCH({$table}.name, {$table}.description) AGAINST (? IN BOOLEAN MODE)",
                             [$booleanQuery]
                         );
                     }
-                    $q->orWhere('products.name', 'like', '%'.$raw.'%');
+                    $q->orWhere("{$table}.name", 'like', '%'.$raw.'%');
                 });
             } else {
                 $term = '%'.$raw.'%';
-                $query->where(function (Builder $q) use ($term) {
-                    $q->where('products.name', 'like', $term)
-                        ->orWhere('products.description', 'like', $term);
+                $query->where(function (Builder $q) use ($term, $table) {
+                    $q->where("{$table}.name", 'like', $term)
+                        ->orWhere("{$table}.description", 'like', $term);
                 });
             }
         }
 
         if (! empty($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
+            $query->where("{$table}.category_id", $filters['category_id']);
         }
 
         if (! empty($filters['category_slug'])) {
             $category = Category::query()->active()->where('slug', $filters['category_slug'])->first();
             if ($category !== null) {
-                $query->where('category_id', $category->id);
+                $query->where("{$table}.category_id", $category->id);
             }
         }
 
         if (! empty($filters['vendor_id'])) {
-            $query->where('vendor_account_id', $filters['vendor_id']);
+            $query->where("{$table}.vendor_account_id", $filters['vendor_id']);
         }
 
         if (! empty($filters['vendor_slug'])) {
@@ -425,7 +465,7 @@ final class ProductService
                 ->value('id');
 
             if ($vendorId !== null) {
-                $query->where('vendor_account_id', $vendorId);
+                $query->where("{$table}.vendor_account_id", $vendorId);
             } else {
                 $query->whereRaw('0 = 1');
             }
@@ -438,20 +478,24 @@ final class ProductService
 
         if (! empty($filters['material'])) {
             $material = (string) $filters['material'];
-            $query->whereJsonContains('materials', $material);
+            $query->where(function (Builder $materialQuery) use ($material, $table) {
+                $materialQuery
+                    ->where("{$table}.materials", 'like', '%'.$material.'%')
+                    ->orWhereJsonContains("{$table}.materials", $material);
+            });
         }
 
         if (! empty($filters['availability_mode'])) {
             $mode = AvailabilityMode::tryFrom((string) $filters['availability_mode']);
             if ($mode !== null) {
-                $query->where('availability_mode', $mode);
+                $query->where("{$table}.availability_mode", $mode);
             }
         }
 
         if (! empty($filters['product_type'])) {
             $type = ProductType::tryFrom((string) $filters['product_type']);
             if ($type !== null) {
-                $query->where('product_type', $type);
+                $query->where("{$table}.product_type", $type);
             }
         }
 
@@ -460,11 +504,11 @@ final class ProductService
         }
 
         if (isset($filters['min_price'])) {
-            $query->where('sale_price', '>=', $filters['min_price']);
+            $query->where("{$table}.sale_price", '>=', $filters['min_price']);
         }
 
         if (isset($filters['max_price'])) {
-            $query->where('sale_price', '<=', $filters['max_price']);
+            $query->where("{$table}.sale_price", '<=', $filters['max_price']);
         }
 
         $sort = $filters['sort'] ?? '-created_at';
@@ -601,10 +645,12 @@ final class ProductService
         foreach ($files as $file) {
             $sortOrder++;
             $mediaFile = $this->media->storeProductImage($user, $product->id, $file);
-            $product->images()->create([
+            $productImage = $product->images()->create([
                 'media_file_id' => $mediaFile->id,
                 'sort_order' => $sortOrder,
             ]);
+
+            IndexProductImageJob::dispatch($productImage->id);
         }
     }
 

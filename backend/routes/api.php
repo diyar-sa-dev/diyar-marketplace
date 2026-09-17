@@ -61,6 +61,7 @@ use App\Http\Controllers\Api\V1\Cart\CartController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchController;
 use App\Http\Controllers\Api\V1\Catalog\CatalogSearchSuggestionsController;
 use App\Http\Controllers\Api\V1\Catalog\CategoryController;
+use App\Http\Controllers\Api\V1\Catalog\FilterSuggestionsController;
 use App\Http\Controllers\Api\V1\Catalog\ProductController;
 use App\Http\Controllers\Api\V1\Catalog\ProductEngagementController;
 use App\Http\Controllers\Api\V1\Catalog\ProductPreorderController;
@@ -110,16 +111,20 @@ use App\Http\Controllers\Api\V1\Payment\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\Platform\PlatformAnnouncementController;
 use App\Http\Controllers\Api\V1\Platform\PlatformCommerceController;
 use App\Http\Controllers\Api\V1\Platform\PlatformContactController;
+use App\Http\Controllers\Api\V1\Platform\PlatformSearchController;
 use App\Http\Controllers\Api\V1\Platform\PlatformThemeController;
 use App\Http\Controllers\Api\V1\Profile\AddressController;
 use App\Http\Controllers\Api\V1\Profile\CustomerReviewController;
 use App\Http\Controllers\Api\V1\Profile\NotificationController;
 use App\Http\Controllers\Api\V1\Profile\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\Profile\ProfileController;
+use App\Http\Controllers\Api\V1\Profile\ProfileSecuritySessionController;
+use App\Http\Controllers\Api\V1\Profile\ProfileTwoFactorController;
 use App\Http\Controllers\Api\V1\Profile\WishlistController;
 use App\Http\Controllers\Api\V1\Projects\ProjectController;
 use App\Http\Controllers\Api\V1\ReadinessController;
 use App\Http\Controllers\Api\V1\Return\ReturnController;
+use App\Http\Controllers\Api\V1\Search\VisualSearchController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\DirectServiceBookingController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderAnalyticsController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderController as ServiceProviderController;
@@ -137,6 +142,8 @@ use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceOfferController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceRequestController;
 use App\Http\Controllers\Api\V1\Storefront\HomeStorefrontController;
 use App\Http\Controllers\Api\V1\WebsiteFeedbackController;
+use App\Http\Middleware\EnsureUserSessionNotRevoked;
+use App\Http\Middleware\UserSessionActivityMiddleware;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -177,6 +184,9 @@ Route::get('/platform/announcement', [PlatformAnnouncementController::class, 'sh
 Route::get('/platform/commerce', [PlatformCommerceController::class, 'show'])
     ->name('api.v1.platform.commerce');
 
+Route::get('/platform/search', [PlatformSearchController::class, 'show'])
+    ->name('api.v1.platform.search');
+
 Route::post('/webhooks/payments/myfatoorah', [PaymentWebhookController::class, 'myfatoorah'])
     ->middleware('throttle:webhooks')
     ->name('api.v1.webhooks.payments.myfatoorah');
@@ -194,7 +204,11 @@ Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/products/{id}/reviews', [ProductEngagementController::class, 'reviews']);
 Route::get('/search', CatalogSearchController::class)->middleware('throttle:catalog-search');
 Route::get('/catalog/search', CatalogSearchController::class)->middleware('throttle:catalog-search');
+Route::post('/search/visual', VisualSearchController::class)
+    ->middleware('throttle:visual-search')
+    ->name('api.v1.search.visual');
 Route::get('/catalog/search/suggestions', CatalogSearchSuggestionsController::class)->middleware('throttle:catalog-search-suggestions');
+Route::get('/catalog/search/filter-suggestions', FilterSuggestionsController::class)->middleware('throttle:catalog-filter-suggestions');
 Route::get('/vendors', [VendorController::class, 'index']);
 Route::get('/vendors/{slug}', [VendorController::class, 'show']);
 Route::get('/vendors/{slug}/products', [VendorController::class, 'products']);
@@ -249,6 +263,8 @@ Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     Route::post('/resend-email-otp', [AuthController::class, 'resendEmailOtp'])->middleware('throttle:otp');
     Route::post('/resend-otp', [AuthController::class, 'resendOtp'])->middleware('throttle:otp');
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/verify-two-factor', [AuthController::class, 'verifyTwoFactor'])->middleware('throttle:otp');
+    Route::post('/resend-two-factor', [AuthController::class, 'resendTwoFactor'])->middleware('throttle:otp');
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:otp');
     Route::post('/verify-password-reset-otp', [AuthController::class, 'verifyPasswordResetOtp'])->middleware('throttle:otp');
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:otp');
@@ -681,7 +697,12 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
     });
 });
 
-Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
+Route::middleware([
+    'auth:sanctum',
+    'account.active',
+    EnsureUserSessionNotRevoked::class,
+    UserSessionActivityMiddleware::class,
+])->group(function () {
     Route::middleware('marketplace.access')->group(function () {
         Route::prefix('auth')->group(function () {
             Route::get('/me', [AuthController::class, 'me']);
@@ -765,6 +786,22 @@ Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
             Route::post('/email/resend-verification', [ProfileController::class, 'resendEmailVerification'])
                 ->middleware('throttle:otp');
             Route::post('/email/verify', [ProfileController::class, 'verifyEmailVerification'])
+                ->middleware('throttle:otp');
+
+            Route::get('/security/sessions', [ProfileSecuritySessionController::class, 'index']);
+            Route::delete('/security/sessions/{session}', [ProfileSecuritySessionController::class, 'destroy'])
+                ->middleware('throttle:20,1');
+            Route::delete('/security/devices/{fingerprint}', [ProfileSecuritySessionController::class, 'revokeDevice'])
+                ->middleware('throttle:20,1');
+            Route::post('/security/sessions/logout-others', [ProfileSecuritySessionController::class, 'logoutOthers'])
+                ->middleware('throttle:10,1');
+
+            Route::get('/security/two-factor', [ProfileTwoFactorController::class, 'show']);
+            Route::post('/security/two-factor/enable', [ProfileTwoFactorController::class, 'enable'])
+                ->middleware('throttle:otp');
+            Route::post('/security/two-factor/confirm', [ProfileTwoFactorController::class, 'confirm'])
+                ->middleware('throttle:otp');
+            Route::post('/security/two-factor/disable', [ProfileTwoFactorController::class, 'disable'])
                 ->middleware('throttle:otp');
 
             Route::get('/addresses', [AddressController::class, 'index']);
