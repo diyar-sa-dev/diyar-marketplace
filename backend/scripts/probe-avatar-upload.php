@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 use App\Models\User;
 use App\Services\Media\MediaUploadService;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 require __DIR__.'/../vendor/autoload.php';
 $app = require __DIR__.'/../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $user = User::query()->where('email', 'customer@diyar.local')->first();
 if ($user === null) {

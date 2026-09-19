@@ -78,6 +78,7 @@ export async function sendMessage(
     url,
     formData,
     {
+      adapter: 'xhr',
       onUploadProgress: (event) => {
         if (!event.total) {
           return;

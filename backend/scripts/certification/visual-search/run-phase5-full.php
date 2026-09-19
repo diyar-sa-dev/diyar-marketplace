@@ -10,6 +10,8 @@ declare(strict_types=1);
  */
 
 use App\Jobs\Search\IndexProductImageJob;
+use App\Jobs\Search\RemoveVisualIndexEntryJob;
+use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
@@ -17,6 +19,7 @@ use App\Models\VisualSearchEvent;
 use App\Support\VisualSearch\BucketProbe;
 use App\Support\VisualSearch\Dhash64Generator;
 use App\Support\VisualSearch\VisualHashBits;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -26,7 +29,7 @@ use Illuminate\Support\Str;
 
 require __DIR__.'/../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $baseArg = null;
 foreach ($argv as $arg) {
@@ -426,7 +429,7 @@ if ($product !== null) {
     $png = makePng(300, 300, 10, 200, 30);
     $path = 'cert/visual-search/lifecycle-'.Str::uuid().'.png';
     Storage::disk($disk)->put($path, $png);
-    $media = \App\Models\MediaFile::query()->create([
+    $media = MediaFile::query()->create([
         'disk' => $disk,
         'path' => $path,
         'mime_type' => 'image/png',
@@ -445,7 +448,7 @@ if ($product !== null) {
     $lifecycle['after_triple_dispatch'] = VisualIndexEntry::query()->where('product_image_id', $pi->id)->count();
 
     $pi->delete();
-    \App\Jobs\Search\RemoveVisualIndexEntryJob::dispatchSync($pi->id);
+    RemoveVisualIndexEntryJob::dispatchSync($pi->id);
     $lifecycle['after_delete'] = VisualIndexEntry::query()->where('product_image_id', $pi->id)->where('is_active', true)->count();
 }
 

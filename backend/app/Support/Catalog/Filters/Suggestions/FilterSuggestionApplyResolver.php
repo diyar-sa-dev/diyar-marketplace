@@ -3,7 +3,6 @@
 namespace App\Support\Catalog\Filters\Suggestions;
 
 use App\Support\Catalog\Filters\FilterPresentation;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestionReasonCode;
 
 final class FilterSuggestionApplyResolver
 {

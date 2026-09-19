@@ -268,7 +268,9 @@ export function AdminSettingFieldCard({
     <form
       onSubmit={handleSubmit}
       className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white p-4 shadow-sm transition duration-200 hover:border-diyar-brown/20 hover:shadow-md sm:p-5 ${
-        setting.has_override ? 'border-diyar-brown/25 ring-1 ring-diyar-brown/10' : 'border-gray-100'
+        setting.has_override
+          ? 'border-diyar-brown/25 ring-1 ring-diyar-brown/10'
+          : 'border-gray-100'
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -281,9 +283,7 @@ export function AdminSettingFieldCard({
               </span>
             ) : null}
           </div>
-          {hint ? (
-            <p className="mt-1.5 text-xs leading-relaxed text-gray-500">{hint}</p>
-          ) : null}
+          {hint ? <p className="mt-1.5 text-xs leading-relaxed text-gray-500">{hint}</p> : null}
         </div>
       </div>
 

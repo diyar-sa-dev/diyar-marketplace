@@ -82,6 +82,8 @@ return [
         'visual_search_per_minute' => (int) env('DIYAR_VISUAL_SEARCH_RATE_LIMIT', 20),
         'webhooks_per_minute' => (int) env('DIYAR_WEBHOOKS_RATE_LIMIT', 120),
         'assistant_chat_per_minute' => (int) env('DIYAR_ASSISTANT_CHAT_RATE_LIMIT', 30),
+        'room_design_save_per_minute' => (int) env('DIYAR_ROOM_DESIGN_SAVE_RATE_LIMIT', 30),
+        'room_design_list_per_minute' => (int) env('DIYAR_ROOM_DESIGN_LIST_RATE_LIMIT', 60),
     ],
 
     /*
@@ -133,6 +135,7 @@ return [
         'cache' => [
             'search_facets_seconds' => (int) env('DIYAR_CATALOG_SEARCH_FACETS_CACHE_SECONDS', 300),
             'search_suggestions_seconds' => (int) env('DIYAR_CATALOG_SEARCH_SUGGESTIONS_CACHE_SECONDS', 45),
+            'search_results_seconds' => (int) env('DIYAR_CATALOG_SEARCH_RESULTS_CACHE_SECONDS', 60),
             'filter_context_seconds' => (int) env('DIYAR_CATALOG_FILTER_CONTEXT_CACHE_SECONDS', 300),
             'filter_suggestions_seconds' => (int) env('DIYAR_CATALOG_FILTER_SUGGESTIONS_CACHE_SECONDS', 120),
             'filter_suggestions_stale_seconds' => (int) env('DIYAR_CATALOG_FILTER_SUGGESTIONS_STALE_SECONDS', 86_400),
@@ -764,6 +767,47 @@ return [
         'search_fallback_enabled' => filter_var(env('DIYAR_SEARCH_FALLBACK_ENABLED', true), FILTER_VALIDATE_BOOL),
         'search_analytics_enabled' => filter_var(env('DIYAR_SEARCH_ANALYTICS_ENABLED', true), FILTER_VALIDATE_BOOL),
         'visual_search_enabled' => filter_var(env('DIYAR_FEATURE_VISUAL_SEARCH_ENABLED', true), FILTER_VALIDATE_BOOL),
+        'room_designer_enabled' => filter_var(env('DIYAR_FEATURE_ROOM_DESIGNER_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'try_in_room_enabled' => filter_var(env('DIYAR_FEATURE_TRY_IN_ROOM_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'ai_visualization_enabled' => filter_var(env('DIYAR_FEATURE_AI_VISUALIZATION_ENABLED', false), FILTER_VALIDATE_BOOL),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Room Designer (Stage 30)
+    |--------------------------------------------------------------------------
+    */
+
+    'room_designer' => [
+        'max_document_bytes' => (int) env('DIYAR_ROOM_DESIGNER_MAX_DOCUMENT_BYTES', 524288),
+        'max_items' => (int) env('DIYAR_ROOM_DESIGNER_MAX_ITEMS', 100),
+        'supported_schema_versions' => [1],
+        'min_room_edge_m' => 1.5,
+        'max_room_edge_m' => 30.0,
+        'min_room_height_m' => 2.0,
+        'max_room_height_m' => 6.0,
+        'min_item_edge_m' => 0.01,
+        'max_item_edge_m' => 10.0,
+    ],
+
+    'visualization' => [
+        'driver' => env('DIYAR_VISUALIZATION_DRIVER', 'null'),
+        'timeout_seconds' => (int) env('DIYAR_VISUALIZATION_TIMEOUT_SECONDS', 120),
+        'quota_per_user_per_day' => (int) env('DIYAR_VISUALIZATION_QUOTA_PER_USER_DAY', 50),
+        'circuit_breaker_failures' => (int) env('DIYAR_VISUALIZATION_CIRCUIT_BREAKER_FAILURES', 5),
+        'circuit_breaker_seconds' => (int) env('DIYAR_VISUALIZATION_CIRCUIT_BREAKER_SECONDS', 300),
+    ],
+
+    'try_in_room' => [
+        'disk' => env('DIYAR_TRY_IN_ROOM_DISK', 'try_in_room'),
+        'max_upload_kb' => (int) env('DIYAR_TRY_IN_ROOM_MAX_UPLOAD_KB', 8192),
+        'allowed_mimes' => ['image/jpeg', 'image/png', 'image/webp'],
+        'allowed_extensions' => ['jpg', 'jpeg', 'png', 'webp'],
+        'max_dimension_px' => (int) env('DIYAR_TRY_IN_ROOM_MAX_DIMENSION_PX', 8192),
+        'max_pixels' => (int) env('DIYAR_TRY_IN_ROOM_MAX_PIXELS', 33_000_000),
+        'max_active_jobs_per_user' => (int) env('DIYAR_TRY_IN_ROOM_MAX_ACTIVE_JOBS', 20),
+        'job_ttl_hours' => (int) env('DIYAR_TRY_IN_ROOM_JOB_TTL_HOURS', 72),
+        'stub_force_failure' => filter_var(env('DIYAR_TRY_IN_ROOM_STUB_FORCE_FAILURE', false), FILTER_VALIDATE_BOOL),
     ],
 
     /*

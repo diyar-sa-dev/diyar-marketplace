@@ -51,6 +51,7 @@ import { LoadingState } from '../components/common/LoadingState.tsx';
 import { ErrorState } from '../components/common/ErrorState.tsx';
 import { EmptyState } from '../components/common/EmptyState.tsx';
 import { isApiErrorDetail, isNotFound, parseApiError } from '../utils/errors.ts';
+import { TryInRoomModal } from '../features/try-in-room/TryInRoomModal.tsx';
 import { trackAffiliateClick } from '../api/affiliate.ts';
 import { getOrCreateAffiliateSessionFingerprint } from '../lib/affiliateSession.ts';
 import {
@@ -470,7 +471,13 @@ export default function ProductDetailsPage() {
               >
                 <button
                   type="button"
-                  onClick={() => setIsAiModalOpen(true)}
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      setAuthOpen(true);
+                      return;
+                    }
+                    setIsAiModalOpen(true);
+                  }}
                   className={`${vendorButtonClass} bg-diyar-dark/90 backdrop-blur text-white px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium hover:bg-black shadow-lg`}
                 >
                   <Sparkles size={16} className="text-yellow-400 shrink-0 inline mr-1" />
@@ -821,25 +828,13 @@ export default function ProductDetailsPage() {
         )}
       </div>
 
-      {isAiModalOpen && (
-        <div className="fixed inset-0 bg-black/80 z-100 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl relative">
-            <button
-              type="button"
-              onClick={() => setIsAiModalOpen(false)}
-              className={`${vendorButtonClass} absolute top-4 right-4 bg-white text-gray-500 hover:text-black p-2 rounded-full shadow-md z-10`}
-            >
-              <X size={20} />
-            </button>
-            <div className="p-6 md:p-8 text-center bg-diyar-dark text-white">
-              <Sparkles className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-              <h3 className="text-xl md:text-2xl font-bold mb-2">
-                {t('catalog.productDetail.tryInRoomShort')}
-              </h3>
-            </div>
-          </div>
-        </div>
-      )}
+      {product && isAiModalOpen ? (
+        <TryInRoomModal
+          productId={product.id}
+          open={isAiModalOpen}
+          onClose={() => setIsAiModalOpen(false)}
+        />
+      ) : null}
 
       {isGalleryOpen && (
         <div className="fixed inset-0 bg-black/95 z-200 flex flex-col justify-center animate-in fade-in duration-300">

@@ -3,6 +3,7 @@
 namespace App\Support\Security;
 
 use App\Models\UserSession;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 final class UserSessionDeviceGroup
@@ -22,12 +23,12 @@ final class UserSessionDeviceGroup
         return $this->sessions->count();
     }
 
-    public function firstSeenAt(): ?\Illuminate\Support\Carbon
+    public function firstSeenAt(): ?Carbon
     {
         return $this->sessions->min('first_seen_at');
     }
 
-    public function lastActivityAt(): ?\Illuminate\Support\Carbon
+    public function lastActivityAt(): ?Carbon
     {
         return $this->sessions->max('last_activity_at');
     }

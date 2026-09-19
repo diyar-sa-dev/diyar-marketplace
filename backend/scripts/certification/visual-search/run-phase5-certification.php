@@ -9,18 +9,17 @@ declare(strict_types=1);
  * Usage: php backend/scripts/certification/visual-search/run-phase5-certification.php
  */
 
-use App\Models\Product;
-use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
 use App\Support\VisualSearch\BucketProbe;
 use App\Support\VisualSearch\Dhash64Generator;
 use App\Support\VisualSearch\VisualHashBits;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 require __DIR__.'/../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $timestamp = gmdate('Y-m-d_His');
 $baseDir = storage_path("certification/visual-search/phase5/{$timestamp}");
@@ -52,7 +51,7 @@ $migration = [
     'visual_search_events_exists' => Schema::hasTable('visual_search_events'),
 ];
 if ($migration['visual_index_entries_exists']) {
-    $migration['indexes'] = DB::select("SHOW INDEX FROM visual_index_entries");
+    $migration['indexes'] = DB::select('SHOW INDEX FROM visual_index_entries');
     $migration['create'] = DB::select('SHOW CREATE TABLE visual_index_entries');
 }
 writeJson("{$baseDir}/01-migration/schema-check.json", $migration);

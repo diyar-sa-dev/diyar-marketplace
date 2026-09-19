@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Search;
 
+use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
@@ -33,7 +34,7 @@ class VisualSearchMinSimilarityTest extends TestCase
         @unlink($tempPath);
 
         $product = Product::factory()->create();
-        $media = \App\Models\MediaFile::query()->create([
+        $media = MediaFile::query()->create([
             'disk' => 'media',
             'path' => 'products/'.$product->id.'/weak.png',
             'mime_type' => 'image/png',

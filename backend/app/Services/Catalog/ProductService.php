@@ -5,13 +5,13 @@ namespace App\Services\Catalog;
 use App\Enums\AvailabilityMode;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
+use App\Jobs\Search\IndexProductImageJob;
+use App\Jobs\Search\RemoveVisualIndexEntryJob;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Jobs\Search\IndexProductImageJob;
-use App\Jobs\Search\RemoveVisualIndexEntryJob;
 use App\Services\Media\MediaUploadService;
 use App\Services\Vendor\VendorAccessService;
 use App\Support\Pagination\PaginationBounds;
@@ -21,7 +21,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -420,7 +419,21 @@ final class ProductService
             $raw = mb_substr((string) $filters['q'], 0, 120);
 
             if (DB::connection()->getDriverName() === 'mysql') {
-                $query->whereFullText(["{$table}.name", "{$table}.description"], $raw);
+                $clean = preg_replace('/[+\-><()~*"@]/u', ' ', $raw);
+                $booleanQuery = collect(preg_split('/\s+/u', (string) $clean))
+                    ->filter(fn ($t) => mb_strlen((string) $t) > 0)
+                    ->map(fn ($t) => '+'.$t.'*')
+                    ->implode(' ');
+
+                $query->where(function (Builder $q) use ($raw, $booleanQuery, $table) {
+                    if ($booleanQuery !== '') {
+                        $q->whereRaw(
+                            "MATCH({$table}.name, {$table}.description) AGAINST (? IN BOOLEAN MODE)",
+                            [$booleanQuery]
+                        );
+                    }
+                    $q->orWhere("{$table}.name", 'like', '%'.$raw.'%');
+                });
             } else {
                 $term = '%'.$raw.'%';
                 $query->where(function (Builder $q) use ($term, $table) {
@@ -504,13 +517,13 @@ final class ProductService
             '-price' => $query->orderByDesc('sale_price'),
             'name' => $query->orderBy('name'),
             '-name' => $query->orderByDesc('name'),
-            'created_at' => $query->oldest(),
-            '-created_at' => $query->latest(),
+            'created_at' => $query->oldest('products.created_at'),
+            '-created_at' => $query->latest('products.created_at'),
             'discount', '-discount' => $query
-                ->orderByRaw('(compare_price - sale_price) '.($sort === '-discount' ? 'DESC' : 'ASC'))
-                ->latest(),
+                ->orderBy('discount_amount', $sort === '-discount' ? 'desc' : 'asc')
+                ->latest('products.created_at'),
             'popular', '-popular' => $this->applyPopularSort($query, $sort),
-            default => $query->latest(),
+            default => $query->latest('products.created_at'),
         };
     }
 
@@ -519,11 +532,7 @@ final class ProductService
      */
     private function applyPopularSort(Builder $query, string $sort): void
     {
-        if (Schema::hasTable('product_likes')) {
-            $query->withCount('likes')->orderBy('likes_count', $sort === '-popular' ? 'desc' : 'asc');
-        } else {
-            $query->latest();
-        }
+        $query->withCount('likes')->orderBy('likes_count', $sort === '-popular' ? 'desc' : 'asc');
     }
 
     private function isTruthy(mixed $value): bool

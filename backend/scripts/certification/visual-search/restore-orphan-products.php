@@ -19,12 +19,15 @@ use App\Models\ProductImage;
 use App\Models\ProductInventory;
 use App\Models\User;
 use App\Models\VendorAccount;
+use App\Models\VisualIndexEntry;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 require __DIR__.'/../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $runId = $argv[1] ?? gmdate('Y-m-d_His');
 $disk = (string) config('diyar_media.disk', 'media');
@@ -73,7 +76,7 @@ DB::transaction(function () use ($disk, $uploader, $vendor, $category, $runId, $
                 'vendor_account_id' => $vendor->id,
                 'category_id' => $manifestCategory->id,
                 'name' => $productName,
-                'slug' => \Illuminate\Support\Str::slug($productName),
+                'slug' => Str::slug($productName),
                 'description' => (string) ($manifest['description'] ?? 'Restored from filesystem media path.'),
                 'sale_price' => (float) ($manifest['sale_price'] ?? 999),
                 'compare_price' => $manifest['compare_price'] ?? null,
@@ -133,5 +136,5 @@ DB::transaction(function () use ($disk, $uploader, $vendor, $category, $runId, $
 echo json_encode([
     'product_images' => ProductImage::query()->count(),
     'merchant_paths' => ProductImage::query()->whereHas('mediaFile', fn ($q) => $q->where('path', 'like', 'products/%'))->count(),
-    'active_index' => \App\Models\VisualIndexEntry::query()->where('is_active', true)->count(),
+    'active_index' => VisualIndexEntry::query()->where('is_active', true)->count(),
 ], JSON_PRETTY_PRINT).PHP_EOL;

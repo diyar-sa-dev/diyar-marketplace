@@ -6,13 +6,13 @@ declare(strict_types=1);
  * Phase A — complete catalog forensic audit for merchant media recovery.
  */
 
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 require __DIR__.'/../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $runId = $argv[1] ?? gmdate('Y-m-d_His');
 $baseDir = storage_path("certification/visual-search/enterprise/{$runId}");

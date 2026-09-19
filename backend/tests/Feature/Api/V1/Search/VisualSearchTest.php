@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Search;
 
+use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
@@ -37,7 +38,7 @@ class VisualSearchTest extends TestCase
         @unlink($tempPath);
 
         $product = Product::factory()->create(['name' => 'Indexed Chair']);
-        $mediaFile = \App\Models\MediaFile::query()->create([
+        $mediaFile = MediaFile::query()->create([
             'disk' => 'media',
             'path' => 'products/'.$product->id.'/sample.png',
             'mime_type' => 'image/png',
@@ -120,7 +121,7 @@ class VisualSearchTest extends TestCase
         Storage::fake('media');
         $product = Product::factory()->create();
         $png = $this->samplePngBytes();
-        $mediaFile = \App\Models\MediaFile::query()->create([
+        $mediaFile = MediaFile::query()->create([
             'disk' => 'media',
             'path' => 'products/'.$product->id.'/seed.png',
             'mime_type' => 'image/png',

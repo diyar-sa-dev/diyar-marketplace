@@ -17,7 +17,6 @@ import {
   AdminSettingsBooleanGrid,
   AdminSettingsFieldGrid,
   AdminSettingsGroupSection,
-  groupDescription,
 } from '../components/AdminSettingsGroupSection.tsx';
 import { AdminThemeSettingsPanel } from '../components/AdminThemeSettingsPanel.tsx';
 import { AdminMaintenanceModePanel } from '../components/AdminMaintenanceModePanel.tsx';
@@ -126,7 +125,9 @@ export default function AdminSettingsPage() {
         <h2 className="text-xl font-extrabold tracking-tight text-diyar-dark sm:text-2xl">
           {t('admin.nav.settings')}
         </h2>
-        <p className="max-w-2xl text-sm leading-relaxed text-gray-500">{t('admin.settings.subtitle')}</p>
+        <p className="max-w-2xl text-sm leading-relaxed text-gray-500">
+          {t('admin.settings.subtitle')}
+        </p>
       </header>
 
       <section className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
@@ -184,7 +185,9 @@ export default function AdminSettingsPage() {
         );
         const { booleans, others } = partitionSettings(visibleSettings);
         const Icon = meta.icon;
-        const description = groupDescription(group, t);
+        const descriptionKey = `admin.settings.groupDescriptions.${group}` as never;
+        const translatedDesc = t(descriptionKey);
+        const description = translatedDesc === descriptionKey ? '' : translatedDesc;
 
         return (
           <div key={group} className="space-y-4">

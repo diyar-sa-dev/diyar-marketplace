@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import type { TranslateFn } from '../../lib/i18n/types.ts';
 
 type AdminSettingsGroupSectionProps = {
   title: string;
@@ -61,10 +60,4 @@ export function AdminSettingsFieldGrid({ children }: { children: ReactNode }) {
 
 export function AdminSettingsBooleanGrid({ children }: { children: ReactNode }) {
   return <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">{children}</div>;
-}
-
-export function groupDescription(group: string, t: TranslateFn): string {
-  const key = `admin.settings.groupDescriptions.${group}` as never;
-  const translated = t(key);
-  return translated === key ? '' : translated;
 }

@@ -48,7 +48,10 @@ export const HOME_STYLE_SLUGS = ['decor', 'lighting', 'curtains', 'bathroom', 'k
 export const PLACEHOLDER_CATEGORY_IMG =
   'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=60&w=800';
 
-export function staticCategoryWebp(slug: string, type: 'product' | 'service' = 'product'): string | undefined {
+export function staticCategoryWebp(
+  slug: string,
+  type: 'product' | 'service' = 'product',
+): string | undefined {
   if (type === 'service') {
     return SERVICE_CATEGORY_WEBP[slug] ?? PRODUCT_CATEGORY_WEBP[slug];
   }

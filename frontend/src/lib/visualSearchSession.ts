@@ -55,7 +55,9 @@ export async function saveVisualSearchSession(session: VisualSearchSession): Pro
   activeSession = session;
 }
 
-export function getVisualSearchSession(searchId: string | null | undefined): VisualSearchSession | null {
+export function getVisualSearchSession(
+  searchId: string | null | undefined,
+): VisualSearchSession | null {
   if (!searchId || !activeSession || activeSession.searchId !== searchId) {
     return null;
   }

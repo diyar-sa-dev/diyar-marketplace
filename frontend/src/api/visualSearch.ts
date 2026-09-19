@@ -1,5 +1,5 @@
 import { apiClient } from './client.ts';
-import { isApiErrorDetail } from '../utils/errors.ts';
+import { getFieldErrors, isApiErrorDetail } from '../utils/errors.ts';
 import type { VisualSearchResponse } from '../types/visualSearch.ts';
 
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -17,7 +17,7 @@ export function resolveVisualSearchErrorKey(error: unknown): VisualSearchErrorKe
     return 'request_failed';
   }
 
-  const imageErrors = error.errors?.image;
+  const imageErrors = getFieldErrors(error).image;
   if (!Array.isArray(imageErrors) || imageErrors.length === 0) {
     return 'request_failed';
   }

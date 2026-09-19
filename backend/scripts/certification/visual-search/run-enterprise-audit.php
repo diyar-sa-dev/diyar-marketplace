@@ -6,12 +6,13 @@ declare(strict_types=1);
  * Stage 29 Enterprise certification audit — diyar-production Docker runtime.
  */
 
-use App\Jobs\Search\IndexProductImageJob;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
 use App\Support\Cache\CacheKeys;
+use App\Support\VisualSearch\Dhash64Generator;
 use App\Support\VisualSearch\VisualSearchImageGuard;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Storage;
 
 require __DIR__.'/../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $runId = $argv[1] ?? gmdate('Y-m-d_His');
 $baseDir = storage_path("certification/visual-search/enterprise/{$runId}");
@@ -151,7 +152,7 @@ foreach ($cases as [$id, $bytes, $name, $mime, $shouldPass]) {
     try {
         VisualSearchImageGuard::assertSafeUpload($upload);
         $pass = $shouldPass;
-    } catch (\InvalidArgumentException $e) {
+    } catch (InvalidArgumentException $e) {
         $pass = ! $shouldPass;
     }
     @unlink($tmp);
@@ -170,7 +171,7 @@ wjson("{$baseDir}/07-cache/cache-results.json", [
 // 01 Code audit — P1 fix verification flags
 wjson("{$baseDir}/01-code-audit/p1-fixes.json", [
     'min_similarity_in_config' => config('diyar.visual_search.min_similarity'),
-    'dhash_generator_di' => app()->bound(\App\Support\VisualSearch\Dhash64Generator::class),
+    'dhash_generator_di' => app()->bound(Dhash64Generator::class),
     'cache_generation_method' => method_exists(CacheKeys::class, 'bumpVisualSearchCacheGeneration'),
     'visual_search_service_has_logging' => str_contains(file_get_contents(app_path('Services/Search/Visual/VisualSearchService.php')), 'visual_search.search.completed'),
     'record_event_first_or_create' => str_contains(file_get_contents(app_path('Jobs/Search/RecordVisualSearchEventJob.php')), 'firstOrCreate'),

@@ -8,11 +8,11 @@ declare(strict_types=1);
  */
 
 use App\Jobs\Search\IndexProductImageJob;
-use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
 use App\Support\VisualSearch\BucketProbe;
-use App\Support\VisualSearch\VisualSearchImageGuard;
 use App\Support\VisualSearch\VisualHashBits;
+use App\Support\VisualSearch\VisualSearchImageGuard;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Storage;
 
 require __DIR__.'/../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 $timestamp = gmdate('Y-m-d_His');
 $baseDir = storage_path("certification/visual-search/final/{$timestamp}");
@@ -90,7 +90,7 @@ foreach ($secCases as [$id, $bytes, $name, $mime, $expectedStatus]) {
         try {
             VisualSearchImageGuard::assertSafeUpload($upload);
             $guardPass = false;
-        } catch (\InvalidArgumentException) {
+        } catch (InvalidArgumentException) {
             $guardPass = true;
         }
         @unlink($tmp);
@@ -101,7 +101,7 @@ foreach ($secCases as [$id, $bytes, $name, $mime, $expectedStatus]) {
         try {
             VisualSearchImageGuard::assertSafeUpload($upload);
             $guardPass = true;
-        } catch (\InvalidArgumentException) {
+        } catch (InvalidArgumentException) {
             $guardPass = false;
         }
         @unlink($tmp);
@@ -271,6 +271,7 @@ foreach ($negativeQueries as $neg) {
             'http_status' => $result['status'],
             'pass' => $result['status'] === 422,
         ];
+
         continue;
     }
     $caseNum++;

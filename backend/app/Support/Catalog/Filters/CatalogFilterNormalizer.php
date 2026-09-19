@@ -66,6 +66,10 @@ final class CatalogFilterNormalizer
         $filters = array_intersect_key($normalizedCatalogSearch, $allowed);
         unset($filters['type']);
 
+        if (isset($normalizedCatalogSearch['product_page'])) {
+            $filters['page'] = (int) $normalizedCatalogSearch['product_page'];
+        }
+
         return $this->mapCatalogSearchProductSort($filters);
     }
 
@@ -88,6 +92,10 @@ final class CatalogFilterNormalizer
         $allowed['per_page'] = true;
 
         $filters = array_intersect_key($input, $allowed);
+
+        if (isset($normalizedCatalogSearch['service_page'])) {
+            $filters['page'] = (int) $normalizedCatalogSearch['service_page'];
+        }
 
         return $this->mapCatalogSearchServiceSort($filters);
     }
@@ -118,6 +126,14 @@ final class CatalogFilterNormalizer
 
         if (isset($normalized['page'])) {
             $normalized['page'] = PaginationBounds::page((int) $normalized['page']);
+        }
+
+        if (isset($normalized['product_page'])) {
+            $normalized['product_page'] = PaginationBounds::page((int) $normalized['product_page']);
+        }
+
+        if (isset($normalized['service_page'])) {
+            $normalized['service_page'] = PaginationBounds::page((int) $normalized['service_page']);
         }
 
         if (isset($normalized['per_page'])) {

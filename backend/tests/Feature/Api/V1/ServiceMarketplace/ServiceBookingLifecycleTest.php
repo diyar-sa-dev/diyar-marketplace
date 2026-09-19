@@ -3,9 +3,9 @@
 namespace Tests\Feature\Api\V1\ServiceMarketplace;
 
 use App\Enums\RoleName;
+use App\Enums\ServiceBookingMode;
 use App\Enums\ServiceBookingPaymentStatus;
 use App\Enums\ServiceBookingStatus;
-use App\Enums\ServiceBookingMode;
 use App\Enums\ServiceOfferStatus;
 use App\Enums\ServicePricingMode;
 use App\Enums\ServiceRequestStatus;

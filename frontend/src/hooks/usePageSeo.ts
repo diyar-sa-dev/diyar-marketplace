@@ -23,5 +23,5 @@ export function usePageSeo(options: PageSeoOptions | null | undefined) {
 
     appliedRef.current = signature;
     applyPageSeo(options);
-  }, [options?.title, options?.description, options?.image, options?.canonicalPath, options?.noindex]);
+  }, [options]);
 }

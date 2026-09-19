@@ -56,6 +56,14 @@ return [
             'report' => false,
         ],
 
+        'try_in_room' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/try-in-room'),
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

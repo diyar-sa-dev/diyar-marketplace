@@ -7,7 +7,6 @@ declare(strict_types=1);
  *
  * Usage: php backend/scripts/benchmark/visual-search/run-phase3-benchmark.php
  */
-
 ini_set('memory_limit', '512M');
 
 require __DIR__.'/lib/Stats.php';

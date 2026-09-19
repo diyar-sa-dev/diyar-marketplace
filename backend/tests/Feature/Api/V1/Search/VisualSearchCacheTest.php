@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Search;
 
+use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
@@ -36,7 +37,7 @@ class VisualSearchCacheTest extends TestCase
         @unlink($tempPath);
 
         $product = Product::factory()->create();
-        $mediaFile = \App\Models\MediaFile::query()->create([
+        $mediaFile = MediaFile::query()->create([
             'disk' => 'media',
             'path' => 'products/'.$product->id.'/sample.png',
             'mime_type' => 'image/png',
@@ -72,6 +73,7 @@ class VisualSearchCacheTest extends TestCase
         $second = $this->post('/api/v1/search/visual', ['image' => $upload], ['Accept' => 'application/json']);
         $second->assertOk()->assertJsonPath('meta.cache', 'hit');
     }
+
     private function samplePngBytes(): string
     {
         $image = imagecreatetruecolor(64, 64);

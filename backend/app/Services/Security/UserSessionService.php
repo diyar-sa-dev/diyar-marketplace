@@ -9,11 +9,11 @@ use App\Support\Security\RevokedSessionCache;
 use App\Support\Security\SessionLookupHash;
 use App\Support\Security\UserSessionDeviceGroup;
 use App\Support\Security\UserSessionDeviceGrouper;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\UniqueConstraintViolationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 

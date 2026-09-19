@@ -2,18 +2,14 @@
 
 namespace Tests\Feature\Api\V1\Search;
 
+use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
-use App\Models\VisualIndexEntry;
 use App\Services\Search\Visual\VisualIndexingService;
 use App\Support\Cache\CacheKeys;
-use App\Support\VisualSearch\Dhash64Generator;
-use App\Support\VisualSearch\VisualHashBits;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -37,7 +33,7 @@ class VisualSearchCacheInvalidationTest extends TestCase
         $path = 'products/'.$product->id.'/cache-inv.png';
         Storage::disk('media')->put($path, $png);
 
-        $media = \App\Models\MediaFile::query()->create([
+        $media = MediaFile::query()->create([
             'disk' => 'media',
             'path' => $path,
             'mime_type' => 'image/png',

@@ -4,10 +4,10 @@ namespace Tests\Integration\Security;
 
 use App\Enums\RoleName;
 use App\Models\UserSession;
-use App\Support\Security\SessionLookupHash;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\InteractsWithIdentity;
@@ -144,7 +144,7 @@ class RedisSessionSecurityIntegrationTest extends TestCase
         $this->assertStringStartsWith('eyJpdiI6', $raw);
     }
 
-    private function extractCookieValue(\Illuminate\Testing\TestResponse $response, string $name): ?string
+    private function extractCookieValue(TestResponse $response, string $name): ?string
     {
         foreach ($response->headers->getCookies() as $cookie) {
             if ($cookie->getName() === $name) {

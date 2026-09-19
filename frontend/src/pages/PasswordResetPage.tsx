@@ -11,6 +11,7 @@ import {
   passwordsMatch,
 } from '../lib/auth/validation.ts';
 import { collectDisplayErrors, isUnexpectedServerError } from '../utils/errors.ts';
+import { AuthFieldLabel } from '../components/auth/AuthInputIcon.tsx';
 import { OtpCodeField } from '../components/auth/OtpCodeField.tsx';
 import { OtpResendAction } from '../components/auth/OtpResendAction.tsx';
 import { PasswordStrengthField } from '../components/auth/PasswordStrengthField.tsx';

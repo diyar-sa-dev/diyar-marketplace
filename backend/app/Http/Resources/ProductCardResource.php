@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Product;
+use App\Models\User;
 use App\Services\Catalog\ProductEngagementService;
 use App\Services\Loyalty\LoyaltyRuleService;
 use App\Services\Media\MediaUploadService;
@@ -67,7 +68,7 @@ class ProductCardResource extends JsonResource
         ];
     }
 
-    private function resolveIsOwnStore(Request $request, VendorOwnership $vendorOwnership, ?\App\Models\User $viewer): bool
+    private function resolveIsOwnStore(Request $request, VendorOwnership $vendorOwnership, ?User $viewer): bool
     {
         if (! $viewer || ! $this->relationLoaded('vendorAccount') || $this->vendorAccount === null) {
             return false;

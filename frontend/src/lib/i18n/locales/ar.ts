@@ -25,6 +25,22 @@ export const ar = {
       page: 'صفحة {{page}}',
     },
   },
+  tryInRoom: {
+    uploadHint: 'ارفع صورة لغرفتك. سنُنشئ طلب تصور (أساس المعاينة).',
+    choosePhoto: 'اختر صورة الغرفة',
+    uploading: 'جاري الرفع…',
+    processing: 'جاري معالجة الطلب…',
+    completedStub: 'اكتمل الطلب',
+    stubNote: 'معاينة تجريبية — التصور بالذكاء الاصطناعي في مرحلة لاحقة.',
+    retry: 'إعادة المحاولة',
+    errors: {
+      invalid_type: 'يرجى اختيار صورة JPEG أو PNG أو WebP.',
+      file_too_large: 'يجب ألا يتجاوز حجم الصورة 8 ميجابايت.',
+      request_failed: 'حدث خطأ. يرجى المحاولة مرة أخرى.',
+      idempotency_conflict: 'يتعارض هذا الرفع مع طلب سابق. أغلق النافذة وحاول مرة أخرى.',
+      timeout: 'استغرق الأمر وقتاً أطول من المتوقع. حاول لاحقاً.',
+    },
+  },
   maintenance: {
     title: 'المنصة قيد الصيانة',
     description: 'نعمل على تحسين تجربتكم. سنعود قريباً.',
@@ -3774,8 +3790,7 @@ export const ar = {
       emptyProductsTitle: 'لا توجد منتجات',
       emptyProductsDescription: 'جرّب تغيير الفلاتر أو العودة لاحقاً.',
       serviceCategoryDescription: 'تصفّح مقدمي خدمة معتمدين على منصة ديار.',
-      productCategoryDescription:
-        'تشكيلة واسعة من منتجات موثوقة من أعرق المتاجر على ديار.',
+      productCategoryDescription: 'تشكيلة واسعة من منتجات موثوقة من أعرق المتاجر على ديار.',
       subcategoryAll: 'الكل',
       filterServices: 'تصفية الخدمات',
       filterResults: 'تصفية النتائج',

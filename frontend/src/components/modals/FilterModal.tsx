@@ -1,14 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import {
-  X,
-  Check,
-  Sparkles,
-  SlidersHorizontal,
-  Package,
-  Wrench,
-} from 'lucide-react';
+import { X, Check, Sparkles, SlidersHorizontal, Package, Wrench } from 'lucide-react';
 import { fetchCatalogSearch } from '../../api/catalogSearch.ts';
 import { fetchServiceCategories, fetchServices } from '../../api/services.ts';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue.ts';
@@ -74,7 +67,7 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     if (isSearchRoute && urlFilters) {
       return {
         ...Object.fromEntries(searchParams.entries()),
-        type: manualType === 'services' ? 'services' : urlFilters.type ?? 'products',
+        type: manualType === 'services' ? 'services' : (urlFilters.type ?? 'products'),
       };
     }
 
@@ -191,14 +184,18 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const { data: serviceCategories = [] } = useQuery({
     queryKey: ['filter-modal-service-categories'],
     queryFn: () => fetchServiceCategories(),
-    enabled: isOpen && (activeTab === 'services' || (activeTab === 'suggested' && manualType === 'services')),
+    enabled:
+      isOpen &&
+      (activeTab === 'services' || (activeTab === 'suggested' && manualType === 'services')),
     staleTime: 60_000,
   });
 
   const { data: previewData } = useQuery({
     queryKey: ['filter-modal-preview', debouncedPreviewFilters],
     queryFn: () => fetchCatalogSearch(debouncedPreviewFilters),
-    enabled: isOpen && (activeTab === 'products' || (activeTab === 'suggested' && manualType === 'products')),
+    enabled:
+      isOpen &&
+      (activeTab === 'products' || (activeTab === 'suggested' && manualType === 'products')),
     placeholderData: keepPreviousData,
     staleTime: 10_000,
   });
@@ -206,7 +203,9 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const { data: servicePreviewData } = useQuery({
     queryKey: ['filter-modal-services-preview', debouncedServicePreviewFilters],
     queryFn: () => fetchServices(debouncedServicePreviewFilters),
-    enabled: isOpen && (activeTab === 'services' || (activeTab === 'suggested' && manualType === 'services')),
+    enabled:
+      isOpen &&
+      (activeTab === 'services' || (activeTab === 'suggested' && manualType === 'services')),
     placeholderData: keepPreviousData,
     staleTime: 10_000,
   });
@@ -261,8 +260,15 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       params.set('type', searchType);
     }
 
-    const min = parsePriceDigits(minPrice);
-    const max = parsePriceDigits(maxPrice);
+    let min = parsePriceDigits(minPrice);
+    let max = parsePriceDigits(maxPrice);
+
+    if (min !== undefined && max !== undefined && min > max) {
+      const temp = min;
+      min = max;
+      max = temp;
+    }
+
     if (min !== undefined) {
       params.set('min_price', String(min));
     }
@@ -307,8 +313,15 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       params.set('category', serviceCategorySlug);
     }
 
-    const min = parsePriceDigits(serviceMinPrice);
-    const max = parsePriceDigits(serviceMaxPrice);
+    let min = parsePriceDigits(serviceMinPrice);
+    let max = parsePriceDigits(serviceMaxPrice);
+
+    if (min !== undefined && max !== undefined && min > max) {
+      const temp = min;
+      min = max;
+      max = temp;
+    }
+
     if (min !== undefined) {
       params.set('min_price', String(min));
     }
@@ -360,9 +373,7 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
     window.requestAnimationFrame(() => {
       const targetId = filterKey === 'price_range' ? PRICE_SECTION_ID : undefined;
-      const node = targetId
-        ? document.getElementById(targetId)
-        : manualFiltersRef.current;
+      const node = targetId ? document.getElementById(targetId) : manualFiltersRef.current;
       node?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   };
@@ -396,7 +407,10 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const categoryLabel = (nameAr: string, nameEn: string) => (locale === 'ar' ? nameAr : nameEn);
 
   const renderProductFilters = () => (
-    <div ref={manualType === 'products' ? manualFiltersRef : undefined} className="space-y-8 animate-in fade-in duration-300">
+    <div
+      ref={manualType === 'products' ? manualFiltersRef : undefined}
+      className="space-y-8 animate-in fade-in duration-300"
+    >
       <div className="space-y-3">
         <h3 className="font-bold text-sm text-diyar-dark">{t('catalog.search.filters.type')}</h3>
         <div className="flex flex-wrap gap-2">
@@ -419,7 +433,9 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
       {productCategories.length > 0 && (
         <div className="space-y-3">
-          <h3 className="font-bold text-sm text-diyar-dark">{t('catalog.search.filters.category')}</h3>
+          <h3 className="font-bold text-sm text-diyar-dark">
+            {t('catalog.search.filters.category')}
+          </h3>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -457,6 +473,7 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           onMinChange={setMinPrice}
           onMaxChange={setMaxPrice}
           layout="grid"
+          maxCeiling={20000}
         />
       </div>
 
@@ -481,7 +498,9 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           >
             {sort === '-created_at' && <Check size={14} className="text-white" />}
           </div>
-          <span className="text-sm font-bold text-gray-700">{t('catalog.search.filters.sortNewest')}</span>
+          <span className="text-sm font-bold text-gray-700">
+            {t('catalog.search.filters.sortNewest')}
+          </span>
           <input
             type="radio"
             className="hidden"
@@ -499,7 +518,9 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           >
             {sort === '-popular' && <Check size={14} className="text-white" />}
           </div>
-          <span className="text-sm font-bold text-gray-700">{t('catalog.search.filters.sortPopular')}</span>
+          <span className="text-sm font-bold text-gray-700">
+            {t('catalog.search.filters.sortPopular')}
+          </span>
           <input
             type="radio"
             className="hidden"
@@ -510,12 +531,16 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         <label className="flex items-center gap-3 cursor-pointer group">
           <div
             className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${
-              offersOnly ? 'bg-diyar-brown border-diyar-brown' : 'border-gray-300 group-hover:border-diyar-brown'
+              offersOnly
+                ? 'bg-diyar-brown border-diyar-brown'
+                : 'border-gray-300 group-hover:border-diyar-brown'
             }`}
           >
             {offersOnly && <Check size={14} className="text-white" />}
           </div>
-          <span className="text-sm font-bold text-gray-700">{t('catalog.search.filters.offersOnly')}</span>
+          <span className="text-sm font-bold text-gray-700">
+            {t('catalog.search.filters.offersOnly')}
+          </span>
           <input
             type="checkbox"
             className="hidden"
@@ -526,12 +551,16 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         <label className="flex items-center gap-3 cursor-pointer group">
           <div
             className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${
-              inStockOnly ? 'bg-diyar-brown border-diyar-brown' : 'border-gray-300 group-hover:border-diyar-brown'
+              inStockOnly
+                ? 'bg-diyar-brown border-diyar-brown'
+                : 'border-gray-300 group-hover:border-diyar-brown'
             }`}
           >
             {inStockOnly && <Check size={14} className="text-white" />}
           </div>
-          <span className="text-sm font-bold text-gray-700">{t('catalog.search.filters.inStockOnly')}</span>
+          <span className="text-sm font-bold text-gray-700">
+            {t('catalog.search.filters.inStockOnly')}
+          </span>
           <input
             type="checkbox"
             className="hidden"
@@ -544,12 +573,17 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   );
 
   const renderServiceFilters = () => (
-    <div ref={manualType === 'services' ? manualFiltersRef : undefined} className="space-y-8 animate-in fade-in duration-300">
+    <div
+      ref={manualType === 'services' ? manualFiltersRef : undefined}
+      className="space-y-8 animate-in fade-in duration-300"
+    >
       <p className="text-sm text-gray-500">{t('catalog.search.filters.servicesHint')}</p>
 
       {serviceCategories.length > 0 && (
         <div className="space-y-3">
-          <h3 className="font-bold text-sm text-diyar-dark">{t('catalog.search.filters.category')}</h3>
+          <h3 className="font-bold text-sm text-diyar-dark">
+            {t('catalog.search.filters.category')}
+          </h3>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -587,6 +621,7 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           onMinChange={setServiceMinPrice}
           onMaxChange={setServiceMaxPrice}
           layout="grid"
+          maxCeiling={20000}
         />
       </div>
 
@@ -716,7 +751,9 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
               type="button"
               onClick={() => setActiveTab('products')}
               className={`py-2 px-4 whitespace-nowrap rounded-xl text-sm font-bold flex items-center gap-2 transition-all flex-1 justify-center cursor-pointer ${
-                activeTab === 'products' ? 'bg-[#132624] text-white' : 'text-gray-500 hover:bg-gray-50'
+                activeTab === 'products'
+                  ? 'bg-[#132624] text-white'
+                  : 'text-gray-500 hover:bg-gray-50'
               }`}
             >
               <Package size={16} /> {t('catalog.search.filters.type_products')}
@@ -725,7 +762,9 @@ export function FilterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
               type="button"
               onClick={() => setActiveTab('services')}
               className={`py-2 px-4 whitespace-nowrap rounded-xl text-sm font-bold flex items-center gap-2 transition-all flex-1 justify-center cursor-pointer ${
-                activeTab === 'services' ? 'bg-[#132624] text-white' : 'text-gray-500 hover:bg-gray-50'
+                activeTab === 'services'
+                  ? 'bg-[#132624] text-white'
+                  : 'text-gray-500 hover:bg-gray-50'
               }`}
             >
               <Wrench size={16} /> {t('catalog.search.filters.type_services')}

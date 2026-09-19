@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
 import { Tag } from 'lucide-react';
 import ProductCard from '../cards/ProductCard.tsx';
 import { ProductCardSkeleton } from '../cards/ProductCardSkeleton.tsx';
 import SectionEmptyState from './SectionEmptyState.tsx';
+import { HomeSectionHeader } from './HomeSectionHeader.tsx';
+import { HorizontalRail } from './sections/HorizontalRail.tsx';
 import { useProducts } from '../../hooks/catalog/useCatalog.ts';
 import {
   earliestPromotionEndsAt,
@@ -12,6 +13,8 @@ import {
 } from '../../hooks/usePromotionCountdown.ts';
 import { mapProductCard } from '../../lib/catalogMappers.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
+
+const CARD_WRAP = 'w-44 shrink-0 snap-start sm:w-48 md:w-auto';
 
 export default function FeaturedDeals() {
   const { t } = useLocale();
@@ -29,33 +32,25 @@ export default function FeaturedDeals() {
   const showCountdown = !showEmpty && countdown !== null;
 
   return (
-    <div className="max-w-7xl mx-auto py-8 md:py-12 px-4">
-      <div className="flex justify-between items-center mb-6 md:mb-8">
-        <h2 className="text-2xl md:text-3xl font-sans font-bold">{t('home.featuredDeals.title')}</h2>
-        <div className="flex items-center gap-3">
-          <div
-            className={`min-w-[7.5rem] md:min-w-[10rem] min-h-[2.5rem] md:min-h-[3.25rem] flex items-center justify-end ${showCountdown ? '' : 'invisible'}`}
-          >
-            {showCountdown && countdown && (
-              <div
-                className="text-sm md:text-xl font-bold bg-diyar-cream p-2 md:p-3 rounded-lg text-diyar-brown tabular-nums"
-                dir={countdown.isClock ? 'ltr' : undefined}
-                aria-live="polite"
-                aria-label={t('home.featuredDeals.countdownLabel')}
-                title={t('home.featuredDeals.countdownHint')}
-              >
-                {countdown.label}
-              </div>
-            )}
-          </div>
-          <Link
-            to="/category/all?discounted=1&sort=-discount"
-            className="hidden sm:inline-flex text-diyar-brown text-sm font-bold hover:text-diyar-dark transition cursor-pointer"
-          >
-            {t('home.featuredDeals.viewAll')}
-          </Link>
-        </div>
-      </div>
+    <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
+      <HomeSectionHeader
+        title={t('home.featuredDeals.title')}
+        linkTo="/category/all?discounted=1&sort=-discount"
+        linkLabel={t('home.featuredDeals.viewAll')}
+        extra={
+          showCountdown && countdown ? (
+            <div
+              className="rounded-xl bg-diyar-cream px-4 py-2 text-sm font-bold tabular-nums text-diyar-brown md:text-base"
+              dir={countdown.isClock ? 'ltr' : undefined}
+              aria-live="polite"
+              aria-label={t('home.featuredDeals.countdownLabel')}
+              title={t('home.featuredDeals.countdownHint')}
+            >
+              {countdown.label}
+            </div>
+          ) : undefined
+        }
+      />
       {showEmpty ? (
         <SectionEmptyState
           title={t('home.featuredDeals.emptyTitle')}
@@ -65,19 +60,19 @@ export default function FeaturedDeals() {
           icon={Tag}
         />
       ) : (
-        <div className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-6 -my-6">
+        <HorizontalRail className="flex gap-4 overflow-x-auto py-2 scrollbar-hide snap-x md:grid md:grid-cols-5 md:gap-5 md:overflow-visible">
           {isLoading
             ? [...Array(5)].map((_, i) => (
-                <div key={i} className="w-50 md:w-auto shrink-0 snap-start">
+                <div key={i} className={CARD_WRAP}>
                   <ProductCardSkeleton />
                 </div>
               ))
-            : products.map((p) => (
-                <div key={p.id} className="w-50 md:w-auto shrink-0 snap-start">
-                  <ProductCard product={p} />
+            : products.map((product) => (
+                <div key={product.id} className={CARD_WRAP}>
+                  <ProductCard product={product} />
                 </div>
               ))}
-        </div>
+        </HorizontalRail>
       )}
     </div>
   );

@@ -6,7 +6,6 @@ use App\Enums\SystemSettingGroup;
 use App\Models\SystemSetting;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Schema;
 
 final class EffectiveConfigService
 {
@@ -63,10 +62,6 @@ final class EffectiveConfigService
 
     public function invalidateGroup(SystemSettingGroup $group): void
     {
-        if (! Schema::hasTable('system_settings')) {
-            return;
-        }
-
         SystemSetting::query()
             ->where('group', $group->value)
             ->pluck('key')
@@ -78,10 +73,6 @@ final class EffectiveConfigService
      */
     public function publicThemeTokens(): array
     {
-        if (! Schema::hasTable('system_settings')) {
-            return [];
-        }
-
         return SystemSetting::query()
             ->where('group', SystemSettingGroup::Theme->value)
             ->where('is_public', true)

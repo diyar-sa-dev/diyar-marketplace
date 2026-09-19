@@ -6,9 +6,8 @@ export type PlatformSearchConfig = {
 };
 
 export async function fetchPlatformSearch(): Promise<PlatformSearchConfig> {
-  const { data } = await apiClient.get<ApiSuccessResponse<{ search: PlatformSearchConfig }>>(
-    '/platform/search',
-  );
+  const { data } =
+    await apiClient.get<ApiSuccessResponse<{ search: PlatformSearchConfig }>>('/platform/search');
 
   return (
     data.data.search ?? {

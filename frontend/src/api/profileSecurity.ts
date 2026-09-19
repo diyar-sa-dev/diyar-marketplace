@@ -11,7 +11,10 @@ import type {
 } from '../types/profileSecurity.ts';
 import type { AuthUser } from '../types/auth.ts';
 
-type DevicesResponse = ApiSuccessResponse<{ devices?: SecurityDevice[]; sessions?: SecuritySession[] }>;
+type DevicesResponse = ApiSuccessResponse<{
+  devices?: SecurityDevice[];
+  sessions?: SecuritySession[];
+}>;
 type LogoutOthersResponse = ApiSuccessResponse<{ revoked_count: number }>;
 type RevokeDeviceResponse = ApiSuccessResponse<{ revoked_count: number }>;
 type MessageResponse = ApiSuccessResponse<Record<string, never>>;
@@ -63,7 +66,9 @@ export async function fetchSecurityDevices(): Promise<SecurityDevice[]> {
   return [];
 }
 
-export async function revokeSecuritySession(sessionId: string): Promise<SecuritySessionsActionResult> {
+export async function revokeSecuritySession(
+  sessionId: string,
+): Promise<SecuritySessionsActionResult> {
   const response = await withCsrf(() =>
     apiClient.delete<MessageResponse>(`/profile/security/sessions/${sessionId}`),
   );
@@ -77,7 +82,9 @@ function isNotFoundError(error: unknown): boolean {
   return axios.isAxiosError(error) && error.response?.status === 404;
 }
 
-export async function revokeSecurityDevice(device: SecurityDevice): Promise<SecuritySessionsActionResult> {
+export async function revokeSecurityDevice(
+  device: SecurityDevice,
+): Promise<SecuritySessionsActionResult> {
   const targets = device.sessions.filter((session) => !session.is_current);
   if (targets.length === 0) {
     return { revokedCount: 0 };
@@ -152,7 +159,9 @@ export async function enableTwoFactor(): Promise<TwoFactorActionResult> {
   return { message: extractMessage(response) };
 }
 
-export async function confirmTwoFactor(code: string): Promise<TwoFactorActionResult & { user?: AuthUser }> {
+export async function confirmTwoFactor(
+  code: string,
+): Promise<TwoFactorActionResult & { user?: AuthUser }> {
   const response = await withCsrf(() =>
     apiClient.post<TwoFactorConfirmResponse>('/profile/security/two-factor/confirm', { code }),
   );
@@ -173,7 +182,8 @@ export async function disableTwoFactor(payload: {
       payload,
     ),
   );
-  const data = response.data.data as Partial<{ two_factor: TwoFactorStatus; user: AuthUser }> | undefined;
+  const data = response.data.data as
+    Partial<{ two_factor: TwoFactorStatus; user: AuthUser }> | undefined;
 
   return {
     message: extractMessage(response),

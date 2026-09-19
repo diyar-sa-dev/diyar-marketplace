@@ -8,6 +8,8 @@ use App\Http\Middleware\EnsureAdminUserIsActive;
 use App\Http\Middleware\EnsureCleanAuthState;
 use App\Http\Middleware\EnsureMarketplaceAccess;
 use App\Http\Middleware\EnsureMarketplaceNotInMaintenance;
+use App\Http\Middleware\EnsureRoomDesignerEnabled;
+use App\Http\Middleware\EnsureTryInRoomEnabled;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\NormalizeSessionCookieDomain;
 use App\Http\Middleware\SecurityHeaders;
@@ -83,6 +85,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.active' => EnsureAdminUserIsActive::class,
             'admin.permission' => EnsureAdminPermission::class,
             'marketplace.access' => EnsureMarketplaceAccess::class,
+            'room-designer.enabled' => EnsureRoomDesignerEnabled::class,
+            'try-in-room.enabled' => EnsureTryInRoomEnabled::class,
         ]);
 
         $middleware->redirectGuestsTo(function (Request $request) {

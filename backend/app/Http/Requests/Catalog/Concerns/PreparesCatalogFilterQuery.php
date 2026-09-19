@@ -20,6 +20,19 @@ trait PreparesCatalogFilterQuery
             }
         }
 
+        if ($this->filled('max_price') && ! $this->filled('min_price')) {
+            $merged['min_price'] = 0;
+        }
+
+        if ($this->filled('min_price') && $this->filled('max_price')) {
+            $min = (float) $this->input('min_price');
+            $max = (float) $this->input('max_price');
+
+            if ($min > $max) {
+                $merged['min_price'] = $max;
+            }
+        }
+
         if ($merged !== []) {
             $this->merge($merged);
         }

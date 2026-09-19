@@ -4,6 +4,7 @@ namespace Tests\Feature\Api\V1\Catalog;
 
 use App\Support\Catalog\Filters\CatalogFilterRuleBuilder;
 use App\Support\Catalog\Filters\FilterCapabilityRegistry;
+use App\Support\Catalog\Filters\FilterContentType;
 use App\Support\Catalog\Filters\FilterSurface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -54,7 +55,7 @@ class FilterCapabilityContractTest extends TestCase
 
         sort($expectedEngineKeys);
 
-        $registryKeys = $registry->engineParametersFor(\App\Support\Catalog\Filters\FilterContentType::Product);
+        $registryKeys = $registry->engineParametersFor(FilterContentType::Product);
         $registryKeys[] = 'page';
         $registryKeys[] = 'per_page';
         $registryKeys = array_values(array_unique($registryKeys));
@@ -85,7 +86,7 @@ class FilterCapabilityContractTest extends TestCase
 
         sort($expectedEngineKeys);
 
-        $registryKeys = $registry->engineParametersFor(\App\Support\Catalog\Filters\FilterContentType::Service);
+        $registryKeys = $registry->engineParametersFor(FilterContentType::Service);
         $registryKeys[] = 'page';
         $registryKeys[] = 'per_page';
         $registryKeys = array_values(array_unique($registryKeys));

@@ -59,6 +59,7 @@ class Product extends Model
         return [
             'sale_price' => 'decimal:2',
             'compare_price' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
             'promotion_ends_at' => 'datetime',
             'width' => 'decimal:2',
             'height' => 'decimal:2',
@@ -138,12 +139,14 @@ class Product extends Model
     {
         $table = $query->getModel()->getTable();
 
+        // EXISTS keeps the column list intact so MySQL aggregates (filter suggestions) stay valid.
         return $query
             ->where("{$table}.status", ProductStatus::Active)
-            ->whereIn("{$table}.vendor_account_id", function ($subquery) {
-                $subquery->select('id')
+            ->whereExists(function ($subquery) use ($table) {
+                $subquery->selectRaw('1')
                     ->from('vendor_accounts')
-                    ->where('status', 'active');
+                    ->whereColumn('vendor_accounts.id', "{$table}.vendor_account_id")
+                    ->where('vendor_accounts.status', 'active');
             });
     }
 

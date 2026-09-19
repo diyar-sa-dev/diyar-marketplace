@@ -1,4 +1,9 @@
-import { sanitizePriceDigits } from '../../../lib/priceInput.ts';
+import {
+  clampMaxPriceInput,
+  clampMinPriceInput,
+  parsePriceDigits,
+  sanitizePriceDigits,
+} from '../../../lib/priceInput.ts';
 import { useLocale } from '../../../hooks/useLocale.ts';
 
 type PriceRangeFieldsProps = {
@@ -7,6 +12,8 @@ type PriceRangeFieldsProps = {
   onMinChange: (value: string) => void;
   onMaxChange: (value: string) => void;
   layout?: 'row' | 'grid';
+  maxCeiling?: number;
+  showTitle?: boolean;
 };
 
 export function PriceRangeFields({
@@ -15,34 +22,44 @@ export function PriceRangeFields({
   onMinChange,
   onMaxChange,
   layout = 'grid',
+  maxCeiling,
+  showTitle = true,
 }: PriceRangeFieldsProps) {
   const { t } = useLocale();
 
-  const containerClass =
-    layout === 'row'
-      ? 'flex items-center gap-3'
-      : 'grid grid-cols-2 gap-3';
+  const parsedMin = parsePriceDigits(minPrice);
+  const parsedMax = parsePriceDigits(maxPrice);
+
+  const containerClass = layout === 'row' ? 'flex items-center gap-3' : 'grid grid-cols-2 gap-3';
 
   return (
     <div className="space-y-2">
-      <h3 className="font-bold text-sm text-diyar-dark">{t('catalog.search.filters.price')}</h3>
+      {showTitle ? (
+        <h3 className="font-bold text-sm text-diyar-dark">{t('catalog.search.filters.price')}</h3>
+      ) : null}
       <div className={containerClass}>
         <input
-          type="text"
+          type="number"
           inputMode="numeric"
-          pattern="[0-9]*"
+          min={0}
+          max={parsedMax}
           placeholder={t('catalog.search.filters.minPrice')}
           value={minPrice}
-          onChange={(event) => onMinChange(sanitizePriceDigits(event.target.value))}
+          onChange={(event) =>
+            onMinChange(clampMinPriceInput(sanitizePriceDigits(event.target.value), maxPrice))
+          }
           className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition-all focus:border-diyar-brown focus:bg-white"
         />
         <input
-          type="text"
+          type="number"
           inputMode="numeric"
-          pattern="[0-9]*"
+          min={parsedMin ?? 0}
+          max={maxCeiling}
           placeholder={t('catalog.search.filters.maxPrice')}
           value={maxPrice}
-          onChange={(event) => onMaxChange(sanitizePriceDigits(event.target.value))}
+          onChange={(event) =>
+            onMaxChange(clampMaxPriceInput(sanitizePriceDigits(event.target.value), minPrice))
+          }
           className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition-all focus:border-diyar-brown focus:bg-white"
         />
       </div>

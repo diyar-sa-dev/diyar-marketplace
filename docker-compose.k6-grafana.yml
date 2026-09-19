@@ -1,0 +1,32 @@
+# k6 + Grafana web dashboard against diyar-production (Octane).
+# Usage: see scripts/performance/run-octane-predeploy.ps1
+#
+# Dashboard: http://127.0.0.1:5665  (compose run --service-ports)
+
+services:
+  k6:
+    image: grafana/k6:latest
+    profiles: ['k6']
+    networks:
+      - public
+      - backend
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '5665:5665'
+    volumes:
+      - ./scripts/performance:/scripts:ro
+      - ./backend/storage/certification/k6:/reports
+    environment:
+      BASE_URL: http://nginx/api/v1
+      FRONTEND_URL: http://host.docker.internal:3000
+      FRONTEND_ORIGIN: http://127.0.0.1:3000
+      PROFILE: ${K6_PROFILE:-vu10}
+      K6_WEB_DASHBOARD: 'true'
+      K6_WEB_DASHBOARD_HOST: '0.0.0.0'
+      K6_WEB_DASHBOARD_PORT: '5665'
+      K6_WEB_DASHBOARD_PERIOD: 2s
+      K6_WEB_DASHBOARD_EXPORT: /reports/dashboard.html
+    working_dir: /scripts
+    entrypoint: ['k6']
+    command: ['run', '/scripts/kvm2-octane-predeploy.js']

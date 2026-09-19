@@ -6,6 +6,7 @@ use App\Enums\RoleName;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;
 
@@ -137,7 +138,7 @@ class CategoryAdminTest extends TestCase
 
         $upload = $this->actingAs($admin, 'admin')->postJson(
             '/api/v1/admin/categories/'.$category->id.'/image',
-            ['image' => new \Illuminate\Http\UploadedFile($tmp, 'category.png', 'image/png', null, true)],
+            ['image' => new UploadedFile($tmp, 'category.png', 'image/png', null, true)],
         );
 
         $upload->assertOk()

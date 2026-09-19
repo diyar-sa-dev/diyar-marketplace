@@ -24,16 +24,16 @@ export async function uploadAdminCategoryImage(
   await ensureCsrfCookie();
 
   const response = await adminApi.post<ApiSuccessResponse<{ category: CategoryPayload }>>(
-      `/admin/categories/${categoryId}/image`,
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (event) => {
-          if (event.total) {
-            onProgress?.(Math.round((event.loaded * 100) / event.total));
-          }
-        },
+    `/admin/categories/${categoryId}/image`,
+    formData,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: (event) => {
+        if (event.total) {
+          onProgress?.(Math.round((event.loaded * 100) / event.total));
+        }
       },
+    },
   );
 
   return response.data.data.category;

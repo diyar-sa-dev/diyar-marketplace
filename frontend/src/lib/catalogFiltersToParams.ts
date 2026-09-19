@@ -1,8 +1,6 @@
 import type { FilterSuggestionsRequest } from '../types/filterSuggestions.ts';
 
-export function catalogFiltersToSearchParams(
-  filters: FilterSuggestionsRequest,
-): URLSearchParams {
+export function catalogFiltersToSearchParams(filters: FilterSuggestionsRequest): URLSearchParams {
   const params = new URLSearchParams();
 
   if (filters.q) {

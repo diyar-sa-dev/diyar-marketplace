@@ -2,8 +2,8 @@
 
 namespace App\Services\Media;
 
-use App\Support\Media\OptimizedMedia;
 use App\Services\Settings\EffectiveConfigService;
+use App\Support\Media\OptimizedMedia;
 use GdImage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;

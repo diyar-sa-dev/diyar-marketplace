@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Search;
 
+use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
@@ -36,7 +37,7 @@ class VisualSearchHydrationTest extends TestCase
         $archived = Product::factory()->create(['name' => 'Archived Product', 'status' => 'archived']);
 
         foreach ([$active, $archived] as $product) {
-            $mediaFile = \App\Models\MediaFile::query()->create([
+            $mediaFile = MediaFile::query()->create([
                 'disk' => 'media',
                 'path' => 'products/'.$product->id.'/img.png',
                 'mime_type' => 'image/png',

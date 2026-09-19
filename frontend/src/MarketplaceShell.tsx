@@ -139,7 +139,16 @@ export default function MarketplaceShell() {
   }, [hideMarketplaceChrome]);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-diyar-dark pb-17.5 md:pb-0 overflow-x-hidden" dir={dir}>
+    <div
+      className={
+        isDashboardPage
+          ? 'h-dvh overflow-hidden bg-white font-sans text-diyar-dark'
+          : hideMarketplaceChrome
+            ? 'min-h-screen bg-white font-sans text-diyar-dark'
+            : 'min-h-screen bg-white font-sans text-diyar-dark pb-17.5 md:pb-0 overflow-x-hidden'
+      }
+      dir={dir}
+    >
       {!hideMarketplaceChrome && <AnnouncementBar />}
       {!hideMarketplaceChrome && (
         <div

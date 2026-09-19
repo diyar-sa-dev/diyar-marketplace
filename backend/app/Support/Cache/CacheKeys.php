@@ -2,6 +2,9 @@
 
 namespace App\Support\Cache;
 
+use App\Services\Settings\EffectiveConfigService;
+use Illuminate\Support\Facades\Cache;
+
 /**
  * Deterministic cache key builders for cross-service consistency.
  *
@@ -78,7 +81,7 @@ final class CacheKeys
             0.1,
             min(
                 1.0,
-                app(\App\Services\Settings\EffectiveConfigService::class)->decimal(
+                app(EffectiveConfigService::class)->decimal(
                     'feature.visual_search_min_similarity',
                     $defaultMinSimilarity,
                 ),
@@ -102,7 +105,7 @@ final class CacheKeys
     public static function visualSearchCacheGeneration(): int
     {
         try {
-            return (int) \Illuminate\Support\Facades\Cache::get('diyar:visual-search:cache-generation', 0);
+            return (int) Cache::get('diyar:visual-search:cache-generation', 0);
         } catch (\Throwable) {
             return 0;
         }
@@ -111,7 +114,7 @@ final class CacheKeys
     public static function bumpVisualSearchCacheGeneration(): void
     {
         try {
-            \Illuminate\Support\Facades\Cache::increment('diyar:visual-search:cache-generation');
+            Cache::increment('diyar:visual-search:cache-generation');
         } catch (\Throwable) {
             // Cache unavailable — searches still work without invalidation.
         }
