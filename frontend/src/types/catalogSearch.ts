@@ -33,6 +33,8 @@ export interface CatalogSearchFilters {
   discounted?: boolean | 0 | 1;
   sort?: CatalogSearchSort;
   page?: number;
+  product_page?: number;
+  service_page?: number;
   per_page?: number;
 }
 

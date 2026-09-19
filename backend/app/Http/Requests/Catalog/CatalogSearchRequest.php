@@ -22,7 +22,11 @@ class CatalogSearchRequest extends FormRequest
      */
     public function rules(): array
     {
-        return app(CatalogFilterRuleBuilder::class)->rules(FilterSurface::CatalogSearch);
+        $rules = app(CatalogFilterRuleBuilder::class)->rules(FilterSurface::CatalogSearch);
+        $rules['product_page'] = ['nullable', 'integer', 'min:1'];
+        $rules['service_page'] = ['nullable', 'integer', 'min:1'];
+
+        return $rules;
     }
 
     /**

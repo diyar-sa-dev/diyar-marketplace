@@ -25,6 +25,11 @@ function buildQuery(filters: CatalogSearchFilters = {}): string {
       return;
     }
 
+    if (key === 'product_page' || key === 'service_page') {
+      params.set(key, String(value));
+      return;
+    }
+
     params.set(key, String(value));
   });
 

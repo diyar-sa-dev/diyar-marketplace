@@ -45,6 +45,7 @@ import {
   SuspendedAccountPage,
   TeamInvitePage,
   WishlistPage,
+  RoomDesignerPage,
 } from './lazyPages.ts';
 
 const DashboardRoutes = lazy(() => import('./DashboardRoutes.tsx'));
@@ -88,6 +89,26 @@ export default function StorefrontRoutes() {
       <Route path="/blog/:slug" element={<LazyRoute><BlogArticlePage /></LazyRoute>} />
       <Route path="/blog" element={<LazyRoute><BlogPage /></LazyRoute>} />
       <Route path="/profile" element={<CustomerProfileRoute><LazyRoute><ProfilePage /></LazyRoute></CustomerProfileRoute>} />
+      <Route
+        path="/profile/room-designer/:designId"
+        element={
+          <CustomerProfileRoute>
+            <LazyRoute>
+              <RoomDesignerPage />
+            </LazyRoute>
+          </CustomerProfileRoute>
+        }
+      />
+      <Route
+        path="/profile/room-designer"
+        element={
+          <CustomerProfileRoute>
+            <LazyRoute>
+              <RoomDesignerPage />
+            </LazyRoute>
+          </CustomerProfileRoute>
+        }
+      />
       <Route path="/profile/service-bookings" element={<CustomerProfileRoute><LazyRoute><ServiceBookingsPage /></LazyRoute></CustomerProfileRoute>} />
       <Route
         path="/service-bookings/:id"

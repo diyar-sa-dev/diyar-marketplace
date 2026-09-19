@@ -92,6 +92,14 @@ export function normalizeCatalogSearchFilters(
       raw.discounted === '1' || raw.discounted === 1 || raw.discounted === true ? 1 : undefined,
     sort: sort && ALLOWED_SORTS.has(sort) ? (sort as CatalogSearchFilters['sort']) : undefined,
     page: Number.isFinite(page) && page > 0 ? page : 1,
+    product_page:
+      raw.product_page !== undefined && Number.isFinite(Number(raw.product_page)) && Number(raw.product_page) > 0
+        ? Number(raw.product_page)
+        : undefined,
+    service_page:
+      raw.service_page !== undefined && Number.isFinite(Number(raw.service_page)) && Number(raw.service_page) > 0
+        ? Number(raw.service_page)
+        : undefined,
     per_page: Number.isFinite(perPage) && perPage > 0 ? Math.min(perPage, MAX_PER_PAGE) : 48,
   };
 }

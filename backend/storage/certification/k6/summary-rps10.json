@@ -1,0 +1,21 @@
+{
+  "profile": "rps10",
+  "timestamp_utc": "2026-09-16T13:20:09.176Z",
+  "target": {
+    "api": "http://nginx/api/v1",
+    "frontend": "http://host.docker.internal:3000",
+    "origin": "http://127.0.0.1:3000"
+  },
+  "rps": 16.93337793573146,
+  "rpm": 1016.0026761438876,
+  "p50_ms": 6.09622,
+  "p95_ms": 9.886115,
+  "p99_ms": 84.00096820000047,
+  "search_p95_ms": 11.435503199999994,
+  "frontend_p95_ms": 0,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "iterations": 400,
+  "vus_max": 20
+}

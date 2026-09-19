@@ -33,6 +33,7 @@ export const B2BCompanyPage = lazy(() => import('../pages/B2BCompanyPage.tsx'));
 export const ServicePage = lazy(() => import('../pages/ServicePage.tsx'));
 export const ServicesPage = lazy(() => import('../pages/ServicesPage.tsx'));
 export const AIDesignerPage = lazy(() => import('../pages/AIDesignerPage.tsx'));
+export const RoomDesignerPage = lazy(() => import('../pages/RoomDesignerPage.tsx'));
 export const ChatPage = lazy(() => import('../pages/ChatPage.tsx'));
 export const ForbiddenPage = lazy(() => import('../pages/errors/ForbiddenPage.tsx'));
 export const NotFoundPage = lazy(() => import('../pages/errors/NotFoundPage.tsx'));

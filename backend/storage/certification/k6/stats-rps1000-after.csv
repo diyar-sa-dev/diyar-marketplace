@@ -1,0 +1,9 @@
+﻿diyar-production-nginx-1,0.00%,5.891MiB / 11.68GiB,356MB / 365MB
+diyar-production-app-1,12.81%,156.7MiB / 11.68GiB,329MB / 452MB
+diyar-production-reverb-2-1,0.00%,37.06MiB / 11.68GiB,16.2kB / 32.4kB
+diyar-production-reverb-1-1,0.00%,37.08MiB / 11.68GiB,16.4kB / 32.4kB
+diyar-production-scheduler-1,0.00%,8.137MiB / 11.68GiB,12.5MB / 6.83MB
+diyar-production-queue-critical-1,0.12%,34.92MiB / 11.68GiB,1.9MB / 17.2MB
+diyar-production-queue-default-1,0.23%,34.89MiB / 11.68GiB,4.45MB / 48.6MB
+diyar-production-mysql-1,0.58%,464.2MiB / 11.68GiB,6.82MB / 16.3MB
+diyar-production-redis-1,0.91%,27.64MiB / 11.68GiB,713MB / 340MB

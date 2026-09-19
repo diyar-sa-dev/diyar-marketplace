@@ -1,0 +1,258 @@
+﻿{
+    "stack":  "diyar-production Octane 2 workers + nginx :8093 + queues + Vite :3000 (Vercel stand-in)",
+    "profiles":  [
+                     {
+                         "profile":  "burst10",
+                         "timestamp_utc":  "2026-09-16T13:19:21.977Z",
+                         "target":  {
+                                        "api":  "http://nginx/api/v1",
+                                        "frontend":  "http://host.docker.internal:3000",
+                                        "origin":  "http://127.0.0.1:3000"
+                                    },
+                         "rps":  148.0498474361127,
+                         "rpm":  8882.990846166762,
+                         "p50_ms":  38.5052055,
+                         "p95_ms":  62.45704275,
+                         "p99_ms":  64.70204775,
+                         "search_p95_ms":  62.45704275,
+                         "frontend_p95_ms":  0,
+                         "error_rate":  0,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  10,
+                         "vus_max":  0
+                     },
+                     {
+                         "profile":  "burst100",
+                         "timestamp_utc":  "2026-09-16T13:21:10.129Z",
+                         "target":  {
+                                        "api":  "http://nginx/api/v1",
+                                        "frontend":  "http://host.docker.internal:3000",
+                                        "origin":  "http://127.0.0.1:3000"
+                                    },
+                         "rps":  246.5025406080151,
+                         "rpm":  14790.152436480907,
+                         "p50_ms":  224.4456755,
+                         "p95_ms":  354.65213194999995,
+                         "p99_ms":  371.13236496,
+                         "search_p95_ms":  354.65213194999995,
+                         "frontend_p95_ms":  0,
+                         "error_rate":  0,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  100,
+                         "vus_max":  0
+                     },
+                     {
+                         "profile":  "burst1000",
+                         "timestamp_utc":  "2026-09-16T13:23:16.759Z",
+                         "target":  {
+                                        "api":  "http://nginx/api/v1",
+                                        "frontend":  "http://host.docker.internal:3000",
+                                        "origin":  "http://127.0.0.1:3000"
+                                    },
+                         "rps":  300.26686761342177,
+                         "rpm":  18016.012056805306,
+                         "p50_ms":  1585.322676,
+                         "p95_ms":  3002.34116035,
+                         "p99_ms":  3099.64743129,
+                         "search_p95_ms":  3002.34116035,
+                         "frontend_p95_ms":  0,
+                         "error_rate":  0,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  1000,
+                         "vus_max":  1000
+                     },
+                     {
+                         "profile":  "burst10000",
+                         "timestamp_utc":  "2026-09-16T13:24:26.212Z",
+                         "target":  {
+                                        "api":  "http://nginx/api/v1",
+                                        "frontend":  "http://host.docker.internal:3000",
+                                        "origin":  "http://127.0.0.1:3000"
+                                    },
+                         "rps":  1028.2050803703914,
+                         "rpm":  61692.30482222349,
+                         "p50_ms":  7.685204000000001,
+                         "p95_ms":  5806.361404199999,
+                         "p99_ms":  6524.889831230001,
+                         "search_p95_ms":  5806.361404199999,
+                         "frontend_p95_ms":  0,
+                         "error_rate":  0.7487,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  10000,
+                         "vus_max":  10000
+                     },
+                     {
+                         "profile":  "rps10",
+                         "timestamp_utc":  "2026-09-16T13:20:09.176Z",
+                         "target":  {
+                                        "api":  "http://nginx/api/v1",
+                                        "frontend":  "http://host.docker.internal:3000",
+                                        "origin":  "http://127.0.0.1:3000"
+                                    },
+                         "rps":  16.93337793573146,
+                         "rpm":  1016.0026761438876,
+                         "p50_ms":  6.09622,
+                         "p95_ms":  9.886115,
+                         "p99_ms":  84.00096820000047,
+                         "search_p95_ms":  11.435503199999994,
+                         "frontend_p95_ms":  0,
+                         "error_rate":  0,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  400,
+                         "vus_max":  20
+                     },
+                     {
+                         "profile":  "rps100",
+                         "timestamp_utc":  "2026-09-16T13:21:57.504Z",
+                         "target":  {
+                                        "api":  "http://nginx/api/v1",
+                                        "frontend":  "http://host.docker.internal:3000",
+                                        "origin":  "http://127.0.0.1:3000"
+                                    },
+                         "rps":  169.15184285181869,
+                         "rpm":  10149.11057110912,
+                         "p50_ms":  11.161614,
+                         "p95_ms":  213.658516,
+                         "p99_ms":  517.6573821600002,
+                         "search_p95_ms":  206.98531050000003,
+                         "frontend_p95_ms":  0,
+                         "error_rate":  0,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  3991,
+                         "vus_max":  130
+                     },
+                     {
+                         "profile":  "rps1000",
+                         "timestamp_utc":  "2026-09-16T13:24:03.342Z",
+                         "target":  {
+                                        "api":  "http://nginx/api/v1",
+                                        "frontend":  "http://host.docker.internal:3000",
+                                        "origin":  "http://127.0.0.1:3000"
+                                    },
+                         "rps":  314.7598746867039,
+                         "rpm":  18885.59248120223,
+                         "p50_ms":  3022.6879065,
+                         "p95_ms":  4833.255653249999,
+                         "p99_ms":  5595.93938887,
+                         "search_p95_ms":  4836.703056649999,
+                         "frontend_p95_ms":  0,
+                         "error_rate":  0,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  6810,
+                         "vus_max":  1200
+                     },
+                     {
+                         "profile":  "rps10000",
+                         "timestamp_utc":  "2026-09-16T13:24:48.125Z",
+                         "target":  {
+                                        "api":  "http://nginx/api/v1",
+                                        "frontend":  "http://host.docker.internal:3000",
+                                        "origin":  "http://127.0.0.1:3000"
+                                    },
+                         "rps":  2458.2766017182585,
+                         "rpm":  147496.5961030955,
+                         "p50_ms":  0.156009,
+                         "p95_ms":  1018.746007699996,
+                         "p99_ms":  8885.23193456,
+                         "search_p95_ms":  2557.460215,
+                         "frontend_p95_ms":  0,
+                         "error_rate":  0.9401690031404798,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  15685,
+                         "vus_max":  3348
+                     },
+                     {
+                         "profile":  "vu10",
+                         "timestamp_utc":  "2026-09-16T13:19:14.269Z",
+                         "target":  {
+                                        "api":  "http://nginx/api/v1",
+                                        "frontend":  "http://host.docker.internal:3000",
+                                        "origin":  "http://127.0.0.1:3000"
+                                    },
+                         "rps":  39.821415638343964,
+                         "rpm":  2389.284938300638,
+                         "p50_ms":  6.2054705000000006,
+                         "p95_ms":  14.330340699999978,
+                         "p99_ms":  124.38623201999982,
+                         "search_p95_ms":  13.428316149999986,
+                         "frontend_p95_ms":  0,
+                         "error_rate":  0,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  954,
+                         "vus_max":  10
+                     },
+                     {
+                         "profile":  "vu100",
+                         "timestamp_utc":  "2026-09-16T13:21:01.075Z",
+                         "target":  {
+                                        "api":  "http://nginx/api/v1",
+                                        "frontend":  "http://host.docker.internal:3000",
+                                        "origin":  "http://127.0.0.1:3000"
+                                    },
+                         "rps":  260.58374625732677,
+                         "rpm":  15635.024775439606,
+                         "p50_ms":  100.834257,
+                         "p95_ms":  424.155549,
+                         "p99_ms":  718.9331380000003,
+                         "search_p95_ms":  399.97521639999997,
+                         "frontend_p95_ms":  0,
+                         "error_rate":  0,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  7024,
+                         "vus_max":  100
+                     },
+                     {
+                         "profile":  "vu1000",
+                         "timestamp_utc":  "2026-09-16T13:23:05.645Z",
+                         "target":  {
+                                        "api":  "http://nginx/api/v1",
+                                        "frontend":  "http://host.docker.internal:3000",
+                                        "origin":  "http://127.0.0.1:3000"
+                                    },
+                         "rps":  347.65407143359903,
+                         "rpm":  20859.244286015943,
+                         "p50_ms":  1394.131332,
+                         "p95_ms":  2665.6164173,
+                         "p99_ms":  2775.40531294,
+                         "search_p95_ms":  2667.3671455999997,
+                         "frontend_p95_ms":  0,
+                         "error_rate":  0,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  11681,
+                         "vus_max":  1000
+                     },
+                     {
+                         "profile":  "vu10000",
+                         "timestamp_utc":  "2026-09-16T13:32:29.338Z",
+                         "target":  {
+                                        "api":  "http://nginx/api/v1",
+                                        "frontend":  "http://host.docker.internal:3000",
+                                        "origin":  "http://127.0.0.1:3000"
+                                    },
+                         "rps":  729.0983462427654,
+                         "rpm":  43745.900774565926,
+                         "p50_ms":  13.919153,
+                         "p95_ms":  4143.8291469,
+                         "p99_ms":  5834.84789586,
+                         "search_p95_ms":  4147.2310196,
+                         "frontend_p95_ms":  0,
+                         "error_rate":  0.5688908383135041,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  8017,
+                         "vus_max":  10000
+                     }
+                 ],
+    "captured_at_utc":  "2026-09-16T13:32:41.7646178Z"
+}

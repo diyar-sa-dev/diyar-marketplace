@@ -1,0 +1,75 @@
+# DIYAR — isolated KVM2-equivalent validation overlay (2 vCPU / ~8 GB envelope)
+#
+# Does NOT replace production compose. Applies resource limits + test port only.
+#
+#   docker compose -p diyar-kvm2-test \
+#     -f docker-compose.production.yml \
+#     -f docker-compose.production.octane.yml \
+#     -f docker-compose.kvm2-test.yml \
+#     -f docker-compose.kvm2-test.k6.yml \
+#     --env-file deploy/docker/kvm2-test.env up -d --build
+#
+# Constraint model:
+#   - Per-container memory limits sum to ~6.5 GiB (leaves headroom for Docker VM / k6 on host).
+#   - Per-container CPU limits are ceilings; host Docker Desktop should be set to 2 CPUs / 8 GiB RAM.
+#   - Disk I/O, Internet latency, Hostinger virtualization: NOT REPRODUCED (see validation report).
+
+x-kvm2-limit-app: &kvm2-limit-app
+  deploy:
+    resources:
+      limits:
+        cpus: '1.25'
+        memory: 1536M
+
+x-kvm2-limit-small: &kvm2-limit-small
+  deploy:
+    resources:
+      limits:
+        cpus: '0.25'
+        memory: 384M
+
+services:
+  mysql:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 2560M
+
+  redis:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 576M
+
+  app:
+    <<: *kvm2-limit-app
+    environment:
+      OCTANE_WORKERS: '2'
+
+  nginx:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.35'
+          memory: 128M
+
+  queue-critical:
+    <<: *kvm2-limit-small
+
+  queue-default:
+    <<: *kvm2-limit-small
+
+  scheduler:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'
+          memory: 128M
+
+  reverb-1:
+    <<: *kvm2-limit-small
+
+  reverb-2:
+    <<: *kvm2-limit-small

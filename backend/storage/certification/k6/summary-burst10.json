@@ -1,0 +1,21 @@
+{
+  "profile": "burst10",
+  "timestamp_utc": "2026-09-16T13:19:21.977Z",
+  "target": {
+    "api": "http://nginx/api/v1",
+    "frontend": "http://host.docker.internal:3000",
+    "origin": "http://127.0.0.1:3000"
+  },
+  "rps": 148.0498474361127,
+  "rpm": 8882.990846166762,
+  "p50_ms": 38.5052055,
+  "p95_ms": 62.45704275,
+  "p99_ms": 64.70204775,
+  "search_p95_ms": 62.45704275,
+  "frontend_p95_ms": 0,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "iterations": 10,
+  "vus_max": 0
+}

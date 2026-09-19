@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Contracts\Visualization\VisualizationProviderInterface;
 use App\Contracts\Identity\OtpCodeGenerator;
 use App\Contracts\Payments\PaymentGatewayInterface;
 use App\Contracts\Sms\SmsProvider;
 use App\Infrastructure\Sms\SmsProviderFactory;
+use App\Services\Visualization\VisualizationProviderRegistry;
+use App\Services\Visualization\VisualizationService;
 use App\Services\Checkout\AssemblyCalculator;
 use App\Services\Checkout\StubAssemblyCalculator;
 use App\Services\Identity\SecureOtpCodeGenerator;
@@ -47,6 +50,15 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(Dhash64Generator::class, fn () => new Dhash64Generator(
             (int) config('diyar.visual_search.working_dimension_px', 256),
         ));
+
+        $this->app->singleton(VisualizationProviderRegistry::class);
+        $this->app->singleton(VisualizationService::class);
+
+        $this->app->singleton(VisualizationProviderInterface::class, function ($app) {
+            return $app->make(VisualizationProviderRegistry::class)->resolve(
+                config('diyar.visualization.driver', 'null'),
+            );
+        });
     }
 
     public function boot(): void
@@ -102,6 +114,28 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute($limit)
                 ->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('room-design-save', function (Request $request) {
+            $limit = (int) config('diyar.rate_limits.room_design_save_per_minute', 30);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('room-design-list', function (Request $request) {
+            $limit = (int) config('diyar.rate_limits.room_design_list_per_minute', 60);
+
+            return Limit::perMinute($limit)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('try-in-room-create', function (Request $request) {
+            return Limit::perHour(10)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('try-in-room-poll', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
         RateLimiter::for('webhooks', function (Request $request) {

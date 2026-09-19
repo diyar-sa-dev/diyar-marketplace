@@ -1,0 +1,22 @@
+# k6 runner for diyar-kvm2-test (same Docker network as nginx — production path)
+
+services:
+  k6:
+    image: grafana/k6:latest
+    profiles: ['k6']
+    networks:
+      - public
+      - backend
+    volumes:
+      - ./scripts/performance:/scripts:ro
+      - ./backend/storage/certification/kvm2-equivalent:/reports
+    environment:
+      BASE_URL: http://nginx/api/v1
+      FRONTEND_ORIGIN: http://127.0.0.1:8193
+      PROFILE: ${K6_PROFILE:-baseline}
+      STAGE_DURATION: ${K6_STAGE_DURATION:-3m}
+      SOAK_DURATION: ${K6_SOAK_DURATION:-10m}
+      PRODUCT_ID: ${KVM2_PRODUCT_ID:-}
+    working_dir: /scripts
+    entrypoint: ['k6']
+    command: ['run', '/scripts/kvm2-equivalent-campaign.js']

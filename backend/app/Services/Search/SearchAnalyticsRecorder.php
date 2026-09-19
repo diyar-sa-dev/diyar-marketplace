@@ -4,7 +4,6 @@ namespace App\Services\Search;
 
 use App\Models\SearchQueryEvent;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -28,7 +27,7 @@ final class SearchAnalyticsRecorder
         array $filters = [],
         ?int $durationMs = null,
     ): void {
-        if (! $this->isEnabled() || ! Schema::hasTable('search_query_events')) {
+        if (! $this->isEnabled()) {
             return;
         }
 
