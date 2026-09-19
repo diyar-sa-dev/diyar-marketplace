@@ -67,6 +67,20 @@ Staged VU / burst / RPS profiles against **production-like Docker** with **Octan
 
 Report: `backend/storage/certification/k6/KVM2_OCTANE_PRE_DEPLOY_REPORT.md`
 
+## KVM2-equivalent local validation (isolated stack, not real VPS)
+
+Constrained Docker profile (`docker-compose.kvm2-test.yml`, project `diyar-kvm2-test`, HTTP `:8193`, Octane 2 workers, rate limits on):
+
+```powershell
+.\scripts\performance\run-kvm2-equivalent-validation.ps1
+.\scripts\performance\run-kvm2-equivalent-validation.ps1 -SkipBuild -Quick
+```
+
+Report: `backend/storage/certification/kvm2-equivalent/DIYAR_LOCAL_KVM2_EQUIVALENT_VALIDATION_REPORT.md`  
+Evidence: `backend/storage/certification/kvm2-equivalent/campaign.json`, `summary-*.json`, `stats-*.csv`
+
+Windows Docker Octane pre-deploy (`run-octane-predeploy.ps1`) remains **REGRESSION REFERENCE** only; kvm2-equivalent results are **KVM2-EQUIVALENT VALIDATION**, not Hostinger capacity.
+
 ## Evidence
 
 Record results in `conception/Stages/Stage 22/LOAD_TEST_RESULTS.md` with:

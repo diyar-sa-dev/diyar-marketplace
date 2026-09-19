@@ -25,6 +25,23 @@ export const en = {
       page: 'Page {{page}}',
     },
   },
+  tryInRoom: {
+    uploadHint: 'Upload a photo of your room. We will prepare a visualization request (preview foundation).',
+    choosePhoto: 'Choose room photo',
+    uploading: 'Uploading…',
+    processing: 'Processing your request…',
+    completedStub: 'Request completed',
+    stubNote: 'Stub preview — real AI visualization comes in a later stage.',
+    retry: 'Try again',
+    errors: {
+      invalid_type: 'Please choose a JPEG, PNG, or WebP image.',
+      file_too_large: 'Image must be 8 MB or smaller.',
+      request_failed: 'Something went wrong. Please try again.',
+      idempotency_conflict:
+        'This upload conflicts with an existing request. Close the dialog and try again.',
+      timeout: 'This is taking longer than expected. Please try again later.',
+    },
+  },
   maintenance: {
     title: 'Marketplace under maintenance',
     description: 'We are improving your experience. We will be back soon.',

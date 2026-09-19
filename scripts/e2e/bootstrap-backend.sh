@@ -24,6 +24,11 @@ if (!preg_match('/^DIYAR_LOADTEST_MODE=/m', \$env)) {
 } else {
   \$env = preg_replace('/^DIYAR_LOADTEST_MODE=.*/m', 'DIYAR_LOADTEST_MODE=true', \$env);
 }
+if (!preg_match('/^DIYAR_FEATURE_ROOM_DESIGNER_ENABLED=/m', \$env)) {
+  \$env .= \"\\nDIYAR_FEATURE_ROOM_DESIGNER_ENABLED=true\\n\";
+} else {
+  \$env = preg_replace('/^DIYAR_FEATURE_ROOM_DESIGNER_ENABLED=.*/m', 'DIYAR_FEATURE_ROOM_DESIGNER_ENABLED=true', \$env);
+}
 \$env = preg_replace('/^FRONTEND_URL=.*/m', 'FRONTEND_URL=http://127.0.0.1:3000', \$env);
 \$env = preg_replace('/^DIYAR_FRONTEND_URL=.*/m', 'DIYAR_FRONTEND_URL=http://127.0.0.1:3000', \$env);
 if (!preg_match('/^FRONTEND_URL=/m', \$env)) {
@@ -52,6 +57,9 @@ export SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000,127.0.0.1:8000,loc
 export REDIS_HOST="${REDIS_HOST:-127.0.0.1}"
 export REDIS_PORT="${REDIS_PORT:-6379}"
 export DIYAR_LOADTEST_MODE=true
+export DIYAR_FEATURE_ROOM_DESIGNER_ENABLED=true
+export DIYAR_FEATURE_TRY_IN_ROOM_ENABLED="${DIYAR_FEATURE_TRY_IN_ROOM_ENABLED:-false}"
+export DIYAR_VISUALIZATION_DRIVER="${DIYAR_VISUALIZATION_DRIVER:-stub}"
 
 php artisan migrate:fresh --seed --force --no-interaction
 

@@ -123,6 +123,8 @@ use App\Http\Controllers\Api\V1\Profile\WishlistController;
 use App\Http\Controllers\Api\V1\Projects\ProjectController;
 use App\Http\Controllers\Api\V1\ReadinessController;
 use App\Http\Controllers\Api\V1\Return\ReturnController;
+use App\Http\Controllers\Api\V1\RoomDesign\RoomDesignController;
+use App\Http\Controllers\Api\V1\TryInRoom\TryInRoomController;
 use App\Http\Controllers\Api\V1\Search\VisualSearchController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\DirectServiceBookingController;
 use App\Http\Controllers\Api\V1\ServiceMarketplace\ProviderAnalyticsController;
@@ -764,6 +766,32 @@ Route::middleware([
 
         Route::post('/platform/newsletter', [PlatformContactController::class, 'newsletter'])
             ->middleware('throttle:10,1');
+
+        Route::middleware(['room-designer.enabled'])->prefix('room-designs')->group(function () {
+            Route::get('/', [RoomDesignController::class, 'index'])
+                ->middleware('throttle:room-design-list');
+            Route::post('/', [RoomDesignController::class, 'store'])
+                ->middleware('throttle:room-design-save');
+            Route::get('/{roomDesign}', [RoomDesignController::class, 'show'])
+                ->middleware('throttle:room-design-list');
+            Route::put('/{roomDesign}', [RoomDesignController::class, 'update'])
+                ->middleware('throttle:room-design-save');
+            Route::patch('/{roomDesign}', [RoomDesignController::class, 'patch'])
+                ->middleware('throttle:room-design-save');
+            Route::delete('/{roomDesign}', [RoomDesignController::class, 'destroy'])
+                ->middleware('throttle:room-design-save');
+            Route::post('/{roomDesign}/add-to-cart', [RoomDesignController::class, 'addToCart'])
+                ->middleware('throttle:room-design-save');
+            Route::post('/{roomDesign}/try-in-room', [TryInRoomController::class, 'storeForRoomDesign'])
+                ->middleware(['try-in-room.enabled', 'throttle:try-in-room-create']);
+        });
+
+        Route::middleware(['try-in-room.enabled'])->group(function () {
+            Route::post('/products/{product}/try-in-room', [TryInRoomController::class, 'storeForProduct'])
+                ->middleware('throttle:try-in-room-create');
+            Route::get('/try-in-room/{tryInRoomJob}', [TryInRoomController::class, 'show'])
+                ->middleware('throttle:try-in-room-poll');
+        });
 
         Route::prefix('profile')->group(function () {
             Route::get('/', [ProfileController::class, 'show']);
