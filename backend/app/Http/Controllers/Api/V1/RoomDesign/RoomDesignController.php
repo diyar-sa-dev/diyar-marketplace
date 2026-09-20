@@ -14,8 +14,10 @@ use App\Http\Resources\CartResource;
 use App\Http\Resources\RoomDesignListItemResource;
 use App\Http\Resources\RoomDesignResource;
 use App\Models\RoomDesign;
+use App\Http\Requests\RoomDesign\SuggestRoomLayoutRequest;
 use App\Services\RoomDesign\RoomDesignCartService;
 use App\Services\RoomDesign\RoomDesignDocumentService;
+use App\Services\SpatialLayout\SpatialLayoutService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,6 +29,7 @@ class RoomDesignController extends Controller
     public function __construct(
         private readonly RoomDesignDocumentService $designs,
         private readonly RoomDesignCartService $designCart,
+        private readonly SpatialLayoutService $spatialLayout,
     ) {}
 
     public function index(ListRoomDesignsRequest $request): JsonResponse
@@ -168,6 +171,37 @@ class RoomDesignController extends Controller
                 'skipped' => $result['skipped'],
             ],
             message: __('diyar.room_designer.cart.added'),
+        );
+    }
+
+    public function suggestLayout(SuggestRoomLayoutRequest $request, RoomDesign $roomDesign): JsonResponse
+    {
+        $this->authorize('view', $roomDesign);
+
+        $document = $roomDesign->document;
+        if (! is_array($document)) {
+            return ApiResponse::error(__('diyar.room_designer.validation_failed'), 422);
+        }
+
+        try {
+            $suggestion = $this->spatialLayout->suggest($document, $request->validated('intent'));
+            Log::info('room_design.layout_suggested', [
+                'room_design_id' => $roomDesign->id,
+                'user_id' => $request->user()?->id,
+                'provider' => $suggestion['provider'] ?? 'unknown',
+                'command_count' => $suggestion['metadata']['command_count'] ?? count($suggestion['commands'] ?? []),
+            ]);
+        } catch (\InvalidArgumentException $exception) {
+            if ($exception->getMessage() === 'spatial_layout_external_blocked') {
+                return ApiResponse::error(__('diyar.room_designer.ai_spatial_external_blocked'), 403);
+            }
+
+            return ApiResponse::error(__('diyar.room_designer.ai_spatial_unavailable'), 503);
+        }
+
+        return ApiResponse::success(
+            data: ['layout_suggestion' => $suggestion],
+            message: __('diyar.room_designer.ai_spatial_suggested'),
         );
     }
 

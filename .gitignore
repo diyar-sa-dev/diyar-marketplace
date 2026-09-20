@@ -34,6 +34,7 @@ frontend/.env.*
 !frontend/.env.staging.example
 !frontend/.env.production.example
 !frontend/.env.prod-api.example
+!frontend/.env.docker-spa.example
 backend/.env
 backend/.env.*
 !backend/.env.example
@@ -43,6 +44,7 @@ backend/.env.*
 
 # Docker production secrets (local VPS only)
 deploy/docker/production.env
+deploy/docker/kvm2-test.env
 
 # OS & IDE
 .DS_Store

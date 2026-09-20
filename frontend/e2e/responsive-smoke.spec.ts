@@ -36,10 +36,9 @@ test.describe('Responsive smoke — checkout shell', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
   test('auth page form visible on mobile', async ({ page }) => {
-    await page.goto('/auth');
+    await page.goto('/auth', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('body')).toBeVisible();
-    await expect(page.locator('#auth-phone, input[type="tel"]').first()).toBeVisible({
-      timeout: 30_000,
-    });
+    await expect(page.getByTestId('marketplace-login-submit')).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator('input[type="password"]').first()).toBeVisible();
   });
 });

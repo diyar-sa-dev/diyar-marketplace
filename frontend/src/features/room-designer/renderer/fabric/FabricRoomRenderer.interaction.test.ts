@@ -57,4 +57,44 @@ describe('FabricRoomRenderer interaction', () => {
     renderer.destroy();
     container.remove();
   });
+
+  it('emits MOVE in isometric_25d with inverse projection', () => {
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+
+    const preset = createDocumentFromPreset('salon');
+    if (!preset.ok) throw new Error('preset');
+    const doc = preset.document;
+    doc.items = [makeItem({ id: 'iso-drag', position_m: { x: 2, z: 2 } })];
+
+    const session = new DesignerSession({ document: doc, history: { past: [], future: [] } });
+    const renderer = new FabricRoomRenderer();
+    renderer.mount(container, { widthPx: 640, heightPx: 480, scalePxPerM: 80 });
+    renderer.render(session.getDocument(), { scalePxPerM: 80, projection: 'isometric_25d' });
+
+    renderer.onInteraction((event) => {
+      if (event.type === 'command') {
+        const cmds = event.command.type === 'BATCH' ? event.command.commands : [event.command];
+        session.applyCommands(cmds);
+        renderer.render(session.getDocument(), { scalePxPerM: 80, projection: 'isometric_25d' });
+      }
+    });
+
+    const fabricCanvas = (renderer as unknown as {
+      canvas: {
+        getObjects: () => Array<{ diyarItemId?: string; set: (p: object) => void }>;
+        fire: (name: string, payload: { target: unknown }) => void;
+      };
+    }).canvas;
+    const obj = fabricCanvas.getObjects().find((o) => o.diyarItemId === 'iso-drag');
+    expect(obj).toBeTruthy();
+    obj?.set({ left: 0, top: 240 });
+    fabricCanvas.fire('object:modified', { target: obj });
+
+    expect(session.getDocument().items[0]?.position_m.x).toBeCloseTo(3, 0);
+    expect(session.getDocument().items[0]?.position_m.z).toBeCloseTo(3, 0);
+
+    renderer.destroy();
+    container.remove();
+  });
 });

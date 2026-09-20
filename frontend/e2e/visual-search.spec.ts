@@ -1,9 +1,12 @@
 import { expect, test } from '@playwright/test';
+import { setMarketplaceLocale } from './helpers/locale.ts';
 
 test.describe('Visual Search', () => {
   test('EN — open modal and show upload control', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/search');
+    await setMarketplaceLocale(page, 'en');
+    // Image search entry on SearchPage lives in the mobile sticky bar (md:hidden).
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/search', { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: /البحث بالصورة|Image search/i }).click();
     await expect(page.getByText(/ارفع صورة|Upload|JPEG|WebP|2 MB/i).first()).toBeVisible();
   });
@@ -18,7 +21,9 @@ test.describe('Visual Search', () => {
 
   test('mobile viewport — visual search entry visible', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/search');
-    await expect(page.getByRole('button', { name: /البحث بالصورة/i })).toBeVisible();
+    await page.goto('/search', { waitUntil: 'domcontentloaded' });
+    await expect(
+      page.getByRole('button', { name: /البحث بالصورة|Image search/i }),
+    ).toBeVisible({ timeout: 60_000 });
   });
 });

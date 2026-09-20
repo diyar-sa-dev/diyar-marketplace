@@ -57,6 +57,21 @@ Same codebase; no microservice split without approval.
 
 ---
 
+## Stage 30.18 — Evidence-driven triggers (2026-09-20)
+
+**Status:** VERIFIED WITH LIMITATIONS — documentation update only; **production traffic triggers NOT VERIFIED**.
+
+| Signal | Measured locally (KVM2-equivalent) | Stage B–E trigger (proposal) |
+|--------|----------------------------------|------------------------------|
+| API p95 under burst | See `backend/storage/certification/kvm2-equivalent/DIYAR_LOCAL_KVM2_EQUIVALENT_VALIDATION_REPORT.md` | Sustained p95 > SLO for 24h → Stage B |
+| Queue backlog | **NOT VERIFIED** in production | depth > threshold 15m → Stage C |
+| Room design PUT rate | **NOT VERIFIED** | autosave storm → throttle tuning before scale |
+| Try-in-Room / AI jobs | Stub/null default | cost/latency SLO breach → Stage E |
+
+**Rule:** Do not advance to Stage B–E without measured production metrics; local KVM2-equivalent is planning evidence only.
+
+---
+
 ## Disaster / failure
 
 - DB restore restores designs

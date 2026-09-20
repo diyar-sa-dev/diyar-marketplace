@@ -4,8 +4,12 @@ import { apiBaseUrl, applyRequestSessionToPage, loginMarketplaceApi, sessionRequ
 
 test.describe('Loyalty journey', () => {
   test('guest sees sign-in prompt on loyalty page', async ({ page }) => {
-    await page.goto('/loyalty', { waitUntil: 'networkidle' });
-    await expect(page.getByRole('link', { name: /sign in|تسجيل الدخول/i })).toBeVisible({
+    await page.goto('/loyalty', { waitUntil: 'domcontentloaded' });
+    await expect(
+      page.getByRole('link', { name: /sign in|log in|تسجيل الدخول/i }).or(
+        page.getByRole('button', { name: /sign in|log in|تسجيل الدخول/i }),
+      ),
+    ).toBeVisible({
       timeout: 30_000,
     });
   });

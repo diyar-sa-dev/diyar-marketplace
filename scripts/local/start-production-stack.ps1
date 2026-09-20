@@ -28,6 +28,8 @@ if ($appKey) {
 $network = Sync-ProductionEnv -Root $Root
 Ensure-DiyarHostsEntry -Hostname $network.GatewayHost
 
+Import-ProductionComposeEnv -Root $Root
+
 Write-Host 'Starting KVM2 production Docker stack (API internal port 8093)...'
 docker compose -f docker-compose.production.yml --env-file deploy/docker/production.env up -d --build
 

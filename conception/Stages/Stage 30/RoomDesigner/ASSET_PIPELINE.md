@@ -9,9 +9,9 @@
 | Tier | Use | V1 |
 |------|-----|-----|
 | 1 | 2D top-down PNG/WebP transparent | **Required** |
-| 2 | 2.5D / isometric | Future 30.14 |
-| 3 | GLB/GLTF | Future 30.15 |
-| 4 | USDZ / AR | Future 30.17 |
+| 2 | 2.5D / isometric | **30.14** — `tier2:` prefix on `asset_ref`; thumbnail fallback |
+| 3 | GLB/GLTF | **30.15** — `tier3:` prefix on `asset_ref`; https/http only; browser load |
+| 4 | USDZ / AR | **30.17** — `tier4:` prefix; https/http; lazy `ar/openArPreview` module |
 
 ---
 

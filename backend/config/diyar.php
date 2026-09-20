@@ -765,6 +765,10 @@ return [
         'search_analytics_enabled' => filter_var(env('DIYAR_SEARCH_ANALYTICS_ENABLED', true), FILTER_VALIDATE_BOOL),
         'visual_search_enabled' => filter_var(env('DIYAR_FEATURE_VISUAL_SEARCH_ENABLED', true), FILTER_VALIDATE_BOOL),
         'room_designer_enabled' => filter_var(env('DIYAR_FEATURE_ROOM_DESIGNER_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'room_designer_25d_enabled' => filter_var(env('DIYAR_FEATURE_ROOM_DESIGNER_25D_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'room_designer_3d_enabled' => filter_var(env('DIYAR_FEATURE_ROOM_DESIGNER_3D_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'room_designer_ai_spatial_enabled' => filter_var(env('DIYAR_FEATURE_ROOM_DESIGNER_AI_SPATIAL_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'room_designer_ar_enabled' => filter_var(env('DIYAR_FEATURE_ROOM_DESIGNER_AR_ENABLED', false), FILTER_VALIDATE_BOOL),
         'try_in_room_enabled' => filter_var(env('DIYAR_FEATURE_TRY_IN_ROOM_ENABLED', false), FILTER_VALIDATE_BOOL),
         'ai_visualization_enabled' => filter_var(env('DIYAR_FEATURE_AI_VISUALIZATION_ENABLED', false), FILTER_VALIDATE_BOOL),
     ],
@@ -775,7 +779,14 @@ return [
     |--------------------------------------------------------------------------
     */
 
+    'spatial_layout' => [
+        'driver' => env('DIYAR_SPATIAL_LAYOUT_DRIVER', 'stub'),
+        'max_suggested_commands' => (int) env('DIYAR_SPATIAL_LAYOUT_MAX_COMMANDS', 50),
+    ],
+
     'room_designer' => [
+        'perspective_25d_enabled' => filter_var(env('DIYAR_FEATURE_ROOM_DESIGNER_25D_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'room_3d_enabled' => filter_var(env('DIYAR_FEATURE_ROOM_DESIGNER_3D_ENABLED', false), FILTER_VALIDATE_BOOL),
         'max_document_bytes' => (int) env('DIYAR_ROOM_DESIGNER_MAX_DOCUMENT_BYTES', 524288),
         'max_items' => (int) env('DIYAR_ROOM_DESIGNER_MAX_ITEMS', 100),
         'supported_schema_versions' => [1],
@@ -793,6 +804,20 @@ return [
         'quota_per_user_per_day' => (int) env('DIYAR_VISUALIZATION_QUOTA_PER_USER_DAY', 50),
         'circuit_breaker_failures' => (int) env('DIYAR_VISUALIZATION_CIRCUIT_BREAKER_FAILURES', 5),
         'circuit_breaker_seconds' => (int) env('DIYAR_VISUALIZATION_CIRCUIT_BREAKER_SECONDS', 300),
+        'max_result_bytes' => (int) env('DIYAR_VISUALIZATION_MAX_RESULT_BYTES', 12_582_912),
+        'legal_approval_path' => env(
+            'DIYAR_VISUALIZATION_LEGAL_APPROVAL_PATH',
+            'conception/Stages/Stage 30/RoomDesigner/AI_VISUALIZATION_LEGAL_APPROVAL.md',
+        ),
+        'openai' => [
+            'api_key' => env('DIYAR_VISUALIZATION_OPENAI_API_KEY', env('OPENAI_API_KEY')),
+            'base_url' => env('DIYAR_VISUALIZATION_OPENAI_BASE_URL', 'https://api.openai.com/v1'),
+            'image_model' => env('DIYAR_VISUALIZATION_OPENAI_IMAGE_MODEL', 'gpt-image-1'),
+            'size' => env('DIYAR_VISUALIZATION_OPENAI_SIZE', '1024x1024'),
+            'connect_timeout_seconds' => (int) env('DIYAR_VISUALIZATION_OPENAI_CONNECT_TIMEOUT', 10),
+            'request_timeout_seconds' => (int) env('DIYAR_VISUALIZATION_OPENAI_REQUEST_TIMEOUT', 90),
+            'composite_prompt' => env('DIYAR_VISUALIZATION_OPENAI_COMPOSITE_PROMPT'),
+        ],
     ],
 
     'try_in_room' => [

@@ -126,6 +126,62 @@ Record architecture changes here **before** updating frozen rules in the master 
 - **Security impact:** Positive — aligns server product batch validation.
 - **Approval status:** APPROVED (30.7 Face 1)
 
+### DEC-010 — First visualization provider (30.13)
+
+- **Decision:** OpenAI image compositing as first registry driver (`openai`); external transfer gated by repo legal artifact (not env bypass).
+- **Current rule:** Roadmap 30.13 “OpenAI* or chosen vendor”; vendor formal product pick remains **PENDING** in completion report.
+- **Problem discovered:** R11 legal/privacy **BLOCKED**; no approved transfer of room photos.
+- **Evidence:** `AI_VISUALIZATION_LEGAL_APPROVAL.md` Status PENDING; `VisualizationPrivacyGate`.
+- **Proposed change:** Ship adapter + tests; block HTTP until Status APPROVED.
+- **Impact:** Staging/production AI off until legal + ops enable.
+- **Migration required:** None.
+- **Performance impact:** External latency when enabled.
+- **Security impact:** Positive (hard gate, private storage, b64 only).
+- **Approval status:** PENDING (legal/product)
+
+### DEC-014 — AR preview module (30.17)
+
+- **Decision:** Isolated `ar/` module; `tier4:` USDZ URLs; dynamic `import()` from shell; Quick Look `rel=ar` + optional WebXR window open — no AR npm deps in default bundle.
+- **Current rule:** User selects item with tier4 asset; AR is presentation-only.
+- **Evidence:** `openArPreview.ts`, lazy chunk in build output.
+- **Migration required:** None.
+- **Performance impact:** Chunk loaded on first AR tap only.
+- **Security impact:** Same http(s) URL gate as tier2/tier3.
+- **Approval status:** APPROVED (30.17 engineering)
+
+### DEC-013 — AI spatial layout suggestions (30.16)
+
+- **Decision:** Server `SpatialLayoutService` returns untrusted `MOVE`/`ROTATE`/`BATCH` payloads; client `parseSuggestedCommands` whitelists types; `DesignerSession.applyCommands` runs constraint engine. Default driver `stub` (no external transfer). External drivers require same legal gate as visualization.
+- **Current rule:** API does not mutate stored document; user applies via explicit toolbar action.
+- **Evidence:** `POST /room-designs/{id}/suggest-layout`, `parseSuggestedCommands.ts`.
+- **Migration required:** None.
+- **Performance impact:** One request per user action; no drag-time AI.
+- **Security impact:** IDOR policy; command whitelist; external blocked fail-closed.
+- **Approval status:** APPROVED (30.16 engineering)
+
+### DEC-012 — 3D presentation mode (30.15)
+
+- **Decision:** Vanilla Three.js `ThreeRoomRenderer` behind existing `RoomRenderer` contract; lazy-loaded separate from Fabric. Domain X/Z → Three X/Z floor; Y = elevation from snapshot `height_m`. GLB via `tier3:` + https only.
+- **Current rule:** Roadmap 30.15 — same document opens in 2D/2.5D/3D; camera is view-only (OrbitControls).
+- **Evidence:** `ThreeRoomRenderer.ts`, `worldMapping.ts`, `createRoomRenderer(projection)`.
+- **Migration required:** None (`schema_version` 1).
+- **Performance impact:** WebGL render loop when 3D active — **NOT VERIFIED** on real GPU/mobile.
+- **Security impact:** No server-side GLB fetch; URL scheme gate; no AI path.
+- **Approval status:** APPROVED (30.15 engineering)
+
+### DEC-011 — 2.5D presentation mode (30.14)
+
+- **Decision:** Isometric dimetric projection lives in renderer `ViewState.projection` only; `RoomDesignDocument` unchanged (`schema_version` 1). Tier-2 assets via `asset_ref` prefix `tier2:`.
+- **Current rule:** Roadmap 30.14 — same document, optional perspective adapter.
+- **Problem discovered:** V1 top-down only; product vision ladder includes 2.5D before 3D.
+- **Evidence:** `projectionMode.ts`, `isometric25d.ts`, Fabric adapter; toggle `VITE_ROOM_DESIGNER_25D_ENABLED`.
+- **Proposed change:** N/A (implemented).
+- **Impact:** UI toggle when flag on; default remains top-down.
+- **Migration required:** None.
+- **Performance impact:** O(n) projection per render; smoke test `perspective25d.perf.test.ts`.
+- **Security impact:** Neutral — no new persisted fields; no AI path.
+- **Approval status:** APPROVED (30.14 engineering)
+
 ### DEC-005 — Item overlap WARN default
 
 - **Decision:** WARN on collision; BLOCK on room edge.

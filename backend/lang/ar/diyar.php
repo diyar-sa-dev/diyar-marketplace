@@ -984,6 +984,10 @@ return [
 
     'room_designer' => [
         'disabled' => 'مصمم الغرف غير متاح.',
+        'ai_spatial_disabled' => 'اقتراحات الترتيب غير متاحة.',
+        'ai_spatial_external_blocked' => 'الترتيب بالذكاء الاصطناعي الخارجي غير مصرح.',
+        'ai_spatial_unavailable' => 'خدمة اقتراح الترتيب غير متاحة.',
+        'ai_spatial_suggested' => 'اقتراح الترتيب جاهز.',
         'created' => 'تم حفظ التصميم.',
         'updated' => 'تم تحديث التصميم.',
         'deleted' => 'تم حذف التصميم.',

@@ -67,6 +67,19 @@ Staged VU / burst / RPS profiles against **production-like Docker** with **Octan
 
 Report: `backend/storage/certification/k6/KVM2_OCTANE_PRE_DEPLOY_REPORT.md`
 
+## Room design save smoke (PS30-3)
+
+Authenticated PUT save only — **not** 25K capacity proof.
+
+```powershell
+# API + room_designer_enabled + seeded customer required
+$env:ORIGIN_URL='http://127.0.0.1:8000'
+$env:BASE_URL='http://127.0.0.1:8000/api/v1'
+k6 run scripts/performance/room-design-save-smoke.js
+```
+
+**k6 execution: NOT VERIFIED** unless you run the above against Octane/staging.
+
 ## KVM2-equivalent local validation (isolated stack, not real VPS)
 
 Constrained Docker profile (`docker-compose.kvm2-test.yml`, project `diyar-kvm2-test`, HTTP `:8193`, Octane 2 workers, rate limits on):

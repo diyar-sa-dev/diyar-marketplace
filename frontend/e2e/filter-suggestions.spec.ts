@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Smart filter suggestions', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
   test('product search loads suggestion section and API contract', async ({ page }) => {
     const suggestionsApi = await page.request.get(
       '/api/v1/catalog/search/filter-suggestions?type=products&category_slug=bedroom',
@@ -16,8 +18,12 @@ test.describe('Smart filter suggestions', () => {
       payload.suggestions.length + payload.initialized_filters.length,
     ).toBeGreaterThan(0);
 
-    await page.goto('/search?type=products&category_slug=bedroom');
-    await expect(page.getByText(/Suggested filters|Start narrowing your results/i).first()).toBeVisible({
+    await page.goto('/search?type=products&category_slug=bedroom', { waitUntil: 'domcontentloaded' });
+    await expect(
+      page.getByRole('heading', {
+        name: /Suggested filters|Start narrowing your results|فلاتر مقترحة لك|ابدأ بتضييق النتائج/i,
+      }),
+    ).toBeVisible({
       timeout: 60_000,
     });
   });
@@ -38,9 +44,11 @@ test.describe('Smart filter suggestions', () => {
       expect(section.initialized_filters.length).toBeGreaterThan(0);
     }
 
-    await page.goto('/services');
+    await page.goto('/search?type=services&q=service', { waitUntil: 'domcontentloaded' });
     await expect(
-      page.getByText(/Suggested filters|Start narrowing your results|No suitable filters/i).first(),
+      page.getByRole('heading', {
+        name: /Suggested filters|Start narrowing your results|فلاتر مقترحة لك|ابدأ بتضييق النتائج|لا تتوفر/i,
+      }),
     ).toBeVisible({ timeout: 60_000 });
   });
 });

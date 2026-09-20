@@ -45,6 +45,22 @@ export interface AddRoomDesignToCartResult {
   skipped: Array<{ product_id: string; reason: string }>;
 }
 
+export type LayoutSuggestionApiPayload = {
+  commands: Array<{ type: string; [key: string]: unknown }>;
+  provider: string;
+  metadata?: Record<string, unknown>;
+};
+
+export async function fetchRoomLayoutSuggestion(
+  designId: string,
+  payload?: { intent?: string },
+): Promise<LayoutSuggestionApiPayload> {
+  const { data } = await marketplaceApi.post<
+    ApiSuccessResponse<{ layout_suggestion: LayoutSuggestionApiPayload }>
+  >(`/room-designs/${designId}/suggest-layout`, payload ?? {});
+  return data.data.layout_suggestion;
+}
+
 export async function addRoomDesignToCart(
   designId: string,
   payload?: { item_ids?: string[] },

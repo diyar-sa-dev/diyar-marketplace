@@ -78,6 +78,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.permission' => EnsureAdminPermission::class,
             'marketplace.access' => EnsureMarketplaceAccess::class,
             'room-designer.enabled' => EnsureRoomDesignerEnabled::class,
+            'room-designer.ai-spatial.enabled' => \App\Http\Middleware\EnsureRoomDesignerAiSpatialEnabled::class,
             'try-in-room.enabled' => EnsureTryInRoomEnabled::class,
         ]);
 

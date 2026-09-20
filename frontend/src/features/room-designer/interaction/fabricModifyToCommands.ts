@@ -2,7 +2,7 @@ import type { RoomCommand } from '../domain/commands/types.ts';
 import { normalizeRotationDeg } from '../domain/geometry/rotation.ts';
 import type { RoomDesignItem } from '../domain/models.ts';
 import { roundMeters } from '../domain/units.ts';
-import { canvasPointToMeters } from '../renderer/projection.ts';
+import { canvasPointToMeters, DEFAULT_PROJECTION_MODE, type RoomProjectionMode } from '../renderer/projectionMode.ts';
 
 const POSITION_EPS_M = 0.001;
 const ROTATION_EPS_DEG = 0.05;
@@ -13,8 +13,9 @@ export function fabricModifyToCommands(
   centerPx: { x: number; y: number },
   angleDeg: number,
   scalePxPerM: number,
+  projection: RoomProjectionMode = DEFAULT_PROJECTION_MODE,
 ): RoomCommand[] {
-  const meters = canvasPointToMeters(centerPx.x, centerPx.y, scalePxPerM);
+  const meters = canvasPointToMeters(projection, centerPx.x, centerPx.y, scalePxPerM);
   const position_m = {
     x: roundMeters(meters.x),
     z: roundMeters(meters.z),

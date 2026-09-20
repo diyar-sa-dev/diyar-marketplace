@@ -63,7 +63,8 @@ test.describe('B2B admin journey', () => {
   });
 
   test('customer cannot access admin B2B management', async ({ page }) => {
-    await page.goto('/admin/login');
+    await page.goto('/admin/login', { waitUntil: 'domcontentloaded' });
+    await page.locator('#admin-login-phone').waitFor({ state: 'visible', timeout: 60_000 });
     await page.locator('#admin-login-phone').fill(demoUsers.customer.phoneNational);
     await page.locator('#admin-login-password').fill(E2E_PASSWORD);
     await page.locator('[data-testid="admin-login-submit"]').click();

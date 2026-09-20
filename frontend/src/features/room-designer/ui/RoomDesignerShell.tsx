@@ -1,6 +1,7 @@
-import { Redo2, ShoppingCart, Trash2, Undo2, X } from 'lucide-react';
+import { Box, Boxes, LayoutGrid, Redo2, ScanLine, ShoppingCart, Sparkles, Trash2, Undo2, X } from 'lucide-react';
 import { useCallback, useMemo, useReducer, useRef, useState } from 'react';
 import { useModalDialog } from '../../../hooks/useModalDialog.ts';
+import { applySuggestedLayout } from '../application/applySuggestedLayout.ts';
 import { addCatalogProductToSession } from '../adapters/addCatalogProductToSession.ts';
 import { deriveCartLinesFromDocument } from '../adapters/deriveCartLinesFromDocument.ts';
 import { DesignerSession } from '../application/DesignerSession.ts';
@@ -9,11 +10,21 @@ import {
   engineCanUndo,
   type SpatialEngineState,
 } from '../application/spatialEngine.ts';
+import { fetchRoomLayoutSuggestion } from '../persistence/roomDesignApi.ts';
 import { useRoomDesignAutosave } from '../persistence/useRoomDesignAutosave.ts';
 import { useRoomDesignAddToCart } from '../persistence/useRoomDesignAddToCart.ts';
 import { AddToCartReviewModal } from './AddToCartReviewModal.tsx';
 import { CatalogPanel } from './CatalogPanel.tsx';
 import { RoomDesignerCanvasHost } from './RoomDesignerCanvasHost.tsx';
+import {
+  hasPresentationModeToggle,
+  isRoomDesignerAiSpatialEnabled,
+  isRoomDesignerArEnabled,
+  isRoomDesigner25dEnabled,
+  isRoomDesigner3dEnabled,
+} from '../config/roomDesignerFeatures.ts';
+import { resolveArAssetUrl } from '../adapters/resolveArAssetUrl.ts';
+import { nextPresentationMode, type RoomProjectionMode } from '../renderer/projectionMode.ts';
 import { useLargeScreen } from './useLargeScreen.ts';
 
 export type RoomDesignerShellProps = {
@@ -38,9 +49,16 @@ export function RoomDesignerShell({
   const isLargeScreen = useLargeScreen();
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [cartModalOpen, setCartModalOpen] = useState(false);
+  const [projection, setProjection] = useState<RoomProjectionMode>('top_down');
+  const presentationToggleEnabled = hasPresentationModeToggle();
   const [addingProduct, setAddingProduct] = useState(false);
   const [addProductError, setAddProductError] = useState<string | null>(null);
   const [cartError, setCartError] = useState<string | null>(null);
+  const [layoutSuggesting, setLayoutSuggesting] = useState(false);
+  const [layoutError, setLayoutError] = useState<string | null>(null);
+  const aiSpatialEnabled = isRoomDesignerAiSpatialEnabled();
+  const arEnabled = isRoomDesignerArEnabled();
+  const [arError, setArError] = useState<string | null>(null);
   const catalogSheetRef = useRef<HTMLDivElement>(null);
   useModalDialog(catalogOpen && !isLargeScreen, () => setCatalogOpen(false), catalogSheetRef);
 
@@ -123,6 +141,51 @@ export function RoomDesignerShell({
     [autosave, isLargeScreen],
   );
 
+  const handleOpenAr = useCallback(async () => {
+    const session = sessionRef.current;
+    if (!session) return;
+    const selectedId = session.selectedIds[0];
+    if (!selectedId) {
+      setArError('حدّد قطعة أثاث أولاً');
+      return;
+    }
+    const item = session.getDocument().items.find((i) => i.id === selectedId);
+    const ref = item?.snapshot.asset_ref;
+    if (!ref || !resolveArAssetUrl(ref)) {
+      setArError('لا يوجد نموذج AR لهذه القطعة');
+      return;
+    }
+    setArError(null);
+    const { openArPreviewForAssetRef } = await import('../ar/openArPreview.ts');
+    const result = await openArPreviewForAssetRef(ref);
+    if (!result.ok) {
+      setArError('العرض بالواقع المعزّز غير متاح على هذا الجهاز');
+    }
+  }, []);
+
+  const handleSuggestLayout = useCallback(async () => {
+    const session = sessionRef.current;
+    if (!session || !designId) return;
+    setLayoutSuggesting(true);
+    setLayoutError(null);
+    try {
+      const suggestion = await fetchRoomLayoutSuggestion(designId, { intent: 'arrange' });
+      const doc = session.getDocument();
+      const applied = applySuggestedLayout(session, doc, suggestion.commands);
+      if (!applied.ok) {
+        setLayoutError(applied.reason);
+        return;
+      }
+      setEngine(applied.state);
+      autosave.markDirty();
+      bumpToolbar();
+    } catch (error) {
+      setLayoutError((error as Error).message ?? 'تعذّر اقتراح الترتيب');
+    } finally {
+      setLayoutSuggesting(false);
+    }
+  }, [autosave, designId]);
+
   const handleConfirmCart = useCallback(async () => {
     if (!designId) return;
     setCartError(null);
@@ -171,6 +234,38 @@ export function RoomDesignerShell({
           <Trash2 size={18} />
         </button>
 
+        {presentationToggleEnabled ? (
+          <button
+            type="button"
+            className={touchBtn}
+            aria-pressed={projection !== 'top_down'}
+            aria-label={
+              projection === 'room_3d'
+                ? 'عرض ثلاثي الأبعاد'
+                : projection === 'isometric_25d'
+                  ? 'عرض منظور 2.5D'
+                  : 'عرض علوي'
+            }
+            title={projection}
+            onClick={() =>
+              setProjection((mode) =>
+                nextPresentationMode(mode, {
+                  allow25d: isRoomDesigner25dEnabled(),
+                  allow3d: isRoomDesigner3dEnabled(),
+                }),
+              )
+            }
+          >
+            {projection === 'room_3d' ? (
+              <Boxes size={18} />
+            ) : projection === 'isometric_25d' ? (
+              <LayoutGrid size={18} />
+            ) : (
+              <Box size={18} />
+            )}
+          </button>
+        ) : null}
+
         {!isLargeScreen ? (
           <button
             type="button"
@@ -178,6 +273,29 @@ export function RoomDesignerShell({
             onClick={() => setCatalogOpen(true)}
           >
             المنتجات
+          </button>
+        ) : null}
+
+        {arEnabled ? (
+          <button
+            type="button"
+            className={touchBtn}
+            aria-label="عرض بالواقع المعزّز"
+            onClick={() => void handleOpenAr()}
+          >
+            <ScanLine size={18} />
+          </button>
+        ) : null}
+
+        {designId && aiSpatialEnabled ? (
+          <button
+            type="button"
+            className={touchBtn}
+            aria-label="اقتراح ترتيب ذكي"
+            disabled={layoutSuggesting}
+            onClick={() => void handleSuggestLayout()}
+          >
+            <Sparkles size={18} />
           </button>
         ) : null}
 
@@ -197,6 +315,17 @@ export function RoomDesignerShell({
           </>
         ) : null}
       </header>
+
+      {layoutError ? (
+        <p className="text-sm text-destructive lg:col-span-2" role="alert">
+          {layoutError}
+        </p>
+      ) : null}
+      {arError ? (
+        <p className="text-sm text-destructive lg:col-span-2" role="alert">
+          {arError}
+        </p>
+      ) : null}
 
       {isLargeScreen ? (
         <aside
@@ -218,6 +347,7 @@ export function RoomDesignerShell({
           sessionResetKey={designId}
           fillContainer
           touchFriendly={!isLargeScreen}
+          projection={projection}
           sessionRef={sessionRef}
           onEngineChange={handleEngineChange}
           className="h-full min-h-[220px] w-full rounded-xl border border-border bg-muted/20"

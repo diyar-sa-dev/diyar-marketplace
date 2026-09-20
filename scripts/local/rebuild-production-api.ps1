@@ -12,11 +12,27 @@ $ErrorActionPreference = 'Stop'
 $Root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 Set-Location $Root
 
+. (Join-Path $PSScriptRoot 'Sync-ProductionEnv.ps1')
+Import-ProductionComposeEnv -Root $Root
+
 $EnvFile = Join-Path $Root 'deploy/docker/production.env'
 if (-not (Test-Path $EnvFile)) {
     $Example = Join-Path $Root 'deploy/docker/production.env.local.example'
     Copy-Item $Example $EnvFile
     Write-Host "Created $EnvFile — review secrets before production use."
+}
+
+$spaEnv = Join-Path $Root 'deploy/docker/production.env'
+$nginxSpa = $false
+if (Test-Path $spaEnv) {
+    $nginxSpa = (Get-Content $spaEnv -Raw) -match 'kvm2-docker-spa\.conf'
+}
+if ($nginxSpa) {
+    Write-Host '=== Building frontend for nginx SPA (Stage 30 flags in frontend/.env.docker-spa) ===' -ForegroundColor Cyan
+    Push-Location (Join-Path $Root 'frontend')
+    npm run build:docker-spa
+    if ($LASTEXITCODE -ne 0) { Pop-Location; throw 'Frontend build:docker-spa failed.' }
+    Pop-Location
 }
 
 Write-Host '=== Rebuilding diyar-production API images ===' -ForegroundColor Cyan
@@ -60,4 +76,6 @@ try {
 
 Write-Host ''
 Write-Host "API: http://127.0.0.1:${httpPort}" -ForegroundColor Green
-Write-Host 'Restart Vite (npm run dev) so proxy targets pick up .env.development if changed.'
+Write-Host 'Stage 30: run migrations if needed:'
+Write-Host '  docker compose -f docker-compose.production.yml exec app php artisan migrate --force'
+Write-Host 'Restart Vite (npm run dev:prod-api) if not using nginx SPA.'

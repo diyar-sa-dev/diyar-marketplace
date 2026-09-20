@@ -1,8 +1,13 @@
 import type { RoomCommand } from '../domain/commands/types.ts';
 import type { RoomDesignDocument } from '../domain/models.ts';
+import type { RoomProjectionMode } from './projectionMode.ts';
+
+export type { RoomProjectionMode };
 
 export interface ViewState {
   scalePxPerM: number;
+  /** Presentation mode only — not persisted in RoomDesignDocument (Stage 30.14). */
+  projection?: RoomProjectionMode;
 }
 
 export interface RenderOptions {

@@ -33,6 +33,11 @@ admin_code="$(curl -sS -o /dev/null -w '%{http_code}' "${BASE_URL}/admin/session
 readiness_has_queue="$(curl -sS "${BASE_URL}/readiness" | jq -e '.data.checks.queue.driver' >/dev/null 2>&1 && echo yes || echo no)"
 [[ "$readiness_has_queue" == "yes" ]] || fail "readiness missing queue probe"
 
+# Room designer — unauthenticated access must not succeed (401/403 depending on flag)
+rd_code="$(curl -sS -o /dev/null -w '%{http_code}' "${BASE_URL}/room-designs" -H "Accept: application/json")"
+[[ "$rd_code" == "401" || "$rd_code" == "403" ]] || fail "room-designs without auth expected 401/403, got ${rd_code}"
+echo "OK: room-designs auth gate (HTTP ${rd_code})"
+
 if curl -sS -o /dev/null -w '%{http_code}' "${FRONTEND_URL}/" | grep -qE '200|304'; then
   echo "OK: frontend ${FRONTEND_URL}"
 else

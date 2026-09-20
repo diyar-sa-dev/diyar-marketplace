@@ -6,15 +6,37 @@ import {
   loginMarketplaceApi,
   logoutMarketplaceApi,
   sessionRequestHeaders,
+  statefulApiHeaders,
 } from './helpers/api.ts';
 import { loginMarketplaceUi } from './helpers/ui-auth.ts';
 
 const E2E_OTP = process.env.E2E_OTP_CODE ?? '123456';
 
+async function jsonSessionHeaders(
+  request: import('@playwright/test').APIRequestContext,
+): Promise<Record<string, string>> {
+  return { ...(await sessionRequestHeaders(request)), 'Content-Type': 'application/json' };
+}
+
 async function enableTwoFactorViaApi(request: import('@playwright/test').APIRequestContext): Promise<void> {
-  const headers = await sessionRequestHeaders(request);
+  const headers = await jsonSessionHeaders(request);
+  const status = await request.get(`${apiBaseUrl()}/profile/security/two-factor`, {
+    headers: await sessionRequestHeaders(request),
+  });
+  if (status.ok()) {
+    const body = (await status.json()) as { data?: { enabled?: boolean } };
+    if (body.data?.enabled) {
+      return;
+    }
+  }
 
   const enable = await request.post(`${apiBaseUrl()}/profile/security/two-factor/enable`, { headers });
+  if (!enable.ok() && enable.status() === 422) {
+    const text = await enable.text();
+    if (/already_enabled|already enabled/i.test(text)) {
+      return;
+    }
+  }
   expect(enable.ok()).toBeTruthy();
 
   const confirm = await request.post(`${apiBaseUrl()}/profile/security/two-factor/confirm`, {
@@ -25,7 +47,7 @@ async function enableTwoFactorViaApi(request: import('@playwright/test').APIRequ
 }
 
 async function disableTwoFactorViaApi(request: import('@playwright/test').APIRequestContext): Promise<void> {
-  const headers = await sessionRequestHeaders(request);
+  const headers = await jsonSessionHeaders(request);
 
   await request.post(`${apiBaseUrl()}/profile/security/two-factor/disable`, {
     headers,
@@ -39,7 +61,33 @@ async function disableTwoFactorViaApi(request: import('@playwright/test').APIReq
   expect(confirm.ok()).toBeTruthy();
 }
 
+async function ensureCustomerTwoFactorDisabled(
+  request: import('@playwright/test').APIRequestContext,
+): Promise<void> {
+  await loginMarketplaceApi(request, demoUsers.customer.phoneNational, E2E_PASSWORD);
+  const headers = await jsonSessionHeaders(request);
+  const status = await request.get(`${apiBaseUrl()}/profile/security/two-factor`, { headers });
+  if (!status.ok()) {
+    await logoutMarketplaceApi(request);
+    return;
+  }
+  const enabled = (await status.json()) as { data?: { enabled?: boolean } };
+  if (enabled.data?.enabled) {
+    await disableTwoFactorViaApi(request);
+  }
+  await logoutMarketplaceApi(request);
+}
+
 test.describe('Two-factor authentication — E2E', () => {
+  test.describe.configure({ mode: 'serial' });
+
+  test.beforeAll(async ({ request }) => {
+    await ensureCustomerTwoFactorDisabled(request);
+  });
+
+  test.afterEach(async ({ request }) => {
+    await ensureCustomerTwoFactorDisabled(request);
+  });
   test('E2E-01 login without 2FA authenticates directly', async ({ request }) => {
     await loginMarketplaceApi(request, demoUsers.customer.phoneNational, E2E_PASSWORD);
     const me = await request.get(`${apiBaseUrl()}/auth/me`, {
@@ -58,6 +106,7 @@ test.describe('Two-factor authentication — E2E', () => {
     const login = await request.post(`${apiBaseUrl()}/auth/login`, {
       data: { method: 'phone', identifier: demoUsers.customer.phoneNational, password: E2E_PASSWORD },
       headers: {
+        ...statefulApiHeaders(),
         'Content-Type': 'application/json',
         ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
       },
@@ -73,11 +122,13 @@ test.describe('Two-factor authentication — E2E', () => {
     });
     expect(mePending.status()).toBe(401);
 
+    const verifyXsrf = (await ensureCsrf(request)) ?? xsrf;
     const verify = await request.post(`${apiBaseUrl()}/auth/verify-two-factor`, {
       data: { challenge_id: challengeId, code: E2E_OTP },
       headers: {
+        ...statefulApiHeaders(),
         'Content-Type': 'application/json',
-        ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
+        ...(verifyXsrf ? { 'X-XSRF-TOKEN': verifyXsrf } : {}),
       },
     });
     expect(verify.ok()).toBeTruthy();
@@ -100,17 +151,20 @@ test.describe('Two-factor authentication — E2E', () => {
     const login = await request.post(`${apiBaseUrl()}/auth/login`, {
       data: { method: 'phone', identifier: demoUsers.customer.phoneNational, password: E2E_PASSWORD },
       headers: {
+        ...statefulApiHeaders(),
         'Content-Type': 'application/json',
         ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
       },
     });
     const challengeId = ((await login.json()) as { errors?: Record<string, string[]> }).errors?.challenge_id?.[0];
 
+    const verifyXsrf = (await ensureCsrf(request)) ?? xsrf;
     const verify = await request.post(`${apiBaseUrl()}/auth/verify-two-factor`, {
       data: { challenge_id: challengeId, code: '000000' },
       headers: {
+        ...statefulApiHeaders(),
         'Content-Type': 'application/json',
-        ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
+        ...(verifyXsrf ? { 'X-XSRF-TOKEN': verifyXsrf } : {}),
       },
     });
     expect(verify.status()).toBe(422);

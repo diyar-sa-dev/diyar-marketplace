@@ -24,7 +24,8 @@ export async function loginMarketplaceUi(
   phoneNational: string,
   password = E2E_PASSWORD,
 ): Promise<void> {
-  await page.goto('/auth');
+  await page.goto('/auth', { waitUntil: 'domcontentloaded' });
+  await page.locator('#login-phone').waitFor({ state: 'visible', timeout: 60_000 });
   await page.locator('#login-phone').fill(phoneNational);
   await page.locator('input[type="password"]').first().fill(password);
   await submitAndAwaitLoginResponse(page, '[data-testid="marketplace-login-submit"]', '/auth/login');
@@ -36,7 +37,8 @@ export async function loginAdminUi(
   phoneNational: string,
   password = E2E_PASSWORD,
 ): Promise<void> {
-  await page.goto('/admin/login');
+  await page.goto('/admin/login', { waitUntil: 'domcontentloaded' });
+  await page.locator('#admin-login-phone').waitFor({ state: 'visible', timeout: 60_000 });
   await page.locator('#admin-login-phone').fill(phoneNational);
   await page.locator('#admin-login-password').fill(password);
   await submitAndAwaitLoginResponse(page, '[data-testid="admin-login-submit"]', '/admin/auth/login');

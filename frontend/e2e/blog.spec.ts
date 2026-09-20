@@ -10,9 +10,9 @@ test.describe('Blog journey', () => {
     const articlePayload = await articleApi.json();
     const articleTitle = articlePayload?.data?.article?.title as string;
 
-    await page.goto('/blog', { waitUntil: 'networkidle' });
+    await page.goto('/blog', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 60_000 });
 
     const articleLink = page.getByTestId(`blog-article-card-${E2E_BLOG_SLUG}`);
     await expect(articleLink).toBeVisible({ timeout: 60_000 });

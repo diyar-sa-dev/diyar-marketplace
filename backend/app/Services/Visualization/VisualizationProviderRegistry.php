@@ -4,6 +4,7 @@ namespace App\Services\Visualization;
 
 use App\Contracts\Visualization\VisualizationProviderInterface;
 use App\Services\Visualization\Providers\NullVisualizationProvider;
+use App\Services\Visualization\Providers\OpenAi\OpenAiTryInRoomCompositeProvider;
 use App\Services\Visualization\Providers\StubVisualizationProvider;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
@@ -14,6 +15,7 @@ class VisualizationProviderRegistry
     private const MAP = [
         'null' => NullVisualizationProvider::class,
         'stub' => StubVisualizationProvider::class,
+        'openai' => OpenAiTryInRoomCompositeProvider::class,
     ];
 
     public function __construct(

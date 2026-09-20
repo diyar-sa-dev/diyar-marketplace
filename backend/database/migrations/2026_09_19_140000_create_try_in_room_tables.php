@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('try_in_room_source_images', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('disk', 32);
             $table->string('path', 512);
             $table->string('mime', 64);
@@ -24,7 +24,7 @@ return new class extends Migration
 
         Schema::create('try_in_room_jobs', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignUuid('source_image_id')->constrained('try_in_room_source_images')->cascadeOnDelete();
             $table->uuid('product_id')->nullable();
             $table->uuid('room_design_id')->nullable();

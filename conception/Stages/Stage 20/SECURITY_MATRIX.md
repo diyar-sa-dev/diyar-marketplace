@@ -1,6 +1,6 @@
 # Stage 20 — Security Matrix
 
-**Last updated:** 2026-08-23
+**Last updated:** 2026-09-20 (Post–Stage 30 / PS30-2)
 
 | Asset | Threat | Attack | Current control | Gap | Fix | Test | Severity |
 |-------|--------|--------|-----------------|-----|-----|------|----------|
@@ -17,6 +17,12 @@
 | Webhooks | Spoofed payment | Fake paid status | Provider signature | — | — | Payment flow tests | Critical |
 | Settings | Secret leak | Display API keys in admin | `is_sensitive` mask | — | — | Admin settings tests | High |
 | Payouts | Client amount | User sets payout amount | Server calculates balance | — | — | Admin payout tests | Critical |
+| Room designs | IDOR | Read/update another user's design | `RoomDesignPolicy` + 404/403 on routes | — | — | `RoomDesignTest`, `RoomDesignSuggestLayoutTest` | High |
+| Room designs | Mass assignment | Client sets `user_id` on design | Server assigns owner on create | — | — | Feature store tests | High |
+| Room layout AI | Untrusted commands | Malicious MOVE/CLEAR from provider | Client whitelist + engine constraints | External LLM blocked (legal) | — | `parseSuggestedCommands.test.ts` | High |
+| Room layout AI | Abuse | Flood suggest-layout | `throttle:room-design-save` | — | — | `RoomDesignRateLimitTest` | Medium |
+| Try-in-Room | Privacy | User photo sent to OpenAI without approval | `VisualizationPrivacyGate` fail-closed | Legal PENDING | Legal sign-off | `OpenAiLegalGateIntegrationTest` | Critical |
+| Visualization | Provider bypass | Direct OpenAI from frontend | Backend queue + registry only | — | — | Visualization PHPUnit | High |
 
 ## Priority backlog
 

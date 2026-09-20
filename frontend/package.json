@@ -9,6 +9,7 @@
     "dev:prod-api": "vite --mode prod-api --port=3000 --host=0.0.0.0",
     "build": "npm run optimize:images && vite build",
     "build:landing": "npm run optimize:images && vite build --mode landing",
+    "build:docker-spa": "npm run optimize:images && vite build --mode docker-spa",
     "optimize:images": "node scripts/optimize-public-images.mjs",
     "preview": "vite preview --port=3000 --host=0.0.0.0 --strictPort",
     "preview:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/stop-preview-port.ps1",
@@ -41,7 +42,8 @@
     "react-dom": "^19.0.1",
     "react-router-dom": "^7.15.0",
     "recharts": "^3.8.1",
-    "sweetalert2": "^11.26.25"
+    "sweetalert2": "^11.26.25",
+    "three": "^0.170.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

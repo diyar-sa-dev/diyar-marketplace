@@ -86,6 +86,30 @@ function Write-EnvFile {
     Set-Content -Path $Path -Value ($lines -join "`n") -Encoding utf8
 }
 
+# Docker Compose interpolates ${VAR} from the process environment before --env-file.
+# Host shells often export DB_* for local artisan — override from production.env for compose.
+function Import-ProductionComposeEnv {
+    param(
+        [string]$Root = (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
+    )
+
+    $envFile = Join-Path $Root 'deploy/docker/production.env'
+    if (-not (Test-Path $envFile)) {
+        return
+    }
+
+    foreach ($line in Get-Content $envFile) {
+        if ($line -match '^\s*#' -or $line -match '^\s*$') {
+            continue
+        }
+        if ($line -match '^([^=]+)=(.*)$') {
+            $key = $Matches[1].Trim()
+            $value = $Matches[2].Trim().Trim('"')
+            Set-Item -Path "Env:$key" -Value $value
+        }
+    }
+}
+
 function Sync-ProductionEnv {
     param(
         [string]$Root = (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)

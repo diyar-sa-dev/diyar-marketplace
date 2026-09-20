@@ -6,7 +6,7 @@ import { loginMarketplaceUi, loginAdminUi } from './helpers/ui-auth.ts';
 import { apiBaseUrl, sessionRequestHeaders } from './helpers/api.ts';
 
 const fixtureDir = path.dirname(fileURLToPath(import.meta.url));
-const validImage = path.join(fixtureDir, '..', 'public', 'after.png');
+const validImage = path.join(fixtureDir, 'fixtures', 'store-logo.png');
 
 test.describe('Upload integration smoke (KI-028-046)', () => {
   test('vendor can upload store logo via settings UI', async ({ page }) => {

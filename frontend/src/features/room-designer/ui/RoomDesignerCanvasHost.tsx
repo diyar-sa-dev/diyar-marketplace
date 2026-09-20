@@ -2,6 +2,11 @@ import { useCallback, useEffect, useReducer, useRef, type MutableRefObject } fro
 import { DesignerSession } from '../application/DesignerSession.ts';
 import type { SpatialEngineState } from '../application/spatialEngine.ts';
 import type { RendererInteraction } from '../renderer/types.ts';
+import {
+  DEFAULT_PROJECTION_MODE,
+  rendererBackendKey,
+  type RoomProjectionMode,
+} from '../renderer/projectionMode.ts';
 import { DEFAULT_SCALE_PX_PER_M } from '../renderer/types.ts';
 import { createRoomRenderer } from '../renderer/createRoomRenderer.ts';
 import type { RoomRenderer } from '../renderer/types.ts';
@@ -16,6 +21,8 @@ export type RoomDesignerCanvasHostProps = {
   fillContainer?: boolean;
   touchFriendly?: boolean;
   scalePxPerM?: number;
+  /** Stage 30.14 — presentation only; not written to persisted document. */
+  projection?: RoomProjectionMode;
   className?: string;
   sessionRef?: MutableRefObject<DesignerSession | null>;
   onEngineChange?: (state: SpatialEngineState) => void;
@@ -34,6 +41,7 @@ export function RoomDesignerCanvasHost({
   fillContainer = false,
   touchFriendly = false,
   scalePxPerM = DEFAULT_SCALE_PX_PER_M,
+  projection = DEFAULT_PROJECTION_MODE,
   className,
   sessionRef,
   onEngineChange,
@@ -44,6 +52,7 @@ export function RoomDesignerCanvasHost({
   const measured = useContainerSize(outerRef);
   const viewportWidth = fillContainer ? measured.width : widthPx;
   const viewportHeight = fillContainer ? measured.height : heightPx;
+  const rendererBackend = rendererBackendKey(projection);
 
   const rendererRef = useRef<RoomRenderer | null>(null);
   const sessionRefInternal = useRef<DesignerSession | null>(null);
@@ -62,8 +71,8 @@ export function RoomDesignerCanvasHost({
     const renderer = rendererRef.current;
     const session = sessionRefInternal.current;
     if (!renderer || !session) return;
-    renderer.render(session.getDocument(), { scalePxPerM });
-  }, [scalePxPerM]);
+    renderer.render(session.getDocument(), { scalePxPerM, projection });
+  }, [projection, scalePxPerM]);
 
   const handleInteraction = useCallback(
     (event: RendererInteraction) => {
@@ -85,10 +94,10 @@ export function RoomDesignerCanvasHost({
         syncRender();
         bump();
       } else if (renderer) {
-        renderer.render(session.getDocument(), { scalePxPerM });
+        renderer.render(session.getDocument(), { scalePxPerM, projection });
       }
     },
-    [onEngineChange, onSelectionChange, scalePxPerM, syncRender],
+    [onEngineChange, onSelectionChange, projection, scalePxPerM, syncRender],
   );
 
   const lastSessionResetKey = useRef<string | undefined>(undefined);
@@ -111,7 +120,7 @@ export function RoomDesignerCanvasHost({
 
     let cancelled = false;
     void (async () => {
-      const renderer = await createRoomRenderer();
+      const renderer = await createRoomRenderer(projection);
       if (cancelled) {
         renderer.destroy();
         return;
@@ -132,12 +141,15 @@ export function RoomDesignerCanvasHost({
       rendererRef.current?.destroy();
       rendererRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount once; resize via resizeViewport
-  }, [handleInteraction, scalePxPerM, syncRender, touchFriendly]);
+  }, [handleInteraction, projection, rendererBackend, scalePxPerM, syncRender, touchFriendly]);
 
   useEffect(() => {
     rendererRef.current?.resizeViewport(viewportWidth, viewportHeight);
   }, [viewportHeight, viewportWidth]);
+
+  useEffect(() => {
+    syncRender();
+  }, [projection, syncRender]);
 
   return (
     <div ref={outerRef} className={fillContainer ? `h-full w-full ${className ?? ''}` : className}>

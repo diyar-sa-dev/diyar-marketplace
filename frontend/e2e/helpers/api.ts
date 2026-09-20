@@ -64,12 +64,13 @@ export async function loginMarketplaceApi(
       throw new Error(`Marketplace login failed: ${response.status()} ${JSON.stringify(body)}`);
     }
 
+    const verifyXsrf = (await ensureCsrf(request)) ?? xsrf;
     const verify = await request.post(`${apiBaseUrl()}/auth/verify-two-factor`, {
       data: { challenge_id: challengeId, code: otpCode },
       headers: {
         ...statefulApiHeaders(),
         'Content-Type': 'application/json',
-        ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
+        ...(verifyXsrf ? { 'X-XSRF-TOKEN': verifyXsrf } : {}),
       },
     });
 

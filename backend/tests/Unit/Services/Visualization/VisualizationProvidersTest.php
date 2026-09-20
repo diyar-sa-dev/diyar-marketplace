@@ -23,6 +23,15 @@ class VisualizationProvidersTest extends TestCase
     }
 
     #[Test]
+    public function registry_resolves_openai_driver(): void
+    {
+        config(['diyar.visualization.driver' => 'openai']);
+
+        $provider = app(\App\Services\Visualization\VisualizationProviderRegistry::class)->resolve('openai');
+        $this->assertSame('openai', $provider->key());
+    }
+
+    #[Test]
     public function stub_provider_returns_deterministic_stub_payload(): void
     {
         config(['diyar.try_in_room.stub_force_failure' => false]);

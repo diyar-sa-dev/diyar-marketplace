@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('room_designs', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('title', 255)->nullable();
             $table->json('document');
             $table->unsignedSmallInteger('schema_version')->default(1);

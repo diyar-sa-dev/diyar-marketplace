@@ -1,8 +1,15 @@
-import { ActiveSelection, Canvas, Rect, type FabricObject, type ModifiedEvent } from 'fabric';
+import { ActiveSelection, Canvas, Polygon, Rect, type FabricObject, type ModifiedEvent } from 'fabric';
+import { resolveItemRenderImageUrl } from '../../adapters/itemDisplayAsset.ts';
 import { fabricModifyToCommands } from '../../interaction/fabricModifyToCommands.ts';
 import { attachViewportPinchZoom } from './viewportPinchZoom.ts';
 import type { RoomDesignDocument, RoomDesignItem } from '../../domain/models.ts';
-import { itemFootprintTopLeftPx } from '../projection.ts';
+import { elevationScreenOffsetPx, projectRoomFloorToCanvas } from '../isometric25d.ts';
+import {
+  DEFAULT_PROJECTION_MODE,
+  itemFootprintTopLeftPx,
+  metersToCanvasPoint,
+  type RoomProjectionMode,
+} from '../projectionMode.ts';
 import {
   DEFAULT_SCALE_PX_PER_M,
   type RenderOptions,
@@ -26,13 +33,18 @@ export class FabricRoomRenderer implements RoomRenderer {
 
   private currentScale = DEFAULT_SCALE_PX_PER_M;
 
+  private currentProjection: RoomProjectionMode = DEFAULT_PROJECTION_MODE;
+
   /** Suppress object:modified while applying domain projection. */
   private programmaticSync = false;
 
   private detachViewportZoom: (() => void) | null = null;
 
+  private mountContainer: HTMLElement | null = null;
+
   mount(container: HTMLElement, options: RenderOptions): void {
     this.destroy();
+    this.mountContainer = container;
     this.mountOptions = options;
     const canvasEl = document.createElement('canvas');
     container.replaceChildren(canvasEl);
@@ -62,6 +74,8 @@ export class FabricRoomRenderer implements RoomRenderer {
       this.canvas.dispose();
       this.canvas = null;
     }
+    this.mountContainer?.replaceChildren();
+    this.mountContainer = null;
     this.mountOptions = null;
   }
 
@@ -76,7 +90,10 @@ export class FabricRoomRenderer implements RoomRenderer {
     this.mountOptions = { ...this.mountOptions, widthPx, heightPx };
     this.canvas.setDimensions({ width: widthPx, height: heightPx });
     if (this.currentDocument) {
-      this.render(this.currentDocument, { scalePxPerM: this.currentScale });
+      this.render(this.currentDocument, {
+        scalePxPerM: this.currentScale,
+        projection: this.currentProjection,
+      });
     }
   }
 
@@ -87,6 +104,7 @@ export class FabricRoomRenderer implements RoomRenderer {
 
     const scale = view.scalePxPerM || this.mountOptions.scalePxPerM || DEFAULT_SCALE_PX_PER_M;
     this.currentScale = scale;
+    this.currentProjection = view.projection ?? DEFAULT_PROJECTION_MODE;
     this.currentDocument = document;
 
     this.programmaticSync = true;
@@ -94,18 +112,35 @@ export class FabricRoomRenderer implements RoomRenderer {
       this.canvas.clear();
       this.itemObjects.clear();
 
-      const floor = new Rect({
-        left: 0,
-        top: 0,
-        width: document.room.width_m * scale,
-        height: document.room.depth_m * scale,
-        fill: this.mountOptions.roomFloorColor ?? '#f3ecdb',
-        stroke: this.mountOptions.roomBorderColor ?? '#947961',
-        strokeWidth: 2,
-        selectable: false,
-        evented: false,
-      });
-      this.canvas.add(floor);
+      const floorFill = this.mountOptions.roomFloorColor ?? '#f3ecdb';
+      const floorStroke = this.mountOptions.roomBorderColor ?? '#947961';
+      if (this.currentProjection === 'isometric_25d') {
+        const corners = projectRoomFloorToCanvas(document.room.width_m, document.room.depth_m, scale);
+        const floor = new Polygon(
+          corners.map((p) => ({ x: p.x, y: p.y })),
+          {
+            fill: floorFill,
+            stroke: floorStroke,
+            strokeWidth: 2,
+            selectable: false,
+            evented: false,
+          },
+        );
+        this.canvas.add(floor);
+      } else {
+        const floor = new Rect({
+          left: 0,
+          top: 0,
+          width: document.room.width_m * scale,
+          height: document.room.depth_m * scale,
+          fill: floorFill,
+          stroke: floorStroke,
+          strokeWidth: 2,
+          selectable: false,
+          evented: false,
+        });
+        this.canvas.add(floor);
+      }
 
       const sorted = [...document.items].sort((a, b) => a.layer - b.layer);
       for (const item of sorted) {
@@ -140,21 +175,33 @@ export class FabricRoomRenderer implements RoomRenderer {
 
   private createItemObject(item: RoomDesignItem, scalePxPerM: number): Rect {
     const box = itemFootprintTopLeftPx(
+      this.currentProjection,
       item.position_m,
       item.snapshot.width_m,
       item.snapshot.depth_m,
       scalePxPerM,
     );
+    const center = metersToCanvasPoint(
+      this.currentProjection,
+      item.position_m.x,
+      item.position_m.z,
+      scalePxPerM,
+    );
     const touch = this.mountOptions?.touchFriendly ?? false;
+    const isoLift =
+      this.currentProjection === 'isometric_25d'
+        ? elevationScreenOffsetPx(item.snapshot.height_m, scalePxPerM)
+        : 0;
+    const hasTierImage = resolveItemRenderImageUrl(item.snapshot, this.currentProjection) != null;
     const rect = new Rect({
-      left: item.position_m.x * scalePxPerM,
-      top: item.position_m.z * scalePxPerM,
-      width: box.widthPx,
-      height: box.heightPx,
+      left: center.x,
+      top: center.y - isoLift,
+      width: Math.max(box.widthPx, 4),
+      height: Math.max(box.heightPx, 4),
       angle: item.rotation_deg,
       originX: 'center',
       originY: 'center',
-      fill: item.locked ? '#cbd5e1' : '#947961',
+      fill: item.locked ? '#cbd5e1' : hasTierImage ? '#e8dfd0' : '#947961',
       opacity: 0.85,
       stroke: '#1f3d3a',
       strokeWidth: 1,
@@ -184,11 +231,16 @@ export class FabricRoomRenderer implements RoomRenderer {
       return;
     }
 
+    const isoLift =
+      this.currentProjection === 'isometric_25d'
+        ? elevationScreenOffsetPx(item.snapshot.height_m, this.currentScale)
+        : 0;
     const commands = fabricModifyToCommands(
       item,
-      { x: target.left ?? 0, y: target.top ?? 0 },
+      { x: target.left ?? 0, y: (target.top ?? 0) + isoLift },
       target.angle ?? 0,
       this.currentScale,
+      this.currentProjection,
     );
     if (commands.length === 0) {
       return;

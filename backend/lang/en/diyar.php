@@ -984,6 +984,10 @@ return [
 
     'room_designer' => [
         'disabled' => 'Room Designer is not available.',
+        'ai_spatial_disabled' => 'Layout suggestions are not available.',
+        'ai_spatial_external_blocked' => 'External layout AI is not authorized.',
+        'ai_spatial_unavailable' => 'Layout suggestion service is unavailable.',
+        'ai_spatial_suggested' => 'Layout suggestion ready.',
         'created' => 'Room design saved.',
         'updated' => 'Room design updated.',
         'deleted' => 'Room design deleted.',

@@ -105,7 +105,7 @@ final class RoomDesignDocumentService
                 'item_count' => $locked->item_count,
             ]);
 
-            return $locked->fresh();
+            return $locked;
         });
     }
 

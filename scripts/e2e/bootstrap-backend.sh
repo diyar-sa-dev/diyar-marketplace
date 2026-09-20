@@ -29,6 +29,11 @@ if (!preg_match('/^DIYAR_FEATURE_ROOM_DESIGNER_ENABLED=/m', \$env)) {
 } else {
   \$env = preg_replace('/^DIYAR_FEATURE_ROOM_DESIGNER_ENABLED=.*/m', 'DIYAR_FEATURE_ROOM_DESIGNER_ENABLED=true', \$env);
 }
+if (!preg_match('/^DIYAR_FEATURE_ROOM_DESIGNER_AI_SPATIAL_ENABLED=/m', \$env)) {
+  \$env .= \"\\nDIYAR_FEATURE_ROOM_DESIGNER_AI_SPATIAL_ENABLED=true\\n\";
+} else {
+  \$env = preg_replace('/^DIYAR_FEATURE_ROOM_DESIGNER_AI_SPATIAL_ENABLED=.*/m', 'DIYAR_FEATURE_ROOM_DESIGNER_AI_SPATIAL_ENABLED=true', \$env);
+}
 \$env = preg_replace('/^FRONTEND_URL=.*/m', 'FRONTEND_URL=http://127.0.0.1:3000', \$env);
 \$env = preg_replace('/^DIYAR_FRONTEND_URL=.*/m', 'DIYAR_FRONTEND_URL=http://127.0.0.1:3000', \$env);
 if (!preg_match('/^FRONTEND_URL=/m', \$env)) {
@@ -36,6 +41,16 @@ if (!preg_match('/^FRONTEND_URL=/m', \$env)) {
 }
 if (!preg_match('/^DIYAR_FRONTEND_URL=/m', \$env)) {
   \$env .= \"\\nDIYAR_FRONTEND_URL=http://127.0.0.1:3000\\n\";
+}
+if (!preg_match('/^DIYAR_OTP_TEST_MODE=/m', \$env)) {
+  \$env .= \"\\nDIYAR_OTP_TEST_MODE=true\\n\";
+} else {
+  \$env = preg_replace('/^DIYAR_OTP_TEST_MODE=.*/m', 'DIYAR_OTP_TEST_MODE=true', \$env);
+}
+if (!preg_match('/^DIYAR_OTP_TEST_CODE=/m', \$env)) {
+  \$env .= \"\\nDIYAR_OTP_TEST_CODE=123456\\n\";
+} else {
+  \$env = preg_replace('/^DIYAR_OTP_TEST_CODE=.*/m', 'DIYAR_OTP_TEST_CODE=123456', \$env);
 }
 file_put_contents('.env', \$env);
 "
@@ -58,8 +73,11 @@ export REDIS_HOST="${REDIS_HOST:-127.0.0.1}"
 export REDIS_PORT="${REDIS_PORT:-6379}"
 export DIYAR_LOADTEST_MODE=true
 export DIYAR_FEATURE_ROOM_DESIGNER_ENABLED=true
+export DIYAR_FEATURE_ROOM_DESIGNER_AI_SPATIAL_ENABLED=true
 export DIYAR_FEATURE_TRY_IN_ROOM_ENABLED="${DIYAR_FEATURE_TRY_IN_ROOM_ENABLED:-false}"
 export DIYAR_VISUALIZATION_DRIVER="${DIYAR_VISUALIZATION_DRIVER:-stub}"
+export DIYAR_OTP_TEST_MODE=true
+export DIYAR_OTP_TEST_CODE=123456
 
 php artisan migrate:fresh --seed --force --no-interaction
 

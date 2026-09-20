@@ -782,6 +782,8 @@ Route::middleware([
                 ->middleware('throttle:room-design-save');
             Route::post('/{roomDesign}/add-to-cart', [RoomDesignController::class, 'addToCart'])
                 ->middleware('throttle:room-design-save');
+            Route::post('/{roomDesign}/suggest-layout', [RoomDesignController::class, 'suggestLayout'])
+                ->middleware(['room-designer.ai-spatial.enabled', 'throttle:room-design-save']);
             Route::post('/{roomDesign}/try-in-room', [TryInRoomController::class, 'storeForRoomDesign'])
                 ->middleware(['try-in-room.enabled', 'throttle:try-in-room-create']);
         });
