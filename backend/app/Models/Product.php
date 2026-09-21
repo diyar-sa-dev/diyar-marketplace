@@ -100,6 +100,11 @@ class Product extends Model
         return $this->hasMany(ProductImage::class)->orderBy('sort_order');
     }
 
+    public function primaryImage(): HasOne
+    {
+        return $this->hasOne(ProductImage::class)->ofMany('sort_order', 'min');
+    }
+
     public function inventory(): HasOne
     {
         return $this->hasOne(ProductInventory::class);

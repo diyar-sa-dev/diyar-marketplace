@@ -4,54 +4,41 @@ namespace App\Http\Controllers\Api\V1\Catalog;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Catalog\ProductListRequest;
-use App\Http\Resources\ProductCardResource;
-use App\Http\Resources\ProductDetailResource;
 use App\Services\Analytics\ProductViewAnalyticsService;
-use App\Services\Catalog\ProductService;
+use App\Services\Catalog\CachedPublicProductDetailService;
+use App\Services\Catalog\CachedPublicProductListService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller
 {
     public function __construct(
-        private readonly ProductService $products,
+        private readonly CachedPublicProductListService $publicList,
+        private readonly CachedPublicProductDetailService $publicDetail,
         private readonly ProductViewAnalyticsService $productViewAnalytics,
     ) {}
 
     public function index(ProductListRequest $request): JsonResponse
     {
-        $paginator = $this->products->listPublic($request->validatedFilters(), $request->user());
-
-        return ApiResponse::success(data: $this->paginatedProducts($paginator));
+        return ApiResponse::success(data: $this->publicList->paginated(
+            $request->validatedFilters(),
+            $request->user(),
+        ));
     }
 
     public function show(Request $request, string $id): JsonResponse
     {
-        $product = $this->products->findPublic($id, $request->user());
-        $related = $this->products->relatedProducts($product, user: $request->user());
+        $detail = $this->publicDetail->show($id, $request->user());
 
-        $this->productViewAnalytics->recordFromProductShow($request, $product);
+        $this->productViewAnalytics->recordView(
+            $request,
+            $detail['analytics_product_id'],
+            $detail['analytics_vendor_account_id'],
+        );
 
         return ApiResponse::success(data: [
-            'product' => new ProductDetailResource($product, $related),
+            'product' => $detail['product'],
         ]);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function paginatedProducts(LengthAwarePaginator $paginator): array
-    {
-        return [
-            'items' => ProductCardResource::collection($paginator->getCollection())->resolve(),
-            'pagination' => [
-                'current_page' => $paginator->currentPage(),
-                'last_page' => $paginator->lastPage(),
-                'per_page' => $paginator->perPage(),
-                'total' => $paginator->total(),
-            ],
-        ];
     }
 }

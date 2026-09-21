@@ -43,6 +43,17 @@ class ProductTest extends TestCase
             ->assertJsonPath('data.product.likes_count', 0);
     }
 
+    public function test_related_products_are_capped_at_eight(): void
+    {
+        $category = Category::factory()->create();
+        $product = Product::factory()->create(['category_id' => $category->id]);
+        Product::factory()->count(12)->create(['category_id' => $category->id]);
+
+        $this->getJson('/api/v1/products/'.$product->id)
+            ->assertOk()
+            ->assertJsonCount(8, 'data.product.related_products');
+    }
+
     public function test_public_can_show_product_by_slug(): void
     {
         $product = Product::factory()->create(['slug' => 'affiliate-slug-test']);
@@ -106,8 +117,8 @@ class ProductTest extends TestCase
 
         $this->getJson('/api/v1/search?q=Bed')
             ->assertOk()
-            ->assertJsonCount(1, 'data.items')
-            ->assertJsonPath('data.items.0.name', 'Wooden Bed Frame');
+            ->assertJsonCount(1, 'data.products.items')
+            ->assertJsonPath('data.products.items.0.name', 'Wooden Bed Frame');
     }
 
     public function test_public_can_view_vendor_store_and_products(): void

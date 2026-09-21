@@ -26,12 +26,15 @@ export const en = {
     },
   },
   tryInRoom: {
-    uploadHint: 'Upload a photo of your room. We will prepare a visualization request (preview foundation).',
+    uploadHint: 'Upload a photo of your room and we will place the product in it.',
     choosePhoto: 'Choose room photo',
     uploading: 'Uploading…',
-    processing: 'Processing your request…',
-    completedStub: 'Request completed',
-    stubNote: 'Stub preview — real AI visualization comes in a later stage.',
+    processing: 'Placing the product in your room…',
+    completed: 'Preview ready',
+    yourRoom: 'Your room',
+    preview: 'Preview',
+    tryAnother: 'Try another photo',
+    openDesigner: 'Open room designer',
     retry: 'Try again',
     errors: {
       invalid_type: 'Please choose a JPEG, PNG, or WebP image.',
@@ -40,6 +43,9 @@ export const en = {
       idempotency_conflict:
         'This upload conflicts with an existing request. Close the dialog and try again.',
       timeout: 'This is taking longer than expected. Please try again later.',
+      quota_exhausted: 'You have reached today’s preview limit. Try again tomorrow.',
+      processing_failed: 'Could not build the preview. Try a clearer photo.',
+      product_not_available: 'This product is not available for preview right now.',
     },
   },
   maintenance: {

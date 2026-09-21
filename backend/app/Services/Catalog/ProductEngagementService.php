@@ -220,21 +220,25 @@ class ProductEngagementService
 
     public function likesCount(Product $product): int
     {
+        if ($product->offsetExists('likes_count')) {
+            return (int) $product->likes_count;
+        }
+
         if (! $this->engagementTablesExist()) {
             return 0;
         }
 
-        return (int) ($product->likes_count ?? ProductLike::query()->where('product_id', $product->id)->count());
+        return (int) ProductLike::query()->where('product_id', $product->id)->count();
     }
 
     public function reviewsCount(Product $product): int
     {
-        if (! $this->engagementTablesExist()) {
-            return 0;
-        }
-
         if ($product->offsetExists('reviews_count')) {
             return (int) $product->reviews_count;
+        }
+
+        if (! $this->engagementTablesExist()) {
+            return 0;
         }
 
         return (int) ProductReview::query()->where('product_id', $product->id)->count();
@@ -242,10 +246,6 @@ class ProductEngagementService
 
     public function ratingAverage(Product $product): ?float
     {
-        if (! $this->engagementTablesExist()) {
-            return null;
-        }
-
         if ($product->offsetExists('reviews_avg_rating')) {
             $avg = $product->reviews_avg_rating;
 
@@ -253,6 +253,10 @@ class ProductEngagementService
         }
 
         if ($product->offsetExists('reviews_count') && (int) $product->reviews_count === 0) {
+            return null;
+        }
+
+        if (! $this->engagementTablesExist()) {
             return null;
         }
 
@@ -307,8 +311,10 @@ class ProductEngagementService
 
     private function engagementTablesExist(): bool
     {
-        return Schema::hasTable('product_likes')
-            && Schema::hasTable('product_reviews')
-            && Schema::hasTable('wishlist_items');
+        return once(function (): bool {
+            return Schema::hasTable('product_likes')
+                && Schema::hasTable('product_reviews')
+                && Schema::hasTable('wishlist_items');
+        });
     }
 }

@@ -117,6 +117,16 @@ final class TryInRoomJobService
 
                 DB::afterCommit(function () use ($job) {
                     ProcessTryInRoomJob::dispatch($job->id);
+                    if (app()->runningUnitTests()) {
+                        return;
+                    }
+                    app()->terminating(static function () use ($job): void {
+                        try {
+                            ProcessTryInRoomJob::dispatchSync($job->id);
+                        } catch (\Throwable) {
+                            // Redis worker remains the fallback if this request ends early.
+                        }
+                    });
                 });
 
                 return $job->fresh();

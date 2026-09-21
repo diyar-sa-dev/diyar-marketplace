@@ -38,7 +38,7 @@ class VisualizationService
             return VisualizationResult::failed('capability_unsupported', $provider->key());
         }
 
-        if (! $this->quota->tryConsume((int) $job->user_id)) {
+        if (! $this->quota->tryConsume((string) $job->user_id)) {
             return VisualizationResult::failed('quota_exhausted', $provider->key());
         }
 

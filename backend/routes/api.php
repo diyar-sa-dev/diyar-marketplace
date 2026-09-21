@@ -791,6 +791,8 @@ Route::middleware([
         Route::middleware(['try-in-room.enabled'])->group(function () {
             Route::post('/products/{product}/try-in-room', [TryInRoomController::class, 'storeForProduct'])
                 ->middleware('throttle:try-in-room-create');
+            Route::get('/try-in-room/{tryInRoomJob}/result', [TryInRoomController::class, 'result'])
+                ->middleware('throttle:try-in-room-poll');
             Route::get('/try-in-room/{tryInRoomJob}', [TryInRoomController::class, 'show'])
                 ->middleware('throttle:try-in-room-poll');
         });

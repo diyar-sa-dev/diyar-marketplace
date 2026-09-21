@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers\Api\V1\TryInRoom;
 
+use App\Enums\TryInRoomJobStatus;
 use App\Exceptions\TryInRoom\IdempotencyConflictException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TryInRoom\StoreTryInRoomRequest;
 use App\Http\Resources\TryInRoomJobResource;
 use App\Models\Product;
-use App\Models\RoomDesign;
 use App\Services\RoomDesign\RoomDesignDocumentService;
 use App\Services\TryInRoom\TryInRoomJobService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TryInRoomController extends Controller
 {
@@ -88,6 +90,35 @@ class TryInRoomController extends Controller
 
         return ApiResponse::success(data: [
             'try_in_room_job' => new TryInRoomJobResource($job),
+        ]);
+    }
+
+    public function result(Request $request, string $tryInRoomJob): StreamedResponse
+    {
+        $job = $this->jobs->findOwned($tryInRoomJob, $request->user());
+        if ($job->status !== TryInRoomJobStatus::Completed) {
+            abort(404);
+        }
+
+        $relative = str_replace('\\', '/', (string) ($job->result['result_path'] ?? ''));
+        $disk = (string) ($job->result['result_disk'] ?? config('diyar.try_in_room.disk', 'try_in_room'));
+        $ownerPrefix = ((string) $job->user_id).'/';
+
+        if (
+            $relative === ''
+            || str_contains($relative, '..')
+            || ! str_starts_with($relative, $ownerPrefix)
+            || ! Storage::disk($disk)->exists($relative)
+        ) {
+            abort(404);
+        }
+
+        $mime = (string) ($job->result['result_mime'] ?? 'image/png');
+
+        return Storage::disk($disk)->response($relative, 'try-in-room.png', [
+            'Content-Type' => $mime !== '' ? $mime : 'image/png',
+            'Cache-Control' => 'private, max-age=120',
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 

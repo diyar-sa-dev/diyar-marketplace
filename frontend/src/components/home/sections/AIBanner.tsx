@@ -80,22 +80,20 @@ export function AIBanner() {
             {t('home.aiBanner.body')}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
-            <button
-              type="button"
-              disabled
-              className="flex items-center justify-center gap-3 bg-diyar-brown/60 text-white/80 px-8 py-4 rounded-lg text-lg shadow-md font-bold border border-diyar-brown/30 w-full sm:w-auto cursor-not-allowed opacity-70"
+          <div className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center md:justify-start">
+            <Link
+              to="/profile/room-designer"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-diyar-brown px-6 py-3 text-base font-bold text-white shadow-md hover:bg-[#A67B5B] sm:min-h-13 sm:px-8 sm:text-lg"
             >
-              <UploadCloud />
+              <UploadCloud size={20} />
               <span>{t('home.aiBanner.tryNow')}</span>
-            </button>
-            <button
-              type="button"
-              disabled
-              className="flex items-center justify-center gap-2 bg-transparent text-white/60 border border-white/15 px-8 py-4 rounded-lg text-lg font-bold w-full sm:w-auto cursor-not-allowed opacity-70"
+            </Link>
+            <Link
+              to="/profile/room-designer"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-base font-bold text-white hover:bg-white/10 sm:min-h-13 sm:px-8 sm:text-lg"
             >
               {t('home.aiBanner.viewDetails')}
-            </button>
+            </Link>
           </div>
         </div>
 

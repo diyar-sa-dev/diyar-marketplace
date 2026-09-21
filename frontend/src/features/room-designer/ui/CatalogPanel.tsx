@@ -1,4 +1,4 @@
-import { Loader2, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useState } from 'react';
 import type { ProductCard } from '../../../types/catalog.ts';
 import {
@@ -6,6 +6,7 @@ import {
   CATALOG_PICKER_PER_PAGE,
 } from '../catalog/constants.ts';
 import { useRoomDesignerProductSearch } from '../catalog/useRoomDesignerProductSearch.ts';
+import { CatalogRowSkeleton } from './RoomDesignerWorkspaceSkeleton.tsx';
 
 export type CatalogPanelProps = {
   onSelectProduct: (productId: string) => void;
@@ -44,6 +45,11 @@ export function CatalogPanel({ onSelectProduct, isAdding = false, enabled = true
           aria-label="بحث المنتجات"
           disabled={!enabled || isAdding}
         />
+        {isFetching && !isLoading ? (
+          <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 overflow-hidden rounded-b-xl">
+            <span className="absolute inset-0 bg-linear-to-r from-transparent via-diyar-brown/50 to-transparent animate-diyar-loading-shimmer" />
+          </span>
+        ) : null}
       </div>
 
       {showSearchHint ? (
@@ -60,9 +66,7 @@ export function CatalogPanel({ onSelectProduct, isAdding = false, enabled = true
 
       <div className="min-h-[120px] space-y-2">
         {isLoading ? (
-          <div className="flex items-center justify-center py-8 text-muted-foreground">
-            <Loader2 className="animate-spin" size={20} />
-          </div>
+          <CatalogRowSkeleton />
         ) : items.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">لا توجد منتجات</p>
         ) : (
@@ -122,7 +126,7 @@ function CatalogProductRow({
       type="button"
       onClick={onSelect}
       disabled={disabled}
-      className="flex min-h-11 w-full items-center gap-3 rounded-xl border border-border p-2 text-start transition hover:bg-muted/50 disabled:opacity-50"
+      className="flex min-h-11 w-full items-center gap-3 rounded-xl border border-border p-2 text-start transition hover:bg-muted/50 disabled:opacity-50 active:scale-[0.99]"
     >
       {product.image_url ? (
         <img

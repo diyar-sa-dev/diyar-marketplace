@@ -62,6 +62,8 @@ import {
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800';
 
+const TRY_IN_ROOM_RESUME_KEY = 'diyar:resume-try-in-room';
+
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
@@ -176,6 +178,37 @@ export default function ProductDetailsPage() {
     },
     [isAuthenticated],
   );
+
+  const openTryInRoom = useCallback(() => {
+    if (!product?.id) {
+      return;
+    }
+    if (!isAuthenticated) {
+      try {
+        sessionStorage.setItem(TRY_IN_ROOM_RESUME_KEY, product.id);
+      } catch {
+        // Private mode: user can reopen the dialog after login.
+      }
+      setAuthOpen(true);
+      return;
+    }
+    setIsAiModalOpen(true);
+  }, [isAuthenticated, product?.id]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !product?.id) {
+      return;
+    }
+    try {
+      if (sessionStorage.getItem(TRY_IN_ROOM_RESUME_KEY) !== product.id) {
+        return;
+      }
+      sessionStorage.removeItem(TRY_IN_ROOM_RESUME_KEY);
+    } catch {
+      return;
+    }
+    setIsAiModalOpen(true);
+  }, [isAuthenticated, product?.id]);
 
   const handleShare = () => {
     setShareOpen(true);
@@ -407,14 +440,14 @@ export default function ProductDetailsPage() {
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
           <div className="lg:w-1/2 flex flex-col gap-4">
             <div
-              className="relative aspect-square md:aspect-4/3 bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm group cursor-pointer"
+              className="relative isolate aspect-square md:aspect-4/3 bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm group cursor-pointer"
               onClick={() => setIsGalleryOpen(true)}
             >
               <img
                 src={images[activeImage]}
                 alt={product.name}
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="pointer-events-none relative z-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute top-4 right-4 flex flex-col gap-2">
                 {discountPct != null && discountPct > 0 && (
@@ -424,7 +457,7 @@ export default function ProductDetailsPage() {
                 )}
               </div>
               <div
-                className="absolute top-4 left-4 flex flex-col gap-2"
+                className="absolute top-4 left-4 z-20 flex flex-col gap-2"
                 onClick={(e) => e.stopPropagation()}
               >
                 <button
@@ -466,25 +499,18 @@ export default function ProductDetailsPage() {
                 </button>
               </div>
               <div
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 w-max max-w-[90%]"
+                className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2 flex items-center gap-2 w-max max-w-[90%]"
                 onClick={(e) => e.stopPropagation()}
               >
                 <button
                   type="button"
-                  onClick={() => {
-                    if (!isAuthenticated) {
-                      setAuthOpen(true);
-                      return;
-                    }
-                    setIsAiModalOpen(true);
-                  }}
-                  className={`${vendorButtonClass} bg-diyar-dark/90 backdrop-blur text-white px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium hover:bg-black shadow-lg`}
+                  data-testid="try-in-room-open"
+                  onClick={openTryInRoom}
+                  className={`${vendorButtonClass} flex min-h-10 items-center gap-1.5 bg-diyar-dark/90 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur hover:bg-black md:min-h-11 md:px-4 md:text-sm rounded-full`}
                 >
                   <Sparkles size={16} className="text-yellow-400 shrink-0 inline mr-1" />
-                  <span className="hidden sm:inline">
-                    {t('catalog.productDetail.tryInRoomShort')}{' '}
-                  </span>
-                  {t('catalog.productDetail.tryInRoom')}
+                  <span className="sm:hidden">{t('catalog.productDetail.tryInRoomShort')}</span>
+                  <span className="hidden sm:inline">{t('catalog.productDetail.tryInRoom')}</span>
                 </button>
               </div>
             </div>
@@ -695,6 +721,16 @@ export default function ProductDetailsPage() {
               </p>
             )}
 
+            <button
+              type="button"
+              data-testid="try-in-room-open-secondary"
+              onClick={openTryInRoom}
+              className={`${vendorButtonClass} mb-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-diyar-dark/15 bg-white py-3 text-sm font-medium text-diyar-dark hover:bg-diyar-dark/5`}
+            >
+              <Sparkles size={16} className="text-yellow-500 shrink-0" />
+              {t('catalog.productDetail.tryInRoomShort')}
+            </button>
+
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 z-50 md:relative md:p-0 md:border-0 md:bg-transparent flex items-center gap-4">
               {canPreorder ? (
                 <button
@@ -831,6 +867,7 @@ export default function ProductDetailsPage() {
       {product && isAiModalOpen ? (
         <TryInRoomModal
           productId={product.id}
+          productImageUrl={images[0]}
           open={isAiModalOpen}
           onClose={() => setIsAiModalOpen(false)}
         />

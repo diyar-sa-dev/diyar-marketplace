@@ -79,10 +79,17 @@ class TryInRoomTest extends TestCase
         Queue::fake(false);
         ProcessTryInRoomJob::dispatchSync($jobId);
 
-        $this->actingAs($user)->getJson("/api/v1/try-in-room/{$jobId}")
+        $poll = $this->actingAs($user)->getJson("/api/v1/try-in-room/{$jobId}")
             ->assertOk()
             ->assertJsonPath('data.try_in_room_job.status', 'completed')
-            ->assertJsonPath('data.try_in_room_job.result.kind', 'stub');
+            ->assertJsonPath('data.try_in_room_job.result.kind', 'composite_image')
+            ->assertJsonPath('data.try_in_room_job.result_url', "/api/v1/try-in-room/{$jobId}/result");
+
+        $this->assertArrayNotHasKey('result_path', $poll->json('data.try_in_room_job.result') ?? []);
+
+        $this->actingAs($user)->get("/api/v1/try-in-room/{$jobId}/result")
+            ->assertOk()
+            ->assertHeader('content-type', 'image/png');
 
         $this->assertTrue(Storage::disk('try_in_room')->exists(
             TryInRoomJob::query()->find($jobId)->sourceImage->path,
@@ -141,6 +148,7 @@ class TryInRoomTest extends TestCase
         $jobId = $create->json('data.try_in_room_job.id');
 
         $this->actingAs($intruder)->getJson("/api/v1/try-in-room/{$jobId}")->assertNotFound();
+        $this->actingAs($intruder)->get("/api/v1/try-in-room/{$jobId}/result")->assertNotFound();
     }
 
     #[Test]

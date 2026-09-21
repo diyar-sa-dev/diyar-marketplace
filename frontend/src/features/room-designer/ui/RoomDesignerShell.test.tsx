@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { LocaleProvider } from '../../../lib/i18n/LocaleProvider.tsx';
 import { createSpatialEngineFromPreset } from '../application/spatialEngine.ts';
 import { RoomDesignerShell } from './RoomDesignerShell.tsx';
 
@@ -21,14 +22,19 @@ describe('RoomDesignerShell mobile layout', () => {
 
     const client = new QueryClient();
     render(
-      <QueryClientProvider client={client}>
-        <RoomDesignerShell engine={preset.state} />
-      </QueryClientProvider>,
+      <LocaleProvider>
+        <QueryClientProvider client={client}>
+          <RoomDesignerShell engine={preset.state} />
+        </QueryClientProvider>
+      </LocaleProvider>,
     );
 
     expect(screen.getByTestId('room-designer-shell')).toBeInTheDocument();
     expect(screen.getByTestId('room-designer-canvas-host')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /المنتجات/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'إفراغ الغرفة' })).toBeInTheDocument();
+    expect(screen.getByText('ابدأ بتأثيث غرفتك')).toBeInTheDocument();
+    expect(screen.getByText('اسحب القطع، كبّرها أو دوّرها لترتيب غرفتك بسهولة')).toBeInTheDocument();
     expect(screen.queryByLabelText('معرض المنتجات')).not.toBeInTheDocument();
   });
 });

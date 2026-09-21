@@ -3,6 +3,7 @@
 namespace App\Services\Analytics;
 
 use App\Enums\AnalyticsEventType;
+use App\Jobs\Analytics\RecordAnalyticsEventJob;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -10,11 +11,12 @@ use Illuminate\Support\Facades\Cache;
 
 final class ProductViewAnalyticsService
 {
-    public function __construct(
-        private readonly AnalyticsEventRecorder $recorder,
-    ) {}
-
     public function recordFromProductShow(Request $request, Product $product): void
+    {
+        $this->recordView($request, $product->id, $product->vendor_account_id);
+    }
+
+    public function recordView(Request $request, string $productId, ?string $vendorAccountId): void
     {
         if (! config('diyar.analytics.events_enabled', true)) {
             return;
@@ -24,7 +26,7 @@ final class ProductViewAnalyticsService
             return;
         }
 
-        $dedupeKey = $this->dedupeKey($request, $product);
+        $dedupeKey = $this->dedupeKey($request, $productId);
         $dedupeSeconds = (int) config('diyar.analytics.view_dedupe_seconds', 1800);
 
         if (! Cache::add($dedupeKey, 1, $dedupeSeconds)) {
@@ -34,17 +36,19 @@ final class ProductViewAnalyticsService
         /** @var User|null $user */
         $user = $request->user();
 
-        $this->recorder->record(
-            AnalyticsEventType::ProductViewed,
-            user: $user,
+        RecordAnalyticsEventJob::dispatch(
+            eventType: AnalyticsEventType::ProductViewed->value,
+            userId: $user?->id,
             sessionId: $this->resolveSessionId($request),
             subjectType: 'product',
-            subjectId: $product->id,
-            vendorAccountId: $product->vendor_account_id,
+            subjectId: $productId,
+            vendorAccountId: $vendorAccountId,
+            providerAccountId: null,
             payload: [
                 'source' => 'product_detail',
                 'locale' => app()->getLocale(),
             ],
+            occurredAtIso: now()->toIso8601String(),
         );
     }
 
@@ -66,11 +70,11 @@ final class ProductViewAnalyticsService
         return false;
     }
 
-    private function dedupeKey(Request $request, Product $product): string
+    private function dedupeKey(Request $request, string $productId): string
     {
         return sprintf(
             'analytics:view:product:%s:%s',
-            $product->id,
+            $productId,
             hash('sha256', $this->resolveSessionId($request)),
         );
     }

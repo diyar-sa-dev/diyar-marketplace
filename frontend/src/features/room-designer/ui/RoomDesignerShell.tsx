@@ -1,6 +1,10 @@
-import { Box, Boxes, LayoutGrid, Redo2, ScanLine, ShoppingCart, Sparkles, Trash2, Undo2, X } from 'lucide-react';
+import { Box, Boxes, LayoutGrid, Redo2, RefreshCw, ScanLine, ShoppingCart, Sparkles, Trash2, Undo2, Upload, X } from 'lucide-react';
 import { useCallback, useMemo, useReducer, useRef, useState } from 'react';
+import { ErrorBoundary } from '../../../components/common/ErrorBoundary.tsx';
+import { useLocale } from '../../../hooks/useLocale.ts';
 import { useModalDialog } from '../../../hooks/useModalDialog.ts';
+import { TryInRoomShimmer } from '../../try-in-room/TryInRoomShimmer.tsx';
+import { useTryInRoomFlow } from '../../try-in-room/useTryInRoomFlow.ts';
 import { applySuggestedLayout } from '../application/applySuggestedLayout.ts';
 import { addCatalogProductToSession } from '../adapters/addCatalogProductToSession.ts';
 import { deriveCartLinesFromDocument } from '../adapters/deriveCartLinesFromDocument.ts';
@@ -25,22 +29,26 @@ import {
 } from '../config/roomDesignerFeatures.ts';
 import { resolveArAssetUrl } from '../adapters/resolveArAssetUrl.ts';
 import { nextPresentationMode, type RoomProjectionMode } from '../renderer/projectionMode.ts';
+import { listRoomPresets } from '../domain/room/presets.ts';
 import { useLargeScreen } from './useLargeScreen.ts';
 
 export type RoomDesignerShellProps = {
   engine: SpatialEngineState;
   designId?: string;
   designVersion?: number;
+  /** Stable across attaching a newly-created design id so local furniture is not wiped. */
+  sessionResetKey?: string;
   className?: string;
 };
 
 const touchBtn =
-  'inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-border bg-background px-3 text-sm disabled:opacity-40';
+  'inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border bg-background px-2.5 text-sm sm:px-3 disabled:opacity-40';
 
 export function RoomDesignerShell({
   engine: initialEngine,
   designId,
   designVersion,
+  sessionResetKey,
   className,
 }: RoomDesignerShellProps) {
   const [engine, setEngine] = useState(initialEngine);
@@ -60,7 +68,22 @@ export function RoomDesignerShell({
   const arEnabled = isRoomDesignerArEnabled();
   const [arError, setArError] = useState<string | null>(null);
   const catalogSheetRef = useRef<HTMLDivElement>(null);
+  const tryInRoomInputRef = useRef<HTMLInputElement>(null);
+  const [canvasCrashKey, setCanvasCrashKey] = useState(0);
+  const { t } = useLocale();
   useModalDialog(catalogOpen && !isLargeScreen, () => setCatalogOpen(false), catalogSheetRef);
+
+  const selectedThumb = engine.document.items[0]?.snapshot.thumbnail_url ?? undefined;
+  const {
+    resultUrl: tryInRoomPreview,
+    confirming: tryInRoomConfirming,
+    errorKey: tryInRoomErrorKey,
+    submitFile: submitTryInRoom,
+    reset: resetTryInRoom,
+  } = useTryInRoomFlow({
+    roomDesignId: designId,
+    productImageUrl: selectedThumb ?? undefined,
+  });
 
   const getDocument = useCallback(
     () => sessionRef.current?.getDocument() ?? engine.document,
@@ -156,9 +179,13 @@ export function RoomDesignerShell({
       return;
     }
     setArError(null);
-    const { openArPreviewForAssetRef } = await import('../ar/openArPreview.ts');
-    const result = await openArPreviewForAssetRef(ref);
-    if (!result.ok) {
+    try {
+      const { openArPreviewForAssetRef } = await import('../ar/openArPreview.ts');
+      const result = await openArPreviewForAssetRef(ref);
+      if (!result.ok) {
+        setArError('العرض بالواقع المعزّز غير متاح على هذا الجهاز');
+      }
+    } catch {
       setArError('العرض بالواقع المعزّز غير متاح على هذا الجهاز');
     }
   }, []);
@@ -202,11 +229,11 @@ export function RoomDesignerShell({
 
   return (
     <div
-      className={`flex min-h-0 flex-col gap-2 lg:grid lg:grid-cols-[minmax(260px,320px)_1fr] lg:gap-4 ${className ?? ''}`}
+      className={`flex min-h-0 flex-col gap-2 lg:grid lg:grid-cols-[minmax(240px,300px)_minmax(0,1fr)] lg:gap-4 ${className ?? ''}`}
       data-testid="room-designer-shell"
       dir="rtl"
     >
-      <header className="flex flex-wrap items-center gap-2 border-b border-border pb-2 lg:col-span-2">
+      <header className="flex items-center gap-2 overflow-x-auto overscroll-x-contain border-b border-border pb-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:col-span-2 [&::-webkit-scrollbar]:hidden">
         <button
           type="button"
           className={touchBtn}
@@ -233,6 +260,30 @@ export function RoomDesignerShell({
         >
           <Trash2 size={18} />
         </button>
+        <button
+          type="button"
+          className={touchBtn}
+          aria-label="إفراغ الغرفة"
+          onClick={() => {
+            runSessionAction((s) => s.applyCommands([{ type: 'CLEAR_ROOM' }]));
+            resetTryInRoom();
+          }}
+        >
+          <RefreshCw size={18} />
+          <span className="hidden sm:inline">إفراغ الغرفة</span>
+        </button>
+        {designId ? (
+          <button
+            type="button"
+            className={touchBtn}
+            aria-label={t('tryInRoom.choosePhoto')}
+            data-testid="try-in-room-open-designer"
+            onClick={() => tryInRoomInputRef.current?.click()}
+          >
+            <Upload size={18} />
+            <span className="hidden sm:inline">{t('tryInRoom.choosePhoto')}</span>
+          </button>
+        ) : null}
 
         {presentationToggleEnabled ? (
           <button
@@ -301,7 +352,7 @@ export function RoomDesignerShell({
 
         {designId ? (
           <>
-            <span className="text-xs text-muted-foreground" aria-live="polite">
+            <span className="shrink-0 whitespace-nowrap text-xs text-muted-foreground" aria-live="polite">
               {syncStateLabel}
             </span>
             <button
@@ -326,13 +377,35 @@ export function RoomDesignerShell({
           {arError}
         </p>
       ) : null}
+      {tryInRoomErrorKey ? (
+        <p className="text-sm text-destructive lg:col-span-2" role="alert">
+          {t(`tryInRoom.errors.${tryInRoomErrorKey}`)}
+        </p>
+      ) : null}
+
+      <div className="flex gap-2 overflow-x-auto overscroll-x-contain pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] lg:col-span-2 [&::-webkit-scrollbar]:hidden" data-testid="room-designer-presets">
+        {listRoomPresets().map((preset) => (
+          <button
+            key={preset.id}
+            type="button"
+            className={`${touchBtn} ${engine.document.room.preset_id === preset.id ? 'border-diyar-brown bg-diyar-brown/10' : ''}`}
+            onClick={() =>
+              runSessionAction((s) => s.applyCommands([{ type: 'APPLY_ROOM_PRESET', preset_id: preset.id }]))
+            }
+          >
+            {preset.name_ar}
+          </button>
+        ))}
+      </div>
 
       {isLargeScreen ? (
         <aside
           className="flex max-h-[min(70dvh,640px)] min-h-0 flex-col overflow-hidden rounded-2xl border border-border p-3"
           aria-label="معرض المنتجات"
         >
-          <CatalogPanel onSelectProduct={handleSelectProduct} isAdding={addingProduct} />
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <CatalogPanel onSelectProduct={handleSelectProduct} isAdding={addingProduct} />
+          </div>
           {addProductError ? (
             <p className="text-sm text-destructive" role="alert">
               {addProductError}
@@ -341,16 +414,78 @@ export function RoomDesignerShell({
         </aside>
       ) : null}
 
-      <div className="relative flex min-h-[min(45dvh,520px)] min-w-0 flex-1 flex-col">
-        <RoomDesignerCanvasHost
-          engine={engine}
-          sessionResetKey={designId}
-          fillContainer
-          touchFriendly={!isLargeScreen}
-          projection={projection}
-          sessionRef={sessionRef}
-          onEngineChange={handleEngineChange}
-          className="h-full min-h-[220px] w-full rounded-xl border border-border bg-muted/20"
+      <div className="relative flex min-h-[min(42dvh,380px)] min-w-0 flex-1 flex-col md:min-h-[min(52dvh,560px)]">
+        {tryInRoomPreview ? (
+          <img
+            src={tryInRoomPreview}
+            alt={t('tryInRoom.yourRoom')}
+            className="pointer-events-none absolute inset-0 z-0 h-full w-full rounded-xl object-cover opacity-40"
+          />
+        ) : null}
+        {tryInRoomConfirming ? (
+          <>
+            <TryInRoomShimmer />
+            <p className="pointer-events-none absolute top-3 start-3 z-20 rounded-full bg-diyar-dark/85 px-3 py-1 text-[11px] font-medium text-white">
+              {t('tryInRoom.processing')}
+            </p>
+          </>
+        ) : null}
+        <ErrorBoundary
+          key={canvasCrashKey}
+          fallback={
+            <div className="flex h-full min-h-[220px] flex-col items-center justify-center gap-2 p-6 text-center" role="alert">
+              <p className="text-sm text-muted-foreground">تعذّر عرض المصمم.</p>
+              <button
+                type="button"
+                className={touchBtn}
+                onClick={() => setCanvasCrashKey((key) => key + 1)}
+              >
+                إعادة المحاولة
+              </button>
+            </div>
+          }
+        >
+          <RoomDesignerCanvasHost
+            engine={engine}
+            sessionResetKey={sessionResetKey ?? designId}
+            fillContainer
+            touchFriendly={!isLargeScreen}
+            projection={projection}
+            sessionRef={sessionRef}
+            onEngineChange={handleEngineChange}
+            className="relative z-10 h-full min-h-[220px] w-full rounded-xl border border-border bg-muted/10"
+          />
+        </ErrorBoundary>
+        {engine.document.items.length === 0 ? (
+          <div className="pointer-events-none absolute inset-x-0 top-[16%] z-20 flex flex-col items-center px-4 text-center sm:px-6">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-background/90 text-diyar-brown shadow-sm">
+              <Sparkles size={22} />
+            </div>
+            <p className="text-sm font-bold text-diyar-dark">ابدأ بتأثيث غرفتك</p>
+            <p className="mt-1 max-w-xs text-xs leading-relaxed text-muted-foreground">
+              اختر طابع الغرفة، ثم اضغط على أي قطعة أثاث من القائمة لإضافتها هنا.
+            </p>
+          </div>
+        ) : null}
+        <p className="pointer-events-none absolute bottom-3 left-3 right-3 z-20 text-center text-[11px] text-muted-foreground">
+          <span className="inline-block rounded-full bg-background/80 px-3 py-1 backdrop-blur-sm">
+            اسحب القطع، كبّرها أو دوّرها لترتيب غرفتك بسهولة
+          </span>
+        </p>
+        <input
+          ref={tryInRoomInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="sr-only"
+          tabIndex={-1}
+          data-testid="try-in-room-file-designer"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.target.value = '';
+            if (file) {
+              void submitTryInRoom(file);
+            }
+          }}
         />
       </div>
 
@@ -362,7 +497,7 @@ export function RoomDesignerShell({
         >
           <div
             ref={catalogSheetRef}
-            className="flex max-h-[min(58dvh,520px)] flex-col rounded-t-2xl bg-background p-4 pb-safe shadow-xl"
+            className="flex max-h-[min(70dvh,640px)] flex-col rounded-t-3xl bg-background p-4 pb-safe shadow-xl"
             role="dialog"
             aria-modal="true"
             aria-labelledby="room-designer-catalog-sheet-title"

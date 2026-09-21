@@ -5,6 +5,7 @@ namespace App\Services\Analytics;
 use App\Enums\AnalyticsEventType;
 use App\Models\AnalyticsEvent;
 use App\Models\User;
+use DateTimeInterface;
 use Illuminate\Support\Str;
 
 final class AnalyticsEventRecorder
@@ -21,6 +22,8 @@ final class AnalyticsEventRecorder
         ?string $vendorAccountId = null,
         ?string $providerAccountId = null,
         array $payload = [],
+        ?string $userId = null,
+        ?DateTimeInterface $occurredAt = null,
     ): void {
         if (! config('diyar.analytics.events_enabled', true)) {
             return;
@@ -30,12 +33,12 @@ final class AnalyticsEventRecorder
             'event_type' => $type->value,
             'subject_type' => $subjectType,
             'subject_id' => $subjectId,
-            'user_id' => $user?->id,
+            'user_id' => $user?->id ?? $userId,
             'session_id' => $sessionId !== null ? Str::limit($sessionId, 64, '') : null,
             'vendor_account_id' => $vendorAccountId,
             'provider_account_id' => $providerAccountId,
             'payload' => $this->sanitizePayload($payload),
-            'created_at' => now(),
+            'created_at' => $occurredAt ?? now(),
         ]);
     }
 

@@ -48,7 +48,7 @@ final class ProductService
         $perPage = PaginationBounds::perPage((int) ($filters['per_page'] ?? 20));
         $page = PaginationBounds::page((int) ($filters['page'] ?? 1));
 
-        return $query->paginate($perPage, ['*'], 'page', $page);
+        return $query->paginate($perPage, $this->cardColumns(), 'page', $page);
     }
 
     /**
@@ -85,7 +85,7 @@ final class ProductService
     public function findPublic(string $id, ?User $user = null): Product
     {
         $query = $this->publicQuery()
-            ->with(['vendorAccount', 'category', 'colors', 'images.mediaFile', 'inventory'])
+            ->with($this->detailEagerLoads())
             ->withCount(['likes', 'reviews'])
             ->withAvg('reviews', 'rating');
 
@@ -111,6 +111,8 @@ final class ProductService
      */
     public function relatedProducts(Product $product, int $limit = 8, ?User $user = null): Collection
     {
+        $limit = max(0, min($limit, 8));
+
         $query = $this->cardQuery($user)
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
@@ -348,7 +350,7 @@ final class ProductService
 
         $this->applyFilters($query, $filters);
 
-        return $query->paginate(min((int) ($filters['per_page'] ?? 20), 100));
+        return $query->paginate(min((int) ($filters['per_page'] ?? 20), 100), $this->cardColumns());
     }
 
     public function findVendorBySlug(string $slug): VendorAccount
@@ -371,7 +373,7 @@ final class ProductService
 
         $this->applyFilters($query, $filters);
 
-        return $query->paginate(min((int) ($filters['per_page'] ?? 20), 100));
+        return $query->paginate(min((int) ($filters['per_page'] ?? 20), 100), $this->cardColumns());
     }
 
     private function publicQuery(): Builder
@@ -385,6 +387,7 @@ final class ProductService
     private function cardQuery(?User $user = null): Builder
     {
         $query = $this->publicQuery()
+            ->select($this->cardColumns())
             ->with($this->cardEagerLoads())
             ->withCount(['reviews'])
             ->withAvg('reviews', 'rating');
@@ -395,15 +398,57 @@ final class ProductService
     }
 
     /**
+     * Columns required by ProductCardResource. Keep description/materials/return
+     * policy off the listing SELECT — they belong on the detail path.
+     *
+     * @return list<string>
+     */
+    private function cardColumns(): array
+    {
+        $table = (new Product)->getTable();
+
+        return [
+            "{$table}.id",
+            "{$table}.vendor_account_id",
+            "{$table}.category_id",
+            "{$table}.name",
+            "{$table}.slug",
+            "{$table}.sale_price",
+            "{$table}.compare_price",
+            "{$table}.promotion_ends_at",
+            "{$table}.product_type",
+            "{$table}.availability_mode",
+            "{$table}.created_at",
+        ];
+    }
+
+    /**
      * @return array<int|string, mixed>
      */
     private function cardEagerLoads(): array
     {
         return [
-            'vendorAccount',
-            'category',
-            'images.mediaFile',
-            'inventory',
+            'vendorAccount:id,business_name,slug',
+            'category:id,name,slug,type',
+            'primaryImage.mediaFile:id,path',
+            'inventory:id,product_id,stock_quantity,reserved_quantity,available_quantity',
+        ];
+    }
+
+    /**
+     * Columns required by ProductDetailResource. Avoid SELECT * on relations.
+     *
+     * @return array<int|string, mixed>
+     */
+    private function detailEagerLoads(): array
+    {
+        return [
+            'vendorAccount:id,business_name,slug',
+            'category:id,name,slug',
+            'colors:id,product_id,name,hex_code',
+            'images:id,product_id,media_file_id,sort_order',
+            'images.mediaFile:id,path',
+            'inventory:id,product_id,stock_quantity,reserved_quantity,available_quantity',
         ];
     }
 

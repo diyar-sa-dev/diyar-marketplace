@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef, type MutableRefObject } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState, type MutableRefObject } from 'react';
 import { DesignerSession } from '../application/DesignerSession.ts';
 import type { SpatialEngineState } from '../application/spatialEngine.ts';
 import type { RendererInteraction } from '../renderer/types.ts';
@@ -11,6 +11,7 @@ import { DEFAULT_SCALE_PX_PER_M } from '../renderer/types.ts';
 import { createRoomRenderer } from '../renderer/createRoomRenderer.ts';
 import type { RoomRenderer } from '../renderer/types.ts';
 import { useContainerSize } from './useContainerSize.ts';
+import { ShimmerBone } from '../../try-in-room/TryInRoomShimmer.tsx';
 
 export type RoomDesignerCanvasHostProps = {
   engine: SpatialEngineState;
@@ -53,6 +54,9 @@ export function RoomDesignerCanvasHost({
   const viewportWidth = fillContainer ? measured.width : widthPx;
   const viewportHeight = fillContainer ? measured.height : heightPx;
   const rendererBackend = rendererBackendKey(projection);
+  const [bootError, setBootError] = useState<string | null>(null);
+  const [bootKey, setBootKey] = useState(0);
+  const [booting, setBooting] = useState(true);
 
   const rendererRef = useRef<RoomRenderer | null>(null);
   const sessionRefInternal = useRef<DesignerSession | null>(null);
@@ -71,7 +75,11 @@ export function RoomDesignerCanvasHost({
     const renderer = rendererRef.current;
     const session = sessionRefInternal.current;
     if (!renderer || !session) return;
-    renderer.render(session.getDocument(), { scalePxPerM, projection });
+    try {
+      renderer.render(session.getDocument(), { scalePxPerM, projection });
+    } catch {
+      setBootError('تعذّر تحميل مساحة التصميم. أعد المحاولة.');
+    }
   }, [projection, scalePxPerM]);
 
   const handleInteraction = useCallback(
@@ -86,15 +94,19 @@ export function RoomDesignerCanvasHost({
         return;
       }
 
-      const commands =
-        event.command.type === 'BATCH' ? [...event.command.commands] : [event.command];
-      const result = session.applyCommands(commands);
-      if (result.ok) {
-        onEngineChange?.(result.state);
-        syncRender();
-        bump();
-      } else if (renderer) {
-        renderer.render(session.getDocument(), { scalePxPerM, projection });
+      try {
+        const commands =
+          event.command.type === 'BATCH' ? [...event.command.commands] : [event.command];
+        const result = session.applyCommands(commands);
+        if (result.ok) {
+          onEngineChange?.(result.state);
+          syncRender();
+          bump();
+        } else if (renderer) {
+          renderer.render(session.getDocument(), { scalePxPerM, projection });
+        }
+      } catch {
+        setBootError('تعذّر تحميل مساحة التصميم. أعد المحاولة.');
       }
     },
     [onEngineChange, onSelectionChange, projection, scalePxPerM, syncRender],
@@ -119,21 +131,33 @@ export function RoomDesignerCanvasHost({
     if (!container) return undefined;
 
     let cancelled = false;
+    setBootError(null);
+    setBooting(true);
     void (async () => {
-      const renderer = await createRoomRenderer(projection);
-      if (cancelled) {
-        renderer.destroy();
-        return;
+      try {
+        const renderer = await createRoomRenderer(projection);
+        if (cancelled) {
+          renderer.destroy();
+          return;
+        }
+        rendererRef.current = renderer;
+        renderer.mount(container, {
+          widthPx: viewportWidth,
+          heightPx: viewportHeight,
+          scalePxPerM,
+          touchFriendly,
+        });
+        renderer.onInteraction(handleInteraction);
+        syncRender();
+        if (!cancelled) {
+          setBooting(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setBooting(false);
+          setBootError('تعذّر تحميل مساحة التصميم. أعد المحاولة.');
+        }
       }
-      rendererRef.current = renderer;
-      renderer.mount(container, {
-        widthPx: viewportWidth,
-        heightPx: viewportHeight,
-        scalePxPerM,
-        touchFriendly,
-      });
-      renderer.onInteraction(handleInteraction);
-      syncRender();
     })();
 
     return () => {
@@ -141,7 +165,7 @@ export function RoomDesignerCanvasHost({
       rendererRef.current?.destroy();
       rendererRef.current = null;
     };
-  }, [handleInteraction, projection, rendererBackend, scalePxPerM, syncRender, touchFriendly]);
+  }, [bootKey, handleInteraction, projection, rendererBackend, scalePxPerM, syncRender, touchFriendly]);
 
   useEffect(() => {
     rendererRef.current?.resizeViewport(viewportWidth, viewportHeight);
@@ -152,7 +176,10 @@ export function RoomDesignerCanvasHost({
   }, [projection, syncRender]);
 
   return (
-    <div ref={outerRef} className={fillContainer ? `h-full w-full ${className ?? ''}` : className}>
+    <div
+      ref={outerRef}
+      className={`relative ${fillContainer ? `h-full w-full ${className ?? ''}` : className ?? ''}`}
+    >
       <div
         ref={containerRef}
         className={fillContainer ? 'h-full w-full' : undefined}
@@ -160,6 +187,30 @@ export function RoomDesignerCanvasHost({
         data-testid="room-designer-canvas-host"
         aria-label="Room designer canvas"
       />
+      {booting && !bootError ? (
+        <div className="absolute inset-0 z-10 overflow-hidden rounded-[inherit]" data-testid="room-designer-canvas-skeleton">
+          <ShimmerBone className="h-full w-full rounded-xl" />
+        </div>
+      ) : null}
+      {bootError ? (
+        <div
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-background/95 p-6 text-center"
+          role="alert"
+          data-testid="room-designer-canvas-error"
+        >
+          <p className="text-sm text-muted-foreground">{bootError}</p>
+          <button
+            type="button"
+            className="min-h-11 rounded-xl border border-border px-4 text-sm"
+            onClick={() => {
+              setBootError(null);
+              setBootKey((key) => key + 1);
+            }}
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

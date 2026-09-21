@@ -4,6 +4,7 @@ services:
   k6:
     image: grafana/k6:latest
     profiles: ['k6']
+    cpuset: '2-3'
     networks:
       - public
       - backend

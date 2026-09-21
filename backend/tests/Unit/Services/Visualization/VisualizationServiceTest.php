@@ -19,6 +19,12 @@ class VisualizationServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        \Illuminate\Support\Facades\Storage::fake('try_in_room');
+    }
+
     #[Test]
     public function null_driver_fails_when_ai_disabled(): void
     {
@@ -48,7 +54,8 @@ class VisualizationServiceTest extends TestCase
 
         $this->assertTrue($result->success);
         $this->assertSame('stub', $result->providerKey);
-        $this->assertSame('stub', $result->payload['kind'] ?? null);
+        $this->assertSame('composite_image', $result->payload['kind'] ?? null);
+        $this->assertNotEmpty($result->payload['result_path'] ?? null);
     }
 
     #[Test]
@@ -59,12 +66,11 @@ class VisualizationServiceTest extends TestCase
             'diyar.visualization.quota_per_user_per_day' => 1,
         ]);
 
-        $job = $this->sampleJob();
+        $user = User::factory()->create();
         $service = app(VisualizationService::class);
-        $this->assertTrue($service->execute($job)->success);
+        $this->assertTrue($service->execute($this->sampleJob($user))->success);
 
-        $second = $this->sampleJob();
-        $result = $service->execute($second);
+        $result = $service->execute($this->sampleJob($user));
         $this->assertFalse($result->success);
         $this->assertSame('quota_exhausted', $result->failureCode);
     }
@@ -233,9 +239,9 @@ class VisualizationServiceTest extends TestCase
         $this->assertSame('provider_circuit_open', $blocked->failureCode);
     }
 
-    private function sampleJob(): TryInRoomJob
+    private function sampleJob(?User $user = null): TryInRoomJob
     {
-        $user = User::factory()->create();
+        $user ??= User::factory()->create();
 
         return new TryInRoomJob([
             'user_id' => $user->id,

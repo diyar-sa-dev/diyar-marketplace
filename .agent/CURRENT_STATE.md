@@ -1,6 +1,6 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-09-20  
+> **Last updated:** 2026-09-21  
 > **Maintained by:** AI development agents after each phase completion
 
 ---
@@ -97,10 +97,29 @@ Authority: `conception/Stages/Post-Stage 30/OPERATIONAL_RELEASE_READINESS.md`
 - 25K / production load: **NOT VERIFIED**
 - Real mobile / 3D GPU / AR device: **NOT VERIFIED**
 - Live production deploy: **NOT VERIFIED**
-- Git: **uncommitted**
+- Git: **Day 32**
+- Manual storefront testing: **NOT COMPLETED**
+
+---
+
+## Day 32 (2026-09-21)
+
+Storefront Try-in-Room + Studio (Stage 30 follow-through): Wired real room-designer into the sidebar studio, optimistic/shimmer Try-in-Room (product + room-design jobs), stub compositor for design overlays, and mobile-responsive skeletons. External OpenAI remains fail-closed.
+
+KVM2 Optimization (Phases 3–14): Guest listing cache + async `product_viewed`; then guest product-detail cache, schema-probe removal, and bounded related products. Local 2-vCPU envelope, 2 Octane workers — listing ~86 RPS / 18 ms p95, detail ~86 RPS / 30 ms p95, mixed rps50 ~50 RPS / 13 ms p95. Hostinger **NOT VERIFIED**.
+
+Status: Verified with limitations (legal AI approval pending; manual testing not completed). Next: Manual testing.
 
 ---
 
 ## Current focus
 
-Post–Stage 30 program **complete**. Next work is **operational** (staging host, E2E CI, legal sign-off, controlled flag rollout) — not a numbered Stage 30.x or PS30-* item in repo.
+Operational KVM2 capacity work (not a numbered Stage 31):
+
+- Phase 1–2 bottleneck report: **COMPLETE**
+- Operational Phases 3–13 optimization: **COMPLETE WITH LIMITATIONS** — `conception/Stages/Post-Stage 30/KVM2_OPTIMIZATION_AND_SCALABILITY_REPORT.md`
+- Phase 14 product-detail + search: **COMPLETE WITH LIMITATIONS** — `conception/Stages/Post-Stage 30/KVM2_PRODUCT_DETAIL_SEARCH_OPTIMIZATION_REPORT.md`
+- Local mixed rps50: 49.8 RPS / p95 12.7 ms after guest detail cache (not Hostinger)
+- Isolated detail 25 VU: 86.5 RPS / p95 30 ms (was 939 ms)
+- Next: authenticated detail overlay or a measured 4-worker trial; do not claim Hostinger; do not scale first
+

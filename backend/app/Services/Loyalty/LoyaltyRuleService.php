@@ -40,7 +40,8 @@ final class LoyaltyRuleService
 
     public function calculatePoints(float|string $eligibleAmount): int
     {
-        if (! $this->isEnabled()) {
+        $enabled = once(fn (): bool => $this->isEnabled());
+        if (! $enabled) {
             return 0;
         }
 
@@ -50,9 +51,11 @@ final class LoyaltyRuleService
             return 0;
         }
 
-        $units = (int) bcdiv($amount, (string) $this->sarPerPoint(), 0);
+        $sarPerPoint = once(fn (): int => $this->sarPerPoint());
+        $pointsPerUnit = once(fn (): int => $this->pointsPerUnit());
+        $units = (int) bcdiv($amount, (string) $sarPerPoint, 0);
 
-        return $units * $this->pointsPerUnit();
+        return $units * $pointsPerUnit;
     }
 
     public function calculateReversalPoints(

@@ -30,6 +30,36 @@ final class CacheKeys
         );
     }
 
+    /**
+     * Anonymous public product-list payload. Authenticated listings must not use this key.
+     *
+     * @param  array<string, mixed>  $filters
+     */
+    public static function catalogProductList(array $filters, int $version, string $locale): string
+    {
+        ksort($filters);
+
+        return sprintf(
+            'diyar:catalog:products:list:v1:%d:%s:%s',
+            $version,
+            $locale,
+            md5(json_encode($filters, JSON_THROW_ON_ERROR)),
+        );
+    }
+
+    /**
+     * Anonymous public product-detail payload. Authenticated shows must not use this key.
+     */
+    public static function catalogProductDetail(string $id, int $version, string $locale): string
+    {
+        return sprintf(
+            'diyar:catalog:products:detail:v1:%d:%s:%s',
+            $version,
+            $locale,
+            md5($id),
+        );
+    }
+
     public static function catalogSearchSuggestions(string $normalizedQuery, int $limit, int $version = 0): string
     {
         return sprintf(

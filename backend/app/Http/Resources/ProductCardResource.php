@@ -24,7 +24,7 @@ class ProductCardResource extends JsonResource
         $loyaltyRules = app(LoyaltyRuleService::class);
         $vendorOwnership = app(VendorOwnership::class);
         $viewer = $request->user();
-        $firstImage = $this->relationLoaded('images') ? $this->images->first() : null;
+        $cover = $this->coverImage();
         $comparePrice = $this->compare_price !== null ? (float) $this->compare_price : null;
         $salePrice = (float) $this->sale_price;
         $discountPercent = $comparePrice !== null && $comparePrice > $salePrice
@@ -42,8 +42,8 @@ class ProductCardResource extends JsonResource
             'availability_mode' => $this->availability_mode->value,
             'product_type' => $this->product_type->value,
             'created_at' => $this->created_at?->toIso8601String(),
-            'image_url' => $firstImage?->relationLoaded('mediaFile')
-                ? $media->url($firstImage->mediaFile->path)
+            'image_url' => $cover?->relationLoaded('mediaFile')
+                ? $media->url($cover->mediaFile->path)
                 : null,
             'vendor' => $this->when($this->relationLoaded('vendorAccount') && $this->vendorAccount !== null, fn () => [
                 'id' => $this->vendorAccount->id,
@@ -66,6 +66,19 @@ class ProductCardResource extends JsonResource
             'loyalty_points_estimate' => $loyaltyRules->calculatePoints($salePrice),
             'user_saved' => $this->resolveUserSaved($request, $engagement),
         ];
+    }
+
+    private function coverImage(): mixed
+    {
+        if ($this->relationLoaded('primaryImage') && $this->primaryImage !== null) {
+            return $this->primaryImage;
+        }
+
+        if ($this->relationLoaded('images')) {
+            return $this->images->first();
+        }
+
+        return null;
     }
 
     private function resolveIsOwnStore(Request $request, VendorOwnership $vendorOwnership, ?User $viewer): bool

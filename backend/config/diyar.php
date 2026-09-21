@@ -136,6 +136,8 @@ return [
             'search_facets_seconds' => (int) env('DIYAR_CATALOG_SEARCH_FACETS_CACHE_SECONDS', 300),
             'search_suggestions_seconds' => (int) env('DIYAR_CATALOG_SEARCH_SUGGESTIONS_CACHE_SECONDS', 45),
             'search_results_seconds' => (int) env('DIYAR_CATALOG_SEARCH_RESULTS_CACHE_SECONDS', 60),
+            'product_list_seconds' => (int) env('DIYAR_CATALOG_PRODUCT_LIST_CACHE_SECONDS', 60),
+            'product_detail_seconds' => (int) env('DIYAR_CATALOG_PRODUCT_DETAIL_CACHE_SECONDS', 60),
             'filter_context_seconds' => (int) env('DIYAR_CATALOG_FILTER_CONTEXT_CACHE_SECONDS', 300),
             'filter_suggestions_seconds' => (int) env('DIYAR_CATALOG_FILTER_SUGGESTIONS_CACHE_SECONDS', 120),
             'filter_suggestions_stale_seconds' => (int) env('DIYAR_CATALOG_FILTER_SUGGESTIONS_STALE_SECONDS', 86_400),

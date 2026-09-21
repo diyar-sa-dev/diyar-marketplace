@@ -19,8 +19,8 @@ final class TryInRoomResultImageStore
 
         $this->assertPngBytes($rawBytes);
 
-        $userId = (int) $job->user_id;
-        if ($userId <= 0) {
+        $userId = (string) $job->user_id;
+        if ($userId === '' || str_contains($userId, '..') || str_contains($userId, '/') || str_contains($userId, '\\')) {
             throw new InvalidArgumentException('result_invalid_owner');
         }
 
