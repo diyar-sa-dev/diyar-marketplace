@@ -1,0 +1,9 @@
+{
+  "phase": "18.1",
+  "captured_at_utc": "2026-09-22T11:25:00Z",
+  "optimization": "NONE",
+  "spx_octane_http": false,
+  "spx_kernel_warm": true,
+  "primary_function_hotspot": "SearchAnalyticsRecorder::record / SearchQueryEvent::create (q-bearing search)",
+  "facets_hypothesis": "NOT_PROVEN_AS_PRIMARY"
+}

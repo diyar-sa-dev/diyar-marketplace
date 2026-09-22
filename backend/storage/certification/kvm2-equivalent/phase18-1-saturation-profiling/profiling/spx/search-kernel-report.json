@@ -1,0 +1,23 @@
+{
+  "key": "spx-full-20260922_111056-c7c56c86aee1-182-1235453382",
+  "exec_ts": 1790075456,
+  "host_name": "c7c56c86aee1",
+  "process_pid": 182,
+  "process_tid": 0,
+  "process_pwd": "\/var\/www\/html",
+  "cli": 1,
+  "cli_command_line": "\/var\/www\/html\/storage\/certification\/kvm2-spx-kernel-profile.php",
+  "http_request_uri": "n\/a",
+  "http_method": "n\/a",
+  "http_host": "n\/a",
+  "custom_metadata_str": null,
+  "wall_time_ms": 305180,
+  "peak_memory_usage": 33031984,
+  "called_function_count": 3181,
+  "call_count": 110998,
+  "recorded_call_count": 110998,
+  "enabled_metrics": [
+    "wt"
+    ,"zm"
+  ]
+}

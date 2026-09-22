@@ -1,0 +1,20 @@
+{
+  "note": "Restored from KVM2_CAPACITY_AND_BOTTLENECK_PHASE_1_2_REPORT.md after phase3-12 k6 accidentally wrote to /reports/phase1-2/",
+  "profiles": {
+    "health": {"rps": 34.19, "p50_ms": 8.1, "p95_ms": 20.4, "p99_ms": 118.8, "err": 0},
+    "vu5": {"rps": 13.78, "p50_ms": 8.8, "p95_ms": 464.8, "p99_ms": 752.0},
+    "vu10": {"rps": 27.63, "p50_ms": 9.5, "p95_ms": 328.7, "p99_ms": 810.4},
+    "vu25": {"rps": 44.49, "p50_ms": 18.5, "p95_ms": 1074.4, "p99_ms": 1413.6},
+    "vu50": {"rps": 48.86, "p50_ms": 258.5, "p95_ms": 2255.8, "p99_ms": 3270.8},
+    "rps25": {"rps": 24.78, "p50_ms": 11.0, "p95_ms": 440.0, "p99_ms": 772.6, "requested_rps": 25},
+    "rps50": {"rps": 46.58, "p50_ms": 344.6, "p95_ms": 2389.7, "p99_ms": 3170.7, "requested_rps": 50},
+    "rps75": {"rps": 60.01, "p50_ms": 2032.8, "p95_ms": 3345.6, "p99_ms": 3988.6, "requested_rps": 75},
+    "rps100": {"rps": 67.34, "p50_ms": 444.3, "p95_ms": 4346.7, "p99_ms": 5585.6, "requested_rps": 100},
+    "search": {"rps": 85.84, "p50_ms": 7.9, "p95_ms": 34.2, "p99_ms": 161.2},
+    "products": {"rps": 22.71, "p50_ms": 822.0, "p95_ms": 1738.5, "p99_ms": 2218.6},
+    "detail": {"rps": 34.66, "p50_ms": 516.1, "p95_ms": 861.0, "p99_ms": 1032.5},
+    "rps125": {"rps": 76.52, "p50_ms": 9.9, "p95_ms": 5997.4, "p99_ms": 7066.4, "requested_rps": 125},
+    "rps150": {"rps": 85.38, "p50_ms": 51.8, "p95_ms": 5770.5, "p99_ms": 6941.8, "requested_rps": 150},
+    "rps200": {"rps": 120.56, "p50_ms": 104.5, "p95_ms": 8368.1, "p99_ms": 10397.8, "requested_rps": 200}
+  }
+}

@@ -1,0 +1,10 @@
+﻿{
+  "test": "queue_worker_unavailable",
+  "captured_at_utc": "2026-09-22T12:07:59.6863337Z",
+  "procedure": "docker stop queue-default → 5× GET /catalog/search?q=recovery-* → docker start queue-default",
+  "http_codes_while_worker_stopped": ["200", "200", "200", "200", "200"],
+  "failed_jobs_after": 0,
+  "per_query_persistence_check": "inconclusive (single-event probe returned no within 10s; aggregate search_query_events grew during campaign k6)",
+  "search_api_functional_without_worker": true,
+  "recovery": "worker restarted; no failed_jobs observed; load-test period increased event count (23771 → 24000 during earlier stop/start probe)"
+}

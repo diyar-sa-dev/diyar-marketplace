@@ -1,0 +1,13 @@
+{
+  "profile": "detail",
+  "workload": "detail",
+  "source": "restored-from-phase1-2-report",
+  "rps": 34.66,
+  "p50_ms": 516.1,
+  "p95_ms": 861.0,
+  "p99_ms": 1032.5,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "requested_rps": null
+}

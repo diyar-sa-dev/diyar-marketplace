@@ -1,0 +1,21 @@
+{
+  "captured_at_utc": "2026-09-22T13:25:00Z",
+  "primary_bottleneck": "Octane worker occupancy / request waiting under concurrent load (2 workers, cpuset 0–1)",
+  "secondary_bottlenecks": [
+    "Analytics default-queue backlog (40k+ jobs) — Redis enqueue pressure, not zero-cost async",
+    "Long sequential benchmark campaigns without drain — non-comparable tail at rps175–200"
+  ],
+  "excluded_as_primary": [
+    "Warm q-bearing MySQL (0 SQL in decomposition)",
+    "Rate limiting (0× 429 with XFF spread)"
+  ],
+  "confidence": {
+    "worker_waiting": "HIGH",
+    "app_cpu_saturation": "MEDIUM",
+    "queue_backlog_contribution": "MEDIUM",
+    "full_causal_chain": "MEDIUM"
+  },
+  "optimization_decision": "REJECTED — no single HIGH-confidence code change",
+  "face3_required": true,
+  "face2_outcome": "ACCEPT rejection; REJECT comparing contaminated Phase 19 rps200 to Phase 18.3 without reset"
+}

@@ -1,0 +1,16 @@
+{
+  "profile": "detail-auth-vu5",
+  "workload": "detail-auth",
+  "timestamp_utc": "2026-09-22T07:41:27.172Z",
+  "stage_duration": "90s",
+  "base_url": "http://nginx/api/v1",
+  "rps": 17.16233455351732,
+  "p50_ms": 10.037187,
+  "p95_ms": 26.381007799999995,
+  "p99_ms": 104.8133341600004,
+  "detail_p95_ms": 25.883626,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "product_pool_size": 12
+}

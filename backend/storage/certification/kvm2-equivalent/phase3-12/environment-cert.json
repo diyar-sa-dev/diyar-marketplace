@@ -1,0 +1,200 @@
+﻿{
+    "captured_at_utc":  "2026-09-21T11:30:47.4191208Z",
+    "git_head":  "d1d6c480ff64a122758c9181b5b918b94460050f",
+    "docker_ncpu":  "4",
+    "docker_mem_bytes":  "8328425472",
+    "wslconfig":  "memory=8GB processors=4",
+    "cpuset":  {
+                   "diyar-kvm2-test-app-1":  "0-1 NanoCPUs=0 Memory=1610612736",
+                   "diyar-kvm2-test-nginx-1":  "0-1 NanoCPUs=0 Memory=134217728",
+                   "diyar-kvm2-test-reverb-2-1":  "0-1 NanoCPUs=0 Memory=402653184",
+                   "diyar-kvm2-test-redis-1":  "0-1 NanoCPUs=0 Memory=603979776",
+                   "diyar-kvm2-test-mysql-1":  "0-1 NanoCPUs=0 Memory=2684354560",
+                   "diyar-kvm2-test-queue-default-1":  "0-1 NanoCPUs=0 Memory=402653184",
+                   "diyar-kvm2-test-scheduler-1":  "0-1 NanoCPUs=0 Memory=134217728",
+                   "diyar-kvm2-test-reverb-1-1":  "0-1 NanoCPUs=0 Memory=402653184",
+                   "diyar-kvm2-test-queue-critical-1":  "0-1 NanoCPUs=0 Memory=402653184"
+               },
+    "mysql":  {
+                  "max_connections":  "max_connections\t100",
+                  "buffer_pool":  "innodb_buffer_pool_size\t536870912",
+                  "version":  "8.0.46",
+                  "cnf_warning":  ""
+              },
+    "redis":  {
+                  "memory":  [
+                                 {
+                                     "IgnoreCase":  true,
+                                     "LineNumber":  3,
+                                     "Line":  "used_memory_human:36.61M",
+                                     "Filename":  "InputStream",
+                                     "Path":  "InputStream",
+                                     "Pattern":  "maxmemory_human|maxmemory_policy|used_memory_human",
+                                     "Context":  null,
+                                     "Matches":  [
+                                                     {
+                                                         "Groups":  [
+                                                                        "used_memory_human"
+                                                                    ],
+                                                         "Success":  true,
+                                                         "Name":  "0",
+                                                         "Captures":  [
+                                                                          "used_memory_human"
+                                                                      ],
+                                                         "Index":  0,
+                                                         "Length":  17,
+                                                         "Value":  "used_memory_human"
+                                                     }
+                                                 ]
+                                 },
+                                 {
+                                     "IgnoreCase":  true,
+                                     "LineNumber":  33,
+                                     "Line":  "maxmemory_human:512.00M",
+                                     "Filename":  "InputStream",
+                                     "Path":  "InputStream",
+                                     "Pattern":  "maxmemory_human|maxmemory_policy|used_memory_human",
+                                     "Context":  null,
+                                     "Matches":  [
+                                                     {
+                                                         "Groups":  [
+                                                                        "maxmemory_human"
+                                                                    ],
+                                                         "Success":  true,
+                                                         "Name":  "0",
+                                                         "Captures":  [
+                                                                          "maxmemory_human"
+                                                                      ],
+                                                         "Index":  0,
+                                                         "Length":  15,
+                                                         "Value":  "maxmemory_human"
+                                                     }
+                                                 ]
+                                 },
+                                 {
+                                     "IgnoreCase":  true,
+                                     "LineNumber":  34,
+                                     "Line":  "maxmemory_policy:allkeys-lru",
+                                     "Filename":  "InputStream",
+                                     "Path":  "InputStream",
+                                     "Pattern":  "maxmemory_human|maxmemory_policy|used_memory_human",
+                                     "Context":  null,
+                                     "Matches":  [
+                                                     {
+                                                         "Groups":  [
+                                                                        "maxmemory_policy"
+                                                                    ],
+                                                         "Success":  true,
+                                                         "Name":  "0",
+                                                         "Captures":  [
+                                                                          "maxmemory_policy"
+                                                                      ],
+                                                         "Index":  0,
+                                                         "Length":  16,
+                                                         "Value":  "maxmemory_policy"
+                                                     }
+                                                 ]
+                                 }
+                             ],
+                  "info":  [
+                               {
+                                   "IgnoreCase":  true,
+                                   "LineNumber":  2,
+                                   "Line":  "redis_version:7.4.7",
+                                   "Filename":  "InputStream",
+                                   "Path":  "InputStream",
+                                   "Pattern":  "redis_version|os",
+                                   "Context":  null,
+                                   "Matches":  [
+                                                   {
+                                                       "Groups":  [
+                                                                      "redis_version"
+                                                                  ],
+                                                       "Success":  true,
+                                                       "Name":  "0",
+                                                       "Captures":  [
+                                                                        "redis_version"
+                                                                    ],
+                                                       "Index":  0,
+                                                       "Length":  13,
+                                                       "Value":  "redis_version"
+                                                   }
+                                               ]
+                               },
+                               {
+                                   "IgnoreCase":  true,
+                                   "LineNumber":  7,
+                                   "Line":  "os:Linux 6.18.33.2-microsoft-standard-WSL2 x86_64",
+                                   "Filename":  "InputStream",
+                                   "Path":  "InputStream",
+                                   "Pattern":  "redis_version|os",
+                                   "Context":  null,
+                                   "Matches":  [
+                                                   {
+                                                       "Groups":  [
+                                                                      "os"
+                                                                  ],
+                                                       "Success":  true,
+                                                       "Name":  "0",
+                                                       "Captures":  [
+                                                                        "os"
+                                                                    ],
+                                                       "Index":  0,
+                                                       "Length":  2,
+                                                       "Value":  "os"
+                                                   }
+                                               ]
+                               },
+                               {
+                                   "IgnoreCase":  true,
+                                   "LineNumber":  9,
+                                   "Line":  "monotonic_clock:POSIX clock_gettime",
+                                   "Filename":  "InputStream",
+                                   "Path":  "InputStream",
+                                   "Pattern":  "redis_version|os",
+                                   "Context":  null,
+                                   "Matches":  [
+                                                   {
+                                                       "Groups":  [
+                                                                      "OS"
+                                                                  ],
+                                                       "Success":  true,
+                                                       "Name":  "0",
+                                                       "Captures":  [
+                                                                        "OS"
+                                                                    ],
+                                                       "Index":  17,
+                                                       "Length":  2,
+                                                       "Value":  "OS"
+                                                   }
+                                               ]
+                               }
+                           ]
+              },
+    "nginx":  {
+                  "version":  null,
+                  "stub":  [
+                               "Active connections: 2 ",
+                               "server accepts handled requests",
+                               " 3 3 4 ",
+                               "Reading: 0 Writing: 1 Waiting: 1 "
+                           ]
+              },
+    "octane":  {
+                   "laravel":  "Laravel Framework 13.26.1",
+                   "php":  "8.3.33",
+                   "swoole":  [
+                                  "",
+                                  "Fatal error: Uncaught Error: Undefined constant \"swoole\" in Command line code:1",
+                                  "Stack trace:",
+                                  "#0 {main}",
+                                  "  thrown in Command line code on line 1"
+                              ],
+                   "status":  [
+                                  "",
+                                  "   INFO  Octane server is running.  ",
+                                  ""
+                              ],
+                   "workers_env":  "2"
+               }
+}

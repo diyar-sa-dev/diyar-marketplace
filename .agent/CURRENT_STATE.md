@@ -1,6 +1,6 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-09-21  
+> **Last updated:** 2026-09-22  
 > **Maintained by:** AI development agents after each phase completion
 
 ---
@@ -119,7 +119,32 @@ Operational KVM2 capacity work (not a numbered Stage 31):
 - Phase 1–2 bottleneck report: **COMPLETE**
 - Operational Phases 3–13 optimization: **COMPLETE WITH LIMITATIONS** — `conception/Stages/Post-Stage 30/KVM2_OPTIMIZATION_AND_SCALABILITY_REPORT.md`
 - Phase 14 product-detail + search: **COMPLETE WITH LIMITATIONS** — `conception/Stages/Post-Stage 30/KVM2_PRODUCT_DETAIL_SEARCH_OPTIMIZATION_REPORT.md`
-- Local mixed rps50: 49.8 RPS / p95 12.7 ms after guest detail cache (not Hostinger)
-- Isolated detail 25 VU: 86.5 RPS / p95 30 ms (was 939 ms)
-- Next: authenticated detail overlay or a measured 4-worker trial; do not claim Hostinger; do not scale first
+- Phase 15 authenticated overlay + HTTP certification: **COMPLETE WITH LIMITATIONS** — `conception/Stages/Post-Stage 30/KVM2_AUTHENTICATED_DETAIL_AND_OCTANE_CAPACITY_REPORT.md`
+- Evidence: `backend/storage/certification/kvm2-equivalent/phase15-authenticated-octane/` (workers-2 + workers-4)
+- Phase 15 highlights (2 Octane workers, local KVM2-equivalent): auth detail 25 VU **83 RPS / 59 ms p95**; guest detail **89 RPS / 10 ms p95**; mix-realistic **86 RPS / 39 ms p95**; mixed rps150 **149 RPS / 132 ms p95** (Phase 14: 340 ms); **failed_jobs = 0**
+- Octane **4 workers** on same 2 app CPUs: **rps150 p95 worse (264 vs 132 ms)** → **default remains 2 workers**
+- Bottleneck: **Octane/PHP CPU** on cpuset 0–1 at ~150 RPS mixed; Redis busy but not saturated (sampler)
+- Uncommitted: overlay, cache refactor, queue healthcheck, k6 harness fixes, `kvm2-test.env` Sanctum hosts for k6, phase15 report
+- Phase 17 Octane/PHP CPU: **COMPLETE WITH LIMITATIONS** (+ **17.2 variance**) — `KVM2_PHASE_17_OCTANE_PHP_CPU_REPORT.md`
+- Opt-01b/01c **ACCEPTED**; 17.2 **REGRESSION VERDICT: VARIANCE** — rps150 optimized 3× **28–154 ms** (431 ms single-run outlier)
+- Opt-01 replicates: rps100 mean p95 **~12 ms**; rps125 **~78 ms**; paired pre-opt01 **completed with caveats** (HEAD control + 5xx — not clean A/B)
+- Bottleneck unchanged: **Octane/PHP ~75–86% CPU** at rps150 (Phase 15 sampler); **OCTANE_WORKERS=2**
+- Phase 18 PHP/Octane profiling: **COMPLETE WITH LIMITATIONS** — `KVM2_PHASE_18_PHP_CPU_PROFILING_REPORT.md`
+- Phase 18.1 saturation + function SPX: **COMPLETE WITH LIMITATIONS** — `KVM2_PHASE_18_1_SATURATION_AND_FUNCTION_PROFILING_REPORT.md`
+- SPX: **kernel warm path OK**; **Octane HTTP SPX not captured**; warm search **with q** → **SearchQueryEvent INSERT ~367ms**; **no q** → **~20ms** (facets not proven hot)
+- Saturation: Phase 18 **rps200 p95 574–867 ms**, **0× 5xx**; app CPU primary resource class
+- Phase 18.2–18.3 search analytics async: **COMPLETE WITH LIMITATIONS** — `KVM2_PHASE_18_2_18_3_SEARCH_ANALYTICS_ASYNC_REPORT.md`
+- **Async implemented:** `RecordSearchQueryAnalyticsJob` on **`default`** queue; controller dispatches job (no `app()->terminating()` sync INSERT)
+- Octane proof: nginx curl **q=sofa p95 ~27 ms** post-change; sync diagnostic jsonl **0** on HTTP; **Octane HTTP SPX still not captured**
+- Post-async k6 (3× mixed + search-only): **search-only rps150 p95 298→143 ms**; mixed **rps150 ~72–105 ms** vs Phase 18 **86–195 ms**; **rps200 ~410–537 ms** vs **574–867 ms**; **0× 5xx/429**, **failed_jobs=0**
+- Queue failure spot: **HTTP 200** with worker stopped; per-event recovery probe **inconclusive**
+- **New bottleneck:** catalog search execution + **Octane/PHP CPU** at ~150–200 RPS mixed (analytics INSERT removed from HTTP path)
+- Evidence: `backend/storage/certification/kvm2-equivalent/phase18-2-3-search-analytics-async/` · **Uncommitted** · **Hostinger NOT VERIFIED**
+- Phase 19 deep root-cause verification: **VERIFIED WITH LIMITATIONS** — `KVM2_PHASE_19_SEARCH_PERFORMANCE_AND_SCALABILITY_REPORT.md`
+- **Root cause (HIGH waiting / MEDIUM full chain):** **Octane worker request waiting** on 2 workers / 2 CPUs — **parallel curl** p95 **89→392 ms** (warm); **not** warm q SQL (**0.6 ms / 0 SQL** in-process)
+- **Secondary:** **~40k+** analytics jobs on `default` queue (enqueue > drain); **sequential k6 ladder** contaminated late rps175–200 vs Phase 18.3
+- Phase 19 baseline **complete** → `phase19-search-performance/baseline/baseline/campaign.json`; steady rps125 p95 **~39–48 ms**; **no code optimization**
+- **CPU sampler Phase 19:** NOT MEASURED (Windows background); Phase 15 ref **~65% app CPU** @ rps150
+- Evidence: `phase19-search-performance/` (scorecard, Face 3, queue backlog, octane probe) · **Hostinger NOT VERIFIED**
+- Next: **Phase 20** — clean benchmark (queue drain + warm-up + foreground sampler); queue isolation experiment; cardinality 1K+
 

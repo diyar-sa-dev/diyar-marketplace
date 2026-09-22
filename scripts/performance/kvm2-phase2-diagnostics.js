@@ -13,7 +13,7 @@ const baseUrl = (__ENV.BASE_URL || 'http://nginx/api/v1').replace(/\/$/, '');
 const profile = __ENV.PROFILE || 'vu5';
 const workload = __ENV.WORKLOAD || 'mixed';
 const stageDuration = __ENV.STAGE_DURATION || '90s';
-const reportDir = (__ENV.REPORT_DIR || 'phase1-2').replace(/[^a-zA-Z0-9._-]/g, '');
+const reportDir = (__ENV.REPORT_DIR || 'phase1-2').replace(/\.\./g, '').replace(/[^a-zA-Z0-9._/-]/g, '');
 
 
 const searchDuration = new Trend('search_duration', true);
@@ -85,7 +85,8 @@ const profiles = {
   rps100: arrival(100, stageDuration, 80, 200),
   rps125: arrival(125, stageDuration, 100, 240),
   rps150: arrival(150, stageDuration, 120, 280),
-  rps200: arrival(200, stageDuration, 150, 360),
+  rps175: arrival(175, stageDuration, 140, 400),
+  rps200: arrival(200, stageDuration, 150, 450),
   rps250: arrival(250, stageDuration, 180, 450),
   search: constantVus(25, stageDuration),
   products: constantVus(25, stageDuration),
@@ -198,8 +199,10 @@ export function handleSummary(data) {
     rps,
     requested_rps: profile.startsWith('rps') ? Number(profile.replace('rps', '')) : null,
     p50_ms: data.metrics.http_req_duration?.values?.med ?? 0,
+    p90_ms: data.metrics.http_req_duration?.values?.['p(90)'] ?? 0,
     p95_ms: data.metrics.http_req_duration?.values?.['p(95)'] ?? 0,
     p99_ms: data.metrics.http_req_duration?.values?.['p(99)'] ?? 0,
+    max_ms: data.metrics.http_req_duration?.values?.max ?? 0,
     search_p95_ms: data.metrics.search_duration?.values?.['p(95)'] ?? 0,
     products_p95_ms: data.metrics.products_duration?.values?.['p(95)'] ?? 0,
     detail_p95_ms: data.metrics.detail_duration?.values?.['p(95)'] ?? 0,

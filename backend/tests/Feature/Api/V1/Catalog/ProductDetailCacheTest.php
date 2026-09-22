@@ -89,6 +89,51 @@ class ProductDetailCacheTest extends TestCase
         Queue::assertPushed(RecordAnalyticsEventJob::class, 1);
     }
 
+    public function test_authenticated_detail_reuses_public_cache_without_product_table_queries(): void
+    {
+        $userA = $this->createUserWithRole(RoleName::Customer);
+        $userB = $this->createUserWithRole(RoleName::Customer);
+        $product = Product::factory()->create();
+
+        $this->getJson('/api/v1/products/'.$product->id)->assertOk();
+
+        $this->actingAs($userA)
+            ->postJson('/api/v1/products/'.$product->id.'/wishlist')
+            ->assertOk();
+
+        $this->actingAs($userA)
+            ->getJson('/api/v1/products/'.$product->id)
+            ->assertOk()
+            ->assertJsonPath('data.product.user_saved', true);
+
+        \Illuminate\Support\Facades\DB::flushQueryLog();
+        \Illuminate\Support\Facades\DB::enableQueryLog();
+
+        $this->actingAs($userB)
+            ->getJson('/api/v1/products/'.$product->id)
+            ->assertOk()
+            ->assertJsonPath('data.product.user_saved', false);
+
+        $productTableQueries = collect(\Illuminate\Support\Facades\DB::getQueryLog())
+            ->filter(function (array $entry): bool {
+                $sql = strtolower($entry['query']);
+
+                return str_contains($sql, 'from "products"')
+                    || str_contains($sql, 'from products')
+                    || str_contains($sql, 'from "product_images"')
+                    || str_contains($sql, 'from "product_inventory"');
+            })
+            ->count();
+
+        \Illuminate\Support\Facades\DB::disableQueryLog();
+
+        $this->assertSame(
+            0,
+            $productTableQueries,
+            'Authenticated detail should overlay onto cached public body without reloading product rows.',
+        );
+    }
+
     public function test_archiving_product_invalidates_guest_detail_cache(): void
     {
         $vendor = $this->createUserWithRole(RoleName::Vendor);

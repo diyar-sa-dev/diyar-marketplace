@@ -92,6 +92,9 @@ while ($true) {
     $workers = docker exec "${Project}-app-1" sh -c "ps aux | grep -E 'octane|swoole' | grep -v grep | wc -l" 2>$null
     $row.octane_procs = ("$workers".Trim())
 
+    $qdepth = docker exec "${Project}-redis-1" redis-cli -a kvm2_test_redis_secret LLEN "${Project}-database-queues:default" 2>$null
+    if ("$qdepth" -match '^\d+$') { $row.queue_default_depth = [int]"$qdepth" }
+
     $row | ConvertTo-Json -Compress -Depth 6 | Out-File -FilePath $outFile -Append -Encoding utf8
     Start-Sleep -Milliseconds $IntervalMs
 }

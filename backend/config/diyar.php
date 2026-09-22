@@ -777,6 +777,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Local KVM2 diagnostics (never enable in production)
+    |--------------------------------------------------------------------------
+    */
+    'diagnostics' => [
+        'kvm2_measure_search_analytics_sync' => filter_var(env('DIYAR_KVM2_MEASURE_SEARCH_ANALYTICS_SYNC', false), FILTER_VALIDATE_BOOL),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Room Designer (Stage 30)
     |--------------------------------------------------------------------------
     */

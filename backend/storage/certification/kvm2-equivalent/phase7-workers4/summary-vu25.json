@@ -1,0 +1,20 @@
+{
+  "profile": "vu25",
+  "workload": "mixed",
+  "octane_workers": 4,
+  "timestamp_utc": "2026-09-21T12:01:20.007Z",
+  "stage_duration": "90s",
+  "rps": 78.00485890608329,
+  "p50_ms": 11.894686,
+  "p95_ms": 214.93309514999996,
+  "p99_ms": 486.01609627,
+  "search_p95_ms": 59.21919034999991,
+  "products_p95_ms": 107.65186079999961,
+  "detail_p95_ms": 401.3971958000002,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "iterations": 7057,
+  "vus_max": 25,
+  "note": "Same KVM2 envelope (cpuset 0-1). Compare to 2-worker vu25: 80.81 RPS p95 146.8 ms. Four workers did not improve useful p95."
+}

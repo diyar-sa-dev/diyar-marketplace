@@ -1,0 +1,18 @@
+﻿{
+    "captured_at_utc":  "2026-09-21T08:13:24.4771319Z",
+    "git_head":  "d1d6c480ff64a122758c9181b5b918b94460050f",
+    "git_describe":  "d1d6c48 feat(stage-30): complete 30.13-30.18, post-stage ops, docker rollout, and E2E fixes",
+    "df0e5e1_in_history":  true,
+    "docker_server":  "29.1.3",
+    "compose_version":  "5.0.1",
+    "laravel":  "Laravel Framework 13.26.1",
+    "php":  "8.3.33",
+    "swoole":  [
+                   "",
+                   "Fatal error: Uncaught Error: Undefined constant \"swoole\" in Command line code:1",
+                   "Stack trace:",
+                   "#0 {main}",
+                   "  thrown in Command line code on line 1"
+               ],
+    "octane_workers":  "2"
+}

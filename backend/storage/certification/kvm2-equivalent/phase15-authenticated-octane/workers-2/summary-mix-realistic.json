@@ -1,0 +1,16 @@
+{
+  "profile": "mix-realistic",
+  "workload": "mix-realistic",
+  "timestamp_utc": "2026-09-22T09:05:16.784Z",
+  "stage_duration": "90s",
+  "base_url": "http://nginx/api/v1",
+  "rps": 84.26725867618525,
+  "p50_ms": 7.2923385,
+  "p95_ms": 45.79407974999989,
+  "p99_ms": 279.03506245999796,
+  "detail_p95_ms": 56.871832099999935,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "product_pool_size": 12
+}

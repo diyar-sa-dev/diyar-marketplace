@@ -1,0 +1,39 @@
+﻿{
+  "captured_at_utc": "2026-09-21T09:38:00Z",
+  "git_head": "d1d6c480ff64a122758c9181b5b918b94460050f",
+  "docker_ncpu": 4,
+  "docker_mem_bytes": 8328425472,
+  "wslconfig": "[wsl2]\\nmemory=8GB\\nprocessors=4\\nswap=2GB",
+  "stack_cpuset": "0-1",
+  "k6_cpuset": "2-3",
+  "memory_limits_mib": {
+    "mysql": 2560,
+    "app": 1536,
+    "redis": 576,
+    "queue_critical": 384,
+    "queue_default": 384,
+    "reverb_1": 384,
+    "reverb_2": 384,
+    "nginx": 128,
+    "scheduler": 128,
+    "sum": 6464
+  },
+  "mysql": {
+    "version": "8.0.46",
+    "innodb_buffer_pool_size": 536870912,
+    "max_connections": 100,
+    "cnf_bind_mount": "ignored (world-writable); knobs passed via mysqld argv"
+  },
+  "redis": {
+    "maxmemory_human": "512.00M",
+    "maxmemory_policy": "allkeys-lru"
+  },
+  "octane": {
+    "php": "8.3.33",
+    "swoole": "yes",
+    "workers": "2",
+    "laravel": "Laravel Framework 13.26.1"
+  },
+  "cpu_equivalence": "VERIFIED WITH LIMITATIONS — stack pinned to Docker VM CPUs 0-1; VM has 4 vCPUs; k6 on 2-3; not Hostinger silicon",
+  "ram_envelope": "VERIFIED WITH LIMITATIONS — Docker VM ~7.76 GiB; stack cgroup limits 6.3 GiB"
+}

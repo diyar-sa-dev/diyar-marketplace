@@ -1,0 +1,18 @@
+{
+  "profile": "burst1000",
+  "workload": "mixed-storefront",
+  "timestamp_utc": "2026-09-21T09:07:10.088Z",
+  "stage_duration": "3m",
+  "base_url": "http://nginx/api/v1",
+  "rps": 244.70773670292985,
+  "rpm": 14682.464202175792,
+  "p50_ms": 2046.727021,
+  "p95_ms": 3657.698444,
+  "p99_ms": 3844.19323,
+  "search_p95_ms": 3657.8145446,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "iterations": 1000,
+  "vus_max": 1000
+}

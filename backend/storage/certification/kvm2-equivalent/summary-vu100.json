@@ -1,0 +1,18 @@
+{
+  "profile": "vu100",
+  "workload": "mixed-storefront",
+  "timestamp_utc": "2026-09-21T08:26:44.765Z",
+  "stage_duration": "3m",
+  "base_url": "http://nginx/api/v1",
+  "rps": 102.78500494606406,
+  "rpm": 6167.100296763844,
+  "p50_ms": 151.731195,
+  "p95_ms": 2027.1552477000002,
+  "p99_ms": 2237.5983729599966,
+  "search_p95_ms": 651.2715640999984,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "iterations": 16706,
+  "vus_max": 100
+}

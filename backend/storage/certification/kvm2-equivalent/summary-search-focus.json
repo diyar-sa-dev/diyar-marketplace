@@ -1,0 +1,18 @@
+{
+  "profile": "search-focus",
+  "workload": "search-day29",
+  "timestamp_utc": "2026-09-21T09:10:17.680Z",
+  "stage_duration": "3m",
+  "base_url": "http://nginx/api/v1",
+  "rps": 136.82400364831727,
+  "rpm": 8209.440218899037,
+  "p50_ms": 9.534544,
+  "p95_ms": 140.45058064999992,
+  "p99_ms": 519.2128997200006,
+  "search_p95_ms": 147.54568714999988,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "iterations": 19738,
+  "vus_max": 40
+}

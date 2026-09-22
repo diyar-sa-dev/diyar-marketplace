@@ -2,6 +2,7 @@
 
 namespace App\Services\Search;
 
+use App\Jobs\Search\RecordSearchQueryAnalyticsJob;
 use App\Models\SearchQueryEvent;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -36,6 +37,9 @@ final class SearchAnalyticsRecorder
             return;
         }
 
+        $measure = (bool) config('diyar.diagnostics.kvm2_measure_search_analytics_sync', false);
+        $started = $measure ? hrtime(true) : null;
+
         try {
             SearchQueryEvent::query()->create([
                 'query' => Str::limit(trim($query), 120, ''),
@@ -55,7 +59,50 @@ final class SearchAnalyticsRecorder
                 'message' => $exception->getMessage(),
                 'query' => $normalized,
             ]);
+        } finally {
+            if ($measure && $started !== null) {
+                $ms = (hrtime(true) - $started) / 1_000_000;
+                $line = json_encode([
+                    'ts' => now()->toIso8601String(),
+                    'analytics_record_ms' => round($ms, 3),
+                    'path' => 'sync',
+                ], JSON_THROW_ON_ERROR);
+                @file_put_contents(storage_path('logs/kvm2-search-analytics-sync.jsonl'), $line.PHP_EOL, FILE_APPEND | LOCK_EX);
+            }
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    public function dispatchSearchQueryEvent(
+        string $query,
+        string $searchType,
+        int $resultCount,
+        ?string $userId,
+        ?string $sessionId,
+        ?string $locale,
+        array $filters,
+        ?int $durationMs,
+    ): void {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        if ($this->normalizeQuery($query) === '') {
+            return;
+        }
+
+        RecordSearchQueryAnalyticsJob::dispatch(
+            query: $query,
+            searchType: $searchType,
+            resultCount: $resultCount,
+            userId: $userId,
+            sessionId: $sessionId,
+            locale: $locale,
+            filters: $filters,
+            durationMs: $durationMs,
+        );
     }
 
     public function normalizeQuery(string $query): string

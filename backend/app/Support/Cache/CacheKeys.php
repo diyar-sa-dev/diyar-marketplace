@@ -48,7 +48,8 @@ final class CacheKeys
     }
 
     /**
-     * Anonymous public product-detail payload. Authenticated shows must not use this key.
+     * Guest-safe public product-detail payload. Authenticated requests may read this key;
+     * user-specific fields must never be written into it.
      */
     public static function catalogProductDetail(string $id, int $version, string $locale): string
     {

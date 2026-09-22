@@ -31,7 +31,7 @@ class CatalogSearchController extends Controller
             $resultCount = $this->analytics->countResults($payload);
             $searchType = (string) ($filters['type'] ?? 'all');
 
-            $recordCallback = fn () => $this->analytics->record(
+            $this->analytics->dispatchSearchQueryEvent(
                 query: $query,
                 searchType: $searchType,
                 resultCount: $resultCount,
@@ -41,12 +41,6 @@ class CatalogSearchController extends Controller
                 filters: $filters,
                 durationMs: $durationMs,
             );
-
-            if (app()->runningUnitTests()) {
-                $recordCallback();
-            } else {
-                app()->terminating($recordCallback);
-            }
         }
 
         return ApiResponse::success(data: $payload);

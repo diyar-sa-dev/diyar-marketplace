@@ -1,0 +1,33 @@
+{
+  "captured_at_utc": "2026-09-19T08:45:00Z",
+  "post_campaign": true,
+  "redis_queue_depths": {
+    "diyar-kvm2-test-queues:critical": 0,
+    "diyar-kvm2-test-queues:default": 0,
+    "diyar-kvm2-test-queues:notifications": 0,
+    "diyar-kvm2-test-queues:notifications-high": 0,
+    "diyar-kvm2-test-queues:broadcast": 0,
+    "diyar-kvm2-test-queues:chat": 0
+  },
+  "peak_load_reference": "stats-after-rps500.csv",
+  "peak_observations": {
+    "app_cpu_percent": 19.05,
+    "app_memory": "161.4MiB / 1.5GiB",
+    "mysql_cpu_percent": 2.34,
+    "mysql_memory": "502.7MiB / 2.5GiB",
+    "redis_cpu_percent": 0.76,
+    "redis_memory": "126.3MiB / 576MiB",
+    "nginx_cpu_percent": 0.0
+  },
+  "recovery_30s_reference": "stats-recovery-30s.csv",
+  "recovery_observations": {
+    "app_cpu_percent": 3.58,
+    "redis_memory": "4.441MiB / 576MiB",
+    "mysql_memory": "469.1MiB / 2.5GiB",
+    "container_restarts_observed": false
+  },
+  "readiness_after_load": {
+    "queue_pending_jobs": 0,
+    "failed_jobs": 0
+  }
+}

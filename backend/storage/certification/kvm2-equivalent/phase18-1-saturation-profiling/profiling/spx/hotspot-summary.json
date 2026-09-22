@@ -1,0 +1,30 @@
+{
+  "captured_at_utc": "2026-09-22T11:22:00Z",
+  "profiler": "php-spx (warm kernel handle, SPX_AUTO_START=0 + spx_profiler_start/stop)",
+  "profiles": [
+    {
+      "label": "search-with-q-sofa",
+      "wall_time_ms": 401,
+      "top_exclusive": "Illuminate\\Database\\MySqlConnection::{closure} ~367ms (11 calls)",
+      "secondary": "SearchQueryEvent Eloquent create / uniqueIds",
+      "catalog_search_service": "present in call graph; not top flat exclusive time"
+    },
+    {
+      "label": "search-no-query",
+      "wall_time_ms": 20,
+      "top_exclusive": "Illuminate\\Redis\\Connections\\Connection::command ~1.6ms",
+      "analytics": "skipped (empty q)"
+    },
+    {
+      "label": "products-list",
+      "wall_time_ms": 18.2,
+      "top_exclusive": "Redis command ~0.78ms"
+    },
+    {
+      "label": "health-live",
+      "wall_time_ms": 20.7,
+      "top_exclusive": "middleware/pipeline"
+    }
+  ],
+  "conclusion": "Warm catalog search core (no q) ≈20ms Redis/validation-bound. Typical k6 search (non-empty q) adds large synchronous SearchQueryEvent INSERT on app()->terminating() — dominates SPX window. This disproves CatalogSearchService::facets as primary CPU consumer on warm cache; shifts hotspot to search analytics persistence for q-bearing traffic."
+}

@@ -1,0 +1,9 @@
+﻿diyar-kvm2-test-app-1,0.77%,159.3MiB / 1.5GiB,10.37%,1.16GB / 1.73GB
+diyar-kvm2-test-queue-default-1,0.17%,35.04MiB / 384MiB,9.12%,4.39MB / 47.9MB
+diyar-kvm2-test-queue-critical-1,0.10%,35.04MiB / 384MiB,9.12%,1.87MB / 16.9MB
+diyar-kvm2-test-reverb-1-1,0.00%,37.13MiB / 384MiB,9.67%,50.3kB / 118kB
+diyar-kvm2-test-reverb-2-1,0.00%,37.17MiB / 384MiB,9.68%,50.5kB / 118kB
+diyar-kvm2-test-scheduler-1,0.00%,2.289MiB / 128MiB,1.79%,1.27MB / 733kB
+diyar-kvm2-test-nginx-1,0.00%,5.148MiB / 128MiB,4.02%,1.22GB / 1.26GB
+diyar-kvm2-test-redis-1,0.59%,92.59MiB / 576MiB,16.08%,629MB / 740MB
+diyar-kvm2-test-mysql-1,2.63%,444.8MiB / 2.5GiB,17.38%,102MB / 275MB

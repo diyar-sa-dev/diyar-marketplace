@@ -1,0 +1,13 @@
+{
+  "profile": "rps75",
+  "workload": "mixed",
+  "source": "restored-from-phase1-2-report",
+  "rps": 60.01,
+  "p50_ms": 2032.8,
+  "p95_ms": 3345.6,
+  "p99_ms": 3988.6,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "requested_rps": 75
+}

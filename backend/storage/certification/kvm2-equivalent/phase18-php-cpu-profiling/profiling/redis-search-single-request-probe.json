@@ -1,0 +1,98 @@
+﻿{
+    "captured_at_utc":  "2026-09-22T10:38:54.0415903Z",
+    "monitor_lines":  201,
+    "redis_get_total":  25,
+    "redis_get_version_like":  1,
+    "sample_gets":  [
+                        {
+                            "value":  "1790073522.253714 [1 172.28.0.5:49102] \"GET\" \"diyar-kvm2-test-laravel-cache-illuminate:queue:restart\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.253992 [1 172.28.0.5:49102] \"GET\" \"diyar-kvm2-test-laravel-cache-illuminate:queues:paused\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.267431 [1 172.28.0.6:52286] \"GET\" \"diyar-kvm2-test-laravel-cache-illuminate:queue:restart\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.267840 [1 172.28.0.6:52286] \"GET\" \"diyar-kvm2-test-laravel-cache-illuminate:queues:paused\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.646290 [1 172.28.0.7:39842] \"GET\" \"diyar-kvm2-test-laravel-cache-diyar:settings:platform.marketplace_maintenance_enabled\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.647330 [1 172.28.0.7:39842] \"GET\" \"diyar-kvm2-test-laravel-cache-7acbac9b7f378afb446e29e9965c61d8\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.664061 [1 172.28.0.7:39842] \"GET\" \"diyar-kvm2-test-laravel-cache-diyar:catalog:version\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.664451 [1 172.28.0.7:39842] \"GET\" \"diyar-kvm2-test-laravel-cache-diyar:catalog:search:facets:v1:0:02387a1df5b7f43bd0aab483feacb523\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.666564 [1 172.28.0.7:39842] \"GET\" \"diyar-kvm2-test-laravel-cache-diyar:catalog:search:facets:v1:0:02387a1df5b7f43bd0aab483feacb523\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.691847 [0 lua] \"get\" \"diyar-kvm2-test-laravel-cache-lock:diyar:catalog:search:facets:v1:0:02387a1df5b7f43bd0aab483feacb523\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.692122 [1 172.28.0.7:39842] \"GET\" \"diyar-kvm2-test-laravel-cache-diyar:catalog:search:products:v1:0:7b725d88237c4b24a630ce9ed909f991\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.692561 [1 172.28.0.7:39842] \"GET\" \"diyar-kvm2-test-laravel-cache-diyar:catalog:search:products:v1:0:7b725d88237c4b24a630ce9ed909f991\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.699520 [0 lua] \"get\" \"diyar-kvm2-test-laravel-cache-lock:diyar:catalog:search:products:v1:0:7b725d88237c4b24a630ce9ed909f991\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.699799 [1 172.28.0.7:39842] \"GET\" \"diyar-kvm2-test-laravel-cache-diyar:catalog:search:services:v1:0:f7275c86bca87d5a75cac75e1f29b910\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        },
+                        {
+                            "value":  "1790073522.700243 [1 172.28.0.7:39842] \"GET\" \"diyar-kvm2-test-laravel-cache-diyar:catalog:search:services:v1:0:f7275c86bca87d5a75cac75e1f29b910\"",
+                            "PSComputerName":  "localhost",
+                            "RunspaceId":  "473e3979-ee6a-44f1-bac2-6c8a071db1f1",
+                            "PSShowComputerName":  false
+                        }
+                    ]
+}

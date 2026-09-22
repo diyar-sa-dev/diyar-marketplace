@@ -1,0 +1,16 @@
+{
+  "profile": "detail-auth",
+  "workload": "detail-auth",
+  "timestamp_utc": "2026-09-22T07:44:39.052Z",
+  "stage_duration": "90s",
+  "base_url": "http://nginx/api/v1",
+  "rps": 82.9865016067152,
+  "p50_ms": 14.711358,
+  "p95_ms": 59.2764881,
+  "p99_ms": 163.21472229999955,
+  "detail_p95_ms": 59.225839,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "product_pool_size": 12
+}

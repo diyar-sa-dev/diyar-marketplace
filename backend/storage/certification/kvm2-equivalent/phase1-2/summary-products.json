@@ -1,0 +1,13 @@
+{
+  "profile": "products",
+  "workload": "products",
+  "source": "restored-from-phase1-2-report",
+  "rps": 22.71,
+  "p50_ms": 822.0,
+  "p95_ms": 1738.5,
+  "p99_ms": 2218.6,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "requested_rps": null
+}

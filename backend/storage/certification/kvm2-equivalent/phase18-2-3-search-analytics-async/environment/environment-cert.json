@@ -1,0 +1,27 @@
+{
+  "captured_at_utc": "2026-09-22T12:10:00Z",
+  "envelope": "LOCAL KVM2-EQUIVALENT",
+  "hostinger": "NOT VERIFIED",
+  "docker_project": "diyar-kvm2-test",
+  "app_container": "diyar-kvm2-test-app-1",
+  "app_cpuset": "0-1",
+  "octane_workers": 2,
+  "php_version": "8.3.33",
+  "queue_connection": "redis",
+  "queue_workers": [
+    "diyar-kvm2-test-queue-default-1",
+    "diyar-kvm2-test-queue-critical-1"
+  ],
+  "services": [
+    "nginx",
+    "app (octane)",
+    "mysql",
+    "redis",
+    "scheduler",
+    "reverb"
+  ],
+  "health_ready_http": 200,
+  "failed_jobs": 0,
+  "public_api_base": "http://127.0.0.1:8193/api/v1",
+  "notes": "k6 profile uses docker internal http://nginx/api/v1; OCTANE_WORKERS not increased; rate limits unchanged."
+}

@@ -72,12 +72,17 @@ function xsrfFromJar(jar, originUrl) {
 /**
  * Session login for k6 — returns Cookie header string for authenticated API calls.
  */
-export function loginSession(originUrl, apiBaseUrl, loginPath, credentials, tag = 'auth') {
+export function loginSession(originUrl, apiBaseUrl, loginPath, credentials, tag = 'auth', statefulOrigin = null) {
   const jar = http.cookieJar();
+  const spaOrigin = statefulOrigin || originUrl;
+  const stateful = {
+    Origin: spaOrigin,
+    Referer: `${spaOrigin}/`,
+  };
 
   const csrfResponse = http.get(`${originUrl}/sanctum/csrf-cookie`, {
     jar,
-    headers: statefulHeaders(),
+    headers: stateful,
     tags: { name: `${tag}-csrf` },
     timeout: '30s',
   });
@@ -94,7 +99,7 @@ export function loginSession(originUrl, apiBaseUrl, loginPath, credentials, tag 
       'Content-Type': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
       'X-XSRF-TOKEN': xsrf,
-      ...statefulHeaders(),
+      ...stateful,
     },
     tags: { name: `${tag}-login` },
     timeout: '30s',

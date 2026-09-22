@@ -1,0 +1,41 @@
+﻿{
+  "captured_at_utc": "2026-09-22T10:24:35Z",
+  "label": "Phase 17.2 — optimized 3× replicates + paired rps150 (pre-opt01 from git HEAD)",
+  "phase15_frozen_reference_p95_ms": {
+    "rps100": 71,
+    "rps125": 68,
+    "rps150": 132
+  },
+  "optimization01_single_run_p95_ms": {
+    "rps100": 41,
+    "rps125": 156,
+    "rps150": 431
+  },
+  "optimized_replicates": {
+    "rps100": [12.6, 10.3, 12.7],
+    "rps125": [106.6, 57.5, 70.6],
+    "rps150": [154.0, 28.3, 127.1]
+  },
+  "statistics_optimized_replicates": {
+    "rps100": { "n": 3, "p95_min": 10.3, "p95_max": 12.7, "p95_mean": 11.87, "p95_median": 12.6 },
+    "rps125": { "n": 3, "p95_min": 57.5, "p95_max": 106.6, "p95_mean": 78.23, "p95_median": 70.6 },
+    "rps150": { "n": 3, "p95_min": 28.3, "p95_max": 154.0, "p95_mean": 103.13, "p95_median": 127.1 }
+  },
+  "paired_rps150_pre_opt01_from_git_head": {
+    "status": "COMPLETED_WITH_CAVEATS",
+    "control_p95_ms": [218.2, 299.7, 30.7],
+    "optimized_p95_ms": [66.0, 52.6, 158.4],
+    "control_http_5xx": [6263, 5859, 6301],
+    "optimized_http_5xx": [0, 0, 0],
+    "caveats": [
+      "Control tree is git HEAD only; working tree includes uncommitted Phase 15+ changes — not a single-variable opt01 A/B.",
+      "All three control runs had ~43–47% http_req_failed (5xx); latency not comparable to clean optimized runs.",
+      "First paired attempt failed on UTF-8 BOM in control copies (fixed in run-kvm2-phase17-variance.ps1)."
+    ]
+  },
+  "regression_verdict": "VARIANCE",
+  "regression_verdict_notes": "431 ms rps150 (optimization-01 single run) not reproduced on same optimized code (28–154 ms, n=3). Paired pre-opt01 does not disprove or prove opt01 due to 5xx-contaminated control runs and HEAD-vs-working-tree mismatch.",
+  "optimization_01b": "ACCEPTED",
+  "optimization_01c": "ACCEPTED",
+  "optimization_01a": "REJECTED"
+}

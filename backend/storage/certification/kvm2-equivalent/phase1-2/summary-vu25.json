@@ -1,0 +1,13 @@
+{
+  "profile": "vu25",
+  "workload": "mixed",
+  "source": "restored-from-phase1-2-report",
+  "rps": 44.49,
+  "p50_ms": 18.5,
+  "p95_ms": 1074.4,
+  "p99_ms": 1413.6,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "requested_rps": null
+}

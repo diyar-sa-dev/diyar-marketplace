@@ -1,0 +1,20 @@
+{
+  "profile": "health",
+  "workload": "health",
+  "timestamp_utc": "2026-09-21T13:07:04.404Z",
+  "stage_duration": "90s",
+  "base_url": "http://nginx/api/v1",
+  "rps": 34.15802955191244,
+  "requested_rps": null,
+  "p50_ms": 8.527036,
+  "p95_ms": 30.42419625,
+  "p99_ms": 94.8921554000002,
+  "search_p95_ms": 0,
+  "products_p95_ms": 0,
+  "detail_p95_ms": 0,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "iterations": 1035,
+  "vus_max": 10
+}

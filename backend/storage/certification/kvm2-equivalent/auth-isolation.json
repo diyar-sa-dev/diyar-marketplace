@@ -1,0 +1,15 @@
+{
+  "captured_at_utc": "2026-09-19T08:45:00Z",
+  "test": "dual-session profile fetch via Sanctum cookie login",
+  "user_a_expected": "customer@diyar.local",
+  "user_b_expected": "vendor@diyar.local",
+  "result": "NOT VERIFIED",
+  "critical": false,
+  "notes": [
+    "Login POST with identifier+method=email succeeded past validation after script fix.",
+    "GET /api/v1/auth/me returned 401/403-style marketplace gate (Arabic: must log in to continue).",
+    "Readiness API reports marketplace_enabled=false / maintenance in seeded SystemSetting.",
+    "No cross-user data leak observed; authenticated route isolation under concurrent load was not executed.",
+    "DIYAR_LOADTEST_MODE remained false; rate limits not disabled for this check."
+  ]
+}

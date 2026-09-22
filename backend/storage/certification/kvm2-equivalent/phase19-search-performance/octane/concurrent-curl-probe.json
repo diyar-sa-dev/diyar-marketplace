@@ -1,0 +1,26 @@
+﻿{
+    "note":  "If p95 rises sharply with parallel while serial stays low, worker queueing/contention is supported.",
+    "parallel_16x8":  {
+                          "max_ms":  451.89,
+                          "parallel":  16,
+                          "p50_ms":  126.79,
+                          "p95_ms":  391.79,
+                          "n":  128
+                      },
+    "serial_30":  {
+                      "max_ms":  90.94,
+                      "parallel":  1,
+                      "p50_ms":  31.85,
+                      "p95_ms":  89.44,
+                      "n":  30
+                  },
+    "captured_at_utc":  "2026-09-22T13:00:52.5538948Z",
+    "url":  "http://127.0.0.1:8193/api/v1/catalog/search?q=sofa\u0026type=all\u0026per_page=12\u0026product_page=1\u0026service_page=1",
+    "parallel_8x8":  {
+                         "max_ms":  433.74,
+                         "parallel":  8,
+                         "p50_ms":  75.16,
+                         "p95_ms":  194.43,
+                         "n":  64
+                     }
+}

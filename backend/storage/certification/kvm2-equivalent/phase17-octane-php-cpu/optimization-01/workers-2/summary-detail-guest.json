@@ -1,0 +1,16 @@
+{
+  "profile": "detail-guest",
+  "workload": "detail-guest",
+  "timestamp_utc": "2026-09-22T09:11:34.508Z",
+  "stage_duration": "90s",
+  "base_url": "http://nginx/api/v1",
+  "rps": 87.63320187999848,
+  "p50_ms": 4.8384789999999995,
+  "p95_ms": 13.260224199999978,
+  "p99_ms": 103.53513249999997,
+  "detail_p95_ms": 13.19503975,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "product_pool_size": 12
+}

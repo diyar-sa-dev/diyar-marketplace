@@ -1,0 +1,63 @@
+*************************** 1. row ***************************
+                q: TRUNCATE TABLE `performance_schema` . `events_statements_summary_by_digest`
+       COUNT_STAR: 1
+            avg_s: 0.2074
+            sum_s: 0.21
+SUM_ROWS_EXAMINED: 0
+    SUM_ROWS_SENT: 0
+*************************** 2. row ***************************
+                q: SHOW GLOBAL STATUS LIKE ?
+       COUNT_STAR: 112
+            avg_s: 0.0006
+            sum_s: 0.06
+SUM_ROWS_EXAMINED: 154
+    SUM_ROWS_SENT: 154
+*************************** 3. row ***************************
+                q: SELECT @@`version_comment` LIMIT ?
+       COUNT_STAR: 128
+            avg_s: 0.0001
+            sum_s: 0.01
+SUM_ROWS_EXAMINED: 128
+    SUM_ROWS_SENT: 128
+*************************** 4. row ***************************
+                q: START TRANSACTION
+       COUNT_STAR: 1
+            avg_s: 0.0051
+            sum_s: 0.01
+SUM_ROWS_EXAMINED: 0
+    SUM_ROWS_SENT: 0
+*************************** 5. row ***************************
+                q: SELECT COUNT ( * ) FROM `information_schema` . `processlist` WHERE `COMMAND` != ?
+       COUNT_STAR: 14
+            avg_s: 0.0003
+            sum_s: 0.00
+SUM_ROWS_EXAMINED: 42
+    SUM_ROWS_SENT: 14
+*************************** 6. row ***************************
+                q: USE `diyar_kvm2_test`
+       COUNT_STAR: 7
+            avg_s: 0.0001
+            sum_s: 0.00
+SUM_ROWS_EXAMINED: 0
+    SUM_ROWS_SENT: 0
+*************************** 7. row ***************************
+                q: SET NAMES ? COLLATE ? , SESSION `sql_mode` = ?
+       COUNT_STAR: 7
+            avg_s: 0.0001
+            sum_s: 0.00
+SUM_ROWS_EXAMINED: 0
+    SUM_ROWS_SENT: 0
+*************************** 8. row ***************************
+                q: COMMIT
+       COUNT_STAR: 1
+            avg_s: 0.0001
+            sum_s: 0.00
+SUM_ROWS_EXAMINED: 0
+    SUM_ROWS_SENT: 0
+*************************** 9. row ***************************
+                q: SHOW FULL PROCESSLIST
+       COUNT_STAR: 1
+            avg_s: 0.0001
+            sum_s: 0.00
+SUM_ROWS_EXAMINED: 0
+    SUM_ROWS_SENT: 0

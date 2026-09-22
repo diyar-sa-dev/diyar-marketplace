@@ -1,0 +1,28 @@
+﻿{
+    "captured_at_utc":  "2026-09-22T07:35:26.4076493Z",
+    "git_head":  "a0f3699b90a73588e94e1ffe5bef473a1869c13e",
+    "octane_workers":  2,
+    "docker_ncpu":  "4",
+    "cpuset":  {
+                   "diyar-kvm2-test-app-1":  "0-1 NanoCPUs=0 Memory=1610612736",
+                   "diyar-kvm2-test-nginx-1":  "0-1 NanoCPUs=0 Memory=134217728",
+                   "diyar-kvm2-test-reverb-2-1":  "0-1 NanoCPUs=0 Memory=402653184",
+                   "diyar-kvm2-test-redis-1":  "0-1 NanoCPUs=0 Memory=603979776",
+                   "diyar-kvm2-test-mysql-1":  "0-1 NanoCPUs=0 Memory=2684354560",
+                   "diyar-kvm2-test-queue-critical-1":  "0-1 NanoCPUs=0 Memory=402653184",
+                   "diyar-kvm2-test-scheduler-1":  "0-1 NanoCPUs=0 Memory=134217728",
+                   "diyar-kvm2-test-reverb-1-1":  "0-1 NanoCPUs=0 Memory=402653184",
+                   "diyar-kvm2-test-queue-default-1":  "0-1 NanoCPUs=0 Memory=402653184"
+               },
+    "images":  {
+                   "diyar-kvm2-test-app-1":  "sha256:f029cd4214a2fc5175f7daa33ea295b0e404f9ea786c46d8f32890f7c36cbed5",
+                   "diyar-kvm2-test-nginx-1":  "sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+                   "diyar-kvm2-test-reverb-2-1":  "sha256:88e2cc9d191ad34f1f5919354c389617433ace09e706a16d01d5459e5b5d4468",
+                   "diyar-kvm2-test-redis-1":  "sha256:02f2cc4882f8bf87c79a220ac958f58c700bdec0dfb9b9ea61b62fb0e8f1bfcf",
+                   "diyar-kvm2-test-mysql-1":  "sha256:7dcddc01f13bab2f15cde676d44d01f61fc9f99fe7785e86196dfc07d358ae2b",
+                   "diyar-kvm2-test-queue-critical-1":  "sha256:c900ab76f7474307fddbc755b22ee72107fe748942d6fd36b6a6659e28960d6e",
+                   "diyar-kvm2-test-scheduler-1":  "sha256:be1866cf85dbab0f60125c9a5e06958dcb012736558207f2745153b09c85b329",
+                   "diyar-kvm2-test-reverb-1-1":  "sha256:944d073fb0f86bb3b1dc10c6d7c81d5a88b8e304cba87132c8c3165a86376b7e",
+                   "diyar-kvm2-test-queue-default-1":  "sha256:070fa22740fb8256ec3222ef1b3cc322de940b2c4f351a60792d5a71bf6e676b"
+               }
+}

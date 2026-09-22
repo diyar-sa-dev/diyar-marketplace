@@ -1,0 +1,16 @@
+{
+  "profile": "stampede-detail",
+  "workload": "stampede-detail",
+  "timestamp_utc": "2026-09-22T08:10:51.821Z",
+  "stage_duration": "90s",
+  "base_url": "http://nginx/api/v1",
+  "rps": 355.062391616154,
+  "p50_ms": 116.850523,
+  "p95_ms": 278.68387519999993,
+  "p99_ms": 406.2565613999999,
+  "detail_p95_ms": 278.6866863999999,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "product_pool_size": 12
+}

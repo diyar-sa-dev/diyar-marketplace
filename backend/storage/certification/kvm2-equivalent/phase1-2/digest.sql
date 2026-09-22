@@ -1,0 +1,8 @@
+SELECT DIGEST_TEXT, COUNT_STAR,
+       ROUND(AVG_TIMER_WAIT/1000000000000,4) AS avg_s,
+       ROUND(SUM_TIMER_WAIT/1000000000000,2) AS sum_s,
+       SUM_ROWS_EXAMINED, SUM_ROWS_SENT
+FROM performance_schema.events_statements_summary_by_digest
+WHERE SCHEMA_NAME = 'diyar_kvm2_test'
+ORDER BY SUM_TIMER_WAIT DESC
+LIMIT 20;

@@ -1,0 +1,35 @@
+﻿status=200
+docker : 
+At C:\Users\APL TECH\AppData\Local\Temp\ps-script-2ca10950-7417-4c85-b312-475e4b62b327.ps1:98 char:478
++ ... oding utf8; docker exec diyar-kvm2-test-app-1 sh -c "SPX_ENABLED=1 SP ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+*** SPX Report ***
+
+Global stats:
+
+  Called functions    :     3.5K
+  Distinct functions  :      466
+
+  Wall time           :   20.7ms
+  ZE memory usage     :   27.2KB
+
+Flat profile:
+
+ Wall time           | ZE memory usage     |
+ Inc.     | *Exc.    | Inc.     | Exc.     | Called   | Function
+----------+----------+----------+----------+----------+----------
+    1.7ms |   60.2us |       0B |   -7.0KB |        1 | 
+/var/www/html/storage/certification/kvm2-spx-kernel-profile-warm.php
+  152.3us |   56.3us |    2.0KB |     304B |       37 | 1@Illuminate\Container\Container::build
+    1.3ms |   40.1us |    9.7KB |    7.1KB |       35 | 18@Illuminate\Pipeline\Pipeline::Illuminate\Pipeline\{closure}
+   38.3us |   38.3us |    3.4KB |    3.4KB |       16 | Illuminate\Pipeline\Pipeline::parsePipeString
+   37.5us |   37.5us |       0B |       0B |       74 | Illuminate\Container\Container::getCallbacksForType
+   34.1us |   23.8us |       0B |     -64B |        1 | Illuminate\Foundation\FileBasedMaintenanceMode::active
+   25.1us |   22.5us |       0B |       0B |        1 | Symfony\Component\HttpFoundation\FileBag::replace
+   19.9us |   19.9us |   12.1KB |   12.1KB |        1 | Illuminate\Routing\RouteCollection::get
+   19.0us |   17.1us |       0B |       0B |        1 | Carbon\CarbonPeriod::getLocaleAwareTranslator
+   25.7us |   13.8us |    2.7KB |     344B |        4 | Symfony\Component\HttpFoundation\HeaderUtils::split
+

@@ -1,0 +1,35 @@
+﻿status=200
+docker : 
+At C:\Users\APL TECH\AppData\Local\Temp\ps-script-2ca10950-7417-4c85-b312-475e4b62b327.ps1:98 char:1
++ docker exec diyar-kvm2-test-app-1 sh -c "SPX_ENABLED=1 SPX_AUTO_START ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+*** SPX Report ***
+
+Global stats:
+
+  Called functions    :     8.3K
+  Distinct functions  :      666
+
+  Wall time           :   18.2ms
+  ZE memory usage     :   84.2KB
+
+Flat profile:
+
+ Wall time           | ZE memory usage     |
+ Inc.     | *Exc.    | Inc.     | Exc.     | Called   | Function
+----------+----------+----------+----------+----------+----------
+  781.9us |  781.9us |   12.0KB |   12.0KB |        3 | Illuminate\Redis\Connections\Connection::command
+  161.3us |  147.2us |   30.9KB |   30.9KB |      115 | Illuminate\Validation\ValidationRuleParser::parseParameters
+  521.7us |  111.1us |    1.3KB |  -84.5KB |       98 | Illuminate\Validation\Validator::getRule
+  108.2us |   61.5us |       0B |       0B |       73 | Illuminate\Support\Arr::get
+   69.6us |   54.8us |   12.3KB |   12.0KB |        1 | Illuminate\Http\JsonResponse::setData
+   46.1us |   46.1us |       0B |       0B |      324 | Illuminate\Support\Str::studly
+   67.2us |   33.6us |       0B |   -5.5KB |       12 | Illuminate\Routing\SortedMiddleware::priorityMapIndex
+  184.8us |   27.6us |  -56.3KB |  -56.4KB |       81 | array_any
+  108.8us |   27.5us |    9.2KB |    5.0KB |       60 | 
+1@Illuminate\Validation\ValidationRuleParser::Illuminate\Validation\{closure}
+    2.8ms |   27.0us |   52.8KB |   -9.2KB |        1 | Illuminate\Routing\ControllerDispatcher::dispatch
+

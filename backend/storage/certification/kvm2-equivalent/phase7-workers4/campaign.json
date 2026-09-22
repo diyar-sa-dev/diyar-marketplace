@@ -1,0 +1,28 @@
+﻿{
+    "captured_at_utc":  "2026-09-21T12:01:21.3078339Z",
+    "git_head":  "d1d6c480ff64a122758c9181b5b918b94460050f",
+    "project":  "diyar-kvm2-test",
+    "http_port":  "8193",
+    "profiles":  [
+                     {
+                         "profile":  "vu25",
+                         "workload":  "mixed",
+                         "timestamp_utc":  "2026-09-21T12:01:20.007Z",
+                         "stage_duration":  "90s",
+                         "base_url":  "http://nginx/api/v1",
+                         "rps":  78.00485890608329,
+                         "requested_rps":  null,
+                         "p50_ms":  11.894686,
+                         "p95_ms":  214.93309514999996,
+                         "p99_ms":  486.01609627,
+                         "search_p95_ms":  59.21919034999991,
+                         "products_p95_ms":  107.65186079999961,
+                         "detail_p95_ms":  401.3971958000002,
+                         "error_rate":  0,
+                         "http_429":  0,
+                         "http_5xx":  0,
+                         "iterations":  7057,
+                         "vus_max":  25
+                     }
+                 ]
+}

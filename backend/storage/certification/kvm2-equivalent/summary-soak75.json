@@ -1,0 +1,18 @@
+{
+  "profile": "soak75",
+  "workload": "mixed-storefront",
+  "timestamp_utc": "2026-09-21T09:20:24.958Z",
+  "stage_duration": "3m",
+  "base_url": "http://nginx/api/v1",
+  "rps": 81.06811765948873,
+  "rpm": 4864.087059569324,
+  "p50_ms": 112.754822,
+  "p95_ms": 2891.1471290999993,
+  "p99_ms": 3770.067406219999,
+  "search_p95_ms": 2744.5924771999994,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "iterations": 43653,
+  "vus_max": 220
+}

@@ -1,0 +1,18 @@
+{
+  "profile": "rps500",
+  "workload": "mixed-storefront",
+  "timestamp_utc": "2026-09-21T09:06:34.046Z",
+  "stage_duration": "3m",
+  "base_url": "http://nginx/api/v1",
+  "rps": 190.77406502054427,
+  "rpm": 11446.443901232657,
+  "p50_ms": 2374.340217,
+  "p95_ms": 11054.579760399956,
+  "p99_ms": 15542.67749984,
+  "search_p95_ms": 4367.852077549998,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "iterations": 30408,
+  "vus_max": 700
+}

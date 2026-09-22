@@ -1,0 +1,77 @@
+﻿{
+    "captured_at_utc": "2026-09-22T12:51:34+00:00",
+    "rows": [
+        {
+            "scenario": "q_sofa_all",
+            "phase": "cold",
+            "wall_ms": 30.828,
+            "sql_count": 7,
+            "result_product_total": 0,
+            "result_service_total": 0,
+            "payload_bytes": 269
+        },
+        {
+            "scenario": "q_sofa_all",
+            "phase": "warm",
+            "wall_ms": 0.631,
+            "sql_count": 0,
+            "result_product_total": 0,
+            "result_service_total": 0,
+            "payload_bytes": 269
+        },
+        {
+            "scenario": "q_chair_all",
+            "phase": "cold",
+            "wall_ms": 10.237,
+            "sql_count": 7,
+            "result_product_total": 0,
+            "result_service_total": 0,
+            "payload_bytes": 270
+        },
+        {
+            "scenario": "q_chair_all",
+            "phase": "warm",
+            "wall_ms": 0.585,
+            "sql_count": 0,
+            "result_product_total": 0,
+            "result_service_total": 0,
+            "payload_bytes": 270
+        },
+        {
+            "scenario": "q_sofa_products",
+            "phase": "cold",
+            "wall_ms": 8.914,
+            "sql_count": 6,
+            "result_product_total": 0,
+            "result_service_total": null,
+            "payload_bytes": 180
+        },
+        {
+            "scenario": "q_sofa_products",
+            "phase": "warm",
+            "wall_ms": 0.55,
+            "sql_count": 0,
+            "result_product_total": 0,
+            "result_service_total": null,
+            "payload_bytes": 180
+        },
+        {
+            "scenario": "no_q",
+            "phase": "cold",
+            "wall_ms": 44.718,
+            "sql_count": 19,
+            "result_product_total": 12,
+            "result_service_total": 4,
+            "payload_bytes": 19914
+        },
+        {
+            "scenario": "no_q",
+            "phase": "warm",
+            "wall_ms": 0.88,
+            "sql_count": 0,
+            "result_product_total": 12,
+            "result_service_total": 4,
+            "payload_bytes": 19914
+        }
+    ]
+}

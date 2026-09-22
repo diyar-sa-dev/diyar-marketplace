@@ -1,0 +1,13 @@
+{
+  "profile": "health",
+  "workload": "health",
+  "source": "restored-from-phase1-2-report",
+  "rps": 34.19,
+  "p50_ms": 8.1,
+  "p95_ms": 20.4,
+  "p99_ms": 118.8,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "requested_rps": null
+}

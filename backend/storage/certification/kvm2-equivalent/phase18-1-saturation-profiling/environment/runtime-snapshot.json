@@ -1,0 +1,14 @@
+﻿{
+    "captured_at_utc":  "2026-09-22T11:14:38.0051878Z",
+    "git_head":  "a0f3699b90a73588e94e1ffe5bef473a1869c13e",
+    "octane_workers":  "2",
+    "php":  "8.3.33",
+    "laravel":  "Laravel Framework 13.26.1",
+    "swoole":  [
+                   "",
+                   "Fatal error: Uncaught Error: Undefined constant \"swoole\" in Command line code:1",
+                   "Stack trace:",
+                   "#0 {main}",
+                   "  thrown in Command line code on line 1"
+               ]
+}

@@ -1,0 +1,20 @@
+{
+  "profile": "rps100",
+  "workload": "mixed",
+  "timestamp_utc": "2026-09-22T09:26:17.033Z",
+  "stage_duration": "90s",
+  "base_url": "http://nginx/api/v1",
+  "rps": 99.59648478105855,
+  "requested_rps": 100,
+  "p50_ms": 5.786421,
+  "p95_ms": 12.659770049999953,
+  "p99_ms": 125.57403849999928,
+  "search_p95_ms": 10.4974,
+  "products_p95_ms": 8.508924049999994,
+  "detail_p95_ms": 7.477799149999999,
+  "error_rate": 0,
+  "http_429": 0,
+  "http_5xx": 0,
+  "iterations": 9001,
+  "vus_max": 80
+}

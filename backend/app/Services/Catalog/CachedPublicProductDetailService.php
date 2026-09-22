@@ -12,21 +12,31 @@ final class CachedPublicProductDetailService
 {
     public function __construct(
         private readonly ProductService $products,
+        private readonly ProductDetailUserOverlayService $overlay,
     ) {}
 
     /**
-     * Guest product-detail payloads are versioned + TTL-cached. Authenticated
-     * shows stay uncached so user_liked / user_saved / is_own_store / sales_stats
-     * cannot leak across users.
+     * Guest payloads are versioned + TTL-cached. Authenticated viewers reuse the
+     * guest-safe public body and merge a minimal per-user overlay (never cached globally).
      *
      * @return array{product: array<string, mixed>, analytics_product_id: string, analytics_vendor_account_id: string}
      */
     public function show(string $id, ?User $user): array
     {
-        if ($user !== null) {
-            return $this->load($id, $user);
+        $payload = $this->publicBody($id);
+
+        if ($user === null) {
+            return $payload;
         }
 
+        return $this->overlay->apply($payload, $user);
+    }
+
+    /**
+     * @return array{product: array<string, mixed>, analytics_product_id: string, analytics_vendor_account_id: string}
+     */
+    private function publicBody(string $id): array
+    {
         $version = VersionedCache::version(CacheKeys::CATALOG_VERSION);
         $cacheKey = CacheKeys::catalogProductDetail($id, $version, app()->getLocale());
         $ttlSeconds = (int) config('diyar.catalog.cache.product_detail_seconds', 60);
@@ -34,7 +44,7 @@ final class CachedPublicProductDetailService
         return StampedeSafeCache::remember(
             $cacheKey,
             $ttlSeconds,
-            fn (): array => $this->load($id, null),
+            fn (): array => $this->loadPublic($id),
             'lock:'.$cacheKey,
         );
     }
@@ -42,10 +52,10 @@ final class CachedPublicProductDetailService
     /**
      * @return array{product: array<string, mixed>, analytics_product_id: string, analytics_vendor_account_id: string}
      */
-    private function load(string $id, ?User $user): array
+    private function loadPublic(string $id): array
     {
-        $product = $this->products->findPublic($id, $user);
-        $related = $this->products->relatedProducts($product, user: $user);
+        $product = $this->products->findPublic($id);
+        $related = $this->products->relatedProducts($product);
 
         return [
             'product' => (new ProductDetailResource($product, $related))->resolve(),

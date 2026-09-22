@@ -1,0 +1,20 @@
+{
+  "captured_at_utc": "2026-09-22T11:20:00Z",
+  "octane_http_spx": {
+    "status": "NOT_CAPTURED",
+    "reason": "SPX HTTP cookies/query params through Nginx→Swoole Octane did not write /tmp/spx-data artifacts in Phase 18/18.1 tests."
+  },
+  "kernel_cli_spx": {
+    "status": "CAPTURED",
+    "method": "SPX_ENABLED=1 SPX_AUTO_START=0 + spx_profiler_start/stop around single HTTP kernel handle after warm iterations",
+    "artifacts": [
+      "profiling/spx/search-kernel-report.json",
+      "profiling/spx/fp-search-warm.txt",
+      "profiling/spx/fp-search-noquery-warm.txt",
+      "profiling/spx/fp-products-warm.txt",
+      "profiling/spx/fp-health-warm.txt"
+    ]
+  },
+  "pipeline_proven": true,
+  "note": "Function-level evidence is from Laravel HTTP kernel (CLI bootstrap), not identical to long-lived Octane worker, but executes the same controllers/services/middleware stack."
+}

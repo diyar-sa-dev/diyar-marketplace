@@ -1,0 +1,21 @@
+﻿{
+    "sync_jsonl_lines":  "0",
+    "curl_nginx_octane":  [
+                              {
+                                  "profile":  "with_q",
+                                  "n":  30,
+                                  "p50_ms":  7.62,
+                                  "p95_ms":  26.94,
+                                  "mean_ms":  9.93
+                              },
+                              {
+                                  "profile":  "no_q",
+                                  "n":  30,
+                                  "p50_ms":  7.84,
+                                  "p95_ms":  13.57,
+                                  "mean_ms":  10.27
+                              }
+                          ],
+    "note":  "Post-async: sync jsonl should stay empty on HTTP path; worker writes via job.",
+    "captured_at_utc":  "2026-09-22T11:48:01.8649174Z"
+}

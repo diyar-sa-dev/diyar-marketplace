@@ -1,0 +1,35 @@
+﻿status=200
+docker : 
+At C:\Users\APL TECH\AppData\Local\Temp\ps-script-67eef785-b09f-498f-9f26-47f0a2676d06.ps1:97 char:214
++ ... ification/; docker exec diyar-kvm2-test-app-1 sh -c "SPX_ENABLED=1 SP ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+*** SPX Report ***
+
+Global stats:
+
+  Called functions    :    28.9K
+  Distinct functions  :      980
+
+  Wall time           :  401.0ms
+  ZE memory usage     :   46.7KB
+
+Flat profile:
+
+ Wall time           | ZE memory usage     |
+ Inc.     | *Exc.    | Inc.     | Exc.     | Called   | Function
+----------+----------+----------+----------+----------+----------
+  367.4ms |  367.2ms |       0B |  -14.4KB |       11 | 
+Illuminate\Database\MySqlConnection::Illuminate\Database\{closure}
+  345.9us |  309.5us |  178.7KB |  178.7KB |      847 | App\Models\SearchQueryEvent::uniqueIds
+  679.0us |  306.2us |       0B | -176.3KB |      836 | App\Models\SearchQueryEvent::getIncrementing
+    2.2ms |  226.5us |   11.4KB |    7.5KB |      132 | Illuminate\Database\Eloquent\Model::setAttribute
+  188.0us |  188.0us |    5.6KB |    5.6KB |      143 | Illuminate\Database\Query\Grammars\MySqlGrammar::wrapValue
+  209.2us |  182.0us |     704B |     704B |       11 | Illuminate\Support\Onceable::hashFromTrace
+  192.7us |  101.1us |     528B |     968B |       11 | Ramsey\Uuid\Generator\UnixTimeGenerator::generate
+  590.9us |   87.7us |   -4.1KB |   -5.8KB |       11 | Illuminate\Database\Eloquent\Model::withoutRecursion
+  143.6us |   80.8us |    7.5KB |    7.5KB |       11 | Illuminate\Database\Eloquent\Model::getDirty
+  375.4ms |   68.5us |  -15.1KB |  -34.0KB |       11 | Illuminate\Database\Eloquent\Builder::create
+

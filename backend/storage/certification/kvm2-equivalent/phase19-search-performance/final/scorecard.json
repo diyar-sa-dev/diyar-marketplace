@@ -1,0 +1,30 @@
+{
+  "notes": {
+    "phase19_baseline": "Sequential ladder without queue drain; later runs contaminated by ~40k+ analytics backlog — see final/benchmark-validity.md",
+    "phase183_comparable_runs": "Use Phase 19 rps125 runs 2–3 and rps150 run 1 for steady-state comparison",
+    "app_cpu_phase19": "NOT MEASURED (background sampler failed on Windows Start-Process); Phase 15 reference ~75–86% at rps150",
+    "queue_depth": "40k–43k growing during campaign; see queue/backlog-evidence.md"
+  },
+  "scorecard": [
+    { "metric": "Mixed p50 @125", "phase_18_3": "~6.3–6.5 ms (runs 2–3)", "phase_19": "6.74 / 6.58 ms (runs 2–3)", "final": "same envelope" },
+    { "metric": "Mixed p95 @125", "phase_18_3": "35.7 / 41.6 / 101.9", "phase_19": "254 / 48.2 / 39.3", "final": "run1 outlier (cold cache); runs 2–3 align with 18.3" },
+    { "metric": "Mixed p99 @125", "phase_18_3": "NOT IN REF", "phase_19": "168 / 163 ms (runs 2–3)", "final": "recorded" },
+    { "metric": "Mixed p95 @150", "phase_18_3": "83 / 72 / 105", "phase_19": "112 / 547 / 469", "final": "run1 ~112; runs 2–3 degraded (cumulative load)" },
+    { "metric": "Mixed p99 @150", "phase_18_3": "NOT IN REF", "phase_19": "219 / 912 / 1458", "final": "tail explodes under contamination" },
+    { "metric": "Mixed p95 @175", "phase_18_3": "NOT RUN", "phase_19": "1575 / 1737 / 630", "final": "high variance; VU ceiling + backlog" },
+    { "metric": "Mixed p99 @175", "phase_18_3": "NOT RUN", "phase_19": "1888 / 2657 / 899", "final": "recorded" },
+    { "metric": "Mixed p95 @200", "phase_18_3": "537 / 526 / 410", "phase_19": "2728 / 1098 / 1590", "final": "NOT COMPARABLE (campaign contamination)" },
+    { "metric": "Mixed p99 @200", "phase_18_3": "NOT IN REF", "phase_19": "3449 / 1406 / 1799", "final": "NOT COMPARABLE" },
+    { "metric": "Search p95 @150", "phase_18_3": "143 (search-only)", "phase_19": "502 (iso search after ladder)", "final": "502 ms under backlog; curl probe 89–392 ms" },
+    { "metric": "Search p99 @150", "phase_18_3": "NOT IN REF", "phase_19": "1514 (iso search)", "final": "recorded" },
+    { "metric": "App CPU", "phase_18_3": "NOT MEASURED", "phase_19": "NOT MEASURED", "final": "Phase 15 ref ~75–86% @ rps150" },
+    { "metric": "Redis CPU", "phase_18_3": "NOT MEASURED", "phase_19": "NOT MEASURED", "final": "NOT MEASURED" },
+    { "metric": "MySQL CPU", "phase_18_3": "NOT MEASURED", "phase_19": "NOT MEASURED", "final": "NOT MEASURED" },
+    { "metric": "MySQL Threads", "phase_18_3": "NOT MEASURED", "phase_19": "NOT MEASURED", "final": "NOT MEASURED" },
+    { "metric": "Queue depth", "phase_18_3": "NOT MEASURED", "phase_19": "40047→43172 (+3125/30s)", "final": "Large backlog" },
+    { "metric": "Failed jobs", "phase_18_3": "0", "phase_19": "0", "final": "0" },
+    { "metric": "5xx", "phase_18_3": "0", "phase_19": "0", "final": "0" },
+    { "metric": "429", "phase_18_3": "0", "phase_19": "0", "final": "0" },
+    { "metric": "Memory", "phase_18_3": "NOT MEASURED", "phase_19": "NOT MEASURED", "final": "NOT MEASURED" }
+  ]
+}

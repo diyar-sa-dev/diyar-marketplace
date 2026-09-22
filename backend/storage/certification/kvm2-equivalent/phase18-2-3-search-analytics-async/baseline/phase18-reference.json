@@ -1,0 +1,8 @@
+{
+  "source": "phase18-php-cpu-profiling critical 3x (pre-async, sync terminating analytics)",
+  "mixed_rps125_p95_ms": [53.2, 86.7, 269.4],
+  "mixed_rps150_p95_ms": [86.1, 191.2, 195.0],
+  "mixed_rps200_p95_ms": [574.0, 731.7, 866.7],
+  "search_only_rps150_p95_ms": 297.9,
+  "http_5xx": 0
+}

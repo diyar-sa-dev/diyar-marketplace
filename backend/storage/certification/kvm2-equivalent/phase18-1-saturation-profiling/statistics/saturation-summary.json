@@ -1,0 +1,17 @@
+{
+  "captured_at_utc": "2026-09-22T11:22:00Z",
+  "source": "Phase 18 critical 3x + Phase 18.1 ladder (partial — script Rates param fix pending)",
+  "mixed_workload_rows": [
+    { "rps_target": 100, "note": "Phase 18 not re-run 3x; Phase 17.2 mean p95 ~12ms on optimized tree" },
+    { "rps_target": 125, "p95_min_ms": 53.2, "p95_median_ms": 86.7, "p95_max_ms": 269.4, "p95_mean_ms": 136.5, "http_5xx": 0, "source": "phase18 critical 3x" },
+    { "rps_target": 150, "p95_min_ms": 86.1, "p95_median_ms": 191.2, "p95_max_ms": 195.0, "p95_mean_ms": 157.5, "http_5xx": 0, "search_p95_mean_ms": 173, "source": "phase18 critical 3x" },
+    { "rps_target": 175, "note": "NOT RUN in 18.1 (harness error)" },
+    { "rps_target": 200, "p95_min_ms": 574.0, "p95_median_ms": 731.7, "p95_max_ms": 866.7, "p95_mean_ms": 724.1, "http_5xx": 0, "search_p95_mean_ms": 708, "source": "phase18 critical 3x" }
+  ],
+  "classification": {
+    "first_pressure": "rps125–150 (p95 variance 53–269 ms; app CPU rising in Phase 15 sampler)",
+    "degradation": "rps200 mixed (p95 574–867 ms; search sub-metric often 565–891 ms)",
+    "saturation_class": "application CPU on cpuset 0–1 at high mixed RPS (Phase 15 app ~67–94% at rps150)",
+    "hard_collapse": "not observed (0× 5xx through rps200 in Phase 18)"
+  }
+}

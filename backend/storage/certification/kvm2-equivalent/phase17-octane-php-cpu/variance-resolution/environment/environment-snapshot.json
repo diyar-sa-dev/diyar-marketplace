@@ -1,0 +1,7 @@
+﻿{
+    "captured_at_utc":  "2026-09-22T10:07:02.7901329Z",
+    "octane_workers":  "2",
+    "app_cpuset":  "0-1",
+    "app_image":  "sha256:48aecd69d1d25bb8d32dee427298c15ac37712c7bb02521cec6f24689b8b35b4",
+    "git_head":  "a0f3699b90a73588e94e1ffe5bef473a1869c13e"
+}
