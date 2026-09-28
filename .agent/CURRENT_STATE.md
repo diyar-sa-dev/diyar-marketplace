@@ -146,5 +146,9 @@ Operational KVM2 capacity work (not a numbered Stage 31):
 - Phase 19 baseline **complete** → `phase19-search-performance/baseline/baseline/campaign.json`; steady rps125 p95 **~39–48 ms**; **no code optimization**
 - **CPU sampler Phase 19:** NOT MEASURED (Windows background); Phase 15 ref **~65% app CPU** @ rps150
 - Evidence: `phase19-search-performance/` (scorecard, Face 3, queue backlog, octane probe) · **Hostinger NOT VERIFIED**
-- Next: **Phase 20** — clean benchmark (queue drain + warm-up + foreground sampler); queue isolation experiment; cardinality 1K+
+- Phase 19 Git Release: **CLOSED & COMMITTED** (`3921071`) · `diyar/dev` **SYNCHRONIZED** · `prod-temp` **FAST-FORWARDED**
+- Phase 20 Clean Runtime & Queue Isolation: **ACTIVE / IN PROGRESS**
+  - Directory: `backend/storage/certification/kvm2-equivalent/phase20-clean-runtime/`
+  - Report: `conception/Stages/Post-Stage 30/KVM2_PHASE_20_CLEAN_RUNTIME_AND_QUEUE_ISOLATION_REPORT.md`
+  - Focus: Phase 20.0 clean runtime (foreground sampler + queue drain) → Phase 20.1 queue isolation → Phase 20.2 cardinality scaling (12 → 1K → 10K).
 
