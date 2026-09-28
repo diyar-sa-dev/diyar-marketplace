@@ -1,0 +1,8 @@
+{
+    "min_similarity_in_config": 0.7,
+    "dhash_generator_di": true,
+    "cache_generation_method": true,
+    "visual_search_service_has_logging": true,
+    "record_event_first_or_create": true,
+    "product_card_pre_resolve": true
+}

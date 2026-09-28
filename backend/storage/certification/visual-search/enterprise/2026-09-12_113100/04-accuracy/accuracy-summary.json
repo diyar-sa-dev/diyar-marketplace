@@ -1,0 +1,11 @@
+{
+    "status": "FAIL",
+    "real_merchant_cases": 0,
+    "minimum_required": 30,
+    "top1_rate": null,
+    "top3_rate": null,
+    "false_positive_rate": null,
+    "zero_result_rate": null,
+    "threshold_evaluated": 0.7,
+    "verdict": "Cannot certify accuracy against real merchant catalog — no merchant images linked in production-local DB."
+}

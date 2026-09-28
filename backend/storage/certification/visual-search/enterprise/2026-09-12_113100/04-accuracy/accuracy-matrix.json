@@ -1,0 +1,11 @@
+{
+    "status": "BLOCKED",
+    "reason": "Production-local database contains zero merchant product images (products/* media_files). All 12 indexed images are cert/visual-search/* synthetic gradients from prior certification seeding.",
+    "merchant_media_files_in_db": 0,
+    "cert_linked_images": 12,
+    "minimum_required_cases": 30,
+    "cases_executed": 0,
+    "cases": [],
+    "supplemental_cert_catalog_cases_available": 39,
+    "supplemental_note": "39 in-process cases on cert gradients exist from run 2026-09-12_095411 (91.7% Top-1). Not accepted as enterprise primary evidence per Stage 29 mandate."
+}

@@ -1,0 +1,14 @@
+{
+    "status": "PARTIAL",
+    "note": "HTTP batch adversarial/rate-limit tests contaminated by 429 when run from internal client without trusted X-Forwarded-For isolation. In-process and PHPUnit cover contract.",
+    "success_shape": "{ success: true, data: [...] }",
+    "invalid_image": "422 (PHPUnit + ImageGuard verified)",
+    "empty_index": "503 index_empty (PHPUnit verified)",
+    "rate_limit": "429 at 21/min (PHPUnit verified; HTTP batch inconclusive)",
+    "no_leakage_verified": [
+        "hash_bits",
+        "hamming_distance",
+        "stack_trace",
+        "filesystem_path"
+    ]
+}

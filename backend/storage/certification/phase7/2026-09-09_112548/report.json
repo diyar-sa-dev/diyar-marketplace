@@ -1,0 +1,37 @@
+{
+    "timestamp_utc": "2026-09-09T11:25:48+00:00",
+    "commit_sha": "d6c8efcb3c3b70450861c5c37dbd241da5d369f7",
+    "gates": {
+        "environment_database": {
+            "status": "NOT VERIFIED",
+            "message": "SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it"
+        },
+        "explain_analyze": {
+            "status": "FAIL",
+            "exit": 1
+        },
+        "correctness_phpunit": {
+            "status": "FAIL"
+        },
+        "latency_benchmark": {
+            "status": "NOT VERIFIED"
+        },
+        "stampede_25": {
+            "status": "NOT VERIFIED"
+        },
+        "dataset_100k": {
+            "status": "NOT VERIFIED"
+        },
+        "concurrency_50": {
+            "status": "NOT VERIFIED"
+        },
+        "concurrency_100": {
+            "status": "NOT VERIFIED"
+        },
+        "playwright_e2e": {
+            "status": "NOT VERIFIED",
+            "reason": "run_frontend_e2e_separately"
+        }
+    },
+    "evidence_dir": "C:\\Users\\APL TECH\\OneDrive\\Documents\\Web\\Work\\Hamid\\project\\diyar-marketplace\\backend\\storage\\certification/phase7/2026-09-09_112548"
+}

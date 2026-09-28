@@ -1,0 +1,137 @@
+{
+    "phase": 8,
+    "timestamp_utc": "2026-09-09T12:21:48+00:00",
+    "commit_sha": "d6c8efcb3c3b70450861c5c37dbd241da5d369f7",
+    "evidence_dir": "C:\\Users\\APL TECH\\OneDrive\\Documents\\Web\\Work\\Hamid\\project\\diyar-marketplace\\backend\\storage\\certification/phase8/2026-09-09_122148",
+    "environment": {
+        "php": "8.4.0",
+        "laravel": "13.26.1",
+        "os": "WINNT",
+        "db_driver": "mysql",
+        "db_host": "127.0.0.1",
+        "db_port": "3307",
+        "db_database": "diyar_staging",
+        "cache": "redis",
+        "redis_host": "127.0.0.1",
+        "redis_port": "6380",
+        "commit_sha": "d6c8efcb3c3b70450861c5c37dbd241da5d369f7"
+    },
+    "gates": {
+        "A_environment_database": {
+            "status": "PASS",
+            "driver": "mysql"
+        },
+        "A_environment_redis": {
+            "status": "PASS"
+        },
+        "D_dataset_100k": {
+            "status": "PASS",
+            "timestamp_utc": "2026-09-09T12:21:53+00:00",
+            "commit_sha": "d6c8efcb3c3b70450861c5c37dbd241da5d369f7",
+            "products": 100000,
+            "services": 100000,
+            "categories": 20,
+            "vendors": 20,
+            "providers": 15,
+            "database_size_mb": "306.22",
+            "seed": 42
+        },
+        "E_dataset_1m": {
+            "status": "NOT VERIFIED",
+            "reason": "1M not seeded in this run",
+            "products": 100000,
+            "services": 100000
+        },
+        "C_explain_analyze": {
+            "status": "FAIL",
+            "exit": 1
+        },
+        "B_query_budget": {
+            "status": "PASS",
+            "cache_miss_queries": 6,
+            "cache_hit_queries": 0,
+            "budget_miss_max": 6,
+            "budget_hit_max": 0
+        },
+        "I_warm_cache_slo": {
+            "status": "FAIL",
+            "iterations": 100
+        },
+        "J_cold_cache_slo": {
+            "status": "FAIL",
+            "iterations": 100
+        },
+        "H_stampede": {
+            "status": "FAIL"
+        },
+        "F_concurrency_50": {
+            "status": "PASS",
+            "note": "see load/concurrency-50-products.json"
+        },
+        "G_concurrency_100": {
+            "status": "PASS",
+            "note": "see load/concurrency-100-products.json"
+        },
+        "L_redis_failure": {
+            "status": "NOT VERIFIED",
+            "reason": "requires_controlled_redis_isolation_test",
+            "note": "unit tests cover StampedeSafeCache fallback; live isolation not executed in this runner"
+        },
+        "K_failure_resilience": {
+            "status": "PASS",
+            "note": "covered by PHPUnit FilterSuggestion resilience tests"
+        },
+        "M_db_failure": {
+            "status": "PASS",
+            "note": "registry-only fallback covered by PHPUnit"
+        },
+        "N_multi_node": {
+            "status": "NOT VERIFIED",
+            "reason": "single-node staging stack"
+        },
+        "U_resource_isolation": {
+            "status": "NOT VERIFIED",
+            "reason": "requires concurrent checkout/catalog load harness"
+        },
+        "T_regression_backend": {
+            "status": "FAIL",
+            "exit": 1
+        },
+        "A_correctness": {
+            "status": "FAIL"
+        },
+        "O_frontend_race_abort": {
+            "status": "PASS",
+            "note": "AbortSignal + Vitest SuggestedFiltersSection tests"
+        },
+        "P_playwright": {
+            "status": "NOT VERIFIED",
+            "reason": "run_frontend_e2e_separately"
+        },
+        "Q_rtl_ltr": {
+            "status": "NOT VERIFIED",
+            "reason": "run_playwright_with_ar_en_locales"
+        },
+        "R_security": {
+            "status": "PASS",
+            "note": "FilterSuggestion validation + CatalogFilterNormalizer tests"
+        },
+        "S_observability": {
+            "status": "PARTIAL",
+            "note": "FilterSuggestionMetrics structured logs; no Prometheus histogram in staging"
+        }
+    },
+    "verdict": "NOT CERTIFIED",
+    "mandatory_missing": [
+        "A_correctness:FAIL",
+        "C_explain_analyze:FAIL",
+        "H_stampede:FAIL",
+        "I_warm_cache_slo:FAIL",
+        "J_cold_cache_slo:FAIL",
+        "T_regression_backend:FAIL",
+        "U_resource_isolation:NOT VERIFIED",
+        "P_playwright:NOT VERIFIED",
+        "Q_rtl_ltr:NOT VERIFIED",
+        "L_redis_failure:NOT VERIFIED"
+    ]
+}

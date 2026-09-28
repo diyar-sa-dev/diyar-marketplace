@@ -1,0 +1,52 @@
+[
+    {
+        "id": "01a094fd-2fc8-73ab-abcc-d51e1b08d355",
+        "product_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+        "product_image_id": "01a094fd-04b1-730c-bcc6-0c3f60c824c1",
+        "media_file_id": "01a094fd-048d-72f0-b97a-de70be185c4f",
+        "hash_bucket": 3710,
+        "index_version": "catalog-v1",
+        "is_active": true,
+        "indexed_at": "2026-09-12T09:43:35.000000Z"
+    },
+    {
+        "id": "01a094fd-304f-73f1-8b8e-40c9829506b1",
+        "product_id": "01a070ca-d25b-71ec-b290-46d243992128",
+        "product_image_id": "01a094fd-0558-71ef-8173-bb924cd19dbd",
+        "media_file_id": "01a094fd-053e-712b-8f96-4cb570b0b297",
+        "hash_bucket": 1698,
+        "index_version": "catalog-v1",
+        "is_active": true,
+        "indexed_at": "2026-09-12T09:43:36.000000Z"
+    },
+    {
+        "id": "01a094fd-301b-7144-8406-deb89df1d094",
+        "product_id": "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+        "product_image_id": "01a094fd-0518-7189-9450-a40d0439d409",
+        "media_file_id": "01a094fd-04f8-70b8-a8d0-b6bb667c6598",
+        "hash_bucket": 3373,
+        "index_version": "catalog-v1",
+        "is_active": true,
+        "indexed_at": "2026-09-12T09:43:36.000000Z"
+    },
+    {
+        "id": "01a094fd-307f-7323-b723-7abdfa9cc28d",
+        "product_id": "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+        "product_image_id": "01a094fd-05a7-730f-8fb2-38e6e305064a",
+        "media_file_id": "01a094fd-0580-716e-bf1e-9200f4f7aa4f",
+        "hash_bucket": 1184,
+        "index_version": "catalog-v1",
+        "is_active": true,
+        "indexed_at": "2026-09-12T09:43:36.000000Z"
+    },
+    {
+        "id": "01a094fd-30aa-703c-ba04-1ccecf857fb6",
+        "product_id": "01a070ca-d30a-73ca-8c53-bf114a537806",
+        "product_image_id": "01a094fd-0616-7266-a6b9-987e23441805",
+        "media_file_id": "01a094fd-05da-7175-8b31-1a33d2c98bb0",
+        "hash_bucket": 3,
+        "index_version": "catalog-v1",
+        "is_active": true,
+        "indexed_at": "2026-09-12T09:43:36.000000Z"
+    }
+]

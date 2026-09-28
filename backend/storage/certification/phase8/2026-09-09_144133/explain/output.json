@@ -1,0 +1,513 @@
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+{
+    "timestamp_utc": "2026-09-09T14:41:37+00:00",
+    "driver": "mysql",
+    "supports_explain_analyze": true,
+    "query_count": 10,
+    "queries": [
+        {
+            "sql": "select * from `categories` where `is_active` = ? and `slug` = ? limit 1",
+            "bindings_count": 2,
+            "plan": {
+                "type": "EXPLAIN",
+                "rows": [
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "categories",
+                        "partitions": null,
+                        "type": "const",
+                        "possible_keys": "categories_slug_unique,categories_is_active_sort_order_index",
+                        "key": "categories_slug_unique",
+                        "key_len": "1022",
+                        "ref": "const",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": null
+                    }
+                ],
+                "analyze": [
+                    {
+                        "EXPLAIN": "-> Limit: 1 row(s)  (cost=0..0 rows=1) (actual time=900e-6..0.001 rows=1 loops=1)\n    -> Rows fetched before execution  (cost=0..0 rows=1) (actual time=0..0 rows=1 loops=1)\n"
+                    }
+                ]
+            }
+        },
+        {
+            "sql": "select COUNT(*) as result_count, MIN(sale_price) as min_price, MAX(sale_price) as max_price, AVG(sale_price) as avg_price from `products` where `products`.`status` = ? and `products`.`vendor_account_id` in (select `id` from `vendor_accounts` where `status` = ?) and `products`.`category_id` = ? and `products`.`deleted_at` is null limit 1",
+            "bindings_count": 3,
+            "plan": {
+                "type": "EXPLAIN",
+                "rows": [
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "products",
+                        "partitions": null,
+                        "type": "ref",
+                        "possible_keys": "products_vendor_account_id_slug_unique,products_category_id_status_index,products_vendor_account_id_status_index,products_status_created_at_index,products_category_status_created_at_index,products_vendor_status_created_at_index,products_status_promotion_ends_at_index",
+                        "key": "products_category_id_status_index",
+                        "key_len": "1166",
+                        "ref": "const,const",
+                        "rows": 7768,
+                        "filtered": 10,
+                        "Extra": "Using where"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "vendor_accounts",
+                        "partitions": null,
+                        "type": "eq_ref",
+                        "possible_keys": "PRIMARY,vendor_accounts_status_index",
+                        "key": "PRIMARY",
+                        "key_len": "144",
+                        "ref": "diyar_staging.products.vendor_account_id",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": "Using where"
+                    }
+                ],
+                "analyze": [
+                    {
+                        "EXPLAIN": "-> Limit: 1 row(s)  (cost=3383 rows=1) (actual time=12.4..12.4 rows=1 loops=1)\n    -> Aggregate: count(0), min(products.sale_price), max(products.sale_price), avg(products.sale_price)  (cost=3383 rows=1) (actual time=12.4..12.4 rows=1 loops=1)\n        -> Nested loop inner join  (cost=3305 rows=777) (actual time=0.0803..11.6 rows=4443 loops=1)\n            -> Filter: (products.deleted_at is null)  (cost=3033 rows=777) (actual time=0.0715..9.36 rows=4443 loops=1)\n                -> Index lookup on products using products_category_id_status_index (category_id='01a0868c-dd5a-7169-b626-bff5600ce5f7', status='active')  (cost=3033 rows=7768) (actual time=0.071..9.11 rows=4443 loops=1)\n            -> Filter: (vendor_accounts.`status` = 'active')  (cost=0.25 rows=1) (actual time=288e-6..362e-6 rows=1 loops=4443)\n                -> Single-row index lookup on vendor_accounts using PRIMARY (id=products.vendor_account_id)  (cost=0.25 rows=1) (actual time=141e-6..165e-6 rows=1 loops=4443)\n"
+                    }
+                ]
+            }
+        },
+        {
+            "sql": "select `vendor_accounts`.`slug` as `value`, COUNT(*) as aggregate_count from `products` inner join `vendor_accounts` on `products`.`vendor_account_id` = `vendor_accounts`.`id` where `products`.`status` = ? and `products`.`vendor_account_id` in (select `id` from `vendor_accounts` where `status` = ?) and `products`.`category_id` = ? and `vendor_accounts`.`status` = ? and `products`.`deleted_at` is null group by `vendor_accounts`.`slug` order by `aggregate_count` desc limit 10",
+            "bindings_count": 4,
+            "plan": {
+                "type": "EXPLAIN",
+                "rows": [
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "products",
+                        "partitions": null,
+                        "type": "ref",
+                        "possible_keys": "products_vendor_account_id_slug_unique,products_category_id_status_index,products_vendor_account_id_status_index,products_status_created_at_index,products_category_status_created_at_index,products_vendor_status_created_at_index,products_status_promotion_ends_at_index",
+                        "key": "products_category_id_status_index",
+                        "key_len": "1166",
+                        "ref": "const,const",
+                        "rows": 7768,
+                        "filtered": 10,
+                        "Extra": "Using where; Using temporary; Using filesort"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "vendor_accounts",
+                        "partitions": null,
+                        "type": "eq_ref",
+                        "possible_keys": "PRIMARY,vendor_accounts_slug_unique,vendor_accounts_status_index",
+                        "key": "PRIMARY",
+                        "key_len": "144",
+                        "ref": "diyar_staging.products.vendor_account_id",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": "Using where"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "vendor_accounts",
+                        "partitions": null,
+                        "type": "eq_ref",
+                        "possible_keys": "PRIMARY,vendor_accounts_status_index",
+                        "key": "PRIMARY",
+                        "key_len": "144",
+                        "ref": "diyar_staging.products.vendor_account_id",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": "Using where"
+                    }
+                ],
+                "analyze": [
+                    {
+                        "EXPLAIN": "-> Limit: 10 row(s)  (actual time=17.5..17.5 rows=3 loops=1)\n    -> Sort: aggregate_count DESC, limit input to 10 row(s) per chunk  (actual time=17.5..17.5 rows=3 loops=1)\n        -> Table scan on <temporary>  (actual time=17.4..17.4 rows=3 loops=1)\n            -> Aggregate using temporary table  (actual time=17.4..17.4 rows=3 loops=1)\n                -> Nested loop inner join  (cost=3577 rows=777) (actual time=0.132..15.6 rows=4443 loops=1)\n                    -> Nested loop inner join  (cost=3305 rows=777) (actual time=0.127..13.3 rows=4443 loops=1)\n                        -> Filter: (products.deleted_at is null)  (cost=3033 rows=777) (actual time=0.117..10.7 rows=4443 loops=1)\n                            -> Index lookup on products using products_category_id_status_index (category_id='01a0868c-dd5a-7169-b626-bff5600ce5f7', status='active')  (cost=3033 rows=7768) (actual time=0.116..10.5 rows=4443 loops=1)\n                        -> Filter: (vendor_accounts.`status` = 'active')  (cost=0.25 rows=1) (actual time=351e-6..435e-6 rows=1 loops=4443)\n                            -> Single-row index lookup on vendor_accounts using PRIMARY (id=products.vendor_account_id)  (cost=0.25 rows=1) (actual time=184e-6..213e-6 rows=1 loops=4443)\n                    -> Filter: (vendor_accounts.`status` = 'active')  (cost=0.25 rows=1) (actual time=302e-6..382e-6 rows=1 loops=4443)\n                        -> Single-row index lookup on vendor_accounts using PRIMARY (id=products.vendor_account_id)  (cost=0.25 rows=1) (actual time=151e-6..180e-6 rows=1 loops=4443)\n"
+                    }
+                ]
+            }
+        },
+        {
+            "sql": "select `product_colors`.`name` as `value`, COUNT(DISTINCT products.id) as aggregate_count from `products` inner join `product_colors` on `products`.`id` = `product_colors`.`product_id` where `products`.`status` = ? and `products`.`vendor_account_id` in (select `id` from `vendor_accounts` where `status` = ?) and `products`.`category_id` = ? and `products`.`deleted_at` is null group by `product_colors`.`name` order by `aggregate_count` desc limit 10",
+            "bindings_count": 3,
+            "plan": {
+                "type": "EXPLAIN",
+                "rows": [
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "products",
+                        "partitions": null,
+                        "type": "ref",
+                        "possible_keys": "PRIMARY,products_vendor_account_id_slug_unique,products_category_id_status_index,products_vendor_account_id_status_index,products_status_created_at_index,products_category_status_created_at_index,products_vendor_status_created_at_index,products_status_promotion_ends_at_index",
+                        "key": "products_category_id_status_index",
+                        "key_len": "1166",
+                        "ref": "const,const",
+                        "rows": 7768,
+                        "filtered": 10,
+                        "Extra": "Using where; Using temporary; Using filesort"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "vendor_accounts",
+                        "partitions": null,
+                        "type": "eq_ref",
+                        "possible_keys": "PRIMARY,vendor_accounts_status_index",
+                        "key": "PRIMARY",
+                        "key_len": "144",
+                        "ref": "diyar_staging.products.vendor_account_id",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": "Using where"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "product_colors",
+                        "partitions": null,
+                        "type": "ref",
+                        "possible_keys": "product_colors_product_id_foreign",
+                        "key": "product_colors_product_id_foreign",
+                        "key_len": "144",
+                        "ref": "diyar_staging.products.id",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": null
+                    }
+                ],
+                "analyze": [
+                    {
+                        "EXPLAIN": "-> Limit: 10 row(s)  (actual time=37.1..37.1 rows=9 loops=1)\n    -> Sort: aggregate_count DESC, limit input to 10 row(s) per chunk  (actual time=37.1..37.1 rows=9 loops=1)\n        -> Stream results  (actual time=36..37.1 rows=9 loops=1)\n            -> Group aggregate: count(distinct products.id)  (actual time=36..37.1 rows=9 loops=1)\n                -> Sort: product_colors.`name`  (actual time=35.8..35.9 rows=2963 loops=1)\n                    -> Stream results  (cost=3585 rows=798) (actual time=0.0901..31.3 rows=2963 loops=1)\n                        -> Nested loop inner join  (cost=3585 rows=798) (actual time=0.0889..30.8 rows=2963 loops=1)\n                            -> Nested loop inner join  (cost=3305 rows=777) (actual time=0.0721..12.4 rows=4443 loops=1)\n                                -> Filter: (products.deleted_at is null)  (cost=3033 rows=777) (actual time=0.0651..10 rows=4443 loops=1)\n                                    -> Index lookup on products using products_category_id_status_index (category_id='01a0868c-dd5a-7169-b626-bff5600ce5f7', status='active')  (cost=3033 rows=7768) (actual time=0.0646..9.71 rows=4443 loops=1)\n                                -> Filter: (vendor_accounts.`status` = 'active')  (cost=0.25 rows=1) (actual time=327e-6..405e-6 rows=1 loops=4443)\n                                    -> Single-row index lookup on vendor_accounts using PRIMARY (id=products.vendor_account_id)  (cost=0.25 rows=1) (actual time=160e-6..184e-6 rows=1 loops=4443)\n                            -> Index lookup on product_colors using product_colors_product_id_foreign (product_id=products.id)  (cost=0.257 rows=1.03) (actual time=0.00376..0.00399 rows=0.667 loops=4443)\n"
+                    }
+                ]
+            }
+        },
+        {
+            "sql": "select `availability_mode` as `value`, COUNT(*) as aggregate_count from `products` where `products`.`status` = ? and `products`.`vendor_account_id` in (select `id` from `vendor_accounts` where `status` = ?) and `products`.`category_id` = ? and `products`.`deleted_at` is null group by `availability_mode` order by `aggregate_count` desc",
+            "bindings_count": 3,
+            "plan": {
+                "type": "EXPLAIN",
+                "rows": [
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "products",
+                        "partitions": null,
+                        "type": "ref",
+                        "possible_keys": "products_vendor_account_id_slug_unique,products_category_id_status_index,products_vendor_account_id_status_index,products_status_created_at_index,products_category_status_created_at_index,products_vendor_status_created_at_index,products_status_promotion_ends_at_index",
+                        "key": "products_category_id_status_index",
+                        "key_len": "1166",
+                        "ref": "const,const",
+                        "rows": 7768,
+                        "filtered": 10,
+                        "Extra": "Using where; Using temporary; Using filesort"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "vendor_accounts",
+                        "partitions": null,
+                        "type": "eq_ref",
+                        "possible_keys": "PRIMARY,vendor_accounts_status_index",
+                        "key": "PRIMARY",
+                        "key_len": "144",
+                        "ref": "diyar_staging.products.vendor_account_id",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": "Using where"
+                    }
+                ],
+                "analyze": [
+                    {
+                        "EXPLAIN": "-> Sort: aggregate_count DESC  (actual time=14.1..14.1 rows=3 loops=1)\n    -> Table scan on <temporary>  (actual time=14.1..14.1 rows=3 loops=1)\n        -> Aggregate using temporary table  (actual time=14.1..14.1 rows=3 loops=1)\n            -> Nested loop inner join  (cost=3305 rows=777) (actual time=0.0696..12.5 rows=4443 loops=1)\n                -> Filter: (products.deleted_at is null)  (cost=3033 rows=777) (actual time=0.062..10.2 rows=4443 loops=1)\n                    -> Index lookup on products using products_category_id_status_index (category_id='01a0868c-dd5a-7169-b626-bff5600ce5f7', status='active')  (cost=3033 rows=7768) (actual time=0.0616..9.94 rows=4443 loops=1)\n                -> Filter: (vendor_accounts.`status` = 'active')  (cost=0.25 rows=1) (actual time=308e-6..382e-6 rows=1 loops=4443)\n                    -> Single-row index lookup on vendor_accounts using PRIMARY (id=products.vendor_account_id)  (cost=0.25 rows=1) (actual time=150e-6..174e-6 rows=1 loops=4443)\n"
+                    }
+                ]
+            }
+        },
+        {
+            "sql": "select SUM(CASE WHEN compare_price IS NOT NULL AND compare_price > sale_price AND (promotion_ends_at IS NULL OR promotion_ends_at > ?) THEN 1 ELSE 0 END) as discounted_count, COUNT(*) as total_count from `products` where `products`.`status` = ? and `products`.`vendor_account_id` in (select `id` from `vendor_accounts` where `status` = ?) and `products`.`category_id` = ? and `products`.`deleted_at` is null limit 1",
+            "bindings_count": 4,
+            "plan": {
+                "type": "EXPLAIN",
+                "rows": [
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "products",
+                        "partitions": null,
+                        "type": "ref",
+                        "possible_keys": "products_vendor_account_id_slug_unique,products_category_id_status_index,products_vendor_account_id_status_index,products_status_created_at_index,products_category_status_created_at_index,products_vendor_status_created_at_index,products_status_promotion_ends_at_index",
+                        "key": "products_category_id_status_index",
+                        "key_len": "1166",
+                        "ref": "const,const",
+                        "rows": 7768,
+                        "filtered": 10,
+                        "Extra": "Using where"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "vendor_accounts",
+                        "partitions": null,
+                        "type": "eq_ref",
+                        "possible_keys": "PRIMARY,vendor_accounts_status_index",
+                        "key": "PRIMARY",
+                        "key_len": "144",
+                        "ref": "diyar_staging.products.vendor_account_id",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": "Using where"
+                    }
+                ],
+                "analyze": [
+                    {
+                        "EXPLAIN": "-> Limit: 1 row(s)  (cost=3383 rows=1) (actual time=17.5..17.5 rows=1 loops=1)\n    -> Aggregate: sum((case when ((products.compare_price is not null) and (products.compare_price > products.sale_price) and ((products.promotion_ends_at is null) or (products.promotion_ends_at > '2026-09-09 17:41:34'))) then 1 else 0 end)), count(0)  (cost=3383 rows=1) (actual time=17.5..17.5 rows=1 loops=1)\n        -> Nested loop inner join  (cost=3305 rows=777) (actual time=0.0713..16.6 rows=4443 loops=1)\n            -> Filter: (products.deleted_at is null)  (cost=3033 rows=777) (actual time=0.0637..13.8 rows=4443 loops=1)\n                -> Index lookup on products using products_category_id_status_index (category_id='01a0868c-dd5a-7169-b626-bff5600ce5f7', status='active')  (cost=3033 rows=7768) (actual time=0.0633..13.5 rows=4443 loops=1)\n            -> Filter: (vendor_accounts.`status` = 'active')  (cost=0.25 rows=1) (actual time=414e-6..496e-6 rows=1 loops=4443)\n                -> Single-row index lookup on vendor_accounts using PRIMARY (id=products.vendor_account_id)  (cost=0.25 rows=1) (actual time=210e-6..235e-6 rows=1 loops=4443)\n"
+                    }
+                ]
+            }
+        },
+        {
+            "sql": "select COUNT(*) as result_count, MIN(starting_price) as min_price, MAX(starting_price) as max_price, AVG(starting_price) as avg_price, AVG(rating_average) as avg_rating, MIN(rating_average) as min_rating, MAX(rating_average) as max_rating from `services` where `is_active` = ? and exists (select * from `provider_accounts` where `services`.`provider_account_id` = `provider_accounts`.`id` and `status` = ? and `slug` is not null and `slug` != ?) and exists (select * from `service_categories` where `services`.`service_category_id` = `service_categories`.`id` and `slug` = ? and `is_active` = ?) limit 1",
+            "bindings_count": 5,
+            "plan": {
+                "type": "EXPLAIN",
+                "rows": [
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "service_categories",
+                        "partitions": null,
+                        "type": "const",
+                        "possible_keys": "PRIMARY,service_categories_slug_unique,service_categories_is_active_sort_order_index",
+                        "key": "service_categories_slug_unique",
+                        "key_len": "1022",
+                        "ref": "const",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": null
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "provider_accounts",
+                        "partitions": null,
+                        "type": "range",
+                        "possible_keys": "PRIMARY,provider_accounts_slug_unique",
+                        "key": "provider_accounts_slug_unique",
+                        "key_len": "1023",
+                        "ref": null,
+                        "rows": 16,
+                        "filtered": 10,
+                        "Extra": "Using index condition; Using where"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "services",
+                        "partitions": null,
+                        "type": "ref",
+                        "possible_keys": "services_provider_account_id_slug_unique,services_service_category_id_is_active_index,services_provider_account_id_is_active_index,services_is_active_created_at_index",
+                        "key": "services_provider_account_id_slug_unique",
+                        "key_len": "144",
+                        "ref": "diyar_staging.provider_accounts.id",
+                        "rows": 6850,
+                        "filtered": 40.670223236083984,
+                        "Extra": "Using where"
+                    }
+                ],
+                "analyze": [
+                    {
+                        "EXPLAIN": "-> Limit: 1 row(s)  (cost=4288 rows=1) (actual time=342..342 rows=1 loops=1)\n    -> Aggregate: count(0), min(services.starting_price), max(services.starting_price), avg(services.starting_price), avg(services.rating_average), min(services.rating_average), max(services.rating_average)  (cost=4288 rows=1) (actual time=342..342 rows=1 loops=1)\n        -> Nested loop inner join  (cost=3843 rows=4458) (actual time=2.91..335 rows=16916 loops=1)\n            -> Filter: (provider_accounts.`status` = 'active')  (cost=6.27 rows=1.6) (actual time=0.0524..0.272 rows=15 loops=1)\n                -> Index range scan on provider_accounts using provider_accounts_slug_unique over (NULL < slug < '') OR ('' < slug), with index condition: ((provider_accounts.slug is not null) and (provider_accounts.slug <> '') and <cache>(('interior-design' = 'interior-design')))  (cost=6.27 rows=16) (actual time=0.0517..0.243 rows=15 loops=1)\n            -> Filter: ((services.service_category_id = '01a0868c-e860-729a-acb8-752e49571fa0') and (services.is_active = 1))  (cost=1887 rows=2786) (actual time=4.62..22.3 rows=1128 loops=15)\n                -> Index lookup on services using services_provider_account_id_slug_unique (provider_account_id=provider_accounts.id)  (cost=1887 rows=6851) (actual time=0.0674..20.6 rows=6667 loops=15)\n"
+                    }
+                ]
+            }
+        },
+        {
+            "sql": "select `pricing_mode` as `value`, COUNT(*) as aggregate_count from `services` where `is_active` = ? and exists (select * from `provider_accounts` where `services`.`provider_account_id` = `provider_accounts`.`id` and `status` = ? and `slug` is not null and `slug` != ?) and exists (select * from `service_categories` where `services`.`service_category_id` = `service_categories`.`id` and `slug` = ? and `is_active` = ?) group by `pricing_mode` order by `aggregate_count` desc",
+            "bindings_count": 5,
+            "plan": {
+                "type": "EXPLAIN",
+                "rows": [
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "service_categories",
+                        "partitions": null,
+                        "type": "const",
+                        "possible_keys": "PRIMARY,service_categories_slug_unique,service_categories_is_active_sort_order_index",
+                        "key": "service_categories_slug_unique",
+                        "key_len": "1022",
+                        "ref": "const",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": "Using temporary; Using filesort"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "provider_accounts",
+                        "partitions": null,
+                        "type": "ALL",
+                        "possible_keys": "PRIMARY,provider_accounts_slug_unique",
+                        "key": null,
+                        "key_len": null,
+                        "ref": null,
+                        "rows": 15,
+                        "filtered": 10,
+                        "Extra": "Using where"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "services",
+                        "partitions": null,
+                        "type": "ref",
+                        "possible_keys": "services_provider_account_id_slug_unique,services_service_category_id_is_active_index,services_provider_account_id_is_active_index,services_is_active_created_at_index,services_pricing_mode_index",
+                        "key": "services_provider_account_id_slug_unique",
+                        "key_len": "144",
+                        "ref": "diyar_staging.provider_accounts.id",
+                        "rows": 6850,
+                        "filtered": 40.670223236083984,
+                        "Extra": "Using where"
+                    }
+                ],
+                "analyze": [
+                    {
+                        "EXPLAIN": "-> Sort: aggregate_count DESC  (actual time=308..308 rows=6 loops=1)\n    -> Table scan on <temporary>  (actual time=308..308 rows=6 loops=1)\n        -> Aggregate using temporary table  (actual time=308..308 rows=6 loops=1)\n            -> Nested loop inner join  (cost=3597 rows=4179) (actual time=0.0711..299 rows=16916 loops=1)\n                -> Filter: ((provider_accounts.`status` = 'active') and (provider_accounts.slug is not null) and (provider_accounts.slug <> '') and <cache>(('interior-design' = 'interior-design')))  (cost=0.4 rows=1.5) (actual time=0.0098..0.132 rows=15 loops=1)\n                    -> Table scan on provider_accounts  (cost=0.4 rows=15) (actual time=0.0081..0.0685 rows=15 loops=1)\n                -> Filter: ((services.service_category_id = '01a0868c-e860-729a-acb8-752e49571fa0') and (services.is_active = 1))  (cost=1898 rows=2786) (actual time=4.08..19.9 rows=1128 loops=15)\n                    -> Index lookup on services using services_provider_account_id_slug_unique (provider_account_id=provider_accounts.id)  (cost=1898 rows=6851) (actual time=0.0485..18.4 rows=6667 loops=15)\n"
+                    }
+                ]
+            }
+        },
+        {
+            "sql": "select CASE WHEN remote_available = 1 THEN 'true' ELSE 'false' END as value, COUNT(*) as aggregate_count from `services` where `is_active` = ? and exists (select * from `provider_accounts` where `services`.`provider_account_id` = `provider_accounts`.`id` and `status` = ? and `slug` is not null and `slug` != ?) and exists (select * from `service_categories` where `services`.`service_category_id` = `service_categories`.`id` and `slug` = ? and `is_active` = ?) group by `value`",
+            "bindings_count": 5,
+            "plan": {
+                "type": "EXPLAIN",
+                "rows": [
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "service_categories",
+                        "partitions": null,
+                        "type": "const",
+                        "possible_keys": "PRIMARY,service_categories_slug_unique,service_categories_is_active_sort_order_index",
+                        "key": "service_categories_slug_unique",
+                        "key_len": "1022",
+                        "ref": "const",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": "Using temporary"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "provider_accounts",
+                        "partitions": null,
+                        "type": "ALL",
+                        "possible_keys": "PRIMARY,provider_accounts_slug_unique",
+                        "key": null,
+                        "key_len": null,
+                        "ref": null,
+                        "rows": 15,
+                        "filtered": 10,
+                        "Extra": "Using where"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "services",
+                        "partitions": null,
+                        "type": "ref",
+                        "possible_keys": "services_provider_account_id_slug_unique,services_service_category_id_is_active_index,services_provider_account_id_is_active_index,services_is_active_created_at_index",
+                        "key": "services_provider_account_id_slug_unique",
+                        "key_len": "144",
+                        "ref": "diyar_staging.provider_accounts.id",
+                        "rows": 6850,
+                        "filtered": 40.670223236083984,
+                        "Extra": "Using where"
+                    }
+                ],
+                "analyze": [
+                    {
+                        "EXPLAIN": "-> Table scan on <temporary>  (actual time=219..219 rows=2 loops=1)\n    -> Aggregate using temporary table  (actual time=219..219 rows=2 loops=1)\n        -> Nested loop inner join  (cost=3597 rows=4179) (actual time=0.0608..214 rows=16916 loops=1)\n            -> Filter: ((provider_accounts.`status` = 'active') and (provider_accounts.slug is not null) and (provider_accounts.slug <> '') and <cache>(('interior-design' = 'interior-design')))  (cost=0.4 rows=1.5) (actual time=0.0086..0.116 rows=15 loops=1)\n                -> Table scan on provider_accounts  (cost=0.4 rows=15) (actual time=0.0071..0.057 rows=15 loops=1)\n            -> Filter: ((services.service_category_id = '01a0868c-e860-729a-acb8-752e49571fa0') and (services.is_active = 1))  (cost=1898 rows=2786) (actual time=3.47..14.2 rows=1128 loops=15)\n                -> Index lookup on services using services_provider_account_id_slug_unique (provider_account_id=provider_accounts.id)  (cost=1898 rows=6851) (actual time=0.0368..13.2 rows=6667 loops=15)\n"
+                    }
+                ]
+            }
+        },
+        {
+            "sql": "select `provider_accounts`.`slug` as `value`, COUNT(*) as aggregate_count from `services` inner join `provider_accounts` on `services`.`provider_account_id` = `provider_accounts`.`id` where `is_active` = ? and exists (select * from `provider_accounts` where `services`.`provider_account_id` = `provider_accounts`.`id` and `status` = ? and `slug` is not null and `slug` != ?) and exists (select * from `service_categories` where `services`.`service_category_id` = `service_categories`.`id` and `slug` = ? and `is_active` = ?) group by `provider_accounts`.`slug` order by `aggregate_count` desc limit 10",
+            "bindings_count": 5,
+            "plan": {
+                "type": "EXPLAIN",
+                "rows": [
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "service_categories",
+                        "partitions": null,
+                        "type": "const",
+                        "possible_keys": "PRIMARY,service_categories_slug_unique,service_categories_is_active_sort_order_index",
+                        "key": "service_categories_slug_unique",
+                        "key_len": "1022",
+                        "ref": "const",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": "Using temporary; Using filesort"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "provider_accounts",
+                        "partitions": null,
+                        "type": "range",
+                        "possible_keys": "PRIMARY,provider_accounts_slug_unique",
+                        "key": "provider_accounts_slug_unique",
+                        "key_len": "1023",
+                        "ref": null,
+                        "rows": 16,
+                        "filtered": 10,
+                        "Extra": "Using index condition; Using where"
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "provider_accounts",
+                        "partitions": null,
+                        "type": "eq_ref",
+                        "possible_keys": "PRIMARY,provider_accounts_slug_unique",
+                        "key": "PRIMARY",
+                        "key_len": "144",
+                        "ref": "diyar_staging.provider_accounts.id",
+                        "rows": 1,
+                        "filtered": 100,
+                        "Extra": null
+                    },
+                    {
+                        "id": 1,
+                        "select_type": "SIMPLE",
+                        "table": "services",
+                        "partitions": null,
+                        "type": "ref",
+                        "possible_keys": "services_provider_account_id_slug_unique,services_service_category_id_is_active_index,services_provider_account_id_is_active_index,services_is_active_created_at_index",
+                        "key": "services_provider_account_id_slug_unique",
+                        "key_len": "144",
+                        "ref": "diyar_staging.provider_accounts.id",
+                        "rows": 6850,
+                        "filtered": 40.670223236083984,
+                        "Extra": "Using where"
+                    }
+                ],
+                "analyze": [
+                    {
+                        "EXPLAIN": "-> Limit: 10 row(s)  (actual time=261..261 rows=10 loops=1)\n    -> Sort: aggregate_count DESC, limit input to 10 row(s) per chunk  (actual time=261..261 rows=10 loops=1)\n        -> Table scan on <temporary>  (actual time=261..261 rows=12 loops=1)\n            -> Aggregate using temporary table  (actual time=261..261 rows=12 loops=1)\n                -> Nested loop inner join  (cost=3666 rows=4458) (actual time=1.8..253 rows=16916 loops=1)\n                    -> Nested loop inner join  (cost=0.972 rows=1.6) (actual time=0.0271..0.375 rows=15 loops=1)\n                        -> Filter: (provider_accounts.`status` = 'active')  (cost=0.437 rows=1.6) (actual time=0.0209..0.204 rows=15 loops=1)\n                            -> Index range scan on provider_accounts using provider_accounts_slug_unique over (NULL < slug < '') OR ('' < slug), with index condition: ((provider_accounts.slug is not null) and (provider_accounts.slug <> '') and <cache>(('interior-design' = 'interior-design')))  (cost=0.437 rows=16) (actual time=0.0204..0.178 rows=15 loops=1)\n                        -> Single-row index lookup on provider_accounts using PRIMARY (id=provider_accounts.id)  (cost=0.317 rows=1) (actual time=0.0103..0.0104 rows=1 loops=15)\n                    -> Filter: ((services.service_category_id = '01a0868c-e860-729a-acb8-752e49571fa0') and (services.is_active = 1))  (cost=1898 rows=2786) (actual time=3.45..16.8 rows=1128 loops=15)\n                        -> Index lookup on services using services_provider_account_id_slug_unique (provider_account_id=provider_accounts.id)  (cost=1898 rows=6851) (actual time=0.0444..15.6 rows=6667 loops=15)\n"
+                    }
+                ]
+            }
+        }
+    ]
+}

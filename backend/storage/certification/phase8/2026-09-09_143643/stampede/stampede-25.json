@@ -1,0 +1,14 @@
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+{
+    "timestamp_utc": "2026-09-09T14:39:26+00:00",
+    "workers": 25,
+    "context": {
+        "type": "products",
+        "category_slug": "bedroom"
+    },
+    "db_query_events": 6,
+    "process_failures": 0,
+    "expected_max_db_amplification": 3,
+    "ok": true,
+    "note": "db_query_events counts DB listener firings during cold-cache regeneration; should stay far below workers \u00d7 6"
+}

@@ -1,0 +1,46 @@
+{
+    "product_image_rows": 12,
+    "cert_linked_images": 12,
+    "merchant_media_files_in_db": 0,
+    "orphan_product_dirs_on_disk": 11,
+    "orphan_product_files_on_disk": 24,
+    "disk_product_dirs_sample": [
+        "products\/01a02d89-3b0f-7334-b972-55731d3dc4c3",
+        "products\/01a00ef4-ed59-7365-8e0d-9e6b8ee94c4e",
+        "products\/01a051da-baa9-7252-a4bc-f4ba6988f88c",
+        "products\/01a00eb3-57b5-735c-ac57-af54d066879a",
+        "products\/01a057d4-5a88-7208-ae5c-f28db2c28f66",
+        "products\/01a05183-f04d-70c5-b7f6-c3212298c17c",
+        "products\/01a00e8a-53c0-70b5-a4e8-b01e8e0f164f",
+        "products\/01a052b9-6a2e-73af-a96b-a55a17eed37e",
+        "products\/01a00ad9-3019-70a0-8dda-4dab67cba8ed",
+        "products\/01a00acb-7fb4-733c-a3bb-c2793fbfaa03"
+    ],
+    "current_product_ids": [
+        "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+        "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+        "01a070ca-d25b-71ec-b290-46d243992128",
+        "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+        "01a070ca-d30a-73ca-8c53-bf114a537806",
+        "01a070ca-d3b7-7276-9b9d-7c395ff6dfb2",
+        "01a070ca-d443-73dd-994f-28ea726d34b8",
+        "01a070ca-d495-7026-8df5-d252e739a170",
+        "01a070ca-d4ef-72a3-8eca-9f680d97ee05",
+        "01a070ca-d546-7335-96fc-ecde05b79dfd",
+        "01a070ca-d5b0-704e-a705-79bea6fbd417",
+        "01a070ca-d5ff-739a-854a-c473f41e819f"
+    ],
+    "disk_product_ids_exist_in_db": {
+        "01a02d89-3b0f-7334-b972-55731d3dc4c3": false,
+        "01a00ef4-ed59-7365-8e0d-9e6b8ee94c4e": false,
+        "01a051da-baa9-7252-a4bc-f4ba6988f88c": false,
+        "01a00eb3-57b5-735c-ac57-af54d066879a": false,
+        "01a057d4-5a88-7208-ae5c-f28db2c28f66": false,
+        "01a05183-f04d-70c5-b7f6-c3212298c17c": false,
+        "01a00e8a-53c0-70b5-a4e8-b01e8e0f164f": false,
+        "01a052b9-6a2e-73af-a96b-a55a17eed37e": false,
+        "01a00ad9-3019-70a0-8dda-4dab67cba8ed": false,
+        "01a00acb-7fb4-733c-a3bb-c2793fbfaa03": false,
+        "01a00ae1-dfe7-7118-8d24-4b7e35c24a3b": false
+    }
+}

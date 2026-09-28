@@ -1,0 +1,28 @@
+{
+    "sql_prefetch_ms": {
+        "p50": 0.815545,
+        "p95": 1.070558,
+        "p99": 1.070558
+    },
+    "explain": [
+        {
+            "id": 1,
+            "select_type": "SIMPLE",
+            "table": "visual_index_entries",
+            "partitions": null,
+            "type": "ALL",
+            "possible_keys": "idx_visual_index_bucket_active,idx_visual_index_version",
+            "key": null,
+            "key_len": null,
+            "ref": null,
+            "rows": 24,
+            "filtered": 100,
+            "Extra": "Using where"
+        }
+    ],
+    "inprocess_search_ms": {
+        "p50": 77.625415,
+        "p95": 108.499192,
+        "p99": 108.499192
+    }
+}

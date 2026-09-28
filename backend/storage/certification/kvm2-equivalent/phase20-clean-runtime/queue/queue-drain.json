@@ -1,0 +1,7 @@
+﻿{
+    "worker_restarted":  false,
+    "drained_keys_count":  0,
+    "status":  "CLEAN",
+    "captured_at_utc":  "2026-09-28T13:28:14.6492261Z",
+    "action":  "Drained and verified zero queue backlog"
+}

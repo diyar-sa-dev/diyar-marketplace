@@ -1,0 +1,24 @@
+﻿{
+    "captured_at_utc":  "2026-09-28T14:10:25.3780395Z",
+    "php":  "PHP 8.3.33 (cli) (built: Sep 19 2026 00:33:04) (NTS)",
+    "health_ready":  200,
+    "containers":  [
+                       "diyar-kvm2-test-nginx-1",
+                       "diyar-kvm2-test-app-1",
+                       "diyar-kvm2-test-queue-default-1",
+                       "diyar-kvm2-test-queue-critical-1",
+                       "diyar-kvm2-test-scheduler-1",
+                       "diyar-kvm2-test-reverb-2-1",
+                       "diyar-kvm2-test-reverb-1-1",
+                       "diyar-kvm2-test-mysql-1",
+                       "diyar-kvm2-test-redis-1"
+                   ],
+    "publicly_visible_products":  "12",
+    "failed_jobs":  "0",
+    "app_cpuset":  "\"0-1\"",
+    "queue_connection":  "redis",
+    "envelope":  "LOCAL KVM2-EQUIVALENT",
+    "laravel":  "Laravel Framework 13.26.1",
+    "hostinger":  "NOT VERIFIED",
+    "octane_workers":  "2"
+}

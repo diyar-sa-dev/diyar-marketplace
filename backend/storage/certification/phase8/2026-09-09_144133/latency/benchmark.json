@@ -1,0 +1,60 @@
+Warning: PHP Startup: Unable to load dynamic library 'sodium' (tried: C:\php\ext\sodium (The specified module could not be found), C:\php\ext\php_sodium.dll (The specified module could not be found)) in Unknown on line 0
+{
+    "timestamp_utc": "2026-09-09T14:41:37+00:00",
+    "iterations": 20,
+    "warmup": 3,
+    "targets": {
+        "cache_hit_p95_ms": 50,
+        "cache_miss_p95_ms": 250
+    },
+    "contexts": [
+        {
+            "context": {
+                "type": "products",
+                "category_slug": "bedroom"
+            },
+            "driver": "mysql",
+            "resolution_path_sample": "fresh_cache",
+            "cache_miss": {
+                "samples": 20,
+                "db_queries_avg": 6,
+                "p50_ms": 107.72,
+                "p95_ms": 119.64,
+                "p99_ms": 119.64,
+                "max_ms": 124.38
+            },
+            "cache_hit": {
+                "samples": 20,
+                "db_queries_avg": 0,
+                "p50_ms": 1.93,
+                "p95_ms": 2.31,
+                "p99_ms": 2.31,
+                "max_ms": 2.32
+            }
+        },
+        {
+            "context": {
+                "type": "services",
+                "category": "interior-design"
+            },
+            "driver": "mysql",
+            "resolution_path_sample": "fresh_cache",
+            "cache_miss": {
+                "samples": 20,
+                "db_queries_avg": 4,
+                "p50_ms": 827.72,
+                "p95_ms": 1324.19,
+                "p99_ms": 1324.19,
+                "max_ms": 1855.66
+            },
+            "cache_hit": {
+                "samples": 20,
+                "db_queries_avg": 0,
+                "p50_ms": 1.91,
+                "p95_ms": 2.55,
+                "p99_ms": 2.55,
+                "max_ms": 2.77
+            }
+        }
+    ]
+}

@@ -1,0 +1,7 @@
+{
+    "events_before": 136,
+    "events_after": 137,
+    "query_media_rows_created": 0,
+    "latest_event_has_fingerprint_only": true,
+    "no_raw_image_in_event_metadata": true
+}

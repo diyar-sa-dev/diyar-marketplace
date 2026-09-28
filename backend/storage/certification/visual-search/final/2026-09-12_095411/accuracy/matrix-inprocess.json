@@ -1,0 +1,361 @@
+{
+    "method": "in_process_visual_search_service",
+    "total_cases": 39,
+    "passed": 34,
+    "pass_rate": 0.8718,
+    "positive_cases": 36,
+    "positive_pass": 33,
+    "negative_cases": 3,
+    "negative_pass": 1,
+    "top1_accuracy": 0.9167,
+    "cases": [
+        {
+            "case_id": "P1-01a070ca-d13d-72a6-8aaa-33a2db9da00f-exact",
+            "case_type": "positive_exact",
+            "expected_product_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "top1_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P2-01a070ca-d13d-72a6-8aaa-33a2db9da00f-jpeg75",
+            "case_type": "positive_recompressed",
+            "expected_product_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "top1_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P3-01a070ca-d13d-72a6-8aaa-33a2db9da00f-resize200",
+            "case_type": "positive_resized",
+            "expected_product_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "top1_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P4-01a070ca-d1f1-73c7-8921-5300a8e5fd89-exact",
+            "case_type": "positive_exact",
+            "expected_product_id": "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+            "top1_id": "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P5-01a070ca-d1f1-73c7-8921-5300a8e5fd89-jpeg75",
+            "case_type": "positive_recompressed",
+            "expected_product_id": "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+            "top1_id": "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P6-01a070ca-d1f1-73c7-8921-5300a8e5fd89-resize200",
+            "case_type": "positive_resized",
+            "expected_product_id": "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+            "top1_id": "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P7-01a070ca-d25b-71ec-b290-46d243992128-exact",
+            "case_type": "positive_exact",
+            "expected_product_id": "01a070ca-d25b-71ec-b290-46d243992128",
+            "top1_id": "01a070ca-d25b-71ec-b290-46d243992128",
+            "similarity": 1,
+            "result_count": 2,
+            "pass": true
+        },
+        {
+            "case_id": "P8-01a070ca-d25b-71ec-b290-46d243992128-jpeg75",
+            "case_type": "positive_recompressed",
+            "expected_product_id": "01a070ca-d25b-71ec-b290-46d243992128",
+            "top1_id": "01a070ca-d25b-71ec-b290-46d243992128",
+            "similarity": 1,
+            "result_count": 2,
+            "pass": true
+        },
+        {
+            "case_id": "P9-01a070ca-d25b-71ec-b290-46d243992128-resize200",
+            "case_type": "positive_resized",
+            "expected_product_id": "01a070ca-d25b-71ec-b290-46d243992128",
+            "top1_id": "01a070ca-d25b-71ec-b290-46d243992128",
+            "similarity": 0.98,
+            "result_count": 3,
+            "pass": true
+        },
+        {
+            "case_id": "P10-01a070ca-d2b0-7222-be1a-ee89b30cd0f7-exact",
+            "case_type": "positive_exact",
+            "expected_product_id": "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+            "top1_id": "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+            "similarity": 1,
+            "result_count": 2,
+            "pass": true
+        },
+        {
+            "case_id": "P11-01a070ca-d2b0-7222-be1a-ee89b30cd0f7-jpeg75",
+            "case_type": "positive_recompressed",
+            "expected_product_id": "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+            "top1_id": "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+            "similarity": 0.98,
+            "result_count": 2,
+            "pass": true
+        },
+        {
+            "case_id": "P12-01a070ca-d2b0-7222-be1a-ee89b30cd0f7-resize200",
+            "case_type": "positive_resized",
+            "expected_product_id": "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+            "top1_id": "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+            "similarity": 0.98,
+            "result_count": 2,
+            "pass": true
+        },
+        {
+            "case_id": "P13-01a070ca-d30a-73ca-8c53-bf114a537806-exact",
+            "case_type": "positive_exact",
+            "expected_product_id": "01a070ca-d30a-73ca-8c53-bf114a537806",
+            "top1_id": "01a070ca-d30a-73ca-8c53-bf114a537806",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P14-01a070ca-d30a-73ca-8c53-bf114a537806-jpeg75",
+            "case_type": "positive_recompressed",
+            "expected_product_id": "01a070ca-d30a-73ca-8c53-bf114a537806",
+            "top1_id": null,
+            "similarity": null,
+            "result_count": 0,
+            "pass": false
+        },
+        {
+            "case_id": "P15-01a070ca-d30a-73ca-8c53-bf114a537806-resize200",
+            "case_type": "positive_resized",
+            "expected_product_id": "01a070ca-d30a-73ca-8c53-bf114a537806",
+            "top1_id": "01a070ca-d4ef-72a3-8eca-9f680d97ee05",
+            "similarity": 0.8,
+            "result_count": 1,
+            "pass": false
+        },
+        {
+            "case_id": "P16-01a070ca-d3b7-7276-9b9d-7c395ff6dfb2-exact",
+            "case_type": "positive_exact",
+            "expected_product_id": "01a070ca-d3b7-7276-9b9d-7c395ff6dfb2",
+            "top1_id": "01a070ca-d3b7-7276-9b9d-7c395ff6dfb2",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P17-01a070ca-d3b7-7276-9b9d-7c395ff6dfb2-jpeg75",
+            "case_type": "positive_recompressed",
+            "expected_product_id": "01a070ca-d3b7-7276-9b9d-7c395ff6dfb2",
+            "top1_id": "01a070ca-d3b7-7276-9b9d-7c395ff6dfb2",
+            "similarity": 0.98,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P18-01a070ca-d3b7-7276-9b9d-7c395ff6dfb2-resize200",
+            "case_type": "positive_resized",
+            "expected_product_id": "01a070ca-d3b7-7276-9b9d-7c395ff6dfb2",
+            "top1_id": "01a070ca-d3b7-7276-9b9d-7c395ff6dfb2",
+            "similarity": 0.98,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P19-01a070ca-d443-73dd-994f-28ea726d34b8-exact",
+            "case_type": "positive_exact",
+            "expected_product_id": "01a070ca-d443-73dd-994f-28ea726d34b8",
+            "top1_id": "01a070ca-d443-73dd-994f-28ea726d34b8",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P20-01a070ca-d443-73dd-994f-28ea726d34b8-jpeg75",
+            "case_type": "positive_recompressed",
+            "expected_product_id": "01a070ca-d443-73dd-994f-28ea726d34b8",
+            "top1_id": "01a070ca-d443-73dd-994f-28ea726d34b8",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P21-01a070ca-d443-73dd-994f-28ea726d34b8-resize200",
+            "case_type": "positive_resized",
+            "expected_product_id": "01a070ca-d443-73dd-994f-28ea726d34b8",
+            "top1_id": "01a070ca-d443-73dd-994f-28ea726d34b8",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P22-01a070ca-d495-7026-8df5-d252e739a170-exact",
+            "case_type": "positive_exact",
+            "expected_product_id": "01a070ca-d495-7026-8df5-d252e739a170",
+            "top1_id": "01a070ca-d495-7026-8df5-d252e739a170",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P23-01a070ca-d495-7026-8df5-d252e739a170-jpeg75",
+            "case_type": "positive_recompressed",
+            "expected_product_id": "01a070ca-d495-7026-8df5-d252e739a170",
+            "top1_id": "01a070ca-d495-7026-8df5-d252e739a170",
+            "similarity": 0.94,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P24-01a070ca-d495-7026-8df5-d252e739a170-resize200",
+            "case_type": "positive_resized",
+            "expected_product_id": "01a070ca-d495-7026-8df5-d252e739a170",
+            "top1_id": "01a070ca-d495-7026-8df5-d252e739a170",
+            "similarity": 0.98,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P25-01a070ca-d4ef-72a3-8eca-9f680d97ee05-exact",
+            "case_type": "positive_exact",
+            "expected_product_id": "01a070ca-d4ef-72a3-8eca-9f680d97ee05",
+            "top1_id": "01a070ca-d4ef-72a3-8eca-9f680d97ee05",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P26-01a070ca-d4ef-72a3-8eca-9f680d97ee05-jpeg75",
+            "case_type": "positive_recompressed",
+            "expected_product_id": "01a070ca-d4ef-72a3-8eca-9f680d97ee05",
+            "top1_id": "01a070ca-d4ef-72a3-8eca-9f680d97ee05",
+            "similarity": 0.95,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P27-01a070ca-d4ef-72a3-8eca-9f680d97ee05-resize200",
+            "case_type": "positive_resized",
+            "expected_product_id": "01a070ca-d4ef-72a3-8eca-9f680d97ee05",
+            "top1_id": "01a070ca-d4ef-72a3-8eca-9f680d97ee05",
+            "similarity": 0.95,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P28-01a070ca-d546-7335-96fc-ecde05b79dfd-exact",
+            "case_type": "positive_exact",
+            "expected_product_id": "01a070ca-d546-7335-96fc-ecde05b79dfd",
+            "top1_id": "01a070ca-d546-7335-96fc-ecde05b79dfd",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P29-01a070ca-d546-7335-96fc-ecde05b79dfd-jpeg75",
+            "case_type": "positive_recompressed",
+            "expected_product_id": "01a070ca-d546-7335-96fc-ecde05b79dfd",
+            "top1_id": null,
+            "similarity": null,
+            "result_count": 0,
+            "pass": false
+        },
+        {
+            "case_id": "P30-01a070ca-d546-7335-96fc-ecde05b79dfd-resize200",
+            "case_type": "positive_resized",
+            "expected_product_id": "01a070ca-d546-7335-96fc-ecde05b79dfd",
+            "top1_id": "01a070ca-d546-7335-96fc-ecde05b79dfd",
+            "similarity": 0.73,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P31-01a070ca-d5b0-704e-a705-79bea6fbd417-exact",
+            "case_type": "positive_exact",
+            "expected_product_id": "01a070ca-d5b0-704e-a705-79bea6fbd417",
+            "top1_id": "01a070ca-d5b0-704e-a705-79bea6fbd417",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P32-01a070ca-d5b0-704e-a705-79bea6fbd417-jpeg75",
+            "case_type": "positive_recompressed",
+            "expected_product_id": "01a070ca-d5b0-704e-a705-79bea6fbd417",
+            "top1_id": "01a070ca-d5b0-704e-a705-79bea6fbd417",
+            "similarity": 0.73,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P33-01a070ca-d5b0-704e-a705-79bea6fbd417-resize200",
+            "case_type": "positive_resized",
+            "expected_product_id": "01a070ca-d5b0-704e-a705-79bea6fbd417",
+            "top1_id": "01a070ca-d5b0-704e-a705-79bea6fbd417",
+            "similarity": 0.73,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P34-01a070ca-d5ff-739a-854a-c473f41e819f-exact",
+            "case_type": "positive_exact",
+            "expected_product_id": "01a070ca-d5ff-739a-854a-c473f41e819f",
+            "top1_id": "01a070ca-d5ff-739a-854a-c473f41e819f",
+            "similarity": 1,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P35-01a070ca-d5ff-739a-854a-c473f41e819f-jpeg75",
+            "case_type": "positive_recompressed",
+            "expected_product_id": "01a070ca-d5ff-739a-854a-c473f41e819f",
+            "top1_id": "01a070ca-d5ff-739a-854a-c473f41e819f",
+            "similarity": 0.75,
+            "result_count": 1,
+            "pass": true
+        },
+        {
+            "case_id": "P36-01a070ca-d5ff-739a-854a-c473f41e819f-resize200",
+            "case_type": "positive_resized",
+            "expected_product_id": "01a070ca-d5ff-739a-854a-c473f41e819f",
+            "top1_id": "01a070ca-d5ff-739a-854a-c473f41e819f",
+            "similarity": 0.8,
+            "result_count": 2,
+            "pass": true
+        },
+        {
+            "case_id": "N37-solid-red",
+            "case_type": "negative_unrelated",
+            "top1_id": "01a070ca-d3b7-7276-9b9d-7c395ff6dfb2",
+            "similarity": 0.98,
+            "result_count": 2,
+            "pass": false
+        },
+        {
+            "case_id": "N38-solid-blue",
+            "case_type": "negative_unrelated",
+            "top1_id": "01a070ca-d3b7-7276-9b9d-7c395ff6dfb2",
+            "similarity": 0.95,
+            "result_count": 1,
+            "pass": false
+        },
+        {
+            "case_id": "N39-unrelated-pattern",
+            "case_type": "negative_unrelated",
+            "top1_id": null,
+            "similarity": null,
+            "result_count": 0,
+            "pass": true
+        }
+    ]
+}

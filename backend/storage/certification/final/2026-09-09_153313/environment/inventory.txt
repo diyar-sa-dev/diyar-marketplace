@@ -1,0 +1,11 @@
+php=8.4.0
+laravel=13.26.1
+os=WINNT
+db_driver=mysql
+db_host=127.0.0.1
+db_port=3307
+db_database=diyar_staging
+cache=redis
+redis_host=127.0.0.1
+redis_port=6380
+commit_sha=d6c8efcb3c3b70450861c5c37dbd241da5d369f7

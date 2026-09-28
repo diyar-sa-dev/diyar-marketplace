@@ -147,8 +147,16 @@ Operational KVM2 capacity work (not a numbered Stage 31):
 - **CPU sampler Phase 19:** NOT MEASURED (Windows background); Phase 15 ref **~65% app CPU** @ rps150
 - Evidence: `phase19-search-performance/` (scorecard, Face 3, queue backlog, octane probe) · **Hostinger NOT VERIFIED**
 - Phase 19 Git Release: **CLOSED & COMMITTED** (`3921071`) · `diyar/dev` **SYNCHRONIZED** · `prod-temp` **FAST-FORWARDED**
-- Phase 20 Clean Runtime & Queue Isolation: **ACTIVE / IN PROGRESS**
+- Phase 20 Clean Runtime & Queue Isolation:
   - Directory: `backend/storage/certification/kvm2-equivalent/phase20-clean-runtime/`
   - Report: `conception/Stages/Post-Stage 30/KVM2_PHASE_20_CLEAN_RUNTIME_AND_QUEUE_ISOLATION_REPORT.md`
-  - Focus: Phase 20.0 clean runtime (foreground sampler + queue drain) → Phase 20.1 queue isolation → Phase 20.2 cardinality scaling (12 → 1K → 10K).
+  - **Phase 20.0 Clean Runtime Baseline:** **VERIFIED WITH LIMITATIONS** (Authoritative run `task-156`, commit `4d74ff5`)
+    - Queue Depth: 0 across all runs (zero contamination). Failed jobs: 0.
+    - Achieved load: 100% matched across rps100–200; error rate: 0.0% (0 429s, 0 5xxs).
+    - 1-Second Telemetry: 16 `sampler-*.jsonl` files captured.
+    - Capacity boundary: App CPU reaches 77% @ rps175, 94% (peak 145%) @ rps200.
+    - Isolated rps150: Search p95 = 111.1ms (3,166 Redis ops), Products p95 = 51.5ms, Detail p95 = 35.2ms.
+  - **Phase 20.1 Queue Isolation:** WAITING FOR APPROVAL
+  - **Phase 20.2 Cardinality Scaling:** WAITING FOR APPROVAL
+  - **Hostinger Validation:** NOT VERIFIED (Local KVM2-equivalent envelope only).
 

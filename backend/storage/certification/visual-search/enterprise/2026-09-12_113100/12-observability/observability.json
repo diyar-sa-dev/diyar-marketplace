@@ -1,0 +1,19 @@
+{
+    "structured_event": "visual_search.search.completed",
+    "verified_in_docker_logs": true,
+    "sample_fields": [
+        "search_id",
+        "cache",
+        "candidate_count",
+        "page_item_count",
+        "duration_ms",
+        "fingerprint_prefix"
+    ],
+    "forbidden_fields_absent": [
+        "raw_image",
+        "base64",
+        "image_bytes",
+        "filesystem_path"
+    ],
+    "sample_log_line": "[2026-09-12 12:54:12] local.INFO: visual_search.search.completed {\"search_id\":\"30eccfb6-368e-4598-a5e3-9e20d83e3af3\",\"cache\":\"miss\",\"candidate_count\":2,\"page_item_count\":2,\"duration_ms\":34.31,\"fingerprint_prefix\":\"81c67086\"}"
+}

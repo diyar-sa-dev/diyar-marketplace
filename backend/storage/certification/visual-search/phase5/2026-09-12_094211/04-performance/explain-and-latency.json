@@ -1,0 +1,31 @@
+{
+    "probe_bucket_count": 299,
+    "probe_radius": 3,
+    "sql_prefetch_cap": 1500,
+    "explain": [
+        {
+            "id": 1,
+            "select_type": "SIMPLE",
+            "table": "visual_index_entries",
+            "partitions": null,
+            "type": "ref",
+            "possible_keys": "idx_visual_index_bucket_active,idx_visual_index_version",
+            "key": "idx_visual_index_version",
+            "key_len": "259",
+            "ref": "const,const",
+            "rows": 5,
+            "filtered": 50,
+            "Extra": "Using where"
+        }
+    ],
+    "sql_prefetch_ms": {
+        "p50": 0.816238,
+        "p95": 0.943745,
+        "p99": 0.943745
+    },
+    "full_search_http_ms": {
+        "p50": 56.221856,
+        "p95": 66.626247,
+        "p99": 66.626247
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "sample_key": "diyar:visual-search:v1:perceptual-v1:dhash-64-v1:ranking-v1:catalog-v1:19:0.7:50:0:test-fingerprint",
+    "generation": 0,
+    "includes_min_similarity": true,
+    "includes_max_hamming": true
+}

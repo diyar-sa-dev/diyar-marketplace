@@ -1,0 +1,62 @@
+{
+  "timestamp_utc": "2026-09-09T14:33:13+00:00",
+  "commit_sha": "d6c8efcb3c3b70450861c5c37dbd241da5d369f7",
+  "environment": {
+    "php": "8.4.0",
+    "laravel": "13.26.1",
+    "db_connection": "sqlite :memory:",
+    "cache_driver": "array",
+    "redis": "not used in PHPUnit"
+  },
+  "original_failures": [
+    {
+      "test": "FilterSuggestionResilienceTest::healthy_initialized_response_is_not_degraded",
+      "symptom": "degraded=true when display_mode=initialized",
+      "classification": "TEST POLLUTION"
+    },
+    {
+      "test": "FilterSuggestionResilienceTest::stale_cache_is_used_when_generation_fails",
+      "symptom": "expected stale_cache, got registry_only",
+      "classification": "REAL REGRESSION (cache serialization) + TEST POLLUTION"
+    }
+  ],
+  "root_causes": [
+    {
+      "polluter": "database_failure_falls_back_to_registry_only_response",
+      "polluted": "healthy_initialized_response_is_not_degraded",
+      "leaked_state": "Mockery mock of CachedFilterContextSummaryService bound via $this->mock() persisted in Laravel container across test methods",
+      "effect": "Subsequent requests hit mocked summarize() throw path → registry_only fallback → degraded=true"
+    },
+    {
+      "polluter": "N/A (production code path)",
+      "polluted": "stale_cache_is_used_when_generation_fails",
+      "leaked_state": "FilterSuggestionResult stored as PHP object in Redis/file cache deserializes as __PHP_Incomplete_Class",
+      "effect": "isValidCachedResult() rejects stale entry → recover() falls through to suggestRegistryOnly()"
+    }
+  ],
+  "fixes": [
+    "FilterSuggestionResilienceTest tearDown() calls resetFilterSuggestionIsolationState() to forgetInstance/offsetUnset/rebind real services",
+    "Replaced persistent $this->instance() mock pattern with $this->mock() only; container reset in tearDown",
+    "Added @Depends regression pair: polluting_database_failure_mock_produces_degraded_response → subsequent_request_after_polluting_mock_is_not_degraded_when_initialized",
+    "CachedFilterSuggestionService now encodes FilterSuggestionResult as array on cache put and hydrates via FilterSuggestionResult::fromArray() on get",
+    "Added fromArray() to FilterSuggestionResult, FilterSuggestion, FilterSuggestionApply",
+    "Added FilterSuggestionResultCacheCodecTest for PHP serialize round-trip"
+  ],
+  "verification": {
+    "full_suite_run_1": { "tests": 33, "passed": 33, "duration_ms": 4357 },
+    "full_suite_run_2": { "tests": 33, "passed": 33, "duration_ms": 5194 },
+    "random_order_seeds": [
+      { "seed": 1, "tests": 18, "passed": 18 },
+      { "seed": 2, "tests": 18, "passed": 18 },
+      { "seed": 3, "tests": 18, "passed": 18 },
+      { "seed": 4, "tests": 18, "passed": 18 },
+      { "seed": 5, "tests": 18, "passed": 18 }
+    ],
+    "healthy_initialized_repetitions": { "count": 10, "passed": 10 },
+    "stale_cache_repetitions": { "count": 10, "passed": 10 },
+    "reverse_order_stale_then_healthy": "PASS",
+    "reverse_order_healthy_then_stale": "PASS",
+    "catalog_filter_suite": { "tests": 166, "passed": 166, "duration_ms": 17457 }
+  },
+  "gate_v_test_isolation": "PASS"
+}

@@ -1,0 +1,11 @@
+{
+    "timestamp_utc": "2026-09-09T14:41:34+00:00",
+    "commit_sha": "d6c8efcb3c3b70450861c5c37dbd241da5d369f7",
+    "products": 100000,
+    "services": 100000,
+    "categories": 20,
+    "vendors": 20,
+    "providers": 15,
+    "database_size_mb": "6.34",
+    "seed": 42
+}

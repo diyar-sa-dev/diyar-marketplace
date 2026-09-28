@@ -1,0 +1,34 @@
+{
+    "duplicate_hash_groups": 7,
+    "duplicate_hashes": [
+        {
+            "hash_bits": "iU'3-5e%",
+            "cnt": 3
+        },
+        {
+            "hash_bits": "\u0000||-e\ufffd\ufffd\u0000",
+            "cnt": 4
+        },
+        {
+            "hash_bits": "\u0000\ufffd\ufffd\ufffdif\ufffd\u0000",
+            "cnt": 3
+        },
+        {
+            "hash_bits": "u]Sev%I\ufffd",
+            "cnt": 5
+        },
+        {
+            "hash_bits": " \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\u0000",
+            "cnt": 2
+        },
+        {
+            "hash_bits": "\ufffd]\ufffd+\u001fGK\ufffd",
+            "cnt": 2
+        },
+        {
+            "hash_bits": "iiC\r\u000fmOg",
+            "cnt": 2
+        }
+    ],
+    "inactive_rows": 0
+}

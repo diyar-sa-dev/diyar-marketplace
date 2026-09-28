@@ -1,0 +1,13 @@
+{
+    "status": "PARTIAL",
+    "reindex_completed": true,
+    "set_equality": true,
+    "inprocess_smoke": true,
+    "http_smoke_via_nginx": "NOT_RUN",
+    "real_merchant_spot_checks": "BLOCKED",
+    "feature_flag_enabled": true,
+    "blockers": [
+        "No merchant catalog images in DB",
+        "Frontend not deployed on production nginx"
+    ]
+}

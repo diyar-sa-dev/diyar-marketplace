@@ -1,0 +1,6 @@
+{
+    "cache_miss_queries": 6,
+    "cache_hit_queries": 0,
+    "budget_miss_max": 6,
+    "budget_hit_max": 0
+}

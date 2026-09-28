@@ -1,0 +1,66 @@
+﻿*************************** 1. row ***************************
+       Table: visual_index_entries
+Create Table: CREATE TABLE `visual_index_entries` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `product_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `product_image_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `media_file_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hash_bits` varbinary(8) NOT NULL,
+  `hash_bucket` smallint unsigned NOT NULL,
+  `engine_version` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `representation_version` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `index_version` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `indexed_at` timestamp NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_visual_index_product_image` (`product_image_id`),
+  UNIQUE KEY `uq_visual_index_media` (`media_file_id`),
+  KEY `idx_visual_index_bucket_active` (`hash_bucket`,`is_active`,`index_version`),
+  KEY `idx_visual_index_product` (`product_id`,`is_active`),
+  KEY `idx_visual_index_version` (`index_version`,`is_active`),
+  CONSTRAINT `visual_index_entries_media_file_id_foreign` FOREIGN KEY (`media_file_id`) REFERENCES `media_files` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `visual_index_entries_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `visual_index_entries_product_image_id_foreign` FOREIGN KEY (`product_image_id`) REFERENCES `product_images` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+*************************** 1. row ***************************
+       Table: visual_search_events
+Create Table: CREATE TABLE `visual_search_events` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `search_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `event_type` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `occurred_at` timestamp NOT NULL,
+  `query_fingerprint` char(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `product_id` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `rank_position` smallint unsigned DEFAULT NULL,
+  `similarity_score` decimal(5,4) DEFAULT NULL,
+  `engine_version` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `representation_version` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ranking_version` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `index_version` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `session_key` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `metadata` json DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `visual_search_events_user_id_foreign` (`user_id`),
+  KEY `idx_vse_search` (`search_id`,`occurred_at`),
+  KEY `idx_vse_product` (`product_id`,`event_type`,`occurred_at`),
+  KEY `idx_vse_fingerprint` (`query_fingerprint`,`occurred_at`),
+  KEY `idx_vse_type_time` (`event_type`,`occurred_at`),
+  CONSTRAINT `visual_search_events_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `visual_search_events_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+Table	Non_unique	Key_name	Seq_in_index	Column_name	Collation	Cardinality	Sub_part	Packed	Null	Index_type	Comment	Index_comment	Visible	Expression
+visual_index_entries	0	PRIMARY	1	id	A	5	NULL	NULL		BTREE			YES	NULL
+visual_index_entries	0	uq_visual_index_product_image	1	product_image_id	A	5	NULL	NULL		BTREE			YES	NULL
+visual_index_entries	0	uq_visual_index_media	1	media_file_id	A	5	NULL	NULL		BTREE			YES	NULL
+visual_index_entries	1	idx_visual_index_bucket_active	1	hash_bucket	A	5	NULL	NULL		BTREE			YES	NULL
+visual_index_entries	1	idx_visual_index_bucket_active	2	is_active	A	5	NULL	NULL		BTREE			YES	NULL
+visual_index_entries	1	idx_visual_index_bucket_active	3	index_version	A	5	NULL	NULL		BTREE			YES	NULL
+visual_index_entries	1	idx_visual_index_product	1	product_id	A	5	NULL	NULL		BTREE			YES	NULL
+visual_index_entries	1	idx_visual_index_product	2	is_active	A	5	NULL	NULL		BTREE			YES	NULL
+visual_index_entries	1	idx_visual_index_version	1	index_version	A	1	NULL	NULL		BTREE			YES	NULL
+visual_index_entries	1	idx_visual_index_version	2	is_active	A	1	NULL	NULL		BTREE			YES	NULL

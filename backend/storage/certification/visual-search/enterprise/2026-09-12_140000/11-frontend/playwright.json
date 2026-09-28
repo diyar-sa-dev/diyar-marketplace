@@ -1,0 +1,13 @@
+{
+    "tool": "playwright",
+    "base_url": "http://127.0.0.1:8093",
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "spec": "frontend/e2e/visual-search.spec.ts",
+    "scenarios": [
+        "EN modal upload",
+        "AR RTL modal",
+        "mobile entry visible"
+    ]
+}

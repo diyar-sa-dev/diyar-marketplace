@@ -1,0 +1,5 @@
+media_files_before: 136
+media_files_after: 136
+query_images_persisted: none detected
+visual_search_events_before: 34
+visual_search_events_after: 40

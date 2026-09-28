@@ -1,0 +1,14 @@
+{
+    "visual_search_phpunit": {
+        "tests": 40,
+        "passed": 40,
+        "result": "PASS"
+    },
+    "playwright_visual_search": {
+        "tests": 3,
+        "passed": 3,
+        "result": "PASS"
+    },
+    "full_phpunit": "NOT_RUN",
+    "vitest": "NOT_RUN"
+}

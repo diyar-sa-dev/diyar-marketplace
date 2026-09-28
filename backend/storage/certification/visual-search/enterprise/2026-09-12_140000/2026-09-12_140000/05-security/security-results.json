@@ -1,0 +1,27 @@
+[
+    {
+        "case": "valid",
+        "expected_pass_guard": true,
+        "pass": true
+    },
+    {
+        "case": "corrupt",
+        "expected_pass_guard": false,
+        "pass": true
+    },
+    {
+        "case": "svg",
+        "expected_pass_guard": false,
+        "pass": true
+    },
+    {
+        "case": "oversized",
+        "expected_pass_guard": false,
+        "pass": true
+    },
+    {
+        "case": "dim2049",
+        "expected_pass_guard": false,
+        "pass": true
+    }
+]

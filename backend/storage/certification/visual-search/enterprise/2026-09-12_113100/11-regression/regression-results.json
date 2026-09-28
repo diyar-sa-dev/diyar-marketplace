@@ -1,0 +1,16 @@
+{
+    "visual_search_phpunit": {
+        "tool": "phpunit",
+        "filter": "Visual",
+        "tests": 40,
+        "passed": 40,
+        "assertions": 103,
+        "duration_ms": 3972,
+        "environment": "host PHP 8.4 (GD available)",
+        "result": "PASS"
+    },
+    "full_phpunit": "NOT_RUN",
+    "vitest": "NOT_RUN",
+    "playwright_visual_search": "NOT_RUN",
+    "note": "40/40 Visual Search unit/feature tests pass. Full suite and Playwright not executed in this enterprise run."
+}

@@ -1,0 +1,37 @@
+{
+    "threshold": 0.7,
+    "max_hamming": 19,
+    "same_image_distances": [
+        {
+            "query_id": "same-image-0",
+            "hamming_distance": 0,
+            "similarity": 1,
+            "passes_threshold": true
+        },
+        {
+            "query_id": "same-image-1",
+            "hamming_distance": 0,
+            "similarity": 1,
+            "passes_threshold": true
+        },
+        {
+            "query_id": "same-image-2",
+            "hamming_distance": 0,
+            "similarity": 1,
+            "passes_threshold": true
+        },
+        {
+            "query_id": "same-image-3",
+            "hamming_distance": 0,
+            "similarity": 1,
+            "passes_threshold": true
+        },
+        {
+            "query_id": "same-image-4",
+            "hamming_distance": 0,
+            "similarity": 1,
+            "passes_threshold": true
+        }
+    ],
+    "all_same_image_pass_threshold": true
+}

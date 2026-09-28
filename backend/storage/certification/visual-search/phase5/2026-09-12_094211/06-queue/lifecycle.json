@@ -1,0 +1,5 @@
+{
+    "after_attach": 1,
+    "after_triple_dispatch": 1,
+    "after_delete": 0
+}

@@ -1,0 +1,12 @@
+{
+    "production_docker_runtime": true,
+    "database_schema": true,
+    "index_set_equality_current_catalog": true,
+    "real_merchant_catalog_in_db": true,
+    "real_merchant_catalog_for_accuracy": false,
+    "cert_catalog_only": false,
+    "accuracy_30_real_cases": false,
+    "security_guard": true,
+    "frontend_browser_e2e": false,
+    "kill_switch_runtime": null
+}

@@ -1,0 +1,296 @@
+{
+    "generated_at": "2026-09-12T10:57:08+00:00",
+    "dry_run": false,
+    "cert_removed": [
+        {
+            "product_image_id": "01a094fd-04b1-730c-bcc6-0c3f60c824c1",
+            "product_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "path": "cert\/visual-search\/product-01a070ca-d13d-72a6-8aaa-33a2db9da00f.png"
+        },
+        {
+            "product_image_id": "01a094fd-0518-7189-9450-a40d0439d409",
+            "product_id": "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+            "path": "cert\/visual-search\/product-01a070ca-d1f1-73c7-8921-5300a8e5fd89.png"
+        },
+        {
+            "product_image_id": "01a094fd-0558-71ef-8173-bb924cd19dbd",
+            "product_id": "01a070ca-d25b-71ec-b290-46d243992128",
+            "path": "cert\/visual-search\/product-01a070ca-d25b-71ec-b290-46d243992128.png"
+        },
+        {
+            "product_image_id": "01a094fd-05a7-730f-8fb2-38e6e305064a",
+            "product_id": "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+            "path": "cert\/visual-search\/product-01a070ca-d2b0-7222-be1a-ee89b30cd0f7.png"
+        },
+        {
+            "product_image_id": "01a094fd-0616-7266-a6b9-987e23441805",
+            "product_id": "01a070ca-d30a-73ca-8c53-bf114a537806",
+            "path": "cert\/visual-search\/product-01a070ca-d30a-73ca-8c53-bf114a537806.png"
+        },
+        {
+            "product_image_id": "01a09509-a32c-708d-9243-1d4cac4185c5",
+            "product_id": "01a070ca-d3b7-7276-9b9d-7c395ff6dfb2",
+            "path": "cert\/visual-search\/catalog-01a070ca-d3b7-7276-9b9d-7c395ff6dfb2.png"
+        },
+        {
+            "product_image_id": "01a09509-a3cc-707b-bf46-36887c67ee59",
+            "product_id": "01a070ca-d443-73dd-994f-28ea726d34b8",
+            "path": "cert\/visual-search\/catalog-01a070ca-d443-73dd-994f-28ea726d34b8.png"
+        },
+        {
+            "product_image_id": "01a09509-e89c-717c-8fe6-d20304acb3c4",
+            "product_id": "01a070ca-d495-7026-8df5-d252e739a170",
+            "path": "cert\/visual-search\/catalog-01a070ca-d495-7026-8df5-d252e739a170.png"
+        },
+        {
+            "product_image_id": "01a09509-e97a-7025-8577-8c474f9cc041",
+            "product_id": "01a070ca-d4ef-72a3-8eca-9f680d97ee05",
+            "path": "cert\/visual-search\/catalog-01a070ca-d4ef-72a3-8eca-9f680d97ee05.png"
+        },
+        {
+            "product_image_id": "01a09509-ea8e-701e-b04d-589d1420c1d1",
+            "product_id": "01a070ca-d546-7335-96fc-ecde05b79dfd",
+            "path": "cert\/visual-search\/catalog-01a070ca-d546-7335-96fc-ecde05b79dfd.png"
+        },
+        {
+            "product_image_id": "01a09509-ebc3-71c6-a273-c0b856d1cb8b",
+            "product_id": "01a070ca-d5b0-704e-a705-79bea6fbd417",
+            "path": "cert\/visual-search\/catalog-01a070ca-d5b0-704e-a705-79bea6fbd417.png"
+        },
+        {
+            "product_image_id": "01a09509-ecfc-71e3-b52f-d345582785b2",
+            "product_id": "01a070ca-d5ff-739a-854a-c473f41e819f",
+            "path": "cert\/visual-search\/catalog-01a070ca-d5ff-739a-854a-c473f41e819f.png"
+        }
+    ],
+    "orphan_queue_size": 24,
+    "assignments": [
+        {
+            "product_id": "01a070ca-d3b7-7276-9b9d-7c395ff6dfb2",
+            "product_slug": "khzan-mlabs-modrn",
+            "source_path": "products\/01a00acb-7fb4-733c-a3bb-c2793fbfaa03\/4680eb39-6a12-4d73-aab7-074cdb996152.png",
+            "target_path": "products\/01a070ca-d3b7-7276-9b9d-7c395ff6dfb2\/4680eb39-6a12-4d73-aab7-074cdb996152.png",
+            "product_image_id": "01a09543-82f5-71ff-92b8-649f0a53e754",
+            "media_file_id": "01a09543-82d3-72c0-b408-b02e408f1d0d",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d3b7-7276-9b9d-7c395ff6dfb2",
+            "product_slug": "khzan-mlabs-modrn",
+            "source_path": "products\/01a00acb-7fb4-733c-a3bb-c2793fbfaa03\/75e52316-b4e7-4884-97a2-7062c6cc5c38.png",
+            "target_path": "products\/01a070ca-d3b7-7276-9b9d-7c395ff6dfb2\/75e52316-b4e7-4884-97a2-7062c6cc5c38.png",
+            "product_image_id": "01a09543-8385-7172-a569-5720f6207b64",
+            "media_file_id": "01a09543-836a-70c3-af40-791a93fc17d6",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+            "product_slug": "knb-thlathy",
+            "source_path": "products\/01a00acb-7fb4-733c-a3bb-c2793fbfaa03\/60d17d1a-ae09-422d-a70b-d6d817c45f91.png",
+            "target_path": "products\/01a070ca-d1f1-73c7-8921-5300a8e5fd89\/60d17d1a-ae09-422d-a70b-d6d817c45f91.png",
+            "product_image_id": "01a09543-856c-7004-a9cd-66edd4c575cd",
+            "media_file_id": "01a09543-853b-71cd-b7dd-2ae8209e2035",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+            "product_slug": "knb-thlathy",
+            "source_path": "products\/01a00acb-7fb4-733c-a3bb-c2793fbfaa03\/9a75cc52-f8a1-4a46-aefb-ca67ef30b018.png",
+            "target_path": "products\/01a070ca-d1f1-73c7-8921-5300a8e5fd89\/9a75cc52-f8a1-4a46-aefb-ca67ef30b018.png",
+            "product_image_id": "01a09543-8659-71c8-843c-0894e282523a",
+            "media_file_id": "01a09543-860f-70bb-9cf8-511e9089c993",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d495-7026-8df5-d252e739a170",
+            "product_slug": "krsy-astrkhaaa",
+            "source_path": "products\/01a00acb-7fb4-733c-a3bb-c2793fbfaa03\/73009fb1-6e77-46e2-8dc3-e776732eeba2.png",
+            "target_path": "products\/01a070ca-d495-7026-8df5-d252e739a170\/73009fb1-6e77-46e2-8dc3-e776732eeba2.png",
+            "product_image_id": "01a09543-8726-7125-a506-07b40a66207e",
+            "media_file_id": "01a09543-86ef-7231-986d-eb336fbaf36b",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d495-7026-8df5-d252e739a170",
+            "product_slug": "krsy-astrkhaaa",
+            "source_path": "products\/01a00ad9-3019-70a0-8dda-4dab67cba8ed\/0bd94ef7-a7ca-4502-8a6c-1f36f1a3b774.png",
+            "target_path": "products\/01a070ca-d495-7026-8df5-d252e739a170\/0bd94ef7-a7ca-4502-8a6c-1f36f1a3b774.png",
+            "product_image_id": "01a09543-87a3-7114-b1a9-c52fc276d635",
+            "media_file_id": "01a09543-8780-7288-bffd-c9c94ef4a48f",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+            "product_slug": "mktb-aaml",
+            "source_path": "products\/01a00ad9-3019-70a0-8dda-4dab67cba8ed\/20e2be67-39d2-4259-9892-e008f7f296ff.png",
+            "target_path": "products\/01a070ca-d2b0-7222-be1a-ee89b30cd0f7\/20e2be67-39d2-4259-9892-e008f7f296ff.png",
+            "product_image_id": "01a09543-8835-71b2-b651-b5e7dbdd5cad",
+            "media_file_id": "01a09543-880f-7367-96db-488418a4e745",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+            "product_slug": "mktb-aaml",
+            "source_path": "products\/01a00ad9-3019-70a0-8dda-4dab67cba8ed\/eac059d5-4e84-4abe-b2ea-60ff503ca72c.png",
+            "target_path": "products\/01a070ca-d2b0-7222-be1a-ee89b30cd0f7\/eac059d5-4e84-4abe-b2ea-60ff503ca72c.png",
+            "product_image_id": "01a09543-88b9-7239-8965-ec613bd8ff21",
+            "media_file_id": "01a09543-8897-73ee-8d47-04a1006833b7",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d4ef-72a3-8eca-9f680d97ee05",
+            "product_slug": "mrtb-tby",
+            "source_path": "products\/01a00ad9-3019-70a0-8dda-4dab67cba8ed\/f9a555de-3d0d-4bf3-b8f0-31013f3ed7c4.webp",
+            "target_path": "products\/01a070ca-d4ef-72a3-8eca-9f680d97ee05\/f9a555de-3d0d-4bf3-b8f0-31013f3ed7c4.webp",
+            "product_image_id": "01a09543-8946-719b-9c04-c43d8313aa54",
+            "media_file_id": "01a09543-890b-707a-996c-3243e8453ae3",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d4ef-72a3-8eca-9f680d97ee05",
+            "product_slug": "mrtb-tby",
+            "source_path": "products\/01a00ad9-3019-70a0-8dda-4dab67cba8ed\/f668f0e1-c370-4d5f-9d12-de27012e7c7e.png",
+            "target_path": "products\/01a070ca-d4ef-72a3-8eca-9f680d97ee05\/f668f0e1-c370-4d5f-9d12-de27012e7c7e.png",
+            "product_image_id": "01a09543-89c4-7253-a5b8-1490fb91051f",
+            "media_file_id": "01a09543-899e-70ae-8217-19fca8ba1f40",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d30a-73ca-8c53-bf114a537806",
+            "product_slug": "msbah-ardy",
+            "source_path": "products\/01a00ae1-dfe7-7118-8d24-4b7e35c24a3b\/00ad27c3-6d81-4f9d-b4fa-f3b790e93cf8.png",
+            "target_path": "products\/01a070ca-d30a-73ca-8c53-bf114a537806\/00ad27c3-6d81-4f9d-b4fa-f3b790e93cf8.png",
+            "product_image_id": "01a09543-8a41-73f9-bfa2-de8804ae7dba",
+            "media_file_id": "01a09543-8a11-7016-9dc1-4aefbc7de8d6",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d30a-73ca-8c53-bf114a537806",
+            "product_slug": "msbah-ardy",
+            "source_path": "products\/01a00e8a-53c0-70b5-a4e8-b01e8e0f164f\/a6d2dcaa-9ca3-4792-8e29-ab67a3c87e25.png",
+            "target_path": "products\/01a070ca-d30a-73ca-8c53-bf114a537806\/a6d2dcaa-9ca3-4792-8e29-ab67a3c87e25.png",
+            "product_image_id": "01a09543-8baf-738a-a3ba-55187717cc9c",
+            "media_file_id": "01a09543-8b97-7013-978f-69a27f65a44c",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d546-7335-96fc-ecde05b79dfd",
+            "product_slug": "rf-ktb",
+            "source_path": "products\/01a00e8a-53c0-70b5-a4e8-b01e8e0f164f\/a78b7878-1949-4a70-baa9-47efebf7f953.webp",
+            "target_path": "products\/01a070ca-d546-7335-96fc-ecde05b79dfd\/a78b7878-1949-4a70-baa9-47efebf7f953.webp",
+            "product_image_id": "01a09543-8c12-72e9-9225-6333214cf82c",
+            "media_file_id": "01a09543-8bf6-70a5-a25f-d5cd2339449d",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d546-7335-96fc-ecde05b79dfd",
+            "product_slug": "rf-ktb",
+            "source_path": "products\/01a00eb3-57b5-735c-ac57-af54d066879a\/31346ae0-9448-4066-a778-7bca1455eed9.webp",
+            "target_path": "products\/01a070ca-d546-7335-96fc-ecde05b79dfd\/31346ae0-9448-4066-a778-7bca1455eed9.webp",
+            "product_image_id": "01a09543-8c79-715b-81a1-3d1efe0db67b",
+            "media_file_id": "01a09543-8c59-7021-84d9-31603a6ce874",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d5b0-704e-a705-79bea6fbd417",
+            "product_slug": "sgad-sal",
+            "source_path": "products\/01a00eb3-57b5-735c-ac57-af54d066879a\/6accf7f9-73a0-44a2-8b21-bc27fa4f5961.png",
+            "target_path": "products\/01a070ca-d5b0-704e-a705-79bea6fbd417\/6accf7f9-73a0-44a2-8b21-bc27fa4f5961.png",
+            "product_image_id": "01a09543-8cdb-7162-9fad-94500c28617f",
+            "media_file_id": "01a09543-8cb5-73a1-a4f2-7304c26c65d5",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d5b0-704e-a705-79bea6fbd417",
+            "product_slug": "sgad-sal",
+            "source_path": "products\/01a00ef4-ed59-7365-8e0d-9e6b8ee94c4e\/a64fcb21-9c7d-48f2-8a48-093e5f2c9e5c.png",
+            "target_path": "products\/01a070ca-d5b0-704e-a705-79bea6fbd417\/a64fcb21-9c7d-48f2-8a48-093e5f2c9e5c.png",
+            "product_image_id": "01a09543-8d38-700f-9348-e26bcf1d296c",
+            "media_file_id": "01a09543-8d1c-7142-b061-3d3d6b631745",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "product_slug": "sryr-khshby-mzdog",
+            "source_path": "products\/01a02d89-3b0f-7334-b972-55731d3dc4c3\/e3363da5-c52b-448e-bb4d-06a2f6c88aeb.png",
+            "target_path": "products\/01a070ca-d13d-72a6-8aaa-33a2db9da00f\/e3363da5-c52b-448e-bb4d-06a2f6c88aeb.png",
+            "product_image_id": "01a09543-8da5-7221-99db-6aa239c4a08f",
+            "media_file_id": "01a09543-8d7d-716d-b322-682707e39444",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "product_slug": "sryr-khshby-mzdog",
+            "source_path": "products\/01a05183-f04d-70c5-b7f6-c3212298c17c\/9ecbf9da-176d-4e25-9f87-84d12f0eecc2.webp",
+            "target_path": "products\/01a070ca-d13d-72a6-8aaa-33a2db9da00f\/9ecbf9da-176d-4e25-9f87-84d12f0eecc2.webp",
+            "product_image_id": "01a09543-8e1e-7255-ae89-315c06914e62",
+            "media_file_id": "01a09543-8df8-71ad-a347-32113d936c1a",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d443-73dd-994f-28ea726d34b8",
+            "product_slug": "taol-kho",
+            "source_path": "products\/01a051da-baa9-7252-a4bc-f4ba6988f88c\/57fd894b-5ede-44c1-ad08-88541b12d528.webp",
+            "target_path": "products\/01a070ca-d443-73dd-994f-28ea726d34b8\/57fd894b-5ede-44c1-ad08-88541b12d528.webp",
+            "product_image_id": "01a09543-8e92-7188-a008-419ce75e4291",
+            "media_file_id": "01a09543-8e6b-71d0-ab67-1aec91156e32",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d443-73dd-994f-28ea726d34b8",
+            "product_slug": "taol-kho",
+            "source_path": "products\/01a051da-baa9-7252-a4bc-f4ba6988f88c\/fbc066f8-e964-4122-b6d7-c90a58c27c6a.webp",
+            "target_path": "products\/01a070ca-d443-73dd-994f-28ea726d34b8\/fbc066f8-e964-4122-b6d7-c90a58c27c6a.webp",
+            "product_image_id": "01a09543-8f13-708a-b5e2-e85d11673806",
+            "media_file_id": "01a09543-8eec-72ca-a0cf-9fc3ed7e2cbb",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d25b-71ec-b290-46d243992128",
+            "product_slug": "taol-taaam",
+            "source_path": "products\/01a052b9-6a2e-73af-a96b-a55a17eed37e\/ba5ef4e3-76ee-4f30-8df1-072a6e8e3f5b.webp",
+            "target_path": "products\/01a070ca-d25b-71ec-b290-46d243992128\/ba5ef4e3-76ee-4f30-8df1-072a6e8e3f5b.webp",
+            "product_image_id": "01a09543-8f8b-7395-b30d-0911df25c64c",
+            "media_file_id": "01a09543-8f64-7350-8216-3a12e8ea967e",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d25b-71ec-b290-46d243992128",
+            "product_slug": "taol-taaam",
+            "source_path": "products\/01a052b9-6a2e-73af-a96b-a55a17eed37e\/b5bc381f-db33-4500-bfb9-c66b559f3245.webp",
+            "target_path": "products\/01a070ca-d25b-71ec-b290-46d243992128\/b5bc381f-db33-4500-bfb9-c66b559f3245.webp",
+            "product_image_id": "01a09543-9000-70b9-bcc3-cff30f4dd211",
+            "media_file_id": "01a09543-8fdf-72c8-bd79-302469aea2f1",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d5ff-739a-854a-c473f41e819f",
+            "product_slug": "tkm-stayr",
+            "source_path": "products\/01a057d4-5a88-7208-ae5c-f28db2c28f66\/650e0a77-c08a-4589-930e-f32b41d6cb06.webp",
+            "target_path": "products\/01a070ca-d5ff-739a-854a-c473f41e819f\/650e0a77-c08a-4589-930e-f32b41d6cb06.webp",
+            "product_image_id": "01a09543-906d-7116-aec6-26dce1b46f08",
+            "media_file_id": "01a09543-9045-7035-8093-38358ac3313b",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        },
+        {
+            "product_id": "01a070ca-d5ff-739a-854a-c473f41e819f",
+            "product_slug": "tkm-stayr",
+            "source_path": "products\/01a057d4-5a88-7208-ae5c-f28db2c28f66\/1ff9f610-230a-4ccc-832c-a332fd0d86c3.webp",
+            "target_path": "products\/01a070ca-d5ff-739a-854a-c473f41e819f\/1ff9f610-230a-4ccc-832c-a332fd0d86c3.webp",
+            "product_image_id": "01a09543-90d1-70eb-b6c5-047f21c8dcae",
+            "media_file_id": "01a09543-90b7-71b8-89db-8ce971cf2550",
+            "mapping_rule": "sorted_orphan_queue_to_sorted_public_products"
+        }
+    ],
+    "unassigned_queue": [],
+    "pre": {
+        "product_images": 12,
+        "cert_images": 12,
+        "merchant_images": 0
+    },
+    "post": {
+        "product_images": 24,
+        "cert_images": 0,
+        "merchant_images": 24
+    }
+}

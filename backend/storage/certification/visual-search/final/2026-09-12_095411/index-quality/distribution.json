@@ -1,0 +1,56 @@
+{
+    "duplicate_hash_groups": 0,
+    "duplicate_hashes": [],
+    "top_buckets": [
+        {
+            "hash_bucket": 3710,
+            "cnt": 1
+        },
+        {
+            "hash_bucket": 3373,
+            "cnt": 1
+        },
+        {
+            "hash_bucket": 1698,
+            "cnt": 1
+        },
+        {
+            "hash_bucket": 1184,
+            "cnt": 1
+        },
+        {
+            "hash_bucket": 3,
+            "cnt": 1
+        },
+        {
+            "hash_bucket": 2728,
+            "cnt": 1
+        },
+        {
+            "hash_bucket": 2377,
+            "cnt": 1
+        },
+        {
+            "hash_bucket": 1686,
+            "cnt": 1
+        },
+        {
+            "hash_bucket": 1847,
+            "cnt": 1
+        },
+        {
+            "hash_bucket": 199,
+            "cnt": 1
+        },
+        {
+            "hash_bucket": 1287,
+            "cnt": 1
+        },
+        {
+            "hash_bucket": 8,
+            "cnt": 1
+        }
+    ],
+    "inactive_rows": 0,
+    "images_per_product_avg": 1
+}

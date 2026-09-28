@@ -1,0 +1,13 @@
+﻿{
+    "warmup_duration_seconds":  0.82,
+    "steady_state_ready":  true,
+    "warmup_started_utc":  "2026-09-28T14:10:26.2183233Z",
+    "warmup_iterations":  10,
+    "captured_at_utc":  "2026-09-28T14:10:27.0340144Z",
+    "endpoints":  [
+                      "http://127.0.0.1:8193/api/v1/products?per_page=12",
+                      "http://127.0.0.1:8193/api/v1/search?q=sofa",
+                      "http://127.0.0.1:8193/api/v1/search?q=chair",
+                      "http://127.0.0.1:8193/api/v1/search?q=table"
+                  ]
+}

@@ -1,0 +1,9 @@
+{
+    "generated_at": "2026-09-12T09:54:14+00:00",
+    "set_equality_pass": true,
+    "accuracy_cases": 51,
+    "accuracy_pass_rate": 0.2549,
+    "security_pass": true,
+    "security_guard_validated": true,
+    "active_index_rows": 12
+}

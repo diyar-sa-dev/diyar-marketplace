@@ -1,0 +1,7 @@
+{
+    "total_cases": 75,
+    "passed": 57,
+    "top1_accuracy": 0.75,
+    "merchant_catalog": true,
+    "duplicate_hash_aware_scoring": true
+}

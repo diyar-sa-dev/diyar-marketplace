@@ -1,0 +1,42 @@
+[
+    {
+        "case": "valid_png",
+        "status": 429,
+        "message": "Too Many Attempts."
+    },
+    {
+        "case": "corrupt_binary",
+        "status": 429,
+        "message": "Too Many Attempts."
+    },
+    {
+        "case": "mime_spoof_html",
+        "status": 429,
+        "message": "Too Many Attempts."
+    },
+    {
+        "case": "svg",
+        "status": 429,
+        "message": "Too Many Attempts."
+    },
+    {
+        "case": "oversized_2mb_plus",
+        "status": 429,
+        "message": "Too Many Attempts."
+    },
+    {
+        "case": "dimension_2048_ok",
+        "status": 429,
+        "message": "Too Many Attempts."
+    },
+    {
+        "case": "dimension_2049",
+        "status": 429,
+        "message": "Too Many Attempts."
+    },
+    {
+        "case": "pixels_over_4m",
+        "status": 429,
+        "message": "Too Many Attempts."
+    }
+]

@@ -1,0 +1,58 @@
+{
+  "campaign": "DIYAR real VPS production validation",
+  "date_utc": "2026-09-17",
+  "tester_workstation": "Windows 10 (this QA session)",
+  "target": {
+    "ssh_config_host": "diyar-prod",
+    "ipv4": "195.200.14.40",
+    "ptr": "srv1957772.hstgr.cloud",
+    "provider_inference": "Hostinger (hstgr.cloud PTR)"
+  },
+  "observations": [
+    {
+      "id": "ssh-banner",
+      "status": "OBSERVED",
+      "detail": "SSH TCP handshake succeeded. Banner: OpenSSH_9.6p1 Ubuntu-3ubuntu13.19. Host key ED25519 SHA256:VjNIC0xwuCXxv0ssKzFdu+0WBWpheoETlPEXQRBTNsI matched ~/.ssh/known_hosts."
+    },
+    {
+      "id": "ssh-auth",
+      "status": "OBSERVED",
+      "detail": "Publickey-only authentication. Local ~/.ssh/id_ed25519 (comment diyar-vps-admin, SHA256:c4301IdGX8tzZDRo7PRUS2zZfY1FkGGx6IOCd56Llx8) was offered and rejected for users: deploy, root, ubuntu, admin, hamid, yacine, git, diyar. Result: Permission denied (publickey)."
+    },
+    {
+      "id": "http-direct",
+      "status": "OBSERVED",
+      "detail": "curl to http://195.200.14.40/, https://195.200.14.40/, http://195.200.14.40/api/v1/health, https://srv1957772.hstgr.cloud/, http://195.200.14.40:8093/api/v1/health all timed out (curl 28, ~8s)."
+    },
+    {
+      "id": "tcp-followup",
+      "status": "OBSERVED",
+      "detail": "After repeated SSH auth failures, a 2s TCP scan of 22/80/443/8080/8093/8000/3306/6379/8443/8090/8088/8092 all returned TIMEOUT. Port 22 had been open minutes earlier. Possible fail2ban/firewall lockout from this workstation IP. SSH probing stopped."
+    },
+    {
+      "id": "api-dns",
+      "status": "OBSERVED",
+      "detail": "api.deyarhome.com, app.deyarhome.com, admin.deyarhome.com, realtime.deyarhome.com, api.diyar.sa, app.diyar.sa, api.diyar.com: NXDOMAIN / getaddrinfo failed. diyar.sa has a name but no A/AAAA from 1.1.1.1 in this lookup."
+    },
+    {
+      "id": "frontend",
+      "status": "OBSERVED",
+      "detail": "https://deyarhome.com and https://www.deyarhome.com return HTTP 200 from Vercel (IPs 216.198.79.1 / 216.198.79.65 / 64.29.17.65). Repo .env.production.example documents this as a landing-only page (VITE_LANDING_MODE). GET https://deyarhome.com/api/v1/health = 404."
+    },
+    {
+      "id": "hpanel",
+      "status": "OBSERVED",
+      "detail": "https://hpanel.hostinger.com redirected to Hostinger login. No operator session available in this QA browser."
+    }
+  ],
+  "not_executed": [
+    "uname -a / nproc / free -h / df -h on VPS",
+    "docker version / docker compose ps / docker stats",
+    "PHP/Laravel/Octane/Swoole/Nginx/MySQL/Redis version collection",
+    "baseline HTTP campaign",
+    "mixed marketplace load (10-1000 VU, 50-500 RPS)",
+    "saturation / spike / endurance / recovery",
+    "MySQL/Redis/Nginx/Octane/queue/Reverb telemetry",
+    "authenticated session isolation under load"
+  ]
+}

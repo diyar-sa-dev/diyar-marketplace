@@ -1,0 +1,17 @@
+{
+    "reindex_idempotency": {
+        "before_count": 12,
+        "after_count": 12,
+        "no_row_explosion": true,
+        "same_row_ids": true
+    },
+    "worker_healthcheck": {
+        "queue_default": "unhealthy",
+        "queue_critical": "unhealthy",
+        "scheduler": "unhealthy",
+        "root_cause": "pgrep not found in container healthcheck script — cosmetic, not functional failure",
+        "jobs_process_via_dispatch_sync": true
+    },
+    "lifecycle_events": "NOT_EXHAUSTIVELY_TESTED",
+    "note": "IndexProductImageJob idempotency verified via sync reindex. Full attach/replace/delete/archive lifecycle not re-run in enterprise audit."
+}

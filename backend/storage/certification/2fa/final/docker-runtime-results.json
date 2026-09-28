@@ -1,0 +1,81 @@
+﻿{
+    "parallel_race":  {
+                          "p50_ms":  298.78,
+                          "concurrency":  8,
+                          "p95_ms":  537.29,
+                          "successes":  1,
+                          "failures":  7,
+                          "statuses":  [
+                                           422,
+                                           422,
+                                           422,
+                                           422,
+                                           200,
+                                           422,
+                                           422,
+                                           422
+                                       ]
+                      },
+    "performance":  {
+
+                    },
+    "verdict":  "CERTIFIED WITH LIMITATIONS",
+    "timestamp_utc":  "2026-09-11T09:25:55.0642284Z",
+    "base_url":  "http://127.0.0.1:8093/api/v1",
+    "gates":  {
+                  "otp_replay":  {
+                                     "status":  "PASS"
+                                 },
+                  "stale_challenge":  {
+                                          "status":  "PASS"
+                                      },
+                  "parallel_otp_verification":  {
+                                                    "status":  "PASS",
+                                                    "concurrency":  8,
+                                                    "successes":  1,
+                                                    "failures":  7
+                                                },
+                  "migration_two_factor_columns":  {
+                                                       "status":  "PASS"
+                                                   },
+                  "docker_runtime_health":  {
+                                                "http_port":  "8093",
+                                                "status":  "PASS"
+                                            },
+                  "password_only_bypass":  {
+                                               "status":  "PASS"
+                                           },
+                  "two_factor_api_route":  {
+                                               "http_status":  200,
+                                               "status":  "PASS"
+                                           },
+                  "production_config_safety":  {
+                                                   "status":  "PASS",
+                                                   "app_env":  "local"
+                                               },
+                  "otp_login_flow":  {
+                                         "otp_found":  true,
+                                         "status":  "PASS"
+                                     },
+                  "test_otp_isolation":  {
+                                             "http_status":  422,
+                                             "status":  "PASS"
+                                         },
+                  "pending_2fa_api_isolation":  {
+                                                    "status":  "PASS"
+                                                }
+              },
+    "configuration":  {
+                          "app_env":  "local",
+                          "app_debug":  false,
+                          "otp_test_mode":  false,
+                          "otp_provider":  "log",
+                          "cache":  "redis",
+                          "session":  "redis",
+                          "db_host":  "mysql",
+                          "redis_host":  "redis",
+                          "migration":  true,
+                          "php":  "8.3.33",
+                          "laravel":  "13.26.1"
+                      }
+}

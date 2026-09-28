@@ -1,0 +1,13 @@
+{
+    "status": "FAIL",
+    "reason": "Port 8093 (diyar-production-nginx-1) serves Laravel default welcome page, not the DIYAR marketplace React frontend.",
+    "http_8093_title": "Laravel",
+    "scenarios": {
+        "english_upload_flow": "NOT_RUN",
+        "arabic_rtl": "NOT_RUN",
+        "mobile_viewport": "NOT_RUN",
+        "desktop": "NOT_RUN",
+        "error_states_422_429_503": "NOT_RUN"
+    },
+    "component_code_review": "ImageSearchModal.tsx exists with upload/preview/submit/RTL support — runtime browser E2E not possible without frontend deployment."
+}

@@ -1,0 +1,39 @@
+{
+    "eligible_count": 12,
+    "active_index_rows": 12,
+    "distinct_product_image_id": 12,
+    "distinct_media_file_id": 12,
+    "eligible_ids": [
+        "01a094fd-04b1-730c-bcc6-0c3f60c824c1",
+        "01a094fd-0518-7189-9450-a40d0439d409",
+        "01a094fd-0558-71ef-8173-bb924cd19dbd",
+        "01a094fd-05a7-730f-8fb2-38e6e305064a",
+        "01a094fd-0616-7266-a6b9-987e23441805",
+        "01a09509-a32c-708d-9243-1d4cac4185c5",
+        "01a09509-a3cc-707b-bf46-36887c67ee59",
+        "01a09509-e89c-717c-8fe6-d20304acb3c4",
+        "01a09509-e97a-7025-8577-8c474f9cc041",
+        "01a09509-ea8e-701e-b04d-589d1420c1d1",
+        "01a09509-ebc3-71c6-a273-c0b856d1cb8b",
+        "01a09509-ecfc-71e3-b52f-d345582785b2"
+    ],
+    "indexed_ids": [
+        "01a094fd-04b1-730c-bcc6-0c3f60c824c1",
+        "01a094fd-0518-7189-9450-a40d0439d409",
+        "01a094fd-0558-71ef-8173-bb924cd19dbd",
+        "01a094fd-05a7-730f-8fb2-38e6e305064a",
+        "01a094fd-0616-7266-a6b9-987e23441805",
+        "01a09509-a32c-708d-9243-1d4cac4185c5",
+        "01a09509-a3cc-707b-bf46-36887c67ee59",
+        "01a09509-e89c-717c-8fe6-d20304acb3c4",
+        "01a09509-e97a-7025-8577-8c474f9cc041",
+        "01a09509-ea8e-701e-b04d-589d1420c1d1",
+        "01a09509-ebc3-71c6-a273-c0b856d1cb8b",
+        "01a09509-ecfc-71e3-b52f-d345582785b2"
+    ],
+    "missing_from_index": [],
+    "extra_in_index": [],
+    "set_difference_zero": true,
+    "all_linked_images_are_cert_paths": true,
+    "merchant_catalog_available_for_accuracy": false
+}

@@ -1,0 +1,26 @@
+{
+    "index_version": "catalog-v1",
+    "eligible_images": 5,
+    "active_index_rows": 5,
+    "distinct_product_image_id": 5,
+    "distinct_media_file_id": 5,
+    "unique_constraints_ok": true,
+    "eligible_image_ids": [
+        "01a094fd-04b1-730c-bcc6-0c3f60c824c1",
+        "01a094fd-0518-7189-9450-a40d0439d409",
+        "01a094fd-0558-71ef-8173-bb924cd19dbd",
+        "01a094fd-05a7-730f-8fb2-38e6e305064a",
+        "01a094fd-0616-7266-a6b9-987e23441805"
+    ],
+    "indexed_image_ids": [
+        "01a094fd-04b1-730c-bcc6-0c3f60c824c1",
+        "01a094fd-0518-7189-9450-a40d0439d409",
+        "01a094fd-0558-71ef-8173-bb924cd19dbd",
+        "01a094fd-05a7-730f-8fb2-38e6e305064a",
+        "01a094fd-0616-7266-a6b9-987e23441805"
+    ],
+    "set_difference_missing_from_index": [],
+    "set_difference_extra_in_index": [],
+    "set_difference_zero": true,
+    "intentionally_skipped": []
+}

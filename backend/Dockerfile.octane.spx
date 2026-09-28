@@ -1,0 +1,17 @@
+# Local Phase 18 profiling overlay — build with:
+#   docker compose ... build -f backend/Dockerfile.octane.spx
+FROM diyar-kvm2-test-app:latest AS base
+
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git autoconf gcc g++ make \
+    && git clone --depth 1 https://github.com/NoiseByNorthwest/php-spx.git /tmp/php-spx \
+    && cd /tmp/php-spx \
+    && phpize \
+    && ./configure \
+    && make -j"$(nproc)" \
+    && make install \
+    && rm -rf /tmp/php-spx /var/lib/apt/lists/*
+
+COPY docker/spx.ini /usr/local/etc/php/conf.d/99-spx.ini
+RUN mkdir -p /tmp/spx-data && chmod 777 /tmp/spx-data

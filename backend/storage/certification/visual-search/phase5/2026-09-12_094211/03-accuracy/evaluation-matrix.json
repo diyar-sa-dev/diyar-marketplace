@@ -1,0 +1,78 @@
+{
+    "cases": [
+        {
+            "query_id": "same-image-0",
+            "case_type": "same_product_same_image",
+            "expected": "match",
+            "top1_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "expected_product_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "similarity": 1,
+            "correct": true,
+            "http_status": 200
+        },
+        {
+            "query_id": "same-image-1",
+            "case_type": "same_product_same_image",
+            "expected": "match",
+            "top1_id": "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+            "expected_product_id": "01a070ca-d1f1-73c7-8921-5300a8e5fd89",
+            "similarity": 1,
+            "correct": true,
+            "http_status": 200
+        },
+        {
+            "query_id": "same-image-2",
+            "case_type": "same_product_same_image",
+            "expected": "match",
+            "top1_id": "01a070ca-d25b-71ec-b290-46d243992128",
+            "expected_product_id": "01a070ca-d25b-71ec-b290-46d243992128",
+            "similarity": 1,
+            "correct": true,
+            "http_status": 200
+        },
+        {
+            "query_id": "same-image-3",
+            "case_type": "same_product_same_image",
+            "expected": "match",
+            "top1_id": "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+            "expected_product_id": "01a070ca-d2b0-7222-be1a-ee89b30cd0f7",
+            "similarity": 1,
+            "correct": true,
+            "http_status": 200
+        },
+        {
+            "query_id": "same-image-4",
+            "case_type": "same_product_same_image",
+            "expected": "match",
+            "top1_id": "01a070ca-d30a-73ca-8c53-bf114a537806",
+            "expected_product_id": "01a070ca-d30a-73ca-8c53-bf114a537806",
+            "similarity": 1,
+            "correct": true,
+            "http_status": 200
+        },
+        {
+            "query_id": "resized-recompressed",
+            "case_type": "same_image_resized",
+            "expected": "match",
+            "top1_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "expected_product_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "similarity": 1,
+            "correct": true,
+            "http_status": 200
+        },
+        {
+            "query_id": "different-color",
+            "case_type": "no_reasonable_match",
+            "expected": "no_match",
+            "top1_id": "01a070ca-d13d-72a6-8aaa-33a2db9da00f",
+            "similarity": 1,
+            "correct": false,
+            "http_status": 200
+        }
+    ],
+    "precision_at_5": null,
+    "recall_at_5": null,
+    "correct_count": 6,
+    "total_cases": 7,
+    "accuracy_rate": 0.8571
+}
