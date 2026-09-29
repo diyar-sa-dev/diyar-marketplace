@@ -12,10 +12,20 @@ import { useAdminDetailQuery } from '../hooks/useAdminDetailQuery.ts';
 type CouponDetail = {
   id: string;
   code: string;
-  status: string;
-  discount_type?: string;
-  discount_value?: string;
-  vendor_account?: { business_name?: string };
+  type: 'percentage' | 'fixed' | 'free_shipping';
+  scope_type?: string;
+  is_active: boolean;
+  effective_status?: string;
+  value: number;
+  fixed_amount?: string | null;
+  minimum_order?: string | null;
+  maximum_discount?: string | null;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  usage_limit?: number | null;
+  usage_limit_per_user?: number | null;
+  used_count: number;
+  vendor_account?: { id?: string; business_name?: string };
   created_at?: string;
 };
 
@@ -24,6 +34,7 @@ export default function AdminCouponDetailPage() {
   const { t } = useLocale();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const currency = t('common.currency');
 
   const {
     data: coupon,
@@ -57,7 +68,15 @@ export default function AdminCouponDetailPage() {
     );
   }
 
-  const isActive = coupon.status === 'active';
+  const isActive = coupon.is_active;
+  const statusLabel = coupon.effective_status ?? (isActive ? 'active' : 'inactive');
+
+  const discountDisplay =
+    coupon.type === 'free_shipping'
+      ? t('vendor.coupons.types.free_shipping')
+      : coupon.type === 'fixed'
+        ? `${coupon.fixed_amount ?? coupon.value} ${currency}`
+        : `${coupon.value}%`;
 
   return (
     <div className="space-y-6">
@@ -66,7 +85,7 @@ export default function AdminCouponDetailPage() {
         backLabel={t('admin.detail.backToCoupons')}
         title={coupon.code}
         subtitle={coupon.vendor_account?.business_name ?? t('admin.nav.coupons')}
-        status={coupon.status}
+        status={statusLabel}
         actions={
           <PermissionGate permission="coupons.manage">
             {isActive ? (
@@ -99,7 +118,7 @@ export default function AdminCouponDetailPage() {
               {t('admin.tables.status')}
             </dt>
             <dd className="mt-1">
-              <AdminStatusBadge status={coupon.status} />
+              <AdminStatusBadge status={statusLabel} />
             </dd>
           </div>
           <div>
@@ -110,16 +129,56 @@ export default function AdminCouponDetailPage() {
               {coupon.code}
             </dd>
           </div>
-          {coupon.discount_value ? (
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+              {t('admin.tables.vendor')}
+            </dt>
+            <dd className="mt-1 font-semibold text-gray-800">
+              {coupon.vendor_account?.business_name ?? '—'}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+              {t('admin.tables.type')}
+            </dt>
+            <dd className="mt-1 font-semibold text-gray-800">
+              {t(`vendor.coupons.types.${coupon.type ?? 'percentage'}`)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+              {t('admin.tables.amount')}
+            </dt>
+            <dd className="mt-1 font-bold text-diyar-brown tabular-nums" dir="ltr">
+              {discountDisplay}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+              {t('vendor.coupons.form.minimumOrder')}
+            </dt>
+            <dd className="mt-1 tabular-nums text-gray-700" dir="ltr">
+              {Number(coupon.minimum_order) > 0 ? `${coupon.minimum_order} ${currency}` : '—'}
+            </dd>
+          </div>
+          {coupon.maximum_discount ? (
             <div>
               <dt className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                {t('admin.tables.amount')}
+                {t('vendor.coupons.form.maximumDiscount')}
               </dt>
-              <dd className="mt-1 tabular-nums" dir="ltr">
-                {coupon.discount_value} {coupon.discount_type ?? ''}
+              <dd className="mt-1 tabular-nums text-gray-700" dir="ltr">
+                {coupon.maximum_discount} {currency}
               </dd>
             </div>
           ) : null}
+          <div>
+            <dt className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+              {t('vendor.coupons.form.usageLimit')}
+            </dt>
+            <dd className="mt-1 tabular-nums text-gray-700" dir="ltr">
+              {coupon.used_count} / {coupon.usage_limit ?? '∞'}
+            </dd>
+          </div>
         </dl>
       </div>
     </div>
