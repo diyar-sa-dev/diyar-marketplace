@@ -154,18 +154,24 @@ Operational KVM2 capacity work (not a numbered Stage 31):
     - Queue Depth: 0 across all runs. Failed jobs: 0. 0x 5xx, 0x unexpected 429.
     - Capacity boundary: App CPU reaches ~77% @ rps175, ~94% @ rps200 (peak ~146%).
   - **Phase 20.1 Dedicated Analytics Queue Experiment:** **VERIFIED WITH LIMITATIONS**
-    - Verdict: `QUEUE ISOLATION BENEFIT VERIFIED; REQUEST LATENCY BENEFIT NOT VERIFIED`.
-    - `RecordSearchQueryAnalyticsJob` isolated to dedicated `analytics` queue & worker. Queue depth = 0.
+    - Verdict: Dedicated analytics queue provides background workload isolation, but no HTTP latency/throughput improvement was demonstrated in the 2-vCPU KVM2-equivalent envelope.
+    - Mixed overall p95 aggregates 50% detail, 30% browse, and 20% search, while search p95 strictly measures query execution path.
   - **Phase 20.2 Catalog Cardinality Scaling:** **VERIFIED WITH LIMITATIONS**
     - Evaluated 12 -> 1,000 -> 10,000 products with deterministic seeds.
-    - Listing & Detail: **STABLE** (O(1) index scans).
-    - Fulltext Search: **GRADUAL DEGRADATION transitioning to BOTTLENECK at 10,000 products** under 150 RPS.
+    - Listing & Detail: The listing query remained effectively stable across tested cardinalities because the existing index supports the query efficiently without scanning unneeded rows.
+    - Fulltext Search: Bottleneck at 10,000 products under 150 RPS (~380ms MySQL execution time) is attributed to `OR products.name LIKE '%raw%'` fallback forcing filesort with correlated review subqueries.
   - **Phase 20 Status:** **COMPLETE WITH LIMITATIONS**
   - **Post-Stage 30 Program:** **CLOSED WITH LIMITATIONS**
   - **Hostinger Validation:** **NOT VERIFIED** (Local KVM2-equivalent envelope cpuset:0-1, 2 Octane workers).
-  - **Next Product Feature Shipped:** **Stage 26.5 Vendor Advanced Coupon Management**
-    - Full 3-way coupon types: Percentage, Fixed Amount (SAR), and Free Shipping.
-    - Backend: `StoreVendorCouponRequest`, `UpdateVendorCouponRequest`, `VendorCouponManagementService`, and test suite updated.
-    - Frontend: `VendorCouponFormModal`, `VendorCouponCard`, `CouponShareCard`, and dashboard page updated with Arabic/English i18n.
-    - All 19 coupon PHPUnit tests passed; 87/87 Vitest test suites (350/350 tests) passed; frontend production build passed.
+- **Stage 26.5 Vendor Advanced Coupon Management:** **COMPLETE**
+  - Full 3-way coupon types: Percentage, Fixed Amount (SAR), and Free Shipping.
+  - Admin & Vendor portal synchronization: `AdminCouponsPage`, `AdminCouponDetailPage`, `VendorCoupons` page, and `VendorCouponFormModal`.
+  - Full RTL Arabic/English i18n support.
+  - Certified in `conception/Stages/Stage 26/Phase 26.5 - Advanced Coupons/COMPLETION_REPORT.md`.
+- **Stage 26.4 Advanced Shipping — Vendor Self-Service Rules:** **COMPLETE**
+  - Vendor shipping settings API and UI now expose `use_advanced_rules` toggle.
+  - Backend: `UpdateVendorShippingSettingsRequest`, `VendorShippingSettingsResource`, `VendorShippingSettingsService`.
+  - Frontend: `VendorShippingSettingsPanel` with Carrier options card toggle and bilingual hints.
+  - Verified: 59/59 PHPUnit shipping tests passed, 87/87 Vitest suites (350/350 tests) passed, `npm run build` passed.
+  - Git: 5 local verified commits ahead of `origin/main` (`d7c455d`). Remote synchronization pending credentials.
 
