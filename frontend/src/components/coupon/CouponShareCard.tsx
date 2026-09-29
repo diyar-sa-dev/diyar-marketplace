@@ -11,7 +11,14 @@ type CouponShareCardProps = {
   storeLogoUrl?: string | null;
   coupon: Pick<
     VendorCoupon,
-    'code' | 'value' | 'minimum_order' | 'maximum_discount' | 'ends_at' | 'effective_status' | 'type' | 'fixed_amount'
+    | 'code'
+    | 'value'
+    | 'minimum_order'
+    | 'maximum_discount'
+    | 'ends_at'
+    | 'effective_status'
+    | 'type'
+    | 'fixed_amount'
   >;
   className?: string;
 };

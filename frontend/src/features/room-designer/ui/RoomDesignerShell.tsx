@@ -145,15 +145,15 @@ export function RoomDesignerShell({
       setAddProductError(null);
       try {
         const result = await addCatalogProductToSession(session, productId);
-        if (result.ok) {
+        if ('error' in result) {
+          setAddProductError(result.error.message);
+        } else {
           setEngine(result.state);
           autosave.markDirty();
           bumpToolbar();
           if (!isLargeScreen) {
             setCatalogOpen(false);
           }
-        } else {
-          setAddProductError(result.error.message);
         }
       } catch (error) {
         setAddProductError((error as Error).message ?? 'تعذّر إضافة المنتج');
@@ -199,7 +199,7 @@ export function RoomDesignerShell({
       const suggestion = await fetchRoomLayoutSuggestion(designId, { intent: 'arrange' });
       const doc = session.getDocument();
       const applied = applySuggestedLayout(session, doc, suggestion.commands);
-      if (!applied.ok) {
+      if ('reason' in applied) {
         setLayoutError(applied.reason);
         return;
       }

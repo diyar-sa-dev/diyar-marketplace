@@ -17,7 +17,7 @@ describe('useLargeScreen', () => {
       },
       removeEventListener: vi.fn(),
     };
-    vi.spyOn(window, 'matchMedia').mockReturnValue(mq as MediaQueryList);
+    vi.spyOn(window, 'matchMedia').mockReturnValue(mq as unknown as MediaQueryList);
 
     const { result } = renderHook(() => useLargeScreen());
     expect(result.current).toBe(false);

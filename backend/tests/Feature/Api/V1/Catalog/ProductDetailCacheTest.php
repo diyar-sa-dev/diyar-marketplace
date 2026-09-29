@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Services\Catalog\CatalogCacheInvalidator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;
@@ -106,15 +107,15 @@ class ProductDetailCacheTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.product.user_saved', true);
 
-        \Illuminate\Support\Facades\DB::flushQueryLog();
-        \Illuminate\Support\Facades\DB::enableQueryLog();
+        DB::flushQueryLog();
+        DB::enableQueryLog();
 
         $this->actingAs($userB)
             ->getJson('/api/v1/products/'.$product->id)
             ->assertOk()
             ->assertJsonPath('data.product.user_saved', false);
 
-        $productTableQueries = collect(\Illuminate\Support\Facades\DB::getQueryLog())
+        $productTableQueries = collect(DB::getQueryLog())
             ->filter(function (array $entry): bool {
                 $sql = strtolower($entry['query']);
 
@@ -125,7 +126,7 @@ class ProductDetailCacheTest extends TestCase
             })
             ->count();
 
-        \Illuminate\Support\Facades\DB::disableQueryLog();
+        DB::disableQueryLog();
 
         $this->assertSame(
             0,

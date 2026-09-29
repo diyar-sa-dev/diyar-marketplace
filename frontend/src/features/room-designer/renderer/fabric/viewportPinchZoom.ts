@@ -1,4 +1,4 @@
-import type { Canvas } from 'fabric';
+import { type Canvas, Point } from 'fabric';
 
 /** Viewport-only zoom — does not mutate RoomDesignDocument or emit commands. */
 export function attachViewportPinchZoom(canvas: Canvas, surface: HTMLElement): () => void {
@@ -24,7 +24,7 @@ export function attachViewportPinchZoom(canvas: Canvas, surface: HTMLElement): (
     const ratio = nextDistance / pinchStartDistance;
     const zoom = Math.min(4, Math.max(0.5, pinchStartZoom * ratio));
     const center = canvas.getCenter();
-    canvas.zoomToPoint({ x: center.left, y: center.top }, zoom);
+    canvas.zoomToPoint(new Point(center.left, center.top), zoom);
     canvas.requestRenderAll();
   };
 

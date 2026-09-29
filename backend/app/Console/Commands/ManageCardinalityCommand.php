@@ -39,7 +39,7 @@ class ManageCardinalityCommand extends Command
         $inv = DB::table('product_inventory')->count();
         $visible = Product::query()->publiclyVisible()->count();
 
-        $this->info("Catalog Cardinality Status:");
+        $this->info('Catalog Cardinality Status:');
         $this->line("  Base products:       {$base}");
         $this->line("  Synthetic products:  {$perf}");
         $this->line("  Total products:      {$total}");
@@ -51,7 +51,7 @@ class ManageCardinalityCommand extends Command
 
     private function cleanCardinality(): int
     {
-        $this->info("Cleaning synthetic cardinality products...");
+        $this->info('Cleaning synthetic cardinality products...');
         $syntheticIds = DB::table('products')
             ->where('slug', 'like', 'perf-cardinality-%')
             ->pluck('id')
@@ -79,6 +79,7 @@ class ManageCardinalityCommand extends Command
         $baseCount = DB::table('products')->count();
         if ($targetTotal <= $baseCount) {
             $this->info("Target cardinality {$targetTotal} <= base count {$baseCount}. Nothing to add.");
+
             return 0;
         }
 
@@ -87,13 +88,15 @@ class ManageCardinalityCommand extends Command
 
         $vendors = VendorAccount::query()->where('status', 'active')->pluck('id')->all();
         if (empty($vendors)) {
-            $this->error("No active vendor accounts found!");
+            $this->error('No active vendor accounts found!');
+
             return 1;
         }
 
         $categories = Category::query()->where('is_active', true)->pluck('id')->all();
         if (empty($categories)) {
-            $this->error("No active categories found!");
+            $this->error('No active categories found!');
+
             return 1;
         }
 

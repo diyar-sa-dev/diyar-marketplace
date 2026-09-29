@@ -94,9 +94,17 @@ export function VendorCouponFormModal({
             </label>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { type: 'percentage' as const, label: t('vendor.coupons.types.percentage'), icon: Percent },
+                {
+                  type: 'percentage' as const,
+                  label: t('vendor.coupons.types.percentage'),
+                  icon: Percent,
+                },
                 { type: 'fixed' as const, label: t('vendor.coupons.types.fixed'), icon: Banknote },
-                { type: 'free_shipping' as const, label: t('vendor.coupons.types.free_shipping'), icon: Truck },
+                {
+                  type: 'free_shipping' as const,
+                  label: t('vendor.coupons.types.free_shipping'),
+                  icon: Truck,
+                },
               ].map((item) => {
                 const isSelected = currentType === item.type;
                 const Icon = item.icon;
@@ -187,7 +195,9 @@ export function VendorCouponFormModal({
                   min={1}
                   disabled={codeLocked}
                   value={form.fixed_amount ?? ''}
-                  onChange={(event) => onChange({ ...form, fixed_amount: Number(event.target.value) })}
+                  onChange={(event) =>
+                    onChange({ ...form, fixed_amount: Number(event.target.value) })
+                  }
                   placeholder={t('vendor.coupons.form.fixedAmountPlaceholder')}
                   className={INPUT_INNER}
                   dir="ltr"

@@ -14,11 +14,11 @@ export function applySuggestedLayout(
 ): ApplySuggestedLayoutResult {
   const knownIds = document.items.map((item) => item.id);
   const parsed = parseSuggestedCommands(payloads, knownIds);
-  if (!parsed.ok) {
+  if ('reason' in parsed) {
     return { ok: false, reason: parsed.reason, state: session.getState() };
   }
   const result = session.applyCommands(parsed.commands);
-  if (!result.ok) {
+  if ('error' in result) {
     return { ok: false, reason: result.error.message, state: result.state };
   }
   return { ok: true, ...result };

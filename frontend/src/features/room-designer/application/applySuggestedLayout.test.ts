@@ -9,7 +9,7 @@ describe('applySuggestedLayout (30.16)', () => {
     const preset = createDocumentFromPreset('salon');
     if (!preset.ok) throw new Error('preset');
     const doc = preset.document;
-    doc.items = [makeItem({ id: 'i1', position_m: { x: 2, z: 2.5 }, snapshot: { width_m: 1, depth_m: 1 } })];
+    doc.items = [makeItem({ id: 'i1', position_m: { x: 2, z: 2.5 }, snapshot: { name: 'Item 1', width_m: 1, depth_m: 1 } })];
     const session = new DesignerSession({ document: doc, history: { past: [], future: [] } });
 
     const result = applySuggestedLayout(session, doc, [

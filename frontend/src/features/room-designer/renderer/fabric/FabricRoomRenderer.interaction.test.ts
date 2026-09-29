@@ -36,7 +36,7 @@ describe('FabricRoomRenderer interaction', () => {
 
     // Simulate end-of-drag via fabric internal API
     const fabricCanvas = (renderer as unknown as {
-      canvas: Canvas & {
+      canvas: {
         getObjects: () => Array<{ diyarItemId?: string; set: (p: object) => void }>;
         fire: (name: string, payload: { target: unknown }) => void;
       };

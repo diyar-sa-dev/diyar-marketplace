@@ -3,6 +3,7 @@
 namespace Tests\Unit\Services\Visualization;
 
 use App\Enums\TryInRoomJobStatus;
+use App\Exceptions\Visualization\VisualizationProviderException;
 use App\Models\Product;
 use App\Models\TryInRoomJob;
 use App\Models\TryInRoomSourceImage;
@@ -30,7 +31,7 @@ class OpenAiTryInRoomCompositeProviderTest extends TestCase
 
         $job = $this->sampleJobWithSource();
 
-        $this->expectException(\App\Exceptions\Visualization\VisualizationProviderException::class);
+        $this->expectException(VisualizationProviderException::class);
         $this->expectExceptionMessage('legal_privacy_gate_closed');
 
         app(OpenAiTryInRoomCompositeProvider::class)->process($job);
@@ -98,7 +99,7 @@ class OpenAiTryInRoomCompositeProviderTest extends TestCase
 
         $job = $this->sampleJobWithSource();
 
-        $this->expectException(\App\Exceptions\Visualization\VisualizationProviderException::class);
+        $this->expectException(VisualizationProviderException::class);
         app(OpenAiTryInRoomCompositeProvider::class)->process($job);
     }
 

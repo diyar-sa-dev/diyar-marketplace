@@ -2,13 +2,11 @@
 
 namespace App\Providers;
 
-use App\Contracts\Visualization\VisualizationProviderInterface;
 use App\Contracts\Identity\OtpCodeGenerator;
 use App\Contracts\Payments\PaymentGatewayInterface;
 use App\Contracts\Sms\SmsProvider;
+use App\Contracts\Visualization\VisualizationProviderInterface;
 use App\Infrastructure\Sms\SmsProviderFactory;
-use App\Services\Visualization\VisualizationProviderRegistry;
-use App\Services\Visualization\VisualizationService;
 use App\Services\Checkout\AssemblyCalculator;
 use App\Services\Checkout\StubAssemblyCalculator;
 use App\Services\Identity\SecureOtpCodeGenerator;
@@ -16,6 +14,8 @@ use App\Services\Infrastructure\EnvironmentSafetyValidator;
 use App\Services\Payments\Gateways\FakePaymentGateway;
 use App\Services\Payments\Gateways\MyFatoorah\MyFatoorahGateway;
 use App\Services\Payments\PaymentGatewayManager;
+use App\Services\Visualization\VisualizationProviderRegistry;
+use App\Services\Visualization\VisualizationService;
 use App\Support\VisualSearch\Dhash64Generator;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\DevCommands;

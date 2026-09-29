@@ -2,6 +2,7 @@
 
 namespace App\Contracts\Visualization;
 
+use App\Exceptions\Visualization\VisualizationProviderException;
 use App\Models\TryInRoomJob;
 use App\Services\Visualization\VisualizationCapability;
 
@@ -14,7 +15,7 @@ interface VisualizationProviderInterface
     /**
      * @return array<string, mixed> Provider result metadata (no raw image bytes).
      *
-     * @throws \App\Exceptions\Visualization\VisualizationProviderException
+     * @throws VisualizationProviderException
      */
     public function process(TryInRoomJob $job): array;
 }

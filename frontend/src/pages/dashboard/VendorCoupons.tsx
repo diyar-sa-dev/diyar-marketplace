@@ -89,9 +89,12 @@ export default function VendorCoupons() {
       code: coupon.code,
       type: coupon.type ?? 'percentage',
       value: coupon.value,
-      fixed_amount: coupon.fixed_amount !== null && coupon.fixed_amount !== undefined
-        ? Number(coupon.fixed_amount)
-        : (coupon.type === 'fixed' ? Number(coupon.value) : null),
+      fixed_amount:
+        coupon.fixed_amount !== null && coupon.fixed_amount !== undefined
+          ? Number(coupon.fixed_amount)
+          : coupon.type === 'fixed'
+            ? Number(coupon.value)
+            : null,
       minimum_order: Number(coupon.minimum_order),
       maximum_discount: coupon.maximum_discount ? Number(coupon.maximum_discount) : null,
       starts_at: coupon.starts_at,

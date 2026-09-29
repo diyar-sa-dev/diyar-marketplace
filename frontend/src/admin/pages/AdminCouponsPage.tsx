@@ -50,7 +50,9 @@ export default createAdminListPage<AdminCouponListItem>({
       key: 'is_active',
       labelKey: 'admin.tables.status',
       render: (item) => (
-        <AdminStatusBadge status={item.effective_status ?? (item.is_active ? 'active' : 'inactive')} />
+        <AdminStatusBadge
+          status={item.effective_status ?? (item.is_active ? 'active' : 'inactive')}
+        />
       ),
     },
   ],

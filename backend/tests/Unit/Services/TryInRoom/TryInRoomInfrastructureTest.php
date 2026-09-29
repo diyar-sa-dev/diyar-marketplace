@@ -3,6 +3,7 @@
 namespace Tests\Unit\Services\TryInRoom;
 
 use App\Jobs\TryInRoom\ProcessTryInRoomJob;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use PHPUnit\Framework\Attributes\Test;
@@ -33,8 +34,8 @@ class TryInRoomInfrastructureTest extends TestCase
         Queue::fake();
 
         try {
-            \Illuminate\Support\Facades\DB::transaction(function () {
-                \Illuminate\Support\Facades\DB::afterCommit(function () {
+            DB::transaction(function () {
+                DB::afterCommit(function () {
                     ProcessTryInRoomJob::dispatch('00000000-0000-0000-0000-000000000099');
                 });
                 throw new \RuntimeException('rollback');

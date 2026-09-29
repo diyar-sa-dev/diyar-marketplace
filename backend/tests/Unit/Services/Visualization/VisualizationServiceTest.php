@@ -12,6 +12,7 @@ use App\Services\Visualization\VisualizationQuota;
 use App\Services\Visualization\VisualizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -22,7 +23,7 @@ class VisualizationServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        \Illuminate\Support\Facades\Storage::fake('try_in_room');
+        Storage::fake('try_in_room');
     }
 
     #[Test]

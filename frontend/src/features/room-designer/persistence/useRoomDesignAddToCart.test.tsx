@@ -23,6 +23,6 @@ describe('useRoomDesignAddToCart', () => {
     result.current.mutate(undefined);
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(client.getQueryData(cartKeys.detail())?.item_count).toBe(2);
+    expect(client.getQueryData<{ item_count: number }>(cartKeys.detail())?.item_count).toBe(2);
   });
 });

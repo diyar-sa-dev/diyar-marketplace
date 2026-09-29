@@ -22,7 +22,7 @@ describe('FabricRoomRenderer projection hardening', () => {
     renderer.render(doc, { scalePxPerM: 80, projection: 'top_down' });
 
     const fabricCanvas = (renderer as unknown as {
-      canvas: Canvas & {
+      canvas: {
         getObjects: () => Array<{ diyarItemId?: string; left?: number; top?: number }>;
       };
     }).canvas;
@@ -49,7 +49,7 @@ describe('FabricRoomRenderer projection hardening', () => {
     renderer.resizeViewport(400, 300);
 
     const fabricCanvas = (renderer as unknown as {
-      canvas: Canvas & { getObjects: () => Array<{ type?: string; diyarItemId?: string }> };
+      canvas: { getObjects: () => Array<{ type?: string; diyarItemId?: string }> };
     }).canvas;
     const floor = fabricCanvas.getObjects().find((o) => !o.diyarItemId);
     expect(floor?.type).toBe('polygon');

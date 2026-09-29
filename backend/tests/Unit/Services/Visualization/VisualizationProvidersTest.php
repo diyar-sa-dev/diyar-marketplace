@@ -7,7 +7,9 @@ use App\Models\User;
 use App\Services\Visualization\Providers\NullVisualizationProvider;
 use App\Services\Visualization\Providers\StubVisualizationProvider;
 use App\Services\Visualization\VisualizationCapability;
+use App\Services\Visualization\VisualizationProviderRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -27,7 +29,7 @@ class VisualizationProvidersTest extends TestCase
     {
         config(['diyar.visualization.driver' => 'openai']);
 
-        $provider = app(\App\Services\Visualization\VisualizationProviderRegistry::class)->resolve('openai');
+        $provider = app(VisualizationProviderRegistry::class)->resolve('openai');
         $this->assertSame('openai', $provider->key());
     }
 
@@ -35,7 +37,7 @@ class VisualizationProvidersTest extends TestCase
     public function stub_provider_returns_composite_image_payload(): void
     {
         config(['diyar.try_in_room.stub_force_failure' => false]);
-        \Illuminate\Support\Facades\Storage::fake('try_in_room');
+        Storage::fake('try_in_room');
 
         $user = User::factory()->create();
         $job = new TryInRoomJob(['user_id' => $user->id, 'product_id' => null]);
@@ -44,6 +46,6 @@ class VisualizationProvidersTest extends TestCase
         $this->assertSame('composite_image', $payload['kind']);
         $this->assertSame('stub', $payload['provider']);
         $this->assertNotEmpty($payload['result_path']);
-        \Illuminate\Support\Facades\Storage::disk('try_in_room')->assertExists($payload['result_path']);
+        Storage::disk('try_in_room')->assertExists($payload['result_path']);
     }
 }

@@ -7,7 +7,6 @@ use App\Enums\TryInRoomJobStatus;
 use App\Jobs\TryInRoom\ProcessTryInRoomJob;
 use App\Models\Product;
 use App\Models\TryInRoomJob;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
