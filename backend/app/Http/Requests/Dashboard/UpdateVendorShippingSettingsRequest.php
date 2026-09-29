@@ -24,6 +24,7 @@ class UpdateVendorShippingSettingsRequest extends FormRequest
             'carrier_free_shipping_threshold' => ['nullable', 'numeric', 'min:0'],
             'pickup_enabled' => ['required', 'boolean'],
             'pickup_location_label' => ['nullable', 'string', 'max:255'],
+            'use_advanced_rules' => ['sometimes', 'boolean'],
         ];
     }
 

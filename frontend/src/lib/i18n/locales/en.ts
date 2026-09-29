@@ -4765,6 +4765,9 @@ export const en = {
     enabled: 'Enabled',
     disabled: 'Disabled',
     freeShippingThreshold: 'Free shipping threshold',
+    useAdvancedRules: 'Use zone & weight rate rules',
+    advancedRulesHint:
+      'When enabled, shipping costs are calculated based on carrier delivery zones and package weight tiers configured by administration.',
   },
   providerDashboard: {
     nav: {

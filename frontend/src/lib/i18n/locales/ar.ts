@@ -4692,6 +4692,9 @@ export const ar = {
     enabled: 'مفعّل',
     disabled: 'غير مفعّل',
     freeShippingThreshold: 'حد الشحن المجاني',
+    useAdvancedRules: 'تفعيل قواعد المناطق والأوزان المتقدمة',
+    advancedRulesHint:
+      'عند التفعيل، يتم احتساب تكلفة الشحن وفق مناطق التوصيل وشرائح الوزن المعتمدة بدلاً من السعر الثابت.',
   },
   providerDashboard: {
     nav: {

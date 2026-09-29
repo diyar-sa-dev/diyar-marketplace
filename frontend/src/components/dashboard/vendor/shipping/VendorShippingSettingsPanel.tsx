@@ -17,6 +17,7 @@ const defaultForm: VendorShippingSettingsPayload = {
   carrier_free_shipping_threshold: null,
   pickup_enabled: false,
   pickup_location_label: null,
+  use_advanced_rules: false,
 };
 
 export function VendorShippingSettingsPanel() {
@@ -119,6 +120,24 @@ export function VendorShippingSettingsPanel() {
                   {t('common.currency')}
                 </span>
               </div>
+            ) : null}
+
+            <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+              <input
+                type="checkbox"
+                id="use-advanced-rules"
+                checked={form.use_advanced_rules ?? false}
+                onChange={(event) => update('use_advanced_rules', event.target.checked)}
+                className="rounded text-diyar-brown focus:ring-diyar-brown"
+              />
+              <label htmlFor="use-advanced-rules" className="text-xs font-medium text-gray-700">
+                {t('shipping.useAdvancedRules')}
+              </label>
+            </div>
+            {form.use_advanced_rules ? (
+              <p className="text-[11px] text-gray-500 leading-normal">
+                {t('shipping.advancedRulesHint')}
+              </p>
             ) : null}
           </ShippingMethodOptionCard>
 

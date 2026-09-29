@@ -28,12 +28,15 @@ class VendorShippingSettingsTest extends TestCase
             'carrier_free_shipping_threshold' => '500.00',
             'pickup_enabled' => true,
             'pickup_location_label' => 'Riyadh Branch',
+            'use_advanced_rules' => true,
         ])->assertOk()
-            ->assertJsonPath('data.shipping_settings.carrier_flat_rate', '35.00');
+            ->assertJsonPath('data.shipping_settings.carrier_flat_rate', '35.00')
+            ->assertJsonPath('data.shipping_settings.use_advanced_rules', true);
 
         $this->actingAs($vendor)->getJson('/api/v1/dashboard/vendor/shipping-settings')
             ->assertOk()
-            ->assertJsonPath('data.shipping_settings.pickup_location_label', 'Riyadh Branch');
+            ->assertJsonPath('data.shipping_settings.pickup_location_label', 'Riyadh Branch')
+            ->assertJsonPath('data.shipping_settings.use_advanced_rules', true);
     }
 
     public function test_customer_cannot_access_vendor_shipping_settings(): void

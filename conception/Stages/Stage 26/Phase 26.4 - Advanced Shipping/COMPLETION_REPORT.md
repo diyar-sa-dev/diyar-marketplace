@@ -48,7 +48,7 @@ Post-commit audit identified gaps in zone precedence, free-shipping coupon behav
 1. **Admin shipping UI** — carriers list/create only; zones/rules/profiles require API or future UI work.
 2. **Postal zone matching** — `ZoneResolver` supports `postal_prefix` but `addresses` table has no `postal_code` column yet.
 3. **Performance measurement** — no automated query-count regression gate for checkout preview.
-4. **Vendor self-service profiles** — admin creates profiles; vendor toggles `use_advanced_rules` via existing settings API only.
+4. **Vendor self-service rules toggle** — fully supported on vendor settings API and vendor portal UI (`use_advanced_rules`); custom profile creation remains admin-managed.
 
 ---
 

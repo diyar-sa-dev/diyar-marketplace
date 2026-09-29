@@ -25,6 +25,7 @@ class VendorShippingSettingsResource extends JsonResource
                 : null,
             'pickup_enabled' => (bool) $this->pickup_enabled,
             'pickup_location_label' => $this->pickup_location_label,
+            'use_advanced_rules' => (bool) $this->use_advanced_rules,
         ];
     }
 }

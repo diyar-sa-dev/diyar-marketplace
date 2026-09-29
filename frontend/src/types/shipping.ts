@@ -7,6 +7,7 @@ export type VendorShippingSettings = {
   carrier_free_shipping_threshold: string | null;
   pickup_enabled: boolean;
   pickup_location_label: string | null;
+  use_advanced_rules?: boolean;
 };
 
 export type VendorShippingSettingsPayload = VendorShippingSettings;

@@ -85,6 +85,7 @@ final class VendorShippingSettingsService
                 'carrier_free_shipping_threshold' => $attributes['carrier_free_shipping_threshold'] ?? null,
                 'pickup_enabled' => (bool) ($attributes['pickup_enabled'] ?? false),
                 'pickup_location_label' => $attributes['pickup_location_label'] ?? null,
+                'use_advanced_rules' => (bool) ($attributes['use_advanced_rules'] ?? false),
             ];
 
             if ($settings === null) {
