@@ -18,7 +18,7 @@ class VisualSearchConfigTest extends TestCase
     #[Test]
     public function min_similarity_and_max_hamming_are_configured(): void
     {
-        $this->assertSame(0.70, (float) config('diyar.visual_search.min_similarity'));
+        $this->assertSame(0.90, (float) config('diyar.visual_search.min_similarity'));
         $this->assertSame(19, (int) config('diyar.visual_search.max_hamming_distance'));
     }
 

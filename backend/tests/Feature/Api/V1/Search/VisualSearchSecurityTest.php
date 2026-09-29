@@ -59,6 +59,8 @@ class VisualSearchSecurityTest extends TestCase
             $this->markTestSkipped('GD extension required.');
         }
 
+        config(['diyar.visual_search.max_dimension_px' => 2048]);
+
         $this->seedMinimalIndex();
 
         $img = imagecreatetruecolor(2049, 100);
@@ -79,6 +81,8 @@ class VisualSearchSecurityTest extends TestCase
         if (! extension_loaded('gd')) {
             $this->markTestSkipped('GD extension required.');
         }
+
+        config(['diyar.visual_search.max_pixels' => 4_000_000]);
 
         $this->seedMinimalIndex();
 

@@ -16,7 +16,7 @@ class CacheKeysVisualSearchTest extends TestCase
         $key = CacheKeys::visualSearchResult('fingerprint-test');
 
         $this->assertStringContainsString('19', $key);
-        $this->assertStringContainsString('0.7', $key);
+        $this->assertStringContainsString('0.9', $key);
         $this->assertStringContainsString('fingerprint-test', $key);
     }
 }
