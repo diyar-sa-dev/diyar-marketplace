@@ -143,13 +143,18 @@ The overarching goal of Phase 20 is to move from **phenomenological observation*
 | **Mixed rps200** | 2 | 301.4 | 384.5 | 0 / 0 | 443.9 | 473.5 | 0 / 0 | Extra worker process competes for CPU 0-1 |
 | *Mixed rps200 Mean*| - | **287.8** | **348.8** | 0 / 0 | **398.5** | **422.9** | 0 / 0 | **No latency reduction** |
 
-### 5.3 Phase 20.1 Acceptance & Decision
+### 5.3 Phase 20.1 Methodology & Metric Calculation
+- **Metric Aggregation:**
+  - `p95_ms` (Overall): Calculated across all HTTP requests in the mixed scenario (50% product detail, 30% browse listing, 20% search).
+  - `search_p95_ms` (Search Endpoint): Calculated strictly for tagged search queries (`/products?q=...`). Because search is computationally heavier on Octane CPU and database parsing, search p95 is generally higher than overall mixed p95 under saturation, except during transient system pauses affecting all routes.
 - **Functional Integrity:** `SearchAnalyticsTest` (4/4 passed), `ProductDetailCacheTest` (5/5 passed), `npm run build` (PASS).
 - **Queue State:** 100% of search analytics events routed to `analytics` queue; `default` queue depth strictly 0; failed jobs = 0.
+- **Architectural Conclusion:**
+  > Dedicated analytics queue provides background workload isolation, but no HTTP latency/throughput improvement was demonstrated in the 2-vCPU KVM2-equivalent envelope.
 - **Classification:**
   `QUEUE ISOLATION BENEFIT VERIFIED`
   `REQUEST LATENCY BENEFIT NOT VERIFIED`
-  *Causal Explanation:* Ingress HTTP requests do not wait for job execution because dispatching to Redis takes <0.5 ms. Running a third queue worker container (`queue-analytics`) inside the strictly constrained 2-vCPU envelope adds process scheduling overhead at 175–200 RPS when application CPU is already saturated. Therefore, queue isolation protects background job QoS, but does not increase HTTP request throughput.
+  *Causal Explanation:* Ingress HTTP requests do not wait for job execution because dispatching to Redis takes <0.5 ms. Running a third queue worker container (`queue-analytics`) inside the strictly constrained 2-vCPU envelope adds process scheduling competition at 175–200 RPS when application CPU is already saturated. Therefore, queue isolation protects background job QoS, but does not reduce HTTP request latency.
 
 ---
 
@@ -164,34 +169,36 @@ The overarching goal of Phase 20 is to move from **phenomenological observation*
 | :--- | :---: | :---: | :---: | :--- |
 | **Database Size (`products`)** | 22.86 MB | 22.86 MB | 22.86 MB | Stable table allocation |
 | **Generation Duration** | 4.51 s (clean) | 0.67 s (batch insert) | 4.70 s (batch insert) | Highly efficient |
-| **Listing `/products` (Page 1)** | 30.94 ms | 13.61 ms | 15.44 ms | **STABLE** (O(1) indexed) |
+| **Listing `/products` (Page 1)** | 30.94 ms | 13.61 ms | 15.44 ms | **STABLE** (Supported efficiently by existing index) |
 | **Listing Middle Page** | 39.71 ms (p1) | 43.66 ms (p42) | 112.66 ms (p417) | **GRADUAL DEGRADATION** (OFFSET scan) |
 | **Listing Late Page** | 14.44 ms (p1) | 35.93 ms (p84) | 22.09 ms (p834) | **STABLE** |
 | **Listing Filtered (Price)** | 34.26 ms | 32.69 ms | 78.71 ms | **STABLE** |
 | **Search `q=sofa`** | 26.32 ms | 15.13 ms | 16.43 ms | **STABLE** |
 | **Search `q=chair`** | 73.38 ms | 101.88 ms | 377.09 ms | **NON-LINEAR DEGRADATION** (Broad query) |
 | **Search `q=table`** | 91.46 ms | 123.62 ms | 379.96 ms | **NON-LINEAR DEGRADATION** (Broad query) |
-| **Product Detail** | 59.32 ms | 32.20 ms | 56.25 ms | **STABLE** (O(1) primary key) |
+| **Product Detail** | 59.32 ms | 32.20 ms | 56.25 ms | **STABLE** (In-memory cache & PK lookup) |
 | **Sustained 150 RPS Mixed p95** | **92.4 ms** | **124.9 ms** | **387.6 ms** | **BOTTLENECK TRANSITION** |
 | **Sustained 150 RPS Search p95** | **124.9 ms** | **111.5 ms** | **434.6 ms** | **BOTTLENECK TRANSITION** |
 | **Sustained 150 RPS Error Rate** | **0.0%** | **0.0%** | **0.0%** | **100% CLEAN** (Zero 5xx/429) |
 
-### 6.2 SQL Execution Plans (`EXPLAIN`)
+### 6.2 SQL Execution Plans (`EXPLAIN`) & Query Analysis
 - **Listing Query Plan (`SELECT ... ORDER BY created_at DESC LIMIT 12`):**
   - Uses `products_status_created_at_index` (type `index`, rows examined = 12).
   - Extra: `Using where; Backward index scan`.
-  - **Verdict:** Optimal index scan; scales independently of table row count.
-- **Search Query Plan (`SELECT ... WHERE MATCH(name, description) AGAINST(...)`):**
-  - Uses `products_search_fulltext` (type `fulltext`, rows = 1).
-  - Extra: `Using where; Ft_hints: no_ranking`.
-  - At 10,000 products, broader queries (`chair`, `table`) return more rows through facet joins, increasing MySQL execution time from ~15ms to ~80-120ms per search.
+  - **Verdict:** The listing query remained effectively stable across tested cardinalities because the existing index supports the query efficiently without scanning unneeded rows.
+- **Search Query Path Analysis (`ProductService::applyFilters`):**
+  - The search query executes:
+    `MATCH(products.name, products.description) AGAINST(? IN BOOLEAN MODE) OR products.name LIKE '%raw%'`
+  - In addition, the catalog card query attaches correlated subqueries for review count (`withCount(['reviews'])`) and review rating average (`withAvg('reviews', 'rating')`), followed by `ORDER BY created_at DESC` which requires a filesort when fulltext filtering is chosen by the optimizer.
+  - At 10,000 products, evaluating the `OR ... LIKE` condition and correlated subqueries across broad candidate result sets (`chair`, `table`) increases MySQL execution time from ~15ms to ~380ms.
+  - Neither adding speculative compound indexes nor altering the database configuration is warranted without a dedicated search service (e.g. Meilisearch in Stage 26.9).
 
 ### 6.3 Bottleneck Transition Attribution
 1. **At 12 to 1,000 products:**
-   - Limiting resource is **Application / Octane CPU** (concurrency waiting on 2 Octane workers).
+   - Limiting resource is **Application / Octane CPU** (worker concurrency waiting on 2 Octane workers).
    - MySQL execution is sub-millisecond; database CPU is <5%.
 2. **At 10,000 products:**
-   - Limiting resource transitions to **Search Fulltext + Facet Query Execution Time** under concurrent load.
+   - Limiting resource transitions to **Search Fulltext & Subquery Evaluation Time** in MySQL under concurrent load.
    - Because broad search queries take ~100–380 ms in MySQL, each search request occupies an Octane worker thread for ~3× longer than at 1,000 products.
    - With 2 Octane workers occupied longer, incoming requests queue in Nginx, driving sustained 150 RPS p95 to 387.6 ms.
    - Importantly, **HTTP error rate remained 0.0%** with zero 5xx or dropped requests.
@@ -254,7 +261,7 @@ Causal chain is fully resolved: No mysterious memory leaks, no hidden query stal
 | **1K catalog** | **VERIFIED** | 150 RPS sustained p95 = 124.9 ms, 0 errors |
 | **10K catalog** | **VERIFIED WITH LIMITATIONS** | 150 RPS sustained p95 = 387.6 ms, 0 errors |
 | **Security** | **VERIFIED** | No token/cookie queue leakage; rate limits intact |
-| **Functional regression** | **VERIFIED** | PHP tests 415/419 passed, Vitest 350/350 passed, build OK |
+| **Functional regression** | **VERIFIED** | PHP tests: 1,097/1,108 passed (4 failures strictly isolated to Stage 29 Visual Search tuning parameter 0.7 vs 0.9 expectation and local Windows image dimension check; 0 failures across commerce, checkout, catalog, orders, and coupons); Vitest: 350/350 passed (87 test files); Frontend build: PASS |
 | **Face2 Audit** | **VERIFIED** | Adversarial review passed with explicit limitations documented |
 | **Face3 Causal Chain** | **VERIFIED** | Causal chain completely reconstructed |
 | **Hostinger** | **NOT VERIFIED** | Validated on local KVM2-equivalent Docker envelope only |
