@@ -30,6 +30,17 @@ const AdminPaymentDetailPage = lazy(() => import('./pages/AdminPaymentDetailPage
 const AdminShippingConfigurationPage = lazy(
   () => import('./pages/AdminShippingConfigurationPage.tsx'),
 );
+const AdminOrdersPage = lazy(() => import('./pages/AdminOrdersPage.tsx'));
+const AdminOrderDetailPage = lazy(() => import('./pages/AdminOrderDetailPage.tsx'));
+const AdminProductsPage = lazy(() => import('./pages/AdminProductsPage.tsx'));
+const AdminProductDetailPage = lazy(() => import('./pages/AdminProductDetailPage.tsx'));
+const AdminCouponsPage = lazy(() => import('./pages/AdminCouponsPage.tsx'));
+const AdminCouponDetailPage = lazy(() => import('./pages/AdminCouponDetailPage.tsx'));
+const AdminRefundsPage = lazy(() => import('./pages/AdminRefundsPage.tsx'));
+const AdminRefundDetailPage = lazy(() => import('./pages/AdminRefundDetailPage.tsx'));
+const AdminReviewsPage = lazy(() => import('./pages/AdminReviewsPage.tsx'));
+const AdminRolesPage = lazy(() => import('./pages/AdminRolesPage.tsx'));
+const AdminHealthPage = lazy(() => import('./pages/AdminHealthPage.tsx'));
 
 function AdminRouteFallback() {
   return <AdminPageSkeleton />;
@@ -235,6 +246,94 @@ export default function AdminShell() {
         <Route
           path="analytics/search"
           element={<Navigate to="/admin/analytics#search" replace />}
+        />
+        <Route
+          path="orders"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminOrdersPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="orders/:orderId"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminOrderDetailPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="products"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminProductsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="products/:productId"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminProductDetailPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="coupons"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminCouponsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="coupons/:couponId"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminCouponDetailPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="refunds"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminRefundsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="refunds/:refundId"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminRefundDetailPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="reviews"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminReviewsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="roles"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminRolesPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="health"
+          element={
+            <Suspense fallback={<AdminRouteFallback />}>
+              <AdminHealthPage />
+            </Suspense>
+          }
         />
         <Route
           path="settings"

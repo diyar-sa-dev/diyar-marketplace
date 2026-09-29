@@ -20,8 +20,8 @@ Enterprise admin control plane: operational dashboard, health center, bulk actio
 
 - [x] Baseline audit
 - [x] Architecture doc
-- [ ] Wire orphaned admin routes + nav
-- [ ] Admin health center page + API
+- [x] Wire orphaned admin routes + nav
+- [x] Admin health center page + API
 - [ ] Permission refinements (`chat.moderate`, `system.health.view`)
 - [ ] Feature flags
 

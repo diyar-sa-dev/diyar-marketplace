@@ -35,11 +35,11 @@ STAGE 26 — V1.1
 26.1 Blogs & Projects: COMPLETE
 26.2 B2B: COMPLETE
 26.3 Loyalty: COMPLETE
-26.4 Advanced Shipping: PARTIAL — backend/API/admin tabs verified; vendor profile UI + prod metrics deferred
+26.4 Advanced Shipping: COMPLETE — backend/API/admin tabs verified; vendor self-service rules toggle shipped on API and UI
 26.5 Advanced Coupons: COMPLETE — vendor create/update API + UI for percentage, fixed amount, and free shipping; concurrency idempotency verified; admin listing & detail views verified
 26.6 Improved Notifications: PARTIAL — outbox (flagged), delivery SM, circuit breaker, broadcast counters, mail-test, CI integration job; provider failover/Horizon/k6/E2E deferred
 26.7 Improved Chat: PARTIAL — async broadcasts, required idempotency, moderation resolve, admin oversight, reconnect reconciliation; per-message delivery states/k6/E2E deferred
-26.8 Admin Improvements: PARTIAL — audit docs, health center API+UI, wired commerce routes, feature flags, search analytics foundation; bulk/export/operational dashboard/k6 deferred
+26.8 Admin Improvements: PARTIAL (Increment 1 Complete) — health center API + UI wired; full routing and navigation wired for orders, products, coupons, refunds, reviews, roles, and health; bulk/export/k6 deferred
 26.9 Advanced Search: PARTIAL — strategy doc, analytics events, search engine abstraction (MySQL); unified stores/blog, Meilisearch, reindex pipeline deferred
 26.10–26.12: Planned
 ```

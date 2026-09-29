@@ -173,5 +173,18 @@ Operational KVM2 capacity work (not a numbered Stage 31):
   - Backend: `UpdateVendorShippingSettingsRequest`, `VendorShippingSettingsResource`, `VendorShippingSettingsService`.
   - Frontend: `VendorShippingSettingsPanel` with Carrier options card toggle and bilingual hints.
   - Verified: 59/59 PHPUnit shipping tests passed, 87/87 Vitest suites (350/350 tests) passed, `npm run build` passed.
-  - Git: 5 local verified commits ahead of `origin/main` (`d7c455d`). Remote synchronization pending credentials.
+- **Stage 26.8 Admin Improvements — Increment 1 Control Plane Wiring:** **COMPLETE**
+  - Routed and connected all orphaned admin SPA pages in `AdminShell.tsx`: Orders, Products, Coupons, Refunds, Reviews, Roles, and Health Center.
+  - Wired full navigation items in `adminNav.ts` with granular permission checks (`orders.view`, `products.view`, `coupons.view`, `refunds.view`, `reviews.view`, `roles.view`, `system.health.view`).
+  - Full Arabic and English RTL/LTR localization verified.
+- **Backend Test Suite Certification (Full Re-run):**
+  - Total: 1,108 tests.
+  - Passed: 1,101.
+  - Skipped: 7 (explicit environment dependencies: MySQL EXPLAIN, Redis session/queue, GD WebP).
+  - Failed: 0.
+  - Visual search tests aligned with certified 0.90 similarity threshold and explicit security test dimension limits.
+- **Frontend Test & Build Certification:**
+  - Vitest: 87/87 test files passed (350/350 tests).
+  - Production build: `npm run build` passed with 0 errors.
+- **Git Status:** Working tree clean. Local verified commits ahead of `origin/main`. Remote synchronization pending credentials.
 
