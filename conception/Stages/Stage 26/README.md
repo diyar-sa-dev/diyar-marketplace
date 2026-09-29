@@ -16,7 +16,7 @@ Core rule: preserve existing UI/UX — wire prototypes to production APIs withou
 | 26.2 — B2B | 🔄 In progress | [Phase 26.2 - B2B Directory](./Phase%2026.2%20-%20B2B%20Directory/) |
 | 26.3 — Loyalty | ✅ COMPLETE | [Phase 26.3 - Loyalty](./Phase%2026.3%20-%20Loyalty/) |
 | 26.4 — Advanced Shipping | ⚠️ PARTIAL (backend complete) | [Phase 26.4 - Advanced Shipping](./Phase%2026.4%20-%20Advanced%20Shipping/) |
-| 26.5 — Advanced Coupons | ⚠️ PARTIAL (engine verified) | [Phase 26.5 - Advanced Coupons](./Phase%2026.5%20-%20Advanced%20Coupons/) |
+| 26.5 — Advanced Coupons | ✅ COMPLETE | [Phase 26.5 - Advanced Coupons](./Phase%2026.5%20-%20Advanced%20Coupons/) |
 | 26.6 — Improved Notifications | ⚠️ PARTIAL | [Phase 26.6 - Improved Notifications](./Phase%2026.6%20-%20Improved%20Notifications/) |
 | 26.7 — Improved Chat | ⚠️ PARTIAL | [Phase 26.7 - Improved Chat](./Phase%2026.7%20-%20Improved%20Chat/) |
 | 26.8 — Admin Improvements | 🔄 In progress | [Phase 26.8 - Admin Improvements](./Phase%2026.8%20-%20Admin%20Improvements/) |
@@ -36,7 +36,7 @@ STAGE 26 — V1.1
 26.2 B2B: COMPLETE
 26.3 Loyalty: COMPLETE
 26.4 Advanced Shipping: PARTIAL — backend/API/admin tabs verified; vendor profile UI + prod metrics deferred
-26.5 Advanced Coupons: PARTIAL — free shipping + concurrency idempotency verified; admin editor + stress tests deferred
+26.5 Advanced Coupons: COMPLETE — vendor create/update API + UI for percentage, fixed amount, and free shipping; concurrency idempotency verified; admin listing & detail views verified
 26.6 Improved Notifications: PARTIAL — outbox (flagged), delivery SM, circuit breaker, broadcast counters, mail-test, CI integration job; provider failover/Horizon/k6/E2E deferred
 26.7 Improved Chat: PARTIAL — async broadcasts, required idempotency, moderation resolve, admin oversight, reconnect reconciliation; per-message delivery states/k6/E2E deferred
 26.8 Admin Improvements: PARTIAL — audit docs, health center API+UI, wired commerce routes, feature flags, search analytics foundation; bulk/export/operational dashboard/k6 deferred
