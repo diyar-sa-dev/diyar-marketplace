@@ -13,6 +13,7 @@ import {
   ShoppingBag,
   Sparkles,
   Tag,
+  Truck,
   Users,
 } from 'lucide-react';
 import type { VendorCoupon } from '../../api/vendorCoupons.ts';
@@ -110,17 +111,38 @@ export function VendorCouponCard({
                 <StatusIcon size={13} />
                 {t(`vendor.coupons.status.${coupon.effective_status}`)}
               </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-50/80 border border-amber-200/60 px-2.5 py-0.5 text-xs font-semibold text-diyar-brown">
+                {t(`vendor.coupons.types.${coupon.type ?? 'percentage'}`)}
+              </span>
             </div>
 
-            <div className="flex items-end gap-2">
-              <span className="text-4xl sm:text-5xl font-black text-diyar-brown tabular-nums leading-none">
-                {coupon.value}
-              </span>
-              <span className="inline-flex items-center gap-1 pb-1 text-lg font-bold text-diyar-brown/80">
-                <Percent size={18} />
-                {t('vendor.coupons.discountShort')}
-              </span>
-            </div>
+            {coupon.type === 'free_shipping' ? (
+              <div className="flex items-center gap-2.5 py-1 text-diyar-brown">
+                <Truck size={28} className="text-diyar-brown shrink-0" />
+                <span className="text-2xl sm:text-3xl font-black text-diyar-brown">
+                  {t('vendor.coupons.types.free_shipping')}
+                </span>
+              </div>
+            ) : coupon.type === 'fixed' ? (
+              <div className="flex items-end gap-2">
+                <span className="text-4xl sm:text-5xl font-black text-diyar-brown tabular-nums leading-none">
+                  {coupon.fixed_amount ?? coupon.value}
+                </span>
+                <span className="inline-flex items-center gap-1 pb-1 text-lg font-bold text-diyar-brown/80">
+                  {currency} {t('vendor.coupons.discountShort')}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-end gap-2">
+                <span className="text-4xl sm:text-5xl font-black text-diyar-brown tabular-nums leading-none">
+                  {coupon.value}
+                </span>
+                <span className="inline-flex items-center gap-1 pb-1 text-lg font-bold text-diyar-brown/80">
+                  <Percent size={18} />
+                  {t('vendor.coupons.discountShort')}
+                </span>
+              </div>
+            )}
 
             <div className="grid gap-2 sm:grid-cols-2">
               <p className="flex items-start gap-2 text-sm text-gray-600">

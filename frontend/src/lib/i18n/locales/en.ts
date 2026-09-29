@@ -2820,7 +2820,17 @@ export const en = {
         expired: 'Expired',
         exhausted: 'Usage exhausted',
       },
+      types: {
+        percentage: 'Percentage',
+        fixed: 'Fixed amount',
+        free_shipping: 'Free shipping',
+      },
       form: {
+        type: 'Coupon type',
+        fixedAmount: 'Discount amount',
+        fixedAmountPlaceholder: '50',
+        fixedAmountHint: 'Fixed SAR amount deducted from the order subtotal.',
+        freeShippingNotice: 'Shipping fee will be waived for customer when applying this coupon.',
         code: 'Coupon code',
         codePlaceholder: 'e.g. DIYAR25',
         codeHint: '6–9 English letters or digits — auto-generated; you can edit it.',

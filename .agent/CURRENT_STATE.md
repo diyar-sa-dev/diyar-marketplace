@@ -147,16 +147,25 @@ Operational KVM2 capacity work (not a numbered Stage 31):
 - **CPU sampler Phase 19:** NOT MEASURED (Windows background); Phase 15 ref **~65% app CPU** @ rps150
 - Evidence: `phase19-search-performance/` (scorecard, Face 3, queue backlog, octane probe) · **Hostinger NOT VERIFIED**
 - Phase 19 Git Release: **CLOSED & COMMITTED** (`3921071`) · `diyar/dev` **SYNCHRONIZED** · `prod-temp` **FAST-FORWARDED**
-- Phase 20 Clean Runtime & Queue Isolation:
-  - Directory: `backend/storage/certification/kvm2-equivalent/phase20-clean-runtime/`
+- Phase 20 Clean Runtime, Dedicated Queue & Cardinality Scaling:
+  - Directory: `backend/storage/certification/kvm2-equivalent/phase20-clean-runtime/`, `phase20-queue-isolation/`, `phase20-cardinality/`
   - Report: `conception/Stages/Post-Stage 30/KVM2_PHASE_20_CLEAN_RUNTIME_AND_QUEUE_ISOLATION_REPORT.md`
   - **Phase 20.0 Clean Runtime Baseline:** **VERIFIED WITH LIMITATIONS** (Authoritative run `task-156`, commit `4d74ff5`)
-    - Queue Depth: 0 across all runs (zero contamination). Failed jobs: 0.
-    - Achieved load: 100% matched across rps100–200; error rate: 0.0% (0 429s, 0 5xxs).
-    - 1-Second Telemetry: 16 `sampler-*.jsonl` files captured.
-    - Capacity boundary: App CPU reaches 77% @ rps175, 94% (peak 145%) @ rps200.
-    - Isolated rps150: Search p95 = 111.1ms (3,166 Redis ops), Products p95 = 51.5ms, Detail p95 = 35.2ms.
-  - **Phase 20.1 Queue Isolation:** WAITING FOR APPROVAL
-  - **Phase 20.2 Cardinality Scaling:** WAITING FOR APPROVAL
-  - **Hostinger Validation:** NOT VERIFIED (Local KVM2-equivalent envelope only).
+    - Queue Depth: 0 across all runs. Failed jobs: 0. 0x 5xx, 0x unexpected 429.
+    - Capacity boundary: App CPU reaches ~77% @ rps175, ~94% @ rps200 (peak ~146%).
+  - **Phase 20.1 Dedicated Analytics Queue Experiment:** **VERIFIED WITH LIMITATIONS**
+    - Verdict: `QUEUE ISOLATION BENEFIT VERIFIED; REQUEST LATENCY BENEFIT NOT VERIFIED`.
+    - `RecordSearchQueryAnalyticsJob` isolated to dedicated `analytics` queue & worker. Queue depth = 0.
+  - **Phase 20.2 Catalog Cardinality Scaling:** **VERIFIED WITH LIMITATIONS**
+    - Evaluated 12 -> 1,000 -> 10,000 products with deterministic seeds.
+    - Listing & Detail: **STABLE** (O(1) index scans).
+    - Fulltext Search: **GRADUAL DEGRADATION transitioning to BOTTLENECK at 10,000 products** under 150 RPS.
+  - **Phase 20 Status:** **COMPLETE WITH LIMITATIONS**
+  - **Post-Stage 30 Program:** **CLOSED WITH LIMITATIONS**
+  - **Hostinger Validation:** **NOT VERIFIED** (Local KVM2-equivalent envelope cpuset:0-1, 2 Octane workers).
+  - **Next Product Feature Shipped:** **Stage 26.5 Vendor Advanced Coupon Management**
+    - Full 3-way coupon types: Percentage, Fixed Amount (SAR), and Free Shipping.
+    - Backend: `StoreVendorCouponRequest`, `UpdateVendorCouponRequest`, `VendorCouponManagementService`, and test suite updated.
+    - Frontend: `VendorCouponFormModal`, `VendorCouponCard`, `CouponShareCard`, and dashboard page updated with Arabic/English i18n.
+    - All 19 coupon PHPUnit tests passed; 87/87 Vitest test suites (350/350 tests) passed; frontend production build passed.
 

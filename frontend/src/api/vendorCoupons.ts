@@ -8,13 +8,16 @@ export type VendorCouponEffectiveStatus =
 export type VendorCoupon = {
   id: string;
   code: string;
-  type: 'percentage';
+  type: 'percentage' | 'fixed' | 'free_shipping';
+  scope_type?: 'all' | 'categories' | 'products';
   value: number;
+  fixed_amount: string | null;
   minimum_order: string;
   maximum_discount: string | null;
   starts_at: string | null;
   ends_at: string | null;
   usage_limit: number | null;
+  usage_limit_per_user?: number | null;
   used_count: number;
   is_active: boolean;
   effective_status: VendorCouponEffectiveStatus;
@@ -24,12 +27,15 @@ export type VendorCoupon = {
 
 export type VendorCouponPayload = {
   code: string;
-  value: number;
+  type?: 'percentage' | 'fixed' | 'free_shipping';
+  value?: number;
+  fixed_amount?: number | null;
   minimum_order?: number;
   maximum_discount?: number | null;
   starts_at?: string | null;
   ends_at?: string | null;
   usage_limit?: number | null;
+  usage_limit_per_user?: number | null;
   is_active?: boolean;
 };
 

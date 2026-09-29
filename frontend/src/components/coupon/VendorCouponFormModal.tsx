@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Loader2, RefreshCw, Sparkles, X } from 'lucide-react';
+import { Banknote, Loader2, Percent, RefreshCw, Sparkles, Truck, X } from 'lucide-react';
 import type { VendorCoupon, VendorCouponPayload } from '../../api/vendorCoupons.ts';
 import {
   generateUniqueCouponCode,
@@ -47,6 +47,7 @@ export function VendorCouponFormModal({
   onSubmit,
 }: VendorCouponFormModalProps) {
   const codeLocked = Boolean(editing?.used_count);
+  const currentType = form.type || 'percentage';
 
   const reservedCodes = useMemo(
     () => existingCodes.filter((code) => code.toUpperCase() !== editing?.code.toUpperCase()),
@@ -86,6 +87,39 @@ export function VendorCouponFormModal({
         </div>
 
         <div className="p-6 space-y-5">
+          {/* Coupon Type Selector */}
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-gray-700">
+              {t('vendor.coupons.form.type')}
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { type: 'percentage' as const, label: t('vendor.coupons.types.percentage'), icon: Percent },
+                { type: 'fixed' as const, label: t('vendor.coupons.types.fixed'), icon: Banknote },
+                { type: 'free_shipping' as const, label: t('vendor.coupons.types.free_shipping'), icon: Truck },
+              ].map((item) => {
+                const isSelected = currentType === item.type;
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.type}
+                    type="button"
+                    disabled={codeLocked}
+                    onClick={() => onChange({ ...form, type: item.type })}
+                    className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border text-xs sm:text-sm font-bold transition cursor-pointer ${
+                      isSelected
+                        ? 'border-diyar-brown bg-diyar-brown/5 text-diyar-brown ring-1 ring-diyar-brown'
+                        : 'border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    } ${codeLocked ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  >
+                    <Icon size={18} />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="space-y-2">
             <label className="text-sm font-bold text-gray-700">
               {t('vendor.coupons.form.code')}
@@ -117,27 +151,61 @@ export function VendorCouponFormModal({
             <p className="text-xs text-gray-500">{t('vendor.coupons.form.codeHint')}</p>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-gray-700">
-              {t('vendor.coupons.form.value')}
-            </label>
-            <div className={INPUT_WITH_SUFFIX}>
-              <input
-                required
-                type="number"
-                min={5}
-                max={90}
-                disabled={codeLocked}
-                value={form.value}
-                onChange={(event) => onChange({ ...form, value: Number(event.target.value) })}
-                placeholder={t('vendor.coupons.form.valuePlaceholder')}
-                className={INPUT_INNER}
-                dir="ltr"
-              />
-              <span className={`${INPUT_SUFFIX} text-sm`}>%</span>
+          {currentType === 'percentage' && (
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700">
+                {t('vendor.coupons.form.value')}
+              </label>
+              <div className={INPUT_WITH_SUFFIX}>
+                <input
+                  required
+                  type="number"
+                  min={5}
+                  max={90}
+                  disabled={codeLocked}
+                  value={form.value ?? 10}
+                  onChange={(event) => onChange({ ...form, value: Number(event.target.value) })}
+                  placeholder={t('vendor.coupons.form.valuePlaceholder')}
+                  className={INPUT_INNER}
+                  dir="ltr"
+                />
+                <span className={`${INPUT_SUFFIX} text-sm`}>%</span>
+              </div>
+              <p className="text-xs text-gray-500">{t('vendor.coupons.form.valueHint')}</p>
             </div>
-            <p className="text-xs text-gray-500">{t('vendor.coupons.form.valueHint')}</p>
-          </div>
+          )}
+
+          {currentType === 'fixed' && (
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700">
+                {t('vendor.coupons.form.fixedAmount')}
+              </label>
+              <div className={INPUT_WITH_SUFFIX}>
+                <input
+                  required
+                  type="number"
+                  min={1}
+                  disabled={codeLocked}
+                  value={form.fixed_amount ?? ''}
+                  onChange={(event) => onChange({ ...form, fixed_amount: Number(event.target.value) })}
+                  placeholder={t('vendor.coupons.form.fixedAmountPlaceholder')}
+                  className={INPUT_INNER}
+                  dir="ltr"
+                />
+                <span className={`${INPUT_SUFFIX} text-sm`}>{currency}</span>
+              </div>
+              <p className="text-xs text-gray-500">{t('vendor.coupons.form.fixedAmountHint')}</p>
+            </div>
+          )}
+
+          {currentType === 'free_shipping' && (
+            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3">
+              <Truck size={24} className="shrink-0 text-emerald-600" />
+              <p className="text-xs sm:text-sm font-medium leading-relaxed">
+                {t('vendor.coupons.form.freeShippingNotice')}
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">

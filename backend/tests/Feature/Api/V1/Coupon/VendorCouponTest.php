@@ -296,4 +296,40 @@ class VendorCouponTest extends TestCase
         $this->getJsonAsUser("/api/v1/dashboard/vendor/coupons/{$coupon->id}", $vendorB)
             ->assertNotFound();
     }
+
+    public function test_vendor_can_create_fixed_amount_and_free_shipping_coupons(): void
+    {
+        $vendor = $this->createUserWithRole(RoleName::Vendor);
+
+        // Fixed amount coupon
+        $this->postJsonAsUser('/api/v1/dashboard/vendor/coupons', $vendor, [
+            'code' => 'FIXED50',
+            'type' => 'fixed',
+            'fixed_amount' => 50,
+            'minimum_order' => 150,
+        ])
+            ->assertCreated()
+            ->assertJsonPath('data.coupon.type', 'fixed')
+            ->assertJsonPath('data.coupon.fixed_amount', '50.00');
+
+        // Free shipping coupon
+        $this->postJsonAsUser('/api/v1/dashboard/vendor/coupons', $vendor, [
+            'code' => 'FREESHIP',
+            'type' => 'free_shipping',
+            'minimum_order' => 200,
+        ])
+            ->assertCreated()
+            ->assertJsonPath('data.coupon.type', 'free_shipping');
+    }
+
+    public function test_fixed_amount_coupon_requires_positive_fixed_amount(): void
+    {
+        $vendor = $this->createUserWithRole(RoleName::Vendor);
+
+        $this->postJsonAsUser('/api/v1/dashboard/vendor/coupons', $vendor, [
+            'code' => 'ZEROFIXED',
+            'type' => 'fixed',
+            'fixed_amount' => 0,
+        ])->assertUnprocessable();
+    }
 }

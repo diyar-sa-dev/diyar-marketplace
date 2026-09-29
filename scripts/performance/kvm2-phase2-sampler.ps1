@@ -22,7 +22,7 @@ $outFile = Join-Path $OutDir "sampler-$Profile.jsonl"
 if (Test-Path $outFile) { Remove-Item $outFile -Force }
 
 function Invoke-Mysql([string]$Sql) {
-    docker exec "${Project}-mysql-1" mysql -udiyar -pkvm2_test_db_secret -N -e $Sql 2>$null
+    docker exec -e MYSQL_PWD=kvm2_test_db_secret "${Project}-mysql-1" mysql -udiyar diyar_kvm2_test -N -e $Sql 2>$null
 }
 
 function Get-MysqlMap([string]$Like) {
@@ -75,7 +75,7 @@ while ($true) {
     $pl = Invoke-Mysql "SELECT COUNT(*) FROM information_schema.processlist WHERE COMMAND <> 'Sleep';"
     $row.mysql.processlist_active = ("$pl".Trim())
 
-    $redis = docker exec "${Project}-redis-1" redis-cli -a kvm2_test_redis_secret INFO 2>$null
+    $redis = docker exec -e REDISCLI_AUTH=kvm2_test_redis_secret "${Project}-redis-1" redis-cli INFO 2>$null
     $ri = @{}
     foreach ($line in ($redis -split "`n")) {
         if ($line -match '^(used_memory_human|used_memory_peak_human|connected_clients|instantaneous_ops_per_sec|blocked_clients|evicted_keys|expired_keys|mem_fragmentation_ratio):(.+)$') {
@@ -92,8 +92,11 @@ while ($true) {
     $workers = docker exec "${Project}-app-1" sh -c "ps aux | grep -E 'octane|swoole' | grep -v grep | wc -l" 2>$null
     $row.octane_procs = ("$workers".Trim())
 
-    $qdepth = docker exec "${Project}-redis-1" redis-cli -a kvm2_test_redis_secret LLEN "${Project}-database-queues:default" 2>$null
+    $qdepth = docker exec -e REDISCLI_AUTH=kvm2_test_redis_secret "${Project}-redis-1" redis-cli LLEN "${Project}-database-queues:default" 2>$null
     if ("$qdepth" -match '^\d+$') { $row.queue_default_depth = [int]"$qdepth" }
+
+    $qAnalytics = docker exec -e REDISCLI_AUTH=kvm2_test_redis_secret "${Project}-redis-1" redis-cli LLEN "${Project}-database-queues:analytics" 2>$null
+    if ("$qAnalytics" -match '^\d+$') { $row.queue_analytics_depth = [int]"$qAnalytics" }
 
     $row | ConvertTo-Json -Compress -Depth 6 | Out-File -FilePath $outFile -Append -Encoding utf8
     Start-Sleep -Milliseconds $IntervalMs

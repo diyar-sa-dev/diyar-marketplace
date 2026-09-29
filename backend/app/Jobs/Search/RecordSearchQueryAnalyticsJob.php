@@ -29,7 +29,7 @@ final class RecordSearchQueryAnalyticsJob implements ShouldQueue
         public readonly array $filters,
         public readonly ?int $durationMs,
     ) {
-        $this->onQueue('default');
+        $this->onQueue('analytics');
     }
 
     public function handle(SearchAnalyticsRecorder $recorder): void

@@ -119,6 +119,10 @@ final class VendorCouponManagementService
             $updates['value'] = (int) $payload['value'];
         }
 
+        if (! $coupon->used_count && array_key_exists('fixed_amount', $payload) && $coupon->type === VendorCouponType::Fixed) {
+            $updates['fixed_amount'] = (float) $payload['fixed_amount'];
+        }
+
         if (! $coupon->used_count && array_key_exists('code', $payload)) {
             $code = VendorCoupon::normalizeCode((string) $payload['code']);
             if ($code === '') {

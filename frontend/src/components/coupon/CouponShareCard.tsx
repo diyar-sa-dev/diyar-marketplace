@@ -11,7 +11,7 @@ type CouponShareCardProps = {
   storeLogoUrl?: string | null;
   coupon: Pick<
     VendorCoupon,
-    'code' | 'value' | 'minimum_order' | 'maximum_discount' | 'ends_at' | 'effective_status'
+    'code' | 'value' | 'minimum_order' | 'maximum_discount' | 'ends_at' | 'effective_status' | 'type' | 'fixed_amount'
   >;
   className?: string;
 };
@@ -43,6 +43,13 @@ export function CouponShareCard({
       })
     : t('vendor.coupons.noExpiry');
 
+  const discountDisplay =
+    coupon.type === 'free_shipping'
+      ? t('vendor.coupons.types.free_shipping')
+      : coupon.type === 'fixed'
+        ? `${coupon.fixed_amount ?? coupon.value} ${currency} ${t('vendor.coupons.discountShort')}`
+        : `${coupon.value}% OFF`;
+
   return (
     <div
       className={`rounded-2xl border border-amber-100 bg-linear-to-br from-amber-50 to-white p-6 shadow-sm ${className}`}
@@ -60,7 +67,7 @@ export function CouponShareCard({
           </div>
         )}
         <p className="text-sm font-bold text-gray-500 uppercase tracking-wide">{storeName}</p>
-        <p className="text-3xl font-black text-diyar-brown">{coupon.value}% OFF</p>
+        <p className="text-3xl font-black text-diyar-brown">{discountDisplay}</p>
         <div className="rounded-xl bg-white border border-amber-100 px-4 py-2 font-mono text-lg font-bold text-diyar-dark">
           {coupon.code}
         </div>

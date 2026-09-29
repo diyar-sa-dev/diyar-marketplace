@@ -2776,7 +2776,17 @@ export const ar = {
         expired: 'منتهي',
         exhausted: 'استُنفد',
       },
+      types: {
+        percentage: 'نسبة مئوية',
+        fixed: 'مبلغ ثابت',
+        free_shipping: 'شحن مجاني',
+      },
       form: {
+        type: 'نوع الكوبون',
+        fixedAmount: 'مبلغ الخصم',
+        fixedAmountPlaceholder: '50',
+        fixedAmountHint: 'المبلغ الثابت بالريال الذي سيُخصم من قيمة الطلب.',
+        freeShippingNotice: 'سيتم إعفاء العميل من رسوم الشحن عند تطبيق هذا الكوبون.',
         code: 'رمز الكوبون',
         codePlaceholder: 'مثال: DIYAR25',
         codeHint: '6–9 أحرف وأرقام بالإنجليزية — يُولَّد تلقائياً ويمكنك تعديله.',

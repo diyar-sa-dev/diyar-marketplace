@@ -63,6 +63,13 @@ services:
         limits:
           memory: 384M
 
+  queue-analytics:
+    cpuset: '0-1'
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
   scheduler:
     cpuset: '0-1'
     deploy:

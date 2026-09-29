@@ -22,6 +22,7 @@ Stage **30.1–30.18** remain **CLOSED** (baseline Face 2 P0/P1=0).
 |---------|--------|
 | Stage 30 Room Designer | **COMPLETE** |
 | Post–Stage 30 PS30-1…5 | **COMPLETE** |
+| Post–Stage 30 Capacity & Runtime Certification (Phases 15–20) | **COMPLETE WITH LIMITATIONS** (Hostinger NOT VERIFIED) |
 | Stages 20–24 (full sign-off) | **PARTIAL** — broader gaps pre-date PS30 slices |
 | Live production | **NOT DEPLOYED** |
 
@@ -30,21 +31,22 @@ Stage **30.1–30.18** remain **CLOSED** (baseline Face 2 P0/P1=0).
 - Room design: policy, IDOR, rate limits, optimistic locking — tested
 - Visualization / spatial external AI — **FAIL-CLOSED** (legal PENDING)
 - Staging smoke: room-designs auth gate added
+- Dedicated analytics queue: payload sanitized, 0 credentials/tokens, 0 leakage
 
-## Performance
+## Performance & Capacity Certification (Phase 20)
 
-- PUT save query budget documented (PHPUnit, sqlite)
-- k6 `room-design-save-smoke.js` added — **NOT EXECUTED**
-- **25K: NOT VERIFIED**
+- Clean KVM2-equivalent baseline (Phase 20.0): 2-vCPU application envelope saturates at 175–200 RPS (0x 5xx, 0x unexpected 429).
+- Queue Isolation (Phase 20.1): Search analytics job isolated to dedicated `analytics` queue worker; queue depth = 0, no HTTP latency reduction due to CPU envelope sharing.
+- Cardinality Scaling (Phase 20.2): Evaluated 12 -> 1,000 -> 10,000 products. Listing/detail remain O(1) stable; broad fulltext search degrades at 10,000 items due to SQL execution time (~380ms).
+- Hostinger: **NOT VERIFIED**.
 
-## Test totals (2026-09-20)
+## Test totals
 
 | Suite | Count |
 |-------|------:|
-| Vitest room-designer | 131/131 |
-| PHPUnit RoomDesign | 33/33 |
-| PHPUnit TryInRoom + Visualization | 46/46 |
-| Build | PASS |
+| Vitest marketplace + admin + designer | 350/350 (87 test files) |
+| PHPUnit Core + Commerce + Coupons + Queue | 415/419 (visual search mocks excluded) |
+| Frontend Build | PASS (`npm run build`) |
 
 ## AI / legal
 

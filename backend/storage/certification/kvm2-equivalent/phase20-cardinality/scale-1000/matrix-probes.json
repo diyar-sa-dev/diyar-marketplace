@@ -1,0 +1,62 @@
+﻿[
+    {
+        "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12",
+        "duration_ms":  13.61,
+        "http_code":  200,
+        "size_bytes":  10668
+    },
+    {
+        "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12\u0026page=42",
+        "duration_ms":  43.66,
+        "http_code":  200,
+        "size_bytes":  10726
+    },
+    {
+        "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12\u0026page=84",
+        "duration_ms":  35.93,
+        "http_code":  200,
+        "size_bytes":  3461
+    },
+    {
+        "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12\u0026sort=price_asc",
+        "duration_ms":  14.4,
+        "http_code":  422,
+        "size_bytes":  95
+    },
+    {
+        "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12\u0026sort=price_desc",
+        "duration_ms":  13.14,
+        "http_code":  422,
+        "size_bytes":  95
+    },
+    {
+        "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12\u0026min_price=500\u0026max_price=2000",
+        "duration_ms":  32.69,
+        "http_code":  200,
+        "size_bytes":  10661
+    },
+    {
+        "url":  "http://127.0.0.1:8193/api/v1/search?q=sofa",
+        "duration_ms":  15.13,
+        "http_code":  200,
+        "size_bytes":  18601
+    },
+    {
+        "url":  "http://127.0.0.1:8193/api/v1/search?q=chair",
+        "duration_ms":  101.88,
+        "http_code":  200,
+        "size_bytes":  19211
+    },
+    {
+        "url":  "http://127.0.0.1:8193/api/v1/search?q=table",
+        "duration_ms":  123.62,
+        "http_code":  200,
+        "size_bytes":  19224
+    },
+    {
+        "url":  "http://127.0.0.1:8193/api/v1/products/01a0af07-b7c6-716b-82ff-ae1c91e8eaa5",
+        "duration_ms":  32.2,
+        "http_code":  200,
+        "size_bytes":  8886
+    }
+]

@@ -24,7 +24,9 @@ import type { VendorCoupon, VendorCouponPayload } from '../../api/vendorCoupons.
 
 const EMPTY_FORM: VendorCouponPayload = {
   code: '',
+  type: 'percentage',
   value: 10,
+  fixed_amount: null,
   minimum_order: 0,
   maximum_discount: null,
   starts_at: null,
@@ -85,7 +87,11 @@ export default function VendorCoupons() {
     setEditing(coupon);
     setForm({
       code: coupon.code,
+      type: coupon.type ?? 'percentage',
       value: coupon.value,
+      fixed_amount: coupon.fixed_amount !== null && coupon.fixed_amount !== undefined
+        ? Number(coupon.fixed_amount)
+        : (coupon.type === 'fixed' ? Number(coupon.value) : null),
       minimum_order: Number(coupon.minimum_order),
       maximum_discount: coupon.maximum_discount ? Number(coupon.maximum_discount) : null,
       starts_at: coupon.starts_at,
@@ -112,7 +118,9 @@ export default function VendorCoupons() {
 
         if (editing.used_count === 0) {
           payload.code = form.code;
+          payload.type = form.type;
           payload.value = form.value;
+          payload.fixed_amount = form.fixed_amount;
         }
 
         await updateCoupon.mutateAsync({ id: editing.id, payload });
