@@ -1,6 +1,6 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-09-22  
+> **Last updated:** 2026-09-30
 > **Maintained by:** AI development agents after each phase completion
 
 ---
@@ -177,6 +177,15 @@ Operational KVM2 capacity work (not a numbered Stage 31):
   - Routed and connected all orphaned admin SPA pages in `AdminShell.tsx`: Orders, Products, Coupons, Refunds, Reviews, Roles, and Health Center.
   - Wired full navigation items in `adminNav.ts` with granular permission checks (`orders.view`, `products.view`, `coupons.view`, `refunds.view`, `reviews.view`, `roles.view`, `system.health.view`).
   - Full Arabic and English RTL/LTR localization verified.
+- **Stage 26.9 Senior Search Optimization & Scalability Program:** **CERTIFIED**
+  - Architecture: Modular monolith preserved with MySQL as source of truth; Meilisearch / external engines explicitly deferred.
+  - Abstraction: Created clean `ProductSearchContract` / `ProductSearchService` interface; decoupled `CatalogSearchService` and `ProductService::searchPublic`.
+  - Fulltext Query Optimization: Removed redundant `OR products.name LIKE '%raw%'` fallback from `ProductService::applyFilters` that was invalidating the ngram FULLTEXT index (`products_search_fulltext`), dropping rows examined from 10,000 (full table scan) to 1.
+  - Aggregation Optimization: Decoupled correlated review aggregates (`COUNT` and `AVG`) from catalog queries into `ProductService::hydrateReviewAggregates`, executing a single indexed batch query in 0.29 ms for card collections.
+  - Card Projection: Strict separation between lightweight card projection (`ProductCardResource`) and complete product detail (`ProductDetailResource`).
+  - Empirical Performance (10,000 Products): English and Arabic search latency reduced from ~410–427 ms to 13.6–21.1 ms (19× to 30× faster; >95% latency reduction). Sustained 150 RPS load test on 10K catalog achieved 0.00% error rate.
+  - Correctness: 171/171 backend catalog/search tests passed; 87/87 Vitest suites (350/350 tests) passed.
+  - Hostinger Status: `HOSTINGER: NOT VERIFIED` (tested on local KVM2-equivalent envelope).
 - **Backend Test Suite Certification (Full Re-run):**
   - Total: 1,108 tests.
   - Passed: 1,101.

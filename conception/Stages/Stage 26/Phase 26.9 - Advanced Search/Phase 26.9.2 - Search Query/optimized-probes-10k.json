@@ -1,0 +1,98 @@
+﻿[
+    {
+        "endpoint":  "/products?per_page=12",
+        "median_ms":  22.29,
+        "http_code":  200,
+        "size_bytes":  10947
+    },
+    {
+        "endpoint":  "/products?per_page=12\u0026page=20",
+        "median_ms":  13.61,
+        "http_code":  200,
+        "size_bytes":  10764
+    },
+    {
+        "endpoint":  "/products?per_page=12\u0026sort=price",
+        "median_ms":  14.12,
+        "http_code":  200,
+        "size_bytes":  10681
+    },
+    {
+        "endpoint":  "/products?per_page=12\u0026sort=-price",
+        "median_ms":  15.7,
+        "http_code":  200,
+        "size_bytes":  10717
+    },
+    {
+        "endpoint":  "/products?q=sofa",
+        "median_ms":  21.11,
+        "http_code":  200,
+        "size_bytes":  17340
+    },
+    {
+        "endpoint":  "/products?q=chair",
+        "median_ms":  14.21,
+        "http_code":  200,
+        "size_bytes":  17820
+    },
+    {
+        "endpoint":  "/products?q=table",
+        "median_ms":  13.76,
+        "http_code":  200,
+        "size_bytes":  17774
+    },
+    {
+        "endpoint":  "/products?q=cha",
+        "median_ms":  13.65,
+        "http_code":  200,
+        "size_bytes":  17820
+    },
+    {
+        "endpoint":  "/products?q=%D8%B7%D8%A7%D9%88%D9%84%D8%A9",
+        "median_ms":  13.99,
+        "http_code":  200,
+        "size_bytes":  17962
+    },
+    {
+        "endpoint":  "/products?q=%D9%83%D8%B1%D8%B3%D9%8A",
+        "median_ms":  14.23,
+        "http_code":  200,
+        "size_bytes":  17820
+    },
+    {
+        "endpoint":  "/products?q=%D9%83%D9%86%D8%A8",
+        "median_ms":  17.13,
+        "http_code":  200,
+        "size_bytes":  17340
+    },
+    {
+        "endpoint":  "/products?q=%D8%B7%D8%A7%D9%88",
+        "median_ms":  13.82,
+        "http_code":  200,
+        "size_bytes":  17962
+    },
+    {
+        "endpoint":  "/products?q=chair\u0026min_price=500\u0026max_price=2000",
+        "median_ms":  13.78,
+        "http_code":  200,
+        "size_bytes":  17735
+    },
+    {
+        "endpoint":  "/catalog/search?q=chair\u0026type=products",
+        "median_ms":  18.84,
+        "http_code":  200,
+        "size_bytes":  19213
+    },
+    {
+        "endpoint":  "/catalog/search?q=%D8%B7%D8%A7%D9%88%D9%84%D8%A9\u0026type=products",
+        "median_ms":  15.12,
+        "http_code":  200,
+        "size_bytes":  18752
+    },
+    {
+        "endpoint":  "/products/fff8e744-1177-4936-82c8-e82a916af70d",
+        "median_ms":  13.14,
+        "http_code":  200,
+        "size_bytes":  2354
+    }
+]
