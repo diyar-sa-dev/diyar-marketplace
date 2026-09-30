@@ -48,7 +48,11 @@ final class ProductService
         $perPage = PaginationBounds::perPage((int) ($filters['per_page'] ?? 20));
         $page = PaginationBounds::page((int) ($filters['page'] ?? 1));
 
-        return $query->paginate($perPage, $this->cardColumns(), 'page', $page);
+        $paginator = $query->paginate($perPage, $this->cardColumns(), 'page', $page);
+
+        $this->hydrateReviewAggregates($paginator->getCollection());
+
+        return $paginator;
     }
 
     /**
@@ -79,7 +83,7 @@ final class ProductService
      */
     public function searchPublic(array $filters = [], ?User $user = null): LengthAwarePaginator
     {
-        return $this->listPublic($filters, $user);
+        return app(\App\Contracts\Search\ProductSearchContract::class)->search($filters, $user);
     }
 
     public function findPublic(string $id, ?User $user = null): Product
@@ -119,7 +123,11 @@ final class ProductService
             ->latest()
             ->limit($limit);
 
-        return $query->get();
+        $products = $query->get();
+
+        $this->hydrateReviewAggregates($products);
+
+        return $products;
     }
 
     /**
@@ -138,6 +146,9 @@ final class ProductService
         }
 
         $products = $this->cardQuery($user)->whereIn('id', $ids)->get();
+
+        $this->hydrateReviewAggregates($products);
+
         $order = array_flip($ids);
 
         return $products
@@ -381,20 +392,52 @@ final class ProductService
         return Product::query()->publiclyVisible();
     }
 
-    /**
-     * @return Builder<Product>
-     */
     private function cardQuery(?User $user = null): Builder
     {
         $query = $this->publicQuery()
             ->select($this->cardColumns())
-            ->with($this->cardEagerLoads())
-            ->withCount(['reviews'])
-            ->withAvg('reviews', 'rating');
+            ->with($this->cardEagerLoads());
 
         $query->withUserSaved($user);
 
         return $query;
+    }
+
+    /**
+     * Efficiently batch-hydrates reviews_count and reviews_avg_rating on product models.
+     * Replaces expensive correlated subqueries in the cardQuery SELECT clause.
+     *
+     * @param  Collection<int, Product>|\Illuminate\Support\Collection<int, Product>|iterable<Product>  $products
+     */
+    public function hydrateReviewAggregates(iterable $products): void
+    {
+        $collection = $products instanceof Collection ? $products : collect($products);
+        if ($collection->isEmpty()) {
+            return;
+        }
+
+        $ids = $collection->pluck('id')->filter()->values()->all();
+        if (empty($ids)) {
+            return;
+        }
+
+        $aggregates = DB::table('product_reviews')
+            ->whereIn('product_id', $ids)
+            ->groupBy('product_id')
+            ->selectRaw('product_id, count(*) as aggregate_count, avg(rating) as aggregate_avg')
+            ->get()
+            ->keyBy('product_id');
+
+        foreach ($collection as $product) {
+            if ($product instanceof Product) {
+                $stat = $aggregates->get($product->id);
+                $product->setAttribute('reviews_count', $stat ? (int) $stat->aggregate_count : 0);
+                $product->setAttribute(
+                    'reviews_avg_rating',
+                    $stat && $stat->aggregate_avg !== null ? round((float) $stat->aggregate_avg, 1) : null
+                );
+            }
+        }
     }
 
     /**
@@ -470,15 +513,14 @@ final class ProductService
                     ->map(fn ($t) => '+'.$t.'*')
                     ->implode(' ');
 
-                $query->where(function (Builder $q) use ($raw, $booleanQuery, $table) {
-                    if ($booleanQuery !== '') {
-                        $q->whereRaw(
-                            "MATCH({$table}.name, {$table}.description) AGAINST (? IN BOOLEAN MODE)",
-                            [$booleanQuery]
-                        );
-                    }
-                    $q->orWhere("{$table}.name", 'like', '%'.$raw.'%');
-                });
+                if ($booleanQuery !== '') {
+                    $query->whereRaw(
+                        "MATCH({$table}.name, {$table}.description) AGAINST (? IN BOOLEAN MODE)",
+                        [$booleanQuery]
+                    );
+                } else {
+                    $query->where("{$table}.name", 'like', '%'.$raw.'%');
+                }
             } else {
                 $term = '%'.$raw.'%';
                 $query->where(function (Builder $q) use ($term, $table) {

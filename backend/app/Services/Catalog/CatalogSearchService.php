@@ -14,6 +14,7 @@ use App\Support\Cache\CacheKeys;
 use App\Support\Cache\StampedeSafeCache;
 use App\Support\Cache\VersionedCache;
 use App\Support\Catalog\Filters\CatalogFilterNormalizer;
+use App\Contracts\Search\ProductSearchContract;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -23,11 +24,16 @@ final class CatalogSearchService
 
     private const FACET_COLOR_LIMIT = 12;
 
+    private readonly ProductSearchContract $productSearch;
+
     public function __construct(
         private readonly ProductService $products,
         private readonly ServiceCatalogService $services,
         private readonly CatalogFilterNormalizer $filterNormalizer,
-    ) {}
+        ?ProductSearchContract $productSearch = null,
+    ) {
+        $this->productSearch = $productSearch ?? app(ProductSearchContract::class);
+    }
 
     /**
      * @param  array<string, mixed>  $filters
@@ -98,7 +104,7 @@ final class CatalogSearchService
         $engineFilters = $this->filterNormalizer->productEngineFilters($filters);
 
         if ($user !== null) {
-            $paginator = $this->products->listPublic($engineFilters, $user);
+            $paginator = $this->productSearch->search($engineFilters, $user);
 
             return $this->paginatedPayload($paginator, ProductCardResource::class);
         }
@@ -108,7 +114,7 @@ final class CatalogSearchService
         $ttl = (int) config('diyar.catalog.cache.search_results_seconds', 60);
 
         return StampedeSafeCache::remember($cacheKey, $ttl, function () use ($engineFilters): array {
-            $paginator = $this->products->listPublic($engineFilters);
+            $paginator = $this->productSearch->search($engineFilters);
 
             return $this->paginatedPayload($paginator, ProductCardResource::class);
         }, 'lock:'.$cacheKey);

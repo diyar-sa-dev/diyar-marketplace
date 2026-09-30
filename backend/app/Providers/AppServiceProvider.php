@@ -59,6 +59,11 @@ class AppServiceProvider extends ServiceProvider
                 config('diyar.visualization.driver', 'null'),
             );
         });
+
+        $this->app->singleton(
+            \App\Contracts\Search\ProductSearchContract::class,
+            \App\Services\Search\ProductSearchService::class
+        );
     }
 
     public function boot(): void
