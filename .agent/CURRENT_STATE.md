@@ -177,29 +177,20 @@ Operational KVM2 capacity work (not a numbered Stage 31):
   - Routed and connected all orphaned admin SPA pages in `AdminShell.tsx`: Orders, Products, Coupons, Refunds, Reviews, Roles, and Health Center.
   - Wired full navigation items in `adminNav.ts` with granular permission checks (`orders.view`, `products.view`, `coupons.view`, `refunds.view`, `reviews.view`, `roles.view`, `system.health.view`).
   - Full Arabic and English RTL/LTR localization verified.
-- **Stage 26.9 Senior Search Optimization & Scalability Program:** **CERTIFIED**
-  - Architecture: Modular monolith preserved with MySQL as source of truth; Meilisearch / external engines explicitly deferred.
+- **Stage 26.9 Senior Search Optimization & Scalability Program (Phase 20.5):** **COMPLETE / CERTIFIED (within local tested scope)**
+  - Architecture: Modular monolith preserved with MySQL as source of truth; Meilisearch and Elasticsearch explicitly deferred.
   - Abstraction: Created clean `ProductSearchContract` / `ProductSearchService` interface; decoupled `CatalogSearchService` and `ProductService::searchPublic`.
-  - Fulltext Query Optimization: Removed redundant `OR products.name LIKE '%raw%'` fallback from `ProductService::applyFilters` that was invalidating the ngram FULLTEXT index (`products_search_fulltext`), dropping rows examined from 10,000 (full table scan) to 1.
+  - Fulltext Query Optimization: Removed redundant `OR products.name LIKE '%raw%'` fallback from `ProductService::applyFilters` that was invalidating the ngram FULLTEXT index (`products_search_fulltext`). In the cited EXPLAIN search plan, examined rows dropped from ~10,000 to 1 candidate row.
   - Aggregation Optimization: Decoupled correlated review aggregates (`COUNT` and `AVG`) from catalog queries into `ProductService::hydrateReviewAggregates`, executing a single indexed batch query in 0.29 ms for card collections.
   - Card Projection: Strict separation between lightweight card projection (`ProductCardResource`) and complete product detail (`ProductDetailResource`).
-  - Empirical Performance (10,000 Products): English and Arabic search latency reduced from ~410–427 ms to 13.6–21.1 ms (19× to 30× faster; >95% latency reduction). Sustained 150 RPS load test on 10K catalog achieved 0.00% error rate.
+  - Empirical Performance (10,000 Products): English and Arabic search latency reduced from ~410–427 ms to 13.6–21.1 ms (19× to 30× faster; >95% latency reduction in local KVM2-equivalent test environment). Sustained 150 RPS load test on 10K catalog achieved 0.00% error rate.
+  - Architectural Verdict: The current MySQL search architecture satisfies the tested 10K-product workload with substantial measured improvement. A dedicated search service remains deferred until real Hostinger deployment and real production-scale evidence justify the additional infrastructure.
   - Correctness: 171/171 backend catalog/search tests passed; 87/87 Vitest suites (350/350 tests) passed.
-  - Hostinger Status: `HOSTINGER: NOT VERIFIED` (tested on local KVM2-equivalent envelope).
-- **Phase 21 Whole Platform Performance & Capacity Program:** **CERTIFIED WITH LIMITATIONS**
-  - Scope: 528 backend API routes, 40+ frontend views, Nginx ingress, MySQL 8, Redis 7, and 2 FrankenPHP Octane workers.
-  - Surface Baseline: All representative endpoints measured between 12.0 ms and 19.5 ms median latency.
-  - Traffic Ladder (25 -> 50 -> 100 -> 150 -> 175 RPS):
-    - 0.00% error rate across all steps (zero 5xx, zero 429).
-    - Median latency remains sub-10ms across all steps (6.59ms @ 25 RPS, 6.93ms @ 150 RPS, 9.74ms @ 175 RPS).
-    - p95 latency: 14.62ms @ 50 RPS, 72.38ms @ 150 RPS, 163.82ms @ 175 RPS.
-  - Resource Contention:
-    - MySQL: <8% CPU @ 150 RPS, 0 slow queries, 0 lock waits, 0 deadlocks.
-    - Redis: <15% CPU @ peak 2,840 ops/sec, 0 key evictions, 0 blocked clients.
-    - Queues: `queues:default = 0`, `queues:analytics = 0`, `failed_jobs = 0`.
-    - Capacity Boundary: Saturated at >150 RPS by the 2-vCPU Octane worker limit (Nginx upstream waiting connections).
-  - Meilisearch Status: **DEFERRED** (MySQL Fulltext confirmed scalable to 10K+ products; no external search service needed).
   - Hostinger Status: `HOSTINGER: NOT VERIFIED` (Local KVM2-equivalent envelope only).
+- **Phase 21 Whole Platform Performance & Capacity Program:** **PREPARED / DEFERRED TO TOMORROW**
+  - Scope: Complete platform surface mapped (528 backend API routes, 40+ frontend views), test scripts and telemetry collectors staged.
+  - Execution Status: Formal whole-platform execution is scheduled for tomorrow. Not certified today.
+  - Hostinger Status: `HOSTINGER: NOT VERIFIED`.
 - **Backend Test Suite Certification (Full Re-run):**
   - Total: 1,108 tests.
   - Passed: 1,101.

@@ -68,7 +68,7 @@ In the unoptimized Phase 20 baseline, search queries at 10,000 products exhibite
 | Arabic Search (`q=طاولة`) | 415.22 ms | 13.99 ms | **-401.2 ms (29.7× faster)** |
 | Arabic Prefix (`q=طاو`) | 412.33 ms | 13.82 ms | **-398.5 ms (29.8× faster)** |
 | Catalog Search (`q=chair`) | 419.06 ms | 18.84 ms | **-400.2 ms (22.2× faster)** |
-| MySQL Rows Examined | 10,000 | 1 | **-99.99%** |
+| MySQL Rows Examined (cited EXPLAIN plan) | ~10,000 (table scan) | 1 (candidate scan) | **Plan-specific measured reduction** |
 | Correlated Subqueries | 2 per row | 0 (1 batch query @ 0.29ms) | **-100%** |
 | 150 RPS Sustained Error Rate | N/A | **0.00%** | **Rock solid** |
 
