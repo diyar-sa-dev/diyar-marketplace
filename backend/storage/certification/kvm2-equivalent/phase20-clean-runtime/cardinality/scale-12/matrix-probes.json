@@ -1,62 +1,62 @@
 ﻿[
     {
         "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12",
-        "duration_ms":  23.78,
+        "duration_ms":  30.94,
         "http_code":  200,
-        "size_bytes":  10762
+        "size_bytes":  10083
     },
     {
-        "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12\u0026page=417",
-        "duration_ms":  70.98,
+        "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12\u0026page=1",
+        "duration_ms":  39.71,
         "http_code":  200,
-        "size_bytes":  10716
+        "size_bytes":  10083
     },
     {
-        "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12\u0026page=834",
-        "duration_ms":  23.49,
+        "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12\u0026page=1",
+        "duration_ms":  14.44,
         "http_code":  200,
-        "size_bytes":  10716
+        "size_bytes":  10083
     },
     {
         "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12\u0026sort=price_asc",
-        "duration_ms":  68.83,
+        "duration_ms":  56.64,
         "http_code":  422,
         "size_bytes":  95
     },
     {
         "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12\u0026sort=price_desc",
-        "duration_ms":  26.87,
+        "duration_ms":  22.79,
         "http_code":  422,
         "size_bytes":  95
     },
     {
         "url":  "http://127.0.0.1:8193/api/v1/products?per_page=12\u0026min_price=500\u0026max_price=2000",
-        "duration_ms":  53.01,
+        "duration_ms":  34.26,
         "http_code":  200,
-        "size_bytes":  10822
+        "size_bytes":  6692
     },
     {
         "url":  "http://127.0.0.1:8193/api/v1/search?q=sofa",
-        "duration_ms":  25.14,
+        "duration_ms":  26.32,
         "http_code":  200,
-        "size_bytes":  18653
+        "size_bytes":  293
     },
     {
         "url":  "http://127.0.0.1:8193/api/v1/search?q=chair",
-        "duration_ms":  267.65,
+        "duration_ms":  73.38,
         "http_code":  200,
-        "size_bytes":  19302
+        "size_bytes":  294
     },
     {
         "url":  "http://127.0.0.1:8193/api/v1/search?q=table",
-        "duration_ms":  369.08,
+        "duration_ms":  91.46,
         "http_code":  200,
-        "size_bytes":  19319
+        "size_bytes":  294
     },
     {
-        "url":  "http://127.0.0.1:8193/api/v1/products/01a0af07-b5fe-700c-921b-7e52b4272821",
-        "duration_ms":  84.53,
+        "url":  "http://127.0.0.1:8193/api/v1/products/01a0af07-b7c6-716b-82ff-ae1c91e8eaa5",
+        "duration_ms":  59.32,
         "http_code":  200,
-        "size_bytes":  8886
+        "size_bytes":  3454
     }
 ]

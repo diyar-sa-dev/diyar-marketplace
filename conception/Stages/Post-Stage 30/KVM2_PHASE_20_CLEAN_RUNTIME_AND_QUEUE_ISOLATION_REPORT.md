@@ -261,7 +261,7 @@ Causal chain is fully resolved: No mysterious memory leaks, no hidden query stal
 | **1K catalog** | **VERIFIED** | 150 RPS sustained p95 = 124.9 ms, 0 errors |
 | **10K catalog** | **VERIFIED WITH LIMITATIONS** | 150 RPS sustained p95 = 387.6 ms, 0 errors |
 | **Security** | **VERIFIED** | No token/cookie queue leakage; rate limits intact |
-| **Functional regression** | **VERIFIED** | PHP tests: 1,097/1,108 passed (4 failures strictly isolated to Stage 29 Visual Search tuning parameter 0.7 vs 0.9 expectation and local Windows image dimension check; 0 failures across commerce, checkout, catalog, orders, and coupons); Vitest: 350/350 passed (87 test files); Frontend build: PASS |
+| **Functional regression** | **VERIFIED** | PHP tests: 1,101 passed, 7 skipped (MySQL EXPLAIN / Redis session environment deps), 0 failed out of 1,108 tests; Vitest: 350/350 passed (87 test files); Frontend build: PASS |
 | **Face2 Audit** | **VERIFIED** | Adversarial review passed with explicit limitations documented |
 | **Face3 Causal Chain** | **VERIFIED** | Causal chain completely reconstructed |
 | **Hostinger** | **NOT VERIFIED** | Validated on local KVM2-equivalent Docker envelope only |

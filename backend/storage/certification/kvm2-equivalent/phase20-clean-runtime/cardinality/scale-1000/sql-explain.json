@@ -1,0 +1,6 @@
+﻿{
+    "scale":  1000,
+    "search_plan":  "1\tSIMPLE\tproducts\tNULL\tfulltext\tproducts_status_created_at_index,products_status_promotion_ends_at_index,products_status_discount_amount_idx,products_search_fulltext\tproducts_search_fulltext\t0\tconst\t1\t9.99\tUsing where; Ft_hints: no_ranking",
+    "filter_plan":  "1\tSIMPLE\tproducts\tNULL\tALL\tproducts_status_created_at_index,products_status_promotion_ends_at_index,products_status_discount_amount_idx\tNULL\tNULL\tNULL\t1001\t1.11\tUsing where; Using filesort",
+    "listing_plan":  "1\tSIMPLE\tproducts\tNULL\trange\tproducts_status_created_at_index,products_status_promotion_ends_at_index,products_status_discount_amount_idx\tproducts_status_created_at_index\t1022\tNULL\t1000\t10.00\tUsing index condition; Using where; Backward index scan"
+}
