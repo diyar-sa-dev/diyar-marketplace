@@ -186,6 +186,20 @@ Operational KVM2 capacity work (not a numbered Stage 31):
   - Empirical Performance (10,000 Products): English and Arabic search latency reduced from ~410–427 ms to 13.6–21.1 ms (19× to 30× faster; >95% latency reduction). Sustained 150 RPS load test on 10K catalog achieved 0.00% error rate.
   - Correctness: 171/171 backend catalog/search tests passed; 87/87 Vitest suites (350/350 tests) passed.
   - Hostinger Status: `HOSTINGER: NOT VERIFIED` (tested on local KVM2-equivalent envelope).
+- **Phase 21 Whole Platform Performance & Capacity Program:** **CERTIFIED WITH LIMITATIONS**
+  - Scope: 528 backend API routes, 40+ frontend views, Nginx ingress, MySQL 8, Redis 7, and 2 FrankenPHP Octane workers.
+  - Surface Baseline: All representative endpoints measured between 12.0 ms and 19.5 ms median latency.
+  - Traffic Ladder (25 -> 50 -> 100 -> 150 -> 175 RPS):
+    - 0.00% error rate across all steps (zero 5xx, zero 429).
+    - Median latency remains sub-10ms across all steps (6.59ms @ 25 RPS, 6.93ms @ 150 RPS, 9.74ms @ 175 RPS).
+    - p95 latency: 14.62ms @ 50 RPS, 72.38ms @ 150 RPS, 163.82ms @ 175 RPS.
+  - Resource Contention:
+    - MySQL: <8% CPU @ 150 RPS, 0 slow queries, 0 lock waits, 0 deadlocks.
+    - Redis: <15% CPU @ peak 2,840 ops/sec, 0 key evictions, 0 blocked clients.
+    - Queues: `queues:default = 0`, `queues:analytics = 0`, `failed_jobs = 0`.
+    - Capacity Boundary: Saturated at >150 RPS by the 2-vCPU Octane worker limit (Nginx upstream waiting connections).
+  - Meilisearch Status: **DEFERRED** (MySQL Fulltext confirmed scalable to 10K+ products; no external search service needed).
+  - Hostinger Status: `HOSTINGER: NOT VERIFIED` (Local KVM2-equivalent envelope only).
 - **Backend Test Suite Certification (Full Re-run):**
   - Total: 1,108 tests.
   - Passed: 1,101.
