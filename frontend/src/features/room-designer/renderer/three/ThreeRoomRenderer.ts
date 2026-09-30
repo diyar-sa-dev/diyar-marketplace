@@ -64,13 +64,13 @@ export class ThreeRoomRenderer implements RoomRenderer {
       return;
     }
 
-    const three = await import('three');
-    this.three = three;
-
     if (!this.isWebGlAvailable()) {
       this.showFallback('تعذّر تشغيل العرض ثلاثي الأبعاد على هذا الجهاز.');
       return;
     }
+
+    const three = await import('three');
+    this.three = three;
 
     const canvas = document.createElement('canvas');
     this.container.appendChild(canvas);
