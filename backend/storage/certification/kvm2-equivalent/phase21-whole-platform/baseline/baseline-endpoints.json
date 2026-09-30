@@ -1,0 +1,146 @@
+﻿[
+    {
+        "endpoint":  "/",
+        "median_ms":  19.05,
+        "min_ms":  13.7,
+        "max_ms":  26.86,
+        "http_code":  200,
+        "size_bytes":  35686
+    },
+    {
+        "endpoint":  "/api/v1/health/live",
+        "median_ms":  12.08,
+        "min_ms":  11.92,
+        "max_ms":  23.58,
+        "http_code":  200,
+        "size_bytes":  81
+    },
+    {
+        "endpoint":  "/api/v1/health/ready",
+        "median_ms":  17.62,
+        "min_ms":  17.21,
+        "max_ms":  25.34,
+        "http_code":  200,
+        "size_bytes":  894
+    },
+    {
+        "endpoint":  "/api/v1/storefront/home",
+        "median_ms":  14.83,
+        "min_ms":  14.32,
+        "max_ms":  107.68,
+        "http_code":  200,
+        "size_bytes":  40767
+    },
+    {
+        "endpoint":  "/api/v1/categories",
+        "median_ms":  16.32,
+        "min_ms":  15.92,
+        "max_ms":  25.12,
+        "http_code":  200,
+        "size_bytes":  6224
+    },
+    {
+        "endpoint":  "/api/v1/vendors",
+        "median_ms":  14.79,
+        "min_ms":  14.48,
+        "max_ms":  24.83,
+        "http_code":  200,
+        "size_bytes":  1077
+    },
+    {
+        "endpoint":  "/api/v1/products?per_page=12",
+        "median_ms":  15.85,
+        "min_ms":  15.32,
+        "max_ms":  21.06,
+        "http_code":  200,
+        "size_bytes":  10083
+    },
+    {
+        "endpoint":  "/api/v1/products?per_page=12\u0026page=2",
+        "median_ms":  15.77,
+        "min_ms":  13.14,
+        "max_ms":  73.32,
+        "http_code":  200,
+        "size_bytes":  107
+    },
+    {
+        "endpoint":  "/api/v1/products?per_page=12\u0026sort=price",
+        "median_ms":  13.37,
+        "min_ms":  13.13,
+        "max_ms":  35.62,
+        "http_code":  200,
+        "size_bytes":  10083
+    },
+    {
+        "endpoint":  "/api/v1/products?per_page=12\u0026sort=-price",
+        "median_ms":  13.6,
+        "min_ms":  13.21,
+        "max_ms":  36.92,
+        "http_code":  200,
+        "size_bytes":  10083
+    },
+    {
+        "endpoint":  "/api/v1/products?q=chair",
+        "median_ms":  13.5,
+        "min_ms":  13.22,
+        "max_ms":  51.18,
+        "http_code":  200,
+        "size_bytes":  106
+    },
+    {
+        "endpoint":  "/api/v1/products?q=%D8%B7%D8%A7%D9%88%D9%84%D8%A9",
+        "median_ms":  13.38,
+        "min_ms":  13.01,
+        "max_ms":  81.27,
+        "http_code":  200,
+        "size_bytes":  1759
+    },
+    {
+        "endpoint":  "/api/v1/products?q=%D8%B7%D8%A7%D9%88",
+        "median_ms":  13.27,
+        "min_ms":  12.89,
+        "max_ms":  1032.19,
+        "http_code":  200,
+        "size_bytes":  1759
+    },
+    {
+        "endpoint":  "/api/v1/catalog/search?q=chair\u0026type=products",
+        "median_ms":  14.65,
+        "min_ms":  14.36,
+        "max_ms":  481.75,
+        "http_code":  200,
+        "size_bytes":  205
+    },
+    {
+        "endpoint":  "/api/v1/products/01a0af07-b5fe-700c-921b-7e52b4272821",
+        "median_ms":  16.99,
+        "min_ms":  14.5,
+        "max_ms":  49.79,
+        "http_code":  200,
+        "size_bytes":  2170
+    },
+    {
+        "endpoint":  "/api/v1/products/01a0af07-b5fe-700c-921b-7e52b4272821/reviews",
+        "median_ms":  17.56,
+        "min_ms":  17.28,
+        "max_ms":  27.46,
+        "http_code":  200,
+        "size_bytes":  270
+    },
+    {
+        "endpoint":  "/api/v1/services?per_page=12",
+        "median_ms":  19.52,
+        "min_ms":  17.27,
+        "max_ms":  35.6,
+        "http_code":  200,
+        "size_bytes":  8424
+    },
+    {
+        "endpoint":  "/api/v1/service-categories",
+        "median_ms":  13.6,
+        "min_ms":  13.31,
+        "max_ms":  21.82,
+        "http_code":  200,
+        "size_bytes":  1489
+    }
+]
