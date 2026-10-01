@@ -9,7 +9,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorShippingSettings;
-use App\Services\Cart\CartService;
+use App\Domains\Cart\Services\CartService;
 use Illuminate\Support\Str;
 
 trait InteractsWithCheckout

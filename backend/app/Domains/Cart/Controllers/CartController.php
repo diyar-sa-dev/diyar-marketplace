@@ -1,0 +1,137 @@
+<?php
+
+namespace App\Domains\Cart\Controllers;
+
+use App\Enums\AnalyticsEventType;
+use App\Http\Controllers\Controller;
+use App\Domains\Cart\Requests\StoreCartItemRequest;
+use App\Domains\Cart\Requests\UpdateCartItemRequest;
+use App\Domains\Cart\Resources\CartResource;
+use App\Models\Cart;
+use App\Models\Product;
+use App\Services\Analytics\AnalyticsEventRecorder;
+use App\Domains\Cart\Services\CartMergeService;
+use App\Domains\Cart\Services\CartService;
+use App\Domains\Cart\Services\CartValidationService;
+use App\Core\Support\Api\ApiResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class CartController extends Controller
+{
+    public function __construct(
+        private readonly CartService $carts,
+        private readonly CartMergeService $merge,
+        private readonly CartValidationService $validation,
+        private readonly AnalyticsEventRecorder $analyticsEvents,
+    ) {}
+
+    public function show(Request $request): JsonResponse
+    {
+        $cart = $this->resolveCart($request);
+
+        return ApiResponse::success(data: [
+            'cart' => new CartResource($this->carts->loadCart($cart)),
+        ]);
+    }
+
+    public function clear(Request $request): JsonResponse
+    {
+        $cart = $this->resolveCart($request);
+        $cleared = $this->carts->clear($cart);
+
+        return ApiResponse::success(
+            data: ['cart' => new CartResource($cleared)],
+            message: __('diyar.cart.cleared'),
+        );
+    }
+
+    public function storeItem(StoreCartItemRequest $request): JsonResponse
+    {
+        $cart = $this->resolveCart($request);
+        $updated = $this->carts->addItem(
+            $cart,
+            $request->validated('product_id'),
+            (int) $request->validated('quantity'),
+            $request->validated('color_name'),
+            $request->validated('color_hex'),
+        );
+
+        $product = Product::query()->find($request->validated('product_id'));
+        $this->analyticsEvents->record(
+            AnalyticsEventType::AddToCart,
+            user: $request->user(),
+            sessionId: $request->hasSession() ? (string) $request->session()->getId() : null,
+            subjectType: 'product',
+            subjectId: $product?->id,
+            vendorAccountId: $product?->vendor_account_id,
+            payload: ['quantity' => (int) $request->validated('quantity')],
+        );
+
+        return ApiResponse::success(data: [
+            'cart' => new CartResource($updated),
+        ]);
+    }
+
+    public function updateItem(UpdateCartItemRequest $request, string $item): JsonResponse
+    {
+        $cart = $this->resolveCart($request);
+        $cartItem = $this->carts->findItemForCart($cart, $item);
+        $updated = $this->carts->updateItemQuantity(
+            $cart,
+            $cartItem,
+            (int) $request->validated('quantity'),
+        );
+
+        return ApiResponse::success(data: [
+            'cart' => new CartResource($updated),
+        ]);
+    }
+
+    public function destroyItem(Request $request, string $item): JsonResponse
+    {
+        $cart = $this->resolveCart($request);
+        $cartItem = $this->carts->findItemForCart($cart, $item);
+        $updated = $this->carts->removeItem($cart, $cartItem);
+
+        return ApiResponse::success(data: [
+            'cart' => new CartResource($updated),
+        ]);
+    }
+
+    public function merge(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $session = $request->session();
+        $guestSessionId = $this->carts->resolveGuestSessionIdForMerge($session);
+
+        $result = $this->merge->mergeGuestIntoUser($user, $guestSessionId);
+
+        $session->forget(CartService::GUEST_SESSION_FOR_MERGE_KEY);
+
+        return ApiResponse::success(data: [
+            'cart' => new CartResource($result['cart']),
+            'warnings' => $result['warnings'],
+        ]);
+    }
+
+    public function validateCart(Request $request): JsonResponse
+    {
+        $cart = $this->resolveCart($request);
+        $result = $this->validation->validate($cart);
+
+        return ApiResponse::success(data: [
+            'cart' => new CartResource($this->carts->loadCart($cart)),
+            'validation' => $result,
+        ]);
+    }
+
+    private function resolveCart(Request $request): Cart
+    {
+        if ($request->user() !== null) {
+            return $this->carts->resolveForUser($request->user());
+        }
+
+        return $this->carts->resolveForGuest((string) $request->session()->getId());
+    }
+}

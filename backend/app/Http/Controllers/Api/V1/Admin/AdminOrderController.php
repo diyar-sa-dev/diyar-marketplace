@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\OrderResource;
+use App\Domains\Orders\Resources\OrderResource;
 use App\Models\Order;
 use App\Services\Admin\AdminOrderService;
 use App\Core\Support\Api\ApiResponse;

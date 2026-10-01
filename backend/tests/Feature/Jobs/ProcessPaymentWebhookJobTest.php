@@ -3,9 +3,9 @@
 namespace Tests\Feature\Jobs;
 
 use App\Enums\PaymentWebhookProcessingStatus;
-use App\Jobs\Payments\ProcessPaymentWebhookJob;
+use App\Domains\Payments\Jobs\ProcessPaymentWebhookJob;
 use App\Models\PaymentWebhookEvent;
-use App\Services\Payments\PaymentWebhookEventProcessor;
+use App\Domains\Payments\Services\PaymentWebhookEventProcessor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Attributes\Test;

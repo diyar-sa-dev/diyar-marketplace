@@ -8,7 +8,7 @@ use App\Models\Order;
 use App\Models\PaymentAttempt;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\Payments\PaymentReconciliationService;
+use App\Domains\Payments\Services\PaymentReconciliationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;

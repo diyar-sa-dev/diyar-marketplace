@@ -2,7 +2,7 @@
 
 namespace App\Services\Infrastructure;
 
-use App\Services\Payments\PaymentHealthService;
+use App\Domains\Payments\Services\PaymentHealthService;
 use App\Services\Settings\EffectiveConfigService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;

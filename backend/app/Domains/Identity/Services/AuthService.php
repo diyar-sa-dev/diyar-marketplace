@@ -6,7 +6,7 @@ use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Enums\UserStatus;
 use App\Models\User;
-use App\Services\Cart\CartService;
+use App\Domains\Cart\Services\CartService;
 use App\Domains\Identity\Services\TwoFactorLoginChallengeService;
 use App\Domains\Identity\Services\UserSessionService;
 use App\Domains\Identity\Support\MarketplaceAccess;

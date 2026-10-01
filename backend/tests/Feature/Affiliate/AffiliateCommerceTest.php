@@ -27,7 +27,7 @@ use App\Services\Affiliate\AffiliateAttributionService;
 use App\Services\Affiliate\AffiliateCommissionService;
 use App\Services\Affiliate\AffiliateLinkService;
 use App\Services\Affiliate\AffiliateProfileService;
-use App\Services\Payments\PaymentFinalizationService;
+use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;

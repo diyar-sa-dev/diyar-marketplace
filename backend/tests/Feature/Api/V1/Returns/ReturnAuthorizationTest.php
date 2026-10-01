@@ -9,7 +9,7 @@ use App\Models\Product;
 use App\Models\ReturnRequest;
 use App\Models\User;
 use App\Models\VendorReturnPolicy;
-use App\Services\Payments\PaymentFinalizationService;
+use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\Concerns\InteractsWithCheckout;

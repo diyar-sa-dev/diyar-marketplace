@@ -15,7 +15,7 @@ use App\Models\PaymentVendorAllocation;
 use App\Models\Refund;
 use App\Models\User;
 use App\Models\VendorPayout;
-use App\Services\Payments\PaymentAllocationSnapshotService;
+use App\Domains\Payments\Services\PaymentAllocationSnapshotService;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;

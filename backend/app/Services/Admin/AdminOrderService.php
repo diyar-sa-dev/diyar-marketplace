@@ -4,7 +4,7 @@ namespace App\Services\Admin;
 
 use App\Models\Order;
 use App\Models\User;
-use App\Services\Order\OrderCancellationService;
+use App\Domains\Orders\Services\OrderCancellationService;
 use Illuminate\Support\Facades\DB;
 
 final class AdminOrderService

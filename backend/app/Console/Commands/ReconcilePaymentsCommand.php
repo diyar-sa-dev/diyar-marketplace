@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Payments\PaymentReconciliationService;
+use App\Domains\Payments\Services\PaymentReconciliationService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 

@@ -4,7 +4,7 @@ namespace Tests\Feature\Api\V1\Payment;
 
 use App\Enums\PaymentWebhookProcessingStatus;
 use App\Models\PaymentWebhookEvent;
-use App\Services\Payments\PaymentWebhookEventProcessor;
+use App\Domains\Payments\Services\PaymentWebhookEventProcessor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use ReflectionMethod;

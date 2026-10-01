@@ -11,7 +11,7 @@ use App\Domains\RoomDesigner\Requests\PatchRoomDesignRequest;
 use App\Domains\RoomDesigner\Requests\StoreRoomDesignRequest;
 use App\Domains\RoomDesigner\Requests\SuggestRoomLayoutRequest;
 use App\Domains\RoomDesigner\Requests\UpdateRoomDesignRequest;
-use App\Http\Resources\CartResource;
+use App\Domains\Cart\Resources\CartResource;
 use App\Domains\RoomDesigner\Resources\RoomDesignListItemResource;
 use App\Domains\RoomDesigner\Resources\RoomDesignResource;
 use App\Models\RoomDesign;

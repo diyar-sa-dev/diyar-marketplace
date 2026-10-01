@@ -5,7 +5,7 @@ namespace App\Domains\RoomDesigner\Services;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\Cart\CartService;
+use App\Domains\Cart\Services\CartService;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;

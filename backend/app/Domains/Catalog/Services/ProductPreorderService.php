@@ -9,7 +9,7 @@ use App\Models\Product;
 use App\Models\ProductPreorderRequest;
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Services\Order\SelfPurchaseGuard;
+use App\Domains\Orders\Services\SelfPurchaseGuard;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\QueryException;
 use InvalidArgumentException;

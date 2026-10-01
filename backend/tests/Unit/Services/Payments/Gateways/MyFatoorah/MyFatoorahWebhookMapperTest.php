@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\Payments\Gateways\MyFatoorah;
 
-use App\Services\Payments\Gateways\MyFatoorah\MyFatoorahWebhookMapper;
+use App\Domains\Payments\Services\Gateways\MyFatoorah\MyFatoorahWebhookMapper;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

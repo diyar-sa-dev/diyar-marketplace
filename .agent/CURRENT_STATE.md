@@ -337,6 +337,56 @@ Operational KVM2 capacity work (not a numbered Stage 31):
   - Frontend Test & Build Certification:
     - Vitest: 87/87 test files passed (350/350 tests, duration: 43.0s).
     - Production build: `npm run build` passed cleanly in 10.71s.
-  - Next Approved Step: Step 6 — Cart, Checkout, Orders & Payments (Commerce Operations).
-- **Git Status:** dev branch, commit `refactor(architecture): migrate spatial and media domains`.
+  - Next Approved Step: Step 6 — Cart, Checkout, Orders & Payments (Commerce Operations) [COMPLETED].
+- **2026-10-01: Step 6 — Commerce Operations Migration (Cart, Checkout, Orders, Payments)**:
+  - Status: **VERIFIED WITH LIMITATIONS** (External gateway real network calls not executed in test environment; Hostinger remote not deployed; 7 baseline skipped tests unchanged).
+  - Authority: Senior Software Architect + Backend Lead + QA/Security/Performance Engineer.
+  - Invariant Principle: Physical architecture migration only. Monetary precision, rounding, 15% VAT, multi-vendor cart partitioning, order numbering concurrency, payment state machine, idempotency keys, and transaction boundaries preserved with zero behavioral modification.
+  - Domains Migrated (84 total PHP files moved via history-preserving `git mv`):
+    - **Cart Domain (8 files) -> `App\Domains\Cart\*`:**
+      - **1 Controller:** `CartController` -> `App\Domains\Cart\Controllers\*`.
+      - **2 Requests:** `StoreCartItemRequest`, `UpdateCartItemRequest` -> `App\Domains\Cart\Requests\*`.
+      - **2 Resources:** `CartResource`, `CartItemResource` -> `App\Domains\Cart\Resources\*`.
+      - **3 Services:** `CartService`, `CartMergeService`, `CartValidationService` -> `App\Domains\Cart\Services\*`.
+    - **Checkout Domain (9 files) -> `App\Domains\Checkout\*`:**
+      - **1 Contract:** `AssemblyCalculator` -> `App\Domains\Checkout\Contracts\*`.
+      - **1 Controller:** `CheckoutController` -> `App\Domains\Checkout\Controllers\*`.
+      - **2 Requests:** `CheckoutPreviewRequest`, `StoreOrderRequest` -> `App\Domains\Checkout\Requests\*`.
+      - **1 Resource:** `CheckoutPreviewResource` -> `App\Domains\Checkout\Resources\*`.
+      - **4 Services:** `CheckoutPreviewService`, `StubAssemblyCalculator`, `VatCalculator`, `VendorGroupService` -> `App\Domains\Checkout\Services\*`.
+    - **Orders Domain (18 files) -> `App\Domains\Orders\*`:**
+      - **2 Controllers:** `OrderController`, `VendorOrderController` -> `App\Domains\Orders\Controllers\*`.
+      - **2 Requests:** `ShipVendorOrderRequest`, `StoreManualVendorOrderRequest` -> `App\Domains\Orders\Requests\*`.
+      - **3 Resources:** `OrderResource`, `OrderItemResource`, `VendorOrderResource` -> `App\Domains\Orders\Resources\*`.
+      - **11 Services:** `OrderCancellationService`, `OrderCreationService`, `OrderNumberService`, `OrderStateService`, `OrderTotalsReconciliationService`, `SelfPurchaseGuard`, `ShipmentStateService`, `VendorManualOrderService`, `VendorOrderFulfillmentService`, `VendorOrderQueryFilter`, `VendorOrderStateService` -> `App\Domains\Orders\Services\*`.
+    - **Payments Domain (49 files) -> `App\Domains\Payments\*`:**
+      - **1 Contract:** `PaymentGatewayInterface` -> `App\Domains\Payments\Contracts\*`.
+      - **3 Controllers:** `PaymentController`, `PaymentWebhookController`, `FakePaymentWebhookController` -> `App\Domains\Payments\Controllers\*`.
+      - **3 Requests:** `InitiatePaymentRequest`, `SimulatePaymentRequest`, `SubmitPaymentRequest` -> `App\Domains\Payments\Requests\*`.
+      - **3 Resources:** `PaymentResource`, `PaymentInitiationResource`, `PaymentSubmissionResource` -> `App\Domains\Payments\Resources\*`.
+      - **1 Job:** `ProcessPaymentWebhookJob` -> `App\Domains\Payments\Jobs\*`.
+      - **1 Exception:** `PaymentGatewayException` -> `App\Domains\Payments\Exceptions\*`.
+      - **14 Services:** `PaymentAllocationSnapshotService`, `PaymentApplicationService`, `PaymentFinalizationService`, `PaymentGatewayManager`, `PaymentHealthService`, `PaymentMethodLabelResolver`, `PaymentMethodResolver`, `PaymentOrchestrator`, `PaymentOutboxService`, `PaymentReconciliationService`, `PaymentRequestBuilder`, `PaymentStateService`, `PaymentWebhookEventProcessor`, `PaymentWebhookProcessor` -> `App\Domains\Payments\Services\*`.
+      - **2 Gateways:** `FakePaymentGateway`, `LocalPaymentGateway` -> `App\Domains\Payments\Services\Gateways\*`.
+      - **13 MyFatoorah Gateway Implementation Classes:** `DiyarMyFatoorah`, `DiyarMyFatoorahHttp`, `DiyarMyFatoorahPaymentEmbedded`, `DiyarMyFatoorahPayments`, `DiyarMyFatoorahSessions`, `MyFatoorahConfigFactory`, `MyFatoorahGateway`, `MyFatoorahPaymentMapper`, `MyFatoorahPaymentMethodMapper`, `MyFatoorahPaymentResponseMapper`, `MyFatoorahSupplierMapper`, `MyFatoorahWebhookMapper`, `MyFatoorahWebhookVerifier` -> `App\Domains\Payments\Services\Gateways\MyFatoorah\*`.
+      - **11 DTOs:** `PaymentCreationRequest`, `PaymentCreationResult`, `PaymentDetailsRequest`, `PaymentDetailsResult`, `PaymentMethodCapability`, `PaymentMethodsRequest`, `PaymentSessionRequest`, `PaymentSessionResult`, `RefundPaymentRequest`, `RefundPaymentResult`, `VerifiedWebhookPayload` -> `App\Domains\Payments\Services\DTO\*`.
+  - Intentionally Excluded & Protected:
+    - Eloquent Models: `Cart`, `CartItem`, `Order`, `OrderItem`, `VendorOrder`, `Payment`, `PaymentStateTransition`, `PaymentVendorAllocation`, `Shipment`, `Refund`, `Coupon`, `Product`, `User` preserved in `app/Models/*` (0 models moved).
+    - Policies: `OrderPolicy`, `VendorOrderPolicy` preserved in `app/Policies/*` for framework convention.
+    - Presentation/Specialized Controllers: `OrderStoreReviewController` preserved for Reviews domain migration; `AdminOrderController` & `AdminPaymentController` preserved in Admin domain.
+  - Reference Updates: Consuming references updated across `routes/api.php`, `AppServiceProvider.php`, `ReconcilePaymentsCommand.php`, `FinancialPostingService.php`, `RefundProcessingService.php`, `PlatformHealthService.php`, `FlushOctaneDevState.php`, test helpers, and unit/feature tests.
+  - Static Reference Audit: 0 stale references found across active codebase (`STALE_REFERENCES_FOUND=0`).
+  - Database Migration Protection: 0 migration files modified (`git diff database/migrations` is completely empty).
+  - Autoload Verification: `composer dump-autoload` PASSED (8,620 classes mapped).
+  - Route Invariant: Exactly 528 routes registered (522 API v1 + 6 platform routes). Zero route diffs.
+  - Test Suite Certification:
+    - Backend: 1,108 tests (1,101 passed, 7 skipped, 0 failed, 4,560 assertions, duration: 116.9s).
+    - Cart Targeted Tests: 16/16 passed (53 assertions).
+    - Checkout Targeted Tests: 14/14 passed (45 assertions).
+    - Orders Targeted Tests: 16/16 passed (34 assertions).
+    - Payments Targeted Tests: 47/47 passed (151 assertions).
+    - Commerce-Adjacent Targeted Tests: 137/137 passed (733 assertions).
+    - Frontend: 87/87 test files passed (350/350 tests, duration: 44.8s).
+  - Next Approved Step: Step 7 — Support & Engagement Domains (Reviews, Coupons, Loyalty, Affiliate, Returns).
+- **Git Status:** dev branch, commit `refactor(architecture): migrate commerce operations domains`.
 

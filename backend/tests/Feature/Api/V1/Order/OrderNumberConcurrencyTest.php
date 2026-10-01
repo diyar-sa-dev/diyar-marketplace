@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Order;
 
-use App\Services\Order\OrderNumberService;
+use App\Domains\Orders\Services\OrderNumberService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

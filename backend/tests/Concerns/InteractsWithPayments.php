@@ -2,8 +2,8 @@
 
 namespace Tests\Concerns;
 
-use App\Contracts\Payments\PaymentGatewayInterface;
-use App\Services\Payments\PaymentGatewayManager;
+use App\Domains\Payments\Contracts\PaymentGatewayInterface;
+use App\Domains\Payments\Services\PaymentGatewayManager;
 use Tests\Fakes\FakePaymentGateway;
 
 trait InteractsWithPayments

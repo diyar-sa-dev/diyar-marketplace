@@ -10,7 +10,7 @@ use App\Models\LoyaltyTransaction;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\Loyalty\LoyaltyRuleService;
-use App\Services\Payments\PaymentFinalizationService;
+use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\InteractsWithCheckout;

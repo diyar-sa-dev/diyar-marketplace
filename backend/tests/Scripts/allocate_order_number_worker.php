@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-use App\Services\Order\OrderNumberService;
+use App\Domains\Orders\Services\OrderNumberService;
 use Illuminate\Contracts\Console\Kernel;
 
 $dbPath = getenv('ORDER_NUMBER_TEST_DB');

@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Services\Payments\Gateways\MyFatoorah;
 
-use App\Services\Payments\DTO\PaymentCreationRequest;
-use App\Services\Payments\DTO\PaymentSessionRequest;
-use App\Services\Payments\Gateways\MyFatoorah\MyFatoorahPaymentMapper;
+use App\Domains\Payments\Services\DTO\PaymentCreationRequest;
+use App\Domains\Payments\Services\DTO\PaymentSessionRequest;
+use App\Domains\Payments\Services\Gateways\MyFatoorah\MyFatoorahPaymentMapper;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

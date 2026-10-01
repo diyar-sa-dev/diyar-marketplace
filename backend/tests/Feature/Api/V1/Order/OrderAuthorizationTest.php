@@ -11,7 +11,7 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Role;
 use App\Models\VendorOrder;
-use App\Services\Order\PaymentStateService;
+use App\Domains\Payments\Services\PaymentStateService;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;

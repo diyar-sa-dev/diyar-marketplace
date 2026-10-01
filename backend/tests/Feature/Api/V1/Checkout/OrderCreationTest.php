@@ -10,7 +10,7 @@ use App\Models\InventoryReservation;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductInventory;
-use App\Services\Cart\CartService;
+use App\Domains\Cart\Services\CartService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\Concerns\InteractsWithCheckout;

@@ -2,18 +2,18 @@
 
 namespace Tests\Fakes;
 
-use App\Contracts\Payments\PaymentGatewayInterface;
+use App\Domains\Payments\Contracts\PaymentGatewayInterface;
 use App\Enums\PaymentStatus;
-use App\Services\Payments\DTO\PaymentCreationRequest;
-use App\Services\Payments\DTO\PaymentCreationResult;
-use App\Services\Payments\DTO\PaymentDetailsRequest;
-use App\Services\Payments\DTO\PaymentDetailsResult;
-use App\Services\Payments\DTO\PaymentMethodCapability;
-use App\Services\Payments\DTO\PaymentMethodsRequest;
-use App\Services\Payments\DTO\PaymentSessionRequest;
-use App\Services\Payments\DTO\PaymentSessionResult;
-use App\Services\Payments\DTO\RefundPaymentRequest;
-use App\Services\Payments\DTO\RefundPaymentResult;
+use App\Domains\Payments\Services\DTO\PaymentCreationRequest;
+use App\Domains\Payments\Services\DTO\PaymentCreationResult;
+use App\Domains\Payments\Services\DTO\PaymentDetailsRequest;
+use App\Domains\Payments\Services\DTO\PaymentDetailsResult;
+use App\Domains\Payments\Services\DTO\PaymentMethodCapability;
+use App\Domains\Payments\Services\DTO\PaymentMethodsRequest;
+use App\Domains\Payments\Services\DTO\PaymentSessionRequest;
+use App\Domains\Payments\Services\DTO\PaymentSessionResult;
+use App\Domains\Payments\Services\DTO\RefundPaymentRequest;
+use App\Domains\Payments\Services\DTO\RefundPaymentResult;
 
 final class FakePaymentGateway implements PaymentGatewayInterface
 {

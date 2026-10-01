@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services\Order;
 
 use App\Models\VendorOrder;
-use App\Services\Order\VendorOrderQueryFilter;
+use App\Domains\Orders\Services\VendorOrderQueryFilter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

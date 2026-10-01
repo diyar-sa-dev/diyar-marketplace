@@ -23,7 +23,7 @@ use App\Services\Admin\AdminPermissionService;
 use App\Services\Admin\AdminRolePermissionService;
 use App\Services\Loyalty\LoyaltyLedgerService;
 use App\Services\Loyalty\LoyaltyRuleService;
-use App\Services\Payments\PaymentFinalizationService;
+use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;

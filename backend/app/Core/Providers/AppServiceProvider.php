@@ -3,17 +3,17 @@
 namespace App\Core\Providers;
 
 use App\Domains\Identity\Contracts\OtpCodeGenerator;
-use App\Contracts\Payments\PaymentGatewayInterface;
+use App\Domains\Payments\Contracts\PaymentGatewayInterface;
 use App\Contracts\Sms\SmsProvider;
 use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
 use App\Infrastructure\Sms\SmsProviderFactory;
-use App\Services\Checkout\AssemblyCalculator;
-use App\Services\Checkout\StubAssemblyCalculator;
+use App\Domains\Checkout\Contracts\AssemblyCalculator;
+use App\Domains\Checkout\Services\StubAssemblyCalculator;
 use App\Domains\Identity\Services\SecureOtpCodeGenerator;
 use App\Services\Infrastructure\EnvironmentSafetyValidator;
-use App\Services\Payments\Gateways\FakePaymentGateway;
-use App\Services\Payments\Gateways\MyFatoorah\MyFatoorahGateway;
-use App\Services\Payments\PaymentGatewayManager;
+use App\Domains\Payments\Services\Gateways\FakePaymentGateway;
+use App\Domains\Payments\Services\Gateways\MyFatoorah\MyFatoorahGateway;
+use App\Domains\Payments\Services\PaymentGatewayManager;
 use App\Domains\VisualSearch\Services\VisualizationProviderRegistry;
 use App\Domains\VisualSearch\Services\VisualizationService;
 use App\Domains\VisualSearch\Support\Dhash64Generator;
