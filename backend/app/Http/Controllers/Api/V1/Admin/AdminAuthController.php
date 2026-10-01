@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Resources\UserResource;
-use App\Services\Identity\AuthService;
+use App\Domains\Identity\Requests\LoginRequest;
+use App\Domains\Identity\Resources\UserResource;
+use App\Domains\Identity\Services\AuthService;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

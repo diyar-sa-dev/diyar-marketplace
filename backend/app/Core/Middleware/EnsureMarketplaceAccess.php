@@ -3,7 +3,7 @@
 namespace App\Core\Middleware;
 
 use App\Models\User;
-use App\Support\Identity\MarketplaceAccess;
+use App\Domains\Identity\Support\MarketplaceAccess;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

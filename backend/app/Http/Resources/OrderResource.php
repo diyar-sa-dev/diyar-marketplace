@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Domains\Identity\Resources\UserResource;
 use App\Enums\OrderStatus;
 use App\Enums\VendorOrderStatus;
 use App\Models\Order;

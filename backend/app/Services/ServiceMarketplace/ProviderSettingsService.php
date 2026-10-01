@@ -7,7 +7,7 @@ use App\Models\ProviderAccount;
 use App\Models\ProviderBankAccount;
 use App\Models\User;
 use App\Services\Media\MediaUploadService;
-use App\Services\Profile\ProfileService;
+use App\Domains\Identity\Services\ProfileService;
 use App\Support\Finance\IbanValidator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;

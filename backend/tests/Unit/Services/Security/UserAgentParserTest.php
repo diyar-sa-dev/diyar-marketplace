@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\Security;
 
-use App\Services\Security\UserAgentParser;
+use App\Domains\Identity\Services\UserAgentParser;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

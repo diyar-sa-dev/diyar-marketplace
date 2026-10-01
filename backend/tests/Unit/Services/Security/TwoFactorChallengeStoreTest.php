@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\Security;
 
-use App\Services\Security\TwoFactorChallengeStore;
+use App\Domains\Identity\Services\TwoFactorChallengeStore;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 

@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Support\Identity;
 
-use App\Contracts\Identity\OtpCodeGenerator;
-use App\Support\Identity\OtpTestCodeResolver;
+use App\Domains\Identity\Contracts\OtpCodeGenerator;
+use App\Domains\Identity\Support\OtpTestCodeResolver;
 use Tests\TestCase;
 
 class OtpTestCodeResolverTest extends TestCase

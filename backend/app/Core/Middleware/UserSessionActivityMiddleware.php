@@ -3,8 +3,8 @@
 namespace App\Core\Middleware;
 
 use App\Models\UserSession;
-use App\Services\Security\UserSessionService;
-use App\Support\Security\SessionLookupHash;
+use App\Domains\Identity\Services\UserSessionService;
+use App\Domains\Identity\Support\SessionLookupHash;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -2,7 +2,7 @@
 
 namespace App\Core\Middleware;
 
-use App\Services\Security\UserSessionService;
+use App\Domains\Identity\Services\UserSessionService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

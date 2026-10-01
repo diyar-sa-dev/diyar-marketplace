@@ -6,7 +6,7 @@ use App\Models\ReturnRequest;
 use App\Models\User;
 use App\Models\VendorOrder;
 use App\Services\Vendor\VendorAccessService;
-use App\Support\Identity\MarketplaceAccess;
+use App\Domains\Identity\Support\MarketplaceAccess;
 use App\Support\Vendor\VendorAccessResolver;
 
 class ReturnRequestPolicy

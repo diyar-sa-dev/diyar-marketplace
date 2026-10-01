@@ -9,7 +9,7 @@ use App\Events\Domain\TeamMemberAdded;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorTeamMember;
-use App\Services\Mail\DiyarPhpMailer;
+use App\Infrastructure\Mail\DiyarPhpMailer;
 use App\Services\Media\MediaUploadService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

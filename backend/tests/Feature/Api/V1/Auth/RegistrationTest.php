@@ -8,7 +8,7 @@ use App\Enums\UserStatus;
 use App\Infrastructure\Sms\LogSmsProvider;
 use App\Models\Role;
 use App\Models\User;
-use App\Services\Identity\OtpCacheStore;
+use App\Domains\Identity\Services\OtpCacheStore;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;

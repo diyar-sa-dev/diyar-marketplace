@@ -11,7 +11,7 @@ use App\Services\Cart\CartService;
 use App\Services\Cart\CartValidationService;
 use App\Services\Coupon\CheckoutCouponService;
 use App\Services\Coupon\CouponFreeShippingService;
-use App\Services\Profile\AddressService;
+use App\Domains\Identity\Services\AddressService;
 use App\Services\Shipping\DTO\ShippingQuoteContext;
 use App\Services\Shipping\ShippingQuoteService;
 use App\Services\Shipping\ShippingRuleCatalog;

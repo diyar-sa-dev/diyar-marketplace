@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Support\Security;
 
-use App\Support\Security\SessionLookupHash;
+use App\Domains\Identity\Support\SessionLookupHash;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

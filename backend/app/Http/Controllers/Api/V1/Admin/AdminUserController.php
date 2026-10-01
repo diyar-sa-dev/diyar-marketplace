@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Enums\RoleName;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
+use App\Domains\Identity\Resources\UserResource;
 use App\Models\User;
 use App\Services\Admin\AdminUserService;
 use App\Core\Support\Api\ApiResponse;

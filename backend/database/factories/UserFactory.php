@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\UserStatus;
 use App\Models\User;
-use App\Services\Identity\PhoneNormalizer;
+use App\Domains\Identity\Services\PhoneNormalizer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

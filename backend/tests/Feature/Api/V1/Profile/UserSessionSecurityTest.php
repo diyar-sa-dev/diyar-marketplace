@@ -4,7 +4,7 @@ namespace Tests\Feature\Api\V1\Profile;
 
 use App\Enums\RoleName;
 use App\Models\UserSession;
-use App\Support\Security\DeviceFingerprint;
+use App\Domains\Identity\Support\DeviceFingerprint;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;

@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Platform;
 
-use App\Services\Identity\PhoneNormalizer;
+use App\Domains\Identity\Services\PhoneNormalizer;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PlatformConsultationRequest extends FormRequest

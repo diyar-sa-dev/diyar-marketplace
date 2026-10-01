@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services\Identity;
 
 use App\Enums\OtpPurpose;
-use App\Services\Identity\OtpService;
+use App\Domains\Identity\Services\OtpService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;

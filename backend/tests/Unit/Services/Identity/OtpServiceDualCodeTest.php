@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Services\Identity;
 
-use App\Contracts\Identity\OtpCodeGenerator;
+use App\Domains\Identity\Contracts\OtpCodeGenerator;
 use App\Enums\OtpPurpose;
 use App\Infrastructure\Sms\LogSmsProvider;
-use App\Services\Identity\OtpCacheStore;
-use App\Services\Identity\OtpService;
+use App\Domains\Identity\Services\OtpCacheStore;
+use App\Domains\Identity\Services\OtpService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;

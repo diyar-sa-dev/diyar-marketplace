@@ -55,7 +55,6 @@ backend/app/
 │   ├── Affiliate/            # Referral attribution, tracking clicks, commissions & payouts
 │   ├── Analytics/            # Metrics ingestion, search queries, performance counters
 │   ├── Assistant/            # Conversational shopping assistant integrations
-│   ├── Auth/                 # Authentication, OTP challenge verification & session management
 │   ├── B2b/                  # B2B enterprise company listings, RFQs & leads
 │   ├── Blog/                 # CMS articles, taxonomy & social engagement
 │   ├── Cart/                 # Cart sessions, line-item pricing, guest-to-user merges
@@ -63,7 +62,7 @@ backend/app/
 │   ├── Chat/                 # Realtime buyer-vendor messaging & attachment handling
 │   ├── Checkout/             # Order synthesis, totals, fee calculation & reservations
 │   ├── Coupons/              # Promotions, coupon scopes, exclusions & redemption limits
-│   ├── Identity/             # User profiles, address book, security sessions & roles
+│   ├── Identity/             # Authentication, OTP, user profiles, address book, security sessions & roles
 │   ├── Loyalty/              # Customer points ledger, tier calculations & reward rules
 │   ├── Orders/               # Order lifecycle, vendor sub-orders, fulfillment status
 │   ├── Payments/             # Payment transactions, gateways, webhooks & allocations

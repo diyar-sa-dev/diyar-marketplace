@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Dashboard\Concerns;
 
-use App\Services\Identity\PhoneNormalizer;
+use App\Domains\Identity\Services\PhoneNormalizer;
 
 trait PreparesPartnerB2bCompanyInput
 {

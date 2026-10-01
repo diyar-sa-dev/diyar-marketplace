@@ -232,15 +232,35 @@ Operational KVM2 capacity work (not a numbered Stage 31):
   - Search Regression Gate (Gate 12): 72/72 search tests passed (232 assertions), 17/17 visual search tests passed. Search contract preserved.
   - Security Regression Gate (Gate 13): 18/18 security tests passed, 61/61 auth tests passed. Sanctum, middleware pipeline, and role authorization preserved.
   - Frontend Test & Build Verification: Vitest 87/87 files (350/350 tests) passed; `npm run build` PASSED (0 errors, 17.02s).
-  - Next Approved Step: Step 3 — Infrastructure + Identity Physical Migration.
-- **Backend Test Suite Certification (Full Re-run):**
-  - Total: 1,108 tests.
-  - Passed: 1,101.
-  - Skipped: 7 (explicit environment dependencies: MySQL EXPLAIN, Redis session/queue, GD WebP).
-  - Failed: 0.
-  - Visual search tests aligned with certified 0.90 similarity threshold and explicit security test dimension limits.
-- **Frontend Test & Build Certification:**
-  - Vitest: 87/87 test files passed (350/350 tests).
-  - Production build: `npm run build` passed with 0 errors.
-- **Git Status:** dev branch, single logical commit for Step 2.
-
+- **Step 3: Infrastructure + Identity Physical Backend Migration (2026-10-01):** **COMPLETE / CERTIFIED**
+  - Authority: Senior Backend Architect + Laravel Engineer + Security Engineer + QA Engineer + DevOps Engineer + Technical Project Manager.
+  - Step 3A: Infrastructure Layer Physical Migration (3 classes moved):
+    - `DiyarPhpMailer`, `DiyarMailTemplate`, `DiyarMailContent` moved from `app/Services/Mail/` to `App\Infrastructure\Mail\*`.
+    - Existing infrastructure adapters verified in place: `App\Infrastructure\Mail\LogEmailOtpProvider`, `App\Infrastructure\Notifications\*` (`ApnsPushProvider`, `FcmPushProvider`, `CompositePushProvider`, `LogPushProvider`, `PushProviderException`, `PushSendResult`), `App\Infrastructure\Sms\*` (`LogSmsProvider`, `MsegatSmsProvider`, `SmsProviderFactory`).
+  - Step 3B: Identity Domain Physical Migration (60 classes moved to `App\Domains\Identity\*`):
+    - **1 Contract:** `OtpCodeGenerator` -> `App\Domains\Identity\Contracts\OtpCodeGenerator`.
+    - **6 Controllers:** `AuthController`, `ProfileController`, `AddressController`, `ProfileSecuritySessionController`, `ProfileTwoFactorController`, `OwnershipController` -> `App\Domains\Identity\Controllers\*`.
+    - **20 Form Requests:** 10 Auth requests (`ForgotPasswordRequest`, `LoginRequest`, `RegisterRequest`, `ResendEmailOtpRequest`, `ResendOtpRequest`, `ResendTwoFactorRequest`, `ResetPasswordRequest`, `VerifyEmailOtpRequest`, `VerifyOtpRequest`, `VerifyTwoFactorRequest`) + 10 Profile requests (`ConfirmTwoFactorRequest`, `DisableTwoFactorRequest`, `RequestPhoneChangeRequest`, `StoreAddressRequest`, `UpdateAddressRequest`, `UpdateProfilePasswordRequest`, `UpdateProfileRequest`, `UploadAvatarRequest`, `VerifyEmailVerificationRequest`, `VerifyPhoneChangeRequest`) -> `App\Domains\Identity\Requests\*`.
+    - **5 API Resources:** `AddressResource`, `ProfileResource`, `UserResource`, `UserSessionDeviceResource`, `UserSessionResource` -> `App\Domains\Identity\Resources\*`.
+    - **20 Domain Services:** `AuthService`, `EmailOtpCacheStore`, `EmailOtpService`, `EmailVerificationService`, `OtpCacheStore`, `OtpService`, `PasswordResetService`, `PhoneNormalizer`, `RegistrationService`, `SecureOtpCodeGenerator`, `WelcomeEmailService`, `AddressService`, `PhoneChangeService`, `ProfileService`, `IpGeolocationService`, `TwoFactorChallengeStore`, `TwoFactorLoginChallengeService`, `TwoFactorService`, `UserAgentParser`, `UserSessionService` -> `App\Domains\Identity\Services\*`.
+    - **8 Support Utilities:** `MarketplaceAccess`, `MarketplaceGuard`, `OtpTestCodeResolver`, `DeviceFingerprint`, `RevokedSessionCache`, `SessionLookupHash`, `UserSessionDeviceGroup`, `UserSessionDeviceGrouper` -> `App\Domains\Identity\Support\*`.
+  - Models Preservation (Zero Risk):
+    - All 114 Eloquent models remain in `app/Models/*` (including `User`, `Role`, `Permission`, `Address`, `UserSession`).
+  - Reference Updates:
+    - Over 50 referencing files updated across controllers, services, middleware, factories, routes, and tests.
+    - Zero stale references to moved classes found across all active PHP code (`app/`, `bootstrap/`, `routes/`, `config/`, `database/`, `tests/`).
+  - Autoload Verification: `composer dump-autoload` PASSED (8,620 classes mapped).
+  - Runtime & Boot Verification: `php artisan about` boots cleanly without errors.
+  - Route Invariant (Gate 10): 528 routes preserved identically (522 API v1 + 6 platform routes). Zero URL, method, or middleware order mutations.
+  - Test Suite Certification (Full Re-run):
+    - Backend: 1,108 tests (1,101 passed, 7 skipped, 0 failed, 4,560 assertions, duration: 105.8s).
+    - Focused Auth: 61/61 passed.
+    - Focused Profile: 56/56 passed.
+    - Focused Security: 18/18 passed.
+    - Focused Notifications: 10/10 passed.
+    - Search Regression (Gate 12): 17/17 search tests passed.
+  - Frontend Test & Build Certification:
+    - Vitest: 87/87 test files passed (350/350 tests, duration: 43.8s).
+    - Production build: `npm run build` passed cleanly in 10.41s.
+  - Next Approved Step: Step 4 — Protected Search + Catalog Physical Backend Migration.
+- **Git Status:** dev branch, commit `refactor(architecture): migrate infrastructure and identity domains`.

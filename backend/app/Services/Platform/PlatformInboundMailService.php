@@ -2,8 +2,8 @@
 
 namespace App\Services\Platform;
 
-use App\Services\Mail\DiyarMailContent;
-use App\Services\Mail\DiyarPhpMailer;
+use App\Infrastructure\Mail\DiyarMailContent;
+use App\Infrastructure\Mail\DiyarPhpMailer;
 use Illuminate\Support\Facades\Log;
 
 final class PlatformInboundMailService

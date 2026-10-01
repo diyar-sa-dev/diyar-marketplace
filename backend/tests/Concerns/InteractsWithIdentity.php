@@ -13,7 +13,7 @@ use App\Models\ProviderAccount;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Services\Identity\OtpCacheStore;
+use App\Domains\Identity\Services\OtpCacheStore;
 use App\Core\Support\SlugGenerator;
 use Database\Seeders\AdminPermissionSeeder;
 use Database\Seeders\RoleSeeder;

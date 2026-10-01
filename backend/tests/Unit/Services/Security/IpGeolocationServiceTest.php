@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\Security;
 
-use App\Services\Security\IpGeolocationService;
+use App\Domains\Identity\Services\IpGeolocationService;
 use Illuminate\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;

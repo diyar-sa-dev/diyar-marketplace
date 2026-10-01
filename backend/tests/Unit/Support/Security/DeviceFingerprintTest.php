@@ -3,7 +3,7 @@
 namespace Tests\Unit\Support\Security;
 
 use App\Models\UserSession;
-use App\Support\Security\DeviceFingerprint;
+use App\Domains\Identity\Support\DeviceFingerprint;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
