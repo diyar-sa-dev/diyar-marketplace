@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Jobs\Search\RemoveVisualIndexEntryJob;
+use App\Domains\VisualSearch\Jobs\RemoveVisualIndexEntryJob;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;

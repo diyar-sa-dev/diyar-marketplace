@@ -1,7 +1,7 @@
 # DIYAR — Backend Architecture Reorganization & Domain Inventory Map
 
 > **Date:** 2026-10-01  
-> **Status:** ACTIVE IMPLEMENTATION (Core, Infrastructure, Identity, Search, and Catalog domains physically migrated and certified)  
+> **Status:** ACTIVE IMPLEMENTATION (Core, Infrastructure, Identity, Search, Catalog, and Spatial/Media domains physically migrated and certified)
 > **Authority:** Senior Software Architect + Senior Laravel Engineer  
 > **Purpose:** Traceable inventory and migration map of existing backend files to their domain feature groupings.
 

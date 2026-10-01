@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\TryInRoom;
 
-use App\Jobs\TryInRoom\ProcessTryInRoomJob;
+use App\Domains\TryInRoom\Jobs\ProcessTryInRoomJob;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;

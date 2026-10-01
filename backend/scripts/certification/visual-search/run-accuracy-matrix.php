@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 
 use App\Models\VisualIndexEntry;
-use App\Services\Search\Visual\VisualSearchService;
+use App\Domains\VisualSearch\Services\VisualSearchService;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;

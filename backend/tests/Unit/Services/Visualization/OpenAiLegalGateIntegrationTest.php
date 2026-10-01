@@ -7,7 +7,7 @@ use App\Models\Product;
 use App\Models\TryInRoomJob;
 use App\Models\TryInRoomSourceImage;
 use App\Models\User;
-use App\Services\Visualization\VisualizationService;
+use App\Domains\VisualSearch\Services\VisualizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;

@@ -3,7 +3,7 @@
 namespace Tests\Feature\Jobs;
 
 use App\Domains\Search\Jobs\IndexProductImageJob;
-use App\Jobs\Search\RemoveVisualIndexEntryJob;
+use App\Domains\VisualSearch\Jobs\RemoveVisualIndexEntryJob;
 use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;

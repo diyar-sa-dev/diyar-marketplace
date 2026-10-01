@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\VisualIndexEntry;
-use App\Services\Search\Visual\VisualIndexingService;
+use App\Domains\VisualSearch\Services\VisualIndexingService;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 

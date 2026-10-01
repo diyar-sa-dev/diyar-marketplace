@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Support\VisualSearch;
 
-use App\Support\VisualSearch\VisualSearchCandidate;
-use App\Support\VisualSearch\VisualSearchRanker;
+use App\Domains\VisualSearch\Support\VisualSearchCandidate;
+use App\Domains\VisualSearch\Support\VisualSearchRanker;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

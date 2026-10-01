@@ -10,8 +10,8 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
 use App\Support\Cache\CacheKeys;
-use App\Support\VisualSearch\Dhash64Generator;
-use App\Support\VisualSearch\VisualSearchImageGuard;
+use App\Domains\VisualSearch\Support\Dhash64Generator;
+use App\Domains\VisualSearch\Support\VisualSearchImageGuard;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -173,9 +173,9 @@ wjson("{$baseDir}/01-code-audit/p1-fixes.json", [
     'min_similarity_in_config' => config('diyar.visual_search.min_similarity'),
     'dhash_generator_di' => app()->bound(Dhash64Generator::class),
     'cache_generation_method' => method_exists(CacheKeys::class, 'bumpVisualSearchCacheGeneration'),
-    'visual_search_service_has_logging' => str_contains(file_get_contents(app_path('Services/Search/Visual/VisualSearchService.php')), 'visual_search.search.completed'),
-    'record_event_first_or_create' => str_contains(file_get_contents(app_path('Jobs/Search/RecordVisualSearchEventJob.php')), 'firstOrCreate'),
-    'product_card_pre_resolve' => str_contains(file_get_contents(app_path('Http/Resources/ProductCardResource.php')), 'visual_search_vendor_account_id'),
+    'visual_search_service_has_logging' => str_contains(file_get_contents(app_path('Domains/VisualSearch/Services/VisualSearchService.php')), 'visual_search.search.completed'),
+    'record_event_first_or_create' => str_contains(file_get_contents(app_path('Domains/VisualSearch/Jobs/RecordVisualSearchEventJob.php')), 'firstOrCreate'),
+    'product_card_pre_resolve' => str_contains(file_get_contents(app_path('Domains/Catalog/Resources/ProductCardResource.php')), 'visual_search_vendor_account_id'),
 ]);
 
 // 14 Final gate summary (honest)

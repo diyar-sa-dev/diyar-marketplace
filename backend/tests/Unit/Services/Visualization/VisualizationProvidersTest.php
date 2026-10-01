@@ -4,10 +4,10 @@ namespace Tests\Unit\Services\Visualization;
 
 use App\Models\TryInRoomJob;
 use App\Models\User;
-use App\Services\Visualization\Providers\NullVisualizationProvider;
-use App\Services\Visualization\Providers\StubVisualizationProvider;
-use App\Services\Visualization\VisualizationCapability;
-use App\Services\Visualization\VisualizationProviderRegistry;
+use App\Domains\VisualSearch\Services\Providers\NullVisualizationProvider;
+use App\Domains\VisualSearch\Services\Providers\StubVisualizationProvider;
+use App\Domains\VisualSearch\Services\VisualizationCapability;
+use App\Domains\VisualSearch\Services\VisualizationProviderRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;

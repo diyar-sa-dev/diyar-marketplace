@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Support\VisualSearch;
 
-use App\Support\VisualSearch\BucketProbe;
-use App\Support\VisualSearch\VisualHashBits;
+use App\Domains\VisualSearch\Support\BucketProbe;
+use App\Domains\VisualSearch\Support\VisualHashBits;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

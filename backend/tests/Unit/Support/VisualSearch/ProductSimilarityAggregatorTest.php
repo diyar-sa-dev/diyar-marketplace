@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Support\VisualSearch;
 
-use App\Support\VisualSearch\ProductSimilarityAggregator;
-use App\Support\VisualSearch\VisualSearchCandidate;
+use App\Domains\VisualSearch\Support\ProductSimilarityAggregator;
+use App\Domains\VisualSearch\Support\VisualSearchCandidate;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

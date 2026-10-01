@@ -4,7 +4,7 @@ namespace Tests\Feature\Api\V1\TryInRoom;
 
 use App\Enums\RoleName;
 use App\Enums\TryInRoomJobStatus;
-use App\Jobs\TryInRoom\ProcessTryInRoomJob;
+use App\Domains\TryInRoom\Jobs\ProcessTryInRoomJob;
 use App\Models\Product;
 use App\Models\TryInRoomJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;

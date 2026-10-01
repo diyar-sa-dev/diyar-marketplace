@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services\Visualization;
 
 use App\Exceptions\Visualization\VisualizationProviderException;
-use App\Services\Visualization\Providers\OpenAi\OpenAiVisualizationHttpClient;
+use App\Domains\VisualSearch\Services\Providers\OpenAi\OpenAiVisualizationHttpClient;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;

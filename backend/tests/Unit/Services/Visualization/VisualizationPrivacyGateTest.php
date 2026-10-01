@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\Visualization;
 
-use App\Services\Visualization\VisualizationPrivacyGate;
+use App\Domains\VisualSearch\Services\VisualizationPrivacyGate;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

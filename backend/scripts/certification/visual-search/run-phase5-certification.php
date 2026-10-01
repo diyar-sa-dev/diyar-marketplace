@@ -10,9 +10,9 @@ declare(strict_types=1);
  */
 
 use App\Models\VisualIndexEntry;
-use App\Support\VisualSearch\BucketProbe;
-use App\Support\VisualSearch\Dhash64Generator;
-use App\Support\VisualSearch\VisualHashBits;
+use App\Domains\VisualSearch\Support\BucketProbe;
+use App\Domains\VisualSearch\Support\Dhash64Generator;
+use App\Domains\VisualSearch\Support\VisualHashBits;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;

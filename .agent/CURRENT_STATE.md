@@ -296,5 +296,47 @@ Operational KVM2 capacity work (not a numbered Stage 31):
     - Vitest: 87/87 test files passed (350/350 tests, duration: 46.1s).
     - Production build: `npm run build` passed cleanly in 12.49s.
   - Next Approved Step: Step 5 — Spatial / Media.
-- **Git Status:** dev branch, commit `refactor(architecture): migrate search and catalog domains`.
+- **Step 5: Spatial / Media Domains Physical Backend Migration (2026-10-01):** **COMPLETE / CERTIFIED**
+  - Authority: Senior Backend Architect + Senior Laravel Engineer + Spatial/Media Engineer + QA/Security Engineer + Technical Project Manager.
+  - Invariant Principle: Physical migration without Visual Search or Spatial algorithm refactor. Image search dHash logic, 64-bit Hamming thresholds, bucket probing, candidate retrieval, similarity scoring, GD image handling, AR jobs, and canvas state preserved with zero behavioral modification.
+  - Domains Migrated (52 total PHP files moved via history-preserving `git mv`):
+    - **VisualSearch Domain (28 files) -> `App\Domains\VisualSearch\*`:**
+      - **1 Contract:** `VisualizationProviderInterface` -> `App\Domains\VisualSearch\Contracts\*`.
+      - **1 Controller:** `VisualSearchController` -> `App\Domains\VisualSearch\Controllers\*`.
+      - **1 Request:** `VisualSearchRequest` -> `App\Domains\VisualSearch\Requests\*`.
+      - **2 Jobs:** `RecordVisualSearchEventJob`, `RemoveVisualIndexEntryJob` -> `App\Domains\VisualSearch\Jobs\*`.
+      - **16 Services:** `VisualCandidateRetriever`, `VisualIndexingService`, `VisualSearchService`, `VisualizationCapability`, `VisualizationPrivacyGate`, `VisualizationProviderRegistry`, `VisualizationQuota`, `VisualizationResult`, `VisualizationService`, `Providers\NullVisualizationProvider`, `Providers\StubVisualizationProvider`, `Providers\OpenAi\OpenAiTryInRoomCompositeProvider`, `Providers\OpenAi\OpenAiVisualizationHttpClient`, `Support\StubTryInRoomCompositor`, `Support\TryInRoomPrivateImageReader`, `Support\TryInRoomResultImageStore` -> `App\Domains\VisualSearch\Services\*`.
+      - **7 Support Utilities:** `BucketProbe`, `Dhash64Generator`, `ProductSimilarityAggregator`, `VisualHashBits`, `VisualSearchCandidate`, `VisualSearchImageGuard`, `VisualSearchRanker` -> `App\Domains\VisualSearch\Support\*`.
+    - **TryInRoom Domain (7 files) -> `App\Domains\TryInRoom\*`:**
+      - **1 Controller:** `TryInRoomController` -> `App\Domains\TryInRoom\Controllers\*`.
+      - **1 Request:** `StoreTryInRoomRequest` -> `App\Domains\TryInRoom\Requests\*`.
+      - **1 Resource:** `TryInRoomJobResource` -> `App\Domains\TryInRoom\Resources\*`.
+      - **1 Job:** `ProcessTryInRoomJob` -> `App\Domains\TryInRoom\Jobs\*`.
+      - **2 Services:** `TryInRoomJobService`, `TryInRoomStorageService` -> `App\Domains\TryInRoom\Services\*`.
+      - **1 Support Utility:** `TryInRoomImageGuard` -> `App\Domains\TryInRoom\Support\*`.
+    - **RoomDesigner Domain (17 files) -> `App\Domains\RoomDesigner\*`:**
+      - **1 Contract:** `SpatialLayoutProviderInterface` -> `App\Domains\RoomDesigner\Contracts\*`.
+      - **1 Controller:** `RoomDesignController` -> `App\Domains\RoomDesigner\Controllers\*`.
+      - **6 Requests:** `AddRoomDesignToCartRequest`, `ListRoomDesignsRequest`, `PatchRoomDesignRequest`, `StoreRoomDesignRequest`, `SuggestRoomLayoutRequest`, `UpdateRoomDesignRequest` -> `App\Domains\RoomDesigner\Requests\*`.
+      - **2 Resources:** `RoomDesignListItemResource`, `RoomDesignResource` -> `App\Domains\RoomDesigner\Resources\*`.
+      - **7 Services:** `RoomDesignCartService`, `RoomDesignDocumentService`, `RoomDesignValidator`, `SpatialLayoutProviderRegistry`, `SpatialLayoutService`, `Providers\NullSpatialLayoutProvider`, `Providers\StubSpatialLayoutProvider` -> `App\Domains\RoomDesigner\Services\*`.
+  - Intentionally Excluded & Protected:
+    - Eloquent Models: `VisualIndexEntry`, `VisualSearchEvent`, `TryInRoomJob`, `TryInRoomSourceImage`, `RoomDesign`, `Product`, `ProductImage` preserved in `app/Models/*` (0 models moved).
+    - Policies: `RoomDesignPolicy`, `TryInRoomJobPolicy` preserved in `app/Policies/*` for framework convention.
+    - Enums: `TryInRoomJobStatus` preserved in `app/Enums/*`.
+  - Reference Updates: Over 65 referencing files updated across `app/`, `bootstrap/`, `routes/`, `config/`, `database/`, `tests/`, and `scripts/`.
+  - Static Reference Audit: 0 stale references found across active codebase for migrated classes.
+  - Autoload Verification: `composer dump-autoload` PASSED (8,620 classes mapped).
+  - Runtime & Boot Verification: `php artisan about` boots cleanly without errors.
+  - Route Invariant (Gate 10): Exactly 528 routes registered (522 API v1 + 6 platform routes). Zero URL, method, or middleware order mutations.
+  - Test Suite Certification (Full Re-run):
+    - Backend: 1,108 tests (1,101 passed, 7 skipped for environment dependencies, 0 failed, 4,560 assertions, duration: 108.3s).
+    - Visual Search Tests: 25/25 passed (79 assertions).
+    - TryInRoom & RoomDesigner Targeted Tests: 93/93 passed (231 assertions).
+    - Protected Search Domain Tests: 17/17 passed (68 assertions).
+  - Frontend Test & Build Certification:
+    - Vitest: 87/87 test files passed (350/350 tests, duration: 43.0s).
+    - Production build: `npm run build` passed cleanly in 10.71s.
+  - Next Approved Step: Step 6 — Cart, Checkout, Orders & Payments (Commerce Operations).
+- **Git Status:** dev branch, commit `refactor(architecture): migrate spatial and media domains`.
 

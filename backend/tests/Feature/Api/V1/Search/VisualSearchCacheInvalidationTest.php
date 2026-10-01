@@ -5,7 +5,7 @@ namespace Tests\Feature\Api\V1\Search;
 use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
-use App\Services\Search\Visual\VisualIndexingService;
+use App\Domains\VisualSearch\Services\VisualIndexingService;
 use App\Core\Support\Cache\CacheKeys;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;

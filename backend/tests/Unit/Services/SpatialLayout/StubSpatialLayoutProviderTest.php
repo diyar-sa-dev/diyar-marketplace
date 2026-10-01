@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\SpatialLayout;
 
-use App\Services\SpatialLayout\Providers\StubSpatialLayoutProvider;
+use App\Domains\RoomDesigner\Services\Providers\StubSpatialLayoutProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

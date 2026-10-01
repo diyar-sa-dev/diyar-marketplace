@@ -6,7 +6,7 @@ use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
-use App\Support\VisualSearch\VisualHashBits;
+use App\Domains\VisualSearch\Support\VisualHashBits;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;

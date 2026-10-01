@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Support\VisualSearch;
 
-use App\Support\VisualSearch\Dhash64Generator;
+use App\Domains\VisualSearch\Support\Dhash64Generator;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

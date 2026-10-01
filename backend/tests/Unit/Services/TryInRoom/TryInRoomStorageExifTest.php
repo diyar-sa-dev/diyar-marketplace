@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services\TryInRoom;
 
 use App\Models\User;
-use App\Services\TryInRoom\TryInRoomStorageService;
+use App\Domains\TryInRoom\Services\TryInRoomStorageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;

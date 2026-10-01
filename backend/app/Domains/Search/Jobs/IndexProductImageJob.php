@@ -3,7 +3,7 @@
 namespace App\Domains\Search\Jobs;
 
 use App\Models\ProductImage;
-use App\Services\Search\Visual\VisualIndexingService;
+use App\Domains\VisualSearch\Services\VisualIndexingService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

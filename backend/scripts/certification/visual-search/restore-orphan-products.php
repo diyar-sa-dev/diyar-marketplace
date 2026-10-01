@@ -10,7 +10,7 @@ use App\Enums\AvailabilityMode;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
 use App\Domains\Search\Jobs\IndexProductImageJob;
-use App\Jobs\Search\RemoveVisualIndexEntryJob;
+use App\Domains\VisualSearch\Jobs\RemoveVisualIndexEntryJob;
 use App\Models\Category;
 use App\Models\MediaFile;
 use App\Models\Product;

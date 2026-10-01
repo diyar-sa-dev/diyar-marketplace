@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\SpatialLayout;
 
-use App\Services\SpatialLayout\SpatialLayoutService;
+use App\Domains\RoomDesigner\Services\SpatialLayoutService;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;

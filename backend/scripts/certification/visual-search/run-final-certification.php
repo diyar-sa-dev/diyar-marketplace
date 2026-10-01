@@ -9,9 +9,9 @@ declare(strict_types=1);
 
 use App\Domains\Search\Jobs\IndexProductImageJob;
 use App\Models\VisualIndexEntry;
-use App\Support\VisualSearch\BucketProbe;
-use App\Support\VisualSearch\VisualHashBits;
-use App\Support\VisualSearch\VisualSearchImageGuard;
+use App\Domains\VisualSearch\Support\BucketProbe;
+use App\Domains\VisualSearch\Support\VisualHashBits;
+use App\Domains\VisualSearch\Support\VisualSearchImageGuard;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
