@@ -22,7 +22,7 @@ use App\Models\VendorOrder;
 use App\Services\Affiliate\AffiliateAttributionService;
 use App\Services\Analytics\AnalyticsEventRecorder;
 use App\Services\Cart\CartService;
-use App\Services\Catalog\InventoryService;
+use App\Domains\Catalog\Services\InventoryService;
 use App\Services\Checkout\CheckoutPreviewService;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;

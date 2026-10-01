@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Scoped to cert/visual-search paths — for certification/local only.
  */
 
-use App\Jobs\Search\IndexProductImageJob;
+use App\Domains\Search\Jobs\IndexProductImageJob;
 use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;

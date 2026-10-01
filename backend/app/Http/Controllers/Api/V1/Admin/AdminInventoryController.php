@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AdminInventoryMovementResource;
-use App\Http\Resources\ProductCardResource;
+use App\Domains\Catalog\Resources\ProductCardResource;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Core\Support\Api\ApiResponse;

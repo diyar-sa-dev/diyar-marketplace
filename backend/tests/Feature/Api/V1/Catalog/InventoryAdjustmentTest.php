@@ -7,7 +7,7 @@ use App\Enums\RoleName;
 use App\Models\Category;
 use App\Models\InventoryMovement;
 use App\Models\Product;
-use App\Services\Catalog\InventoryService;
+use App\Domains\Catalog\Services\InventoryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
 use Tests\Concerns\InteractsWithIdentity;

@@ -16,7 +16,7 @@ declare(strict_types=1);
  *   php scripts/certification/run-phase8-certification.php --quick
  */
 
-use App\Services\Catalog\CachedFilterSuggestionService;
+use App\Domains\Catalog\Services\CachedFilterSuggestionService;
 use App\Support\Catalog\Filters\CatalogFilterNormalizer;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Cache;

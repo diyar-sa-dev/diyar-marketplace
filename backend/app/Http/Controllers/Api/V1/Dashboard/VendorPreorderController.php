@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ProductPreorderRequestResource;
+use App\Domains\Catalog\Resources\ProductPreorderRequestResource;
 use App\Models\ProductPreorderRequest;
-use App\Services\Catalog\ProductPreorderService;
+use App\Domains\Catalog\Services\ProductPreorderService;
 use App\Services\Vendor\VendorAccessService;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;

@@ -262,5 +262,39 @@ Operational KVM2 capacity work (not a numbered Stage 31):
   - Frontend Test & Build Certification:
     - Vitest: 87/87 test files passed (350/350 tests, duration: 43.8s).
     - Production build: `npm run build` passed cleanly in 10.41s.
-  - Next Approved Step: Step 4 — Protected Search + Catalog Physical Backend Migration.
-- **Git Status:** dev branch, commit `refactor(architecture): migrate infrastructure and identity domains`.
+- **Step 4: Protected Search + Catalog Physical Backend Migration (2026-10-01):** **COMPLETE / CERTIFIED**
+  - Authority: Senior Backend Architect + Laravel Engineer + Database/Search Engineer + Performance Engineer + QA Engineer + Security Engineer + Technical Project Manager.
+  - Invariant Principle: Physical migration without Search refactor. Query structure, SQL semantics, fulltext matching, ranking, facets, fallback, and cache keys/TTL preserved with zero behavioral modification.
+  - Search Domain Physical Migration (14 files moved to `App\Domains\Search\*`):
+    - **2 Contracts:** `ProductSearchContract`, `SearchEngineInterface` -> `App\Domains\Search\Contracts\*`.
+    - **3 Controllers:** `CatalogSearchController`, `CatalogSearchSuggestionsController`, `FilterSuggestionsController` -> `App\Domains\Search\Controllers\*`.
+    - **1 Request:** `CatalogSearchRequest` -> `App\Domains\Search\Requests\*`.
+    - **2 Jobs:** `IndexProductImageJob`, `RecordSearchQueryAnalyticsJob` -> `App\Domains\Search\Jobs\*`.
+    - **6 Services:** `ProductSearchService`, `CatalogSearchService`, `CatalogSearchSuggestionService`, `MysqlCatalogSearchEngine`, `SearchAnalyticsRecorder`, `SearchAnalyticsQueryService` -> `App\Domains\Search\Services\*`.
+    - Protected Dependency Chain: `ProductSearchContract` -> `ProductSearchService` -> `CatalogSearchService` -> `ProductService` maintained and bound in `AppServiceProvider`.
+  - Catalog Domain Physical Migration (62 files moved to `App\Domains\Catalog\*`):
+    - **5 Controllers:** `ProductController`, `CategoryController`, `ProductEngagementController`, `ProductPreorderController`, `HomeStorefrontController` -> `App\Domains\Catalog\Controllers\*`.
+    - **3 Requests:** `ProductListRequest`, `StoreProductPreorderRequest`, `Concerns\PreparesCatalogFilterQuery` -> `App\Domains\Catalog\Requests\*`.
+    - **4 Resources:** `CategoryResource`, `ProductCardResource`, `ProductDetailResource`, `ProductPreorderRequestResource` -> `App\Domains\Catalog\Resources\*`.
+    - **19 Services:** `ProductService`, `CategoryService`, `CatalogCacheInvalidator`, `CachedPublicProductDetailService`, `CachedPublicProductListService`, `CachedFilterContextSummaryService`, `CachedFilterSuggestionService`, `FilterContextSummaryService`, `FilterSuggestionService`, `FilterSuggestionRankingService`, `FilterSuggestionInitializationService`, `FilterSuggestionMetrics`, `FilterSuggestionTelemetry`, `InventoryService`, `ProductDetailUserOverlayService`, `ProductEngagementService`, `ProductPreorderService`, `ProductSalesStatsService`, `HomeStorefrontService` -> `App\Domains\Catalog\Services\*`.
+    - **31 Support / Filters Utilities:** `CatalogFilterNormalizer`, `CatalogFilterRuleBuilder`, `FilterCapability`, `FilterCapabilityRegistry`, `FilterContentType`, `FilterOperator`, `FilterPresentation`, `FilterSurface`, `FilterValueType`, `Context\*` (10 classes), `Suggestions\*` (12 classes) -> `App\Domains\Catalog\Support\Filters\*`.
+  - Intentionally Excluded & Protected:
+    - Eloquent Models: `Product`, `Category`, `ProductColor`, `ProductImage`, `ProductInventory`, `ProductLike`, `ProductPreorderRequest`, `SearchQueryEvent` preserved in `app/Models/*` (0 models moved).
+    - Visual Search Domain: `VisualSearchController`, `VisualIndexingService`, `VisualSearchService`, `VisualCandidateRetriever`, `RecordVisualSearchEventJob`, `RemoveVisualIndexEntryJob` reserved for Step 5 (Spatial / Media).
+    - Vendor Domain: `VendorController`, `VendorFollowController`, `VendorInventoryController`, `VendorProductController`, `VendorService` reserved for Vendors domain.
+    - Review Domain: `StoreReviewController` reserved for Reviews domain.
+  - Reference Updates: Over 80 referencing files updated across controllers, services, routes, commands, tests, and workers. 0 stale references found across active codebase.
+  - Route Invariant: Exactly 528 routes registered (522 API v1 + 6 platform routes).
+  - Test Suite Certification (Full Re-run):
+    - Backend: 1,108 tests (1,101 passed, 7 skipped for environment dependencies, 0 failed, 4,560 assertions, duration: 112.5s).
+    - Search Tests: 17/17 passed (68 assertions).
+    - Catalog Tests: 154/154 passed (725 assertions).
+    - Cache Tests: 9/9 passed (24 assertions).
+    - Unit Support/Catalog: 26/26 passed (70 assertions).
+    - Concurrency Inventory Tests: 1/1 passed (6 assertions).
+  - Frontend Test & Build Certification:
+    - Vitest: 87/87 test files passed (350/350 tests, duration: 46.1s).
+    - Production build: `npm run build` passed cleanly in 12.49s.
+  - Next Approved Step: Step 5 — Spatial / Media.
+- **Git Status:** dev branch, commit `refactor(architecture): migrate search and catalog domains`.
+

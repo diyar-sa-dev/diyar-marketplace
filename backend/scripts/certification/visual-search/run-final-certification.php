@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Usage: php backend/scripts/certification/visual-search/run-final-certification.php
  */
 
-use App\Jobs\Search\IndexProductImageJob;
+use App\Domains\Search\Jobs\IndexProductImageJob;
 use App\Models\VisualIndexEntry;
 use App\Support\VisualSearch\BucketProbe;
 use App\Support\VisualSearch\VisualHashBits;

@@ -9,7 +9,7 @@ use App\Enums\RoleName;
 use App\Models\InventoryReservation;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\Catalog\InventoryService;
+use App\Domains\Catalog\Services\InventoryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
 use Tests\Concerns\InteractsWithIdentity;

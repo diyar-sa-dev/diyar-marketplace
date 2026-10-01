@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Api\V1\Catalog;
 
-use App\Services\Catalog\CachedFilterSuggestionService;
-use App\Support\Catalog\Filters\CatalogFilterNormalizer;
+use App\Domains\Catalog\Services\CachedFilterSuggestionService;
+use App\Domains\Catalog\Support\Filters\CatalogFilterNormalizer;
 use Database\Seeders\CatalogSeeder;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\PlatformDemoSeeder;

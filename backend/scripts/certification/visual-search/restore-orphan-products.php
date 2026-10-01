@@ -9,7 +9,7 @@ declare(strict_types=1);
 use App\Enums\AvailabilityMode;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
-use App\Jobs\Search\IndexProductImageJob;
+use App\Domains\Search\Jobs\IndexProductImageJob;
 use App\Jobs\Search\RemoveVisualIndexEntryJob;
 use App\Models\Category;
 use App\Models\MediaFile;

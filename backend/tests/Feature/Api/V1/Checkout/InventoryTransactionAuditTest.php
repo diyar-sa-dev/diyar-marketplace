@@ -5,7 +5,7 @@ namespace Tests\Feature\Api\V1\Checkout;
 use App\Enums\RoleName;
 use App\Models\InventoryReservation;
 use App\Models\Product;
-use App\Services\Catalog\InventoryService;
+use App\Domains\Catalog\Services\InventoryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\Concerns\InteractsWithIdentity;

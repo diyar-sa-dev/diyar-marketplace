@@ -5,7 +5,7 @@ namespace App\Services\Affiliate;
 use App\Models\Product;
 use App\Models\ProductAffiliateSetting;
 use App\Models\User;
-use App\Services\Catalog\ProductService;
+use App\Domains\Catalog\Services\ProductService;
 use InvalidArgumentException;
 
 final class ProductAffiliateSettingsService

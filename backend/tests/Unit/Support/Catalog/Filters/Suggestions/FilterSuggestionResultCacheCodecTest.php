@@ -2,14 +2,14 @@
 
 namespace Tests\Unit\Support\Catalog\Filters\Suggestions;
 
-use App\Support\Catalog\Filters\FilterPresentation;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestion;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestionAction;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestionApply;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestionApplyMode;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestionGroup;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestionReasonCode;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestionResult;
+use App\Domains\Catalog\Support\Filters\FilterPresentation;
+use App\Domains\Catalog\Support\Filters\Suggestions\FilterSuggestion;
+use App\Domains\Catalog\Support\Filters\Suggestions\FilterSuggestionAction;
+use App\Domains\Catalog\Support\Filters\Suggestions\FilterSuggestionApply;
+use App\Domains\Catalog\Support\Filters\Suggestions\FilterSuggestionApplyMode;
+use App\Domains\Catalog\Support\Filters\Suggestions\FilterSuggestionGroup;
+use App\Domains\Catalog\Support\Filters\Suggestions\FilterSuggestionReasonCode;
+use App\Domains\Catalog\Support\Filters\Suggestions\FilterSuggestionResult;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

@@ -9,7 +9,7 @@ declare(strict_types=1);
  *   php backend/scripts/certification/visual-search/run-phase5-full.php [--base-dir=/path]
  */
 
-use App\Jobs\Search\IndexProductImageJob;
+use App\Domains\Search\Jobs\IndexProductImageJob;
 use App\Jobs\Search\RemoveVisualIndexEntryJob;
 use App\Models\MediaFile;
 use App\Models\Product;

@@ -12,7 +12,7 @@ declare(strict_types=1);
  *   php scripts/certification/filter-suggestions-stampede-concurrent.php --workers=100 --context=products:bedroom
  */
 
-use App\Services\Catalog\CachedFilterSuggestionService;
+use App\Domains\Catalog\Services\CachedFilterSuggestionService;
 use App\Support\Catalog\Filters\CatalogFilterNormalizer;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Cache;

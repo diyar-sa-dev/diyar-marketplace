@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Catalog;
 
-use App\Jobs\Search\RecordSearchQueryAnalyticsJob;
+use App\Domains\Search\Jobs\RecordSearchQueryAnalyticsJob;
 use App\Models\SearchQueryEvent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;

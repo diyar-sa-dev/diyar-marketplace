@@ -7,7 +7,7 @@ use App\Enums\PaymentStatus;
 use App\Enums\VendorOrderStatus;
 use App\Models\Order;
 use App\Models\VendorOrder;
-use App\Services\Catalog\InventoryService;
+use App\Domains\Catalog\Services\InventoryService;
 use InvalidArgumentException;
 
 final class OrderCancellationService

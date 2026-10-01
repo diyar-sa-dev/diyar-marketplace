@@ -6,7 +6,7 @@ use App\Enums\RoleName;
 use App\Jobs\Analytics\RecordAnalyticsEventJob;
 use App\Models\Category;
 use App\Models\Product;
-use App\Services\Catalog\CatalogCacheInvalidator;
+use App\Domains\Catalog\Services\CatalogCacheInvalidator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;

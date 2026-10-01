@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Removes synthetic cert/visual-search product images from the active catalog.
  */
 
-use App\Jobs\Search\IndexProductImageJob;
+use App\Domains\Search\Jobs\IndexProductImageJob;
 use App\Jobs\Search\RemoveVisualIndexEntryJob;
 use App\Models\MediaFile;
 use App\Models\Product;

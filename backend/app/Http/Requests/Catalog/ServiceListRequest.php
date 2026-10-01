@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Catalog;
 
-use App\Http\Requests\Catalog\Concerns\PreparesCatalogFilterQuery;
-use App\Support\Catalog\Filters\CatalogFilterNormalizer;
-use App\Support\Catalog\Filters\CatalogFilterRuleBuilder;
-use App\Support\Catalog\Filters\FilterSurface;
+use App\Domains\Catalog\Requests\Concerns\PreparesCatalogFilterQuery;
+use App\Domains\Catalog\Support\Filters\CatalogFilterNormalizer;
+use App\Domains\Catalog\Support\Filters\CatalogFilterRuleBuilder;
+use App\Domains\Catalog\Support\Filters\FilterSurface;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ServiceListRequest extends FormRequest

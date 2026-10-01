@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api\V1\Catalog;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Catalog\ProductListRequest;
-use App\Http\Resources\ProductCardResource;
+use App\Domains\Catalog\Requests\ProductListRequest;
+use App\Domains\Catalog\Resources\ProductCardResource;
 use App\Http\Resources\VendorCardResource;
 use App\Http\Resources\VendorPublicResource;
-use App\Services\Catalog\ProductService;
+use App\Domains\Catalog\Services\ProductService;
 use App\Services\Catalog\VendorService;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;

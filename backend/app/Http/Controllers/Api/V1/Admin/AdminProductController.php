@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ProductCardResource;
+use App\Domains\Catalog\Resources\ProductCardResource;
 use App\Models\Product;
 use App\Services\Admin\AdminProductService;
 use App\Core\Support\Api\ApiResponse;

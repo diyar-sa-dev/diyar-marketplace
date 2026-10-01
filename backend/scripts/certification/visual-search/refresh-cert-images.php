@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Replaces cert/visual-search PNGs with gradient patterns (fixes solid-color dHash collision).
  */
 
-use App\Jobs\Search\IndexProductImageJob;
+use App\Domains\Search\Jobs\IndexProductImageJob;
 use App\Models\ProductImage;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Storage;

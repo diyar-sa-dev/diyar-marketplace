@@ -4,7 +4,7 @@ namespace Tests\Feature\Api\V1\Catalog;
 
 use App\Enums\RoleName;
 use App\Models\Product;
-use App\Services\Catalog\CatalogCacheInvalidator;
+use App\Domains\Catalog\Services\CatalogCacheInvalidator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;

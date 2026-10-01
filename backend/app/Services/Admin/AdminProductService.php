@@ -5,7 +5,7 @@ namespace App\Services\Admin;
 use App\Enums\ProductStatus;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\Catalog\CatalogCacheInvalidator;
+use App\Domains\Catalog\Services\CatalogCacheInvalidator;
 use Illuminate\Support\Facades\DB;
 
 final class AdminProductService

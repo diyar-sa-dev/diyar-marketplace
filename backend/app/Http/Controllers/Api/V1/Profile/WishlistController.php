@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api\V1\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BlogArticleCardResource;
-use App\Http\Resources\ProductCardResource;
+use App\Domains\Catalog\Resources\ProductCardResource;
 use App\Http\Resources\ServiceCardResource;
 use App\Services\Blog\BlogEngagementService;
-use App\Services\Catalog\ProductEngagementService;
+use App\Domains\Catalog\Services\ProductEngagementService;
 use App\Services\ServiceMarketplace\ServiceEngagementService;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;

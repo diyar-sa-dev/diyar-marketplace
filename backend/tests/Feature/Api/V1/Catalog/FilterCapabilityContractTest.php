@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Api\V1\Catalog;
 
-use App\Support\Catalog\Filters\CatalogFilterRuleBuilder;
-use App\Support\Catalog\Filters\FilterCapabilityRegistry;
-use App\Support\Catalog\Filters\FilterContentType;
-use App\Support\Catalog\Filters\FilterSurface;
+use App\Domains\Catalog\Support\Filters\CatalogFilterRuleBuilder;
+use App\Domains\Catalog\Support\Filters\FilterCapabilityRegistry;
+use App\Domains\Catalog\Support\Filters\FilterContentType;
+use App\Domains\Catalog\Support\Filters\FilterSurface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

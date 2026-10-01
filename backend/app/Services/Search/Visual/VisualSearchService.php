@@ -2,12 +2,12 @@
 
 namespace App\Services\Search\Visual;
 
-use App\Http\Resources\ProductCardResource;
+use App\Domains\Catalog\Resources\ProductCardResource;
 use App\Jobs\Search\RecordVisualSearchEventJob;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\VisualIndexEntry;
-use App\Services\Catalog\ProductService;
+use App\Domains\Catalog\Services\ProductService;
 use App\Services\Settings\EffectiveConfigService;
 use App\Core\Support\Cache\CacheKeys;
 use App\Core\Support\Cache\StampedeSafeCache;

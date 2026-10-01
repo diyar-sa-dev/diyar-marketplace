@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Catalog\InventoryService;
+use App\Domains\Catalog\Services\InventoryService;
 use Illuminate\Console\Command;
 
 class ReleaseExpiredInventoryReservations extends Command

@@ -2,20 +2,20 @@
 
 namespace Tests\Unit\Services\Catalog;
 
-use App\Services\Catalog\FilterSuggestionRankingService;
-use App\Support\Catalog\Filters\Context\FilterContext;
-use App\Support\Catalog\Filters\Context\FilterContextMeta;
-use App\Support\Catalog\Filters\Context\FilterContextSummary;
-use App\Support\Catalog\Filters\Context\FilterPriceSummary;
-use App\Support\Catalog\Filters\Context\FilterRatingSummary;
-use App\Support\Catalog\Filters\Context\FilterStatisticSummary;
-use App\Support\Catalog\Filters\FilterCapabilityRegistry;
-use App\Support\Catalog\Filters\FilterContentType;
-use App\Support\Catalog\Filters\FilterSurface;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestionAction;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestionEligibility;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestionGroup;
-use App\Support\Catalog\Filters\Suggestions\FilterSuggestionReasonCode;
+use App\Domains\Catalog\Services\FilterSuggestionRankingService;
+use App\Domains\Catalog\Support\Filters\Context\FilterContext;
+use App\Domains\Catalog\Support\Filters\Context\FilterContextMeta;
+use App\Domains\Catalog\Support\Filters\Context\FilterContextSummary;
+use App\Domains\Catalog\Support\Filters\Context\FilterPriceSummary;
+use App\Domains\Catalog\Support\Filters\Context\FilterRatingSummary;
+use App\Domains\Catalog\Support\Filters\Context\FilterStatisticSummary;
+use App\Domains\Catalog\Support\Filters\FilterCapabilityRegistry;
+use App\Domains\Catalog\Support\Filters\FilterContentType;
+use App\Domains\Catalog\Support\Filters\FilterSurface;
+use App\Domains\Catalog\Support\Filters\Suggestions\FilterSuggestionAction;
+use App\Domains\Catalog\Support\Filters\Suggestions\FilterSuggestionEligibility;
+use App\Domains\Catalog\Support\Filters\Suggestions\FilterSuggestionGroup;
+use App\Domains\Catalog\Support\Filters\Suggestions\FilterSuggestionReasonCode;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

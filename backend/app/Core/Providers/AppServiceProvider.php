@@ -61,8 +61,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(
-            \App\Contracts\Search\ProductSearchContract::class,
-            \App\Services\Search\ProductSearchService::class
+            \App\Domains\Search\Contracts\ProductSearchContract::class,
+            \App\Domains\Search\Services\ProductSearchService::class
         );
     }
 

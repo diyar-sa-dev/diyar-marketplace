@@ -4,7 +4,7 @@ namespace App\Services\Admin;
 
 use App\Models\Category;
 use App\Models\User;
-use App\Services\Catalog\CategoryService;
+use App\Domains\Catalog\Services\CategoryService;
 use App\Services\Media\MediaUploadService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;

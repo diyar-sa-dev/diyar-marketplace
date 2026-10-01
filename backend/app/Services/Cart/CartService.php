@@ -8,7 +8,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\Catalog\ProductService;
+use App\Domains\Catalog\Services\ProductService;
 use App\Services\Order\SelfPurchaseGuard;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\DB;

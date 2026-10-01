@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api\V1\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\AdjustInventoryRequest;
-use App\Http\Resources\ProductDetailResource;
-use App\Services\Catalog\InventoryService;
-use App\Services\Catalog\ProductService;
+use App\Domains\Catalog\Resources\ProductDetailResource;
+use App\Domains\Catalog\Services\InventoryService;
+use App\Domains\Catalog\Services\ProductService;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;

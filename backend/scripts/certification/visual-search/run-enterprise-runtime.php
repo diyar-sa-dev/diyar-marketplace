@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Enterprise runtime tests: kill switch, reindex idempotency, performance, privacy.
  */
 
-use App\Jobs\Search\IndexProductImageJob;
+use App\Domains\Search\Jobs\IndexProductImageJob;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
 use App\Models\VisualSearchEvent;

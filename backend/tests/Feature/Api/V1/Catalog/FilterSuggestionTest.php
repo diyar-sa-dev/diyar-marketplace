@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Api\V1\Catalog;
 
-use App\Services\Catalog\FilterSuggestionService;
-use App\Support\Catalog\Filters\CatalogFilterNormalizer;
-use App\Support\Catalog\Filters\Context\FilterContextFactory;
-use App\Support\Catalog\Filters\FilterContentType;
-use App\Support\Catalog\Filters\FilterSurface;
+use App\Domains\Catalog\Services\FilterSuggestionService;
+use App\Domains\Catalog\Support\Filters\CatalogFilterNormalizer;
+use App\Domains\Catalog\Support\Filters\Context\FilterContextFactory;
+use App\Domains\Catalog\Support\Filters\FilterContentType;
+use App\Domains\Catalog\Support\Filters\FilterSurface;
 use Database\Seeders\CatalogSeeder;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\PlatformDemoSeeder;

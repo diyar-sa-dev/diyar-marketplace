@@ -3,7 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\CartItem;
-use App\Services\Catalog\ProductEngagementService;
+use App\Domains\Catalog\Services\ProductEngagementService;
 use App\Services\Media\MediaUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;

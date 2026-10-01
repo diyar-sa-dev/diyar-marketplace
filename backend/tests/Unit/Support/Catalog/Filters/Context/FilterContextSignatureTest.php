@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Support\Catalog\Filters\Context;
 
-use App\Support\Catalog\Filters\Context\FilterContext;
-use App\Support\Catalog\Filters\Context\FilterContextSignature;
-use App\Support\Catalog\Filters\FilterContentType;
-use App\Support\Catalog\Filters\FilterSurface;
+use App\Domains\Catalog\Support\Filters\Context\FilterContext;
+use App\Domains\Catalog\Support\Filters\Context\FilterContextSignature;
+use App\Domains\Catalog\Support\Filters\FilterContentType;
+use App\Domains\Catalog\Support\Filters\FilterSurface;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

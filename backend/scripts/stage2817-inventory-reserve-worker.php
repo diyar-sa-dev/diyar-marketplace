@@ -22,7 +22,7 @@ bootstrapConcurrencyWorker($dbPath);
 
 use App\Models\Product;
 use App\Models\User;
-use App\Services\Catalog\InventoryService;
+use App\Domains\Catalog\Services\InventoryService;
 
 try {
     $product = Product::query()->findOrFail($productId);

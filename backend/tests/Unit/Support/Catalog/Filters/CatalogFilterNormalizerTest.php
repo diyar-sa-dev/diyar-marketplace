@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Support\Catalog\Filters;
 
-use App\Support\Catalog\Filters\CatalogFilterNormalizer;
+use App\Domains\Catalog\Support\Filters\CatalogFilterNormalizer;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
