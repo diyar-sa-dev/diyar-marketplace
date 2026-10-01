@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Support\Pagination;
 
-use App\Support\Pagination\PaginationBounds;
+use App\Core\Support\Pagination\PaginationBounds;
 use Tests\TestCase;
 
 class PaginationBoundsTest extends TestCase

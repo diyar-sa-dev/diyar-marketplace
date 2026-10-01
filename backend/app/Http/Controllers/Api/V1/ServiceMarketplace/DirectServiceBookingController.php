@@ -8,7 +8,7 @@ use App\Http\Requests\ServiceMarketplace\DirectBookingPreviewRequest;
 use App\Http\Resources\ServiceBookingResource;
 use App\Services\ServiceMarketplace\DirectServiceBookingService;
 use App\Services\ServiceMarketplace\ServiceCatalogService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;
 

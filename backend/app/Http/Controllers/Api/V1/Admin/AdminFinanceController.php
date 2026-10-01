@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\AdminPlatformFinancePeriodReportResource;
 use App\Services\Finance\PlatformFinanceExportService;
 use App\Services\Finance\PlatformFinanceReportingService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;

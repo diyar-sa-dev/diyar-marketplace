@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Catalog\CatalogSearchRequest;
 use App\Services\Catalog\CatalogSearchService;
 use App\Services\Search\SearchAnalyticsRecorder;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 
 class CatalogSearchController extends Controller

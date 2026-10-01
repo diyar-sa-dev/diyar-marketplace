@@ -2,9 +2,9 @@
 
 namespace App\Services\Catalog;
 
-use App\Support\Cache\CacheKeys;
-use App\Support\Cache\StampedeSafeCache;
-use App\Support\Cache\VersionedCache;
+use App\Core\Support\Cache\CacheKeys;
+use App\Core\Support\Cache\StampedeSafeCache;
+use App\Core\Support\Cache\VersionedCache;
 use App\Support\Catalog\Filters\CatalogFilterNormalizer;
 use App\Support\Catalog\Filters\Context\FilterContext;
 use App\Support\Catalog\Filters\Context\FilterContextFactory;

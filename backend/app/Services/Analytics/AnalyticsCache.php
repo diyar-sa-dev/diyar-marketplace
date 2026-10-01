@@ -2,7 +2,7 @@
 
 namespace App\Services\Analytics;
 
-use App\Support\Cache\VersionedCache;
+use App\Core\Support\Cache\VersionedCache;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;

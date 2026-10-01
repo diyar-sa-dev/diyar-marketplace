@@ -12,7 +12,7 @@ use App\Http\Requests\ServiceMarketplace\UpdateProviderWorkingHoursRequest;
 use App\Http\Requests\ServiceMarketplace\UploadProviderAvatarRequest;
 use App\Http\Resources\ProviderSettingsResource;
 use App\Services\ServiceMarketplace\ProviderSettingsService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

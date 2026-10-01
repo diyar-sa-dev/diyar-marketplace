@@ -7,7 +7,7 @@ use App\Http\Requests\Profile\ConfirmTwoFactorRequest;
 use App\Http\Requests\Profile\DisableTwoFactorRequest;
 use App\Http\Resources\UserResource;
 use App\Services\Security\TwoFactorService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;

@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Core\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+/**
+ * Baseline security headers for API responses.
+ * Applied globally in Stage 1.6 — infrastructure only, no auth logic.
+ */
+class SecurityHeaders
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        /** @var Response $response */
+        $response = $next($request);
+
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('X-Frame-Options', 'DENY');
+        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        $response->headers->set('X-XSS-Protection', '0');
+
+        $response->headers->set(
+            'Permissions-Policy',
+            'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+        );
+
+        if (app()->environment('production')) {
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+        }
+
+        return $response;
+    }
+}

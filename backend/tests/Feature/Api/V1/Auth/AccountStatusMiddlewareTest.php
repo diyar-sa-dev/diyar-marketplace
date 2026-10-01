@@ -3,7 +3,7 @@
 namespace Tests\Feature\Api\V1\Auth;
 
 use App\Enums\UserStatus;
-use App\Http\Middleware\EnsureAccountIsActive;
+use App\Core\Middleware\EnsureAccountIsActive;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;

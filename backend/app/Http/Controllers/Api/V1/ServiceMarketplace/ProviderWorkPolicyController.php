@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ServiceMarketplace\UpdateProviderWorkPolicyRequest;
 use App\Http\Resources\ProviderWorkPolicyResource;
 use App\Services\ServiceMarketplace\ProviderWorkPolicyService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

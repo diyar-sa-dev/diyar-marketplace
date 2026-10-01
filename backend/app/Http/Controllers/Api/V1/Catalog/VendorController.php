@@ -9,7 +9,7 @@ use App\Http\Resources\VendorCardResource;
 use App\Http\Resources\VendorPublicResource;
 use App\Services\Catalog\ProductService;
 use App\Services\Catalog\VendorService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

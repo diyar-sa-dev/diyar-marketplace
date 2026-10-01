@@ -14,7 +14,7 @@ use App\Models\VendorOrder;
 use App\Services\Returns\ReturnEligibilityService;
 use App\Services\Returns\ReturnEvidenceService;
 use App\Services\Returns\ReturnRequestService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

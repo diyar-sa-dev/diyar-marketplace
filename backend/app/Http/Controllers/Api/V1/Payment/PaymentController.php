@@ -12,7 +12,7 @@ use App\Http\Resources\PaymentSubmissionResource;
 use App\Models\Order;
 use App\Services\Payments\Exceptions\PaymentGatewayException;
 use App\Services\Payments\PaymentOrchestrator;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

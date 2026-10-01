@@ -20,7 +20,7 @@ use App\Services\Identity\EmailVerificationService;
 use App\Services\Identity\PasswordResetService;
 use App\Services\Identity\RegistrationService;
 use App\Services\Security\TwoFactorLoginChallengeService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

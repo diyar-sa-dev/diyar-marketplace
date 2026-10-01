@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Support;
 
-use App\Support\Realtime\ReverbAllowedOrigins;
+use App\Core\Support\Realtime\ReverbAllowedOrigins;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

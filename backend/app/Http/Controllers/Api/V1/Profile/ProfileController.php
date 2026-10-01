@@ -13,7 +13,7 @@ use App\Http\Resources\ProfileResource;
 use App\Services\Identity\EmailVerificationService;
 use App\Services\Profile\PhoneChangeService;
 use App\Services\Profile\ProfileService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

@@ -7,7 +7,7 @@ use App\Services\Analytics\AnalyticsDateRangeResolver;
 use App\Services\Analytics\ProviderAnalyticsService;
 use App\Services\ServiceMarketplace\ProviderAccountResolver;
 use App\Services\ServiceMarketplace\ProviderFinanceService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;

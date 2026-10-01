@@ -7,7 +7,7 @@ use App\Http\Requests\Platform\PlatformConsultationRequest;
 use App\Http\Requests\Platform\PlatformNewsletterRequest;
 use App\Services\Platform\PlatformInboundMailService;
 use App\Services\Platform\PlatformNewsletterService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Throwable;
 

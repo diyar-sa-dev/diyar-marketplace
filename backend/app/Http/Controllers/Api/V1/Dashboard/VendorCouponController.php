@@ -8,7 +8,7 @@ use App\Http\Requests\Dashboard\UpdateVendorCouponRequest;
 use App\Http\Resources\VendorCouponResource;
 use App\Models\VendorCoupon;
 use App\Services\Coupon\VendorCouponManagementService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

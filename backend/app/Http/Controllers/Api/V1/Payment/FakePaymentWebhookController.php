@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1\Payment;
 use App\Http\Controllers\Controller;
 use App\Services\Payments\Exceptions\PaymentGatewayException;
 use App\Services\Payments\PaymentWebhookProcessor;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

@@ -6,7 +6,7 @@ use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\Search\Visual\VisualIndexingService;
-use App\Support\Cache\CacheKeys;
+use App\Core\Support\Cache\CacheKeys;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;

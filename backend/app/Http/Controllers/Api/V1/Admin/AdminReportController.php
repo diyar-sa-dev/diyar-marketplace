@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\Analytics\AdminAnalyticsService;
 use App\Services\Analytics\AnalyticsDateRangeResolver;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

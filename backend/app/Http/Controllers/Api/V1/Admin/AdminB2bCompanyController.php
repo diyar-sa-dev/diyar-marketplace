@@ -16,7 +16,7 @@ use App\Models\B2bLead;
 use App\Models\B2bTag;
 use App\Models\User;
 use App\Services\B2b\AdminB2bService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

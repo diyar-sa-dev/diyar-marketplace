@@ -9,7 +9,7 @@ use App\Http\Resources\AffiliatePayoutResource;
 use App\Models\AffiliatePayout;
 use App\Models\User;
 use App\Services\Admin\AdminPayoutActionService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

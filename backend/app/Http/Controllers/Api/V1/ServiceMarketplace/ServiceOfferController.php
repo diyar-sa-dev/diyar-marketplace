@@ -11,7 +11,7 @@ use App\Http\Resources\ServiceRequestResource;
 use App\Models\ServiceOffer;
 use App\Models\ServiceRequest;
 use App\Services\ServiceMarketplace\ServiceOfferService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

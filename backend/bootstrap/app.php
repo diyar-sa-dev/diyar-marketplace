@@ -1,21 +1,21 @@
 <?php
 
-use App\Http\Middleware\ApplyHttpCachePolicy;
-use App\Http\Middleware\AssignRequestCorrelationId;
-use App\Http\Middleware\EnsureAccountIsActive;
-use App\Http\Middleware\EnsureAdminPermission;
-use App\Http\Middleware\EnsureAdminUserIsActive;
-use App\Http\Middleware\EnsureCleanAuthState;
-use App\Http\Middleware\EnsureMarketplaceAccess;
-use App\Http\Middleware\EnsureMarketplaceNotInMaintenance;
-use App\Http\Middleware\EnsureRoomDesignerAiSpatialEnabled;
-use App\Http\Middleware\EnsureRoomDesignerEnabled;
-use App\Http\Middleware\EnsureTryInRoomEnabled;
-use App\Http\Middleware\EnsureUserHasRole;
-use App\Http\Middleware\SecurityHeaders;
-use App\Http\Middleware\SetLocaleFromRequest;
-use App\Support\Api\ApiResponse;
-use App\Support\Http\TrustedProxies;
+use App\Core\Middleware\ApplyHttpCachePolicy;
+use App\Core\Middleware\AssignRequestCorrelationId;
+use App\Core\Middleware\EnsureAccountIsActive;
+use App\Core\Middleware\EnsureAdminPermission;
+use App\Core\Middleware\EnsureAdminUserIsActive;
+use App\Core\Middleware\EnsureCleanAuthState;
+use App\Core\Middleware\EnsureMarketplaceAccess;
+use App\Core\Middleware\EnsureMarketplaceNotInMaintenance;
+use App\Core\Middleware\EnsureRoomDesignerAiSpatialEnabled;
+use App\Core\Middleware\EnsureRoomDesignerEnabled;
+use App\Core\Middleware\EnsureTryInRoomEnabled;
+use App\Core\Middleware\EnsureUserHasRole;
+use App\Core\Middleware\SecurityHeaders;
+use App\Core\Middleware\SetLocaleFromRequest;
+use App\Core\Support\Api\ApiResponse;
+use App\Core\Support\Http\TrustedProxies;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;

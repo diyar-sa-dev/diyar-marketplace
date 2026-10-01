@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\Media\MediaOptimizationService;
 use App\Services\Settings\EffectiveConfigService;
-use App\Support\Media\OptimizedMedia;
+use App\Core\Support\Media\OptimizedMedia;
 use Illuminate\Console\Command;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;

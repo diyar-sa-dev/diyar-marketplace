@@ -7,7 +7,7 @@ use App\Http\Requests\Projects\ProjectListRequest;
 use App\Http\Resources\ProjectCardResource;
 use App\Http\Resources\ProjectDetailResource;
 use App\Services\Projects\ProjectQueryService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 

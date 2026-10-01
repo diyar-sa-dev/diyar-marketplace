@@ -9,7 +9,7 @@ use App\Http\Resources\ReturnRequestResource;
 use App\Models\ReturnRequest;
 use App\Services\Returns\ReturnRequestService;
 use App\Services\Vendor\VendorAccessService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

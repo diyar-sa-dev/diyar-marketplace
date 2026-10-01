@@ -11,7 +11,7 @@ use App\Services\Order\VendorManualOrderService;
 use App\Services\Order\VendorOrderFulfillmentService;
 use App\Services\Order\VendorOrderQueryFilter;
 use App\Services\Vendor\VendorAccessService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;

@@ -7,7 +7,7 @@ use App\Http\Requests\Profile\StoreAddressRequest;
 use App\Http\Requests\Profile\UpdateAddressRequest;
 use App\Http\Resources\AddressResource;
 use App\Services\Profile\AddressService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

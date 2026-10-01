@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\LoyaltyTransactionResource;
 use App\Models\User;
 use App\Services\Loyalty\LoyaltyQueryService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;

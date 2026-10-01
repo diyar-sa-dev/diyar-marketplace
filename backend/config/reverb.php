@@ -1,7 +1,7 @@
 <?php
 
-use App\Support\Http\DiyarNetworkOrigins;
-use App\Support\Realtime\ReverbAllowedOrigins;
+use App\Core\Support\Http\DiyarNetworkOrigins;
+use App\Core\Support\Realtime\ReverbAllowedOrigins;
 
 return [
 

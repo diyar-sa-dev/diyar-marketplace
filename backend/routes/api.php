@@ -143,8 +143,8 @@ use App\Http\Controllers\Api\V1\ServiceMarketplace\ServiceRequestController;
 use App\Http\Controllers\Api\V1\Storefront\HomeStorefrontController;
 use App\Http\Controllers\Api\V1\TryInRoom\TryInRoomController;
 use App\Http\Controllers\Api\V1\WebsiteFeedbackController;
-use App\Http\Middleware\EnsureUserSessionNotRevoked;
-use App\Http\Middleware\UserSessionActivityMiddleware;
+use App\Core\Middleware\EnsureUserSessionNotRevoked;
+use App\Core\Middleware\UserSessionActivityMiddleware;
 use Illuminate\Support\Facades\Route;
 
 /*

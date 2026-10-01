@@ -7,7 +7,7 @@ use App\Http\Requests\ServiceMarketplace\ProposeServiceBookingScheduleRequest;
 use App\Http\Resources\ServiceBookingResource;
 use App\Models\ServiceBooking;
 use App\Services\ServiceMarketplace\ServiceBookingService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

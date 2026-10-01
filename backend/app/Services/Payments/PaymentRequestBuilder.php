@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Services\Payments\DTO\PaymentCreationRequest;
 use App\Services\Payments\DTO\PaymentSessionRequest;
 use App\Services\Payments\Gateways\MyFatoorah\MyFatoorahConfigFactory;
-use App\Support\Http\FrontendOrigin;
+use App\Core\Support\Http\FrontendOrigin;
 
 final class PaymentRequestBuilder
 {

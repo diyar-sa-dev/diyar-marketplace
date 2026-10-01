@@ -11,7 +11,7 @@ use App\Services\Affiliate\AffiliateDashboardService;
 use App\Services\Affiliate\AffiliateFinanceTransactionService;
 use App\Services\Affiliate\AffiliatePayoutService;
 use App\Services\Affiliate\AffiliateProfileService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

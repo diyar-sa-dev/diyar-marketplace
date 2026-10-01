@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProviderAccountStatus;
-use App\Support\SlugGenerator;
+use App\Core\Support\SlugGenerator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;

@@ -5,8 +5,8 @@ namespace App\Services\B2b;
 use App\Models\B2bCategory;
 use App\Models\B2bCompany;
 use App\Models\B2bTag;
-use App\Support\Content\HtmlContentSanitizer;
-use App\Support\SlugGenerator;
+use App\Core\Support\Content\HtmlContentSanitizer;
+use App\Core\Support\SlugGenerator;
 use Illuminate\Support\Str;
 
 final class B2bService

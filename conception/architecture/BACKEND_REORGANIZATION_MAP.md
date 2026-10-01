@@ -9,14 +9,15 @@
 
 ## 1. Inventory Summary
 
-* **Application Directory:** `backend/app/`
-* **Total Discovered Models:** 114 models in `app/Models/`
-* **Total Controllers:** 85+ controllers across 24 feature groups in `app/Http/Controllers/Api/V1/`
-* **Total Form Requests:** 70+ requests in 22 feature groups in `app/Http/Requests/`
-* **Total API Resources:** 103 resources in `app/Http/Resources/`
-* **Total Application Services:** 38 service modules in `app/Services/`
+* **Application Directory:** `backend/app/` (1,141 total PHP files)
+* **Total Discovered Models:** 114 models in `app/Models/` (104 shared across >1 domain)
+* **Total Controllers:** 145 controller / action handlers in `app/Http/Controllers/Api/V1/` (47 Admin, 26 Dashboard, 15 ServiceMarketplace, etc.)
+* **Total Form Requests:** 131 requests in `app/Http/Requests/`
+* **Total API Resources:** 107 resources in `app/Http/Resources/`
+* **Total Application Services:** 327 service classes across 38 subdirectories in `app/Services/`
 * **Total Route Endpoints:** 528 active API routes registered in `routes/api.php`
-* **Total Automated Tests:** 1,108 backend tests (1,101 passing, 7 skipped, 0 failing)
+* **Total Automated Tests:** 1,108 backend tests (1,101 passing, 7 skipped, 0 failing, 4,560 assertions)
+* **Definitive Pre-Migration Audit:** See `conception/Architecture/PRE_MIGRATION_ARCHITECTURE_AUDIT.md`
 
 ---
 

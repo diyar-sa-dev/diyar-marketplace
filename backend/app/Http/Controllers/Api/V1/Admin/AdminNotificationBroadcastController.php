@@ -9,7 +9,7 @@ use App\Http\Requests\Admin\StoreNotificationBroadcastRequest;
 use App\Http\Resources\NotificationBroadcastResource;
 use App\Models\NotificationBroadcast;
 use App\Services\Notifications\NotificationBroadcastService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

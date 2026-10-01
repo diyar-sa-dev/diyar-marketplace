@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\Admin\AdminPermissionService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use App\Support\Identity\MarketplaceAccess;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

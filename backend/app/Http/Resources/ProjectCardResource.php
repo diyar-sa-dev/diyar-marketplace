@@ -3,7 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Project;
-use App\Support\Media\CmsImageUrl;
+use App\Core\Support\Media\CmsImageUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

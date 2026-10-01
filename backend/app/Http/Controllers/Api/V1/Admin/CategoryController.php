@@ -10,7 +10,7 @@ use App\Models\Category;
 use App\Models\User;
 use App\Services\Admin\AdminCategoryService;
 use App\Services\Catalog\CategoryService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

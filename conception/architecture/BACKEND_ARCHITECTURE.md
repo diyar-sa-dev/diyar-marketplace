@@ -80,12 +80,9 @@ backend/app/
 │   └── VisualSearch/         # Vector/dHash image feature extraction & indexing
 │
 └── Infrastructure/
-    ├── Cache/                # Stampede protection, versioned cache tags & key patterns
-    ├── Database/             # Database connection pools, custom PDO configurations
-    ├── Notifications/        # Push notification transport & device token dispatchers
-    ├── Queue/                # Redis queue priority configurations & outbox processors
-    ├── Realtime/             # Laravel Reverb broadcaster & channel authorizers
-    └── Sms/                  # External SMS providers and OTP delivery gateways
+    ├── Mail/                 # Email OTP transport drivers
+    ├── Notifications/        # Push notification transport (APNs, FCM, Composite)
+    └── Sms/                  # External SMS providers and OTP delivery gateways (Msegat, Log)
 ```
 
 ---

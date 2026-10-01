@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AdminVendorAccountResource;
 use App\Models\VendorAccount;
 use App\Services\Admin\AdminVendorAccountService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

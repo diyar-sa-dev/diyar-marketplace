@@ -204,6 +204,35 @@ Operational KVM2 capacity work (not a numbered Stage 31):
   - Frontend Organization: NOT STARTED.
   - Mobile Organization: NOT STARTED.
   - Hostinger Status: `HOSTINGER: NOT VERIFIED`.
+- **Step 1: Backend Domain Organization Pre-Migration Architecture Audit (2026-10-01):** **AUDIT COMPLETE**
+  - Authority: Senior Full-Stack Engineer + Software Architect + Backend Architect + QA/Security Engineer + Technical PM.
+  - Final Audit Report: `conception/Architecture/PRE_MIGRATION_ARCHITECTURE_AUDIT.md`.
+  - Verified Codebase Surface: 1,141 PHP files in `app/`, 528 total registered routes (522 API v1 + 6 platform), 145 unique action controllers, 114 Eloquent models (104 shared across >1 domain), 131 form requests, 107 resources, 327 services across 38 subdirectories.
+  - Test Suite Baseline: 1,108 backend tests (1,101 passed, 7 skipped, 0 failed, 4,560 assertions, duration: 172.9s).
+  - Search Architecture: Strictly preserved (`ProductSearchContract` -> `ProductSearchService` -> `CatalogSearchService` -> `ProductService`).
+  - Critical Invariant: 0 files moved, 0 namespaces modified, 0 route contracts mutated, 0 database migrations added.
+  - Classification: **READY FOR PHYSICAL MIGRATION** (Under Phase 1-8 Topological Sequence & Model Preservation Strategy).
+- **Step 2: Core Platform Foundations Physical Backend Migration (2026-10-01):** **COMPLETE / CERTIFIED**
+  - Authority: Senior Backend Architect + Senior Laravel Engineer + Full-Stack Engineer + QA Engineer + Security Engineer + DevOps/Infrastructure Engineer + Technical Project Manager.
+  - Physical Migration Scope (36 files migrated via history-preserving `git mv`):
+    - **16 Core Middleware:** `ApplyHttpCachePolicy`, `AssignRequestCorrelationId`, `EnsureAccountIsActive`, `EnsureAdminPermission`, `EnsureAdminUserIsActive`, `EnsureCleanAuthState`, `EnsureMarketplaceAccess`, `EnsureMarketplaceNotInMaintenance`, `EnsureRoomDesignerAiSpatialEnabled`, `EnsureRoomDesignerEnabled`, `EnsureTryInRoomEnabled`, `EnsureUserHasRole`, `EnsureUserSessionNotRevoked`, `SecurityHeaders`, `SetLocaleFromRequest`, `UserSessionActivityMiddleware` -> `App\Core\Middleware\*`.
+    - **1 Core Provider:** `AppServiceProvider` -> `App\Core\Providers\AppServiceProvider`. (The 6 domain providers—`Affiliate`, `Analytics`, `Chat`, `Loyalty`, `Notification`, `Settings`—intentionally remain in `app/Providers/` under `App\Providers\*` awaiting domain migrations).
+    - **19 Core Support Classes:** `Api\ApiResponse`, `Http\TrustedProxies`, `Http\FrontendOrigin`, `Http\DiyarNetworkOrigins`, `Content\HtmlContentSanitizer`, `Export\CsvExportHelper`, `Locale\LocalizedFinanceDateFormatter`, `Pagination\PaginationBounds`, `Realtime\ReverbAllowedOrigins`, `SlugGenerator`, `Cache\CacheKeys`, `Cache\CachesQueryResults`, `Cache\StampedeSafeCache`, `Cache\VersionedCache`, `Media\CmsImageUrl`, `Media\ImageContentValidator`, `Media\OptimizedMedia`, `Media\StoredMedia`, `Media\SvgSafetyValidator` -> `App\Core\Support\*`.
+  - Intentionally Excluded:
+    - Eloquent Models: 114 models preserved in `app/Models/*` (104 shared models; morph maps, relationships, policies preserved).
+    - Domain Exceptions: 4 visualization/room design exceptions preserved in `app/Exceptions/*` awaiting their domain steps.
+    - Domain Rules: 0 files in `app/Rules/*`.
+    - Base Controller: `app/Http/Controllers/Controller.php` preserved in place to prevent unnecessary churn across 145 action controllers.
+  - Reference Updates: 215 referencing files updated across `app/`, `bootstrap/app.php`, `bootstrap/providers.php`, `routes/api.php`, `config/`, and `tests/`.
+  - Static Reference Audit: 0 stale references found across active codebase for migrated classes.
+  - Autoload Verification: `composer dump-autoload` PASSED (8,620 classes mapped).
+  - Runtime & Boot Verification: `php artisan about` boots cleanly without errors.
+  - Route Invariant (Gate 10): 528 routes preserved identically (522 API v1 + 6 platform routes). Zero URL, method, or middleware order mutations.
+  - Backend Test Verification (Gate 11): 1,108 tests (1,101 passed, 7 skipped for environment dependencies, 0 failed, 4,560 assertions, duration: 114.9s).
+  - Search Regression Gate (Gate 12): 72/72 search tests passed (232 assertions), 17/17 visual search tests passed. Search contract preserved.
+  - Security Regression Gate (Gate 13): 18/18 security tests passed, 61/61 auth tests passed. Sanctum, middleware pipeline, and role authorization preserved.
+  - Frontend Test & Build Verification: Vitest 87/87 files (350/350 tests) passed; `npm run build` PASSED (0 errors, 17.02s).
+  - Next Approved Step: Step 3 — Infrastructure + Identity Physical Migration.
 - **Backend Test Suite Certification (Full Re-run):**
   - Total: 1,108 tests.
   - Passed: 1,101.
@@ -213,5 +242,5 @@ Operational KVM2 capacity work (not a numbered Stage 31):
 - **Frontend Test & Build Certification:**
   - Vitest: 87/87 test files passed (350/350 tests).
   - Production build: `npm run build` passed with 0 errors.
-- **Git Status:** Working tree clean. Local verified commits ahead of `origin/main`. Remote synchronization pending credentials.
+- **Git Status:** dev branch, single logical commit for Step 2.
 

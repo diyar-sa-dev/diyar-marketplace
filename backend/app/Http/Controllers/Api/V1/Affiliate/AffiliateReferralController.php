@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Affiliate\ResolveAffiliateReferralRequest;
 use App\Http\Requests\Affiliate\TrackAffiliateClickRequest;
 use App\Services\Affiliate\AffiliateAttributionService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;
 

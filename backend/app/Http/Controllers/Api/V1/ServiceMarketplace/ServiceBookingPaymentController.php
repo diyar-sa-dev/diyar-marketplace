@@ -8,7 +8,7 @@ use App\Http\Resources\ServiceBookingPaymentResource;
 use App\Http\Resources\ServiceBookingResource;
 use App\Models\ServiceBooking;
 use App\Services\ServiceMarketplace\ServiceBookingPaymentService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

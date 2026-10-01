@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Support\Cache;
 
-use App\Support\Cache\CacheKeys;
+use App\Core\Support\Cache\CacheKeys;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;

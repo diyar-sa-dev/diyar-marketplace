@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Support;
 
-use App\Support\Export\CsvExportHelper;
+use App\Core\Support\Export\CsvExportHelper;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

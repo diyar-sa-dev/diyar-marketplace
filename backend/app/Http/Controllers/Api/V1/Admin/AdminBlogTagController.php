@@ -9,7 +9,7 @@ use App\Http\Resources\BlogTagResource;
 use App\Models\BlogTag;
 use App\Models\User;
 use App\Services\Blog\AdminBlogService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

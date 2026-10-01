@@ -1,6 +1,6 @@
 <?php
 
-use App\Support\Http\DiyarNetworkOrigins;
+use App\Core\Support\Http\DiyarNetworkOrigins;
 
 return [
 

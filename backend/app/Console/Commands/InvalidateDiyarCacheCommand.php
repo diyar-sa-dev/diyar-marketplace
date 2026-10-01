@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Support\Cache\CacheKeys;
-use App\Support\Cache\VersionedCache;
+use App\Core\Support\Cache\CacheKeys;
+use App\Core\Support\Cache\VersionedCache;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 

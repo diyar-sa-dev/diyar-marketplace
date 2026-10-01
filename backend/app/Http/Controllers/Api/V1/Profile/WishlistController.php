@@ -9,7 +9,7 @@ use App\Http\Resources\ServiceCardResource;
 use App\Services\Blog\BlogEngagementService;
 use App\Services\Catalog\ProductEngagementService;
 use App\Services\ServiceMarketplace\ServiceEngagementService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

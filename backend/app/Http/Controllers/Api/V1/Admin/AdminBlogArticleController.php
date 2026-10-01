@@ -10,7 +10,7 @@ use App\Http\Resources\BlogArticleDetailResource;
 use App\Models\BlogArticle;
 use App\Models\User;
 use App\Services\Blog\AdminBlogService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

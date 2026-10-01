@@ -14,7 +14,7 @@ use App\Services\Catalog\CategoryService;
 use App\Services\Catalog\ProductService;
 use App\Services\Catalog\VendorService;
 use App\Services\ServiceMarketplace\ServiceCatalogService;
-use App\Support\Cache\StampedeSafeCache;
+use App\Core\Support\Cache\StampedeSafeCache;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 

@@ -4,9 +4,9 @@ namespace App\Services\Catalog;
 
 use App\Http\Resources\ProductDetailResource;
 use App\Models\User;
-use App\Support\Cache\CacheKeys;
-use App\Support\Cache\StampedeSafeCache;
-use App\Support\Cache\VersionedCache;
+use App\Core\Support\Cache\CacheKeys;
+use App\Core\Support\Cache\StampedeSafeCache;
+use App\Core\Support\Cache\VersionedCache;
 
 final class CachedPublicProductDetailService
 {

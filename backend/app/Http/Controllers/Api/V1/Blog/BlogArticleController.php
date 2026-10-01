@@ -8,7 +8,7 @@ use App\Http\Resources\BlogArticleCardResource;
 use App\Http\Resources\BlogArticleDetailResource;
 use App\Services\Blog\BlogEngagementService;
 use App\Services\Blog\BlogQueryService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

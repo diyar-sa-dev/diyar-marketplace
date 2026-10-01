@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Support;
 
-use App\Support\Http\TrustedProxies;
+use App\Core\Support\Http\TrustedProxies;
 use Tests\TestCase;
 
 class TrustedProxiesTest extends TestCase

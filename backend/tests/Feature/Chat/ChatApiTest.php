@@ -16,7 +16,7 @@ use App\Models\UserNotification;
 use App\Models\VendorAccount;
 use App\Services\Chat\ChatAuthorizationService;
 use App\Services\Chat\ChatPresenceService;
-use App\Support\SlugGenerator;
+use App\Core\Support\SlugGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Tests\Concerns\InteractsWithIdentity;

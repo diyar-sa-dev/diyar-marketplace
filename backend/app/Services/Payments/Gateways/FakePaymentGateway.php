@@ -16,7 +16,7 @@ use App\Services\Payments\DTO\PaymentSessionResult;
 use App\Services\Payments\DTO\RefundPaymentRequest;
 use App\Services\Payments\DTO\RefundPaymentResult;
 use App\Services\Payments\Exceptions\PaymentGatewayException;
-use App\Support\Http\FrontendOrigin;
+use App\Core\Support\Http\FrontendOrigin;
 use Illuminate\Support\Str;
 
 /**

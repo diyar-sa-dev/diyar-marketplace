@@ -4,7 +4,7 @@ namespace App\Services\Projects;
 
 use App\Models\Project;
 use App\Support\Cache\BlogProjectCache;
-use App\Support\Cache\CachesQueryResults;
+use App\Core\Support\Cache\CachesQueryResults;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

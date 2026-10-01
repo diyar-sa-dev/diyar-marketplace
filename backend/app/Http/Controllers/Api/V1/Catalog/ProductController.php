@@ -7,7 +7,7 @@ use App\Http\Requests\Catalog\ProductListRequest;
 use App\Services\Analytics\ProductViewAnalyticsService;
 use App\Services\Catalog\CachedPublicProductDetailService;
 use App\Services\Catalog\CachedPublicProductListService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

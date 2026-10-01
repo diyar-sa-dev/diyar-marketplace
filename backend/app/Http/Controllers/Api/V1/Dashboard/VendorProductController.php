@@ -10,7 +10,7 @@ use App\Http\Resources\ProductDetailResource;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\Catalog\ProductService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

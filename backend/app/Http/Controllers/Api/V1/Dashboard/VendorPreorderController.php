@@ -7,7 +7,7 @@ use App\Http\Resources\ProductPreorderRequestResource;
 use App\Models\ProductPreorderRequest;
 use App\Services\Catalog\ProductPreorderService;
 use App\Services\Vendor\VendorAccessService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

@@ -17,7 +17,7 @@ use App\Services\Payments\DTO\PaymentMethodsRequest;
 use App\Services\Payments\DTO\PaymentSessionResult;
 use App\Services\Payments\Exceptions\PaymentGatewayException;
 use App\Services\Payments\Gateways\FakePaymentGateway;
-use App\Support\Http\FrontendOrigin;
+use App\Core\Support\Http\FrontendOrigin;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;

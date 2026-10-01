@@ -2,7 +2,7 @@
 
 namespace App\Support\Catalog\Filters;
 
-use App\Support\Pagination\PaginationBounds;
+use App\Core\Support\Pagination\PaginationBounds;
 
 final class CatalogFilterNormalizer
 {

@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\BlogArticle;
 use App\Services\Blog\BlogEngagementService;
-use App\Support\Media\CmsImageUrl;
+use App\Core\Support\Media\CmsImageUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

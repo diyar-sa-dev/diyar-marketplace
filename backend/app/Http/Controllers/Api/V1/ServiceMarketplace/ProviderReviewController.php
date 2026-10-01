@@ -12,7 +12,7 @@ use App\Models\ProviderReview;
 use App\Services\ServiceMarketplace\ProviderAccountResolver;
 use App\Services\ServiceMarketplace\ProviderReviewService;
 use App\Services\ServiceMarketplace\ServiceBookingService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

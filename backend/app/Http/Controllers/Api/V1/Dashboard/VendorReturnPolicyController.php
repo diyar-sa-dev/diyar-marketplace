@@ -7,7 +7,7 @@ use App\Http\Requests\Returns\UpdateVendorReturnPolicyRequest;
 use App\Http\Resources\VendorReturnPolicyResource;
 use App\Models\VendorReturnPolicy;
 use App\Services\Returns\VendorReturnPolicyService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

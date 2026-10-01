@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\B2b\StoreB2bCompanyReviewRequest;
 use App\Http\Resources\B2bCompanyReviewResource;
 use App\Services\B2b\B2bCompanyReviewService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

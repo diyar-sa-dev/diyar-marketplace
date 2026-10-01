@@ -10,7 +10,7 @@ use App\Http\Resources\UserNotificationResource;
 use App\Jobs\Notifications\DeliverNotificationChannelJob;
 use App\Models\NotificationDelivery;
 use App\Models\UserNotification;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use App\Support\Notifications\NotificationQueue;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

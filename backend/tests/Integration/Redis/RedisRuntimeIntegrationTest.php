@@ -2,9 +2,9 @@
 
 namespace Tests\Integration\Redis;
 
-use App\Support\Cache\CacheKeys;
-use App\Support\Cache\StampedeSafeCache;
-use App\Support\Cache\VersionedCache;
+use App\Core\Support\Cache\CacheKeys;
+use App\Core\Support\Cache\StampedeSafeCache;
+use App\Core\Support\Cache\VersionedCache;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;

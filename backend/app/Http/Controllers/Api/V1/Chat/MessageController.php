@@ -12,7 +12,7 @@ use App\Models\Message;
 use App\Services\Chat\ChatModerationService;
 use App\Services\Chat\ConversationService;
 use App\Services\Chat\MessageService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

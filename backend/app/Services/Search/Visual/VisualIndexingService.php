@@ -5,7 +5,7 @@ namespace App\Services\Search\Visual;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
-use App\Support\Cache\CacheKeys;
+use App\Core\Support\Cache\CacheKeys;
 use App\Support\VisualSearch\Dhash64Generator;
 use App\Support\VisualSearch\VisualHashBits;
 use Illuminate\Support\Facades\Log;

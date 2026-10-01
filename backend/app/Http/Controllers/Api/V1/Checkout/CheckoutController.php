@@ -8,7 +8,7 @@ use App\Http\Requests\Checkout\CheckoutPreviewRequest;
 use App\Http\Resources\CheckoutPreviewResource;
 use App\Services\Analytics\AnalyticsEventRecorder;
 use App\Services\Checkout\CheckoutPreviewService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;

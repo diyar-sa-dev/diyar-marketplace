@@ -4,7 +4,7 @@ namespace App\Services\Finance;
 
 use App\Models\FinancialTransaction;
 use App\Services\Finance\DTO\PlatformFinancePeriodReport;
-use App\Support\Locale\LocalizedFinanceDateFormatter;
+use App\Core\Support\Locale\LocalizedFinanceDateFormatter;
 use Illuminate\Support\Collection;
 
 final class PlatformFinanceExportService

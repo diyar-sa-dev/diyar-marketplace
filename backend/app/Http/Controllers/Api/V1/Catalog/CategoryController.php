@@ -8,7 +8,7 @@ use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductCardResource;
 use App\Services\Catalog\CategoryService;
 use App\Services\Catalog\ProductService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

@@ -8,7 +8,7 @@ use App\Http\Resources\B2bCategoryResource;
 use App\Http\Resources\B2bCompanyCardResource;
 use App\Http\Resources\B2bCompanyDetailResource;
 use App\Services\B2b\B2bQueryService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 
 class B2bCompanyController extends Controller

@@ -14,7 +14,7 @@ use App\Services\Payments\DTO\PaymentSessionRequest;
 use App\Services\Payments\DTO\PaymentSessionResult;
 use App\Services\Payments\DTO\RefundPaymentRequest;
 use App\Services\Payments\DTO\RefundPaymentResult;
-use App\Support\Http\FrontendOrigin;
+use App\Core\Support\Http\FrontendOrigin;
 
 /**
  * Local/dev payment gateway — simulates MyFatoorah without external API calls.

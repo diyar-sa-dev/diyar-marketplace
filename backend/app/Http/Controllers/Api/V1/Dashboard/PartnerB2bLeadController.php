@@ -7,7 +7,7 @@ use App\Http\Requests\Dashboard\UpdatePartnerB2bLeadStatusRequest;
 use App\Http\Resources\PartnerB2bLeadResource;
 use App\Models\User;
 use App\Services\B2b\PartnerB2bLeadService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

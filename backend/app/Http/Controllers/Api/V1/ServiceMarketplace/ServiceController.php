@@ -7,7 +7,7 @@ use App\Http\Requests\Catalog\ServiceListRequest;
 use App\Http\Resources\ServiceCardResource;
 use App\Http\Resources\ServiceDetailResource;
 use App\Services\ServiceMarketplace\ServiceCatalogService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

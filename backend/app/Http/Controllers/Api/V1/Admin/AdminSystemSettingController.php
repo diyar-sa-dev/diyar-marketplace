@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SystemSetting;
 use App\Services\Settings\EffectiveConfigService;
 use App\Services\Settings\SystemSettingService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;

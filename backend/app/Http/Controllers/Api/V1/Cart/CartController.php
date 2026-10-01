@@ -13,7 +13,7 @@ use App\Services\Analytics\AnalyticsEventRecorder;
 use App\Services\Cart\CartMergeService;
 use App\Services\Cart\CartService;
 use App\Services\Cart\CartValidationService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

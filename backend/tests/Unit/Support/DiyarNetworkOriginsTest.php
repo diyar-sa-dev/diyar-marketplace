@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Support;
 
-use App\Support\Http\DiyarNetworkOrigins;
+use App\Core\Support\Http\DiyarNetworkOrigins;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

@@ -10,7 +10,7 @@ use App\Services\Chat\ChatRealtimeBroadcaster;
 use App\Services\Chat\ChatTypingService;
 use App\Services\Chat\ChatUnreadCounterService;
 use App\Services\Chat\ConversationService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

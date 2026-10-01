@@ -11,7 +11,7 @@ use App\Http\Requests\Dashboard\UploadVendorCoverRequest;
 use App\Http\Requests\Dashboard\UploadVendorLogoRequest;
 use App\Http\Resources\VendorSettingsResource;
 use App\Services\Vendor\VendorSettingsService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

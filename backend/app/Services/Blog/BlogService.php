@@ -5,8 +5,8 @@ namespace App\Services\Blog;
 use App\Models\BlogArticle;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
-use App\Support\Content\HtmlContentSanitizer;
-use App\Support\SlugGenerator;
+use App\Core\Support\Content\HtmlContentSanitizer;
+use App\Core\Support\SlugGenerator;
 use Illuminate\Support\Str;
 
 final class BlogService

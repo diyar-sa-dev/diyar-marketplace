@@ -23,7 +23,7 @@ use App\Models\VendorOrder;
 use App\Services\Media\MediaUploadService;
 use App\Services\Review\OrderFulfillmentReviewEligibility;
 use App\Services\Review\ProductReviewEligibilityService;
-use App\Support\Media\CmsImageUrl;
+use App\Core\Support\Media\CmsImageUrl;
 use App\Support\Vendor\VendorOwnership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;

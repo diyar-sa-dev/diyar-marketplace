@@ -7,7 +7,7 @@ use App\Http\Resources\AdminInventoryMovementResource;
 use App\Http\Resources\ProductCardResource;
 use App\Models\InventoryMovement;
 use App\Models\Product;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

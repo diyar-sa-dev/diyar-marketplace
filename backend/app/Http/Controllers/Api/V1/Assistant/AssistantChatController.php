@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1\Assistant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Assistant\AssistantChatRequest;
 use App\Services\Assistant\AssistantChatService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use RuntimeException;
 

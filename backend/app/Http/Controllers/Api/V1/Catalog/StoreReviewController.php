@@ -9,7 +9,7 @@ use App\Http\Resources\StoreReviewResource;
 use App\Http\Resources\StoreReviewSummaryResource;
 use App\Models\StoreReview;
 use App\Services\StoreReview\StoreReviewService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

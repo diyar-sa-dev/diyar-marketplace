@@ -7,7 +7,7 @@ use App\Http\Requests\Dashboard\UpdateVendorShippingSettingsRequest;
 use App\Http\Resources\VendorShippingSettingsResource;
 use App\Models\VendorShippingSettings;
 use App\Services\Shipping\VendorShippingSettingsService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

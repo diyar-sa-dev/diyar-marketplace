@@ -10,7 +10,7 @@ use App\Models\ProductReview;
 use App\Models\ProviderReview;
 use App\Models\StoreReview;
 use App\Services\Admin\AdminReviewModerationService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

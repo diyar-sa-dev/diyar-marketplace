@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreWebsiteFeedbackRequest;
 use App\Http\Resources\WebsiteFeedbackResource;
 use App\Models\WebsiteFeedback;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

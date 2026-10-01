@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1\Platform;
 
 use App\Http\Controllers\Controller;
 use App\Services\Settings\EffectiveConfigService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 
 class PlatformCommerceController extends Controller

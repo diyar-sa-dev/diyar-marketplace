@@ -18,7 +18,7 @@ use App\Models\RoomDesign;
 use App\Services\RoomDesign\RoomDesignCartService;
 use App\Services\RoomDesign\RoomDesignDocumentService;
 use App\Services\SpatialLayout\SpatialLayoutService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

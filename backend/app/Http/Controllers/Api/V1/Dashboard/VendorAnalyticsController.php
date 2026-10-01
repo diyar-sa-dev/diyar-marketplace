@@ -9,7 +9,7 @@ use App\Services\Analytics\VendorAnalyticsService;
 use App\Services\Finance\VendorFinanceExportService;
 use App\Services\Finance\VendorFinanceReportingService;
 use App\Services\Vendor\VendorAccessService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;

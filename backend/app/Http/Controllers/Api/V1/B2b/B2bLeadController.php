@@ -8,7 +8,7 @@ use App\Http\Resources\B2bLeadResource;
 use App\Models\B2bLead;
 use App\Models\User;
 use App\Services\B2b\B2bLeadService;
-use App\Support\Api\ApiResponse;
+use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
