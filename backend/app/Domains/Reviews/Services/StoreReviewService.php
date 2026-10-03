@@ -7,7 +7,7 @@ use App\Models\StoreReview;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorOrder;
-use App\Services\Catalog\VendorService;
+use App\Domains\Vendors\Services\VendorService;
 use App\Domains\Reviews\Services\OrderFulfillmentReviewEligibility;
 use App\Support\Vendor\VendorOwnership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

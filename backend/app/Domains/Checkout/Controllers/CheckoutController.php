@@ -6,7 +6,7 @@ use App\Enums\AnalyticsEventType;
 use App\Http\Controllers\Controller;
 use App\Domains\Checkout\Requests\CheckoutPreviewRequest;
 use App\Domains\Checkout\Resources\CheckoutPreviewResource;
-use App\Services\Analytics\AnalyticsEventRecorder;
+use App\Domains\Analytics\Services\AnalyticsEventRecorder;
 use App\Domains\Checkout\Services\CheckoutPreviewService;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;

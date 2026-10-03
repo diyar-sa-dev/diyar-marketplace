@@ -4,7 +4,7 @@ namespace App\Domains\Catalog\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Domains\Catalog\Requests\ProductListRequest;
-use App\Services\Analytics\ProductViewAnalyticsService;
+use App\Domains\Analytics\Services\ProductViewAnalyticsService;
 use App\Domains\Catalog\Services\CachedPublicProductDetailService;
 use App\Domains\Catalog\Services\CachedPublicProductListService;
 use App\Core\Support\Api\ApiResponse;

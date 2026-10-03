@@ -9,7 +9,7 @@ use App\Domains\Cart\Requests\UpdateCartItemRequest;
 use App\Domains\Cart\Resources\CartResource;
 use App\Models\Cart;
 use App\Models\Product;
-use App\Services\Analytics\AnalyticsEventRecorder;
+use App\Domains\Analytics\Services\AnalyticsEventRecorder;
 use App\Domains\Cart\Services\CartMergeService;
 use App\Domains\Cart\Services\CartService;
 use App\Domains\Cart\Services\CartValidationService;

@@ -3,7 +3,7 @@
 namespace App\Listeners\Settings;
 
 use App\Events\SettingsChanged;
-use App\Services\Settings\EffectiveConfigService;
+use App\Domains\Platform\Services\EffectiveConfigService;
 
 final class InvalidateSettingsCacheListener
 {

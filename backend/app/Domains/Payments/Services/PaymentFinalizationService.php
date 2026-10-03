@@ -13,7 +13,7 @@ use App\Models\InventoryReservation;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentAttempt;
-use App\Services\Analytics\AnalyticsEventRecorder;
+use App\Domains\Analytics\Services\AnalyticsEventRecorder;
 use App\Domains\Catalog\Services\InventoryService;
 use App\Domains\Coupons\Services\VendorCouponUsageService;
 use App\Services\Finance\FinancialPostingService;

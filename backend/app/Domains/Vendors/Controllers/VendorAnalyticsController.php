@@ -4,8 +4,8 @@ namespace App\Domains\Vendors\Controllers;
 
 use App\Enums\FinancePeriod;
 use App\Http\Controllers\Controller;
-use App\Services\Analytics\AnalyticsDateRangeResolver;
-use App\Services\Analytics\VendorAnalyticsService;
+use App\Domains\Analytics\Services\AnalyticsDateRangeResolver;
+use App\Domains\Analytics\Services\VendorAnalyticsService;
 use App\Services\Finance\VendorFinanceExportService;
 use App\Services\Finance\VendorFinanceReportingService;
 use App\Domains\Vendors\Services\VendorAccessService;

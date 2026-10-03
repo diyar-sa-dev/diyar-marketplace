@@ -4,7 +4,7 @@ namespace App\Core\Middleware;
 
 use App\Enums\AdminPermission;
 use App\Models\User;
-use App\Services\Admin\AdminPermissionService;
+use App\Domains\Admin\Services\AdminPermissionService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

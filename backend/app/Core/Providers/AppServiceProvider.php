@@ -10,7 +10,7 @@ use App\Infrastructure\Sms\SmsProviderFactory;
 use App\Domains\Checkout\Contracts\AssemblyCalculator;
 use App\Domains\Checkout\Services\StubAssemblyCalculator;
 use App\Domains\Identity\Services\SecureOtpCodeGenerator;
-use App\Services\Infrastructure\EnvironmentSafetyValidator;
+use App\Domains\Platform\Services\EnvironmentSafetyValidator;
 use App\Domains\Payments\Services\Gateways\FakePaymentGateway;
 use App\Domains\Payments\Services\Gateways\MyFatoorah\MyFatoorahGateway;
 use App\Domains\Payments\Services\PaymentGatewayManager;
@@ -29,6 +29,11 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        if (! class_exists('App\Services\Admin\AdminPermissionService', false)) {
+            class_alias(\App\Domains\Admin\Services\AdminPermissionService::class, 'App\Services\Admin\AdminPermissionService');
+        }
+        $this->app->alias(\App\Domains\Admin\Services\AdminPermissionService::class, 'App\Services\Admin\AdminPermissionService');
+
         $this->app->singleton(OtpCodeGenerator::class, SecureOtpCodeGenerator::class);
 
         $this->app->singleton(SmsProvider::class, fn () => SmsProviderFactory::make());

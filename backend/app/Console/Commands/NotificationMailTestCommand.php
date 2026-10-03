@@ -2,21 +2,21 @@
 
 namespace App\Console\Commands;
 
-use App\Channels\Notifications\EmailNotificationChannel;
-use App\Channels\Notifications\InAppChannel;
-use App\Channels\Notifications\PushNotificationChannel;
-use App\Channels\Notifications\SmsNotificationChannel;
+use App\Domains\Notifications\Channels\EmailNotificationChannel;
+use App\Domains\Notifications\Channels\InAppChannel;
+use App\Domains\Notifications\Channels\PushNotificationChannel;
+use App\Domains\Notifications\Channels\SmsNotificationChannel;
 use App\Enums\NotificationChannel;
 use App\Enums\NotificationType;
-use App\Jobs\Notifications\DeliverNotificationChannelJob;
+use App\Domains\Notifications\Jobs\DeliverNotificationChannelJob;
 use App\Models\DomainOutboxEvent;
 use App\Models\NotificationDelivery;
 use App\Models\User;
-use App\Services\Notifications\NotificationBroadcastProgressService;
-use App\Services\Notifications\NotificationCircuitBreaker;
-use App\Services\Notifications\NotificationDeliveryStateMachine;
-use App\Services\Notifications\NotificationDispatcher;
-use App\Services\Outbox\DomainOutboxProcessor;
+use App\Domains\Notifications\Services\NotificationBroadcastProgressService;
+use App\Domains\Notifications\Services\NotificationCircuitBreaker;
+use App\Domains\Notifications\Services\NotificationDeliveryStateMachine;
+use App\Domains\Notifications\Services\NotificationDispatcher;
+use App\Domains\Platform\Services\DomainOutboxProcessor;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 

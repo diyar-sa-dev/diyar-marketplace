@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\Chat\ArchiveOldMessagesJob;
-use App\Services\Chat\ChatArchiveService;
+use App\Domains\Chat\Jobs\ArchiveOldMessagesJob;
+use App\Domains\Chat\Services\ChatArchiveService;
 use Illuminate\Console\Command;
 
 class RunChatArchiveCommand extends Command

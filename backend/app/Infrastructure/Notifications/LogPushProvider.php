@@ -2,7 +2,7 @@
 
 namespace App\Infrastructure\Notifications;
 
-use App\Contracts\Notifications\PushProviderInterface;
+use App\Domains\Notifications\Contracts\PushProviderInterface;
 use App\Models\User;
 use App\Models\UserNotification;
 use Illuminate\Support\Facades\Log;

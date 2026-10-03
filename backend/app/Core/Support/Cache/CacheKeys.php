@@ -2,7 +2,7 @@
 
 namespace App\Core\Support\Cache;
 
-use App\Services\Settings\EffectiveConfigService;
+use App\Domains\Platform\Services\EffectiveConfigService;
 use Illuminate\Support\Facades\Cache;
 
 /**

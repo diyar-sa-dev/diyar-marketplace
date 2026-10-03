@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Infrastructure;
 
-use App\Services\Infrastructure\PhpRuntimeValidator;
+use App\Domains\Platform\Services\PhpRuntimeValidator;
 use Tests\TestCase;
 
 class PhpRuntimeValidatorTest extends TestCase

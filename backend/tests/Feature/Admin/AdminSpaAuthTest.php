@@ -5,7 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Enums\AdminPermission;
 use App\Enums\RoleName;
 use App\Enums\UserStatus;
-use App\Services\Admin\AdminPermissionService;
+use App\Domains\Admin\Services\AdminPermissionService;
 use Database\Seeders\AdminPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;

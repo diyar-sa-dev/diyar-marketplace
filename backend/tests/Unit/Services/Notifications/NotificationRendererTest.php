@@ -4,7 +4,7 @@ namespace Tests\Unit\Services\Notifications;
 
 use App\Enums\NotificationType;
 use App\Models\User;
-use App\Services\Notifications\NotificationRenderer;
+use App\Domains\Notifications\Services\NotificationRenderer;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

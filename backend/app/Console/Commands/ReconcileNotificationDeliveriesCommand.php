@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Notifications\NotificationDeliveryRecoveryService;
+use App\Domains\Notifications\Services\NotificationDeliveryRecoveryService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 

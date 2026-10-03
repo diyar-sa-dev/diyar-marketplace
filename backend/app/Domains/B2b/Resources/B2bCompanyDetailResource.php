@@ -6,7 +6,7 @@ use App\Enums\B2bVerificationStatus;
 use App\Models\B2bCompany;
 use App\Domains\B2b\Services\B2bService;
 use App\Core\Support\Media\CmsImageUrl;
-use App\Http\Resources\ProjectCardResource;
+use App\Domains\Projects\Resources\ProjectCardResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

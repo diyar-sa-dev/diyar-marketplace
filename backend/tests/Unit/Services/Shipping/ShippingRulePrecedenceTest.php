@@ -10,7 +10,7 @@ use App\Models\ShippingRateRule;
 use App\Models\ShippingZone;
 use App\Models\VendorShippingProfile;
 use App\Models\VendorShippingSettings;
-use App\Services\Shipping\ShippingRuleEngine;
+use App\Domains\Shipping\Services\ShippingRuleEngine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

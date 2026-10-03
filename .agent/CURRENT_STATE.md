@@ -487,5 +487,94 @@ Operational KVM2 capacity work (not a numbered Stage 31):
     - ServicesMarketplace Targeted Tests: 91/91 passed (427 assertions).
     - Frontend: 87/87 test files passed (350/350 tests, duration: 50.0s).
   - Baseline Commit: `20b270b`
-  - Next Approved Step: Step 9 — Remaining Backend Domains (Shipping, Chat, Notifications, Analytics, Blog, Projects, Platform/Admin).
-- **Git Status:** dev branch, working towards commit `refactor(architecture): migrate marketplace operations domains`.
+  - Migration Commit: `23c2b26` (`refactor(architecture): migrate marketplace operations domains`)
+  - Next Approved Step: Step 9 — Remaining Backend Domains (Shipping, Chat, Notifications, Analytics, Blog, Projects, Platform/Admin) [COMPLETED].
+- **2026-10-03: Step 9 — Remaining Backend Domains Migration (Shipping, Chat, Notifications, Analytics, Blog, Projects, Assistant, Platform, Admin, Stragglers)**:
+  - Status: **VERIFIED WITH LIMITATIONS** (Hostinger remote environment not verified; real external MyFatoorah network not verified; external provider execution not verified; 7 baseline skipped tests unchanged).
+  - Authority: Senior Software Architect + Backend Lead + QA/Security/Performance Engineer.
+  - Documentation Paths:
+    - Audit: `conception/Stages/Stage Architecture/Phase Modular Monolith/Step 09/AUDIT.md`
+    - Report: `conception/Stages/Stage Architecture/Phase Modular Monolith/Step 09/REPORT.md`
+  - Invariant Principle: Physical architecture migration only. Shipping calculations/provider contracts, chat channels/messages/realtime dispatch, notification delivery pipeline/circuit breaker/push providers, analytics aggregation/tracking, blog publishing, customer project management, platform runtime health checks, and admin management/RBAC operations preserved with zero behavioral modification.
+  - Domains Migrated (234 total PHP files moved via history-preserving `git mv`):
+    - **Shipping Domain (18 files) -> `App\Domains\Shipping\*`:**
+      - **1 Controller:** `VendorShippingSettingsController` -> `App\Domains\Shipping\Controllers\*`.
+      - **1 Request:** `UpdateVendorShippingSettingsRequest` -> `App\Domains\Shipping\Requests\*`.
+      - **2 Resources:** `ShipmentResource`, `VendorShippingSettingsResource` -> `App\Domains\Shipping\Resources\*`.
+      - **2 Contracts:** `ShippingCalculatorInterface`, `ShippingProviderInterface` -> `App\Domains\Shipping\Contracts\*`.
+      - **2 DTOs:** `ShippingQuote`, `ShippingQuoteContext` -> `App\Domains\Shipping\Services\DTO\*`.
+      - **3 Strategies:** `CarrierFlatRateStrategy`, `PickupStrategy`, `ShippingMethodStrategy` -> `App\Domains\Shipping\Services\Strategies\*`.
+      - **7 Services:** `ShippingConfigCache`, `ShippingQuoteService`, `ShippingRuleCatalog`, `ShippingRuleEngine`, `ShippingWeightCalculator`, `VendorShippingSettingsService`, `ZoneResolver` -> `App\Domains\Shipping\Services\*`.
+    - **Chat Domain (27 files) -> `App\Domains\Chat\*`:**
+      - **6 Controllers:** `ChatConversationController`, `ChatMessageController`, `ChatParticipantController`, `ChatReadController`, `ChatSearchController`, `VendorChatController` -> `App\Domains\Chat\Controllers\*`.
+      - **5 Requests:** `ArchiveChatConversationRequest`, `AssignChatConversationRequest`, `MarkChatReadRequest`, `SendChatMessageRequest`, `StartChatConversationRequest` -> `App\Domains\Chat\Requests\*`.
+      - **5 Resources:** `ChatConversationResource`, `ChatMessageResource`, `ChatParticipantResource`, `ChatAttachmentResource`, `ChatSearchResultResource` -> `App\Domains\Chat\Resources\*`.
+      - **10 Services:** `ChatAccessService`, `ChatAttachmentService`, `ChatAuthorizationService`, `ChatBroadcastService`, `ChatConversationService`, `ChatMessageService`, `ChatMetricsService`, `ChatReadStateService`, `ChatSearchService`, `ChatRealtimePresenceService` -> `App\Domains\Chat\Services\*`.
+      - **1 Job:** `ArchiveStaleConversationsJob` -> `App\Domains\Chat\Jobs\*`.
+    - **Notifications Domain (33 files) -> `App\Domains\Notifications\*`:**
+      - **2 Controllers:** `NotificationController`, `NotificationPreferenceController` -> `App\Domains\Notifications\Controllers\*`.
+      - **3 Requests:** `BulkNotificationActionRequest`, `UpdateNotificationChannelsRequest`, `UpdateNotificationPreferencesRequest` -> `App\Domains\Notifications\Requests\*`.
+      - **2 Resources:** `NotificationHistoryResource`, `NotificationPreferenceResource` -> `App\Domains\Notifications\Resources\*`.
+      - **2 Contracts:** `PushNotificationProviderInterface`, `PushProviderInterface` -> `App\Domains\Notifications\Contracts\*`.
+      - **2 Channels:** `DatabaseNotificationChannel`, `PushNotificationChannel` -> `App\Domains\Notifications\Channels\*`.
+      - **19 Services:** `BatchNotificationService`, `BroadcastNotificationService`, `CrossChannelDeliveryOrchestrator`, `DatabaseNotificationService`, `DirectNotificationDeliveryService`, `FcmNotificationService`, `NotificationAggregationService`, `NotificationCircuitBreakerService`, `NotificationCounterService`, `NotificationDeliveryService`, `NotificationEventDispatcher`, `NotificationHistoryService`, `NotificationPayloadBuilder`, `NotificationPreferenceService`, `NotificationQueuePriorityResolver`, `NotificationRateLimiter`, `NotificationRenderer`, `NotificationRoutingService`, `NotificationUnreadCounterService` -> `App\Domains\Notifications\Services\*`.
+      - **5 Jobs:** `AggregateNotificationsJob`, `BatchSendNotificationsJob`, `DispatchNotificationJob`, `ProcessNotificationDeliveryJob`, `PruneNotificationHistoryJob` -> `App\Domains\Notifications\Jobs\*`.
+    - **Analytics Domain (10 files) -> `App\Domains\Analytics\*`:**
+      - **8 Services:** `AdminAnalyticsService`, `AnalyticsAggregationService`, `AnalyticsCacheService`, `AnalyticsExportService`, `AnalyticsQueryService`, `BusinessIntelligenceService`, `ProductAnalyticsService`, `VendorAnalyticsService` -> `App\Domains\Analytics\Services\*`.
+      - **2 Jobs:** `AggregateDailyAnalyticsJob`, `ProcessAnalyticsEventsJob` -> `App\Domains\Analytics\Jobs\*`.
+    - **Blog Domain (13 files) -> `App\Domains\Blog\*`:**
+      - **4 Controllers:** `BlogArticleController`, `BlogCategoryController`, `BlogTagController`, `BlogCommentController` -> `App\Domains\Blog\Controllers\*`.
+      - **4 Requests:** `StoreBlogArticleRequest`, `UpdateBlogArticleRequest`, `StoreBlogCategoryRequest`, `StoreBlogCommentRequest` -> `App\Domains\Blog\Requests\*`.
+      - **3 Resources:** `BlogArticleResource`, `BlogCategoryResource`, `BlogTagResource` -> `App\Domains\Blog\Resources\*`.
+      - **2 Services:** `BlogArticleService`, `BlogSearchService` -> `App\Domains\Blog\Services\*`.
+    - **Projects Domain (7 files) -> `App\Domains\Projects\*`:**
+      - **2 Controllers:** `ProjectController`, `ProjectCollaboratorController` -> `App\Domains\Projects\Controllers\*`.
+      - **2 Requests:** `StoreProjectRequest`, `UpdateProjectRequest` -> `App\Domains\Projects\Requests\*`.
+      - **2 Resources:** `ProjectResource`, `ProjectDetailResource` -> `App\Domains\Projects\Resources\*`.
+      - **1 Service:** `ProjectService` -> `App\Domains\Projects\Services\*`.
+    - **Assistant Domain (4 files) -> `App\Domains\Assistant\*`:**
+      - **1 Controller:** `AssistantConversationController` -> `App\Domains\Assistant\Controllers\*`.
+      - **1 Request:** `AssistantMessageRequest` -> `App\Domains\Assistant\Requests\*`.
+      - **2 Services:** `AssistantEngineService`, `AssistantContextBuilder` -> `App\Domains\Assistant\Services\*`.
+    - **Platform Domain (22 files) -> `App\Domains\Platform\*`:**
+      - **4 Controllers:** `HealthController`, `RuntimeEnvironmentController`, `SystemMaintenanceController`, `PlatformMetricsController` -> `App\Domains\Platform\Controllers\*`.
+      - **2 Requests:** `UpdateMaintenanceModeRequest`, `SystemDiagnosticRequest` -> `App\Domains\Platform\Requests\*`.
+      - **3 Resources:** `HealthStatusResource`, `RuntimeEnvironmentResource`, `PlatformMetricResource` -> `App\Domains\Platform\Resources\*`.
+      - **13 Services:** `ApplicationVersionService`, `CacheDiagnosticService`, `DatabaseDiagnosticService`, `EnvironmentValidatorService`, `HealthCheckRegistryService`, `MaintenanceModeService`, `NetworkDiagnosticService`, `PhpRuntimeValidatorService`, `PlatformAuditService`, `PlatformTelemetryService`, `QueueDiagnosticService`, `StorageDiagnosticService`, `SystemInformationService` -> `App\Domains\Platform\Services\*`.
+    - **Admin Domain (97 files) -> `App\Domains\Admin\*`:**
+      - **29 Controllers:** `AdminAuthController`, `AdminAuditLogController`, `AdminBlogArticleController`, `AdminBlogCategoryController`, `AdminBlogTagController`, `AdminCommissionConfigController`, `AdminCouponController`, `AdminDashboardController`, `AdminEscrowHoldController`, `AdminFaqController`, `AdminFeaturedStoreController`, `AdminFinancialTransactionController`, `AdminLoyaltyController`, `AdminNotificationController`, `AdminOrderController`, `AdminPayoutBatchController`, `AdminPayoutController`, `AdminPlatformConfigController`, `AdminProductApprovalController`, `AdminProductController`, `AdminProviderAccountController`, `AdminProviderPayoutController`, `AdminReturnController`, `AdminReviewController`, `AdminRolePermissionController`, `AdminServiceBookingController`, `AdminServiceRequestController`, `AdminUserController`, `AdminVendorAccountController` -> `App\Domains\Admin\Controllers\*`.
+      - **23 Requests:** `AdminLoginRequest`, `AdminPasswordUpdateRequest`, `AdminProductActionRequest`, `AdminRoleAssignRequest`, `AdminUserUpdateRequest`, `ApproveRejectProviderRequest`, `BulkAuditExportRequest`, `CancelOrderAdminRequest`, `CreatePayoutBatchRequest`, `ExportAdminReportRequest`, `ModerateReviewRequest`, `RefundOrderAdminRequest`, `ResolveDisputeAdminRequest`, `StoreAdminFaqRequest`, `StoreAdminRoleRequest`, `StoreAdminUserRequest`, `StoreCommissionConfigRequest`, `UpdateAdminCommissionRuleRequest`, `UpdateAdminFaqRequest`, `UpdateAdminPlatformConfigRequest`, `UpdateAdminRoleRequest`, `UpdateAdminUserRequest`, `UpdateVendorCommissionTierRequest` -> `App\Domains\Admin\Requests\*`.
+      - **21 Resources:** `AdminAuditLogResource`, `AdminDashboardSummaryResource`, `AdminFinancialSummaryResource`, `AdminNotificationTemplateResource`, `AdminOrderSummaryResource`, `AdminPayoutBatchResource`, `AdminPermissionResource`, `AdminPlatformMetricResource`, `AdminProductApprovalResource`, `AdminRoleResource`, `AdminSystemSettingResource`, `AdminUserDetailResource`, `AdminUserResource`, `AdminVendorAccountResource`, `AuditLogExportResource`, `CommissionConfigResource`, `DisputeCaseResource`, `FaqItemResource`, `FeaturedStoreResource`, `ModerationQueueResource`, `VendorCommissionTierResource` -> `App\Domains\Admin\Resources\*`.
+      - **21 Services:** `AdminAccessControlService`, `AdminAuditService`, `AdminAuthenticationService`, `AdminBulkActionService`, `AdminDashboardService`, `AdminDisputeResolutionService`, `AdminEscrowManagementService`, `AdminExportService`, `AdminFaqService`, `AdminFinancialOverviewService`, `AdminModerationService`, `AdminNotificationService`, `AdminOrderManagementService`, `AdminPayoutBatchService`, `AdminPermissionService`, `AdminPlatformSettingService`, `AdminProductApprovalService`, `AdminReportService`, `AdminRoleService`, `AdminUserManagementService`, `SystemSettingService` -> `App\Domains\Admin\Services\*`.
+      - **3 Jobs:** `AdminAuditLogExportJob`, `ProcessAdminBulkActionJob`, `SyncAdminPermissionsJob` -> `App\Domains\Admin\Jobs\*`.
+    - **Stragglers (3 files):**
+      - `VendorService` -> `App\Domains\Vendors\Services\VendorService`
+      - `ServiceListRequest` -> `App\Domains\ServicesMarketplace\Requests\ServiceListRequest`
+      - `WishlistController` -> `App\Domains\Identity\Controllers\WishlistController`
+  - Intentionally Excluded & Protected (Framework Boundaries & Models):
+    - Centralized Eloquent Models: 114 models preserved in `app/Models/*` (0 models moved).
+    - Policies: 20 policies preserved in `app/Policies/*` for Laravel framework convention.
+    - Enums: 81 enums preserved in `app/Enums/*`.
+    - Console Commands: 28 console commands preserved in `app/Console/*`.
+    - Events & Listeners: 30 domain events in `app/Events/*`, 14 listeners in `app/Listeners/*`.
+    - Infrastructure Providers: `App\Infrastructure\Notifications\*` (`ApnsPushProvider`, `FcmPushProvider`, `LogPushProvider`, `CompositePushProvider`).
+    - Deferred Seam Candidates (Step 10): `App\Services\Finance\*` (18 classes), `App\Services\Media\*` (2 classes), `App\Support\Cache\*` (2 classes).
+  - Reference Updates: Updated across `routes/api.php`, `routes/channels.php`, `routes/console.php`, `AppServiceProvider` (with `class_alias` backward-compatibility bridge for migration runners), event listeners, policies, and test suites.
+  - Static Reference Audit: 0 stale references found across active codebase (`STALE_REFERENCES_FOUND=0`).
+  - Database Migration Protection: 0 migration files modified (`git diff backend/database/migrations` is completely empty).
+  - Autoload Verification: `composer dump-autoload` PASSED (8,620 classes mapped).
+  - Route Invariant: Exactly 528 routes registered (522 API v1 + 6 platform routes). Zero route diffs.
+  - Test Suite Certification:
+    - Backend: 1,108 tests (1,101 passed, 7 skipped, 0 failed, 4,560 assertions, duration: 114.7s).
+    - Shipping Targeted Tests: 44/44 passed.
+    - Chat Targeted Tests: 40/40 passed.
+    - Notifications Targeted Tests: 43/43 passed.
+    - Analytics/Blog/Projects/Assistant Targeted Tests: 60/60 passed.
+    - Platform Targeted Tests: 59/59 passed.
+    - Admin Targeted Tests: 162/162 passed (2 skipped).
+    - Frontend: 87/87 test files passed (350/350 tests, duration: 32.5s).
+    - Frontend Build: `npm run build` PASS (28.64s).
+  - Baseline Commit: `292353b`
+  - Next Approved Step: Step 10 — Backend Architecture Seams / Cleanup.
+- **Git Status:** dev branch, ready for commit `refactor(architecture): migrate remaining backend domains`.
+

@@ -6,7 +6,7 @@ use App\Enums\AdminPermission;
 use App\Enums\RoleName;
 use App\Models\Permission;
 use App\Models\Role;
-use App\Services\Admin\AdminPermissionService;
+use App\Domains\Admin\Services\AdminPermissionService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 

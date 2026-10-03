@@ -9,7 +9,7 @@ use App\Models\AffiliateLink;
 use App\Models\AffiliateProfile;
 use App\Models\ProductAffiliateSetting;
 use App\Models\User;
-use App\Services\Analytics\AnalyticsTimeBuckets;
+use App\Domains\Analytics\Services\AnalyticsTimeBuckets;
 use App\Services\Media\MediaUploadService;
 use App\Support\Vendor\VendorOwnership;
 use Carbon\Carbon;

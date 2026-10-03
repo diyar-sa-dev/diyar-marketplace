@@ -4,7 +4,7 @@ namespace Tests\Feature\Api\V1\Analytics;
 
 use App\Enums\AnalyticsEventType;
 use App\Enums\RoleName;
-use App\Jobs\Analytics\RecordAnalyticsEventJob;
+use App\Domains\Analytics\Jobs\RecordAnalyticsEventJob;
 use App\Models\AnalyticsEvent;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;

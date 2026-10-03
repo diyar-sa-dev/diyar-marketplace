@@ -2,7 +2,7 @@
 
 use App\Console\Commands\ExpireUnpaidServiceBookingsCommand;
 use App\Console\Commands\ReleaseExpiredInventoryReservations;
-use App\Jobs\Chat\ArchiveOldMessagesJob;
+use App\Domains\Chat\Jobs\ArchiveOldMessagesJob;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;

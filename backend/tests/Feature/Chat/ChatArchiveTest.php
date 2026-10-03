@@ -7,7 +7,7 @@ use App\Enums\RoleName;
 use App\Models\ChatArchiveBatch;
 use App\Models\Message;
 use App\Models\VendorAccount;
-use App\Services\Chat\ChatArchiveService;
+use App\Domains\Chat\Services\ChatArchiveService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\Concerns\InteractsWithIdentity;

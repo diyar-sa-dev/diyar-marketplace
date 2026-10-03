@@ -2,12 +2,12 @@
 
 namespace App\Events\Domain;
 
-use App\Contracts\Notifications\TriggersNotification;
+use App\Domains\Notifications\Contracts\TriggersNotification;
 use App\Enums\NotificationType;
 use App\Models\ServiceBooking;
 use App\Models\User;
-use App\Services\Notifications\NotificationContextBuilder;
-use App\Services\Notifications\NotificationIntent;
+use App\Domains\Notifications\Services\NotificationContextBuilder;
+use App\Domains\Notifications\Services\NotificationIntent;
 use App\Support\Notifications\NotificationUrlSupport;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;

@@ -2,17 +2,17 @@
 
 namespace App\Domains\Catalog\Services;
 
-use App\Http\Resources\BlogArticleCardResource;
+use App\Domains\Blog\Resources\BlogArticleCardResource;
 use App\Domains\Catalog\Resources\CategoryResource;
 use App\Domains\Catalog\Resources\ProductCardResource;
 use App\Domains\ServicesMarketplace\Resources\ServiceCardResource;
 use App\Domains\Vendors\Resources\VendorCardResource;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\Blog\BlogQueryService;
+use App\Domains\Blog\Services\BlogQueryService;
 use App\Domains\Catalog\Services\CategoryService;
 use App\Domains\Catalog\Services\ProductService;
-use App\Services\Catalog\VendorService;
+use App\Domains\Vendors\Services\VendorService;
 use App\Domains\ServicesMarketplace\Services\ServiceCatalogService;
 use App\Core\Support\Cache\StampedeSafeCache;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

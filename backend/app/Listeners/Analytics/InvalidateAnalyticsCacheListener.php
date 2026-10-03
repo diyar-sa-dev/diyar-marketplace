@@ -7,7 +7,7 @@ use App\Events\Domain\BookingCreated;
 use App\Events\Domain\OrderCreated;
 use App\Events\Domain\PaymentFailed;
 use App\Events\Domain\PaymentSucceeded;
-use App\Services\Analytics\AnalyticsCacheInvalidator;
+use App\Domains\Analytics\Services\AnalyticsCacheInvalidator;
 
 final class InvalidateAnalyticsCacheListener
 {

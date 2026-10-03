@@ -2,7 +2,7 @@
 
 namespace App\Domains\Affiliate\Services;
 
-use App\Services\Settings\EffectiveConfigService;
+use App\Domains\Platform\Services\EffectiveConfigService;
 
 final class AffiliatePlatformConfigService
 {

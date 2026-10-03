@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Contracts\Notifications\PushProviderInterface;
+use App\Domains\Notifications\Contracts\PushProviderInterface;
 use App\Events\Domain\B2bCompanyPublished;
 use App\Events\Domain\B2bLeadAccepted;
 use App\Events\Domain\B2bLeadReceived;

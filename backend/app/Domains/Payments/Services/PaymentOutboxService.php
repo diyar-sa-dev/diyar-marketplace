@@ -2,7 +2,7 @@
 
 namespace App\Domains\Payments\Services;
 
-use App\Services\Outbox\DomainOutboxPublisher;
+use App\Domains\Platform\Services\DomainOutboxPublisher;
 use Illuminate\Support\Str;
 
 final class PaymentOutboxService

@@ -3,8 +3,8 @@
 namespace Tests\Feature\Api\V1\Analytics;
 
 use App\Enums\RoleName;
-use App\Services\Analytics\AnalyticsCache;
-use App\Services\Analytics\AnalyticsCacheInvalidator;
+use App\Domains\Analytics\Services\AnalyticsCache;
+use App\Domains\Analytics\Services\AnalyticsCacheInvalidator;
 use App\Domains\Payments\Services\PaymentFinalizationService;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;

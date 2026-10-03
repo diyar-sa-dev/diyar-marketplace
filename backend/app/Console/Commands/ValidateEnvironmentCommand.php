@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Infrastructure\EnvironmentSafetyValidator;
+use App\Domains\Platform\Services\EnvironmentSafetyValidator;
 use Illuminate\Console\Command;
 
 class ValidateEnvironmentCommand extends Command

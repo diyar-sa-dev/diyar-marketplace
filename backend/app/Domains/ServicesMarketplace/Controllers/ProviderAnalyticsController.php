@@ -3,8 +3,8 @@
 namespace App\Domains\ServicesMarketplace\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Services\Analytics\AnalyticsDateRangeResolver;
-use App\Services\Analytics\ProviderAnalyticsService;
+use App\Domains\Analytics\Services\AnalyticsDateRangeResolver;
+use App\Domains\Analytics\Services\ProviderAnalyticsService;
 use App\Domains\ServicesMarketplace\Services\ProviderAccountResolver;
 use App\Domains\ServicesMarketplace\Services\ProviderFinanceService;
 use App\Core\Support\Api\ApiResponse;

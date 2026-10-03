@@ -3,7 +3,7 @@
 namespace Tests\Feature\Api\V1\Catalog;
 
 use App\Enums\RoleName;
-use App\Jobs\Analytics\RecordAnalyticsEventJob;
+use App\Domains\Analytics\Jobs\RecordAnalyticsEventJob;
 use App\Models\Category;
 use App\Models\Product;
 use App\Domains\Catalog\Services\CatalogCacheInvalidator;

@@ -6,7 +6,7 @@ use App\Enums\NotificationType;
 use App\Enums\RoleName;
 use App\Events\Broadcast\UserNotificationCreated;
 use App\Models\User;
-use App\Services\Notifications\NotificationDispatcher;
+use App\Domains\Notifications\Services\NotificationDispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Tests\Concerns\InteractsWithIdentity;

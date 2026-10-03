@@ -2,7 +2,7 @@
 
 namespace App\Core\Middleware;
 
-use App\Services\Settings\EffectiveConfigService;
+use App\Domains\Platform\Services\EffectiveConfigService;
 use App\Core\Support\Api\ApiResponse;
 use Closure;
 use Illuminate\Http\Request;

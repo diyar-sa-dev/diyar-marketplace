@@ -8,7 +8,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Models\VisualIndexEntry;
 use App\Domains\Catalog\Services\ProductService;
-use App\Services\Settings\EffectiveConfigService;
+use App\Domains\Platform\Services\EffectiveConfigService;
 use App\Core\Support\Cache\CacheKeys;
 use App\Core\Support\Cache\StampedeSafeCache;
 use App\Core\Support\Pagination\PaginationBounds;

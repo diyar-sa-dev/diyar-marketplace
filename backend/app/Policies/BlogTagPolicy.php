@@ -5,7 +5,7 @@ namespace App\Policies;
 use App\Enums\AdminPermission;
 use App\Models\BlogTag;
 use App\Models\User;
-use App\Services\Admin\AdminPermissionService;
+use App\Domains\Admin\Services\AdminPermissionService;
 
 class BlogTagPolicy
 {

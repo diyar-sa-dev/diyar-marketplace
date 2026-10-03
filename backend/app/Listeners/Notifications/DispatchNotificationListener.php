@@ -2,8 +2,8 @@
 
 namespace App\Listeners\Notifications;
 
-use App\Contracts\Notifications\TriggersNotification;
-use App\Services\Notifications\NotificationDispatcher;
+use App\Domains\Notifications\Contracts\TriggersNotification;
+use App\Domains\Notifications\Services\NotificationDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 

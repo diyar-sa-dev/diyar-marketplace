@@ -11,7 +11,7 @@ use App\Models\B2bCompanyService;
 use App\Models\B2bCompanyTestimonial;
 use App\Models\B2bTag;
 use App\Models\User;
-use App\Services\Admin\AdminAuditService;
+use App\Domains\Admin\Services\AdminAuditService;
 use App\Support\Cache\B2bCache;
 use Illuminate\Support\Facades\DB;
 

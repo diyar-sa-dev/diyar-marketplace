@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services\Notifications;
 
 use App\Enums\NotificationFailureCategory;
-use App\Services\Notifications\NotificationCircuitBreaker;
+use App\Domains\Notifications\Services\NotificationCircuitBreaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use RuntimeException;

@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Domains\Notifications\Channels;
+
+use App\Domains\Notifications\Contracts\NotificationChannelInterface;
+use App\Domains\Notifications\Contracts\PushProviderInterface;
+use App\Enums\NotificationChannel;
+use App\Infrastructure\Notifications\PushProviderException;
+use App\Models\NotificationDelivery;
+use App\Models\NotificationDevice;
+use App\Models\User;
+use App\Models\UserNotification;
+use App\Domains\Notifications\Services\NotificationCircuitBreaker;
+use App\Domains\Notifications\Services\NotificationDeviceService;
+use RuntimeException;
+
+final class PushNotificationChannel implements NotificationChannelInterface
+{
+    public function __construct(
+        private readonly PushProviderInterface $pushProvider,
+        private readonly NotificationCircuitBreaker $circuitBreaker,
+        private readonly NotificationDeviceService $devices,
+    ) {}
+
+    public function channel(): NotificationChannel
+    {
+        return NotificationChannel::Push;
+    }
+
+    public function deliver(
+        User $recipient,
+        UserNotification $notification,
+        NotificationDelivery $delivery,
+        array $payload,
+    ): void {
+        $this->circuitBreaker->assertAvailable('push');
+
+        $devices = NotificationDevice::query()
+            ->where('user_id', $recipient->id)
+            ->where('active', true)
+            ->get()
+            ->all();
+
+        if ($devices === []) {
+            throw new RuntimeException('No active push devices.');
+        }
+
+        try {
+            $result = $this->pushProvider->send($recipient, $notification, $devices, $payload);
+
+            if ($result->invalidDeviceIds !== []) {
+                $this->devices->deactivateByIds($recipient, $result->invalidDeviceIds);
+            }
+        } catch (PushProviderException $exception) {
+            if ($exception->permanent) {
+                throw new RuntimeException($exception->getMessage(), previous: $exception);
+            }
+
+            throw $exception;
+        }
+    }
+}

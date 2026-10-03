@@ -5,7 +5,7 @@ namespace Tests\Feature\Api\V1\Profile;
 use App\Enums\NotificationType;
 use App\Enums\RoleName;
 use App\Models\UserNotification;
-use App\Services\Notifications\NotificationDispatcher;
+use App\Domains\Notifications\Services\NotificationDispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;

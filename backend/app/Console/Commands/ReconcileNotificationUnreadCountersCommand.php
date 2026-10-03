@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use App\Models\UserNotification;
-use App\Services\Notifications\NotificationUnreadCounterService;
+use App\Domains\Notifications\Services\NotificationUnreadCounterService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 

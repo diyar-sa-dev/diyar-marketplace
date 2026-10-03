@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Infrastructure;
 
-use App\Services\Infrastructure\EnvironmentSafetyValidator;
+use App\Domains\Platform\Services\EnvironmentSafetyValidator;
 use Tests\TestCase;
 
 class EnvironmentSafetyValidatorTest extends TestCase

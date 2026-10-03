@@ -3,7 +3,7 @@
 namespace Tests\Feature\Api\V1\Analytics;
 
 use App\Enums\RoleName;
-use App\Services\Analytics\AnalyticsCache;
+use App\Domains\Analytics\Services\AnalyticsCache;
 use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;

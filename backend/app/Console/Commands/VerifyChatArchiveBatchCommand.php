@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Chat\ChatArchiveService;
+use App\Domains\Chat\Services\ChatArchiveService;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 

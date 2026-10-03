@@ -3,7 +3,7 @@
 namespace App\Listeners\Chat;
 
 use App\Events\Domain\MessageCreated;
-use App\Services\Chat\ChatCacheService;
+use App\Domains\Chat\Services\ChatCacheService;
 use Illuminate\Support\Facades\Log;
 
 final class InvalidateChatCacheListener

@@ -1,0 +1,151 @@
+<?php
+
+namespace App\Domains\Admin\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Domains\Admin\Requests\StoreCategoryRequest;
+use App\Domains\Admin\Requests\UpdateCategoryRequest;
+use App\Domains\Catalog\Resources\CategoryResource;
+use App\Models\Category;
+use App\Models\User;
+use App\Domains\Admin\Services\AdminCategoryService;
+use App\Domains\Catalog\Services\CategoryService;
+use App\Core\Support\Api\ApiResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+class CategoryController extends Controller
+{
+    public function __construct(
+        private readonly CategoryService $categories,
+        private readonly AdminCategoryService $adminCategories,
+    ) {}
+
+    public function index(): JsonResponse
+    {
+        $this->authorize('viewAny', Category::class);
+
+        $items = $this->categories->listAll();
+
+        return ApiResponse::success(data: [
+            'categories' => CategoryResource::collection($items),
+        ]);
+    }
+
+    public function store(StoreCategoryRequest $request): JsonResponse
+    {
+        $this->authorize('create', Category::class);
+
+        $category = $this->adminCategories->create(
+            $request->validated(),
+            $this->adminActor($request),
+        );
+
+        return ApiResponse::success(
+            data: ['category' => new CategoryResource($category)],
+            status: 201,
+        );
+    }
+
+    public function show(string $category): JsonResponse
+    {
+        $model = Category::query()->with(['parent', 'children'])->find($category);
+        if ($model === null) {
+            throw new NotFoundHttpException(__('diyar.catalog.category_not_found'));
+        }
+
+        $this->authorize('view', $model);
+
+        return ApiResponse::success(data: [
+            'category' => new CategoryResource($model),
+        ]);
+    }
+
+    public function update(UpdateCategoryRequest $request, string $category): JsonResponse
+    {
+        $model = Category::query()->find($category);
+        if ($model === null) {
+            throw new NotFoundHttpException(__('diyar.catalog.category_not_found'));
+        }
+
+        $this->authorize('update', $model);
+
+        $updated = $this->adminCategories->update(
+            $model,
+            $request->validated(),
+            $this->adminActor($request),
+        );
+
+        return ApiResponse::success(data: [
+            'category' => new CategoryResource($updated),
+        ]);
+    }
+
+    public function destroy(Request $request, string $category): JsonResponse
+    {
+        $model = Category::query()->find($category);
+        if ($model === null) {
+            throw new NotFoundHttpException(__('diyar.catalog.category_not_found'));
+        }
+
+        $this->authorize('delete', $model);
+
+        $this->adminCategories->delete($model, $this->adminActor($request));
+
+        return ApiResponse::success();
+    }
+
+    public function uploadImage(Request $request, string $category): JsonResponse
+    {
+        $model = Category::query()->find($category);
+        if ($model === null) {
+            throw new NotFoundHttpException(__('diyar.catalog.category_not_found'));
+        }
+
+        $this->authorize('update', $model);
+
+        $maxKb = (int) config('diyar_media.max_upload_kb', 5120);
+        $validated = $request->validate([
+            'image' => ['required', 'file', 'max:'.$maxKb, 'mimes:jpg,jpeg,png,webp'],
+        ]);
+
+        try {
+            $updated = $this->adminCategories->uploadImage(
+                $model,
+                $validated['image'],
+                $this->adminActor($request),
+            );
+        } catch (\InvalidArgumentException $exception) {
+            return ApiResponse::error($exception->getMessage(), 422);
+        }
+
+        return ApiResponse::success(data: [
+            'category' => new CategoryResource($updated),
+        ]);
+    }
+
+    public function deleteImage(Request $request, string $category): JsonResponse
+    {
+        $model = Category::query()->find($category);
+        if ($model === null) {
+            throw new NotFoundHttpException(__('diyar.catalog.category_not_found'));
+        }
+
+        $this->authorize('update', $model);
+
+        $updated = $this->adminCategories->deleteImage($model, $this->adminActor($request));
+
+        return ApiResponse::success(data: [
+            'category' => new CategoryResource($updated),
+        ]);
+    }
+
+    private function adminActor(Request $request): User
+    {
+        /** @var User $admin */
+        $admin = $request->user('admin');
+
+        return $admin;
+    }
+}

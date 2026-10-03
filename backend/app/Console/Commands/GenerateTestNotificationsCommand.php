@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Enums\NotificationType;
 use App\Models\User;
 use App\Models\UserNotification;
-use App\Services\Notifications\NotificationDispatcher;
+use App\Domains\Notifications\Services\NotificationDispatcher;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Infrastructure\PhpRuntimeValidator;
+use App\Domains\Platform\Services\PhpRuntimeValidator;
 use Illuminate\Console\Command;
 
 class ValidatePhpRuntimeCommand extends Command

@@ -13,7 +13,7 @@ use App\Models\PaymentVendorAllocation;
 use App\Models\VendorAccount;
 use App\Models\VendorOrder;
 use App\Models\VendorPayout;
-use App\Services\Analytics\AnalyticsTimeBuckets;
+use App\Domains\Analytics\Services\AnalyticsTimeBuckets;
 use App\Services\Finance\DTO\VendorFinanceAnalyticsPoint;
 use App\Services\Finance\DTO\VendorFinancePeriodReport;
 use Carbon\CarbonImmutable;

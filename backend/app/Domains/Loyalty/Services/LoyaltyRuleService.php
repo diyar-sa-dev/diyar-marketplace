@@ -2,7 +2,7 @@
 
 namespace App\Domains\Loyalty\Services;
 
-use App\Services\Settings\EffectiveConfigService;
+use App\Domains\Platform\Services\EffectiveConfigService;
 
 /**
  * Centralized loyalty earning rules.

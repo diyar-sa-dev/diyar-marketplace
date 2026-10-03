@@ -7,7 +7,7 @@ use App\Enums\ShippingMethod;
 use App\Models\Product;
 use App\Models\VendorAccount;
 use App\Models\VendorShippingSettings;
-use App\Services\Shipping\ShippingQuoteService;
+use App\Domains\Shipping\Services\ShippingQuoteService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithCheckout;
 use Tests\Concerns\InteractsWithIdentity;

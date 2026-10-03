@@ -5,7 +5,7 @@ namespace App\Domains\Vendors\Services;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorStoreFollow;
-use App\Services\Catalog\VendorService;
+use App\Domains\Vendors\Services\VendorService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 

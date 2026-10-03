@@ -3,7 +3,7 @@
 namespace App\Domains\Orders\Resources;
 
 use App\Enums\AddressType;
-use App\Http\Resources\ShipmentResource;
+use App\Domains\Shipping\Resources\ShipmentResource;
 use App\Models\VendorOrder;
 use App\Domains\Payments\Services\PaymentMethodLabelResolver;
 use Illuminate\Http\Request;

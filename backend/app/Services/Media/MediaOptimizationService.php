@@ -2,7 +2,7 @@
 
 namespace App\Services\Media;
 
-use App\Services\Settings\EffectiveConfigService;
+use App\Domains\Platform\Services\EffectiveConfigService;
 use App\Core\Support\Media\OptimizedMedia;
 use GdImage;
 use Illuminate\Http\UploadedFile;

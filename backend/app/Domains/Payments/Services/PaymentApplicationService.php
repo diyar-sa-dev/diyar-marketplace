@@ -10,7 +10,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentAttempt;
 use App\Models\User;
-use App\Services\Analytics\AnalyticsEventRecorder;
+use App\Domains\Analytics\Services\AnalyticsEventRecorder;
 use App\Domains\Payments\Services\PaymentStateService;
 use App\Domains\Payments\Services\DTO\PaymentMethodCapability;
 use App\Domains\Payments\Services\DTO\PaymentMethodsRequest;

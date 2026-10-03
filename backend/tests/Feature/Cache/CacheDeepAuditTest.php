@@ -3,7 +3,7 @@
 namespace Tests\Feature\Cache;
 
 use App\Enums\RoleName;
-use App\Services\Admin\AdminPermissionService;
+use App\Domains\Admin\Services\AdminPermissionService;
 use App\Domains\Catalog\Services\CatalogCacheInvalidator;
 use App\Core\Support\Cache\CacheKeys;
 use App\Core\Support\Cache\StampedeSafeCache;

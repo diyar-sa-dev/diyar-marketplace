@@ -9,7 +9,7 @@ use App\Enums\ServiceBookingStatus;
 use App\Models\ProviderAccount;
 use App\Models\ProviderPayout;
 use App\Models\ServiceBooking;
-use App\Services\Analytics\AnalyticsTimeBuckets;
+use App\Domains\Analytics\Services\AnalyticsTimeBuckets;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;

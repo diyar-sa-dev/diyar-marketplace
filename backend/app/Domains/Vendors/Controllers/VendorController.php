@@ -8,7 +8,7 @@ use App\Domains\Catalog\Resources\ProductCardResource;
 use App\Domains\Vendors\Resources\VendorCardResource;
 use App\Domains\Vendors\Resources\VendorPublicResource;
 use App\Domains\Catalog\Services\ProductService;
-use App\Services\Catalog\VendorService;
+use App\Domains\Vendors\Services\VendorService;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

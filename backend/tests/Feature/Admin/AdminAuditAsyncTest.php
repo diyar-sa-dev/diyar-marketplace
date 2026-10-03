@@ -3,10 +3,10 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\RoleName;
-use App\Jobs\Admin\RecordAdminAuditLogJob;
+use App\Domains\Admin\Jobs\RecordAdminAuditLogJob;
 use App\Models\AdminAuditLog;
 use App\Models\User;
-use App\Services\Admin\AdminAuditService;
+use App\Domains\Admin\Services\AdminAuditService;
 use Database\Seeders\AdminPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;

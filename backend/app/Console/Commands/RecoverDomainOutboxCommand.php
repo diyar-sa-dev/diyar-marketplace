@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Outbox\DomainOutboxProcessor;
+use App\Domains\Platform\Services\DomainOutboxProcessor;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 

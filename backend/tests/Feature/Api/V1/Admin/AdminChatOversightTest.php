@@ -4,7 +4,7 @@ namespace Tests\Feature\Api\V1\Admin;
 
 use App\Enums\NotificationType;
 use App\Enums\RoleName;
-use App\Jobs\Admin\RecordAdminAuditLogJob;
+use App\Domains\Admin\Jobs\RecordAdminAuditLogJob;
 use App\Models\ChatMessageReport;
 use App\Models\Message;
 use App\Models\Permission;

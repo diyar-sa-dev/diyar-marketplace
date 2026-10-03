@@ -5,7 +5,7 @@ namespace Tests\Unit\Services\Notifications;
 use App\Enums\NotificationType;
 use App\Enums\RoleName;
 use App\Models\UserNotification;
-use App\Services\Notifications\NotificationUnreadCounterService;
+use App\Domains\Notifications\Services\NotificationUnreadCounterService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\Concerns\InteractsWithIdentity;

@@ -5,7 +5,7 @@ namespace Tests\Unit\Services\Shipping;
 use App\Models\Address;
 use App\Models\ShippingCarrier;
 use App\Models\ShippingZone;
-use App\Services\Shipping\ZoneResolver;
+use App\Domains\Shipping\Services\ZoneResolver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

@@ -2,23 +2,23 @@
 
 namespace Tests\Feature\Notifications;
 
-use App\Channels\Notifications\EmailNotificationChannel;
-use App\Channels\Notifications\InAppChannel;
-use App\Channels\Notifications\PushNotificationChannel;
-use App\Channels\Notifications\SmsNotificationChannel;
-use App\Contracts\Notifications\PushProviderInterface;
+use App\Domains\Notifications\Channels\EmailNotificationChannel;
+use App\Domains\Notifications\Channels\InAppChannel;
+use App\Domains\Notifications\Channels\PushNotificationChannel;
+use App\Domains\Notifications\Channels\SmsNotificationChannel;
+use App\Domains\Notifications\Contracts\PushProviderInterface;
 use App\Enums\NotificationChannel;
 use App\Enums\NotificationType;
 use App\Enums\RoleName;
 use App\Infrastructure\Notifications\PushSendResult;
-use App\Jobs\Notifications\DeliverNotificationChannelJob;
+use App\Domains\Notifications\Jobs\DeliverNotificationChannelJob;
 use App\Models\NotificationDelivery;
 use App\Models\NotificationDevice;
 use App\Models\UserNotification;
-use App\Services\Notifications\NotificationBroadcastProgressService;
-use App\Services\Notifications\NotificationCircuitBreaker;
-use App\Services\Notifications\NotificationDeliveryStateMachine;
-use App\Services\Notifications\NotificationDispatcher;
+use App\Domains\Notifications\Services\NotificationBroadcastProgressService;
+use App\Domains\Notifications\Services\NotificationCircuitBreaker;
+use App\Domains\Notifications\Services\NotificationDeliveryStateMachine;
+use App\Domains\Notifications\Services\NotificationDispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Mockery;

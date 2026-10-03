@@ -14,10 +14,10 @@ use App\Domains\Cart\Services\CartValidationService;
 use App\Domains\Coupons\Services\CheckoutCouponService;
 use App\Domains\Coupons\Services\CouponFreeShippingService;
 use App\Domains\Identity\Services\AddressService;
-use App\Services\Shipping\DTO\ShippingQuoteContext;
-use App\Services\Shipping\ShippingQuoteService;
-use App\Services\Shipping\ShippingRuleCatalog;
-use App\Services\Shipping\VendorShippingSettingsService;
+use App\Domains\Shipping\Services\DTO\ShippingQuoteContext;
+use App\Domains\Shipping\Services\ShippingQuoteService;
+use App\Domains\Shipping\Services\ShippingRuleCatalog;
+use App\Domains\Shipping\Services\VendorShippingSettingsService;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 

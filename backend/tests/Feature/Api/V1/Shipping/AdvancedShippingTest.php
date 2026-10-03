@@ -11,7 +11,7 @@ use App\Models\ShippingMethod as ShippingMethodModel;
 use App\Models\ShippingRateRule;
 use App\Models\ShippingZone;
 use App\Models\VendorShippingProfile;
-use App\Services\Shipping\ShippingWeightCalculator;
+use App\Domains\Shipping\Services\ShippingWeightCalculator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithCheckout;
 use Tests\Concerns\InteractsWithIdentity;

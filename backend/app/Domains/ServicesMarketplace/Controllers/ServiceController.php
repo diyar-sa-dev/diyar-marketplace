@@ -3,7 +3,7 @@
 namespace App\Domains\ServicesMarketplace\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Catalog\ServiceListRequest;
+use App\Domains\ServicesMarketplace\Requests\ServiceListRequest;
 use App\Domains\ServicesMarketplace\Resources\ServiceCardResource;
 use App\Domains\ServicesMarketplace\Resources\ServiceDetailResource;
 use App\Domains\ServicesMarketplace\Services\ServiceCatalogService;

@@ -3,7 +3,7 @@
 namespace App\Listeners\Chat;
 
 use App\Events\Domain\MessageCreated;
-use App\Services\Chat\ChatRealtimeBroadcaster;
+use App\Domains\Chat\Services\ChatRealtimeBroadcaster;
 
 final class BroadcastChatMessageListener
 {
