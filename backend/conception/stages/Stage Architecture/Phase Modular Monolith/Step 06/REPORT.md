@@ -25,7 +25,7 @@ Zero business logic, monetary calculation, VAT, decimal rounding, order numberin
 
 ## 3. Audit Findings
 
-Before physical migration, an exhaustive audit was performed (see `STEP6_COMMERCE_MIGRATION_AUDIT.md`) identifying:
+Before physical migration, an exhaustive audit was performed (see [`AUDIT.md`](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/backend/conception/stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2006/AUDIT.md)) identifying:
 - 84 classes directly belonging to Cart, Checkout, Orders, and Payments.
 - `PaymentStateService` historically placed under `app/Services/Order/PaymentStateService.php`, identifying it as the authoritative payment state transition machine heavily coupled with `Payment` and `PaymentVendorAllocation` lifecycle; moved canonically to `App\Domains\Payments\Services\PaymentStateService.php`.
 - Explicit cross-domain coupling (Checkout calling Cart, Catalog, Coupons; Orders calling Payments, Shipping, Coupons; Payments calling Orders; Returns calling Payments). Coupling preserved identically to protect monetary calculations and concurrency.

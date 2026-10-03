@@ -59,7 +59,7 @@ Prior to initiating Step 7 physical moves, the baseline environment was inspecte
 
 ## 3. Architecture Audit & Inventory
 
-The pre-migration architectural audit is documented in [`STEP7_SUPPORT_ENGAGEMENT_MIGRATION_AUDIT.md`](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/STEP7_SUPPORT_ENGAGEMENT_MIGRATION_AUDIT.md).
+The pre-migration architectural audit is documented in [`AUDIT.md`](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/backend/conception/stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2007/AUDIT.md).
 
 The audit identified 92 candidate classes across five core domains, categorized strictly by domain responsibility, while isolating cross-cutting administrative controllers and framework-level policies.
 
