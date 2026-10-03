@@ -388,15 +388,15 @@ Operational KVM2 capacity work (not a numbered Stage 31):
     - Commerce-Adjacent Targeted Tests: 137/137 passed (733 assertions).
     - Frontend: 87/87 test files passed (350/350 tests, duration: 44.8s).
   - Documentation Paths:
-    - Audit: `backend/conception/stages/Stage Architecture/Phase Modular Monolith/Step 06/AUDIT.md`
-    - Report: `backend/conception/stages/Stage Architecture/Phase Modular Monolith/Step 06/REPORT.md`
+    - Audit: `conception/Stages/Stage Architecture/Phase Modular Monolith/Step 06/AUDIT.md`
+    - Report: `conception/Stages/Stage Architecture/Phase Modular Monolith/Step 06/REPORT.md`
   - Next Approved Step: Step 7 — Support & Engagement Domains (Reviews, Coupons, Loyalty, Affiliate, Returns) [COMPLETED].
 - **2026-10-03: Step 7 — Support, Engagement & Post-Commerce Domains Migration (Reviews, Coupons, Loyalty, Affiliate, Returns)**:
   - Status: **VERIFIED WITH LIMITATIONS** (Hostinger remote environment not verified; real external MyFatoorah network not verified; external provider execution not verified; 7 baseline skipped tests unchanged).
   - Authority: Senior Software Architect + Backend Lead + QA/Security/Performance Engineer.
   - Documentation Paths:
-    - Audit: `backend/conception/stages/Stage Architecture/Phase Modular Monolith/Step 07/AUDIT.md`
-    - Report: `backend/conception/stages/Stage Architecture/Phase Modular Monolith/Step 07/REPORT.md`
+    - Audit: `conception/Stages/Stage Architecture/Phase Modular Monolith/Step 07/AUDIT.md`
+    - Report: `conception/Stages/Stage Architecture/Phase Modular Monolith/Step 07/REPORT.md`
   - Invariant Principle: Physical architecture migration only. Review eligibility & calculations, vendor coupon lifecycle & scoping, loyalty ledger & accrual/redemption rules, affiliate attribution/commission calculation/payouts, and RMA state machine/refund calculations preserved with zero behavioral modification.
   - Domains Migrated (92 total PHP files moved via history-preserving `git mv`):
     - **Reviews Domain (13 files) -> `App\Domains\Reviews\*`:**
@@ -451,8 +451,8 @@ Operational KVM2 capacity work (not a numbered Stage 31):
   - Status: **VERIFIED WITH LIMITATIONS** (Hostinger remote environment not verified; real external MyFatoorah network not verified; external provider execution not verified; 7 baseline skipped tests unchanged).
   - Authority: Senior Software Architect + Backend Lead + QA/Security/Performance Engineer.
   - Documentation Paths:
-    - Audit: `backend/conception/stages/Stage Architecture/Phase Modular Monolith/Step 08/AUDIT.md`
-    - Report: `backend/conception/stages/Stage Architecture/Phase Modular Monolith/Step 08/REPORT.md`
+    - Audit: `conception/Stages/Stage Architecture/Phase Modular Monolith/Step 08/AUDIT.md`
+    - Report: `conception/Stages/Stage Architecture/Phase Modular Monolith/Step 08/REPORT.md`
   - Invariant Principle: Physical architecture migration only. Vendor settings/finance/team/inventory management, provider onboarding/schedules/work policies/bookings/payments, and B2B directory/leads distribution/review mechanics preserved with zero behavioral modification.
   - Domains Migrated (151 total PHP files moved via history-preserving `git mv`):
     - **B2B Domain (32 files) -> `App\Domains\B2b\*`:**
