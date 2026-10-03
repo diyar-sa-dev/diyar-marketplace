@@ -5,7 +5,7 @@ namespace App\Domains\Catalog\Resources;
 use App\Models\Product;
 use App\Models\User;
 use App\Domains\Catalog\Services\ProductEngagementService;
-use App\Services\Loyalty\LoyaltyRuleService;
+use App\Domains\Loyalty\Services\LoyaltyRuleService;
 use App\Services\Media\MediaUploadService;
 use App\Support\Vendor\VendorOwnership;
 use Illuminate\Http\Request;

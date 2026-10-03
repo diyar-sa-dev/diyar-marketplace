@@ -3,7 +3,7 @@
 namespace App\Listeners\Loyalty;
 
 use App\Events\Domain\PaymentSucceeded;
-use App\Services\Loyalty\LoyaltyLedgerService;
+use App\Domains\Loyalty\Services\LoyaltyLedgerService;
 use Illuminate\Support\Facades\Log;
 
 final class AccrueLoyaltyOnPaymentSucceeded

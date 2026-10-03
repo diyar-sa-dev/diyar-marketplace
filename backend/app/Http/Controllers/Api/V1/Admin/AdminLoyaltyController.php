@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\LoyaltyTransactionResource;
+use App\Domains\Loyalty\Resources\LoyaltyTransactionResource;
 use App\Models\User;
-use App\Services\Loyalty\LoyaltyLedgerService;
-use App\Services\Loyalty\LoyaltyQueryService;
+use App\Domains\Loyalty\Services\LoyaltyLedgerService;
+use App\Domains\Loyalty\Services\LoyaltyQueryService;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

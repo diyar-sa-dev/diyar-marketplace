@@ -5,7 +5,7 @@ namespace App\Services\Admin;
 use App\Enums\AdminPermission;
 use App\Models\ReturnRequest;
 use App\Models\User;
-use App\Services\Returns\ReturnRequestService;
+use App\Domains\Returns\Services\ReturnRequestService;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 

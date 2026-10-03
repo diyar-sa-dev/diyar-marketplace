@@ -19,7 +19,7 @@ use App\Services\Finance\VendorBalanceService;
 use App\Services\Finance\VendorFinancePeriodResolver;
 use App\Services\Finance\VendorFinanceReportingService;
 use App\Services\Media\MediaUploadService;
-use App\Services\StoreReview\StoreReviewService;
+use App\Domains\Reviews\Services\StoreReviewService;
 
 final class VendorDashboardOverviewService
 {

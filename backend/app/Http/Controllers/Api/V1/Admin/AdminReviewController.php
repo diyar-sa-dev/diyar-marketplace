@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ProductReviewResource;
+use App\Domains\Reviews\Resources\ProductReviewResource;
 use App\Http\Resources\ProviderReviewResource;
-use App\Http\Resources\StoreReviewResource;
+use App\Domains\Reviews\Resources\StoreReviewResource;
 use App\Models\ProductReview;
 use App\Models\ProviderReview;
 use App\Models\StoreReview;

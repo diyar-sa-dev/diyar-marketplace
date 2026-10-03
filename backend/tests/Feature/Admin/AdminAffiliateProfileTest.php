@@ -4,7 +4,7 @@ namespace Tests\Feature\Admin;
 
 use App\Enums\AffiliateProfileStatus;
 use App\Enums\RoleName;
-use App\Services\Affiliate\AffiliateProfileService;
+use App\Domains\Affiliate\Services\AffiliateProfileService;
 use Database\Seeders\AdminPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithIdentity;

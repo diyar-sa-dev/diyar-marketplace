@@ -5,7 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Enums\SystemSettingGroup;
 use App\Enums\SystemSettingType;
 use App\Models\SystemSetting;
-use App\Services\Affiliate\AffiliatePlatformConfigService;
+use App\Domains\Affiliate\Services\AffiliatePlatformConfigService;
 use App\Services\Settings\EffectiveConfigService;
 use App\Services\Settings\SystemSettingService;
 use Database\Seeders\SystemSettingSeeder;

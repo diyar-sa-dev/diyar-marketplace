@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\VendorCouponResource;
+use App\Domains\Coupons\Resources\VendorCouponResource;
 use App\Models\VendorCoupon;
 use App\Services\Admin\AdminCouponService;
 use App\Core\Support\Api\ApiResponse;

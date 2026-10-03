@@ -11,7 +11,7 @@ use App\Models\Product;
 use App\Models\VendorCoupon;
 use App\Models\VendorCouponUsage;
 use App\Models\VendorOrder;
-use App\Services\Coupon\VendorCouponUsageService;
+use App\Domains\Coupons\Services\VendorCouponUsageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithCheckout;
 use Tests\Concerns\InteractsWithIdentity;

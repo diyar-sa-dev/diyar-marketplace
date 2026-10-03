@@ -19,7 +19,7 @@ use App\Models\Product;
 use App\Models\Shipment;
 use App\Models\User;
 use App\Models\VendorOrder;
-use App\Services\Affiliate\AffiliateAttributionService;
+use App\Domains\Affiliate\Services\AffiliateAttributionService;
 use App\Services\Analytics\AnalyticsEventRecorder;
 use App\Domains\Cart\Services\CartService;
 use App\Domains\Catalog\Services\InventoryService;

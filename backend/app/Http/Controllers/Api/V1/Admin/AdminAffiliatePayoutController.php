@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Affiliate\RejectAffiliatePayoutRequest;
+use App\Domains\Affiliate\Requests\RejectAffiliatePayoutRequest;
 use App\Http\Resources\Admin\AdminAffiliatePayoutResource;
-use App\Http\Resources\AffiliatePayoutResource;
+use App\Domains\Affiliate\Resources\AffiliatePayoutResource;
 use App\Models\AffiliatePayout;
 use App\Models\User;
 use App\Services\Admin\AdminPayoutActionService;

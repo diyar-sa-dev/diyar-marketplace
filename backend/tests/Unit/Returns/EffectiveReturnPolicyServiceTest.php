@@ -6,7 +6,7 @@ use App\Enums\ReturnReason;
 use App\Enums\RoleName;
 use App\Models\Product;
 use App\Models\VendorReturnPolicy;
-use App\Services\Returns\EffectiveReturnPolicyService;
+use App\Domains\Returns\Services\EffectiveReturnPolicyService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;

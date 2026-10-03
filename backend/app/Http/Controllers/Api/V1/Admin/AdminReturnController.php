@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ReturnRequestResource;
+use App\Domains\Returns\Resources\ReturnRequestResource;
 use App\Models\ReturnRequest;
 use App\Services\Admin\AdminReturnService;
 use App\Core\Support\Api\ApiResponse;

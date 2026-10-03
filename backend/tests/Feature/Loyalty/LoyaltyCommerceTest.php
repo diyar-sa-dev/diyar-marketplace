@@ -9,7 +9,7 @@ use App\Models\LoyaltyAccount;
 use App\Models\LoyaltyTransaction;
 use App\Models\Order;
 use App\Models\User;
-use App\Services\Loyalty\LoyaltyRuleService;
+use App\Domains\Loyalty\Services\LoyaltyRuleService;
 use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;

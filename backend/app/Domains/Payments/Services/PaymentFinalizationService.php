@@ -15,7 +15,7 @@ use App\Models\Payment;
 use App\Models\PaymentAttempt;
 use App\Services\Analytics\AnalyticsEventRecorder;
 use App\Domains\Catalog\Services\InventoryService;
-use App\Services\Coupon\VendorCouponUsageService;
+use App\Domains\Coupons\Services\VendorCouponUsageService;
 use App\Services\Finance\FinancialPostingService;
 use App\Domains\Orders\Services\OrderStateService;
 use App\Domains\Payments\Services\PaymentStateService;

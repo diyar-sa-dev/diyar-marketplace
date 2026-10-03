@@ -4,7 +4,7 @@ namespace App\Listeners\Affiliate;
 
 use App\Enums\ReturnRequestStatus;
 use App\Events\Domain\ReturnUpdated;
-use App\Services\Affiliate\AffiliateCommissionService;
+use App\Domains\Affiliate\Services\AffiliateCommissionService;
 
 final class ReverseAffiliateCommissionOnRefund
 {

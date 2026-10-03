@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\VendorAccount;
 use App\Services\Media\MediaUploadService;
-use App\Services\StoreReview\StoreReviewService;
+use App\Domains\Reviews\Services\StoreReviewService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

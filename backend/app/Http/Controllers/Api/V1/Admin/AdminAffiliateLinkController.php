@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\AffiliateLinkResource;
+use App\Domains\Affiliate\Resources\AffiliateLinkResource;
 use App\Models\AffiliateLink;
 use App\Services\Admin\AdminAffiliateLinkService;
 use App\Core\Support\Api\ApiResponse;

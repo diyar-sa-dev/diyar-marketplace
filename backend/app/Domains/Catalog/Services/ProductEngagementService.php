@@ -8,7 +8,7 @@ use App\Models\ProductLike;
 use App\Models\ProductReview;
 use App\Models\User;
 use App\Models\WishlistItem;
-use App\Services\Review\ProductReviewEligibilityService;
+use App\Domains\Reviews\Services\ProductReviewEligibilityService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;

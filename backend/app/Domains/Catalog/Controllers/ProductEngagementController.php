@@ -3,8 +3,8 @@
 namespace App\Domains\Catalog\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Catalog\StoreProductReviewRequest;
-use App\Http\Resources\ProductReviewResource;
+use App\Domains\Reviews\Requests\StoreProductReviewRequest;
+use App\Domains\Reviews\Resources\ProductReviewResource;
 use App\Domains\Catalog\Services\ProductEngagementService;
 use App\Services\Media\MediaUploadService;
 use App\Core\Support\Api\ApiResponse;

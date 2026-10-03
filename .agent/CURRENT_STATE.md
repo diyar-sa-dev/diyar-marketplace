@@ -387,6 +387,58 @@ Operational KVM2 capacity work (not a numbered Stage 31):
     - Payments Targeted Tests: 47/47 passed (151 assertions).
     - Commerce-Adjacent Targeted Tests: 137/137 passed (733 assertions).
     - Frontend: 87/87 test files passed (350/350 tests, duration: 44.8s).
-  - Next Approved Step: Step 7 — Support & Engagement Domains (Reviews, Coupons, Loyalty, Affiliate, Returns).
-- **Git Status:** dev branch, commit `refactor(architecture): migrate commerce operations domains`.
+  - Next Approved Step: Step 7 — Support & Engagement Domains (Reviews, Coupons, Loyalty, Affiliate, Returns) [COMPLETED].
+- **2026-10-03: Step 7 — Support, Engagement & Post-Commerce Domains Migration (Reviews, Coupons, Loyalty, Affiliate, Returns)**:
+  - Status: **VERIFIED WITH LIMITATIONS** (Hostinger remote environment not verified; real external MyFatoorah network not verified; external provider execution not verified; 7 baseline skipped tests unchanged).
+  - Authority: Senior Software Architect + Backend Lead + QA/Security/Performance Engineer.
+  - Invariant Principle: Physical architecture migration only. Review eligibility & calculations, vendor coupon lifecycle & scoping, loyalty ledger & accrual/redemption rules, affiliate attribution/commission calculation/payouts, and RMA state machine/refund calculations preserved with zero behavioral modification.
+  - Domains Migrated (92 total PHP files moved via history-preserving `git mv`):
+    - **Reviews Domain (13 files) -> `App\Domains\Reviews\*`:**
+      - **3 Controllers:** `StoreReviewController`, `OrderStoreReviewController`, `CustomerReviewController` -> `App\Domains\Reviews\Controllers\*`.
+      - **3 Requests:** `StoreProductReviewRequest`, `StoreStoreReviewRequest`, `UpdateStoreReviewRequest` -> `App\Domains\Reviews\Requests\*`.
+      - **3 Resources:** `ProductReviewResource`, `StoreReviewResource`, `StoreReviewSummaryResource` -> `App\Domains\Reviews\Resources\*`.
+      - **4 Services:** `ProductReviewEligibilityService`, `OrderFulfillmentReviewEligibility`, `StoreReviewService`, `CustomerReviewHistoryService` -> `App\Domains\Reviews\Services\*`.
+    - **Coupons Domain (12 files) -> `App\Domains\Coupons\*`:**
+      - **1 Controller:** `VendorCouponController` -> `App\Domains\Coupons\Controllers\*`.
+      - **2 Requests:** `StoreVendorCouponRequest`, `UpdateVendorCouponRequest` -> `App\Domains\Coupons\Requests\*`.
+      - **1 Resource:** `VendorCouponResource` -> `App\Domains\Coupons\Resources\*`.
+      - **8 Services:** `CheckoutCouponService`, `CouponEligibleSubtotalService`, `CouponEvaluationService`, `CouponFreeShippingService`, `VendorCouponCalculationService`, `VendorCouponManagementService`, `VendorCouponUsageService`, `VendorCouponValidationService` -> `App\Domains\Coupons\Services\*`.
+    - **Loyalty Domain (6 files) -> `App\Domains\Loyalty\*`:**
+      - **1 Controller:** `LoyaltyController` -> `App\Domains\Loyalty\Controllers\*`.
+      - **1 Resource:** `LoyaltyTransactionResource` -> `App\Domains\Loyalty\Resources\*`.
+      - **4 Services:** `LoyaltyEligibleAmountService`, `LoyaltyLedgerService`, `LoyaltyQueryService`, `LoyaltyRuleService` -> `App\Domains\Loyalty\Services\*`.
+    - **Affiliate Domain (33 files) -> `App\Domains\Affiliate\*`:**
+      - **9 Controllers:** `AffiliateReferralController`, `AffiliateDashboardController`, `AffiliateLinkController`, `AffiliatePayoutController`, `AffiliatePlatformConfigController`, `AffiliateProductController`, `AffiliateReportController`, `AffiliateSettingsController`, `VendorProductAffiliateController` -> `App\Domains\Affiliate\Controllers\*`.
+      - **7 Requests:** `CreateAffiliateLinkRequest`, `RejectAffiliatePayoutRequest`, `RequestAffiliatePayoutRequest`, `ResolveAffiliateReferralRequest`, `TrackAffiliateClickRequest`, `UpdateAffiliateSettingsRequest`, `UpsertProductAffiliateSettingsRequest` -> `App\Domains\Affiliate\Requests\*`.
+      - **4 Resources:** `AffiliateLinkResource`, `AffiliatePayoutResource`, `AffiliateProfileResource`, `ProductAffiliateSettingResource` -> `App\Domains\Affiliate\Resources\*`.
+      - **13 Services:** `AffiliateAdminPayoutService`, `AffiliateAttributionService`, `AffiliateBalanceService`, `AffiliateCommissionRules`, `AffiliateCommissionService`, `AffiliateDashboardService`, `AffiliateFinanceTransactionService`, `AffiliateLinkService`, `AffiliatePayoutService`, `AffiliatePlatformConfigService`, `AffiliateProfileService`, `AffiliateTrafficSourceResolver`, `ProductAffiliateSettingsService` -> `App\Domains\Affiliate\Services\*`.
+    - **Returns Domain (28 files) -> `App\Domains\Returns\*`:**
+      - **3 Controllers:** `ReturnController`, `VendorReturnController`, `VendorReturnPolicyController` -> `App\Domains\Returns\Controllers\*`.
+      - **5 Requests:** `ProcessReturnRefundRequest`, `RejectReturnRequest`, `StoreReturnEvidenceRequest`, `StoreReturnRequest`, `UpdateVendorReturnPolicyRequest` -> `App\Domains\Returns\Requests\*`.
+      - **6 Resources:** `EffectiveReturnPolicyResource`, `RefundResource`, `ReturnEvidenceResource`, `ReturnItemResource`, `ReturnRequestResource`, `VendorReturnPolicyResource` -> `App\Domains\Returns\Resources\*`.
+      - **3 DTOs:** `EffectiveReturnPolicy`, `RefundBreakdown`, `RefundCalculationResult` -> `App\Domains\Returns\Services\DTO\*`.
+      - **11 Services:** `EffectiveReturnPolicyService`, `RefundCalculationService`, `RefundProcessingService`, `ReturnedQuantityService`, `ReturnEligibilityService`, `ReturnEvidenceService`, `ReturnPolicySnapshot`, `ReturnReferenceService`, `ReturnRequestService`, `ReturnStateService`, `VendorReturnPolicyService` -> `App\Domains\Returns\Services\*`.
+  - Intentionally Excluded & Protected:
+    - Eloquent Models: `Review`, `ProductReview`, `StoreReview`, `CustomerReview`, `Coupon`, `CouponUsage`, `VendorCoupon`, `VendorCouponExclusion`, `VendorCouponScope`, `VendorCouponUsage`, `LoyaltyLedger`, `LoyaltyRule`, `CustomerLoyaltySummary`, `AffiliateProfile`, `AffiliateLink`, `AffiliateClick`, `AffiliateAttribution`, `AffiliateCommission`, `AffiliatePayout`, `AffiliatePlatformConfig`, `ProductAffiliateSetting`, `ReturnRequest`, `ReturnItem`, `ReturnEvidence`, `Refund`, `VendorReturnPolicy` preserved in `app/Models/*` (0 models moved).
+    - Policies: `AffiliatePayoutPolicy`, `ReturnRequestPolicy`, `VendorReturnPolicyPolicy` preserved in `app/Policies/*` for framework convention.
+    - Admin Controllers & Services: `AdminReviewController`, `AdminCouponController`, `AdminLoyaltyController`, `AdminReturnController`, `AdminAffiliate*Controller`, `AdminCouponService`, `AdminReturnService`, `AdminReviewModerationService`, `AdminAffiliate*Service` preserved in `app/Http/Controllers/Api/V1/Admin/` and `app/Services/Admin/` for Admin domain migration.
+    - Multi-domain Marketplace Handlers: `VendorReviewInboxController`, `VendorReviewInboxService` preserved for Step 8 (Marketplace Operations: Vendors).
+  - Reference Updates: References updated across `routes/api.php`, Admin controllers, Commerce services (`OrderCreationService`, `PaymentFinalizationService`), event listeners (`Affiliate/*`, `Loyalty/*`), and test suites.
+  - Static Reference Audit: 0 stale references found across active codebase (`STALE_REFERENCES_FOUND=0`).
+  - Database Migration Protection: 0 migration files modified (`git diff backend/database/migrations` is completely empty).
+  - Autoload Verification: `composer dump-autoload` PASSED (8,620 classes mapped).
+  - Route Invariant: Exactly 528 routes registered (522 API v1 + 6 platform routes). Zero route diffs.
+  - Test Suite Certification:
+    - Backend: 1,108 tests (1,101 passed, 7 skipped, 0 failed, 4,560 assertions, duration: 109.9s).
+    - Reviews Targeted Tests: 60/60 passed (485 assertions).
+    - Coupons Targeted Tests: 19/19 passed (62 assertions).
+    - Loyalty Targeted Tests: 32/32 passed (185 assertions).
+    - Affiliate Targeted Tests: 31/31 passed (155 assertions).
+    - Returns Targeted Tests: 99/99 passed (565 assertions).
+    - Commerce Regression Tests: 159/159 passed (5 skipped, 605 assertions).
+    - Search & Identity Tests: 213/213 passed (715 assertions).
+    - Frontend: 87/87 test files passed (350/350 tests, duration: 61.1s).
+  - Baseline Commit: `18039e41bc5059071817ef5971a657f25d39a52f`
+  - Next Approved Step: Step 8 — Marketplace Operations (Vendors, Services Marketplace, B2B, Operations).
+- **Git Status:** dev branch, commit `refactor(architecture): migrate support and engagement domains`.
 

@@ -4,7 +4,7 @@ namespace App\Listeners\Loyalty;
 
 use App\Enums\ReturnRequestStatus;
 use App\Events\Domain\ReturnUpdated;
-use App\Services\Loyalty\LoyaltyLedgerService;
+use App\Domains\Loyalty\Services\LoyaltyLedgerService;
 use Illuminate\Support\Facades\Log;
 
 final class ReverseLoyaltyOnRefund
