@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\RejectVendorPayoutRequest;
 use App\Http\Resources\Admin\AdminVendorPayoutResource;
-use App\Http\Resources\VendorPayoutResource;
+use App\Domains\Vendors\Resources\VendorPayoutResource;
 use App\Models\User;
 use App\Models\VendorPayout;
 use App\Services\Admin\AdminPayoutActionService;

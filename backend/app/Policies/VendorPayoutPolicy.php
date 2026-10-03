@@ -4,7 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\VendorPayout;
-use App\Services\Vendor\VendorAccessService;
+use App\Domains\Vendors\Services\VendorAccessService;
 use App\Support\Vendor\VendorAccessResolver;
 use Illuminate\Support\Facades\Auth;
 

@@ -12,7 +12,7 @@ use App\Services\Admin\AdminProductService;
 use App\Services\Admin\AdminProviderAccountService;
 use App\Services\Admin\AdminUserService;
 use App\Services\Admin\AdminVendorAccountService;
-use App\Services\B2b\AdminB2bService;
+use App\Domains\B2b\Services\AdminB2bService;
 
 final class ChatModerationEnforcementService
 {

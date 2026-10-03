@@ -5,7 +5,7 @@ namespace App\Policies;
 use App\Models\ReturnRequest;
 use App\Models\User;
 use App\Models\VendorOrder;
-use App\Services\Vendor\VendorAccessService;
+use App\Domains\Vendors\Services\VendorAccessService;
 use App\Domains\Identity\Support\MarketplaceAccess;
 use App\Support\Vendor\VendorAccessResolver;
 

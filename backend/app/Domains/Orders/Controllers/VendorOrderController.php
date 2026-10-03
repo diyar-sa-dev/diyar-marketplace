@@ -10,7 +10,7 @@ use App\Models\VendorOrder;
 use App\Domains\Orders\Services\VendorManualOrderService;
 use App\Domains\Orders\Services\VendorOrderFulfillmentService;
 use App\Domains\Orders\Services\VendorOrderQueryFilter;
-use App\Services\Vendor\VendorAccessService;
+use App\Domains\Vendors\Services\VendorAccessService;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

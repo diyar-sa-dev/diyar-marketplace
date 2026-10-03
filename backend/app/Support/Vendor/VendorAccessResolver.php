@@ -4,7 +4,7 @@ namespace App\Support\Vendor;
 
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Services\Vendor\VendorAccessService;
+use App\Domains\Vendors\Services\VendorAccessService;
 
 final class VendorAccessResolver
 {

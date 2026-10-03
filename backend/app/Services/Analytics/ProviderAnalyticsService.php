@@ -8,7 +8,7 @@ use App\Models\ProviderAccount;
 use App\Models\ProviderReview;
 use App\Models\Service;
 use App\Models\ServiceBooking;
-use App\Services\ServiceMarketplace\ProviderFinanceService;
+use App\Domains\ServicesMarketplace\Services\ProviderFinanceService;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;

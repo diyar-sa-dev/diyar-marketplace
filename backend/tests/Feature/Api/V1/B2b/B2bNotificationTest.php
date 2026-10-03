@@ -9,7 +9,7 @@ use App\Models\B2bCategory;
 use App\Models\B2bCompany;
 use App\Models\B2bLead;
 use App\Models\UserNotification;
-use App\Services\B2b\AdminB2bService;
+use App\Domains\B2b\Services\AdminB2bService;
 use Database\Seeders\AdminPermissionSeeder;
 use Database\Seeders\B2bContentSeeder;
 use Database\Seeders\RoleSeeder;

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\ServiceMarketplace\ServiceBookingService;
+use App\Domains\ServicesMarketplace\Services\ServiceBookingService;
 use Illuminate\Console\Command;
 
 final class ExpireUnpaidServiceBookingsCommand extends Command

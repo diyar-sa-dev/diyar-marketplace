@@ -445,6 +445,47 @@ Operational KVM2 capacity work (not a numbered Stage 31):
     - Search & Identity Tests: 213/213 passed (715 assertions).
     - Frontend: 87/87 test files passed (350/350 tests, duration: 61.1s).
   - Baseline Commit: `18039e41bc5059071817ef5971a657f25d39a52f`
-  - Next Approved Step: Step 8 — Marketplace Operations (Vendors, Services Marketplace, B2B, Operations).
-- **Git Status:** dev branch, commit `refactor(architecture): migrate support and engagement domains`.
-
+  - Migration Commit: `3570a18` (`refactor(architecture): migrate support and engagement domains`)
+  - Next Approved Step: Step 8 — Marketplace Operations (Vendors, Services Marketplace, B2B) [COMPLETED].
+- **2026-10-03: Step 8 — Marketplace Operations Migration (Vendors, ServicesMarketplace, B2B)**:
+  - Status: **VERIFIED WITH LIMITATIONS** (Hostinger remote environment not verified; real external MyFatoorah network not verified; external provider execution not verified; 7 baseline skipped tests unchanged).
+  - Authority: Senior Software Architect + Backend Lead + QA/Security/Performance Engineer.
+  - Documentation Paths:
+    - Audit: `backend/conception/stages/Stage Architecture/Phase Modular Monolith/Step 08/AUDIT.md`
+    - Report: `backend/conception/stages/Stage Architecture/Phase Modular Monolith/Step 08/REPORT.md`
+  - Invariant Principle: Physical architecture migration only. Vendor settings/finance/team/inventory management, provider onboarding/schedules/work policies/bookings/payments, and B2B directory/leads distribution/review mechanics preserved with zero behavioral modification.
+  - Domains Migrated (151 total PHP files moved via history-preserving `git mv`):
+    - **B2B Domain (32 files) -> `App\Domains\B2b\*`:**
+      - **6 Controllers:** `B2bCompanyController`, `B2bCompanyReviewController`, `B2bCompanyServiceController`, `B2bCompanyTestimonialController`, `B2bLeadController`, `B2bLookupController` -> `App\Domains\B2b\Controllers\*`.
+      - **14 Requests & Concerns:** `ApproveB2bLeadRequest`, `ClaimB2bCompanyRequest`, `DisputeB2bLeadRequest`, `PurchaseB2bLeadRequest`, `RejectB2bLeadRequest`, `StoreB2bCompanyRequest`, `StoreB2bCompanyReviewRequest`, `StoreB2bCompanyServiceRequest`, `StoreB2bCompanyTestimonialRequest`, `StoreB2bLeadRequest`, `UpdateB2bCompanyRequest`, `UpdateB2bCompanyServiceRequest`, `UpdateB2bCompanyTestimonialRequest`, `NormalizesB2bCompanyProfile` -> `App\Domains\B2b\Requests\*`.
+      - **8 Resources:** `B2bCategoryResource`, `B2bCompanyCardResource`, `B2bCompanyDetailResource`, `B2bCompanyReviewResource`, `B2bCompanyServiceResource`, `B2bCompanyTestimonialResource`, `B2bLeadResource`, `B2bTagResource` -> `App\Domains\B2b\Resources\*`.
+      - **4 Services:** `B2bAccessService`, `B2bCompanyService`, `B2bLeadDistributionService`, `B2bLeadService` -> `App\Domains\B2b\Services\*`.
+    - **Vendors Domain (43 files) -> `App\Domains\Vendors\*`:**
+      - **12 Controllers:** `VendorController`, `VendorFollowController`, `VendorAnalyticsController`, `VendorDashboardController`, `VendorFinanceController`, `VendorInventoryController`, `VendorPreorderController`, `VendorProductController`, `VendorReviewInboxController`, `VendorSettingsController`, `VendorTeamController`, `VendorTeamInviteController` -> `App\Domains\Vendors\Controllers\*`.
+      - **12 Requests:** `AdjustInventoryRequest`, `InviteVendorTeamMemberRequest`, `ReplyVendorReviewRequest`, `StoreProductRequest`, `UpdateProductRequest`, `UpdateVendorBankAccountRequest`, `UpdateVendorLegalProfileRequest`, `UpdateVendorSettingsRequest`, `UpdateVendorTeamMemberRequest`, `UpdateVendorWorkingHoursRequest`, `UploadVendorCoverRequest`, `UploadVendorLogoRequest` -> `App\Domains\Vendors\Requests\*`.
+      - **10 Resources:** `VendorBankAccountResource`, `VendorCardResource`, `VendorFinanceAnalyticsPointResource`, `VendorFinancePeriodReportResource`, `VendorFinanceSummaryResource`, `VendorLegalProfileResource`, `VendorPayoutResource`, `VendorPublicResource`, `VendorSettingsResource`, `VendorWorkingHourResource` -> `App\Domains\Vendors\Resources\*`.
+      - **9 Services:** `VendorAccessService`, `VendorDashboardOverviewService`, `VendorReviewInboxService`, `VendorSettingsService`, `VendorStoreFollowService`, `VendorStorefrontPresenter`, `VendorTeamPermissions`, `VendorTeamRoleSync`, `VendorTeamService` -> `App\Domains\Vendors\Services\*`.
+    - **ServicesMarketplace Domain (76 files) -> `App\Domains\ServicesMarketplace\*`:**
+      - **15 Controllers:** `ProviderFinanceController`, `ProviderOnboardingController`, `ProviderPortfolioController`, `ProviderProfileController`, `ProviderPublicProfileController`, `ProviderScheduleController`, `ProviderServiceController`, `ProviderWorkPolicyController`, `ServiceBookingActionController`, `ServiceBookingController`, `ServiceBookingPaymentController`, `ServiceCatalogController`, `ServiceOfferController`, `ServiceRequestAttachmentController`, `ServiceRequestController` -> `App\Domains\ServicesMarketplace\Controllers\*`.
+      - **22 Requests:** `AcceptServiceOfferRequest`, `CancelServiceBookingRequest`, `CancelServiceRequestRequest`, `CompleteServiceBookingRequest`, `ConfirmServiceBookingRequest`, `InitiateBookingDepositPaymentRequest`, `InitiateBookingFinalPaymentRequest`, `OnboardProviderRequest`, `RejectServiceOfferRequest`, `RescheduleServiceBookingRequest`, `StartServiceBookingRequest`, `StoreProviderPortfolioItemRequest`, `StoreProviderServiceRequest`, `StoreServiceBookingRequest`, `StoreServiceOfferRequest`, `StoreServiceRequestAttachmentRequest`, `StoreServiceRequestRequest`, `UpdateProviderBankAccountRequest`, `UpdateProviderLegalProfileRequest`, `UpdateProviderProfileRequest`, `UpdateProviderScheduleRequest`, `UpdateProviderWorkPolicyRequest` -> `App\Domains\ServicesMarketplace\Requests\*`.
+      - **17 Resources:** `ProviderBankAccountResource`, `ProviderCardResource`, `ProviderLegalProfileResource`, `ProviderPayoutResource`, `ProviderPortfolioItemResource`, `ProviderProfileResource`, `ProviderPublicProfileResource`, `ProviderServiceResource`, `ProviderWorkingHourResource`, `ProviderWorkPolicyResource`, `ServiceBookingDetailResource`, `ServiceBookingPaymentResource`, `ServiceBookingSummaryResource`, `ServiceCategoryResource`, `ServiceOfferResource`, `ServiceRequestAttachmentResource`, `ServiceRequestResource` -> `App\Domains\ServicesMarketplace\Resources\*`.
+      - **22 Services:** `DirectBookingAvailabilityService`, `ProviderAccessService`, `ProviderAvailabilityService`, `ProviderBankAccountService`, `ProviderFinanceService`, `ProviderLegalProfileService`, `ProviderLocationService`, `ProviderNotificationService`, `ProviderOnboardingService`, `ProviderPortfolioService`, `ProviderProfileService`, `ProviderPublicProfilePresenter`, `ProviderScheduleService`, `ProviderServiceCatalogService`, `ProviderWorkPolicyService`, `ServiceBookingActionService`, `ServiceBookingPaymentService`, `ServiceBookingService`, `ServiceCatalogService`, `ServiceCategoryService`, `ServiceEngagementService`, `ServiceOfferService`, `ServiceRequestAttachmentService`, `ServiceRequestService` -> `App\Domains\ServicesMarketplace\Services\*`.
+  - Intentionally Excluded & Protected:
+    - Eloquent Models: Centralized in `app/Models/*` (0 models moved).
+    - Policies: `VendorAccountPolicy`, `VendorPayoutPolicy`, `ProviderAccountPolicy`, `ProviderPayoutPolicy`, `B2bCompanyPolicy`, `B2bLeadPolicy`, `VendorOrderPolicy` preserved in `app/Policies/*` for framework convention.
+    - Vendor Shipping Domain Boundary: `VendorShippingSettingsController`, `UpdateVendorShippingSettingsRequest`, `VendorShippingSettingsResource`, `VendorShippingSettingsService` retained under Shipping subsystem for Step 9 migration.
+    - Admin Controllers: `AdminVendorAccountController`, `AdminProviderAccountController`, `AdminB2bCompanyController`, `AdminB2bLeadController`, `AdminServiceBookingController`, `AdminServiceRequestController`, `AdminPayoutController`, `AdminProviderPayoutController` preserved in `app/Http/Controllers/Api/V1/Admin/`.
+  - Reference Updates: References updated across `routes/api.php`, Admin controllers, WishlistController, Policies, analytics/chat services, support helpers, and test suites.
+  - Static Reference Audit: 0 stale references found across active codebase (`STALE_REFERENCES_FOUND=0`).
+  - Database Migration Protection: 0 migration files modified (`git diff backend/database/migrations` is completely empty).
+  - Autoload Verification: `composer dump-autoload` PASSED (8,620 classes mapped).
+  - Route Invariant: Exactly 528 routes registered (522 API v1 + 6 platform routes). Zero route diffs.
+  - Test Suite Certification:
+    - Backend: 1,108 tests (1,101 passed, 7 skipped, 0 failed, 4,560 assertions, duration: 111.3s).
+    - B2B Targeted Tests: 31/31 passed.
+    - Vendors Targeted Tests: 141/141 passed (1 skipped).
+    - ServicesMarketplace Targeted Tests: 91/91 passed (427 assertions).
+    - Frontend: 87/87 test files passed (350/350 tests, duration: 50.0s).
+  - Baseline Commit: `20b270b`
+  - Next Approved Step: Step 9 — Remaining Backend Domains (Shipping, Chat, Notifications, Analytics, Blog, Projects, Platform/Admin).
+- **Git Status:** dev branch, working towards commit `refactor(architecture): migrate marketplace operations domains`.

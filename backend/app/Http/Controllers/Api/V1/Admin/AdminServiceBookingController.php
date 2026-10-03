@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ServiceBookingResource;
+use App\Domains\ServicesMarketplace\Resources\ServiceBookingResource;
 use App\Models\ServiceBooking;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;

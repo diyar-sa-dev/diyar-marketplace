@@ -13,7 +13,7 @@ use App\Models\ProductImage;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Services\Media\MediaUploadService;
-use App\Services\Vendor\VendorAccessService;
+use App\Domains\Vendors\Services\VendorAccessService;
 use App\Core\Support\Pagination\PaginationBounds;
 use App\Core\Support\SlugGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

@@ -8,7 +8,7 @@ use App\Domains\Returns\Requests\RejectReturnRequest;
 use App\Domains\Returns\Resources\ReturnRequestResource;
 use App\Models\ReturnRequest;
 use App\Domains\Returns\Services\ReturnRequestService;
-use App\Services\Vendor\VendorAccessService;
+use App\Domains\Vendors\Services\VendorAccessService;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Domains\ServicesMarketplace\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Catalog\ServiceListRequest;
+use App\Domains\ServicesMarketplace\Resources\ServiceCardResource;
+use App\Domains\ServicesMarketplace\Resources\ServiceDetailResource;
+use App\Domains\ServicesMarketplace\Services\ServiceCatalogService;
+use App\Core\Support\Api\ApiResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+class ServiceController extends Controller
+{
+    public function __construct(
+        private readonly ServiceCatalogService $services,
+    ) {}
+
+    public function index(ServiceListRequest $request): JsonResponse
+    {
+        $paginator = $this->services->listPublic($request->validatedFilters(), $request->user());
+
+        return ApiResponse::success(data: $this->paginatedServices($paginator));
+    }
+
+    public function show(Request $request, string $identifier): JsonResponse
+    {
+        $service = $this->services->findPublic($identifier, $request->user());
+
+        return ApiResponse::success(data: [
+            'service' => new ServiceDetailResource($service),
+        ]);
+    }
+
+    public function related(Request $request, string $identifier): JsonResponse
+    {
+        $service = $this->services->findPublic($identifier, $request->user());
+        $related = $this->services->relatedServices($service, limit: 8, user: $request->user());
+
+        return ApiResponse::success(data: [
+            'items' => ServiceCardResource::collection($related)->resolve(),
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function paginatedServices(LengthAwarePaginator $paginator): array
+    {
+        return [
+            'items' => ServiceCardResource::collection($paginator->getCollection())->resolve(),
+            'pagination' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ],
+        ];
+    }
+}

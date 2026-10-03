@@ -13,7 +13,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductInventory;
 use App\Models\User;
-use App\Services\Vendor\VendorAccessService;
+use App\Domains\Vendors\Services\VendorAccessService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ServiceRequestCardResource;
-use App\Http\Resources\ServiceRequestResource;
+use App\Domains\ServicesMarketplace\Resources\ServiceRequestCardResource;
+use App\Domains\ServicesMarketplace\Resources\ServiceRequestResource;
 use App\Models\ServiceRequest;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;

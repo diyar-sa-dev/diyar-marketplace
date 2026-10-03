@@ -4,7 +4,7 @@ namespace App\Domains\Catalog\Services;
 
 use App\Models\Product;
 use App\Models\Service;
-use App\Services\ServiceMarketplace\ServiceCatalogService;
+use App\Domains\ServicesMarketplace\Services\ServiceCatalogService;
 use App\Domains\Catalog\Support\Filters\Context\FilterContext;
 use App\Domains\Catalog\Support\Filters\Context\FilterContextMeta;
 use App\Domains\Catalog\Support\Filters\Context\FilterContextSummary;

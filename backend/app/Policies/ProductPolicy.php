@@ -4,7 +4,7 @@ namespace App\Policies;
 
 use App\Models\Product;
 use App\Models\User;
-use App\Services\Vendor\VendorAccessService;
+use App\Domains\Vendors\Services\VendorAccessService;
 use App\Support\Vendor\VendorAccessResolver;
 
 class ProductPolicy
