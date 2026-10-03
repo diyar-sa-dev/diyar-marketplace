@@ -3,7 +3,7 @@
 namespace App\Domains\Affiliate\Resources;
 
 use App\Models\ProductAffiliateSetting;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

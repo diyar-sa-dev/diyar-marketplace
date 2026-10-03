@@ -6,7 +6,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentAttempt;
 use App\Models\PaymentVendorAllocation;
-use App\Services\Finance\CommissionResolver;
+use App\Domains\Finance\Services\CommissionResolver;
 
 final class PaymentAllocationSnapshotService
 {

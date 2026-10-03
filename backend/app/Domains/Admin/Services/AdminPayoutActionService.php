@@ -7,7 +7,7 @@ use App\Models\ProviderPayout;
 use App\Models\User;
 use App\Models\VendorPayout;
 use App\Domains\Affiliate\Services\AffiliateAdminPayoutService;
-use App\Services\Finance\PayoutService;
+use App\Domains\Finance\Services\PayoutService;
 use App\Domains\ServicesMarketplace\Services\ProviderPayoutService;
 use Illuminate\Support\Facades\DB;
 

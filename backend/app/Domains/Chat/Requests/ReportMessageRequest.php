@@ -2,7 +2,7 @@
 
 namespace App\Domains\Chat\Requests;
 
-use App\Support\Chat\ChatReportCatalog;
+use App\Domains\Chat\Support\ChatReportCatalog;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

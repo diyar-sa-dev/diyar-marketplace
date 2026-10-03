@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\Media;
 
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;

@@ -5,7 +5,7 @@ namespace App\Domains\ServicesMarketplace\Services;
 use App\Models\ServiceRequest;
 use App\Models\ServiceRequestAttachment;
 use App\Models\User;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Http\UploadedFile;
 use InvalidArgumentException;
 

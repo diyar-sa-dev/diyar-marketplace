@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services\Visualization;
 
 use App\Enums\TryInRoomJobStatus;
-use App\Exceptions\Visualization\VisualizationProviderException;
+use App\Domains\SpatialLayout\Exceptions\VisualizationProviderException;
 use App\Models\Product;
 use App\Models\TryInRoomJob;
 use App\Models\TryInRoomSourceImage;

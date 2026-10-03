@@ -3,7 +3,7 @@
 namespace App\Domains\ServicesMarketplace\Requests;
 
 use App\Enums\SaudiBank;
-use App\Support\Finance\IbanValidator;
+use App\Domains\Finance\Support\IbanValidator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;

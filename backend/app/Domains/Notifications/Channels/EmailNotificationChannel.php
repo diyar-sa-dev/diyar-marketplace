@@ -10,7 +10,7 @@ use App\Models\UserNotification;
 use App\Infrastructure\Mail\DiyarMailContent;
 use App\Infrastructure\Mail\DiyarPhpMailer;
 use App\Domains\Notifications\Services\NotificationCircuitBreaker;
-use App\Support\User\UserNotificationPreferences;
+use App\Domains\Identity\Support\UserNotificationPreferences;
 use RuntimeException;
 
 final class EmailNotificationChannel implements NotificationChannelInterface

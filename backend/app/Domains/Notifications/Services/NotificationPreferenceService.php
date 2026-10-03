@@ -3,7 +3,7 @@
 namespace App\Domains\Notifications\Services;
 
 use App\Models\User;
-use App\Support\User\UserNotificationPreferences;
+use App\Domains\Identity\Support\UserNotificationPreferences;
 
 final class NotificationPreferenceService
 {

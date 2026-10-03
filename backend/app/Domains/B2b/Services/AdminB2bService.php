@@ -12,7 +12,7 @@ use App\Models\B2bCompanyTestimonial;
 use App\Models\B2bTag;
 use App\Models\User;
 use App\Domains\Admin\Services\AdminAuditService;
-use App\Support\Cache\B2bCache;
+use App\Domains\B2b\Support\B2bCache;
 use Illuminate\Support\Facades\DB;
 
 final class AdminB2bService

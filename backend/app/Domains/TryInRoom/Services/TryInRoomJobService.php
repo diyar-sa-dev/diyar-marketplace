@@ -3,7 +3,7 @@
 namespace App\Domains\TryInRoom\Services;
 
 use App\Enums\TryInRoomJobStatus;
-use App\Exceptions\TryInRoom\IdempotencyConflictException;
+use App\Domains\TryInRoom\Exceptions\IdempotencyConflictException;
 use App\Domains\TryInRoom\Jobs\ProcessTryInRoomJob;
 use App\Models\Product;
 use App\Models\RoomDesign;

@@ -7,7 +7,7 @@ use App\Models\B2bCompany;
 use App\Models\B2bCompanyReview;
 use App\Models\B2bLead;
 use App\Models\User;
-use App\Support\Cache\B2bCache;
+use App\Domains\B2b\Support\B2bCache;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;

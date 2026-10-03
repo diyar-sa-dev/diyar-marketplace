@@ -3,7 +3,7 @@
 namespace App\Domains\Returns\Resources;
 
 use App\Models\ReturnEvidence;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;

@@ -5,7 +5,7 @@ namespace App\Domains\B2b\Services;
 use App\Enums\B2bVerificationStatus;
 use App\Models\B2bCategory;
 use App\Models\B2bCompany;
-use App\Support\Cache\B2bCache;
+use App\Domains\B2b\Support\B2bCache;
 use App\Core\Support\Cache\CachesQueryResults;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;

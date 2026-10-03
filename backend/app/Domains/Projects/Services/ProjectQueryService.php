@@ -3,7 +3,7 @@
 namespace App\Domains\Projects\Services;
 
 use App\Models\Project;
-use App\Support\Cache\BlogProjectCache;
+use App\Domains\Blog\Support\BlogProjectCache;
 use App\Core\Support\Cache\CachesQueryResults;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;

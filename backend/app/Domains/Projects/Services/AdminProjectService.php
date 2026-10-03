@@ -7,7 +7,7 @@ use App\Models\Project;
 use App\Models\ProjectImage;
 use App\Models\User;
 use App\Domains\Admin\Services\AdminAuditService;
-use App\Support\Cache\BlogProjectCache;
+use App\Domains\Blog\Support\BlogProjectCache;
 use Illuminate\Support\Facades\DB;
 
 final class AdminProjectService

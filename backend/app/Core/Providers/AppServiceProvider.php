@@ -4,7 +4,7 @@ namespace App\Core\Providers;
 
 use App\Domains\Identity\Contracts\OtpCodeGenerator;
 use App\Domains\Payments\Contracts\PaymentGatewayInterface;
-use App\Contracts\Sms\SmsProvider;
+use App\Infrastructure\Sms\Contracts\SmsProvider;
 use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
 use App\Infrastructure\Sms\SmsProviderFactory;
 use App\Domains\Checkout\Contracts\AssemblyCalculator;

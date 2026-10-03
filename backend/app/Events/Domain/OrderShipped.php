@@ -7,7 +7,7 @@ use App\Enums\NotificationType;
 use App\Models\VendorOrder;
 use App\Domains\Notifications\Services\NotificationContextBuilder;
 use App\Domains\Notifications\Services\NotificationIntent;
-use App\Support\Notifications\NotificationUrlSupport;
+use App\Domains\Notifications\Support\NotificationUrlSupport;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 

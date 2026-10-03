@@ -14,7 +14,7 @@ use App\Models\ServiceBooking;
 use App\Models\ServiceBookingPayment;
 use App\Models\ServiceOffer;
 use App\Models\User;
-use App\Support\ServiceMarketplace\ProviderSelfInteractionGuard;
+use App\Domains\ServicesMarketplace\Support\ProviderSelfInteractionGuard;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;

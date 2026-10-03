@@ -3,7 +3,7 @@
 namespace App\Domains\Identity\Services;
 
 use App\Domains\Identity\Contracts\OtpCodeGenerator;
-use App\Contracts\Sms\SmsProvider;
+use App\Infrastructure\Sms\Contracts\SmsProvider;
 use App\Enums\OtpPurpose;
 use App\Infrastructure\Sms\LogSmsProvider;
 use App\Domains\Identity\Support\OtpTestCodeResolver;

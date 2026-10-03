@@ -9,7 +9,7 @@ use App\Models\VendorAccount;
 use App\Models\VendorOrder;
 use App\Domains\Vendors\Services\VendorService;
 use App\Domains\Reviews\Services\OrderFulfillmentReviewEligibility;
-use App\Support\Vendor\VendorOwnership;
+use App\Domains\Vendors\Support\VendorOwnership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;

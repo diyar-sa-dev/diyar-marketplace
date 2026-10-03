@@ -4,7 +4,7 @@ namespace App\Domains\Affiliate\Services;
 
 use App\Enums\AffiliateCommissionStatus;
 use App\Models\AffiliateProfile;
-use App\Services\Finance\CommissionResolver;
+use App\Domains\Finance\Services\CommissionResolver;
 use DateTimeInterface;
 
 final class AffiliateBalanceService

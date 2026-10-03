@@ -7,8 +7,8 @@ use App\Enums\NotificationType;
 use App\Models\ChatMessageReport;
 use App\Models\User;
 use App\Domains\Notifications\Services\NotificationDispatcher;
-use App\Support\Notifications\NotificationUrlSupport;
-use App\Support\User\UserNotificationPreferences;
+use App\Domains\Notifications\Support\NotificationUrlSupport;
+use App\Domains\Identity\Support\UserNotificationPreferences;
 
 final class ChatReportNotificationService
 {

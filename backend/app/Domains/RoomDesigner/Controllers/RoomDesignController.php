@@ -2,8 +2,8 @@
 
 namespace App\Domains\RoomDesigner\Controllers;
 
-use App\Exceptions\RoomDesign\RoomDesignPayloadTooLargeException;
-use App\Exceptions\RoomDesign\RoomDesignVersionConflictException;
+use App\Domains\RoomDesigner\Exceptions\RoomDesignPayloadTooLargeException;
+use App\Domains\RoomDesigner\Exceptions\RoomDesignVersionConflictException;
 use App\Http\Controllers\Controller;
 use App\Domains\RoomDesigner\Requests\AddRoomDesignToCartRequest;
 use App\Domains\RoomDesigner\Requests\ListRoomDesignsRequest;

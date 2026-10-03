@@ -2,7 +2,7 @@
 
 namespace App\Domains\RoomDesigner\Services;
 
-use App\Exceptions\RoomDesign\RoomDesignVersionConflictException;
+use App\Domains\RoomDesigner\Exceptions\RoomDesignVersionConflictException;
 use App\Models\RoomDesign;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

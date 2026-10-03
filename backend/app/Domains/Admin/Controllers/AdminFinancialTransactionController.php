@@ -3,7 +3,7 @@
 namespace App\Domains\Admin\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\FinancialTransactionResource;
+use App\Domains\Finance\Resources\FinancialTransactionResource;
 use App\Models\FinancialTransaction;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;

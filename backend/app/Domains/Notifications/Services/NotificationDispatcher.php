@@ -12,7 +12,7 @@ use App\Models\User;
 use App\Models\UserNotification;
 use App\Domains\Chat\Services\ChatPresenceService;
 use App\Domains\Platform\Services\DomainOutboxPublisher;
-use App\Support\Notifications\NotificationQueue;
+use App\Domains\Notifications\Support\NotificationQueue;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

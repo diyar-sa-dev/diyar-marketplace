@@ -8,7 +8,7 @@ use App\Models\Service;
 use App\Models\ServiceBooking;
 use App\Models\ServiceCategory;
 use App\Models\User;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

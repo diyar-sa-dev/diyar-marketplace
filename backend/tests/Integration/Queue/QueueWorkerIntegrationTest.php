@@ -2,7 +2,7 @@
 
 namespace Tests\Integration\Queue;
 
-use App\Jobs\Testing\QueueIntegrationProbeJob;
+use App\Core\Support\Testing\QueueIntegrationProbeJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;

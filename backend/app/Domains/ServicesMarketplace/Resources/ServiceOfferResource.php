@@ -3,7 +3,7 @@
 namespace App\Domains\ServicesMarketplace\Resources;
 
 use App\Models\ServiceOffer;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

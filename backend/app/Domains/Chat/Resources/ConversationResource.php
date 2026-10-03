@@ -5,7 +5,7 @@ namespace App\Domains\Chat\Resources;
 use App\Enums\ConversationParticipantRole;
 use App\Models\Conversation;
 use App\Models\ConversationParticipant;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

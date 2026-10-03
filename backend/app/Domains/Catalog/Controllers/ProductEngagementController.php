@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Domains\Reviews\Requests\StoreProductReviewRequest;
 use App\Domains\Reviews\Resources\ProductReviewResource;
 use App\Domains\Catalog\Services\ProductEngagementService;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

@@ -5,7 +5,7 @@ namespace App\Domains\ServicesMarketplace\Resources;
 use App\Models\ProviderAccount;
 use App\Models\User;
 use App\Domains\ServicesMarketplace\Services\ProviderSettingsService;
-use App\Support\ServiceMarketplace\ServiceMarketplacePresenter;
+use App\Domains\ServicesMarketplace\Support\ServiceMarketplacePresenter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

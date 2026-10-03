@@ -5,7 +5,7 @@ namespace App\Domains\Notifications\Services;
 use App\Enums\NotificationChannel;
 use App\Enums\NotificationType;
 use App\Models\User;
-use App\Support\User\UserNotificationPreferences;
+use App\Domains\Identity\Support\UserNotificationPreferences;
 
 final class NotificationPreferenceResolver
 {

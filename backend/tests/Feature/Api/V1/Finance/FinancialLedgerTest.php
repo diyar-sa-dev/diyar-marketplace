@@ -12,7 +12,7 @@ use App\Models\Order;
 use App\Models\PaymentVendorAllocation;
 use App\Models\Product;
 use App\Models\VendorPayout;
-use App\Services\Finance\FinancialPostingService;
+use App\Domains\Finance\Services\FinancialPostingService;
 use App\Domains\Orders\Services\VendorOrderStateService;
 use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;

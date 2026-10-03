@@ -3,11 +3,11 @@
 namespace App\Domains\Vendors\Resources;
 
 use App\Models\VendorAccount;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use App\Domains\Reviews\Services\StoreReviewService;
 use App\Domains\Vendors\Services\VendorStoreFollowService;
 use App\Domains\Vendors\Services\VendorStorefrontPresenter;
-use App\Support\Vendor\VendorOwnership;
+use App\Domains\Vendors\Support\VendorOwnership;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

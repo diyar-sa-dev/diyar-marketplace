@@ -10,7 +10,7 @@ use App\Models\Payment;
 use App\Models\PaymentVendorAllocation;
 use App\Models\Refund;
 use App\Models\ReturnRequest;
-use App\Services\Finance\FinancialPostingService;
+use App\Domains\Finance\Services\FinancialPostingService;
 use App\Domains\Payments\Services\PaymentStateService;
 use App\Domains\Payments\Services\DTO\RefundPaymentRequest;
 use App\Domains\Payments\Exceptions\PaymentGatewayException;

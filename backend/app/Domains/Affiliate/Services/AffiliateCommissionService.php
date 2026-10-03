@@ -10,7 +10,7 @@ use App\Models\AffiliateProfile;
 use App\Models\OrderItem;
 use App\Models\ReturnRequest;
 use App\Models\VendorOrder;
-use App\Services\Finance\FinancialPostingService;
+use App\Domains\Finance\Services\FinancialPostingService;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 

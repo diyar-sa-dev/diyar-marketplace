@@ -3,7 +3,7 @@
 namespace App\Domains\Notifications\Channels;
 
 use App\Domains\Notifications\Contracts\NotificationChannelInterface;
-use App\Contracts\Sms\SmsProvider;
+use App\Infrastructure\Sms\Contracts\SmsProvider;
 use App\Enums\NotificationChannel;
 use App\Models\NotificationDelivery;
 use App\Models\User;

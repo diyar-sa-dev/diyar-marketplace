@@ -7,7 +7,7 @@ use App\Enums\ServiceBookingStatus;
 use App\Models\ServiceBooking;
 use App\Models\User;
 use App\Domains\ServicesMarketplace\Services\ProviderReviewEligibility;
-use App\Support\ServiceMarketplace\ServiceMarketplacePresenter;
+use App\Domains\ServicesMarketplace\Support\ServiceMarketplacePresenter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

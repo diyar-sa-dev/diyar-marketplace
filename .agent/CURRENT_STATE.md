@@ -575,6 +575,57 @@ Operational KVM2 capacity work (not a numbered Stage 31):
     - Frontend: 87/87 test files passed (350/350 tests, duration: 32.5s).
     - Frontend Build: `npm run build` PASS (28.64s).
   - Baseline Commit: `292353b`
-  - Next Approved Step: Step 10 — Backend Architecture Seams / Cleanup.
-- **Git Status:** dev branch, ready for commit `refactor(architecture): migrate remaining backend domains`.
+  - Migration Commit: `0abd051` (`refactor(architecture): migrate remaining backend domains`)
+  - Next Approved Step: Step 10 — Backend Architecture Seams / Cleanup [COMPLETED].
+- **2026-10-03: Step 10 — Backend Architecture Seams & Legacy Cleanup**:
+  - Status: **VERIFIED WITH LIMITATIONS** (Hostinger remote environment not verified; real external MyFatoorah network not verified; external provider execution not verified; 7 baseline skipped tests unchanged).
+  - Authority: Senior Software Architect + Backend Lead + QA/Security/Performance Engineer.
+  - Documentation Paths:
+    - Audit: `conception/Stages/Stage Architecture/Phase Modular Monolith/Step 10/AUDIT.md`
+    - Report: `conception/Stages/Stage Architecture/Phase Modular Monolith/Step 10/REPORT.md`
+  - Invariant Principle: Physical architecture seams resolution and legacy folder elimination only. Zero business logic or API mutations.
+  - Seams Resolved & Classes Relocated (43 total files):
+    - **Finance Domain (22 files) -> `App\Domains\Finance\*`:**
+      - **12 Services:** `CommissionResolver`, `EscrowReleaseService`, `FinancialPostingService`, `FinancialReferenceService`, `PayoutService`, `PlatformFinanceExportService`, `PlatformFinanceReportingService`, `VendorBalanceService`, `VendorFinanceExportService`, `VendorFinancePeriodResolver`, `VendorFinanceReportingService`, `VendorTransactionQueryFilter` -> `App\Domains\Finance\Services\*`.
+      - **6 DTOs:** `CommissionResolution`, `PlatformFinancePeriodReport`, `PlatformFinanceSummary`, `VendorBalanceSummary`, `VendorFinanceAnalyticsPoint`, `VendorFinancePeriodReport` -> `App\Domains\Finance\Services\DTO\*`.
+      - **2 Requests:** `RejectVendorPayoutRequest`, `RequestVendorPayoutRequest` -> `App\Domains\Finance\Requests\*`.
+      - **1 Resource:** `FinancialTransactionResource` -> `App\Domains\Finance\Resources\*`.
+      - **1 Support:** `IbanValidator` -> `App\Domains\Finance\Support\*`.
+    - **Shared Media (2 files) -> `App\Core\Support\Media\*`:**
+      - `MediaOptimizationService`, `MediaUploadService` -> `App\Core\Support\Media\*`.
+    - **Domain Support (13 files) -> `App\Domains\<Domain>\Support\*`:**
+      - `B2bNotificationSupport`, `B2bCache` -> `App\Domains\B2b\Support\*`.
+      - `BlogProjectCache` -> `App\Domains\Blog\Support\*`.
+      - `ChatQueue`, `ChatReportCatalog`, `ConversationMessageBroadcastPayload` -> `App\Domains\Chat\Support\*`.
+      - `NotificationQueue`, `NotificationUrlSupport` -> `App\Domains\Notifications\Support\*`.
+      - `ProviderSelfInteractionGuard`, `ServiceMarketplacePresenter` -> `App\Domains\ServicesMarketplace\Support\*`.
+      - `UserNotificationPreferences` -> `App\Domains\Identity\Support\*`.
+      - `VendorAccessResolver`, `VendorOwnership` -> `App\Domains\Vendors\Support\*`.
+    - **Domain Exceptions (4 files) -> `App\Domains\<Domain>\Exceptions\*`:**
+      - `RoomDesignPayloadTooLargeException`, `RoomDesignVersionConflictException` -> `App\Domains\RoomDesigner\Exceptions\*`.
+      - `IdempotencyConflictException` -> `App\Domains\TryInRoom\Exceptions\*`.
+      - `VisualizationProviderException` -> `App\Domains\SpatialLayout\Exceptions\*`.
+    - **SMS Contract (1 file) -> `App\Infrastructure\Sms\Contracts\*`:**
+      - `SmsProvider` -> `App\Infrastructure\Sms\Contracts\SmsProvider`.
+    - **Testing Probe (1 file) -> `App\Core\Support\Testing\*`:**
+      - `QueueIntegrationProbeJob` -> `App\Core\Support\Testing\QueueIntegrationProbeJob`.
+  - Legacy Directories Pruned (0 non-domain folders remaining in `backend/app/`):
+    - Completely deleted `app/Channels`, `app/Contracts`, `app/Exceptions`, `app/Jobs`, `app/Services`, `app/Support`, `app/Http/Requests`, `app/Http/Resources`.
+    - Cleaned `backend/app/` structure: `Console/`, `Core/`, `Domains/` (25 domains), `Enums/`, `Events/`, `Http/` (base controller), `Infrastructure/`, `Listeners/`, `Models/` (114 models), `Policies/` (20 policies), `Providers/`.
+  - Reference Updates: Updated across 154 files in `app/`, `routes/`, `tests/`, `scripts/` (`stage2817-payout-request-worker.php`), and configs.
+  - Static Reference Audit: 0 stale references found across active codebase (`STALE_REFERENCES_FOUND=0`).
+  - Database Migration Protection: 0 migration files modified (`git diff backend/database/migrations` is completely empty).
+  - Autoload Verification: `composer dump-autoload` PASSED (8,620 classes mapped).
+  - Route Invariant: Exactly 528 routes registered (522 API v1 + 6 platform routes). Zero route diffs.
+  - Test Suite Certification:
+    - Backend: 1,108 tests (1,101 passed, 7 skipped, 0 failed, 4,560 assertions, duration: 120.5s).
+    - Finance Targeted Tests: 11/11 passed.
+    - Spatial / RoomDesigner Tests: 46/46 passed.
+    - Payout Concurrency Worker Test: 1/1 passed.
+    - Frontend: 87/87 test files passed (350/350 tests, duration: 48.7s).
+    - Frontend Build: `npm run build` PASS (11.48s).
+  - Baseline Commit: `0abd05173e7cc337fc56ae335e8e63e0960944e4`
+  - Next Approved Step: Step 11 — Frontend Architectural Alignment or Phase 21 Performance Preparation.
+- **Git Status:** dev branch, ready for commit `refactor(architecture): cleanup backend architecture seams and legacy folders`.
+
 

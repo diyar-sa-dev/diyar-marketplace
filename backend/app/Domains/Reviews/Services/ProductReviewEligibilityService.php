@@ -8,7 +8,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductReview;
 use App\Models\User;
-use App\Support\Vendor\VendorOwnership;
+use App\Domains\Vendors\Support\VendorOwnership;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
 use InvalidArgumentException;

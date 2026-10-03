@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\Visualization;
 
-use App\Exceptions\Visualization\VisualizationProviderException;
+use App\Domains\SpatialLayout\Exceptions\VisualizationProviderException;
 use App\Domains\VisualSearch\Services\Providers\OpenAi\OpenAiVisualizationHttpClient;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\Test;

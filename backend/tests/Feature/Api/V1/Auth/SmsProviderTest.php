@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Auth;
 
-use App\Contracts\Sms\SmsProvider;
+use App\Infrastructure\Sms\Contracts\SmsProvider;
 use App\Enums\OtpPurpose;
 use App\Infrastructure\Sms\LogSmsProvider;
 use App\Infrastructure\Sms\SmsProviderFactory;

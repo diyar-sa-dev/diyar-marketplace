@@ -4,7 +4,7 @@ namespace App\Domains\Orders\Services;
 
 use App\Enums\VendorOrderStatus;
 use App\Models\VendorOrder;
-use App\Services\Finance\EscrowReleaseService;
+use App\Domains\Finance\Services\EscrowReleaseService;
 use InvalidArgumentException;
 
 final class VendorOrderStateService

@@ -12,7 +12,7 @@ use App\Domains\Platform\Services\EffectiveConfigService;
 use App\Core\Support\Cache\CacheKeys;
 use App\Core\Support\Cache\StampedeSafeCache;
 use App\Core\Support\Pagination\PaginationBounds;
-use App\Support\Vendor\VendorOwnership;
+use App\Domains\Vendors\Support\VendorOwnership;
 use App\Domains\VisualSearch\Support\Dhash64Generator;
 use App\Domains\VisualSearch\Support\ProductSimilarityAggregator;
 use App\Domains\VisualSearch\Support\VisualHashBits;

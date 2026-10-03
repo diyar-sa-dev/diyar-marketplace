@@ -6,7 +6,7 @@ use App\Enums\NotificationDeliveryStatus;
 use App\Enums\NotificationFailureCategory;
 use App\Domains\Notifications\Jobs\DeliverNotificationChannelJob;
 use App\Models\NotificationDelivery;
-use App\Support\Notifications\NotificationQueue;
+use App\Domains\Notifications\Support\NotificationQueue;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

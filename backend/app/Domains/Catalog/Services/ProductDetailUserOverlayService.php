@@ -9,7 +9,7 @@ use App\Models\ProductLike;
 use App\Models\ProductPreorderRequest;
 use App\Models\User;
 use App\Models\WishlistItem;
-use App\Support\Vendor\VendorAccessResolver;
+use App\Domains\Vendors\Support\VendorAccessResolver;
 use Illuminate\Support\Facades\Schema;
 
 /**

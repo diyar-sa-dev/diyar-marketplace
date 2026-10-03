@@ -2,7 +2,7 @@
 
 namespace App\Domains\VisualSearch\Services\Providers\OpenAi;
 
-use App\Exceptions\Visualization\VisualizationProviderException;
+use App\Domains\SpatialLayout\Exceptions\VisualizationProviderException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;

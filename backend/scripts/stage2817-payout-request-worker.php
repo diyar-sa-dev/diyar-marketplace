@@ -21,7 +21,7 @@ require __DIR__.'/concurrency-worker-bootstrap.php';
 bootstrapConcurrencyWorker($dbPath);
 
 use App\Models\VendorAccount;
-use App\Services\Finance\PayoutService;
+use App\Domains\Finance\Services\PayoutService;
 
 try {
     $vendorAccount = VendorAccount::query()->findOrFail($vendorAccountId);

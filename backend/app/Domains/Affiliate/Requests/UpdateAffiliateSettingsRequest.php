@@ -2,7 +2,7 @@
 
 namespace App\Domains\Affiliate\Requests;
 
-use App\Support\Finance\IbanValidator;
+use App\Domains\Finance\Support\IbanValidator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 

@@ -5,7 +5,7 @@ namespace App\Domains\Returns\Services;
 use App\Models\ReturnEvidence;
 use App\Models\ReturnRequest;
 use App\Models\User;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Http\UploadedFile;
 use InvalidArgumentException;
 

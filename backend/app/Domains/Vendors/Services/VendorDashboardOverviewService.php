@@ -14,11 +14,11 @@ use App\Models\ProductPreorderRequest;
 use App\Models\ReturnRequest;
 use App\Models\VendorAccount;
 use App\Models\VendorOrder;
-use App\Services\Finance\DTO\VendorFinanceAnalyticsPoint;
-use App\Services\Finance\VendorBalanceService;
-use App\Services\Finance\VendorFinancePeriodResolver;
-use App\Services\Finance\VendorFinanceReportingService;
-use App\Services\Media\MediaUploadService;
+use App\Domains\Finance\Services\DTO\VendorFinanceAnalyticsPoint;
+use App\Domains\Finance\Services\VendorBalanceService;
+use App\Domains\Finance\Services\VendorFinancePeriodResolver;
+use App\Domains\Finance\Services\VendorFinanceReportingService;
+use App\Core\Support\Media\MediaUploadService;
 use App\Domains\Reviews\Services\StoreReviewService;
 
 final class VendorDashboardOverviewService

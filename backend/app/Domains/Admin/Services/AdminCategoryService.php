@@ -5,7 +5,7 @@ namespace App\Domains\Admin\Services;
 use App\Models\Category;
 use App\Models\User;
 use App\Domains\Catalog\Services\CategoryService;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;

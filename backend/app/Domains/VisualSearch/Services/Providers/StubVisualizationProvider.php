@@ -3,7 +3,7 @@
 namespace App\Domains\VisualSearch\Services\Providers;
 
 use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
-use App\Exceptions\Visualization\VisualizationProviderException;
+use App\Domains\SpatialLayout\Exceptions\VisualizationProviderException;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\RoomDesign;

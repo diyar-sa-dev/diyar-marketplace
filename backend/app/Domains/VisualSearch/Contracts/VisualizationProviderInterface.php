@@ -2,7 +2,7 @@
 
 namespace App\Domains\VisualSearch\Contracts;
 
-use App\Exceptions\Visualization\VisualizationProviderException;
+use App\Domains\SpatialLayout\Exceptions\VisualizationProviderException;
 use App\Models\TryInRoomJob;
 use App\Domains\VisualSearch\Services\VisualizationCapability;
 

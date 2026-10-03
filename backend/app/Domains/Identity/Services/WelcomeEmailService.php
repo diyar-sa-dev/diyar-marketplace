@@ -6,7 +6,7 @@ use App\Enums\RoleName;
 use App\Models\User;
 use App\Infrastructure\Mail\DiyarMailContent;
 use App\Infrastructure\Mail\DiyarPhpMailer;
-use App\Support\User\UserNotificationPreferences;
+use App\Domains\Identity\Support\UserNotificationPreferences;
 
 final class WelcomeEmailService
 {

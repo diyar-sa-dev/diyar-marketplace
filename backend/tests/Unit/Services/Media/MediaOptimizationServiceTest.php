@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\Media;
 
-use App\Services\Media\MediaOptimizationService;
+use App\Core\Support\Media\MediaOptimizationService;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 

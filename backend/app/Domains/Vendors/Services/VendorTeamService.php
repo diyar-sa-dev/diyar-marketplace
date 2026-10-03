@@ -10,7 +10,7 @@ use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorTeamMember;
 use App\Infrastructure\Mail\DiyarPhpMailer;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;

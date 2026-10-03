@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services\Visualization;
 
 use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
-use App\Exceptions\Visualization\VisualizationProviderException;
+use App\Domains\SpatialLayout\Exceptions\VisualizationProviderException;
 use App\Models\TryInRoomJob;
 use App\Models\User;
 use App\Domains\VisualSearch\Services\VisualizationCapability;

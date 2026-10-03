@@ -11,7 +11,7 @@ use App\Domains\Notifications\Jobs\DeliverNotificationChannelJob;
 use App\Models\NotificationDelivery;
 use App\Models\UserNotification;
 use App\Core\Support\Api\ApiResponse;
-use App\Support\Notifications\NotificationQueue;
+use App\Domains\Notifications\Support\NotificationQueue;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

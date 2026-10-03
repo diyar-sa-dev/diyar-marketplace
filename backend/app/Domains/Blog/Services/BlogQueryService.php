@@ -5,7 +5,7 @@ namespace App\Domains\Blog\Services;
 use App\Models\BlogArticle;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
-use App\Support\Cache\BlogProjectCache;
+use App\Domains\Blog\Support\BlogProjectCache;
 use App\Core\Support\Cache\CachesQueryResults;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;

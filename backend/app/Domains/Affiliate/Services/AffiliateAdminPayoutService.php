@@ -8,7 +8,7 @@ use App\Models\AffiliateCommission;
 use App\Models\AffiliatePayout;
 use App\Models\AffiliateProfile;
 use App\Models\User;
-use App\Services\Finance\FinancialPostingService;
+use App\Domains\Finance\Services\FinancialPostingService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 

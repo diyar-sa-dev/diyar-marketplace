@@ -13,7 +13,7 @@ use App\Domains\B2b\Resources\B2bTagResource;
 use App\Models\B2bCategory;
 use App\Models\B2bTag;
 use App\Domains\B2b\Services\PartnerB2bCompanyService;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use App\Core\Support\Api\ApiResponse;
 use App\Core\Support\Media\CmsImageUrl;
 use Illuminate\Http\JsonResponse;

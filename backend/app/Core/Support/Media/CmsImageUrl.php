@@ -2,7 +2,7 @@
 
 namespace App\Core\Support\Media;
 
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 
 final class CmsImageUrl
 {

@@ -6,7 +6,7 @@ use App\Enums\B2bPublicationStatus;
 use App\Enums\B2bVerificationStatus;
 use App\Models\B2bCategory;
 use App\Models\B2bCompany;
-use App\Support\Cache\B2bCache;
+use App\Domains\B2b\Support\B2bCache;
 use Illuminate\Database\Seeder;
 
 class B2bE2eSeeder extends Seeder

@@ -3,7 +3,7 @@
 namespace App\Domains\TryInRoom\Controllers;
 
 use App\Enums\TryInRoomJobStatus;
-use App\Exceptions\TryInRoom\IdempotencyConflictException;
+use App\Domains\TryInRoom\Exceptions\IdempotencyConflictException;
 use App\Http\Controllers\Controller;
 use App\Domains\TryInRoom\Requests\StoreTryInRoomRequest;
 use App\Domains\TryInRoom\Resources\TryInRoomJobResource;

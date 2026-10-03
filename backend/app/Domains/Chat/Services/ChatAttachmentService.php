@@ -4,7 +4,7 @@ namespace App\Domains\Chat\Services;
 
 use App\Models\Message;
 use App\Models\MessageAttachment;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Http\UploadedFile;
 
 final class ChatAttachmentService

@@ -2,7 +2,7 @@
 
 namespace App\Infrastructure\Sms;
 
-use App\Contracts\Sms\SmsProvider;
+use App\Infrastructure\Sms\Contracts\SmsProvider;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
 

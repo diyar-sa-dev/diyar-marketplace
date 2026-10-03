@@ -7,7 +7,7 @@ use App\Models\ProductReview;
 use App\Models\StoreReview;
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

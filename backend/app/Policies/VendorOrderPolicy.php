@@ -5,7 +5,7 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\VendorOrder;
 use App\Domains\Vendors\Services\VendorAccessService;
-use App\Support\Vendor\VendorAccessResolver;
+use App\Domains\Vendors\Support\VendorAccessResolver;
 
 class VendorOrderPolicy
 {

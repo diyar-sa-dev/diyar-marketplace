@@ -7,7 +7,7 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
 use App\Models\User;
-use App\Support\ServiceMarketplace\ProviderSelfInteractionGuard;
+use App\Domains\ServicesMarketplace\Support\ProviderSelfInteractionGuard;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

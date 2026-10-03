@@ -12,7 +12,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use App\Domains\Vendors\Services\VendorAccessService;
 use App\Core\Support\Pagination\PaginationBounds;
 use App\Core\Support\SlugGenerator;

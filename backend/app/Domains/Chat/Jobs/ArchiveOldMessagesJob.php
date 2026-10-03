@@ -3,7 +3,7 @@
 namespace App\Domains\Chat\Jobs;
 
 use App\Domains\Chat\Services\ChatArchiveService;
-use App\Support\Chat\ChatQueue;
+use App\Domains\Chat\Support\ChatQueue;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

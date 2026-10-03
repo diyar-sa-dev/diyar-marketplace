@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Media\MediaOptimizationService;
+use App\Core\Support\Media\MediaOptimizationService;
 use App\Domains\Platform\Services\EffectiveConfigService;
 use App\Core\Support\Media\OptimizedMedia;
 use Illuminate\Console\Command;

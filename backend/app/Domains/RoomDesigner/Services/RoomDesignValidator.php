@@ -2,7 +2,7 @@
 
 namespace App\Domains\RoomDesigner\Services;
 
-use App\Exceptions\RoomDesign\RoomDesignPayloadTooLargeException;
+use App\Domains\RoomDesigner\Exceptions\RoomDesignPayloadTooLargeException;
 use App\Models\Product;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;

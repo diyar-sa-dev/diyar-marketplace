@@ -2,7 +2,7 @@
 
 namespace App\Domains\Admin\Resources;
 
-use App\Services\Finance\DTO\PlatformFinancePeriodReport;
+use App\Domains\Finance\Services\DTO\PlatformFinancePeriodReport;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

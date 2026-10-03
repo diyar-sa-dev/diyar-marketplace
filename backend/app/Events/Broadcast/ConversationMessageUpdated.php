@@ -3,7 +3,7 @@
 namespace App\Events\Broadcast;
 
 use App\Models\Message;
-use App\Support\Chat\ConversationMessageBroadcastPayload;
+use App\Domains\Chat\Support\ConversationMessageBroadcastPayload;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;

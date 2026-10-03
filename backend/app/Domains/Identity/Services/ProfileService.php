@@ -3,7 +3,7 @@
 namespace App\Domains\Identity\Services;
 
 use App\Models\User;
-use App\Services\Media\MediaUploadService;
+use App\Core\Support\Media\MediaUploadService;
 use App\Domains\Identity\Services\UserSessionService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;

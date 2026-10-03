@@ -3,7 +3,7 @@
 namespace App\Domains\Admin\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Finance\RejectVendorPayoutRequest;
+use App\Domains\Finance\Requests\RejectVendorPayoutRequest;
 use App\Domains\Admin\Resources\AdminVendorPayoutResource;
 use App\Domains\Vendors\Resources\VendorPayoutResource;
 use App\Models\User;

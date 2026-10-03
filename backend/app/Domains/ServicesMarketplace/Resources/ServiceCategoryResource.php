@@ -3,7 +3,7 @@
 namespace App\Domains\ServicesMarketplace\Resources;
 
 use App\Models\ServiceCategory;
-use App\Support\ServiceMarketplace\ServiceMarketplacePresenter;
+use App\Domains\ServicesMarketplace\Support\ServiceMarketplacePresenter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
