@@ -41,6 +41,7 @@ backend/.env.*
 !backend/.env.staging.example
 !backend/.env.production.example
 !backend/.env.loadtest.example
+!backend/.env.vps-simulation.example
 
 # Docker production secrets (local VPS only)
 deploy/docker/production.env
