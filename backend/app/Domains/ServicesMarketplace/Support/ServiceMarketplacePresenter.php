@@ -2,10 +2,10 @@
 
 namespace App\Domains\ServicesMarketplace\Support;
 
+use App\Core\Support\Media\MediaUploadService;
 use App\Enums\ServicePricingMode;
 use App\Enums\Weekday;
 use App\Models\ProviderWorkPolicy;
-use App\Core\Support\Media\MediaUploadService;
 
 final class ServiceMarketplacePresenter
 {

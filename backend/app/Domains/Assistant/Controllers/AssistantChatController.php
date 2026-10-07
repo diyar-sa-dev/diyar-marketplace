@@ -2,10 +2,10 @@
 
 namespace App\Domains\Assistant\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Assistant\Requests\AssistantChatRequest;
 use App\Domains\Assistant\Services\AssistantChatService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use RuntimeException;
 

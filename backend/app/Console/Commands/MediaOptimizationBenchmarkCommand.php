@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Core\Support\Media\MediaOptimizationService;
-use App\Domains\Platform\Services\EffectiveConfigService;
 use App\Core\Support\Media\OptimizedMedia;
+use App\Domains\Platform\Services\EffectiveConfigService;
 use Illuminate\Console\Command;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;

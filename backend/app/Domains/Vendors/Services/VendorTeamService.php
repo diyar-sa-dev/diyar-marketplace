@@ -2,15 +2,15 @@
 
 namespace App\Domains\Vendors\Services;
 
+use App\Core\Support\Media\MediaUploadService;
 use App\Enums\VendorTeamRole;
 use App\Enums\VendorTeamStatus;
 use App\Events\Domain\TeamInvitationReceived;
 use App\Events\Domain\TeamMemberAdded;
+use App\Infrastructure\Mail\DiyarPhpMailer;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorTeamMember;
-use App\Infrastructure\Mail\DiyarPhpMailer;
-use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;

@@ -2,12 +2,12 @@
 
 namespace App\Domains\Finance\Services;
 
+use App\Domains\Finance\Services\DTO\VendorBalanceSummary;
 use App\Enums\BalanceBucket;
 use App\Enums\FinancialDirection;
 use App\Enums\FinancialTransactionType;
 use App\Models\FinancialTransaction;
 use App\Models\VendorAccount;
-use App\Domains\Finance\Services\DTO\VendorBalanceSummary;
 
 final class VendorBalanceService
 {

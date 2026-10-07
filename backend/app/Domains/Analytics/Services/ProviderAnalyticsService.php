@@ -2,13 +2,13 @@
 
 namespace App\Domains\Analytics\Services;
 
+use App\Domains\ServicesMarketplace\Services\ProviderFinanceService;
 use App\Enums\ServiceBookingPaymentStatus;
 use App\Enums\ServiceBookingStatus;
 use App\Models\ProviderAccount;
 use App\Models\ProviderReview;
 use App\Models\Service;
 use App\Models\ServiceBooking;
-use App\Domains\ServicesMarketplace\Services\ProviderFinanceService;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;

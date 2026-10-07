@@ -2,11 +2,11 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Coupons\Resources\VendorCouponResource;
-use App\Models\VendorCoupon;
-use App\Domains\Admin\Services\AdminCouponService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Admin\Services\AdminCouponService;
+use App\Domains\Coupons\Resources\VendorCouponResource;
+use App\Http\Controllers\Controller;
+use App\Models\VendorCoupon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

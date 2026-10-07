@@ -2,12 +2,11 @@
 
 namespace App\Domains\Payments\Services;
 
+use App\Domains\Payments\Exceptions\PaymentGatewayException;
+use App\Domains\Payments\Services\DTO\PaymentDetailsRequest;
 use App\Enums\PaymentAttemptStatus;
 use App\Enums\PaymentStatus;
 use App\Models\Payment;
-use App\Domains\Payments\Services\PaymentStateService;
-use App\Domains\Payments\Services\DTO\PaymentDetailsRequest;
-use App\Domains\Payments\Exceptions\PaymentGatewayException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 

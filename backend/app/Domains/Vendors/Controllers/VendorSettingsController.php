@@ -2,7 +2,7 @@
 
 namespace App\Domains\Vendors\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Vendors\Requests\UpdateVendorBankAccountRequest;
 use App\Domains\Vendors\Requests\UpdateVendorLegalProfileRequest;
 use App\Domains\Vendors\Requests\UpdateVendorSettingsRequest;
@@ -11,7 +11,7 @@ use App\Domains\Vendors\Requests\UploadVendorCoverRequest;
 use App\Domains\Vendors\Requests\UploadVendorLogoRequest;
 use App\Domains\Vendors\Resources\VendorSettingsResource;
 use App\Domains\Vendors\Services\VendorSettingsService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

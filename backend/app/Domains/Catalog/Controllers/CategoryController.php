@@ -2,13 +2,13 @@
 
 namespace App\Domains\Catalog\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Catalog\Requests\ProductListRequest;
 use App\Domains\Catalog\Resources\CategoryResource;
 use App\Domains\Catalog\Resources\ProductCardResource;
 use App\Domains\Catalog\Services\CategoryService;
 use App\Domains\Catalog\Services\ProductService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

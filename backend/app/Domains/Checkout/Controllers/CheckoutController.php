@@ -2,13 +2,13 @@
 
 namespace App\Domains\Checkout\Controllers;
 
-use App\Enums\AnalyticsEventType;
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
+use App\Domains\Analytics\Services\AnalyticsEventRecorder;
 use App\Domains\Checkout\Requests\CheckoutPreviewRequest;
 use App\Domains\Checkout\Resources\CheckoutPreviewResource;
-use App\Domains\Analytics\Services\AnalyticsEventRecorder;
 use App\Domains\Checkout\Services\CheckoutPreviewService;
-use App\Core\Support\Api\ApiResponse;
+use App\Enums\AnalyticsEventType;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;

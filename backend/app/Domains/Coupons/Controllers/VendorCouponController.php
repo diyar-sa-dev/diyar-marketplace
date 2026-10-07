@@ -2,13 +2,13 @@
 
 namespace App\Domains\Coupons\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Coupons\Requests\StoreVendorCouponRequest;
 use App\Domains\Coupons\Requests\UpdateVendorCouponRequest;
 use App\Domains\Coupons\Resources\VendorCouponResource;
-use App\Models\VendorCoupon;
 use App\Domains\Coupons\Services\VendorCouponManagementService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
+use App\Models\VendorCoupon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

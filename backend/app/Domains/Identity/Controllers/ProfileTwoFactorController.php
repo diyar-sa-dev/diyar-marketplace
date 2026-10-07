@@ -2,12 +2,12 @@
 
 namespace App\Domains\Identity\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Identity\Requests\ConfirmTwoFactorRequest;
 use App\Domains\Identity\Requests\DisableTwoFactorRequest;
 use App\Domains\Identity\Resources\UserResource;
 use App\Domains\Identity\Services\TwoFactorService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;

@@ -2,9 +2,9 @@
 
 namespace App\Domains\Identity\Resources;
 
-use App\Models\UserSession;
 use App\Domains\Identity\Services\IpGeolocationService;
 use App\Domains\Identity\Support\SessionLookupHash;
+use App\Models\UserSession;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

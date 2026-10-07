@@ -2,10 +2,10 @@
 
 namespace App\Policies;
 
-use App\Models\Product;
-use App\Models\User;
 use App\Domains\Vendors\Services\VendorAccessService;
 use App\Domains\Vendors\Support\VendorAccessResolver;
+use App\Models\Product;
+use App\Models\User;
 
 class ProductPolicy
 {

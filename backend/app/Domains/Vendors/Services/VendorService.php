@@ -2,9 +2,9 @@
 
 namespace App\Domains\Vendors\Services;
 
+use App\Core\Support\Pagination\PaginationBounds;
 use App\Enums\ProductStatus;
 use App\Models\VendorAccount;
-use App\Core\Support\Pagination\PaginationBounds;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 

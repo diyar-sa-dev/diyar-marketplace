@@ -2,14 +2,14 @@
 
 namespace App\Domains\Catalog\Resources;
 
-use App\Enums\AvailabilityMode;
-use App\Models\Product;
+use App\Core\Support\Media\MediaUploadService;
 use App\Domains\Catalog\Services\ProductEngagementService;
 use App\Domains\Catalog\Services\ProductPreorderService;
 use App\Domains\Catalog\Services\ProductSalesStatsService;
-use App\Core\Support\Media\MediaUploadService;
 use App\Domains\Vendors\Support\VendorAccessResolver;
 use App\Domains\Vendors\Support\VendorOwnership;
+use App\Enums\AvailabilityMode;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Collection;

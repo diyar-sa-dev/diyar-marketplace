@@ -2,7 +2,7 @@
 
 namespace App\Domains\Chat\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Chat\Requests\CreateConversationRequest;
 use App\Domains\Chat\Resources\ConversationResource;
 use App\Domains\Chat\Services\ChatPresenceService;
@@ -10,7 +10,7 @@ use App\Domains\Chat\Services\ChatRealtimeBroadcaster;
 use App\Domains\Chat\Services\ChatTypingService;
 use App\Domains\Chat\Services\ChatUnreadCounterService;
 use App\Domains\Chat\Services\ConversationService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

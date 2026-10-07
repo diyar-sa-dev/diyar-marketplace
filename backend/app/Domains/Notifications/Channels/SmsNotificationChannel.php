@@ -3,12 +3,12 @@
 namespace App\Domains\Notifications\Channels;
 
 use App\Domains\Notifications\Contracts\NotificationChannelInterface;
-use App\Infrastructure\Sms\Contracts\SmsProvider;
+use App\Domains\Notifications\Services\NotificationCircuitBreaker;
 use App\Enums\NotificationChannel;
+use App\Infrastructure\Sms\Contracts\SmsProvider;
 use App\Models\NotificationDelivery;
 use App\Models\User;
 use App\Models\UserNotification;
-use App\Domains\Notifications\Services\NotificationCircuitBreaker;
 use RuntimeException;
 
 final class SmsNotificationChannel implements NotificationChannelInterface

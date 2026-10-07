@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\Shipping;
 
+use App\Domains\Shipping\Services\ShippingRuleEngine;
 use App\Enums\ShippingRateMethodType;
 use App\Models\Product;
 use App\Models\ShippingCarrier;
@@ -10,7 +11,6 @@ use App\Models\ShippingRateRule;
 use App\Models\ShippingZone;
 use App\Models\VendorShippingProfile;
 use App\Models\VendorShippingSettings;
-use App\Domains\Shipping\Services\ShippingRuleEngine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

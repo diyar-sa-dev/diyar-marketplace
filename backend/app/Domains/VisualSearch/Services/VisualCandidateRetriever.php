@@ -2,10 +2,10 @@
 
 namespace App\Domains\VisualSearch\Services;
 
-use App\Models\VisualIndexEntry;
 use App\Domains\VisualSearch\Support\BucketProbe;
 use App\Domains\VisualSearch\Support\VisualHashBits;
 use App\Domains\VisualSearch\Support\VisualSearchCandidate;
+use App\Models\VisualIndexEntry;
 use Illuminate\Support\Facades\Schema;
 
 final class VisualCandidateRetriever

@@ -2,10 +2,10 @@
 
 namespace App\Domains\Admin\Services;
 
+use App\Domains\Catalog\Services\CatalogCacheInvalidator;
 use App\Enums\ProductStatus;
 use App\Models\Product;
 use App\Models\User;
-use App\Domains\Catalog\Services\CatalogCacheInvalidator;
 use Illuminate\Support\Facades\DB;
 
 final class AdminProductService

@@ -2,9 +2,9 @@
 
 namespace App\Domains\Affiliate\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Affiliate\Services\AffiliatePlatformConfigService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Affiliate\Services\AffiliatePlatformConfigService;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 class AffiliatePlatformConfigController extends Controller

@@ -3,8 +3,8 @@
 namespace App\Domains\VisualSearch\Contracts;
 
 use App\Domains\SpatialLayout\Exceptions\VisualizationProviderException;
-use App\Models\TryInRoomJob;
 use App\Domains\VisualSearch\Services\VisualizationCapability;
+use App\Models\TryInRoomJob;
 
 interface VisualizationProviderInterface
 {

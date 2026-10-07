@@ -2,15 +2,15 @@
 
 namespace App\Domains\Admin\Controllers;
 
+use App\Core\Support\Api\ApiResponse;
+use App\Core\Support\SlugGenerator;
+use App\Domains\Admin\Services\AdminShippingConfigurationService;
 use App\Http\Controllers\Controller;
 use App\Models\ShippingCarrier;
 use App\Models\ShippingMethod;
 use App\Models\ShippingRateRule;
 use App\Models\ShippingZone;
 use App\Models\VendorShippingProfile;
-use App\Domains\Admin\Services\AdminShippingConfigurationService;
-use App\Core\Support\Api\ApiResponse;
-use App\Core\Support\SlugGenerator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;

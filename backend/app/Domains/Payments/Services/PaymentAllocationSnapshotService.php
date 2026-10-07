@@ -2,11 +2,11 @@
 
 namespace App\Domains\Payments\Services;
 
+use App\Domains\Finance\Services\CommissionResolver;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentAttempt;
 use App\Models\PaymentVendorAllocation;
-use App\Domains\Finance\Services\CommissionResolver;
 
 final class PaymentAllocationSnapshotService
 {

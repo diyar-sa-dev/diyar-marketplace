@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Services\Payments;
 
-use App\Enums\PaymentMethod;
 use App\Domains\Payments\Services\DTO\PaymentMethodCapability;
 use App\Domains\Payments\Services\PaymentMethodResolver;
+use App\Enums\PaymentMethod;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

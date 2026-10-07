@@ -2,11 +2,11 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Admin\Resources\AdminProviderAccountResource;
-use App\Models\ProviderAccount;
-use App\Domains\Admin\Services\AdminProviderAccountService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Admin\Resources\AdminProviderAccountResource;
+use App\Domains\Admin\Services\AdminProviderAccountService;
+use App\Http\Controllers\Controller;
+use App\Models\ProviderAccount;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

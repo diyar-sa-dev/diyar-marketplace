@@ -2,17 +2,17 @@
 
 namespace Tests\Feature\Api\V1\Catalog;
 
-use App\Models\Product;
-use App\Models\VendorAccount;
-use App\Domains\Catalog\Services\CachedFilterContextSummaryService;
-use App\Domains\Catalog\Services\FilterContextSummaryService;
 use App\Core\Support\Cache\CacheKeys;
 use App\Core\Support\Cache\VersionedCache;
+use App\Domains\Catalog\Services\CachedFilterContextSummaryService;
+use App\Domains\Catalog\Services\FilterContextSummaryService;
 use App\Domains\Catalog\Support\Filters\CatalogFilterNormalizer;
 use App\Domains\Catalog\Support\Filters\Context\FilterContextFactory;
 use App\Domains\Catalog\Support\Filters\Context\FilterContextSignature;
 use App\Domains\Catalog\Support\Filters\FilterContentType;
 use App\Domains\Catalog\Support\Filters\FilterSurface;
+use App\Models\Product;
+use App\Models\VendorAccount;
 use Database\Seeders\CatalogSeeder;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\PlatformDemoSeeder;

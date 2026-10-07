@@ -2,10 +2,10 @@
 
 namespace App\Domains\VisualSearch\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\VisualSearch\Requests\VisualSearchRequest;
 use App\Domains\VisualSearch\Services\VisualSearchService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 class VisualSearchController extends Controller

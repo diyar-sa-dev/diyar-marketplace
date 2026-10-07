@@ -2,13 +2,13 @@
 
 namespace App\Domains\ServicesMarketplace\Services;
 
+use App\Core\Support\Media\MediaUploadService;
+use App\Domains\Finance\Support\IbanValidator;
+use App\Domains\Identity\Services\ProfileService;
 use App\Enums\SaudiBank;
 use App\Models\ProviderAccount;
 use App\Models\ProviderBankAccount;
 use App\Models\User;
-use App\Core\Support\Media\MediaUploadService;
-use App\Domains\Identity\Services\ProfileService;
-use App\Domains\Finance\Support\IbanValidator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;

@@ -2,14 +2,14 @@
 
 namespace App\Domains\VisualSearch\Services\Providers\OpenAi;
 
-use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
 use App\Domains\SpatialLayout\Exceptions\VisualizationProviderException;
-use App\Models\Product;
-use App\Models\TryInRoomJob;
+use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
 use App\Domains\VisualSearch\Services\Support\TryInRoomPrivateImageReader;
 use App\Domains\VisualSearch\Services\Support\TryInRoomResultImageStore;
 use App\Domains\VisualSearch\Services\VisualizationCapability;
 use App\Domains\VisualSearch\Services\VisualizationPrivacyGate;
+use App\Models\Product;
+use App\Models\TryInRoomJob;
 
 final class OpenAiTryInRoomCompositeProvider implements VisualizationProviderInterface
 {

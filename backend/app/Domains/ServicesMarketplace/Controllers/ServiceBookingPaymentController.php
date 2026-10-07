@@ -2,13 +2,13 @@
 
 namespace App\Domains\ServicesMarketplace\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\ServicesMarketplace\Requests\SimulateServiceBookingPaymentRequest;
 use App\Domains\ServicesMarketplace\Resources\ServiceBookingPaymentResource;
 use App\Domains\ServicesMarketplace\Resources\ServiceBookingResource;
-use App\Models\ServiceBooking;
 use App\Domains\ServicesMarketplace\Services\ServiceBookingPaymentService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
+use App\Models\ServiceBooking;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

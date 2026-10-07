@@ -2,6 +2,9 @@
 
 namespace App\Domains\Finance\Services;
 
+use App\Domains\Analytics\Services\AnalyticsTimeBuckets;
+use App\Domains\Finance\Services\DTO\PlatformFinancePeriodReport;
+use App\Domains\Finance\Services\DTO\PlatformFinanceSummary;
 use App\Enums\AffiliateCommissionStatus;
 use App\Enums\BalanceBucket;
 use App\Enums\FinancePeriod;
@@ -17,9 +20,6 @@ use App\Models\PaymentVendorAllocation;
 use App\Models\ProviderPayout;
 use App\Models\VendorOrder;
 use App\Models\VendorPayout;
-use App\Domains\Analytics\Services\AnalyticsTimeBuckets;
-use App\Domains\Finance\Services\DTO\PlatformFinancePeriodReport;
-use App\Domains\Finance\Services\DTO\PlatformFinanceSummary;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 

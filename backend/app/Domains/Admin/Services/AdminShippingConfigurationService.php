@@ -2,12 +2,12 @@
 
 namespace App\Domains\Admin\Services;
 
+use App\Domains\Shipping\Services\ShippingConfigCache;
 use App\Models\ShippingCarrier;
 use App\Models\ShippingMethod;
 use App\Models\ShippingRateRule;
 use App\Models\ShippingZone;
 use App\Models\VendorShippingProfile;
-use App\Domains\Shipping\Services\ShippingConfigCache;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;

@@ -2,15 +2,15 @@
 
 namespace App\Domains\Vendors\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Vendors\Requests\StoreProductRequest;
-use App\Domains\Vendors\Requests\UpdateProductRequest;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Catalog\Resources\ProductCardResource;
 use App\Domains\Catalog\Resources\ProductDetailResource;
+use App\Domains\Catalog\Services\ProductService;
+use App\Domains\Vendors\Requests\StoreProductRequest;
+use App\Domains\Vendors\Requests\UpdateProductRequest;
+use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductImage;
-use App\Domains\Catalog\Services\ProductService;
-use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

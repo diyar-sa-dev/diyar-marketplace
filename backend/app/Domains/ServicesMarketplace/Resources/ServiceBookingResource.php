@@ -2,12 +2,12 @@
 
 namespace App\Domains\ServicesMarketplace\Resources;
 
+use App\Domains\ServicesMarketplace\Services\ProviderReviewEligibility;
+use App\Domains\ServicesMarketplace\Support\ServiceMarketplacePresenter;
 use App\Enums\ServiceBookingPaymentStatus;
 use App\Enums\ServiceBookingStatus;
 use App\Models\ServiceBooking;
 use App\Models\User;
-use App\Domains\ServicesMarketplace\Services\ProviderReviewEligibility;
-use App\Domains\ServicesMarketplace\Support\ServiceMarketplacePresenter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

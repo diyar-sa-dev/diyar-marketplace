@@ -2,12 +2,12 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Loyalty\Resources\LoyaltyTransactionResource;
-use App\Models\User;
 use App\Domains\Loyalty\Services\LoyaltyLedgerService;
 use App\Domains\Loyalty\Services\LoyaltyQueryService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;

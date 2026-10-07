@@ -2,15 +2,15 @@
 
 namespace App\Domains\Notifications\Channels;
 
+use App\Domains\Identity\Support\UserNotificationPreferences;
 use App\Domains\Notifications\Contracts\NotificationChannelInterface;
+use App\Domains\Notifications\Services\NotificationCircuitBreaker;
 use App\Enums\NotificationChannel;
+use App\Infrastructure\Mail\DiyarMailContent;
+use App\Infrastructure\Mail\DiyarPhpMailer;
 use App\Models\NotificationDelivery;
 use App\Models\User;
 use App\Models\UserNotification;
-use App\Infrastructure\Mail\DiyarMailContent;
-use App\Infrastructure\Mail\DiyarPhpMailer;
-use App\Domains\Notifications\Services\NotificationCircuitBreaker;
-use App\Domains\Identity\Support\UserNotificationPreferences;
 use RuntimeException;
 
 final class EmailNotificationChannel implements NotificationChannelInterface

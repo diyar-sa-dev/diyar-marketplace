@@ -33,6 +33,7 @@ class PlatformDemoSeeder extends Seeder
         $password = $this->demoPassword();
 
         $this->seedCustomer($password);
+        $this->seedTwoFactorCustomer($password);
         $this->seedVendor($password);
         $this->seedMarketer($password);
     }
@@ -46,6 +47,25 @@ class PlatformDemoSeeder extends Seeder
             [
                 'name' => 'DIYAR Demo Customer',
                 'email' => 'customer@diyar.local',
+                'email_verified_at' => now(),
+                'password' => $password,
+                'status' => UserStatus::Active,
+                'phone_verified_at' => now(),
+            ],
+        );
+
+        $this->attachRole($user, $role);
+    }
+
+    private function seedTwoFactorCustomer(string $password): void
+    {
+        $role = Role::query()->where('name', RoleName::Customer->value)->firstOrFail();
+
+        $user = User::query()->firstOrCreate(
+            ['phone' => '966500000012'],
+            [
+                'name' => 'DIYAR 2FA Demo Customer',
+                'email' => 'customer-2fa@diyar.local',
                 'email_verified_at' => now(),
                 'password' => $password,
                 'status' => UserStatus::Active,

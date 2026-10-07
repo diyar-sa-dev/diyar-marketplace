@@ -2,11 +2,11 @@
 
 namespace App\Domains\Notifications\Services;
 
+use App\Domains\Notifications\Jobs\ProcessNotificationBroadcastJob;
 use App\Enums\NotificationBroadcastAudience;
 use App\Enums\NotificationBroadcastStatus;
 use App\Enums\NotificationPriority;
 use App\Enums\RoleName;
-use App\Domains\Notifications\Jobs\ProcessNotificationBroadcastJob;
 use App\Models\NotificationBroadcast;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;

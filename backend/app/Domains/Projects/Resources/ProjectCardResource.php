@@ -2,8 +2,8 @@
 
 namespace App\Domains\Projects\Resources;
 
-use App\Models\Project;
 use App\Core\Support\Media\CmsImageUrl;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

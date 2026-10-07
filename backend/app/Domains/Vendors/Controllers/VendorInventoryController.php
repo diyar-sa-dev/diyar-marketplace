@@ -2,12 +2,12 @@
 
 namespace App\Domains\Vendors\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Vendors\Requests\AdjustInventoryRequest;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Catalog\Resources\ProductDetailResource;
 use App\Domains\Catalog\Services\InventoryService;
 use App\Domains\Catalog\Services\ProductService;
-use App\Core\Support\Api\ApiResponse;
+use App\Domains\Vendors\Requests\AdjustInventoryRequest;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;
 

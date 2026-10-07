@@ -2,12 +2,12 @@
 
 namespace App\Listeners\Analytics;
 
+use App\Domains\Analytics\Services\AnalyticsCacheInvalidator;
 use App\Events\Domain\BookingCompleted;
 use App\Events\Domain\BookingCreated;
 use App\Events\Domain\OrderCreated;
 use App\Events\Domain\PaymentFailed;
 use App\Events\Domain\PaymentSucceeded;
-use App\Domains\Analytics\Services\AnalyticsCacheInvalidator;
 
 final class InvalidateAnalyticsCacheListener
 {

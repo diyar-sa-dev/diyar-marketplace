@@ -2,9 +2,9 @@
 
 namespace App\Domains\Payments\Services\Gateways;
 
+use App\Core\Support\Http\FrontendOrigin;
 use App\Domains\Payments\Contracts\PaymentGatewayInterface;
-use App\Enums\FakePaymentScenario;
-use App\Enums\PaymentStatus;
+use App\Domains\Payments\Exceptions\PaymentGatewayException;
 use App\Domains\Payments\Services\DTO\PaymentCreationRequest;
 use App\Domains\Payments\Services\DTO\PaymentCreationResult;
 use App\Domains\Payments\Services\DTO\PaymentDetailsRequest;
@@ -15,8 +15,8 @@ use App\Domains\Payments\Services\DTO\PaymentSessionRequest;
 use App\Domains\Payments\Services\DTO\PaymentSessionResult;
 use App\Domains\Payments\Services\DTO\RefundPaymentRequest;
 use App\Domains\Payments\Services\DTO\RefundPaymentResult;
-use App\Domains\Payments\Exceptions\PaymentGatewayException;
-use App\Core\Support\Http\FrontendOrigin;
+use App\Enums\FakePaymentScenario;
+use App\Enums\PaymentStatus;
 use Illuminate\Support\Str;
 
 /**

@@ -2,10 +2,10 @@
 
 namespace App\Domains\Search\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Search\Requests\CatalogSearchRequest;
-use App\Domains\Catalog\Services\CachedFilterSuggestionService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Catalog\Services\CachedFilterSuggestionService;
+use App\Domains\Search\Requests\CatalogSearchRequest;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 class FilterSuggestionsController extends Controller

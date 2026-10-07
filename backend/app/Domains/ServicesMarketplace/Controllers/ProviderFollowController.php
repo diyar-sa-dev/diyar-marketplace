@@ -2,9 +2,9 @@
 
 namespace App\Domains\ServicesMarketplace\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\ServicesMarketplace\Services\ProviderFollowService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\ServicesMarketplace\Services\ProviderFollowService;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

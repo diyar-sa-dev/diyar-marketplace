@@ -2,8 +2,8 @@
 
 namespace App\Domains\B2b\Resources;
 
-use App\Models\B2bCompanyPortfolioImage;
 use App\Core\Support\Media\CmsImageUrl;
+use App\Models\B2bCompanyPortfolioImage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

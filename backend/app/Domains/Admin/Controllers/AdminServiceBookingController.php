@@ -2,10 +2,10 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\ServicesMarketplace\Resources\ServiceBookingResource;
-use App\Models\ServiceBooking;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\ServicesMarketplace\Resources\ServiceBookingResource;
+use App\Http\Controllers\Controller;
+use App\Models\ServiceBooking;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

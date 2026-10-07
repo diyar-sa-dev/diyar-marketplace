@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Order;
 
+use App\Domains\Payments\Services\PaymentStateService;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\RoleName;
@@ -11,7 +12,6 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Role;
 use App\Models\VendorOrder;
-use App\Domains\Payments\Services\PaymentStateService;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;

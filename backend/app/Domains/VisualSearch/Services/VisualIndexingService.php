@@ -2,12 +2,12 @@
 
 namespace App\Domains\VisualSearch\Services;
 
-use App\Models\Product;
-use App\Models\ProductImage;
-use App\Models\VisualIndexEntry;
 use App\Core\Support\Cache\CacheKeys;
 use App\Domains\VisualSearch\Support\Dhash64Generator;
 use App\Domains\VisualSearch\Support\VisualHashBits;
+use App\Models\Product;
+use App\Models\ProductImage;
+use App\Models\VisualIndexEntry;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;

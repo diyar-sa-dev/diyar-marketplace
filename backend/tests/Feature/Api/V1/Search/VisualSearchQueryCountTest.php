@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Api\V1\Search;
 
+use App\Domains\VisualSearch\Services\VisualCandidateRetriever;
+use App\Domains\VisualSearch\Support\Dhash64Generator;
+use App\Domains\VisualSearch\Support\VisualHashBits;
 use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
-use App\Domains\VisualSearch\Services\VisualCandidateRetriever;
-use App\Domains\VisualSearch\Support\Dhash64Generator;
-use App\Domains\VisualSearch\Support\VisualHashBits;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;

@@ -2,6 +2,9 @@
 
 namespace App\Domains\Finance\Services;
 
+use App\Domains\Analytics\Services\AnalyticsTimeBuckets;
+use App\Domains\Finance\Services\DTO\VendorFinanceAnalyticsPoint;
+use App\Domains\Finance\Services\DTO\VendorFinancePeriodReport;
 use App\Enums\FinancePeriod;
 use App\Enums\FinancialDirection;
 use App\Enums\FinancialTransactionType;
@@ -13,9 +16,6 @@ use App\Models\PaymentVendorAllocation;
 use App\Models\VendorAccount;
 use App\Models\VendorOrder;
 use App\Models\VendorPayout;
-use App\Domains\Analytics\Services\AnalyticsTimeBuckets;
-use App\Domains\Finance\Services\DTO\VendorFinanceAnalyticsPoint;
-use App\Domains\Finance\Services\DTO\VendorFinancePeriodReport;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 

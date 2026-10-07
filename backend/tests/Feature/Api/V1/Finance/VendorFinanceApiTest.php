@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Api\V1\Finance;
 
+use App\Domains\Orders\Services\VendorOrderStateService;
+use App\Domains\Payments\Services\PaymentFinalizationService;
 use App\Enums\FinancePeriod;
 use App\Enums\RoleName;
 use App\Enums\VendorOrderStatus;
 use App\Models\PaymentVendorAllocation;
-use App\Domains\Orders\Services\VendorOrderStateService;
-use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;

@@ -4,10 +4,6 @@ namespace App\Core\Support\Media;
 
 use App\Models\MediaFile;
 use App\Models\User;
-use App\Core\Support\Media\ImageContentValidator;
-use App\Core\Support\Media\OptimizedMedia;
-use App\Core\Support\Media\StoredMedia;
-use App\Core\Support\Media\SvgSafetyValidator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;

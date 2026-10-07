@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Api\V1\Auth;
 
-use App\Infrastructure\Sms\Contracts\SmsProvider;
 use App\Enums\RoleName;
+use App\Infrastructure\Sms\Contracts\SmsProvider;
 use App\Infrastructure\Sms\LogSmsProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithIdentity;

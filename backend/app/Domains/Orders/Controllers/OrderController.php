@@ -2,13 +2,13 @@
 
 namespace App\Domains\Orders\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Checkout\Requests\StoreOrderRequest;
 use App\Domains\Orders\Resources\OrderResource;
-use App\Models\Order;
 use App\Domains\Orders\Services\OrderCancellationService;
 use App\Domains\Orders\Services\OrderCreationService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
+use App\Models\Order;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

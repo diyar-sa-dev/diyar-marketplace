@@ -2,6 +2,7 @@
 
 namespace App\Domains\Catalog\Services;
 
+use App\Domains\Orders\Services\SelfPurchaseGuard;
 use App\Enums\AvailabilityMode;
 use App\Enums\ProductPreorderStatus;
 use App\Enums\ProductStatus;
@@ -9,7 +10,6 @@ use App\Models\Product;
 use App\Models\ProductPreorderRequest;
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Domains\Orders\Services\SelfPurchaseGuard;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\QueryException;
 use InvalidArgumentException;

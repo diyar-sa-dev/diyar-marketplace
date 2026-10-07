@@ -3,7 +3,6 @@
 namespace App\Core\Support\Media;
 
 use App\Domains\Platform\Services\EffectiveConfigService;
-use App\Core\Support\Media\OptimizedMedia;
 use GdImage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;

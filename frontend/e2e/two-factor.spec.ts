@@ -64,7 +64,7 @@ async function disableTwoFactorViaApi(request: import('@playwright/test').APIReq
 async function ensureCustomerTwoFactorDisabled(
   request: import('@playwright/test').APIRequestContext,
 ): Promise<void> {
-  await loginMarketplaceApi(request, demoUsers.customer.phoneNational, E2E_PASSWORD);
+  await loginMarketplaceApi(request, demoUsers.twoFactorCustomer.phoneNational, E2E_PASSWORD);
   const headers = await jsonSessionHeaders(request);
   const status = await request.get(`${apiBaseUrl()}/profile/security/two-factor`, { headers });
   if (!status.ok()) {
@@ -89,7 +89,7 @@ test.describe('Two-factor authentication — E2E', () => {
     await ensureCustomerTwoFactorDisabled(request);
   });
   test('E2E-01 login without 2FA authenticates directly', async ({ request }) => {
-    await loginMarketplaceApi(request, demoUsers.customer.phoneNational, E2E_PASSWORD);
+    await loginMarketplaceApi(request, demoUsers.twoFactorCustomer.phoneNational, E2E_PASSWORD);
     const me = await request.get(`${apiBaseUrl()}/auth/me`, {
       headers: await sessionRequestHeaders(request),
     });
@@ -98,13 +98,13 @@ test.describe('Two-factor authentication — E2E', () => {
   });
 
   test('E2E-03 login with 2FA requires OTP then authenticates', async ({ request }) => {
-    await loginMarketplaceApi(request, demoUsers.customer.phoneNational, E2E_PASSWORD);
+    await loginMarketplaceApi(request, demoUsers.twoFactorCustomer.phoneNational, E2E_PASSWORD);
     await enableTwoFactorViaApi(request);
     await logoutMarketplaceApi(request);
 
     const xsrf = await ensureCsrf(request);
     const login = await request.post(`${apiBaseUrl()}/auth/login`, {
-      data: { method: 'phone', identifier: demoUsers.customer.phoneNational, password: E2E_PASSWORD },
+      data: { method: 'phone', identifier: demoUsers.twoFactorCustomer.phoneNational, password: E2E_PASSWORD },
       headers: {
         ...statefulApiHeaders(),
         'Content-Type': 'application/json',
@@ -143,13 +143,13 @@ test.describe('Two-factor authentication — E2E', () => {
   });
 
   test('E2E-04 wrong OTP remains unauthenticated', async ({ request }) => {
-    await loginMarketplaceApi(request, demoUsers.customer.phoneNational, E2E_PASSWORD);
+    await loginMarketplaceApi(request, demoUsers.twoFactorCustomer.phoneNational, E2E_PASSWORD);
     await enableTwoFactorViaApi(request);
     await logoutMarketplaceApi(request);
 
     const xsrf = await ensureCsrf(request);
     const login = await request.post(`${apiBaseUrl()}/auth/login`, {
-      data: { method: 'phone', identifier: demoUsers.customer.phoneNational, password: E2E_PASSWORD },
+      data: { method: 'phone', identifier: demoUsers.twoFactorCustomer.phoneNational, password: E2E_PASSWORD },
       headers: {
         ...statefulApiHeaders(),
         'Content-Type': 'application/json',
@@ -174,13 +174,13 @@ test.describe('Two-factor authentication — E2E', () => {
     });
     expect(me.status()).toBe(401);
 
-    await loginMarketplaceApi(request, demoUsers.customer.phoneNational, E2E_PASSWORD, E2E_OTP);
+    await loginMarketplaceApi(request, demoUsers.twoFactorCustomer.phoneNational, E2E_PASSWORD, E2E_OTP);
     await disableTwoFactorViaApi(request);
     await logoutMarketplaceApi(request);
   });
 
   test('E2E-02 security page shows enable flow in English', async ({ page }) => {
-    await loginMarketplaceUi(page, demoUsers.customer.phoneNational);
+    await loginMarketplaceUi(page, demoUsers.twoFactorCustomer.phoneNational);
     await page.goto('/profile/security');
     await expect(page.getByText(/Two-factor authentication \(2FA\)|التحقق بخطوتين/i)).toBeVisible();
     await expect(page.getByText(/^Disabled$|^غير مفعّل$/i)).toBeVisible();
@@ -188,7 +188,7 @@ test.describe('Two-factor authentication — E2E', () => {
 
   test('E2E-09 Arabic RTL security copy', async ({ page }) => {
     await page.addInitScript(() => window.localStorage.setItem('diyar-locale', 'ar'));
-    await loginMarketplaceUi(page, demoUsers.customer.phoneNational);
+    await loginMarketplaceUi(page, demoUsers.twoFactorCustomer.phoneNational);
     await page.goto('/profile/security');
     await expect(page.getByText(/التحقق بخطوتين/)).toBeVisible();
   });

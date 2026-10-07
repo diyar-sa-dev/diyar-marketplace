@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Shipping;
 
+use App\Domains\Shipping\Services\ShippingWeightCalculator;
 use App\Enums\RoleName;
 use App\Enums\ShippingMethod as ShippingMethodEnum;
 use App\Enums\ShippingRateMethodType;
@@ -11,7 +12,6 @@ use App\Models\ShippingMethod as ShippingMethodModel;
 use App\Models\ShippingRateRule;
 use App\Models\ShippingZone;
 use App\Models\VendorShippingProfile;
-use App\Domains\Shipping\Services\ShippingWeightCalculator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithCheckout;
 use Tests\Concerns\InteractsWithIdentity;

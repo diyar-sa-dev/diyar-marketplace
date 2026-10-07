@@ -2,8 +2,8 @@
 
 namespace App\Domains\Reviews\Resources;
 
-use App\Models\ProductReview;
 use App\Core\Support\Media\MediaUploadService;
+use App\Models\ProductReview;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

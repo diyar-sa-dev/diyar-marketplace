@@ -2,8 +2,8 @@
 
 namespace App\Domains\Blog\Resources;
 
-use App\Models\BlogArticle;
 use App\Core\Support\Media\CmsImageUrl;
+use App\Models\BlogArticle;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

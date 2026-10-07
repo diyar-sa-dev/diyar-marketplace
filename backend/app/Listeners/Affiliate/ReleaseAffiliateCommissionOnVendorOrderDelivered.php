@@ -2,8 +2,8 @@
 
 namespace App\Listeners\Affiliate;
 
-use App\Events\Domain\OrderDelivered;
 use App\Domains\Affiliate\Services\AffiliateCommissionService;
+use App\Events\Domain\OrderDelivered;
 
 final class ReleaseAffiliateCommissionOnVendorOrderDelivered
 {

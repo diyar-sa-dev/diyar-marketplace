@@ -2,11 +2,11 @@
 
 namespace App\Domains\Affiliate\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Affiliate\Requests\ResolveAffiliateReferralRequest;
 use App\Domains\Affiliate\Requests\TrackAffiliateClickRequest;
 use App\Domains\Affiliate\Services\AffiliateAttributionService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;
 

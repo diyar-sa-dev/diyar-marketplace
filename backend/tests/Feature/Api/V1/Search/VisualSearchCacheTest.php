@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Api\V1\Search;
 
+use App\Domains\VisualSearch\Support\Dhash64Generator;
+use App\Domains\VisualSearch\Support\VisualHashBits;
 use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
-use App\Domains\VisualSearch\Support\Dhash64Generator;
-use App\Domains\VisualSearch\Support\VisualHashBits;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;

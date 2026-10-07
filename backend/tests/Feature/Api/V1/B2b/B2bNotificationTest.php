@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\B2b;
 
+use App\Domains\B2b\Services\AdminB2bService;
 use App\Enums\B2bPublicationStatus;
 use App\Enums\NotificationType;
 use App\Enums\RoleName;
@@ -9,7 +10,6 @@ use App\Models\B2bCategory;
 use App\Models\B2bCompany;
 use App\Models\B2bLead;
 use App\Models\UserNotification;
-use App\Domains\B2b\Services\AdminB2bService;
 use Database\Seeders\AdminPermissionSeeder;
 use Database\Seeders\B2bContentSeeder;
 use Database\Seeders\RoleSeeder;

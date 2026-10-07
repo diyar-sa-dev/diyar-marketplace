@@ -2,6 +2,9 @@
 
 namespace App\Domains\Affiliate\Services;
 
+use App\Core\Support\Media\MediaUploadService;
+use App\Domains\Analytics\Services\AnalyticsTimeBuckets;
+use App\Domains\Vendors\Support\VendorOwnership;
 use App\Enums\AffiliateCommissionStatus;
 use App\Models\AffiliateClick;
 use App\Models\AffiliateCommission;
@@ -9,9 +12,6 @@ use App\Models\AffiliateLink;
 use App\Models\AffiliateProfile;
 use App\Models\ProductAffiliateSetting;
 use App\Models\User;
-use App\Domains\Analytics\Services\AnalyticsTimeBuckets;
-use App\Core\Support\Media\MediaUploadService;
-use App\Domains\Vendors\Support\VendorOwnership;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

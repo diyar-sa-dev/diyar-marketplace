@@ -2,8 +2,8 @@
 
 namespace App\Core\Middleware;
 
-use App\Enums\UserStatus;
 use App\Core\Support\Api\ApiResponse;
+use App\Enums\UserStatus;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

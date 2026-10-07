@@ -2,9 +2,9 @@
 
 namespace App\Domains\Payments\Services\Gateways\MyFatoorah;
 
-use App\Models\Order;
 use App\Domains\Payments\Services\DTO\PaymentCreationRequest;
 use App\Domains\Payments\Services\DTO\PaymentSessionRequest;
+use App\Models\Order;
 
 final class MyFatoorahPaymentMapper
 {

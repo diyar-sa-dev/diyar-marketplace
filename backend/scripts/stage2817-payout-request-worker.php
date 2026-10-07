@@ -20,8 +20,8 @@ if ($dbPath === '' || $vendorAccountId === '' || $amount === '') {
 require __DIR__.'/concurrency-worker-bootstrap.php';
 bootstrapConcurrencyWorker($dbPath);
 
-use App\Models\VendorAccount;
 use App\Domains\Finance\Services\PayoutService;
+use App\Models\VendorAccount;
 
 try {
     $vendorAccount = VendorAccount::query()->findOrFail($vendorAccountId);

@@ -2,8 +2,8 @@
 
 namespace App\Domains\Identity\Resources;
 
-use App\Models\User;
 use App\Core\Support\Media\MediaUploadService;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

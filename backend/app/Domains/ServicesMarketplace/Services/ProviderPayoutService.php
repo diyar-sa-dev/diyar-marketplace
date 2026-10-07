@@ -2,12 +2,12 @@
 
 namespace App\Domains\ServicesMarketplace\Services;
 
+use App\Domains\Finance\Services\FinancialReferenceService;
 use App\Enums\PayoutStatus;
 use App\Models\ProviderAccount;
 use App\Models\ProviderBankAccount;
 use App\Models\ProviderPayout;
 use App\Models\User;
-use App\Domains\Finance\Services\FinancialReferenceService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 

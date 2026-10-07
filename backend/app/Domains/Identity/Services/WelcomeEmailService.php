@@ -2,11 +2,11 @@
 
 namespace App\Domains\Identity\Services;
 
+use App\Domains\Identity\Support\UserNotificationPreferences;
 use App\Enums\RoleName;
-use App\Models\User;
 use App\Infrastructure\Mail\DiyarMailContent;
 use App\Infrastructure\Mail\DiyarPhpMailer;
-use App\Domains\Identity\Support\UserNotificationPreferences;
+use App\Models\User;
 
 final class WelcomeEmailService
 {

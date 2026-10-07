@@ -6,8 +6,8 @@ declare(strict_types=1);
  * In-process accuracy matrix — avoids HTTP rate limiting during certification.
  */
 
-use App\Models\VisualIndexEntry;
 use App\Domains\VisualSearch\Services\VisualSearchService;
+use App\Models\VisualIndexEntry;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;

@@ -2,10 +2,10 @@
 
 namespace App\Domains\Blog\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Blog\Resources\BlogCategoryResource;
 use App\Domains\Blog\Services\BlogQueryService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 class BlogCategoryController extends Controller

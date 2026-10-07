@@ -2,9 +2,9 @@
 
 namespace App\Domains\Platform\Services;
 
-use App\Models\User;
 use App\Domains\Notifications\Services\NotificationCategoryRegistry;
 use App\Domains\Notifications\Services\NotificationPreferenceService;
+use App\Models\User;
 
 final class PlatformNewsletterService
 {

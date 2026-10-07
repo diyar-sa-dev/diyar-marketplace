@@ -2,14 +2,14 @@
 
 namespace Tests\Unit\Services\Visualization;
 
-use App\Enums\TryInRoomJobStatus;
 use App\Domains\SpatialLayout\Exceptions\VisualizationProviderException;
+use App\Domains\VisualSearch\Services\Providers\OpenAi\OpenAiTryInRoomCompositeProvider;
+use App\Domains\VisualSearch\Services\VisualizationPrivacyGate;
+use App\Enums\TryInRoomJobStatus;
 use App\Models\Product;
 use App\Models\TryInRoomJob;
 use App\Models\TryInRoomSourceImage;
 use App\Models\User;
-use App\Domains\VisualSearch\Services\Providers\OpenAi\OpenAiTryInRoomCompositeProvider;
-use App\Domains\VisualSearch\Services\VisualizationPrivacyGate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;

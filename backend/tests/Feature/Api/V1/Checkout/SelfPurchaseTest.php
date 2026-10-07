@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Api\V1\Checkout;
 
+use App\Domains\Cart\Services\CartService;
 use App\Enums\RoleName;
 use App\Models\CartItem;
 use App\Models\Product;
-use App\Domains\Cart\Services\CartService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

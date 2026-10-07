@@ -6,12 +6,12 @@ declare(strict_types=1);
  * Stage 29 Enterprise certification audit — diyar-production Docker runtime.
  */
 
+use App\Domains\VisualSearch\Support\Dhash64Generator;
+use App\Domains\VisualSearch\Support\VisualSearchImageGuard;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
 use App\Support\Cache\CacheKeys;
-use App\Domains\VisualSearch\Support\Dhash64Generator;
-use App\Domains\VisualSearch\Support\VisualSearchImageGuard;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;

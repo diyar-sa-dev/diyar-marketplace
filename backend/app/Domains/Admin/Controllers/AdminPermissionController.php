@@ -2,10 +2,10 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Admin\Resources\AdminPermissionResource;
-use App\Models\Permission;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Admin\Resources\AdminPermissionResource;
+use App\Http\Controllers\Controller;
+use App\Models\Permission;
 use Illuminate\Http\JsonResponse;
 
 class AdminPermissionController extends Controller

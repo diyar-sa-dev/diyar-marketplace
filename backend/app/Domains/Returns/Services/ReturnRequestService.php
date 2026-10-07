@@ -2,6 +2,7 @@
 
 namespace App\Domains\Returns\Services;
 
+use App\Domains\Returns\Services\DTO\EffectiveReturnPolicy;
 use App\Enums\ReturnReason;
 use App\Enums\ReturnRequestStatus;
 use App\Models\OrderItem;
@@ -9,7 +10,6 @@ use App\Models\ReturnItem;
 use App\Models\ReturnRequest;
 use App\Models\User;
 use App\Models\VendorOrder;
-use App\Domains\Returns\Services\DTO\EffectiveReturnPolicy;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 

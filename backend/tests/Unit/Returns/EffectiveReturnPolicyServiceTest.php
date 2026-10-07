@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Returns;
 
+use App\Domains\Returns\Services\EffectiveReturnPolicyService;
 use App\Enums\ReturnReason;
 use App\Enums\RoleName;
 use App\Models\Product;
 use App\Models\VendorReturnPolicy;
-use App\Domains\Returns\Services\EffectiveReturnPolicyService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithIdentity;
 use Tests\TestCase;

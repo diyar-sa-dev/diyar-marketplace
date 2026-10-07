@@ -2,6 +2,11 @@
 
 namespace Tests\Feature\Affiliate;
 
+use App\Domains\Affiliate\Services\AffiliateAttributionService;
+use App\Domains\Affiliate\Services\AffiliateCommissionService;
+use App\Domains\Affiliate\Services\AffiliateLinkService;
+use App\Domains\Affiliate\Services\AffiliateProfileService;
+use App\Domains\Payments\Services\PaymentFinalizationService;
 use App\Enums\AffiliateCommissionStatus;
 use App\Enums\AffiliatePayoutStatus;
 use App\Enums\AffiliateProfileStatus;
@@ -23,11 +28,6 @@ use App\Models\Product;
 use App\Models\ProductAffiliateSetting;
 use App\Models\Role;
 use App\Models\User;
-use App\Domains\Affiliate\Services\AffiliateAttributionService;
-use App\Domains\Affiliate\Services\AffiliateCommissionService;
-use App\Domains\Affiliate\Services\AffiliateLinkService;
-use App\Domains\Affiliate\Services\AffiliateProfileService;
-use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;

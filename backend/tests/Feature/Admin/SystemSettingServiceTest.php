@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Enums\SystemSettingGroup;
-use App\Enums\SystemSettingType;
-use App\Models\SystemSetting;
 use App\Domains\Affiliate\Services\AffiliatePlatformConfigService;
 use App\Domains\Platform\Services\EffectiveConfigService;
 use App\Domains\Platform\Services\SystemSettingService;
+use App\Enums\SystemSettingGroup;
+use App\Enums\SystemSettingType;
+use App\Models\SystemSetting;
 use Database\Seeders\SystemSettingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;

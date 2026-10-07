@@ -2,7 +2,7 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Admin\Requests\StoreB2bCompanyRequest;
 use App\Domains\Admin\Requests\UpdateB2bCompanyRequest;
 use App\Domains\B2b\Resources\B2bCategoryResource;
@@ -10,13 +10,13 @@ use App\Domains\B2b\Resources\B2bCompanyCardResource;
 use App\Domains\B2b\Resources\B2bCompanyDetailResource;
 use App\Domains\B2b\Resources\B2bLeadResource;
 use App\Domains\B2b\Resources\B2bTagResource;
+use App\Domains\B2b\Services\AdminB2bService;
+use App\Http\Controllers\Controller;
 use App\Models\B2bCategory;
 use App\Models\B2bCompany;
 use App\Models\B2bLead;
 use App\Models\B2bTag;
 use App\Models\User;
-use App\Domains\B2b\Services\AdminB2bService;
-use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

@@ -2,13 +2,13 @@
 
 namespace App\Domains\Affiliate\Services;
 
+use App\Domains\Finance\Services\FinancialPostingService;
 use App\Enums\AffiliateCommissionStatus;
 use App\Enums\AffiliatePayoutStatus;
 use App\Models\AffiliateCommission;
 use App\Models\AffiliatePayout;
 use App\Models\AffiliateProfile;
 use App\Models\User;
-use App\Domains\Finance\Services\FinancialPostingService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 

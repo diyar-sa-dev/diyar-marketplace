@@ -2,11 +2,11 @@
 
 namespace App\Events\Domain;
 
+use App\Domains\B2b\Support\B2bNotificationSupport;
 use App\Domains\Notifications\Contracts\TriggersNotification;
+use App\Domains\Notifications\Services\NotificationIntent;
 use App\Enums\NotificationType;
 use App\Models\B2bLead;
-use App\Domains\Notifications\Services\NotificationIntent;
-use App\Domains\B2b\Support\B2bNotificationSupport;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 

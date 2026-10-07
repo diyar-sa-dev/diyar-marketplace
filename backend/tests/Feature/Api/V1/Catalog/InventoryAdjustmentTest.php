@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Api\V1\Catalog;
 
+use App\Domains\Catalog\Services\InventoryService;
 use App\Enums\InventoryMovementType;
 use App\Enums\RoleName;
 use App\Models\Category;
 use App\Models\InventoryMovement;
 use App\Models\Product;
-use App\Domains\Catalog\Services\InventoryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
 use Tests\Concerns\InteractsWithIdentity;

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Api\V1\Payment;
 
+use App\Domains\Payments\Services\PaymentAllocationSnapshotService;
+use App\Domains\Payments\Services\PaymentFinalizationService;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentAttemptStatus;
 use App\Enums\PaymentStatus;
@@ -11,8 +13,6 @@ use App\Models\Payment;
 use App\Models\PaymentVendorAllocation;
 use App\Models\Product;
 use App\Models\User;
-use App\Domains\Payments\Services\PaymentAllocationSnapshotService;
-use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;

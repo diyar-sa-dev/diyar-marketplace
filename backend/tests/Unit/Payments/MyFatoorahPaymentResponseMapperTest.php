@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Payments;
 
-use App\Enums\PaymentStatus;
 use App\Domains\Payments\Exceptions\PaymentGatewayException;
 use App\Domains\Payments\Services\Gateways\MyFatoorah\MyFatoorahPaymentResponseMapper;
+use App\Enums\PaymentStatus;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

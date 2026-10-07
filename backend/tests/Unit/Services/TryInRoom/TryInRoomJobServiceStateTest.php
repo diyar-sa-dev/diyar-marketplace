@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Services\TryInRoom;
 
+use App\Domains\RoomDesigner\Services\RoomDesignDocumentService;
+use App\Domains\TryInRoom\Services\TryInRoomJobService;
+use App\Domains\TryInRoom\Services\TryInRoomStorageService;
 use App\Enums\TryInRoomJobStatus;
 use App\Models\TryInRoomJob;
 use App\Models\TryInRoomSourceImage;
 use App\Models\User;
-use App\Domains\RoomDesigner\Services\RoomDesignDocumentService;
-use App\Domains\TryInRoom\Services\TryInRoomJobService;
-use App\Domains\TryInRoom\Services\TryInRoomStorageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;

@@ -2,22 +2,22 @@
 
 namespace App\Domains\VisualSearch\Services;
 
-use App\Domains\Catalog\Resources\ProductCardResource;
-use App\Domains\VisualSearch\Jobs\RecordVisualSearchEventJob;
-use App\Models\Product;
-use App\Models\User;
-use App\Models\VisualIndexEntry;
-use App\Domains\Catalog\Services\ProductService;
-use App\Domains\Platform\Services\EffectiveConfigService;
 use App\Core\Support\Cache\CacheKeys;
 use App\Core\Support\Cache\StampedeSafeCache;
 use App\Core\Support\Pagination\PaginationBounds;
+use App\Domains\Catalog\Resources\ProductCardResource;
+use App\Domains\Catalog\Services\ProductService;
+use App\Domains\Platform\Services\EffectiveConfigService;
 use App\Domains\Vendors\Support\VendorOwnership;
+use App\Domains\VisualSearch\Jobs\RecordVisualSearchEventJob;
 use App\Domains\VisualSearch\Support\Dhash64Generator;
 use App\Domains\VisualSearch\Support\ProductSimilarityAggregator;
 use App\Domains\VisualSearch\Support\VisualHashBits;
 use App\Domains\VisualSearch\Support\VisualSearchCandidate;
 use App\Domains\VisualSearch\Support\VisualSearchRanker;
+use App\Models\Product;
+use App\Models\User;
+use App\Models\VisualIndexEntry;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;

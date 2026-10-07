@@ -2,9 +2,9 @@
 
 namespace App\Domains\Vendors\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Vendors\Services\VendorTeamService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Vendors\Services\VendorTeamService;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

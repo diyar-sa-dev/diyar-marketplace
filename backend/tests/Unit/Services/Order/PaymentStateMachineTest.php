@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Services\Order;
 
+use App\Domains\Payments\Services\PaymentStateService;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\RoleName;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentStateTransition;
-use App\Domains\Payments\Services\PaymentStateService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use InvalidArgumentException;

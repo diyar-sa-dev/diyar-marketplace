@@ -2,6 +2,7 @@
 
 namespace App\Domains\ServicesMarketplace\Services;
 
+use App\Core\Support\Media\MediaUploadService;
 use App\Enums\ProviderAccountStatus;
 use App\Enums\ServiceOfferStatus;
 use App\Enums\ServiceRequestStatus;
@@ -12,7 +13,6 @@ use App\Models\ServiceCategory;
 use App\Models\ServiceOffer;
 use App\Models\ServiceRequest;
 use App\Models\User;
-use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;

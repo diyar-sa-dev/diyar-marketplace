@@ -2,8 +2,8 @@
 
 namespace App\Infrastructure\Sms;
 
-use App\Infrastructure\Sms\Contracts\SmsProvider;
 use App\Enums\OtpPurpose;
+use App\Infrastructure\Sms\Contracts\SmsProvider;
 use Illuminate\Support\Facades\Log;
 
 /**

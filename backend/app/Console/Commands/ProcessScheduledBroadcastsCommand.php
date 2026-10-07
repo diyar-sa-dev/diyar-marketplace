@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\NotificationBroadcastStatus;
 use App\Domains\Notifications\Jobs\ProcessNotificationBroadcastJob;
+use App\Enums\NotificationBroadcastStatus;
 use App\Models\NotificationBroadcast;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;

@@ -2,9 +2,9 @@
 
 namespace App\Domains\Catalog\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Catalog\Services\HomeStorefrontService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Catalog\Services\HomeStorefrontService;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

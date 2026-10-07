@@ -2,12 +2,12 @@
 
 namespace App\Domains\Finance\Services;
 
+use App\Domains\Finance\Services\DTO\CommissionResolution;
 use App\Enums\CommissionScope;
 use App\Models\CommissionRule;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\VendorOrder;
-use App\Domains\Finance\Services\DTO\CommissionResolution;
 use Illuminate\Support\Carbon;
 
 final class CommissionResolver

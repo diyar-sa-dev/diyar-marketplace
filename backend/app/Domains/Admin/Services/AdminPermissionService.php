@@ -2,13 +2,13 @@
 
 namespace App\Domains\Admin\Services;
 
+use App\Core\Support\Cache\CacheKeys;
+use App\Core\Support\Cache\VersionedCache;
 use App\Enums\AdminPermission;
 use App\Enums\RoleName;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use App\Core\Support\Cache\CacheKeys;
-use App\Core\Support\Cache\VersionedCache;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;

@@ -2,12 +2,12 @@
 
 namespace App\Domains\B2b\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\B2b\Requests\UpdatePartnerB2bLeadStatusRequest;
 use App\Domains\B2b\Resources\PartnerB2bLeadResource;
-use App\Models\User;
 use App\Domains\B2b\Services\PartnerB2bLeadService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

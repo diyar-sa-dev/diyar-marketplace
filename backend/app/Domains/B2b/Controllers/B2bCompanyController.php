@@ -2,13 +2,13 @@
 
 namespace App\Domains\B2b\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\B2b\Requests\B2bCompanyListRequest;
 use App\Domains\B2b\Resources\B2bCategoryResource;
 use App\Domains\B2b\Resources\B2bCompanyCardResource;
 use App\Domains\B2b\Resources\B2bCompanyDetailResource;
 use App\Domains\B2b\Services\B2bQueryService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 class B2bCompanyController extends Controller

@@ -2,12 +2,12 @@
 
 namespace App\Domains\Shipping\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Shipping\Requests\UpdateVendorShippingSettingsRequest;
 use App\Domains\Shipping\Resources\VendorShippingSettingsResource;
-use App\Models\VendorShippingSettings;
 use App\Domains\Shipping\Services\VendorShippingSettingsService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
+use App\Models\VendorShippingSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

@@ -2,13 +2,13 @@
 
 namespace App\Domains\Admin\Services;
 
+use App\Domains\Affiliate\Services\AffiliateAdminPayoutService;
+use App\Domains\Finance\Services\PayoutService;
+use App\Domains\ServicesMarketplace\Services\ProviderPayoutService;
 use App\Models\AffiliatePayout;
 use App\Models\ProviderPayout;
 use App\Models\User;
 use App\Models\VendorPayout;
-use App\Domains\Affiliate\Services\AffiliateAdminPayoutService;
-use App\Domains\Finance\Services\PayoutService;
-use App\Domains\ServicesMarketplace\Services\ProviderPayoutService;
 use Illuminate\Support\Facades\DB;
 
 final class AdminPayoutActionService

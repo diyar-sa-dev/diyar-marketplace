@@ -2,8 +2,8 @@
 
 namespace App\Listeners\Chat;
 
-use App\Events\Domain\MessageCreated;
 use App\Domains\Chat\Services\ChatRealtimeBroadcaster;
+use App\Events\Domain\MessageCreated;
 
 final class BroadcastChatMessageListener
 {

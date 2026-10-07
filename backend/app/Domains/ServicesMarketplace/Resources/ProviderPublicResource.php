@@ -2,9 +2,9 @@
 
 namespace App\Domains\ServicesMarketplace\Resources;
 
-use App\Models\ProviderAccount;
 use App\Domains\ServicesMarketplace\Services\ProviderFollowService;
 use App\Domains\ServicesMarketplace\Support\ServiceMarketplacePresenter;
+use App\Models\ProviderAccount;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

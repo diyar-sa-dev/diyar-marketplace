@@ -2,8 +2,6 @@
 
 namespace App\Core\Support\Media;
 
-use App\Core\Support\Media\MediaUploadService;
-
 final class CmsImageUrl
 {
     public static function resolve(?string $value): ?string

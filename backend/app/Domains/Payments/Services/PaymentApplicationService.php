@@ -2,6 +2,13 @@
 
 namespace App\Domains\Payments\Services;
 
+use App\Core\Support\Http\FrontendOrigin;
+use App\Domains\Analytics\Services\AnalyticsEventRecorder;
+use App\Domains\Payments\Exceptions\PaymentGatewayException;
+use App\Domains\Payments\Services\DTO\PaymentMethodCapability;
+use App\Domains\Payments\Services\DTO\PaymentMethodsRequest;
+use App\Domains\Payments\Services\DTO\PaymentSessionResult;
+use App\Domains\Payments\Services\Gateways\FakePaymentGateway;
 use App\Enums\AnalyticsEventType;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentAttemptStatus;
@@ -10,14 +17,6 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentAttempt;
 use App\Models\User;
-use App\Domains\Analytics\Services\AnalyticsEventRecorder;
-use App\Domains\Payments\Services\PaymentStateService;
-use App\Domains\Payments\Services\DTO\PaymentMethodCapability;
-use App\Domains\Payments\Services\DTO\PaymentMethodsRequest;
-use App\Domains\Payments\Services\DTO\PaymentSessionResult;
-use App\Domains\Payments\Exceptions\PaymentGatewayException;
-use App\Domains\Payments\Services\Gateways\FakePaymentGateway;
-use App\Core\Support\Http\FrontendOrigin;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;

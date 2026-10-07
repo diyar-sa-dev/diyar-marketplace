@@ -2,10 +2,10 @@
 
 namespace App\Domains\Returns\Services;
 
+use App\Domains\Returns\Services\DTO\EffectiveReturnPolicy;
 use App\Models\Product;
 use App\Models\VendorAccount;
 use App\Models\VendorReturnPolicy;
-use App\Domains\Returns\Services\DTO\EffectiveReturnPolicy;
 
 final class EffectiveReturnPolicyService
 {

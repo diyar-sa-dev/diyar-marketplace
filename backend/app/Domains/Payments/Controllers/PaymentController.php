@@ -2,17 +2,17 @@
 
 namespace App\Domains\Payments\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
+use App\Domains\Payments\Exceptions\PaymentGatewayException;
 use App\Domains\Payments\Requests\InitiatePaymentRequest;
 use App\Domains\Payments\Requests\SimulatePaymentRequest;
 use App\Domains\Payments\Requests\SubmitPaymentRequest;
 use App\Domains\Payments\Resources\PaymentInitiationResource;
 use App\Domains\Payments\Resources\PaymentResource;
 use App\Domains\Payments\Resources\PaymentSubmissionResource;
-use App\Models\Order;
-use App\Domains\Payments\Exceptions\PaymentGatewayException;
 use App\Domains\Payments\Services\PaymentOrchestrator;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
+use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

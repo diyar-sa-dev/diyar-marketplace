@@ -2,8 +2,8 @@
 
 namespace App\Domains\Orders\Resources;
 
-use App\Models\OrderItem;
 use App\Core\Support\Media\MediaUploadService;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

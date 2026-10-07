@@ -2,10 +2,10 @@
 
 namespace App\Policies;
 
+use App\Domains\Admin\Services\AdminPermissionService;
 use App\Enums\AdminPermission;
 use App\Models\B2bCompany;
 use App\Models\User;
-use App\Domains\Admin\Services\AdminPermissionService;
 
 class B2bCompanyPolicy
 {

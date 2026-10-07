@@ -2,20 +2,21 @@
 
 namespace App\Domains\Catalog\Services;
 
+use App\Core\Support\Media\MediaUploadService;
+use App\Core\Support\Pagination\PaginationBounds;
+use App\Core\Support\SlugGenerator;
+use App\Domains\Search\Contracts\ProductSearchContract;
+use App\Domains\Search\Jobs\IndexProductImageJob;
+use App\Domains\Vendors\Services\VendorAccessService;
+use App\Domains\VisualSearch\Jobs\RemoveVisualIndexEntryJob;
 use App\Enums\AvailabilityMode;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
-use App\Domains\Search\Jobs\IndexProductImageJob;
-use App\Domains\VisualSearch\Jobs\RemoveVisualIndexEntryJob;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Core\Support\Media\MediaUploadService;
-use App\Domains\Vendors\Services\VendorAccessService;
-use App\Core\Support\Pagination\PaginationBounds;
-use App\Core\Support\SlugGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
@@ -83,7 +84,7 @@ final class ProductService
      */
     public function searchPublic(array $filters = [], ?User $user = null): LengthAwarePaginator
     {
-        return app(\App\Domains\Search\Contracts\ProductSearchContract::class)->search($filters, $user);
+        return app(ProductSearchContract::class)->search($filters, $user);
     }
 
     public function findPublic(string $id, ?User $user = null): Product
@@ -407,7 +408,7 @@ final class ProductService
      * Efficiently batch-hydrates reviews_count and reviews_avg_rating on product models.
      * Replaces expensive correlated subqueries in the cardQuery SELECT clause.
      *
-     * @param  Collection<int, Product>|\Illuminate\Support\Collection<int, Product>|iterable<Product>  $products
+     * @param  Collection<int, Product>|Collection<int, Product>|iterable<Product>  $products
      */
     public function hydrateReviewAggregates(iterable $products): void
     {

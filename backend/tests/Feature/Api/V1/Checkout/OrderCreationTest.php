@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Checkout;
 
+use App\Domains\Cart\Services\CartService;
 use App\Enums\CartStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\RoleName;
@@ -10,7 +11,6 @@ use App\Models\InventoryReservation;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductInventory;
-use App\Domains\Cart\Services\CartService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\Concerns\InteractsWithCheckout;

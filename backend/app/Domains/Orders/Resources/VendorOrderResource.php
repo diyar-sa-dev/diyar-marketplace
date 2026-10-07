@@ -2,10 +2,10 @@
 
 namespace App\Domains\Orders\Resources;
 
-use App\Enums\AddressType;
-use App\Domains\Shipping\Resources\ShipmentResource;
-use App\Models\VendorOrder;
 use App\Domains\Payments\Services\PaymentMethodLabelResolver;
+use App\Domains\Shipping\Resources\ShipmentResource;
+use App\Enums\AddressType;
+use App\Models\VendorOrder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

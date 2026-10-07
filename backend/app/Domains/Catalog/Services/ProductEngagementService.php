@@ -2,13 +2,13 @@
 
 namespace App\Domains\Catalog\Services;
 
+use App\Domains\Reviews\Services\ProductReviewEligibilityService;
 use App\Events\Domain\ReviewCreated;
 use App\Models\Product;
 use App\Models\ProductLike;
 use App\Models\ProductReview;
 use App\Models\User;
 use App\Models\WishlistItem;
-use App\Domains\Reviews\Services\ProductReviewEligibilityService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;

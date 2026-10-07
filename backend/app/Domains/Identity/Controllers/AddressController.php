@@ -2,12 +2,12 @@
 
 namespace App\Domains\Identity\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Identity\Requests\StoreAddressRequest;
 use App\Domains\Identity\Requests\UpdateAddressRequest;
 use App\Domains\Identity\Resources\AddressResource;
 use App\Domains\Identity\Services\AddressService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

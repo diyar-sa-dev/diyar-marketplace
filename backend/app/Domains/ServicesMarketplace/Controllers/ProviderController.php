@@ -2,7 +2,7 @@
 
 namespace App\Domains\ServicesMarketplace\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\ServicesMarketplace\Requests\StoreProviderServiceRequest;
 use App\Domains\ServicesMarketplace\Requests\UpdateProviderServiceRequest;
 use App\Domains\ServicesMarketplace\Resources\ProviderPublicResource;
@@ -10,7 +10,7 @@ use App\Domains\ServicesMarketplace\Resources\ServiceCardResource;
 use App\Domains\ServicesMarketplace\Resources\ServicePortfolioItemResource;
 use App\Domains\ServicesMarketplace\Services\ProviderProfileService;
 use App\Domains\ServicesMarketplace\Services\ProviderServiceManagementService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

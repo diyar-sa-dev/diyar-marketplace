@@ -2,7 +2,11 @@
 
 namespace App\Domains\Returns\Services;
 
+use App\Domains\Finance\Services\FinancialPostingService;
 use App\Domains\Payments\Contracts\PaymentGatewayInterface;
+use App\Domains\Payments\Exceptions\PaymentGatewayException;
+use App\Domains\Payments\Services\DTO\RefundPaymentRequest;
+use App\Domains\Payments\Services\PaymentStateService;
 use App\Enums\PaymentStatus;
 use App\Enums\RefundStatus;
 use App\Enums\ReturnRequestStatus;
@@ -10,10 +14,6 @@ use App\Models\Payment;
 use App\Models\PaymentVendorAllocation;
 use App\Models\Refund;
 use App\Models\ReturnRequest;
-use App\Domains\Finance\Services\FinancialPostingService;
-use App\Domains\Payments\Services\PaymentStateService;
-use App\Domains\Payments\Services\DTO\RefundPaymentRequest;
-use App\Domains\Payments\Exceptions\PaymentGatewayException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;

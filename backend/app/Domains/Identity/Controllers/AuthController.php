@@ -2,7 +2,7 @@
 
 namespace App\Domains\Identity\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Identity\Requests\ForgotPasswordRequest;
 use App\Domains\Identity\Requests\LoginRequest;
 use App\Domains\Identity\Requests\RegisterRequest;
@@ -14,13 +14,13 @@ use App\Domains\Identity\Requests\VerifyEmailOtpRequest;
 use App\Domains\Identity\Requests\VerifyOtpRequest;
 use App\Domains\Identity\Requests\VerifyTwoFactorRequest;
 use App\Domains\Identity\Resources\UserResource;
-use App\Models\User;
 use App\Domains\Identity\Services\AuthService;
 use App\Domains\Identity\Services\EmailVerificationService;
 use App\Domains\Identity\Services\PasswordResetService;
 use App\Domains\Identity\Services\RegistrationService;
 use App\Domains\Identity\Services\TwoFactorLoginChallengeService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

@@ -2,10 +2,10 @@
 
 namespace App\Domains\ServicesMarketplace\Resources;
 
-use App\Models\Service;
 use App\Domains\ServicesMarketplace\Services\ServiceBookingService;
 use App\Domains\ServicesMarketplace\Services\ServiceEngagementService;
 use App\Domains\ServicesMarketplace\Support\ServiceMarketplacePresenter;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

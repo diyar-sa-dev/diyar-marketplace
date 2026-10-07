@@ -2,6 +2,7 @@
 
 namespace App\Domains\ServicesMarketplace\Services;
 
+use App\Domains\ServicesMarketplace\Support\ProviderSelfInteractionGuard;
 use App\Enums\ServiceBookingPaymentStatus;
 use App\Enums\ServiceBookingSource;
 use App\Enums\ServiceBookingStatus;
@@ -14,7 +15,6 @@ use App\Models\ServiceBooking;
 use App\Models\ServiceBookingPayment;
 use App\Models\ServiceOffer;
 use App\Models\User;
-use App\Domains\ServicesMarketplace\Support\ProviderSelfInteractionGuard;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;

@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Services\Notifications;
 
+use App\Domains\Notifications\Services\NotificationRenderer;
 use App\Enums\NotificationType;
 use App\Models\User;
-use App\Domains\Notifications\Services\NotificationRenderer;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

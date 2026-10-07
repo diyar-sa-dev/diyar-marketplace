@@ -2,8 +2,8 @@
 
 namespace App\Core\Middleware;
 
-use App\Domains\Platform\Services\EffectiveConfigService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Platform\Services\EffectiveConfigService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

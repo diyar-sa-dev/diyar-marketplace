@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Services\Search\Visual;
 
+use App\Domains\VisualSearch\Services\VisualCandidateRetriever;
+use App\Domains\VisualSearch\Support\BucketProbe;
+use App\Domains\VisualSearch\Support\VisualHashBits;
 use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
-use App\Domains\VisualSearch\Services\VisualCandidateRetriever;
-use App\Domains\VisualSearch\Support\BucketProbe;
-use App\Domains\VisualSearch\Support\VisualHashBits;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;

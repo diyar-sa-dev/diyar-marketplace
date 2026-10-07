@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Outbox;
 
+use App\Domains\Notifications\Jobs\DeliverNotificationChannelJob;
+use App\Domains\Notifications\Services\NotificationDispatcher;
+use App\Domains\Platform\Services\DomainOutboxPublisher;
 use App\Enums\DomainOutboxEventStatus;
 use App\Enums\NotificationType;
 use App\Enums\RoleName;
-use App\Domains\Notifications\Jobs\DeliverNotificationChannelJob;
 use App\Models\DomainOutboxEvent;
-use App\Domains\Notifications\Services\NotificationDispatcher;
-use App\Domains\Platform\Services\DomainOutboxPublisher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;

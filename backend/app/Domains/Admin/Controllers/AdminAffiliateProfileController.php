@@ -2,11 +2,11 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Affiliate\Resources\AffiliateProfileResource;
-use App\Models\AffiliateProfile;
-use App\Domains\Admin\Services\AdminAffiliateProfileService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Admin\Services\AdminAffiliateProfileService;
+use App\Domains\Affiliate\Resources\AffiliateProfileResource;
+use App\Http\Controllers\Controller;
+use App\Models\AffiliateProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

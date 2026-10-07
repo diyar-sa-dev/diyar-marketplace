@@ -2,13 +2,13 @@
 
 namespace App\Domains\Identity\Services;
 
-use App\Models\User;
-use App\Models\UserSession;
 use App\Domains\Identity\Support\DeviceFingerprint;
 use App\Domains\Identity\Support\RevokedSessionCache;
 use App\Domains\Identity\Support\SessionLookupHash;
 use App\Domains\Identity\Support\UserSessionDeviceGroup;
 use App\Domains\Identity\Support\UserSessionDeviceGrouper;
+use App\Models\User;
+use App\Models\UserSession;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;

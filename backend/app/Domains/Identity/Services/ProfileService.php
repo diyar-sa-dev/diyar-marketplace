@@ -2,9 +2,8 @@
 
 namespace App\Domains\Identity\Services;
 
-use App\Models\User;
 use App\Core\Support\Media\MediaUploadService;
-use App\Domains\Identity\Services\UserSessionService;
+use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;

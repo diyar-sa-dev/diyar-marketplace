@@ -2,13 +2,13 @@
 
 namespace App\Domains\B2b\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\B2b\Requests\StoreB2bLeadRequest;
 use App\Domains\B2b\Resources\B2bLeadResource;
+use App\Domains\B2b\Services\B2bLeadService;
+use App\Http\Controllers\Controller;
 use App\Models\B2bLead;
 use App\Models\User;
-use App\Domains\B2b\Services\B2bLeadService;
-use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

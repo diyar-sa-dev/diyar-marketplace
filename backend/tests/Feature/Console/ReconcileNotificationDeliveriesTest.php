@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Console;
 
+use App\Domains\Notifications\Jobs\DeliverNotificationChannelJob;
 use App\Enums\NotificationChannel;
 use App\Enums\NotificationDeliveryStatus;
 use App\Enums\NotificationPriority;
 use App\Enums\NotificationType;
 use App\Enums\RoleName;
-use App\Domains\Notifications\Jobs\DeliverNotificationChannelJob;
 use App\Models\NotificationDelivery;
 use App\Models\UserNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;

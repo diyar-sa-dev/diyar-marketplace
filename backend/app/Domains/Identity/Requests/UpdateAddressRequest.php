@@ -2,8 +2,8 @@
 
 namespace App\Domains\Identity\Requests;
 
-use App\Enums\AddressType;
 use App\Domains\Identity\Services\PhoneNormalizer;
+use App\Enums\AddressType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

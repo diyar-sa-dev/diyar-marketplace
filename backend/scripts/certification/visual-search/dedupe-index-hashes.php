@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Models\VisualIndexEntry;
 use App\Domains\VisualSearch\Services\VisualIndexingService;
+use App\Models\VisualIndexEntry;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 

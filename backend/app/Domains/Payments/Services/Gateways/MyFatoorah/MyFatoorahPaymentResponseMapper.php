@@ -2,9 +2,9 @@
 
 namespace App\Domains\Payments\Services\Gateways\MyFatoorah;
 
-use App\Enums\PaymentStatus;
-use App\Domains\Payments\Services\DTO\PaymentDetailsResult;
 use App\Domains\Payments\Exceptions\PaymentGatewayException;
+use App\Domains\Payments\Services\DTO\PaymentDetailsResult;
+use App\Enums\PaymentStatus;
 
 final class MyFatoorahPaymentResponseMapper
 {

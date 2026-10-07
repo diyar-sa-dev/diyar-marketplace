@@ -2,11 +2,11 @@
 
 namespace App\Domains\Platform\Services;
 
+use App\Domains\Notifications\Jobs\DeliverNotificationChannelJob;
+use App\Domains\Notifications\Support\NotificationQueue;
 use App\Enums\DomainOutboxEventStatus;
 use App\Enums\NotificationPriority;
-use App\Domains\Notifications\Jobs\DeliverNotificationChannelJob;
 use App\Models\DomainOutboxEvent;
-use App\Domains\Notifications\Support\NotificationQueue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;

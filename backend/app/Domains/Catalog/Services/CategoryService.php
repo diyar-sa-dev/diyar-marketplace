@@ -2,9 +2,9 @@
 
 namespace App\Domains\Catalog\Services;
 
+use App\Core\Support\SlugGenerator;
 use App\Enums\CategoryType;
 use App\Models\Category;
-use App\Core\Support\SlugGenerator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

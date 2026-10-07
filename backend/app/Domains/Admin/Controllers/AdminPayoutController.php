@@ -2,14 +2,14 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Finance\Requests\RejectVendorPayoutRequest;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Admin\Resources\AdminVendorPayoutResource;
+use App\Domains\Admin\Services\AdminPayoutActionService;
+use App\Domains\Finance\Requests\RejectVendorPayoutRequest;
 use App\Domains\Vendors\Resources\VendorPayoutResource;
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\VendorPayout;
-use App\Domains\Admin\Services\AdminPayoutActionService;
-use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

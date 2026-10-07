@@ -2,9 +2,9 @@
 
 namespace App\Listeners\Octane;
 
+use App\Domains\Payments\Services\Gateways\FakePaymentGateway;
 use App\Infrastructure\Mail\LogEmailOtpProvider;
 use App\Infrastructure\Sms\LogSmsProvider;
-use App\Domains\Payments\Services\Gateways\FakePaymentGateway;
 use Laravel\Octane\Contracts\OperationTerminated;
 
 /**

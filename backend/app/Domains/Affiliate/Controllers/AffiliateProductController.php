@@ -2,11 +2,11 @@
 
 namespace App\Domains\Affiliate\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Affiliate\Resources\ProductAffiliateSettingResource;
 use App\Domains\Affiliate\Services\AffiliateDashboardService;
 use App\Domains\Affiliate\Services\AffiliateProfileService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

@@ -2,8 +2,8 @@
 
 namespace App\Core\Middleware;
 
-use App\Models\User;
 use App\Domains\Identity\Support\MarketplaceAccess;
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

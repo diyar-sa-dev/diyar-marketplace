@@ -2,8 +2,8 @@
 
 namespace App\Domains\Platform\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 /** Lightweight liveness probe — process is up; no dependency checks. */

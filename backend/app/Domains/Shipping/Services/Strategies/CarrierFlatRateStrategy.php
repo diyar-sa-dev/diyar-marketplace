@@ -2,9 +2,9 @@
 
 namespace App\Domains\Shipping\Services\Strategies;
 
+use App\Domains\Shipping\Services\DTO\ShippingQuote;
 use App\Enums\ShippingMethod;
 use App\Models\VendorShippingSettings;
-use App\Domains\Shipping\Services\DTO\ShippingQuote;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 final class CarrierFlatRateStrategy implements ShippingMethodStrategy

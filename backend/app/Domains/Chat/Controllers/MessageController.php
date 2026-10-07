@@ -2,17 +2,17 @@
 
 namespace App\Domains\Chat\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Chat\Requests\ReportMessageRequest;
 use App\Domains\Chat\Requests\SendMessageRequest;
 use App\Domains\Chat\Requests\UpdateMessageRequest;
 use App\Domains\Chat\Resources\ChatReportReasonResource;
 use App\Domains\Chat\Resources\MessageResource;
-use App\Models\Message;
 use App\Domains\Chat\Services\ChatModerationService;
 use App\Domains\Chat\Services\ConversationService;
 use App\Domains\Chat\Services\MessageService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
+use App\Models\Message;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

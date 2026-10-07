@@ -2,10 +2,10 @@
 
 namespace App\Domains\Identity\Controllers;
 
+use App\Core\Support\Api\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Models\ProviderAccount;
 use App\Models\VendorAccount;
-use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

@@ -11,14 +11,14 @@ declare(strict_types=1);
 
 use App\Domains\Search\Jobs\IndexProductImageJob;
 use App\Domains\VisualSearch\Jobs\RemoveVisualIndexEntryJob;
+use App\Domains\VisualSearch\Support\BucketProbe;
+use App\Domains\VisualSearch\Support\Dhash64Generator;
+use App\Domains\VisualSearch\Support\VisualHashBits;
 use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\VisualIndexEntry;
 use App\Models\VisualSearchEvent;
-use App\Domains\VisualSearch\Support\BucketProbe;
-use App\Domains\VisualSearch\Support\Dhash64Generator;
-use App\Domains\VisualSearch\Support\VisualHashBits;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;

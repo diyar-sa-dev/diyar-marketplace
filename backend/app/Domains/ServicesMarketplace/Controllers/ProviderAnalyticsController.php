@@ -2,12 +2,12 @@
 
 namespace App\Domains\ServicesMarketplace\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Analytics\Services\AnalyticsDateRangeResolver;
 use App\Domains\Analytics\Services\ProviderAnalyticsService;
 use App\Domains\ServicesMarketplace\Services\ProviderAccountResolver;
 use App\Domains\ServicesMarketplace\Services\ProviderFinanceService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;

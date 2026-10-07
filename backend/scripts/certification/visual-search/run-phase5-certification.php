@@ -9,10 +9,10 @@ declare(strict_types=1);
  * Usage: php backend/scripts/certification/visual-search/run-phase5-certification.php
  */
 
-use App\Models\VisualIndexEntry;
 use App\Domains\VisualSearch\Support\BucketProbe;
 use App\Domains\VisualSearch\Support\Dhash64Generator;
 use App\Domains\VisualSearch\Support\VisualHashBits;
+use App\Models\VisualIndexEntry;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;

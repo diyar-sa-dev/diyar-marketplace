@@ -2,9 +2,9 @@
 
 namespace App\Domains\Shipping\Contracts;
 
-use App\Models\VendorShippingSettings;
 use App\Domains\Shipping\Services\DTO\ShippingQuote;
 use App\Domains\Shipping\Services\Strategies\ShippingMethodStrategy;
+use App\Models\VendorShippingSettings;
 
 /**
  * V1 local shipping quote contract (flat rate, pickup, free threshold).

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Api\V1\Profile;
 
+use App\Domains\Identity\Support\RevokedSessionCache;
 use App\Enums\RoleName;
 use App\Models\UserSession;
-use App\Domains\Identity\Support\RevokedSessionCache;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;

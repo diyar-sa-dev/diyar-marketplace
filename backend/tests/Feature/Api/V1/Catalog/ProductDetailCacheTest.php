@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Api\V1\Catalog;
 
-use App\Enums\RoleName;
 use App\Domains\Analytics\Jobs\RecordAnalyticsEventJob;
+use App\Domains\Catalog\Services\CatalogCacheInvalidator;
+use App\Enums\RoleName;
 use App\Models\Category;
 use App\Models\Product;
-use App\Domains\Catalog\Services\CatalogCacheInvalidator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;

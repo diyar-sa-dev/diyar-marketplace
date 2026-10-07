@@ -4,14 +4,14 @@ namespace App\Domains\Notifications\Channels;
 
 use App\Domains\Notifications\Contracts\NotificationChannelInterface;
 use App\Domains\Notifications\Contracts\PushProviderInterface;
+use App\Domains\Notifications\Services\NotificationCircuitBreaker;
+use App\Domains\Notifications\Services\NotificationDeviceService;
 use App\Enums\NotificationChannel;
 use App\Infrastructure\Notifications\PushProviderException;
 use App\Models\NotificationDelivery;
 use App\Models\NotificationDevice;
 use App\Models\User;
 use App\Models\UserNotification;
-use App\Domains\Notifications\Services\NotificationCircuitBreaker;
-use App\Domains\Notifications\Services\NotificationDeviceService;
 use RuntimeException;
 
 final class PushNotificationChannel implements NotificationChannelInterface

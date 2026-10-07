@@ -25,8 +25,18 @@ export async function loginMarketplaceUi(
   password = E2E_PASSWORD,
 ): Promise<void> {
   await page.goto('/auth', { waitUntil: 'domcontentloaded' });
-  await page.locator('#login-phone').waitFor({ state: 'visible', timeout: 60_000 });
-  await page.locator('#login-phone').fill(phoneNational);
+  const loginInput = page.locator('#login-phone');
+  const alreadyAuth = await Promise.race([
+    loginInput.waitFor({ state: 'visible', timeout: 10_000 }).then(() => false).catch(() => true),
+    page.waitForURL((url) => !url.pathname.startsWith('/auth'), { timeout: 10_000 }).then(() => true).catch(() => false),
+  ]);
+
+  if (alreadyAuth && !page.url().includes('/auth')) {
+    return;
+  }
+
+  await loginInput.waitFor({ state: 'visible', timeout: 60_000 });
+  await loginInput.fill(phoneNational);
   await page.locator('input[type="password"]').first().fill(password);
   await submitAndAwaitLoginResponse(page, '[data-testid="marketplace-login-submit"]', '/auth/login');
   await page.waitForURL((url) => !url.pathname.startsWith('/auth'), { timeout: 30_000 });
@@ -38,8 +48,18 @@ export async function loginAdminUi(
   password = E2E_PASSWORD,
 ): Promise<void> {
   await page.goto('/admin/login', { waitUntil: 'domcontentloaded' });
-  await page.locator('#admin-login-phone').waitFor({ state: 'visible', timeout: 60_000 });
-  await page.locator('#admin-login-phone').fill(phoneNational);
+  const loginInput = page.locator('#admin-login-phone');
+  const alreadyAdmin = await Promise.race([
+    loginInput.waitFor({ state: 'visible', timeout: 10_000 }).then(() => false).catch(() => true),
+    page.waitForURL(/\/admin(?!\/login)/, { timeout: 10_000 }).then(() => true).catch(() => false),
+  ]);
+
+  if (alreadyAdmin && !page.url().includes('/admin/login')) {
+    return;
+  }
+
+  await loginInput.waitFor({ state: 'visible', timeout: 60_000 });
+  await loginInput.fill(phoneNational);
   await page.locator('#admin-login-password').fill(password);
   await submitAndAwaitLoginResponse(page, '[data-testid="admin-login-submit"]', '/admin/auth/login');
   await page.waitForURL(/\/admin(?!\/login)/, { timeout: 30_000 });

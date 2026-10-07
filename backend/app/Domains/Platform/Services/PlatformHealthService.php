@@ -3,7 +3,6 @@
 namespace App\Domains\Platform\Services;
 
 use App\Domains\Payments\Services\PaymentHealthService;
-use App\Domains\Platform\Services\EffectiveConfigService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;

@@ -2,10 +2,10 @@
 
 namespace App\Policies;
 
-use App\Models\User;
-use App\Models\VendorPayout;
 use App\Domains\Vendors\Services\VendorAccessService;
 use App\Domains\Vendors\Support\VendorAccessResolver;
+use App\Models\User;
+use App\Models\VendorPayout;
 use Illuminate\Support\Facades\Auth;
 
 class VendorPayoutPolicy

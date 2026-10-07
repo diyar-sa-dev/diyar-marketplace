@@ -9,8 +9,8 @@ declare(strict_types=1);
  * Requires SQLite or MySQL; uses in-memory/sqlite by default from phpunit env when unset.
  */
 
-use App\Domains\Search\Services\CatalogSearchService;
 use App\Domains\Catalog\Services\ProductService;
+use App\Domains\Search\Services\CatalogSearchService;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;

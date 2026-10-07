@@ -2,6 +2,9 @@
 
 namespace App\Domains\Reviews\Services;
 
+use App\Core\Support\Media\CmsImageUrl;
+use App\Core\Support\Media\MediaUploadService;
+use App\Domains\Vendors\Support\VendorOwnership;
 use App\Enums\B2bLeadStatus;
 use App\Enums\ProviderReviewStatus;
 use App\Enums\ServiceBookingPaymentStatus;
@@ -20,11 +23,6 @@ use App\Models\StoreReview;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorOrder;
-use App\Core\Support\Media\MediaUploadService;
-use App\Domains\Reviews\Services\OrderFulfillmentReviewEligibility;
-use App\Domains\Reviews\Services\ProductReviewEligibilityService;
-use App\Core\Support\Media\CmsImageUrl;
-use App\Domains\Vendors\Support\VendorOwnership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;

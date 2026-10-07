@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Domains\Affiliate\Services\AffiliateProfileService;
 use App\Enums\AffiliateProfileStatus;
 use App\Enums\RoleName;
-use App\Domains\Affiliate\Services\AffiliateProfileService;
 use Database\Seeders\AdminPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithIdentity;

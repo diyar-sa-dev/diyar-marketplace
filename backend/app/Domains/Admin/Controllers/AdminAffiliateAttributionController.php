@@ -2,10 +2,10 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Admin\Resources\AdminAffiliateAttributionResource;
-use App\Models\AffiliateAttribution;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Admin\Resources\AdminAffiliateAttributionResource;
+use App\Http\Controllers\Controller;
+use App\Models\AffiliateAttribution;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

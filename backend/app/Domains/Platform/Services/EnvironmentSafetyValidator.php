@@ -15,6 +15,9 @@ final class EnvironmentSafetyValidator
         $violations = [];
 
         if ($env === 'production') {
+            if (config('diyar.vps_simulation', false)) {
+                return $this->vpsSimulationViolations();
+            }
             $violations = array_merge($violations, $this->productionViolations());
         }
 
@@ -48,6 +51,33 @@ final class EnvironmentSafetyValidator
                 'Environment safety check failed: '.implode(' | ', $violations)
             );
         }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function vpsSimulationViolations(): array
+    {
+        $issues = [];
+
+        if (config('app.debug')) {
+            $issues[] = 'APP_DEBUG must be false in VPS simulation';
+        }
+
+        if (! config('diyar.payments.use_fake_gateway')) {
+            $issues[] = 'DIYAR_PAYMENT_USE_FAKE_GATEWAY must be true in VPS simulation to protect external gateways';
+        }
+
+        if ($this->looksLikeProductionDatabase()) {
+            $issues[] = 'VPS simulation must not use a production database name/host';
+        }
+
+        $prefix = Str::lower((string) config('database.redis.options.prefix', env('REDIS_PREFIX', '')));
+        if (Str::contains($prefix, 'prod')) {
+            $issues[] = 'VPS simulation REDIS_PREFIX must not target production';
+        }
+
+        return $issues;
     }
 
     /**

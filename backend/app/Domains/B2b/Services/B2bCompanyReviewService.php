@@ -2,12 +2,12 @@
 
 namespace App\Domains\B2b\Services;
 
+use App\Domains\B2b\Support\B2bCache;
 use App\Enums\B2bLeadStatus;
 use App\Models\B2bCompany;
 use App\Models\B2bCompanyReview;
 use App\Models\B2bLead;
 use App\Models\User;
-use App\Domains\B2b\Support\B2bCache;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;

@@ -2,14 +2,14 @@
 
 namespace Tests\Unit\Services\Visualization;
 
-use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
 use App\Domains\SpatialLayout\Exceptions\VisualizationProviderException;
-use App\Models\TryInRoomJob;
-use App\Models\User;
+use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
 use App\Domains\VisualSearch\Services\VisualizationCapability;
 use App\Domains\VisualSearch\Services\VisualizationProviderRegistry;
 use App\Domains\VisualSearch\Services\VisualizationQuota;
 use App\Domains\VisualSearch\Services\VisualizationService;
+use App\Models\TryInRoomJob;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;

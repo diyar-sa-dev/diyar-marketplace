@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Cache;
 
-use App\Enums\RoleName;
-use App\Domains\Admin\Services\AdminPermissionService;
-use App\Domains\Catalog\Services\CatalogCacheInvalidator;
 use App\Core\Support\Cache\CacheKeys;
 use App\Core\Support\Cache\StampedeSafeCache;
 use App\Core\Support\Cache\VersionedCache;
+use App\Domains\Admin\Services\AdminPermissionService;
+use App\Domains\Catalog\Services\CatalogCacheInvalidator;
+use App\Enums\RoleName;
 use Database\Seeders\AdminPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;

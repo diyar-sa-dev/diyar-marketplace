@@ -2,11 +2,11 @@
 
 namespace App\Domains\B2b\Services;
 
+use App\Core\Support\Content\HtmlContentSanitizer;
+use App\Core\Support\SlugGenerator;
 use App\Models\B2bCategory;
 use App\Models\B2bCompany;
 use App\Models\B2bTag;
-use App\Core\Support\Content\HtmlContentSanitizer;
-use App\Core\Support\SlugGenerator;
 use Illuminate\Support\Str;
 
 final class B2bService

@@ -3,11 +3,11 @@
 namespace App\Domains\Identity\Services;
 
 use App\Domains\Identity\Contracts\OtpCodeGenerator;
+use App\Domains\Identity\Support\OtpTestCodeResolver;
 use App\Enums\OtpPurpose;
-use App\Infrastructure\Mail\LogEmailOtpProvider;
 use App\Infrastructure\Mail\DiyarMailContent;
 use App\Infrastructure\Mail\DiyarPhpMailer;
-use App\Domains\Identity\Support\OtpTestCodeResolver;
+use App\Infrastructure\Mail\LogEmailOtpProvider;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;

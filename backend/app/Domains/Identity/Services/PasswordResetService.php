@@ -5,7 +5,6 @@ namespace App\Domains\Identity\Services;
 use App\Enums\OtpPurpose;
 use App\Enums\UserStatus;
 use App\Models\User;
-use App\Domains\Identity\Services\UserSessionService;
 use Illuminate\Validation\ValidationException;
 
 final class PasswordResetService

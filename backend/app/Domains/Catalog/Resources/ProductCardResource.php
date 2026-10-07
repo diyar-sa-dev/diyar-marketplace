@@ -2,12 +2,12 @@
 
 namespace App\Domains\Catalog\Resources;
 
-use App\Models\Product;
-use App\Models\User;
+use App\Core\Support\Media\MediaUploadService;
 use App\Domains\Catalog\Services\ProductEngagementService;
 use App\Domains\Loyalty\Services\LoyaltyRuleService;
-use App\Core\Support\Media\MediaUploadService;
 use App\Domains\Vendors\Support\VendorOwnership;
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

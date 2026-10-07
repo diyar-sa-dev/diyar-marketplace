@@ -2,10 +2,10 @@
 
 namespace App\Domains\ServicesMarketplace\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\ServicesMarketplace\Resources\ServiceCategoryResource;
 use App\Domains\ServicesMarketplace\Services\ServiceCategoryService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 class ServiceCategoryController extends Controller

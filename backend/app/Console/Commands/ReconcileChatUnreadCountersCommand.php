@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Domains\Chat\Services\ChatLockService;
 use App\Domains\Chat\Services\ChatMetrics;
 use App\Domains\Chat\Services\ChatUnreadCounterService;
+use App\Models\User;
 use Illuminate\Console\Command;
 
 class ReconcileChatUnreadCountersCommand extends Command

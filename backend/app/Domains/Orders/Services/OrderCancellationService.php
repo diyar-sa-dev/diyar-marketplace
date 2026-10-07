@@ -2,13 +2,13 @@
 
 namespace App\Domains\Orders\Services;
 
+use App\Domains\Catalog\Services\InventoryService;
+use App\Domains\Payments\Services\PaymentStateService;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\VendorOrderStatus;
 use App\Models\Order;
 use App\Models\VendorOrder;
-use App\Domains\Catalog\Services\InventoryService;
-use App\Domains\Payments\Services\PaymentStateService;
 use InvalidArgumentException;
 
 final class OrderCancellationService

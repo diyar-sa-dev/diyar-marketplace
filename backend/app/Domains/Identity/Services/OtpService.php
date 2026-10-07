@@ -3,10 +3,10 @@
 namespace App\Domains\Identity\Services;
 
 use App\Domains\Identity\Contracts\OtpCodeGenerator;
-use App\Infrastructure\Sms\Contracts\SmsProvider;
-use App\Enums\OtpPurpose;
-use App\Infrastructure\Sms\LogSmsProvider;
 use App\Domains\Identity\Support\OtpTestCodeResolver;
+use App\Enums\OtpPurpose;
+use App\Infrastructure\Sms\Contracts\SmsProvider;
+use App\Infrastructure\Sms\LogSmsProvider;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;

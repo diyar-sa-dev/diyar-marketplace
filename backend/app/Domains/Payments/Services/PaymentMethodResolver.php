@@ -2,8 +2,8 @@
 
 namespace App\Domains\Payments\Services;
 
-use App\Enums\PaymentMethod;
 use App\Domains\Payments\Services\DTO\PaymentMethodCapability;
+use App\Enums\PaymentMethod;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 final class PaymentMethodResolver

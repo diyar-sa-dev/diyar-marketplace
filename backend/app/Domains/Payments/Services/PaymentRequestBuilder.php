@@ -2,13 +2,13 @@
 
 namespace App\Domains\Payments\Services;
 
-use App\Models\Order;
-use App\Models\Payment;
-use App\Models\User;
+use App\Core\Support\Http\FrontendOrigin;
 use App\Domains\Payments\Services\DTO\PaymentCreationRequest;
 use App\Domains\Payments\Services\DTO\PaymentSessionRequest;
 use App\Domains\Payments\Services\Gateways\MyFatoorah\MyFatoorahConfigFactory;
-use App\Core\Support\Http\FrontendOrigin;
+use App\Models\Order;
+use App\Models\Payment;
+use App\Models\User;
 
 final class PaymentRequestBuilder
 {

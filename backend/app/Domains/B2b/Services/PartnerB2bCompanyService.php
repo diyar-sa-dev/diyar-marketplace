@@ -2,6 +2,7 @@
 
 namespace App\Domains\B2b\Services;
 
+use App\Domains\B2b\Support\B2bCache;
 use App\Enums\B2bPublicationStatus;
 use App\Enums\B2bVerificationStatus;
 use App\Models\B2bCompany;
@@ -9,7 +10,6 @@ use App\Models\B2bCompanyPortfolioImage;
 use App\Models\B2bCompanyService;
 use App\Models\B2bTag;
 use App\Models\User;
-use App\Domains\B2b\Support\B2bCache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

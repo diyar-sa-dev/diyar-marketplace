@@ -2,6 +2,7 @@
 
 namespace App\Domains\Catalog\Services;
 
+use App\Domains\Vendors\Support\VendorAccessResolver;
 use App\Enums\AvailabilityMode;
 use App\Enums\ProductPreorderStatus;
 use App\Models\Product;
@@ -9,7 +10,6 @@ use App\Models\ProductLike;
 use App\Models\ProductPreorderRequest;
 use App\Models\User;
 use App\Models\WishlistItem;
-use App\Domains\Vendors\Support\VendorAccessResolver;
 use Illuminate\Support\Facades\Schema;
 
 /**

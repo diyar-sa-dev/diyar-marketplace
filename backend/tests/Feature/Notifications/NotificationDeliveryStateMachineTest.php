@@ -2,14 +2,14 @@
 
 namespace Tests\Feature\Notifications;
 
+use App\Domains\Notifications\Services\NotificationDeliveryStateMachine;
+use App\Domains\Notifications\Services\NotificationDispatcher;
 use App\Enums\NotificationChannel;
 use App\Enums\NotificationDeliveryStatus;
 use App\Enums\NotificationType;
 use App\Enums\RoleName;
 use App\Models\NotificationDelivery;
 use App\Models\UserNotification;
-use App\Domains\Notifications\Services\NotificationDeliveryStateMachine;
-use App\Domains\Notifications\Services\NotificationDispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Tests\Concerns\AssertsQueryCount;

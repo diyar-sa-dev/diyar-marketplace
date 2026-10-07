@@ -2,18 +2,18 @@
 
 namespace App\Domains\Cart\Controllers;
 
-use App\Enums\AnalyticsEventType;
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
+use App\Domains\Analytics\Services\AnalyticsEventRecorder;
 use App\Domains\Cart\Requests\StoreCartItemRequest;
 use App\Domains\Cart\Requests\UpdateCartItemRequest;
 use App\Domains\Cart\Resources\CartResource;
-use App\Models\Cart;
-use App\Models\Product;
-use App\Domains\Analytics\Services\AnalyticsEventRecorder;
 use App\Domains\Cart\Services\CartMergeService;
 use App\Domains\Cart\Services\CartService;
 use App\Domains\Cart\Services\CartValidationService;
-use App\Core\Support\Api\ApiResponse;
+use App\Enums\AnalyticsEventType;
+use App\Http\Controllers\Controller;
+use App\Models\Cart;
+use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

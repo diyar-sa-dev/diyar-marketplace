@@ -2,14 +2,14 @@
 
 namespace App\Domains\Identity\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Blog\Resources\BlogArticleCardResource;
-use App\Domains\Catalog\Resources\ProductCardResource;
-use App\Domains\ServicesMarketplace\Resources\ServiceCardResource;
-use App\Domains\Blog\Services\BlogEngagementService;
-use App\Domains\Catalog\Services\ProductEngagementService;
-use App\Domains\ServicesMarketplace\Services\ServiceEngagementService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Blog\Resources\BlogArticleCardResource;
+use App\Domains\Blog\Services\BlogEngagementService;
+use App\Domains\Catalog\Resources\ProductCardResource;
+use App\Domains\Catalog\Services\ProductEngagementService;
+use App\Domains\ServicesMarketplace\Resources\ServiceCardResource;
+use App\Domains\ServicesMarketplace\Services\ServiceEngagementService;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

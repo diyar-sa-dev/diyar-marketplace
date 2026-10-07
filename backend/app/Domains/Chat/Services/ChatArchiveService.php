@@ -2,11 +2,11 @@
 
 namespace App\Domains\Chat\Services;
 
+use App\Domains\Platform\Services\EffectiveConfigService;
 use App\Enums\ChatArchiveBatchStatus;
 use App\Enums\ConversationLifecycleStatus;
 use App\Models\ChatArchiveBatch;
 use App\Models\Message;
-use App\Domains\Platform\Services\EffectiveConfigService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;

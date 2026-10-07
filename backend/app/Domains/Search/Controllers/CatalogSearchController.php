@@ -2,11 +2,11 @@
 
 namespace App\Domains\Search\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Search\Requests\CatalogSearchRequest;
 use App\Domains\Search\Services\CatalogSearchService;
 use App\Domains\Search\Services\SearchAnalyticsRecorder;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 class CatalogSearchController extends Controller

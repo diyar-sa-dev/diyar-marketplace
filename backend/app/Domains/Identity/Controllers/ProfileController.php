@@ -2,7 +2,7 @@
 
 namespace App\Domains\Identity\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Identity\Requests\RequestPhoneChangeRequest;
 use App\Domains\Identity\Requests\UpdateProfilePasswordRequest;
 use App\Domains\Identity\Requests\UpdateProfileRequest;
@@ -13,7 +13,7 @@ use App\Domains\Identity\Resources\ProfileResource;
 use App\Domains\Identity\Services\EmailVerificationService;
 use App\Domains\Identity\Services\PhoneChangeService;
 use App\Domains\Identity\Services\ProfileService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

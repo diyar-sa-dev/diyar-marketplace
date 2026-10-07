@@ -9,6 +9,12 @@ export const demoUsers = {
     email: 'customer@diyar.local',
     name: 'DIYAR Demo Customer',
   },
+  twoFactorCustomer: {
+    phoneNational: '500000012',
+    phoneE164: '966500000012',
+    email: 'customer-2fa@diyar.local',
+    name: 'DIYAR 2FA Demo Customer',
+  },
   vendor: {
     phoneNational: '500000002',
     phoneE164: '966500000002',

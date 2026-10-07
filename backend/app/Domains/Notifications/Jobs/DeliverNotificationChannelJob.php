@@ -2,20 +2,20 @@
 
 namespace App\Domains\Notifications\Jobs;
 
+use App\Domains\Chat\Services\ChatPresenceService;
 use App\Domains\Notifications\Channels\EmailNotificationChannel;
 use App\Domains\Notifications\Channels\InAppChannel;
 use App\Domains\Notifications\Channels\PushNotificationChannel;
 use App\Domains\Notifications\Channels\SmsNotificationChannel;
+use App\Domains\Notifications\Services\NotificationBroadcastProgressService;
+use App\Domains\Notifications\Services\NotificationCircuitBreaker;
+use App\Domains\Notifications\Services\NotificationDeliveryStateMachine;
 use App\Enums\NotificationChannel;
 use App\Enums\NotificationDeliveryStatus;
 use App\Enums\NotificationFailureCategory;
 use App\Enums\NotificationType;
 use App\Models\NotificationDelivery;
 use App\Models\User;
-use App\Domains\Chat\Services\ChatPresenceService;
-use App\Domains\Notifications\Services\NotificationBroadcastProgressService;
-use App\Domains\Notifications\Services\NotificationCircuitBreaker;
-use App\Domains\Notifications\Services\NotificationDeliveryStateMachine;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;

@@ -2,11 +2,11 @@
 
 namespace App\Domains\B2b\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\B2b\Resources\B2bCompanyReviewResource;
 use App\Domains\B2b\Services\B2bCompanyReviewService;
 use App\Domains\B2b\Services\PartnerB2bCompanyService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

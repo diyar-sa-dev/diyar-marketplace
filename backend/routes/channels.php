@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
 use App\Domains\Chat\Services\ChatAuthorizationService;
+use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('users.{userId}', function (?User $user, string $userId): bool {

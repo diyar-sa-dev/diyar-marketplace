@@ -2,12 +2,12 @@
 
 namespace Tests\Unit\Services\Payments\Gateways;
 
-use App\Enums\FakePaymentScenario;
-use App\Enums\PaymentStatus;
+use App\Domains\Payments\Exceptions\PaymentGatewayException;
 use App\Domains\Payments\Services\DTO\PaymentDetailsRequest;
 use App\Domains\Payments\Services\DTO\PaymentSessionRequest;
-use App\Domains\Payments\Exceptions\PaymentGatewayException;
 use App\Domains\Payments\Services\Gateways\FakePaymentGateway;
+use App\Enums\FakePaymentScenario;
+use App\Enums\PaymentStatus;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

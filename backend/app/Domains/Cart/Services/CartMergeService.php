@@ -2,12 +2,12 @@
 
 namespace App\Domains\Cart\Services;
 
+use App\Domains\Orders\Services\SelfPurchaseGuard;
 use App\Enums\AvailabilityMode;
 use App\Enums\CartStatus;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\User;
-use App\Domains\Orders\Services\SelfPurchaseGuard;
 use Illuminate\Support\Facades\DB;
 
 final class CartMergeService

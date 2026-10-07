@@ -2,10 +2,10 @@
 
 namespace App\Domains\Vendors\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Vendors\Requests\ReplyVendorReviewRequest;
 use App\Domains\Vendors\Services\VendorReviewInboxService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

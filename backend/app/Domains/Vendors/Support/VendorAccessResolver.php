@@ -2,9 +2,9 @@
 
 namespace App\Domains\Vendors\Support;
 
+use App\Domains\Vendors\Services\VendorAccessService;
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Domains\Vendors\Services\VendorAccessService;
 
 final class VendorAccessResolver
 {

@@ -2,17 +2,17 @@
 
 namespace App\Domains\Chat\Services;
 
-use App\Enums\ProductStatus;
-use App\Models\AffiliateProfile;
-use App\Models\B2bCompany;
-use App\Models\Product;
-use App\Models\User;
 use App\Domains\Admin\Services\AdminAffiliateProfileService;
 use App\Domains\Admin\Services\AdminProductService;
 use App\Domains\Admin\Services\AdminProviderAccountService;
 use App\Domains\Admin\Services\AdminUserService;
 use App\Domains\Admin\Services\AdminVendorAccountService;
 use App\Domains\B2b\Services\AdminB2bService;
+use App\Enums\ProductStatus;
+use App\Models\AffiliateProfile;
+use App\Models\B2bCompany;
+use App\Models\Product;
+use App\Models\User;
 
 final class ChatModerationEnforcementService
 {

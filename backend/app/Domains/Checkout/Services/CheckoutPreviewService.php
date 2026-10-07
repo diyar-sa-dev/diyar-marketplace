@@ -2,15 +2,9 @@
 
 namespace App\Domains\Checkout\Services;
 
-use App\Domains\Checkout\Contracts\AssemblyCalculator;
-
-use App\Enums\ShippingMethod;
-use App\Models\Address;
-use App\Models\Cart;
-use App\Models\ShippingRateRule;
-use App\Models\User;
 use App\Domains\Cart\Services\CartService;
 use App\Domains\Cart\Services\CartValidationService;
+use App\Domains\Checkout\Contracts\AssemblyCalculator;
 use App\Domains\Coupons\Services\CheckoutCouponService;
 use App\Domains\Coupons\Services\CouponFreeShippingService;
 use App\Domains\Identity\Services\AddressService;
@@ -18,6 +12,11 @@ use App\Domains\Shipping\Services\DTO\ShippingQuoteContext;
 use App\Domains\Shipping\Services\ShippingQuoteService;
 use App\Domains\Shipping\Services\ShippingRuleCatalog;
 use App\Domains\Shipping\Services\VendorShippingSettingsService;
+use App\Enums\ShippingMethod;
+use App\Models\Address;
+use App\Models\Cart;
+use App\Models\ShippingRateRule;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 

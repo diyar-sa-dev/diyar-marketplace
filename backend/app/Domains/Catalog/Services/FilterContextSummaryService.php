@@ -2,9 +2,6 @@
 
 namespace App\Domains\Catalog\Services;
 
-use App\Models\Product;
-use App\Models\Service;
-use App\Domains\ServicesMarketplace\Services\ServiceCatalogService;
 use App\Domains\Catalog\Support\Filters\Context\FilterContext;
 use App\Domains\Catalog\Support\Filters\Context\FilterContextMeta;
 use App\Domains\Catalog\Support\Filters\Context\FilterContextSummary;
@@ -16,6 +13,9 @@ use App\Domains\Catalog\Support\Filters\Context\ResultDensityClassifier;
 use App\Domains\Catalog\Support\Filters\FilterCapability;
 use App\Domains\Catalog\Support\Filters\FilterCapabilityRegistry;
 use App\Domains\Catalog\Support\Filters\FilterContentType;
+use App\Domains\ServicesMarketplace\Services\ServiceCatalogService;
+use App\Models\Product;
+use App\Models\Service;
 use Illuminate\Database\Eloquent\Builder;
 
 final class FilterContextSummaryService

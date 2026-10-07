@@ -2,6 +2,7 @@
 
 namespace App\Domains\Catalog\Services;
 
+use App\Domains\Vendors\Services\VendorAccessService;
 use App\Enums\AvailabilityMode;
 use App\Enums\InventoryMovementType;
 use App\Enums\OrderStatus;
@@ -13,7 +14,6 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductInventory;
 use App\Models\User;
-use App\Domains\Vendors\Services\VendorAccessService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

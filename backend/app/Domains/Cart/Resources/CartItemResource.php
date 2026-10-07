@@ -2,9 +2,9 @@
 
 namespace App\Domains\Cart\Resources;
 
-use App\Models\CartItem;
-use App\Domains\Catalog\Services\ProductEngagementService;
 use App\Core\Support\Media\MediaUploadService;
+use App\Domains\Catalog\Services\ProductEngagementService;
+use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

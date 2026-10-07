@@ -2,6 +2,11 @@
 
 namespace App\Domains\Orders\Services;
 
+use App\Domains\Affiliate\Services\AffiliateAttributionService;
+use App\Domains\Analytics\Services\AnalyticsEventRecorder;
+use App\Domains\Cart\Services\CartService;
+use App\Domains\Catalog\Services\InventoryService;
+use App\Domains\Checkout\Services\CheckoutPreviewService;
 use App\Enums\AnalyticsEventType;
 use App\Enums\CartStatus;
 use App\Enums\OrderStatus;
@@ -19,11 +24,6 @@ use App\Models\Product;
 use App\Models\Shipment;
 use App\Models\User;
 use App\Models\VendorOrder;
-use App\Domains\Affiliate\Services\AffiliateAttributionService;
-use App\Domains\Analytics\Services\AnalyticsEventRecorder;
-use App\Domains\Cart\Services\CartService;
-use App\Domains\Catalog\Services\InventoryService;
-use App\Domains\Checkout\Services\CheckoutPreviewService;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;

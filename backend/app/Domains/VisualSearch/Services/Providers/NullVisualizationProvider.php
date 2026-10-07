@@ -2,10 +2,10 @@
 
 namespace App\Domains\VisualSearch\Services\Providers;
 
-use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
 use App\Domains\SpatialLayout\Exceptions\VisualizationProviderException;
-use App\Models\TryInRoomJob;
+use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
 use App\Domains\VisualSearch\Services\VisualizationCapability;
+use App\Models\TryInRoomJob;
 
 final class NullVisualizationProvider implements VisualizationProviderInterface
 {

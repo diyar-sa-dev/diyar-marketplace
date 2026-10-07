@@ -2,6 +2,7 @@
 
 namespace App\Domains\Admin\Services;
 
+use App\Domains\Platform\Services\PlatformHealthService;
 use App\Enums\ChatMessageReportStatus;
 use App\Enums\DomainOutboxEventStatus;
 use App\Enums\NotificationDeliveryStatus;
@@ -9,7 +10,6 @@ use App\Models\ChatMessageReport;
 use App\Models\DomainOutboxEvent;
 use App\Models\Message;
 use App\Models\NotificationDelivery;
-use App\Domains\Platform\Services\PlatformHealthService;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 

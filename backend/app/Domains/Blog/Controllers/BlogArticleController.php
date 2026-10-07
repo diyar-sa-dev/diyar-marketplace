@@ -2,13 +2,13 @@
 
 namespace App\Domains\Blog\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Blog\Requests\BlogArticleListRequest;
 use App\Domains\Blog\Resources\BlogArticleCardResource;
 use App\Domains\Blog\Resources\BlogArticleDetailResource;
 use App\Domains\Blog\Services\BlogEngagementService;
 use App\Domains\Blog\Services\BlogQueryService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

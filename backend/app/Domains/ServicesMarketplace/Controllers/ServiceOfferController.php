@@ -2,16 +2,16 @@
 
 namespace App\Domains\ServicesMarketplace\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\ServicesMarketplace\Requests\AcceptServiceOfferRequest;
 use App\Domains\ServicesMarketplace\Requests\StoreServiceOfferRequest;
 use App\Domains\ServicesMarketplace\Resources\ServiceOfferResource;
 use App\Domains\ServicesMarketplace\Resources\ServiceRequestCardResource;
 use App\Domains\ServicesMarketplace\Resources\ServiceRequestResource;
+use App\Domains\ServicesMarketplace\Services\ServiceOfferService;
+use App\Http\Controllers\Controller;
 use App\Models\ServiceOffer;
 use App\Models\ServiceRequest;
-use App\Domains\ServicesMarketplace\Services\ServiceOfferService;
-use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

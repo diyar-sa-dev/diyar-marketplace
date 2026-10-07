@@ -2,9 +2,9 @@
 
 namespace App\Domains\Affiliate\Services;
 
+use App\Domains\Finance\Services\CommissionResolver;
 use App\Enums\AffiliateCommissionStatus;
 use App\Models\AffiliateProfile;
-use App\Domains\Finance\Services\CommissionResolver;
 use DateTimeInterface;
 
 final class AffiliateBalanceService

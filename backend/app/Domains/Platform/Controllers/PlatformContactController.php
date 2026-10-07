@@ -2,12 +2,12 @@
 
 namespace App\Domains\Platform\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Platform\Requests\PlatformConsultationRequest;
 use App\Domains\Platform\Requests\PlatformNewsletterRequest;
 use App\Domains\Platform\Services\PlatformInboundMailService;
 use App\Domains\Platform\Services\PlatformNewsletterService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Throwable;
 

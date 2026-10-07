@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Api\V1\Auth;
 
+use App\Domains\Identity\Services\WelcomeEmailService;
 use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Infrastructure\Mail\LogEmailOtpProvider;
 use App\Models\User;
-use App\Domains\Identity\Services\WelcomeEmailService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\InteractsWithIdentity;

@@ -2,8 +2,8 @@
 
 namespace App\Domains\Analytics\Jobs;
 
-use App\Enums\AnalyticsEventType;
 use App\Domains\Analytics\Services\AnalyticsEventRecorder;
+use App\Enums\AnalyticsEventType;
 use Carbon\CarbonImmutable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

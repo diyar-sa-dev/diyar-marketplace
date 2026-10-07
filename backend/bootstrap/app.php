@@ -23,7 +23,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Broadcast;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -36,13 +35,10 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         apiPrefix: 'api/v1',
-        then: function (): void {
-            require __DIR__.'/../routes/channels.php';
-
-            Broadcast::routes([
-                'middleware' => ['web', 'auth:sanctum', 'account.active'],
-            ]);
-        },
+    )
+    ->withBroadcasting(
+        channels: __DIR__.'/../routes/channels.php',
+        attributes: ['middleware' => ['web', 'auth:sanctum', 'account.active']],
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(

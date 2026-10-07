@@ -2,6 +2,12 @@
 
 namespace Tests\Feature\Api\V1\Finance;
 
+use App\Domains\Finance\Services\CommissionResolver;
+use App\Domains\Finance\Services\EscrowReleaseService;
+use App\Domains\Orders\Services\VendorOrderStateService;
+use App\Domains\Payments\Services\PaymentAllocationSnapshotService;
+use App\Domains\Payments\Services\PaymentApplicationService;
+use App\Domains\Payments\Services\PaymentFinalizationService;
 use App\Enums\CommissionScope;
 use App\Enums\FinancialTransactionType;
 use App\Enums\PayoutStatus;
@@ -13,12 +19,6 @@ use App\Models\Order;
 use App\Models\PaymentVendorAllocation;
 use App\Models\Product;
 use App\Models\VendorPayout;
-use App\Domains\Finance\Services\CommissionResolver;
-use App\Domains\Finance\Services\EscrowReleaseService;
-use App\Domains\Orders\Services\VendorOrderStateService;
-use App\Domains\Payments\Services\PaymentAllocationSnapshotService;
-use App\Domains\Payments\Services\PaymentApplicationService;
-use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use InvalidArgumentException;

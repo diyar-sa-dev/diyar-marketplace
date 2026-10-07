@@ -14,6 +14,8 @@ return [
 
     'frontend_url' => env('DIYAR_FRONTEND_URL', env('FRONTEND_URL', 'http://localhost:5173')),
 
+    'vps_simulation' => filter_var(env('DIYAR_VPS_SIMULATION', false), FILTER_VALIDATE_BOOL),
+
     /*
     |--------------------------------------------------------------------------
     | OTP Configuration

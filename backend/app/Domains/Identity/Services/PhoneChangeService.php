@@ -4,8 +4,6 @@ namespace App\Domains\Identity\Services;
 
 use App\Enums\OtpPurpose;
 use App\Models\User;
-use App\Domains\Identity\Services\OtpService;
-use App\Domains\Identity\Services\PhoneNormalizer;
 use Illuminate\Validation\ValidationException;
 
 final class PhoneChangeService

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Returns;
 
+use App\Domains\Returns\Services\RefundCalculationService;
 use App\Enums\ReturnReason;
 use App\Enums\RoleName;
 use App\Models\Order;
@@ -11,7 +12,6 @@ use App\Models\ReturnRequest;
 use App\Models\User;
 use App\Models\VendorOrder;
 use App\Models\VendorReturnPolicy;
-use App\Domains\Returns\Services\RefundCalculationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\Concerns\InteractsWithCheckout;

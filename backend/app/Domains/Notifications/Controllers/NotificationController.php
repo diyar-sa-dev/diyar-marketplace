@@ -2,11 +2,11 @@
 
 namespace App\Domains\Notifications\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Notifications\Resources\UserNotificationResource;
 use App\Domains\Notifications\Services\NotificationDeviceService;
 use App\Domains\Notifications\Services\NotificationService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

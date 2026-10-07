@@ -2,8 +2,8 @@
 
 namespace App\Domains\Analytics\Services;
 
-use App\Enums\AnalyticsEventType;
 use App\Domains\Analytics\Jobs\RecordAnalyticsEventJob;
+use App\Enums\AnalyticsEventType;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;

@@ -2,12 +2,12 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Identity\Resources\UserResource;
-use App\Models\User;
-use App\Domains\Admin\Services\AdminPermissionService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Admin\Services\AdminPermissionService;
+use App\Domains\Identity\Resources\UserResource;
 use App\Domains\Identity\Support\MarketplaceAccess;
+use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

@@ -2,12 +2,12 @@
 
 namespace App\Domains\Chat\Services;
 
+use App\Domains\Chat\Support\ChatReportCatalog;
 use App\Enums\ChatMessageReportStatus;
 use App\Models\ChatMessageReport;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\User;
-use App\Domains\Chat\Support\ChatReportCatalog;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 

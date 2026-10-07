@@ -2,15 +2,13 @@
 
 namespace App\Domains\Identity\Services;
 
+use App\Domains\Cart\Services\CartService;
+use App\Domains\Identity\Support\MarketplaceAccess;
+use App\Domains\Identity\Support\UserNotificationPreferences;
 use App\Enums\OtpPurpose;
 use App\Enums\RoleName;
 use App\Enums\UserStatus;
 use App\Models\User;
-use App\Domains\Cart\Services\CartService;
-use App\Domains\Identity\Services\TwoFactorLoginChallengeService;
-use App\Domains\Identity\Services\UserSessionService;
-use App\Domains\Identity\Support\MarketplaceAccess;
-use App\Domains\Identity\Support\UserNotificationPreferences;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\App;

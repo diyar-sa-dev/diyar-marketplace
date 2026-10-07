@@ -2,16 +2,16 @@
 
 namespace App\Domains\VisualSearch\Services\Providers;
 
-use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
 use App\Domains\SpatialLayout\Exceptions\VisualizationProviderException;
-use App\Models\Product;
-use App\Models\ProductImage;
-use App\Models\RoomDesign;
-use App\Models\TryInRoomJob;
+use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
 use App\Domains\VisualSearch\Services\Support\StubTryInRoomCompositor;
 use App\Domains\VisualSearch\Services\Support\TryInRoomPrivateImageReader;
 use App\Domains\VisualSearch\Services\Support\TryInRoomResultImageStore;
 use App\Domains\VisualSearch\Services\VisualizationCapability;
+use App\Models\Product;
+use App\Models\ProductImage;
+use App\Models\RoomDesign;
+use App\Models\TryInRoomJob;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 

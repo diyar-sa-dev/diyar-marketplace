@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Api\V1\Catalog;
 
+use App\Core\Support\Cache\CacheKeys;
+use App\Core\Support\Cache\VersionedCache;
 use App\Domains\Catalog\Services\CachedFilterContextSummaryService;
 use App\Domains\Catalog\Services\CachedFilterSuggestionService;
 use App\Domains\Catalog\Services\FilterSuggestionService;
 use App\Domains\Catalog\Services\FilterSuggestionTelemetry;
-use App\Core\Support\Cache\CacheKeys;
-use App\Core\Support\Cache\VersionedCache;
 use App\Domains\Catalog\Support\Filters\CatalogFilterNormalizer;
 use App\Domains\Catalog\Support\Filters\Context\FilterContextFactory;
 use App\Domains\Catalog\Support\Filters\Context\FilterContextSignature;

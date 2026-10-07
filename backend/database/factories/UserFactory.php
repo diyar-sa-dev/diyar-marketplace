@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Domains\Identity\Services\PhoneNormalizer;
 use App\Enums\UserStatus;
 use App\Models\User;
-use App\Domains\Identity\Services\PhoneNormalizer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

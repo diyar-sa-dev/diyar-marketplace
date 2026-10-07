@@ -2,8 +2,8 @@
 
 namespace App\Domains\Coupons\Resources;
 
-use App\Models\VendorCoupon;
 use App\Domains\Coupons\Services\VendorCouponValidationService;
+use App\Models\VendorCoupon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

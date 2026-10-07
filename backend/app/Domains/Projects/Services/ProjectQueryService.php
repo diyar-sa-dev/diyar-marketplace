@@ -2,9 +2,9 @@
 
 namespace App\Domains\Projects\Services;
 
-use App\Models\Project;
-use App\Domains\Blog\Support\BlogProjectCache;
 use App\Core\Support\Cache\CachesQueryResults;
+use App\Domains\Blog\Support\BlogProjectCache;
+use App\Models\Project;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

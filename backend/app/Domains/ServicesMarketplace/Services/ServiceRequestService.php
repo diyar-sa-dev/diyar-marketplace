@@ -2,12 +2,12 @@
 
 namespace App\Domains\ServicesMarketplace\Services;
 
+use App\Domains\ServicesMarketplace\Support\ProviderSelfInteractionGuard;
 use App\Enums\ServiceRequestStatus;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
 use App\Models\User;
-use App\Domains\ServicesMarketplace\Support\ProviderSelfInteractionGuard;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

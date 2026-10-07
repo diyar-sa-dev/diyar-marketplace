@@ -2,14 +2,13 @@
 
 namespace App\Domains\Payments\Services;
 
+use App\Domains\Payments\Exceptions\PaymentGatewayException;
+use App\Domains\Payments\Services\DTO\PaymentDetailsRequest;
+use App\Domains\Payments\Services\DTO\VerifiedWebhookPayload;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentWebhookProcessingStatus;
 use App\Models\Payment;
 use App\Models\PaymentWebhookEvent;
-use App\Domains\Payments\Services\PaymentStateService;
-use App\Domains\Payments\Services\DTO\PaymentDetailsRequest;
-use App\Domains\Payments\Services\DTO\VerifiedWebhookPayload;
-use App\Domains\Payments\Exceptions\PaymentGatewayException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 

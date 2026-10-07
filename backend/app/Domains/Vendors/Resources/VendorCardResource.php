@@ -2,9 +2,9 @@
 
 namespace App\Domains\Vendors\Resources;
 
-use App\Models\VendorAccount;
 use App\Core\Support\Media\MediaUploadService;
 use App\Domains\Reviews\Services\StoreReviewService;
+use App\Models\VendorAccount;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

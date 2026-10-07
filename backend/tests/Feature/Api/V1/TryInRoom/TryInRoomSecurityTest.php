@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Api\V1\TryInRoom;
 
-use App\Enums\RoleName;
 use App\Domains\TryInRoom\Jobs\ProcessTryInRoomJob;
-use App\Models\Product;
-use App\Models\TryInRoomJob;
 use App\Domains\TryInRoom\Services\TryInRoomJobService;
 use App\Domains\TryInRoom\Services\TryInRoomStorageService;
 use App\Domains\VisualSearch\Services\VisualizationService;
+use App\Enums\RoleName;
+use App\Models\Product;
+use App\Models\TryInRoomJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;

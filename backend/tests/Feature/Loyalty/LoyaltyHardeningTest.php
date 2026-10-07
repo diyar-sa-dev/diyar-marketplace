@@ -2,6 +2,11 @@
 
 namespace Tests\Feature\Loyalty;
 
+use App\Domains\Admin\Services\AdminPermissionService;
+use App\Domains\Admin\Services\AdminRolePermissionService;
+use App\Domains\Loyalty\Services\LoyaltyLedgerService;
+use App\Domains\Loyalty\Services\LoyaltyRuleService;
+use App\Domains\Payments\Services\PaymentFinalizationService;
 use App\Enums\AdminPermission;
 use App\Enums\LoyaltyTransactionType;
 use App\Enums\ReturnReason;
@@ -19,11 +24,6 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\VendorOrder;
 use App\Models\VendorReturnPolicy;
-use App\Domains\Admin\Services\AdminPermissionService;
-use App\Domains\Admin\Services\AdminRolePermissionService;
-use App\Domains\Loyalty\Services\LoyaltyLedgerService;
-use App\Domains\Loyalty\Services\LoyaltyRuleService;
-use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;

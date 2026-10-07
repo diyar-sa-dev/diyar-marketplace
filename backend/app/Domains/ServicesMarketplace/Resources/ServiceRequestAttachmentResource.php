@@ -2,8 +2,8 @@
 
 namespace App\Domains\ServicesMarketplace\Resources;
 
-use App\Models\ServiceRequestAttachment;
 use App\Core\Support\Media\MediaUploadService;
+use App\Models\ServiceRequestAttachment;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

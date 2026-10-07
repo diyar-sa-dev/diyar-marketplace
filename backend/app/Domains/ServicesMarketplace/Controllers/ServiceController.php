@@ -2,12 +2,12 @@
 
 namespace App\Domains\ServicesMarketplace\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\ServicesMarketplace\Requests\ServiceListRequest;
 use App\Domains\ServicesMarketplace\Resources\ServiceCardResource;
 use App\Domains\ServicesMarketplace\Resources\ServiceDetailResource;
 use App\Domains\ServicesMarketplace\Services\ServiceCatalogService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

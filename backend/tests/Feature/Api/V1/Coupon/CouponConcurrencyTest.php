@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Coupon;
 
+use App\Domains\Coupons\Services\VendorCouponUsageService;
 use App\Enums\OrderStatus;
 use App\Enums\RoleName;
 use App\Enums\VendorCouponType;
@@ -11,7 +12,6 @@ use App\Models\Product;
 use App\Models\VendorCoupon;
 use App\Models\VendorCouponUsage;
 use App\Models\VendorOrder;
-use App\Domains\Coupons\Services\VendorCouponUsageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithCheckout;
 use Tests\Concerns\InteractsWithIdentity;

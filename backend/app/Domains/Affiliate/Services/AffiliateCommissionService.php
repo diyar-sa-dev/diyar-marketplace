@@ -2,6 +2,7 @@
 
 namespace App\Domains\Affiliate\Services;
 
+use App\Domains\Finance\Services\FinancialPostingService;
 use App\Enums\AffiliateCommissionStatus;
 use App\Events\Domain\AffiliateCommissionAvailable;
 use App\Models\AffiliateClick;
@@ -10,7 +11,6 @@ use App\Models\AffiliateProfile;
 use App\Models\OrderItem;
 use App\Models\ReturnRequest;
 use App\Models\VendorOrder;
-use App\Domains\Finance\Services\FinancialPostingService;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 

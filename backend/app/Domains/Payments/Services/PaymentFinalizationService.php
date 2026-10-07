@@ -2,6 +2,11 @@
 
 namespace App\Domains\Payments\Services;
 
+use App\Domains\Analytics\Services\AnalyticsEventRecorder;
+use App\Domains\Catalog\Services\InventoryService;
+use App\Domains\Coupons\Services\VendorCouponUsageService;
+use App\Domains\Finance\Services\FinancialPostingService;
+use App\Domains\Orders\Services\OrderStateService;
 use App\Enums\AnalyticsEventType;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentAttemptStatus;
@@ -13,12 +18,6 @@ use App\Models\InventoryReservation;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentAttempt;
-use App\Domains\Analytics\Services\AnalyticsEventRecorder;
-use App\Domains\Catalog\Services\InventoryService;
-use App\Domains\Coupons\Services\VendorCouponUsageService;
-use App\Domains\Finance\Services\FinancialPostingService;
-use App\Domains\Orders\Services\OrderStateService;
-use App\Domains\Payments\Services\PaymentStateService;
 use Illuminate\Support\Facades\DB;
 
 final class PaymentFinalizationService

@@ -2,7 +2,7 @@
 
 namespace App\Domains\ServicesMarketplace\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\ServicesMarketplace\Requests\UpdateProviderAccountSettingsRequest;
 use App\Domains\ServicesMarketplace\Requests\UpdateProviderBankAccountRequest;
 use App\Domains\ServicesMarketplace\Requests\UpdateProviderNotificationSettingsRequest;
@@ -12,7 +12,7 @@ use App\Domains\ServicesMarketplace\Requests\UpdateProviderWorkingHoursRequest;
 use App\Domains\ServicesMarketplace\Requests\UploadProviderAvatarRequest;
 use App\Domains\ServicesMarketplace\Resources\ProviderSettingsResource;
 use App\Domains\ServicesMarketplace\Services\ProviderSettingsService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

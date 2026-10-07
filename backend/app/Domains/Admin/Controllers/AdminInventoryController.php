@@ -2,12 +2,12 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Admin\Resources\AdminInventoryMovementResource;
 use App\Domains\Catalog\Resources\ProductCardResource;
+use App\Http\Controllers\Controller;
 use App\Models\InventoryMovement;
 use App\Models\Product;
-use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

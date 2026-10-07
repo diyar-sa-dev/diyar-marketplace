@@ -2,8 +2,8 @@
 
 namespace App\Domains\ServicesMarketplace\Resources;
 
-use App\Models\ServicePortfolioItem;
 use App\Domains\ServicesMarketplace\Support\ServiceMarketplacePresenter;
+use App\Models\ServicePortfolioItem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

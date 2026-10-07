@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Api\V1\Search;
 
+use App\Core\Support\Cache\CacheKeys;
+use App\Domains\VisualSearch\Services\VisualIndexingService;
 use App\Models\MediaFile;
 use App\Models\Product;
 use App\Models\ProductImage;
-use App\Domains\VisualSearch\Services\VisualIndexingService;
-use App\Core\Support\Cache\CacheKeys;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;

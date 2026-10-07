@@ -26,6 +26,7 @@ Password: `DIYAR_DEMO_PASSWORD` (default `Password123!`)
 | Vendor | vendor@diyar.local | 966500000002 |
 | Provider | eiwan@diyar.local | 966500000101 |
 | Customer | customer@diyar.local | 966500000010 |
+| Customer (2FA) | customer-2fa@diyar.local | 966500000012 |
 | Marketer | marketer@diyar.local | 966500000011 |
 
 Admin is a **control-plane identity only** — not combined with marketplace roles in seed data.

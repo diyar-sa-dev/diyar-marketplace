@@ -2,21 +2,20 @@
 
 namespace App\Domains\Search\Services;
 
-
-use App\Domains\Catalog\Services\ProductService;
+use App\Core\Support\Cache\CacheKeys;
+use App\Core\Support\Cache\StampedeSafeCache;
+use App\Core\Support\Cache\VersionedCache;
 use App\Domains\Catalog\Resources\ProductCardResource;
+use App\Domains\Catalog\Services\ProductService;
+use App\Domains\Catalog\Support\Filters\CatalogFilterNormalizer;
+use App\Domains\Search\Contracts\ProductSearchContract;
 use App\Domains\ServicesMarketplace\Resources\ServiceCardResource;
+use App\Domains\ServicesMarketplace\Services\ServiceCatalogService;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductColor;
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Domains\ServicesMarketplace\Services\ServiceCatalogService;
-use App\Core\Support\Cache\CacheKeys;
-use App\Core\Support\Cache\StampedeSafeCache;
-use App\Core\Support\Cache\VersionedCache;
-use App\Domains\Catalog\Support\Filters\CatalogFilterNormalizer;
-use App\Domains\Search\Contracts\ProductSearchContract;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 

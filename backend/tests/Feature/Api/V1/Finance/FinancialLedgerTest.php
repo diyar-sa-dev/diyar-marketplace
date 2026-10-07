@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Api\V1\Finance;
 
+use App\Domains\Finance\Services\FinancialPostingService;
+use App\Domains\Orders\Services\VendorOrderStateService;
+use App\Domains\Payments\Services\PaymentFinalizationService;
 use App\Enums\BalanceBucket;
 use App\Enums\FinancialTransactionType;
 use App\Enums\PayoutStatus;
@@ -12,9 +15,6 @@ use App\Models\Order;
 use App\Models\PaymentVendorAllocation;
 use App\Models\Product;
 use App\Models\VendorPayout;
-use App\Domains\Finance\Services\FinancialPostingService;
-use App\Domains\Orders\Services\VendorOrderStateService;
-use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;

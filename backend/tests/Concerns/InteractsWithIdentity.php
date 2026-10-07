@@ -2,6 +2,8 @@
 
 namespace Tests\Concerns;
 
+use App\Core\Support\SlugGenerator;
+use App\Domains\Identity\Services\OtpCacheStore;
 use App\Enums\OtpPurpose;
 use App\Enums\ProviderAccountStatus;
 use App\Enums\RoleName;
@@ -13,8 +15,6 @@ use App\Models\ProviderAccount;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\VendorAccount;
-use App\Domains\Identity\Services\OtpCacheStore;
-use App\Core\Support\SlugGenerator;
 use Database\Seeders\AdminPermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Testing\TestResponse;

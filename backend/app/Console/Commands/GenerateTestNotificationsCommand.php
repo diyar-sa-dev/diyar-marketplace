@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Domains\Notifications\Services\NotificationDispatcher;
 use App\Enums\NotificationType;
 use App\Models\User;
 use App\Models\UserNotification;
-use App\Domains\Notifications\Services\NotificationDispatcher;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 

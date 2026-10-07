@@ -2,11 +2,11 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Identity\Requests\LoginRequest;
 use App\Domains\Identity\Resources\UserResource;
 use App\Domains\Identity\Services\AuthService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

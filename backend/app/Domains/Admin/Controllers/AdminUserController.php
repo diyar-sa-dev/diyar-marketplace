@@ -2,12 +2,12 @@
 
 namespace App\Domains\Admin\Controllers;
 
+use App\Core\Support\Api\ApiResponse;
+use App\Domains\Admin\Services\AdminUserService;
+use App\Domains\Identity\Resources\UserResource;
 use App\Enums\RoleName;
 use App\Http\Controllers\Controller;
-use App\Domains\Identity\Resources\UserResource;
 use App\Models\User;
-use App\Domains\Admin\Services\AdminUserService;
-use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

@@ -2,15 +2,15 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Admin\Requests\StoreCategoryRequest;
 use App\Domains\Admin\Requests\UpdateCategoryRequest;
+use App\Domains\Admin\Services\AdminCategoryService;
 use App\Domains\Catalog\Resources\CategoryResource;
+use App\Domains\Catalog\Services\CategoryService;
+use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\User;
-use App\Domains\Admin\Services\AdminCategoryService;
-use App\Domains\Catalog\Services\CategoryService;
-use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

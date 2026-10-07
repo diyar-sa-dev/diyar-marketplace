@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Services\TryInRoom;
 
-use App\Models\User;
 use App\Domains\TryInRoom\Services\TryInRoomStorageService;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;

@@ -20,9 +20,9 @@ if ($dbPath === '' || $productId === '' || $userId === '') {
 require __DIR__.'/concurrency-worker-bootstrap.php';
 bootstrapConcurrencyWorker($dbPath);
 
+use App\Domains\Catalog\Services\InventoryService;
 use App\Models\Product;
 use App\Models\User;
-use App\Domains\Catalog\Services\InventoryService;
 
 try {
     $product = Product::query()->findOrFail($productId);

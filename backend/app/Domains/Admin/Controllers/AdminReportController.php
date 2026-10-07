@@ -2,10 +2,10 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Analytics\Services\AdminAnalyticsService;
 use App\Domains\Analytics\Services\AnalyticsDateRangeResolver;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

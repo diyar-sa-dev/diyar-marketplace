@@ -2,7 +2,6 @@
 
 namespace App\Domains\Analytics\Services;
 
-
 use App\Domains\Search\Services\SearchAnalyticsQueryService;
 use App\Enums\AnalyticsEventType;
 use App\Enums\PaymentStatus;

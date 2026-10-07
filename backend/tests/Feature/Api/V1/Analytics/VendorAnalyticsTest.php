@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Api\V1\Analytics;
 
-use App\Enums\RoleName;
 use App\Domains\Analytics\Services\AnalyticsCache;
 use App\Domains\Payments\Services\PaymentFinalizationService;
+use App\Enums\RoleName;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;

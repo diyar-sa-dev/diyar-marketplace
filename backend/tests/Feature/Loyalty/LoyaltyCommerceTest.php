@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Loyalty;
 
+use App\Domains\Loyalty\Services\LoyaltyRuleService;
+use App\Domains\Payments\Services\PaymentFinalizationService;
 use App\Enums\LoyaltyTransactionType;
 use App\Enums\RoleName;
 use App\Events\Domain\PaymentSucceeded;
@@ -9,8 +11,6 @@ use App\Models\LoyaltyAccount;
 use App\Models\LoyaltyTransaction;
 use App\Models\Order;
 use App\Models\User;
-use App\Domains\Loyalty\Services\LoyaltyRuleService;
-use App\Domains\Payments\Services\PaymentFinalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\InteractsWithCheckout;

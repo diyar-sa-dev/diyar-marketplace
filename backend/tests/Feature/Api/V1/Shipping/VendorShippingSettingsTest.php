@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Api\V1\Shipping;
 
+use App\Domains\Shipping\Services\ShippingQuoteService;
 use App\Enums\RoleName;
 use App\Enums\ShippingMethod;
 use App\Models\Product;
 use App\Models\VendorAccount;
 use App\Models\VendorShippingSettings;
-use App\Domains\Shipping\Services\ShippingQuoteService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\InteractsWithCheckout;
 use Tests\Concerns\InteractsWithIdentity;

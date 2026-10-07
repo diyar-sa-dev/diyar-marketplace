@@ -2,9 +2,9 @@
 
 namespace App\Domains\Orders\Services;
 
+use App\Domains\Vendors\Support\VendorOwnership;
 use App\Models\Product;
 use App\Models\User;
-use App\Domains\Vendors\Support\VendorOwnership;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 final class SelfPurchaseGuard

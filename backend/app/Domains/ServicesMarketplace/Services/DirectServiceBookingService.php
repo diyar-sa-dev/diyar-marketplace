@@ -2,6 +2,7 @@
 
 namespace App\Domains\ServicesMarketplace\Services;
 
+use App\Domains\ServicesMarketplace\Support\ProviderSelfInteractionGuard;
 use App\Enums\ProviderAccountStatus;
 use App\Enums\ServiceBookingMode;
 use App\Enums\ServiceBookingPaymentStatus;
@@ -12,7 +13,6 @@ use App\Events\Domain\BookingCreated;
 use App\Models\Service;
 use App\Models\ServiceBooking;
 use App\Models\User;
-use App\Domains\ServicesMarketplace\Support\ProviderSelfInteractionGuard;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;

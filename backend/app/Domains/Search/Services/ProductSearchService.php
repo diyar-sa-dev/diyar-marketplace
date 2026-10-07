@@ -2,9 +2,9 @@
 
 namespace App\Domains\Search\Services;
 
+use App\Domains\Catalog\Services\ProductService;
 use App\Domains\Search\Contracts\ProductSearchContract;
 use App\Models\User;
-use App\Domains\Catalog\Services\ProductService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 final class ProductSearchService implements ProductSearchContract

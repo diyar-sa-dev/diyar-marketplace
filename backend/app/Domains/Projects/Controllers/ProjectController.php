@@ -2,12 +2,12 @@
 
 namespace App\Domains\Projects\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Projects\Requests\ProjectListRequest;
 use App\Domains\Projects\Resources\ProjectCardResource;
 use App\Domains\Projects\Resources\ProjectDetailResource;
 use App\Domains\Projects\Services\ProjectQueryService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 

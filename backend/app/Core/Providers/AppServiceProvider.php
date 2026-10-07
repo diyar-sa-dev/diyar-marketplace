@@ -2,21 +2,24 @@
 
 namespace App\Core\Providers;
 
-use App\Domains\Identity\Contracts\OtpCodeGenerator;
-use App\Domains\Payments\Contracts\PaymentGatewayInterface;
-use App\Infrastructure\Sms\Contracts\SmsProvider;
-use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
-use App\Infrastructure\Sms\SmsProviderFactory;
+use App\Domains\Admin\Services\AdminPermissionService;
 use App\Domains\Checkout\Contracts\AssemblyCalculator;
 use App\Domains\Checkout\Services\StubAssemblyCalculator;
+use App\Domains\Identity\Contracts\OtpCodeGenerator;
 use App\Domains\Identity\Services\SecureOtpCodeGenerator;
-use App\Domains\Platform\Services\EnvironmentSafetyValidator;
+use App\Domains\Payments\Contracts\PaymentGatewayInterface;
 use App\Domains\Payments\Services\Gateways\FakePaymentGateway;
 use App\Domains\Payments\Services\Gateways\MyFatoorah\MyFatoorahGateway;
 use App\Domains\Payments\Services\PaymentGatewayManager;
+use App\Domains\Platform\Services\EnvironmentSafetyValidator;
+use App\Domains\Search\Contracts\ProductSearchContract;
+use App\Domains\Search\Services\ProductSearchService;
+use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
 use App\Domains\VisualSearch\Services\VisualizationProviderRegistry;
 use App\Domains\VisualSearch\Services\VisualizationService;
 use App\Domains\VisualSearch\Support\Dhash64Generator;
+use App\Infrastructure\Sms\Contracts\SmsProvider;
+use App\Infrastructure\Sms\SmsProviderFactory;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\DevCommands;
 use Illuminate\Http\Request;
@@ -30,9 +33,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         if (! class_exists('App\Services\Admin\AdminPermissionService', false)) {
-            class_alias(\App\Domains\Admin\Services\AdminPermissionService::class, 'App\Services\Admin\AdminPermissionService');
+            class_alias(AdminPermissionService::class, 'App\Services\Admin\AdminPermissionService');
         }
-        $this->app->alias(\App\Domains\Admin\Services\AdminPermissionService::class, 'App\Services\Admin\AdminPermissionService');
+        $this->app->alias(AdminPermissionService::class, 'App\Services\Admin\AdminPermissionService');
 
         $this->app->singleton(OtpCodeGenerator::class, SecureOtpCodeGenerator::class);
 
@@ -66,8 +69,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(
-            \App\Domains\Search\Contracts\ProductSearchContract::class,
-            \App\Domains\Search\Services\ProductSearchService::class
+            ProductSearchContract::class,
+            ProductSearchService::class
         );
     }
 
@@ -81,13 +84,15 @@ class AppServiceProvider extends ServiceProvider
 
         Password::defaults(fn () => Password::min(8)->letters()->numbers());
 
-        if (app()->environment('production') && config('diyar.payments.use_fake_gateway')) {
+        $isSimulation = (bool) config('diyar.vps_simulation', false);
+
+        if (app()->environment('production') && ! $isSimulation && config('diyar.payments.use_fake_gateway')) {
             throw new \RuntimeException(
                 'DIYAR_PAYMENT_USE_FAKE_GATEWAY cannot be enabled in production.'
             );
         }
 
-        if (app()->environment('production') && config('diyar.assistant.use_fake')) {
+        if (app()->environment('production') && ! $isSimulation && config('diyar.assistant.use_fake')) {
             throw new \RuntimeException(
                 'DIYAR_ASSISTANT_USE_FAKE cannot be enabled in production.'
             );

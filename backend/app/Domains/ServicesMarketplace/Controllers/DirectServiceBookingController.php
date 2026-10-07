@@ -2,13 +2,13 @@
 
 namespace App\Domains\ServicesMarketplace\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\ServicesMarketplace\Requests\CreateDirectBookingRequest;
 use App\Domains\ServicesMarketplace\Requests\DirectBookingPreviewRequest;
 use App\Domains\ServicesMarketplace\Resources\ServiceBookingResource;
 use App\Domains\ServicesMarketplace\Services\DirectServiceBookingService;
 use App\Domains\ServicesMarketplace\Services\ServiceCatalogService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;
 

@@ -2,9 +2,9 @@
 
 namespace App\Domains\Orders\Services;
 
+use App\Domains\Finance\Services\EscrowReleaseService;
 use App\Enums\VendorOrderStatus;
 use App\Models\VendorOrder;
-use App\Domains\Finance\Services\EscrowReleaseService;
 use InvalidArgumentException;
 
 final class VendorOrderStateService

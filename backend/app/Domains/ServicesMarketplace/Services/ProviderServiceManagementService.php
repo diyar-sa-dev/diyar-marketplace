@@ -2,13 +2,13 @@
 
 namespace App\Domains\ServicesMarketplace\Services;
 
+use App\Core\Support\Media\MediaUploadService;
 use App\Enums\ServiceBookingMode;
 use App\Enums\ServicePricingMode;
 use App\Models\Service;
 use App\Models\ServiceBooking;
 use App\Models\ServiceCategory;
 use App\Models\User;
-use App\Core\Support\Media\MediaUploadService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

@@ -2,9 +2,9 @@
 
 namespace App\Domains\B2b\Resources;
 
+use App\Core\Support\Media\CmsImageUrl;
 use App\Enums\B2bVerificationStatus;
 use App\Models\B2bCompany;
-use App\Core\Support\Media\CmsImageUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

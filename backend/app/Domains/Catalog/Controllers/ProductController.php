@@ -2,12 +2,12 @@
 
 namespace App\Domains\Catalog\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Catalog\Requests\ProductListRequest;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Analytics\Services\ProductViewAnalyticsService;
+use App\Domains\Catalog\Requests\ProductListRequest;
 use App\Domains\Catalog\Services\CachedPublicProductDetailService;
 use App\Domains\Catalog\Services\CachedPublicProductListService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

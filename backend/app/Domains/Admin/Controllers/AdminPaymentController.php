@@ -2,10 +2,10 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Admin\Resources\AdminPaymentResource;
-use App\Models\Payment;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Admin\Resources\AdminPaymentResource;
+use App\Http\Controllers\Controller;
+use App\Models\Payment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

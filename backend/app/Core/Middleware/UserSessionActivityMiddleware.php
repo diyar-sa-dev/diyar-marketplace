@@ -2,9 +2,9 @@
 
 namespace App\Core\Middleware;
 
-use App\Models\UserSession;
 use App\Domains\Identity\Services\UserSessionService;
 use App\Domains\Identity\Support\SessionLookupHash;
+use App\Models\UserSession;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

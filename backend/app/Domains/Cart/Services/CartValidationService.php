@@ -2,6 +2,7 @@
 
 namespace App\Domains\Cart\Services;
 
+use App\Domains\Orders\Services\SelfPurchaseGuard;
 use App\Enums\AvailabilityMode;
 use App\Enums\ProductStatus;
 use App\Enums\VendorAccountStatus;
@@ -9,7 +10,6 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\User;
-use App\Domains\Orders\Services\SelfPurchaseGuard;
 
 final class CartValidationService
 {

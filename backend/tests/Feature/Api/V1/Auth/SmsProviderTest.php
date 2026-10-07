@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Api\V1\Auth;
 
-use App\Infrastructure\Sms\Contracts\SmsProvider;
-use App\Enums\OtpPurpose;
-use App\Infrastructure\Sms\LogSmsProvider;
-use App\Infrastructure\Sms\SmsProviderFactory;
 use App\Domains\Identity\Services\OtpCacheStore;
 use App\Domains\Identity\Services\OtpService;
+use App\Enums\OtpPurpose;
+use App\Infrastructure\Sms\Contracts\SmsProvider;
+use App\Infrastructure\Sms\LogSmsProvider;
+use App\Infrastructure\Sms\SmsProviderFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;

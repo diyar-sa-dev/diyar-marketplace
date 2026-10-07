@@ -2,14 +2,14 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Affiliate\Requests\RejectAffiliatePayoutRequest;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Admin\Resources\AdminAffiliatePayoutResource;
+use App\Domains\Admin\Services\AdminPayoutActionService;
+use App\Domains\Affiliate\Requests\RejectAffiliatePayoutRequest;
 use App\Domains\Affiliate\Resources\AffiliatePayoutResource;
+use App\Http\Controllers\Controller;
 use App\Models\AffiliatePayout;
 use App\Models\User;
-use App\Domains\Admin\Services\AdminPayoutActionService;
-use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

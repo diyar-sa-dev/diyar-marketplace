@@ -2,9 +2,9 @@
 
 namespace App\Domains\Notifications\Services;
 
+use App\Domains\Identity\Support\UserNotificationPreferences;
 use App\Enums\NotificationType;
 use App\Models\User;
-use App\Domains\Identity\Support\UserNotificationPreferences;
 
 final class NotificationRenderer
 {

@@ -6,11 +6,11 @@ declare(strict_types=1);
  * Restore deleted merchant products from filesystem paths (deterministic product UUID in path).
  */
 
+use App\Domains\Search\Jobs\IndexProductImageJob;
+use App\Domains\VisualSearch\Jobs\RemoveVisualIndexEntryJob;
 use App\Enums\AvailabilityMode;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
-use App\Domains\Search\Jobs\IndexProductImageJob;
-use App\Domains\VisualSearch\Jobs\RemoveVisualIndexEntryJob;
 use App\Models\Category;
 use App\Models\MediaFile;
 use App\Models\Product;

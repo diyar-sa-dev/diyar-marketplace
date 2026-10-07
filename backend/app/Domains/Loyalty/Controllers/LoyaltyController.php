@@ -2,12 +2,12 @@
 
 namespace App\Domains\Loyalty\Controllers;
 
+use App\Core\Support\Api\ApiResponse;
+use App\Domains\Loyalty\Resources\LoyaltyTransactionResource;
+use App\Domains\Loyalty\Services\LoyaltyQueryService;
 use App\Enums\LoyaltyTransactionType;
 use App\Http\Controllers\Controller;
-use App\Domains\Loyalty\Resources\LoyaltyTransactionResource;
 use App\Models\User;
-use App\Domains\Loyalty\Services\LoyaltyQueryService;
-use App\Core\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;

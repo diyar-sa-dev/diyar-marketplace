@@ -2,8 +2,8 @@
 
 namespace App\Listeners\Affiliate;
 
-use App\Events\Domain\PaymentSucceeded;
 use App\Domains\Affiliate\Services\AffiliateCommissionService;
+use App\Events\Domain\PaymentSucceeded;
 
 final class ProcessAffiliateCommissionOnPaymentSucceeded
 {

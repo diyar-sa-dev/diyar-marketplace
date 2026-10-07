@@ -2,12 +2,12 @@
 
 namespace Tests\Unit\Services\Visualization;
 
+use App\Domains\VisualSearch\Services\VisualizationService;
 use App\Enums\TryInRoomJobStatus;
 use App\Models\Product;
 use App\Models\TryInRoomJob;
 use App\Models\TryInRoomSourceImage;
 use App\Models\User;
-use App\Domains\VisualSearch\Services\VisualizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;

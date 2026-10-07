@@ -2,10 +2,10 @@
 
 namespace App\Domains\TryInRoom\Jobs;
 
-use App\Enums\TryInRoomJobStatus;
 use App\Domains\TryInRoom\Services\TryInRoomJobService;
 use App\Domains\TryInRoom\Services\TryInRoomStorageService;
 use App\Domains\VisualSearch\Services\VisualizationService;
+use App\Enums\TryInRoomJobStatus;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

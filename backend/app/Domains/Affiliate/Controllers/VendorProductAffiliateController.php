@@ -2,13 +2,13 @@
 
 namespace App\Domains\Affiliate\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Core\Support\Api\ApiResponse;
 use App\Domains\Affiliate\Requests\UpsertProductAffiliateSettingsRequest;
 use App\Domains\Affiliate\Resources\ProductAffiliateSettingResource;
-use App\Models\Product;
 use App\Domains\Affiliate\Services\AffiliatePlatformConfigService;
 use App\Domains\Affiliate\Services\ProductAffiliateSettingsService;
-use App\Core\Support\Api\ApiResponse;
+use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;

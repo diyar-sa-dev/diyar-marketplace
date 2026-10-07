@@ -2,9 +2,9 @@
 
 namespace App\Domains\Reviews\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Reviews\Services\CustomerReviewHistoryService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Reviews\Services\CustomerReviewHistoryService;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

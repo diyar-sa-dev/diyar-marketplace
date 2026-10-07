@@ -2,14 +2,14 @@
 
 namespace App\Domains\Shipping\Services;
 
-use App\Enums\ShippingMethod;
-use App\Models\VendorShippingProfile;
-use App\Models\VendorShippingSettings;
 use App\Domains\Shipping\Services\DTO\ShippingQuote;
 use App\Domains\Shipping\Services\DTO\ShippingQuoteContext;
 use App\Domains\Shipping\Services\Strategies\CarrierFlatRateStrategy;
 use App\Domains\Shipping\Services\Strategies\PickupStrategy;
 use App\Domains\Shipping\Services\Strategies\ShippingMethodStrategy;
+use App\Enums\ShippingMethod;
+use App\Models\VendorShippingProfile;
+use App\Models\VendorShippingSettings;
 use InvalidArgumentException;
 
 final class ShippingQuoteService

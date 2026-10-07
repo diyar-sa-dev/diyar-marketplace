@@ -2,11 +2,11 @@
 
 namespace App\Domains\Catalog\Services;
 
-use App\Domains\Catalog\Resources\ProductCardResource;
-use App\Models\User;
 use App\Core\Support\Cache\CacheKeys;
 use App\Core\Support\Cache\StampedeSafeCache;
 use App\Core\Support\Cache\VersionedCache;
+use App\Domains\Catalog\Resources\ProductCardResource;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 final class CachedPublicProductListService

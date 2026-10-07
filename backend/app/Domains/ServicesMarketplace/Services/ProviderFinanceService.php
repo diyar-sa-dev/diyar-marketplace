@@ -2,6 +2,7 @@
 
 namespace App\Domains\ServicesMarketplace\Services;
 
+use App\Domains\Analytics\Services\AnalyticsTimeBuckets;
 use App\Enums\FinancePeriod;
 use App\Enums\PayoutStatus;
 use App\Enums\ServiceBookingPaymentStatus;
@@ -9,7 +10,6 @@ use App\Enums\ServiceBookingStatus;
 use App\Models\ProviderAccount;
 use App\Models\ProviderPayout;
 use App\Models\ServiceBooking;
-use App\Domains\Analytics\Services\AnalyticsTimeBuckets;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;

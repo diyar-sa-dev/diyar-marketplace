@@ -2,9 +2,9 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Admin\Services\AdminOperationalHealthService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Admin\Services\AdminOperationalHealthService;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 class AdminOperationalHealthController extends Controller

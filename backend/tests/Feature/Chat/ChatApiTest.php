@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Chat;
 
+use App\Core\Support\SlugGenerator;
+use App\Domains\Chat\Services\ChatAuthorizationService;
+use App\Domains\Chat\Services\ChatPresenceService;
 use App\Enums\NotificationType;
 use App\Enums\ProviderAccountStatus;
 use App\Enums\RoleName;
@@ -14,9 +17,6 @@ use App\Models\ProviderAccount;
 use App\Models\Role;
 use App\Models\UserNotification;
 use App\Models\VendorAccount;
-use App\Domains\Chat\Services\ChatAuthorizationService;
-use App\Domains\Chat\Services\ChatPresenceService;
-use App\Core\Support\SlugGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Tests\Concerns\InteractsWithIdentity;

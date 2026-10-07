@@ -3,7 +3,6 @@
 namespace Tests\Fakes;
 
 use App\Domains\Payments\Contracts\PaymentGatewayInterface;
-use App\Enums\PaymentStatus;
 use App\Domains\Payments\Services\DTO\PaymentCreationRequest;
 use App\Domains\Payments\Services\DTO\PaymentCreationResult;
 use App\Domains\Payments\Services\DTO\PaymentDetailsRequest;
@@ -14,6 +13,7 @@ use App\Domains\Payments\Services\DTO\PaymentSessionRequest;
 use App\Domains\Payments\Services\DTO\PaymentSessionResult;
 use App\Domains\Payments\Services\DTO\RefundPaymentRequest;
 use App\Domains\Payments\Services\DTO\RefundPaymentResult;
+use App\Enums\PaymentStatus;
 
 final class FakePaymentGateway implements PaymentGatewayInterface
 {

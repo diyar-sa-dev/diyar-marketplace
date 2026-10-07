@@ -2,6 +2,7 @@
 
 namespace Tests\Concerns;
 
+use App\Domains\Cart\Services\CartService;
 use App\Enums\RoleName;
 use App\Models\Address;
 use App\Models\Order;
@@ -9,7 +10,6 @@ use App\Models\Product;
 use App\Models\User;
 use App\Models\VendorAccount;
 use App\Models\VendorShippingSettings;
-use App\Domains\Cart\Services\CartService;
 use Illuminate\Support\Str;
 
 trait InteractsWithCheckout

@@ -2,9 +2,9 @@
 
 namespace App\Domains\Platform\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Platform\Services\EffectiveConfigService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Platform\Services\EffectiveConfigService;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 class PlatformSearchController extends Controller

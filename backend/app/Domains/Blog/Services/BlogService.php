@@ -2,11 +2,11 @@
 
 namespace App\Domains\Blog\Services;
 
+use App\Core\Support\Content\HtmlContentSanitizer;
+use App\Core\Support\SlugGenerator;
 use App\Models\BlogArticle;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
-use App\Core\Support\Content\HtmlContentSanitizer;
-use App\Core\Support\SlugGenerator;
 use Illuminate\Support\Str;
 
 final class BlogService

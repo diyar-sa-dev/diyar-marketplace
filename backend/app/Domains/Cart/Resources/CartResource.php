@@ -2,8 +2,8 @@
 
 namespace App\Domains\Cart\Resources;
 
-use App\Models\Cart;
 use App\Domains\Cart\Services\CartService;
+use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

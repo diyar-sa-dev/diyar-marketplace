@@ -2,6 +2,7 @@
 
 namespace App\Domains\Finance\Services;
 
+use App\Domains\Payments\Services\PaymentAllocationSnapshotService;
 use App\Enums\AffiliateCommissionStatus;
 use App\Enums\BalanceBucket;
 use App\Enums\FinancialDirection;
@@ -15,7 +16,6 @@ use App\Models\PaymentVendorAllocation;
 use App\Models\Refund;
 use App\Models\User;
 use App\Models\VendorPayout;
-use App\Domains\Payments\Services\PaymentAllocationSnapshotService;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;

@@ -2,15 +2,15 @@
 
 namespace Tests\Unit\Jobs\TryInRoom;
 
-use App\Enums\TryInRoomJobStatus;
 use App\Domains\TryInRoom\Jobs\ProcessTryInRoomJob;
-use App\Models\TryInRoomJob;
-use App\Models\TryInRoomSourceImage;
-use App\Models\User;
 use App\Domains\TryInRoom\Services\TryInRoomJobService;
 use App\Domains\TryInRoom\Services\TryInRoomStorageService;
 use App\Domains\VisualSearch\Services\VisualizationResult;
 use App\Domains\VisualSearch\Services\VisualizationService;
+use App\Enums\TryInRoomJobStatus;
+use App\Models\TryInRoomJob;
+use App\Models\TryInRoomSourceImage;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;

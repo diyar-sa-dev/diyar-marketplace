@@ -2,11 +2,11 @@
 
 namespace App\Domains\Admin\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Domains\Catalog\Resources\ProductCardResource;
-use App\Models\Product;
-use App\Domains\Admin\Services\AdminProductService;
 use App\Core\Support\Api\ApiResponse;
+use App\Domains\Admin\Services\AdminProductService;
+use App\Domains\Catalog\Resources\ProductCardResource;
+use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

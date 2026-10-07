@@ -2,12 +2,12 @@
 
 namespace App\Domains\Notifications\Jobs;
 
+use App\Domains\Notifications\Services\NotificationBroadcastService;
+use App\Domains\Notifications\Services\NotificationDispatcher;
 use App\Enums\NotificationBroadcastStatus;
 use App\Enums\NotificationType;
 use App\Models\NotificationBroadcast;
 use App\Models\User;
-use App\Domains\Notifications\Services\NotificationBroadcastService;
-use App\Domains\Notifications\Services\NotificationDispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
