@@ -1,37 +1,40 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-10-06
+> **Last updated:** 2026-10-07
 > **Maintained by:** AI development agents after each phase completion
 
 ---
 
-## Active Phase: Modular Monolith Architecture — Step 13A
+## Active Phase: Modular Monolith Architecture — Step 13
 
 ```text
-STEP 13A
-STATUS: CONFIGURATION HARDENED
-RUNTIME: NOT EXECUTED
-PRODUCTION VPS: NOT TOUCHED
-DECISION: CONFIGURATION READY WITH LIMITATIONS
+STEP 13
+STATUS: RUNTIME VALIDATED
+ENVIRONMENT: LOCAL ONLY
+PRODUCTION VPS: STRICTLY NOT TOUCHED
+DECISION: CERTIFIED WITH LIMITATIONS
 ```
 
-- **Objective:** Local VPS simulation configuration hardening & repository cleanup audit.
-- **Report Authority:** [Step 13A REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013A/REPORT.md)
-- **Docker Compose:** All 11 Compose files validated via `docker compose config` (Exit 0). 0 files deleted.
-- **Simulation Topology Hardening:**
-  - Dedicated simulation DB: `diyar_vps_simulation` (MySQL / MariaDB utf8mb4 / utf8mb4_unicode_ci).
-  - Dedicated simulation Redis prefix: `diyar_vps_sim_` (Redis 7 container / Redis 8 host).
-  - Realtime Reverb WebSockets aligned across Nginx gateway (`/app/`), Laravel broadcasting, and frontend Echo client.
-  - Complete 9-queue topology (`critical,notifications-high,notifications,notifications-low,broadcast,chat,chat-low,analytics,default`) mapped to workers.
-  - Nginx gateway (`production-like.conf`) hardened to serve frontend SPA production dist alongside API, Reverb, and storage.
-- **Safety Precondition:** Real Hostinger VPS, production credentials, production database, and live storage were **NEVER TOUCHED**.
-- **Verified Invariants (2026-10-06):**
+- **Objective:** Local VPS simulation runtime validation under constrained KVM2 conditions.
+- **Report Authority:** [Step 13 REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013/REPORT.md)
+- **Container Stack (`diyar-vps-sim`):** 7/7 containers healthy (`nginx`, `app`, `mysql`, `redis`, `reverb`, `queue-worker`, `scheduler`).
+- **Gateway & HTTP (:8092):** Nginx serves production SPA dist, handles deep linking, security headers, blocks sensitive files (`.env`, `.git`), and proxies FastCGI to PHP-FPM and WebSockets to Reverb (101 Switching Protocols).
+- **Sanctum & Auth:** Stateful auth verified; guest 401, CSRF initialization, customer login, role separation (Admin dashboard protected), logout session invalidation.
+- **Session & Cart Isolation:** User A vs User B multi-user isolation proven across independent cookies; cart additions strictly isolated (User A = 1, User B = 0).
+- **Commerce & Financials:** Product details, inventory stock, and authoritative Saudi 15% VAT calculation (850.00 SAR subtotal, 127.50 SAR VAT, 977.50 SAR grand total) verified.
+- **Queue Runtime:** All 9 canonical queues probed and processed by `queue-worker` in ~300 ms with 0 failed jobs.
+- **Scheduler:** 60s execution loop running scheduled commands (`inventory:release-expired`, `service-bookings:expire-unpaid`, `outbox:process`).
+- **Storage & Uploads:** Invalid MIME rejected (422), valid PNG uploaded (200), served publicly via Nginx `/storage/*`.
+- **Failure Recovery:** Redis, MySQL, Reverb, and queue worker failure injections all recovered safely with zero data corruption or credential exposure.
+- **Resource Simulation:** Total stack memory consumption observed at ~589.6 MiB (<7.5% of 8 GB KVM2 ceiling).
+- **Limitations:** Octane/Swoole runtime evaluation deferred to dedicated container harness; 25K VU scale deferred to remote staging hardware; external integrations (payments, SMS, AI) remain safely mocked.
+- **Verified Invariants (2026-10-07):**
   - Registered Routes: **528**
   - Backend PHPUnit: **1,101 passed, 7 skipped, 0 failed** (1,108 tests, 4,560 assertions)
   - Frontend Vitest: **350 / 350 passed** (87 test suites)
   - Frontend TypeScript: **0 errors**
   - Frontend ESLint: **0 warnings, 0 errors**
-  - Frontend Production Build: **PASS in 22.91s**
+  - Frontend Production Build: **PASS in 24.20s**
 
 ---
 
