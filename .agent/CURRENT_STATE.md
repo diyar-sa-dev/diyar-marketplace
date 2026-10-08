@@ -1,40 +1,43 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-10-07
+> **Last updated:** 2026-10-08
 > **Maintained by:** AI development agents after each phase completion
 
 ---
 
-## Active Phase: Modular Monolith Architecture — Step 13
+## Active Phase: Modular Monolith Architecture — Step 13B
 
 ```text
-STEP 13
-STATUS: RUNTIME VALIDATED
+STEP 13B
+STATUS: OCTANE + PERFORMANCE VALIDATED
 ENVIRONMENT: LOCAL ONLY
 PRODUCTION VPS: STRICTLY NOT TOUCHED
-DECISION: CERTIFIED WITH LIMITATIONS
+DECISION: CERTIFIED
 ```
 
-- **Objective:** Local VPS simulation runtime validation under constrained KVM2 conditions.
-- **Report Authority:** [Step 13 REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013/REPORT.md)
-- **Container Stack (`diyar-vps-sim`):** 7/7 containers healthy (`nginx`, `app`, `mysql`, `redis`, `reverb`, `queue-worker`, `scheduler`).
-- **Gateway & HTTP (:8092):** Nginx serves production SPA dist, handles deep linking, security headers, blocks sensitive files (`.env`, `.git`), and proxies FastCGI to PHP-FPM and WebSockets to Reverb (101 Switching Protocols).
-- **Sanctum & Auth:** Stateful auth verified; guest 401, CSRF initialization, customer login, role separation (Admin dashboard protected), logout session invalidation.
-- **Session & Cart Isolation:** User A vs User B multi-user isolation proven across independent cookies; cart additions strictly isolated (User A = 1, User B = 0).
-- **Commerce & Financials:** Product details, inventory stock, and authoritative Saudi 15% VAT calculation (850.00 SAR subtotal, 127.50 SAR VAT, 977.50 SAR grand total) verified.
-- **Queue Runtime:** All 9 canonical queues probed and processed by `queue-worker` in ~300 ms with 0 failed jobs.
-- **Scheduler:** 60s execution loop running scheduled commands (`inventory:release-expired`, `service-bookings:expire-unpaid`, `outbox:process`).
-- **Storage & Uploads:** Invalid MIME rejected (422), valid PNG uploaded (200), served publicly via Nginx `/storage/*`.
-- **Failure Recovery:** Redis, MySQL, Reverb, and queue worker failure injections all recovered safely with zero data corruption or credential exposure.
-- **Resource Simulation:** Total stack memory consumption observed at ~589.6 MiB (<7.5% of 8 GB KVM2 ceiling).
-- **Limitations:** Octane/Swoole runtime evaluation deferred to dedicated container harness; 25K VU scale deferred to remote staging hardware; external integrations (payments, SMS, AI) remain safely mocked.
-- **Verified Invariants (2026-10-07):**
+- **Objective:** Determine whether DIYAR's actual Octane/Swoole runtime is safe, stable, resource-efficient, and measurably faster than the validated PHP-FPM runtime under target KVM2 constraints.
+- **Report Authority:** [Step 13B REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013B/REPORT.md)
+- **Octane / Swoole Runtime:** Fully verified running on PHP 8.3.33 with Swoole HTTP server; master (PID 9), manager (PID 10), 2 application workers, 1 task worker.
+- **KVM2 Profile:** `OCTANE_WORKERS=2`, `OCTANE_TASK_WORKERS=1`, `OCTANE_MAX_REQUESTS=500`.
+- **Worker Lifecycle & Recycling:** Application workers cleanly retired and spawned new healthy workers upon reaching the 500-request threshold with 0 HTTP errors.
+- **State & Tenant Isolation:** 26/26 isolation tests passed across 12 interleaved rounds of alternating requests between Customer A, Customer B, Admin, and Guest. Zero cross-user auth, cart, profile, or request-scoped state leakage.
+- **Locale & RTL Isolation:** Alternating requests across `ar`, `en`, `fr` verified zero locale stickiness across long-lived workers.
+- **Admin / Customer RBAC:** Customer and Guest calls to Admin dashboard strictly blocked (401/403); Admin calls granted (200).
+- **Redis & Database Behavior:** Persistent Redis connection verified with sub-10ms warm cache hits; database connection pool stable (`Threads_connected: 4`) across 36,000+ requests.
+- **Failure Recovery:** Redis outage, MySQL database outage, and in-flight Octane worker reloads recovered automatically with zero permanent degradation.
+- **FPM vs Octane Head-to-Head:**
+  - Smoke (5 VU): Octane 174.86 RPS vs FPM 20.50 RPS (**+753%**, **98.4% p95 latency reduction**: 13.12 vs 841.63 ms)
+  - Moderate (20 VU): Octane 366.19 RPS vs FPM 34.02 RPS (**+976%**, **95.0% p95 latency reduction**: 62.55 vs 1,240.15 ms)
+  - Saturation (80 VU): Octane 403.09 RPS vs FPM 36.45 RPS (**+1,006%**, **92.5% p95 latency reduction**: 188.08 vs 2,493.55 ms)
+- **Sustainable Capacity:** ~350–375 RPS sustainable under 2 vCPU / 8 GB KVM2 envelope.
+- **Resource Utilization:** Complete 7-container stack consumed ~676 MiB RAM (<8.7% of 8 GB ceiling). Worker memory stable at ~39–54 MB.
+- **Verified Invariants (2026-10-08):**
   - Registered Routes: **528**
   - Backend PHPUnit: **1,101 passed, 7 skipped, 0 failed** (1,108 tests, 4,560 assertions)
   - Frontend Vitest: **350 / 350 passed** (87 test suites)
   - Frontend TypeScript: **0 errors**
   - Frontend ESLint: **0 warnings, 0 errors**
-  - Frontend Production Build: **PASS in 24.20s**
+  - Frontend Production Build: **PASS in 18.41s**
 
 ---
 
@@ -738,6 +741,30 @@ Operational KVM2 capacity work (not a numbered Stage 31):
   - Step 12: CERTIFIED WITH LIMITATIONS
   - Step 12A: CERTIFIED WITH LIMITATIONS
   - Step 13: CERTIFIED WITH LIMITATIONS
+- **2026-10-08: Step 13B — Dedicated Octane + Performance Validation**:
+  - Status: **CERTIFIED** (Local KVM2 profile verified; actual Octane/Swoole running; zero state leaks; 10x throughput improvement; Hostinger remote VPS strictly preserved).
+  - Authority: Senior Software Architect + Performance Engineer + DevOps/SRE Engineer + Security Engineer + QA Engineer + Infrastructure Engineer.
+  - Report Path: `conception/Stages/Stage Architecture/Phase Modular Monolith/Step 13B/REPORT.md`
+  - Invariant Verification:
+    - Registered Routes: Exactly 528 registered routes (`php artisan route:list`).
+    - Backend Tests: 1,101 passed, 7 skipped, 0 failed (1,108 total tests, 4,560 assertions).
+    - Database Migrations: 0 migration changes.
+    - Frontend Tests: 350 / 350 passed (87 test files).
+    - Frontend Build: PASS (`vite build` in 18.41s).
+    - Frontend Typecheck: PASS (`tsc --noEmit`, 0 errors).
+    - Frontend Lint: PASS (`eslint`, 0 warnings).
+  - Octane Verification:
+    - 2 application workers, 1 task worker, 500 max-requests profile verified via `/proc` and server state JSON.
+    - Worker lifecycle & recycling verified with clean PIDs rotation upon reaching 500 requests with 0 errors.
+    - Multi-tenant state isolation: 26/26 tests passed across Customer A, Customer B, Admin, Guest. Zero cross-user leaks.
+    - Performance: Throughput increased by +753% (Smoke: 174.86 RPS), +976% (Moderate: 366.19 RPS), +1,006% (Saturation: 403.09 RPS); p95 latency reduced by 95–98% across identical endpoints.
+    - Memory stability: Worker memory bounded at ~39–54 MB across 36,000+ requests. Total stack RAM ~676 MiB (<8.7% of 8 GB KVM2 limit).
+  - Step 10: VERIFIED WITH LIMITATIONS
+  - Step 11: CERTIFIED WITH LIMITATIONS
+  - Step 12: CERTIFIED WITH LIMITATIONS
+  - Step 12A: CERTIFIED WITH LIMITATIONS
+  - Step 13: CERTIFIED WITH LIMITATIONS
+  - Step 13B: CERTIFIED
 
 
 

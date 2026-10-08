@@ -1,0 +1,16 @@
+﻿{
+  "mode": "saturation",
+  "total_requests": 2198,
+  "rps": 36.45,
+  "p50_ms": 1117.4,
+  "p90_ms": 2162,
+  "p95_ms": 2493.55,
+  "p99_ms": 0,
+  "max_ms": 2749.01,
+  "fail_rate_pct": 0,
+  "health_p95": 2492.08,
+  "list_p95": 2482.38,
+  "detail_p95": 2524.04,
+  "search_p95": 2424.63,
+  "cat_p95": 2441.14
+}

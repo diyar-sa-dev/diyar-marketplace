@@ -13,3 +13,4 @@ bootstrap/cache/*.php
 database/*.sqlite
 .phpunit.result.cache
 tests
+public/storage

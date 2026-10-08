@@ -1,26 +1,4 @@
-FROM php:8.3-cli-bookworm
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    unzip \
-    pkg-config \
-    libzip-dev \
-    libicu-dev \
-    libsqlite3-dev \
-    libbrotli-dev \
-    libssl-dev \
-    zlib1g-dev \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libwebp-dev \
-    ghostscript \
-    && docker-php-ext-configure gd --with-jpeg --with-webp \
-    && docker-php-ext-install pdo_mysql pdo_sqlite zip intl pcntl bcmath opcache gd \
-    && pecl install redis swoole \
-    && docker-php-ext-enable redis swoole \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+FROM diyar-kvm2-test-app:latest
 
 WORKDIR /var/www/html
 
@@ -36,9 +14,9 @@ ENV APP_ENV=local \
     CACHE_STORE=array \
     QUEUE_CONNECTION=sync
 
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs --no-scripts \
-    && php -r "if (!extension_loaded('bcmath')) { fwrite(STDERR, 'bcmath extension missing\n'); exit(1); }"
+RUN composer dump-autoload --optimize \
+    && php -r "if (!extension_loaded('bcmath') || !extension_loaded('swoole')) { fwrite(STDERR, 'required extensions missing\n'); exit(1); }"
 
 EXPOSE 8000
 
-CMD ["php", "artisan", "octane:start", "--server=swoole", "--host=0.0.0.0", "--port=8000", "--workers=4", "--task-workers=2", "--max-requests=1000"]
+CMD ["php", "artisan", "octane:start", "--server=swoole", "--host=0.0.0.0", "--port=8000", "--workers=2", "--task-workers=1", "--max-requests=500"]
