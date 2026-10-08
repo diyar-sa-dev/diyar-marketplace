@@ -1,0 +1,64 @@
+﻿
+         /\      Grafana   /ΓÇ╛ΓÇ╛/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ΓÇ╛ΓÇ╛\ 
+  /          \   |   (  |  (ΓÇ╛)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: /scripts/step13b1-benchmark.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 5 max VUs, 40s max duration (incl. graceful stop):
+              * smoke_run: 5 looping VUs for 10s (gracefulStop: 30s)
+
+
+running (01.0s), 5/5 VUs, 0 complete and 0 interrupted iterations
+smoke_run   [  10% ] 5 VUs  01.0s/10s
+
+running (02.0s), 5/5 VUs, 32 complete and 0 interrupted iterations
+smoke_run   [  20% ] 5 VUs  02.0s/10s
+
+running (03.0s), 5/5 VUs, 54 complete and 0 interrupted iterations
+smoke_run   [  30% ] 5 VUs  03.0s/10s
+
+running (04.0s), 5/5 VUs, 68 complete and 0 interrupted iterations
+smoke_run   [  40% ] 5 VUs  04.0s/10s
+
+running (05.0s), 5/5 VUs, 92 complete and 0 interrupted iterations
+smoke_run   [  50% ] 5 VUs  05.0s/10s
+
+running (06.0s), 5/5 VUs, 114 complete and 0 interrupted iterations
+smoke_run   [  60% ] 5 VUs  06.0s/10s
+
+running (07.0s), 5/5 VUs, 133 complete and 0 interrupted iterations
+smoke_run   [  70% ] 5 VUs  07.0s/10s
+
+running (08.0s), 5/5 VUs, 162 complete and 0 interrupted iterations
+smoke_run   [  80% ] 5 VUs  08.0s/10s
+
+running (09.0s), 5/5 VUs, 184 complete and 0 interrupted iterations
+smoke_run   [  90% ] 5 VUs  09.0s/10s
+
+running (10.0s), 5/5 VUs, 201 complete and 0 interrupted iterations
+smoke_run   [ 100% ] 5 VUs  10.0s/10s
+{
+  "mode": "smoke",
+  "total_requests": 206,
+  "rps": 20.08,
+  "p50_ms": 145.47,
+  "p90_ms": 367.76,
+  "p95_ms": 890.28,
+  "p99_ms": 0,
+  "max_ms": 1026.58,
+  "fail_rate_pct": 0,
+  "assertion_failures": 0,
+  "health_p95": 1013.56,
+  "list_p95": 878.36,
+  "detail_p95": 194.11,
+  "search_p95": 701.59,
+  "cat_p95": 205.93
+}
+running (10.3s), 0/5 VUs, 206 complete and 0 interrupted iterations
+smoke_run Γ£ô [ 100% ] 5 VUs  10s

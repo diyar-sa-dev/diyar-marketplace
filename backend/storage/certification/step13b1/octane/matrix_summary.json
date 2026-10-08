@@ -1,0 +1,92 @@
+﻿[
+    {
+        "Scenario":  "Smoke Run 1",
+        "RPS":  173.94,
+        "p50":  5.5,
+        "p95":  14.14,
+        "p99":  0,
+        "Errors":  "0%",
+        "AssertFails":  0
+    },
+    {
+        "Scenario":  "Smoke Run 2",
+        "RPS":  178.56,
+        "p50":  5.76,
+        "p95":  13.59,
+        "p99":  0,
+        "Errors":  "0%",
+        "AssertFails":  0
+    },
+    {
+        "Scenario":  "Smoke Run 3",
+        "RPS":  181.45,
+        "p50":  5.04,
+        "p95":  12.24,
+        "p99":  0,
+        "Errors":  "0%",
+        "AssertFails":  0
+    },
+    {
+        "Scenario":  "Moderate Run 1",
+        "RPS":  404.04,
+        "p50":  23.68,
+        "p95":  53.41,
+        "p99":  0,
+        "Errors":  "0%",
+        "AssertFails":  0
+    },
+    {
+        "Scenario":  "Moderate Run 2",
+        "RPS":  401.1,
+        "p50":  24.96,
+        "p95":  55.78,
+        "p99":  0,
+        "Errors":  "0%",
+        "AssertFails":  0
+    },
+    {
+        "Scenario":  "Moderate Run 3",
+        "RPS":  356.62,
+        "p50":  29.66,
+        "p95":  67.37,
+        "p99":  0,
+        "Errors":  "0%",
+        "AssertFails":  0
+    },
+    {
+        "Scenario":  "High (40 VU)",
+        "RPS":  371.54,
+        "p50":  76.98,
+        "p95":  170.43,
+        "p99":  0,
+        "Errors":  "0%",
+        "AssertFails":  0
+    },
+    {
+        "Scenario":  "Saturation (80 VU)",
+        "RPS":  378.54,
+        "p50":  81.41,
+        "p95":  226.75,
+        "p99":  0,
+        "Errors":  "0%",
+        "AssertFails":  0
+    },
+    {
+        "Scenario":  "Cold Cache (20 VU)",
+        "RPS":  349.85,
+        "p50":  30.85,
+        "p95":  67.99,
+        "p99":  0,
+        "Errors":  "0%",
+        "AssertFails":  0
+    },
+    {
+        "Scenario":  "Warm Cache (20 VU)",
+        "RPS":  398.01,
+        "p50":  24.42,
+        "p95":  60.88,
+        "p99":  0,
+        "Errors":  "0%",
+        "AssertFails":  0
+    }
+]

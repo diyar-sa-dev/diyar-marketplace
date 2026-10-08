@@ -1,0 +1,124 @@
+﻿
+         /\      Grafana   /ΓÇ╛ΓÇ╛/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ΓÇ╛ΓÇ╛\ 
+  /          \   |   (  |  (ΓÇ╛)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: /scripts/step13b1-benchmark.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 20 max VUs, 1m0s max duration (incl. graceful stop):
+              * moderate_run: 20 looping VUs for 30s (gracefulStop: 30s)
+
+
+running (0m01.0s), 20/20 VUs, 272 complete and 0 interrupted iterations
+moderate_run   [   3% ] 20 VUs  01.0s/30s
+
+running (0m02.0s), 20/20 VUs, 562 complete and 0 interrupted iterations
+moderate_run   [   7% ] 20 VUs  02.0s/30s
+
+running (0m03.0s), 20/20 VUs, 672 complete and 0 interrupted iterations
+moderate_run   [  10% ] 20 VUs  03.0s/30s
+
+running (0m04.0s), 20/20 VUs, 995 complete and 0 interrupted iterations
+moderate_run   [  13% ] 20 VUs  04.0s/30s
+
+running (0m05.0s), 20/20 VUs, 1303 complete and 0 interrupted iterations
+moderate_run   [  17% ] 20 VUs  05.0s/30s
+
+running (0m06.0s), 20/20 VUs, 1573 complete and 0 interrupted iterations
+moderate_run   [  20% ] 20 VUs  06.0s/30s
+
+running (0m07.0s), 20/20 VUs, 1866 complete and 0 interrupted iterations
+moderate_run   [  23% ] 20 VUs  07.0s/30s
+
+running (0m08.0s), 20/20 VUs, 2212 complete and 0 interrupted iterations
+moderate_run   [  27% ] 20 VUs  08.0s/30s
+
+running (0m09.0s), 20/20 VUs, 2600 complete and 0 interrupted iterations
+moderate_run   [  30% ] 20 VUs  09.0s/30s
+
+running (0m10.0s), 20/20 VUs, 2982 complete and 0 interrupted iterations
+moderate_run   [  33% ] 20 VUs  10.0s/30s
+
+running (0m11.0s), 20/20 VUs, 3313 complete and 0 interrupted iterations
+moderate_run   [  37% ] 20 VUs  11.0s/30s
+
+running (0m12.0s), 20/20 VUs, 3722 complete and 0 interrupted iterations
+moderate_run   [  40% ] 20 VUs  12.0s/30s
+
+running (0m13.0s), 20/20 VUs, 3964 complete and 0 interrupted iterations
+moderate_run   [  43% ] 20 VUs  13.0s/30s
+
+running (0m14.0s), 20/20 VUs, 4333 complete and 0 interrupted iterations
+moderate_run   [  47% ] 20 VUs  14.0s/30s
+
+running (0m15.0s), 20/20 VUs, 4626 complete and 0 interrupted iterations
+moderate_run   [  50% ] 20 VUs  15.0s/30s
+
+running (0m16.0s), 20/20 VUs, 5020 complete and 0 interrupted iterations
+moderate_run   [  53% ] 20 VUs  16.0s/30s
+
+running (0m17.0s), 20/20 VUs, 5410 complete and 0 interrupted iterations
+moderate_run   [  57% ] 20 VUs  17.0s/30s
+
+running (0m18.0s), 20/20 VUs, 5768 complete and 0 interrupted iterations
+moderate_run   [  60% ] 20 VUs  18.0s/30s
+
+running (0m19.0s), 20/20 VUs, 6127 complete and 0 interrupted iterations
+moderate_run   [  63% ] 20 VUs  19.0s/30s
+
+running (0m20.0s), 20/20 VUs, 6519 complete and 0 interrupted iterations
+moderate_run   [  67% ] 20 VUs  20.0s/30s
+
+running (0m21.0s), 20/20 VUs, 6893 complete and 0 interrupted iterations
+moderate_run   [  70% ] 20 VUs  21.0s/30s
+
+running (0m22.0s), 20/20 VUs, 7273 complete and 0 interrupted iterations
+moderate_run   [  73% ] 20 VUs  22.0s/30s
+
+running (0m23.0s), 20/20 VUs, 7625 complete and 0 interrupted iterations
+moderate_run   [  77% ] 20 VUs  23.0s/30s
+
+running (0m24.0s), 20/20 VUs, 8042 complete and 0 interrupted iterations
+moderate_run   [  80% ] 20 VUs  24.0s/30s
+
+running (0m25.0s), 20/20 VUs, 8440 complete and 0 interrupted iterations
+moderate_run   [  83% ] 20 VUs  25.0s/30s
+
+running (0m26.0s), 20/20 VUs, 8843 complete and 0 interrupted iterations
+moderate_run   [  87% ] 20 VUs  26.0s/30s
+
+running (0m27.0s), 20/20 VUs, 9270 complete and 0 interrupted iterations
+moderate_run   [  90% ] 20 VUs  27.0s/30s
+
+running (0m28.0s), 20/20 VUs, 9652 complete and 0 interrupted iterations
+moderate_run   [  93% ] 20 VUs  28.0s/30s
+
+running (0m29.0s), 20/20 VUs, 10041 complete and 0 interrupted iterations
+moderate_run   [  97% ] 20 VUs  29.0s/30s
+
+running (0m30.0s), 20/20 VUs, 10480 complete and 0 interrupted iterations
+moderate_run   [ 100% ] 20 VUs  30.0s/30s
+{
+  "mode": "moderate",
+  "total_requests": 10514,
+  "rps": 349.85,
+  "p50_ms": 30.85,
+  "p90_ms": 53.59,
+  "p95_ms": 67.99,
+  "p99_ms": 0,
+  "max_ms": 658.85,
+  "fail_rate_pct": 0,
+  "assertion_failures": 0,
+  "health_p95": 69.29,
+  "list_p95": 65.25,
+  "detail_p95": 59.49,
+  "search_p95": 71.83,
+  "cat_p95": 74.81
+}
+running (0m30.1s), 00/20 VUs, 10514 complete and 0 interrupted iterations
+moderate_run Γ£ô [ 100% ] 20 VUs  30s

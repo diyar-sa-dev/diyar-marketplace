@@ -1,0 +1,17 @@
+﻿{
+  "mode": "smoke",
+  "total_requests": 1820,
+  "rps": 181.45,
+  "p50_ms": 5.04,
+  "p90_ms": 9.71,
+  "p95_ms": 12.24,
+  "p99_ms": 0,
+  "max_ms": 345.29,
+  "fail_rate_pct": 0,
+  "assertion_failures": 0,
+  "health_p95": 15.56,
+  "list_p95": 8.61,
+  "detail_p95": 7.26,
+  "search_p95": 10.75,
+  "cat_p95": 12.75
+}

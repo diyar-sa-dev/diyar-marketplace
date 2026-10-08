@@ -1,0 +1,17 @@
+﻿{
+  "mode": "moderate",
+  "total_requests": 1020,
+  "rps": 32.68,
+  "p50_ms": 414.16,
+  "p90_ms": 1218.57,
+  "p95_ms": 1271.99,
+  "p99_ms": 0,
+  "max_ms": 1844.91,
+  "fail_rate_pct": 0,
+  "assertion_failures": 0,
+  "health_p95": 1324.14,
+  "list_p95": 1236.52,
+  "detail_p95": 612.43,
+  "search_p95": 1340.01,
+  "cat_p95": 1274.03
+}

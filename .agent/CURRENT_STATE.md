@@ -5,39 +5,53 @@
 
 ---
 
-## Active Phase: Modular Monolith Architecture — Step 13B
+## Active Phase: Modular Monolith Architecture — Step 14 (Architecture Consolidation)
 
 ```text
-STEP 13B
-STATUS: OCTANE + PERFORMANCE VALIDATED
+STEP 13B.1 → 13B.3 & STEP 14
+STATUS: BENCHMARK INTEGRITY, SECURITY AUDIT & ARCHITECTURE CONSOLIDATION COMPLETE
 ENVIRONMENT: LOCAL ONLY
 PRODUCTION VPS: STRICTLY NOT TOUCHED
 DECISION: CERTIFIED
 ```
 
-- **Objective:** Determine whether DIYAR's actual Octane/Swoole runtime is safe, stable, resource-efficient, and measurably faster than the validated PHP-FPM runtime under target KVM2 constraints.
-- **Report Authority:** [Step 13B REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013B/REPORT.md)
-- **Octane / Swoole Runtime:** Fully verified running on PHP 8.3.33 with Swoole HTTP server; master (PID 9), manager (PID 10), 2 application workers, 1 task worker.
-- **KVM2 Profile:** `OCTANE_WORKERS=2`, `OCTANE_TASK_WORKERS=1`, `OCTANE_MAX_REQUESTS=500`.
-- **Worker Lifecycle & Recycling:** Application workers cleanly retired and spawned new healthy workers upon reaching the 500-request threshold with 0 HTTP errors.
-- **State & Tenant Isolation:** 26/26 isolation tests passed across 12 interleaved rounds of alternating requests between Customer A, Customer B, Admin, and Guest. Zero cross-user auth, cart, profile, or request-scoped state leakage.
-- **Locale & RTL Isolation:** Alternating requests across `ar`, `en`, `fr` verified zero locale stickiness across long-lived workers.
-- **Admin / Customer RBAC:** Customer and Guest calls to Admin dashboard strictly blocked (401/403); Admin calls granted (200).
-- **Redis & Database Behavior:** Persistent Redis connection verified with sub-10ms warm cache hits; database connection pool stable (`Threads_connected: 4`) across 36,000+ requests.
-- **Failure Recovery:** Redis outage, MySQL database outage, and in-flight Octane worker reloads recovered automatically with zero permanent degradation.
-- **FPM vs Octane Head-to-Head:**
-  - Smoke (5 VU): Octane 174.86 RPS vs FPM 20.50 RPS (**+753%**, **98.4% p95 latency reduction**: 13.12 vs 841.63 ms)
-  - Moderate (20 VU): Octane 366.19 RPS vs FPM 34.02 RPS (**+976%**, **95.0% p95 latency reduction**: 62.55 vs 1,240.15 ms)
-  - Saturation (80 VU): Octane 403.09 RPS vs FPM 36.45 RPS (**+1,006%**, **92.5% p95 latency reduction**: 188.08 vs 2,493.55 ms)
-- **Sustainable Capacity:** ~350–375 RPS sustainable under 2 vCPU / 8 GB KVM2 envelope.
-- **Resource Utilization:** Complete 7-container stack consumed ~676 MiB RAM (<8.7% of 8 GB ceiling). Worker memory stable at ~39–54 MB.
+- **Objective:** Audit benchmark integrity & multi-run repeatability (13B.1), validate concurrent business flows & inventory locking (13B.2), define production operating capacity envelope (13B.3), perform full-stack security audit across all 528 API routes, and consolidate operational runbooks & ADRs (Step 14).
+- **Report Authority:**
+  - [Initial Audit](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013B.1-13B.3%20and%20Security%20Audit/INITIAL_AUDIT.md)
+  - [Step 13B.1 REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013B.1/REPORT.md)
+  - [Security Audit REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Security%20Audit/REPORT.md) & [Route Inventory](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Security%20Audit/ROUTE_INVENTORY.md)
+  - [Step 13B.2 REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013B.2/REPORT.md)
+  - [Step 13B.3 REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013B.3/REPORT.md)
+  - [Step 14 FINAL CONSOLIDATION REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2014/REPORT.md)
+- **Step 13B.1 Benchmark Integrity (Repeatability & Deep Schema Assertions):**
+  - All 20 benchmark runs enforced strict JSON entity & array schema assertions with **zero assertion failures** (0% HTTP errors).
+  - 3-run repeatability verified: Smoke Octane Mean **177.98 RPS** (Variance ±2.1%) vs FPM Mean **19.55 RPS** (+810% gain, -98.3% p95 latency reduction).
+  - Moderate 20 VU: Octane Median **401.10 RPS** / 55.78 ms p95 vs FPM Median **35.55 RPS** / 1,195.62 ms p95 (+1,028% gain, -95.3% latency reduction).
+  - Cold Cache vs Warm Cache: Octane cold cache achieved **349.85 RPS** (vs FPM cold 32.68 RPS), proving the ~10× speedup holds even on flushed caches by eliminating framework bootstrap.
+- **Full-Stack Security Audit (528 Routes Audited):**
+  - 100% of routes inventoried across 29 domains.
+  - Zero SQL injection vulnerabilities confirmed across all Eloquent raw queries; active syntax-breaking probes handled cleanly.
+  - Zero privilege escalation possible via registration or profile payload tampering.
+  - Database user privileges strictly isolated to `diyar_vps_simulation.*`; Redis port unexposed with `diyar_vps_sim_` prefix.
+  - Logged Defect SEC-01 (Low): Guest cart calls without stateful Origin/Session throw 500; proposed fix logged in `REMEDIATION_TRACKER.md` awaiting user approval.
+- **Step 13B.2 Business Flow Concurrency & Inventory Protection:**
+  - 6 parallel customer checkout processes racing for the final single inventory unit resulted in **exactly 1 success** and **5 graceful rejections (HTTP 422)**.
+  - Direct database audit confirmed **zero negative inventory** (`available_quantity < 0` = 0).
+  - 19/19 business-flow invariants passed across browsing, search, auth, cart, RBAC, and database integrity.
+- **Step 13B.3 Sustainable Capacity Envelope (KVM2 Profile: 2 vCPU / 8 GB RAM):**
+  - Recommended sustainable operating capacity: **280 RPS** (~16,800 req/min) with p95 < 60 ms and 20–35% CPU headroom.
+  - Peak burst capacity: **404.04 RPS** (achieved at 20 VUs with 0% errors).
+  - Primary bottleneck: Host 2-vCPU core allocation. RAM usage is minimal (~676 MiB across all 7 containers, <8.7% of KVM2).
+- **Step 14 Architecture Consolidation & Runbooks:**
+  - Canonical runbooks compiled for startup, teardown, zero-downtime worker reload, cache flush, database backup/restore, and regression testing.
+  - Architecture Decision Records (ADRs 01–05) codified with empirical evidence.
 - **Verified Invariants (2026-10-08):**
   - Registered Routes: **528**
-  - Backend PHPUnit: **1,101 passed, 7 skipped, 0 failed** (1,108 tests, 4,560 assertions)
-  - Frontend Vitest: **350 / 350 passed** (87 test suites)
+  - Backend PHPUnit: **1,101 passed, 7 skipped, 0 failed** (1,108 tests, 4,560 assertions in 112.2s)
+  - Frontend Vitest: **350 / 350 passed** (87 test suites in 59.85s)
   - Frontend TypeScript: **0 errors**
   - Frontend ESLint: **0 warnings, 0 errors**
-  - Frontend Production Build: **PASS in 18.41s**
+  - Frontend Production Build: **PASS in 11.79s**
 
 ---
 
