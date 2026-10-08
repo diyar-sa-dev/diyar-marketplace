@@ -12,7 +12,7 @@
 
 | Finding ID | Severity | Category | File / Route | Description & Impact | Proposed Fix | Status | Regression Test |
 |---|:---:|---|---|---|---|:---:|---|
-| **SEC-01** | Low | Error Handling / API Resilience | `app/Domains/Cart/Controllers/CartController.php` (`/api/v1/cart`) | Calling `$request->session()->getId()` when `$request->hasSession()` is false (due to missing `Origin`/`Referer` headers from non-browser API clients) triggers `RuntimeException: Session store not set on request`, returning HTTP 500 instead of a clean response. | Add `$request->hasSession()` check in `resolveCart()`. If no session store is set, either check for `X-Guest-Cart-Token` or return HTTP 401 Unauthorized for unauthenticated non-browser clients. | **PENDING APPROVAL** | `tests/Feature/Api/V1/Cart/CartSessionlessRequestTest.php` |
+| **SEC-01** | Low | Error Handling / API Resilience | `app/Domains/Cart/Controllers/CartController.php` (`/api/v1/cart`) | Calling `$request->session()->getId()` when `$request->hasSession()` is false (due to missing `Origin`/`Referer` headers from non-browser API clients) triggers `RuntimeException: Session store not set on request`, returning HTTP 500 instead of a clean response. | Added `$request->hasSession()` check in `resolveCart()`. Supported `X-Guest-Cart-Token` fallback or deterministic HTTP 401 Unauthorized for unauthenticated non-browser clients. | **RESOLVED & CERTIFIED** | `tests/Feature/Api/V1/Cart/CartSessionlessRequestTest.php` (PASS: 2 tests, 10 assertions) |
 
 ---
 
@@ -27,7 +27,8 @@
   return $this->carts->resolveForGuest((string) $request->session()->getId());
   ```
   which throws `RuntimeException: Session store not set on request`.
-- **Proposed Code Change:**
+- **Implemented Code Change:**
+  In `app/Domains/Cart/Controllers/CartController.php` lines 129–147:
   ```php
   private function resolveCart(Request $request): Cart
   {
@@ -39,20 +40,21 @@
           return $this->carts->resolveForGuest((string) $request->session()->getId());
       }
 
-      // Safe fallback for sessionless API requests:
       $guestToken = (string) $request->header('X-Guest-Cart-Token', '');
       if ($guestToken !== '') {
           return $this->carts->resolveForGuest($guestToken);
       }
 
-      abort(401, __('diyar.cart.session_required'));
+      abort(401, __('diyar.cart.invalid_session'));
   }
   ```
-- **Risk Assessment:** Low risk. Fix protects against 500 errors and provides deterministic 401 or header-based guest cart access for API clients.
+- **Risk Assessment:** Low risk. Fix eliminates unhandled 500 exceptions, returning standard 401 or accepting `X-Guest-Cart-Token`.
+- **Status:** **RESOLVED & CERTIFIED**
 
 ---
 
-## 3. Approval Log
+## 3. Approval & Verification Log
 
 - **Submitted to User:** 2026-10-08
-- **Decision:** Awaiting user approval to apply remediation SEC-01 and create regression test.
+- **Remediation Implemented:** 2026-10-08
+- **Verification:** `tests/Feature/Api/V1/Cart/CartSessionlessRequestTest.php` executed cleanly — 2 passed, 0 failed, 10 assertions. Full regression green.

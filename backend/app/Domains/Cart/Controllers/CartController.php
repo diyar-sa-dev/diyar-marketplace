@@ -132,6 +132,15 @@ class CartController extends Controller
             return $this->carts->resolveForUser($request->user());
         }
 
-        return $this->carts->resolveForGuest((string) $request->session()->getId());
+        if ($request->hasSession()) {
+            return $this->carts->resolveForGuest((string) $request->session()->getId());
+        }
+
+        $guestToken = (string) $request->header('X-Guest-Cart-Token', '');
+        if ($guestToken !== '') {
+            return $this->carts->resolveForGuest($guestToken);
+        }
+
+        abort(401, __('diyar.cart.invalid_session'));
     }
 }
