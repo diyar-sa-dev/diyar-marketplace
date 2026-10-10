@@ -24,8 +24,8 @@ return new class extends Migration
             $table->string('city', 128)->nullable();
             $table->string('region', 128)->nullable();
             $table->string('location_source', 32)->nullable();
-            $table->timestamp('first_seen_at');
-            $table->timestamp('last_activity_at');
+            $table->timestamp('first_seen_at')->useCurrent();
+            $table->timestamp('last_activity_at')->useCurrent();
             $table->timestamp('revoked_at')->nullable();
             $table->timestamps();
 
