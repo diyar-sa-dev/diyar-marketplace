@@ -181,7 +181,7 @@ export default defineConfig(({ mode }) => {
   },
   server: {
     port: 3000,
-    host: '0.0.0.0',
+    host: true,
     proxy: {
       '/api': apiProxyOptions(apiProxyTarget),
       '/sanctum': apiProxyOptions(apiProxyTarget),
@@ -200,7 +200,7 @@ export default defineConfig(({ mode }) => {
   },
   preview: {
     port: 3000,
-    host: '0.0.0.0',
+    host: true,
     strictPort: true,
     proxy: {
       '/api': apiProxyOptions(apiProxyTarget),

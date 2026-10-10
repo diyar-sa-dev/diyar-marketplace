@@ -99,7 +99,7 @@ try {
 if (-not $apiRunning) {
     Write-Host "      Launching 'php artisan serve --port=8000' in new window..." -ForegroundColor DarkGray
     $artisanCmd = @"
-`$env:PATH = 'C:\php83;C:\xampp\mysql\bin;C:\Program Files\nodejs;' + `$env:PATH
+`$env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [System.Environment]::GetEnvironmentVariable('Path', 'User')
 Set-Location '$backendDir'
 Write-Host '=== DIYAR Laravel Backend (Native PHP 8.3) ===' -ForegroundColor Cyan
 php artisan serve --host=127.0.0.1 --port=8000
@@ -125,14 +125,14 @@ Write-Host "[4/4] Checking React Frontend (Port 3000)..." -ForegroundColor Yello
 $frontendDir = Join-Path $ProjectRoot "frontend"
 $frontendRunning = $false
 try {
-    $resp = Invoke-WebRequest -Uri "http://localhost:3000" -UseBasicParsing -TimeoutSec 2 -ErrorAction SilentlyContinue
+    $resp = Invoke-WebRequest -Uri "http://127.0.0.1:3000" -UseBasicParsing -TimeoutSec 2 -ErrorAction SilentlyContinue
     if ($resp.StatusCode -eq 200) { $frontendRunning = $true }
 } catch {}
 
 if (-not $frontendRunning) {
     Write-Host "      Launching 'npm run dev' in new window..." -ForegroundColor DarkGray
     $viteCmd = @"
-`$env:PATH = 'C:\Program Files\nodejs;' + `$env:PATH
+`$env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [System.Environment]::GetEnvironmentVariable('Path', 'User')
 Set-Location '$frontendDir'
 Write-Host '=== DIYAR React Frontend (Vite) ===' -ForegroundColor Cyan
 npm run dev
