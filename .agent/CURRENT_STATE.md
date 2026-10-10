@@ -5,53 +5,42 @@
 
 ---
 
-## Active Phase: Modular Monolith Architecture — Step 14 (Architecture Consolidation)
+## Active Phase: Modular Monolith Architecture — Step 15 (Security Hardening & Production Certification)
 
 ```text
-STEP 13B.1 → 13B.3 & STEP 14
-STATUS: BENCHMARK INTEGRITY, SECURITY AUDIT & ARCHITECTURE CONSOLIDATION COMPLETE
-ENVIRONMENT: LOCAL ONLY
+STEP 15
+STATUS: FULL-STACK SECURITY HARDENING, API BOUNDARY & INPUT VALIDATION COMPLETE
+ENVIRONMENT: LOCAL DI-YAR VPS SIMULATION ONLY
 PRODUCTION VPS: STRICTLY NOT TOUCHED
-DECISION: CERTIFIED
+DECISION: CONDITIONALLY READY (AWAITING PO DEPLOYMENT SIGN-OFF)
 ```
 
-- **Objective:** Audit benchmark integrity & multi-run repeatability (13B.1), validate concurrent business flows & inventory locking (13B.2), define production operating capacity envelope (13B.3), perform full-stack security audit across all 528 API routes, and consolidate operational runbooks & ADRs (Step 14).
+- **Objective:** Establish zero-trust API boundary across all 528 routes, verify external adversarial caller resiliency (Clients A–J), remediate & verify SEC-01 guest cart sessionless request handling, audit input validation & mass assignment across all Eloquent models, enforce AI provider parameter safeguards and fail-closed privacy gates, and audit database transaction locking and information disclosure masking.
 - **Report Authority:**
-  - [Initial Audit](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013B.1-13B.3%20and%20Security%20Audit/INITIAL_AUDIT.md)
-  - [Step 13B.1 REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013B.1/REPORT.md)
-  - [Security Audit REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Security%20Audit/REPORT.md) & [Route Inventory](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Security%20Audit/ROUTE_INVENTORY.md)
-  - [Step 13B.2 REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013B.2/REPORT.md)
-  - [Step 13B.3 REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2013B.3/REPORT.md)
-  - [Step 14 FINAL CONSOLIDATION REPORT](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%20Architecture/Phase%20Modular%20Monolith/Step%2014/REPORT.md)
-- **Step 13B.1 Benchmark Integrity (Repeatability & Deep Schema Assertions):**
-  - All 20 benchmark runs enforced strict JSON entity & array schema assertions with **zero assertion failures** (0% HTTP errors).
-  - 3-run repeatability verified: Smoke Octane Mean **177.98 RPS** (Variance ±2.1%) vs FPM Mean **19.55 RPS** (+810% gain, -98.3% p95 latency reduction).
-  - Moderate 20 VU: Octane Median **401.10 RPS** / 55.78 ms p95 vs FPM Median **35.55 RPS** / 1,195.62 ms p95 (+1,028% gain, -95.3% latency reduction).
-  - Cold Cache vs Warm Cache: Octane cold cache achieved **349.85 RPS** (vs FPM cold 32.68 RPS), proving the ~10× speedup holds even on flushed caches by eliminating framework bootstrap.
-- **Full-Stack Security Audit (528 Routes Audited):**
-  - 100% of routes inventoried across 29 domains.
-  - Zero SQL injection vulnerabilities confirmed across all Eloquent raw queries; active syntax-breaking probes handled cleanly.
-  - Zero privilege escalation possible via registration or profile payload tampering.
-  - Database user privileges strictly isolated to `diyar_vps_simulation.*`; Redis port unexposed with `diyar_vps_sim_` prefix.
-  - Logged Defect SEC-01 (Low): Guest cart calls without stateful Origin/Session throw 500; proposed fix logged in `REMEDIATION_TRACKER.md` awaiting user approval.
-- **Step 13B.2 Business Flow Concurrency & Inventory Protection:**
-  - 6 parallel customer checkout processes racing for the final single inventory unit resulted in **exactly 1 success** and **5 graceful rejections (HTTP 422)**.
-  - Direct database audit confirmed **zero negative inventory** (`available_quantity < 0` = 0).
-  - 19/19 business-flow invariants passed across browsing, search, auth, cart, RBAC, and database integrity.
-- **Step 13B.3 Sustainable Capacity Envelope (KVM2 Profile: 2 vCPU / 8 GB RAM):**
-  - Recommended sustainable operating capacity: **280 RPS** (~16,800 req/min) with p95 < 60 ms and 20–35% CPU headroom.
-  - Peak burst capacity: **404.04 RPS** (achieved at 20 VUs with 0% errors).
-  - Primary bottleneck: Host 2-vCPU core allocation. RAM usage is minimal (~676 MiB across all 7 containers, <8.7% of KVM2).
-- **Step 14 Architecture Consolidation & Runbooks:**
-  - Canonical runbooks compiled for startup, teardown, zero-downtime worker reload, cache flush, database backup/restore, and regression testing.
-  - Architecture Decision Records (ADRs 01–05) codified with empirical evidence.
-- **Verified Invariants (2026-10-08):**
+  - [Security Hardening Report](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/Security%20Audit/STEP15_SECURITY_HARDENING_REPORT.md)
+  - [Route Security Matrix](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/Security%20Audit/STEP15_ROUTE_SECURITY_MATRIX.md)
+  - [Input Validation Matrix](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/Security%20Audit/STEP15_INPUT_VALIDATION_MATRIX.md)
+  - [External API Audit](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/Security%20Audit/STEP15_EXTERNAL_API_AUDIT.md)
+  - [AI Provider Security Audit](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/Security%20Audit/STEP15_AI_PROVIDER_SECURITY_AUDIT.md)
+  - [Database Security Audit](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/Security%20Audit/STEP15_DATABASE_SECURITY_AUDIT.md)
+  - [Middleware Audit](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/Security%20Audit/STEP15_MIDDLEWARE_AUDIT.md)
+  - [Security Test Results](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/Security%20Audit/STEP15_SECURITY_TEST_RESULTS.md)
+  - [Production Readiness Decision](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/Security%20Audit/STEP15_PRODUCTION_READINESS.md)
+- **SEC-01 Resolution & Verification:**
+  - `CartController::resolveCart()` guarded with `$request->hasSession()`, supporting `X-Guest-Cart-Token` fallback or deterministic `HTTP 401 Unauthorized` for headless clients.
+  - Regression verified via `tests/Feature/Api/V1/Cart/CartSessionlessRequestTest.php` (2 tests, 10 assertions passed).
+- **Security Boundary Audit (528 Routes):**
+  - 100% route coverage: 455 protected behind `auth:sanctum`, RBAC (`customer`, `vendor`, `admin`), active-status checks; 73 public routes confined to catalog reads, guest initiation, and signature-verified webhooks.
+  - Zero SQL injection: 100% parameter-bound queries across `whereRaw`, `selectRaw`, `orderByRaw`.
+  - Zero privilege escalation: Eloquent models enforce `$fillable` allowlists; sensitive fields (`role`, `is_admin`, `balance`, `status`) strictly guarded.
+  - Zero client control over privileged AI parameters (OpenAI/Gemini keys, models, temperatures, and system prompts server-controlled; legal gate fails closed).
+- **Verified Invariants (2026-10-10):**
   - Registered Routes: **528**
-  - Backend PHPUnit: **1,101 passed, 7 skipped, 0 failed** (1,108 tests, 4,560 assertions in 112.2s)
-  - Frontend Vitest: **350 / 350 passed** (87 test suites in 59.85s)
-  - Frontend TypeScript: **0 errors**
-  - Frontend ESLint: **0 warnings, 0 errors**
-  - Frontend Production Build: **PASS in 11.79s**
+  - Backend PHPUnit: **1,103 passed, 7 skipped, 0 failed** (4,570 assertions)
+  - Frontend Vitest: **350 / 350 passed** (87 test suites in 58.60s)
+  - Frontend TypeScript: **0 errors** (`tsc --noEmit`)
+  - Frontend ESLint: **0 warnings, 0 errors** (`--max-warnings 0`)
+  - Frontend Production Build: **PASS in 22.56s**
 
 ---
 
