@@ -8,6 +8,8 @@ use App\Models\UserSession;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\InteractsWithIdentity;
@@ -557,6 +559,68 @@ class UserSessionSecurityTest extends TestCase
         $this->assertSame('SA', $session->country);
         $this->assertSame('Riyadh', $session->city);
         $this->assertSame('proxy_header', $session->location_source);
+    }
+
+    #[Test]
+    public function undecryptable_session_record_does_not_break_revocation(): void
+    {
+        $user = $this->createUserWithRole(RoleName::Customer, [
+            'phone' => '966501090909',
+            'password' => 'Password123!',
+        ]);
+
+        $this->postStatefulJson('/api/v1/auth/login', [
+            'method' => 'phone',
+            'identifier' => '501090909',
+            'password' => 'Password123!',
+        ])->assertOk();
+
+        $activeSession = UserSession::query()->where('user_id', $user->id)->firstOrFail();
+
+        // Simulate a corrupted or previous-APP_KEY session payload in database
+        $corruptId = (string) Str::uuid();
+        DB::table('user_sessions')->insert([
+            'id' => $corruptId,
+            'user_id' => $user->id,
+            'session_lookup_hash' => hash('sha256', 'corrupt-session'),
+            'laravel_session_id' => 'invalid-corrupt-ciphertext-with-broken-mac',
+            'device_type' => 'desktop',
+            'browser' => 'Chrome',
+            'platform' => 'Windows',
+            'first_seen_at' => now(),
+            'last_activity_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Revoking single session should catch DecryptException, revoke in DB, and return 200 OK
+        $response = $this->deleteStatefulJson('/api/v1/profile/security/sessions/'.$corruptId);
+        $response->assertOk();
+
+        $corruptRecord = DB::table('user_sessions')->where('id', $corruptId)->first();
+        $this->assertNotNull($corruptRecord->revoked_at);
+
+        // Also test logoutOthers when an undecryptable record exists
+        $corruptId2 = (string) Str::uuid();
+        DB::table('user_sessions')->insert([
+            'id' => $corruptId2,
+            'user_id' => $user->id,
+            'session_lookup_hash' => hash('sha256', 'corrupt-session-2'),
+            'laravel_session_id' => 'another-invalid-ciphertext',
+            'device_type' => 'mobile',
+            'browser' => 'Safari',
+            'platform' => 'iOS',
+            'first_seen_at' => now(),
+            'last_activity_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->postStatefulJson('/api/v1/profile/security/sessions/logout-others')
+            ->assertOk();
+
+        $corruptRecord2 = DB::table('user_sessions')->where('id', $corruptId2)->first();
+        $this->assertNotNull($corruptRecord2->revoked_at);
     }
 
     /**

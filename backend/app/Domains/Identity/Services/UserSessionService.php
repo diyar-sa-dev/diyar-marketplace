@@ -9,11 +9,13 @@ use App\Domains\Identity\Support\UserSessionDeviceGroup;
 use App\Domains\Identity\Support\UserSessionDeviceGrouper;
 use App\Models\User;
 use App\Models\UserSession;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -330,9 +332,21 @@ final class UserSessionService
             return;
         }
 
-        $plainSessionId = (string) $session->laravel_session_id;
+        $plainSessionId = null;
 
-        RevokedSessionCache::markRevoked($plainSessionId);
+        try {
+            $plainSessionId = (string) $session->laravel_session_id;
+        } catch (DecryptException $exception) {
+            Log::warning('UserSession decryption failed during revocation; deactivating database session record without destroying storage session.', [
+                'session_id' => $session->id,
+                'user_id' => $session->user_id,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+
+        if ($plainSessionId !== null && $plainSessionId !== '') {
+            RevokedSessionCache::markRevoked($plainSessionId);
+        }
 
         DB::transaction(function () use ($session, $invalidateRememberToken, $plainSessionId): void {
             $session->forceFill([
@@ -342,7 +356,9 @@ final class UserSessionService
                 'region' => null,
             ])->save();
 
-            $this->destroyLaravelSession($plainSessionId);
+            if ($plainSessionId !== null && $plainSessionId !== '') {
+                $this->destroyLaravelSession($plainSessionId);
+            }
 
             if ($invalidateRememberToken) {
                 $this->invalidateRememberToken($session->user);

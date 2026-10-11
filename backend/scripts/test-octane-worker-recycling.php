@@ -6,7 +6,6 @@ declare(strict_types=1);
  * Step 13B — Worker Lifecycle & Recycling Test
  * Probes Swoole worker PIDs before and after reaching the 500 max-request threshold.
  */
-
 function getWorkerPids(): array
 {
     $pids = [];
@@ -18,12 +17,13 @@ function getWorkerPids(): array
         }
     }
     sort($pids);
+
     return $pids;
 }
 
 echo "=== Octane Worker Lifecycle & Recycling Test ===\n";
 $initialPids = getWorkerPids();
-echo "Initial Worker PIDs: ".implode(', ', $initialPids)."\n";
+echo 'Initial Worker PIDs: '.implode(', ', $initialPids)."\n";
 
 if (count($initialPids) < 3) {
     // 2 app workers + 1 task worker = 3 worker processes
@@ -85,16 +85,16 @@ echo "Completed {$completed} requests in {$duration}s (Errors: {$errors})\n";
 
 // Check new PIDs
 $newPids = getWorkerPids();
-echo "Post-Threshold Worker PIDs: ".implode(', ', $newPids)."\n";
+echo 'Post-Threshold Worker PIDs: '.implode(', ', $newPids)."\n";
 
 $recycled = false;
 $appWorkerPidsInitial = array_slice($initialPids, 1); // Task worker usually first or last
 $appWorkerPidsNew = array_slice($newPids, 1);
 
 $diff = array_diff($initialPids, $newPids);
-if (!empty($diff)) {
-    echo "[PASS] Worker Recycling Confirmed! Retired PIDs: ".implode(', ', $diff)."\n";
-    echo "       New active PIDs: ".implode(', ', array_diff($newPids, $initialPids))."\n";
+if (! empty($diff)) {
+    echo '[PASS] Worker Recycling Confirmed! Retired PIDs: '.implode(', ', $diff)."\n";
+    echo '       New active PIDs: '.implode(', ', array_diff($newPids, $initialPids))."\n";
     $recycled = true;
 } else {
     echo "[FAIL] Worker PIDs did not change.\n";
