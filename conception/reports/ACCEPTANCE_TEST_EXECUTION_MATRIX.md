@@ -11,36 +11,36 @@
 
 | Category | Total | Pass | Fail | Blocked | In Progress | Not Run |
 |---|---|---|---|---|---|---|
-| **A. Guest** | 14 | 0 | 0 | 0 | 0 | 14 |
+| **A. Guest** | 14 | **14** | 0 | 0 | 0 | 0 |
 | **B. Customer** | 20 | 0 | 0 | 0 | 0 | 20 |
 | **C. Seller / Vendor** | 17 | 0 | 0 | 0 | 0 | 17 |
 | **D. Service Provider** | 16 | 0 | 0 | 0 | 0 | 16 |
 | **E. Referral / Affiliate** | 14 | 0 | 0 | 0 | 0 | 14 |
 | **F. Admin** | 18 | 0 | 0 | 0 | 0 | 18 |
 | **G. Multi-Role Workflows** | 10 | 0 | 0 | 0 | 0 | 10 |
-| **H. Shared Usability** | 10 | 0 | 0 | 0 | 0 | 10 |
-| **TOTAL** | **119** | **0** | **0** | **0** | **0** | **119** |
+| **H. Shared Usability** | 10 | 7 | 0 | 0 | 0 | 3 |
+| **TOTAL** | **119** | **21** | **0** | **0** | **0** | **98** |
 
 ---
 
-## A. Guest — Unauthenticated Visitor
+## A. Guest — Unauthenticated Visitor (14/14 PASS)
 
 | ID | Priority | Test Case | Status | Actual Result / Evidence | Defect ID |
 |---|---|---|---|---|---|
-| G-01 | P1 | Open marketplace homepage | NOT RUN | | |
-| G-02 | P2 | Navigate public pages (categories, products, services) | NOT RUN | | |
-| G-03 | P2 | Browse categories and subcategories | NOT RUN | | |
-| G-04 | P1 | Search products and empty search | NOT RUN | | |
-| G-05 | P2 | Filters and sorting application | NOT RUN | | |
-| G-06 | P1 | Product details (images, variants, pricing, stock) | NOT RUN | | |
-| G-07 | P1 | Service details (public details vs private provider info) | NOT RUN | | |
-| G-08 | P1 | Guest cart persistence across reloads | NOT RUN | | |
-| G-09 | P0 | Guest cart isolation between clean sessions | NOT RUN | | |
-| G-10 | P1 | Guest checkout boundary (redirect to login) | NOT RUN | | |
-| G-11 | P1 | Login, registration, password recovery entry forms | NOT RUN | | |
-| G-12 | P0 | Protected URL access while unauthenticated | NOT RUN | | |
-| G-13 | P2 | Invalid route handling (clean 404, no stack trace) | NOT RUN | | |
-| G-14 | P2 | Arabic RTL layout and mobile responsiveness | NOT RUN | | |
+| G-01 | P1 | Open marketplace homepage | **PASS** | Clean homepage loads at `http://localhost:3000`. Login & register controls rendered; no authenticated user state. | None |
+| G-02 | P2 | Navigate public pages (categories, products, services) | **PASS** | Categories, product grid, and services load with responsive images and fallback content. | None |
+| G-03 | P2 | Browse categories and subcategories | **PASS** | Category tabs and subcategory cards navigate to relevant catalog listings. | None |
+| G-04 | P1 | Search products and empty search | **PASS** | Keyword search returns matched items; gibberish input displays clean empty state message. | None |
+| G-05 | P2 | Filters and sorting application | **PASS** | Filtering by category and sorting updates item display dynamically. | None |
+| G-06 | P1 | Product details (images, variants, pricing, stock) | **PASS** | Detail page displays image carousel, SAR pricing, item specifications, stock, and vendor name. | None |
+| G-07 | P1 | Service details (public details vs private provider info) | **PASS** | Service page shows provider business name, rate/m², description, and booking actions. Private phone/email hidden. | None |
+| G-08 | P1 | Guest cart persistence across reloads | **PASS** | Adding product updates cart counter; cart drawer retains items across page refresh. | None |
+| G-09 | P0 | Guest cart isolation between clean sessions | **PASS** | Cart storage is origin-scoped to local session; no cross-session or cross-profile data leakage. | None |
+| G-10 | P1 | Guest checkout boundary (redirect to login) | **PASS** | Proceeding to checkout prompts guest and redirects to `/auth`; prevents unauthenticated order placement. | None |
+| G-11 | P1 | Login, registration, password recovery entry forms | **PASS** | `/auth` form validates required inputs, country code `+966`, password toggles, and seamless login/register tabs. | None |
+| G-12 | P0 | Protected URL access while unauthenticated | **PASS** | Access to `/customer/dashboard` & `/seller/dashboard` is denied/404; `/admin` redirects to `/admin/login`. No private data disclosed. | None |
+| G-13 | P2 | Invalid route handling (clean 404, no stack trace) | **PASS** | Accessing `/non-existent-page-xyz-999` renders branded "الصفحة غير موجودة" page without stack trace. | None |
+| G-14 | P2 | Arabic RTL layout and mobile responsiveness | **PASS** | Proper `dir="rtl"` alignment, Arabic typography, responsive header, banners, and footer. | None |
 
 ---
 
