@@ -31,7 +31,7 @@ if (count($initialPids) < 3) {
 }
 
 $url = 'http://127.0.0.1:8000/api/v1/health';
-$targetRequests = 1200; // Across 2 workers with max-requests=500, both will recycle
+$targetRequests = 1500; // Across 2 workers with max-requests=500, both will recycle
 echo "Sending {$targetRequests} requests to {$url} to trigger 500-request recycle threshold...\n";
 
 $start = microtime(true);
@@ -47,7 +47,7 @@ for ($i = 0; $i < $concurrency; $i++) {
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 10,
-        CURLOPT_HTTPHEADER => ['Accept: application/json'],
+        CURLOPT_HTTPHEADER => ['Accept: application/json', 'Connection: close'],
     ]);
     curl_multi_add_handle($mh, $ch);
     $activeHandles[] = $ch;
@@ -69,7 +69,7 @@ do {
             curl_setopt_array($newCh, [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT => 10,
-                CURLOPT_HTTPHEADER => ['Accept: application/json'],
+                CURLOPT_HTTPHEADER => ['Accept: application/json', 'Connection: close'],
             ]);
             curl_multi_add_handle($mh, $newCh);
         }

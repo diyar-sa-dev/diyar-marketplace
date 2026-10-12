@@ -236,3 +236,155 @@ $$\mathbf{Status:\ VERIFIED}$$
 
 ### 7.3 Deployment Notice
 > **Notice:** The application is functionally and architecturally hardened for release candidate acceptance. Production VPS deployment remains a separate, controlled operational phase requiring explicit operator sign-off in accordance with `deploy/PLAN.md`.
+
+---
+
+## 8. Desktop Docker VPS-Simulation: Laravel Octane + Swoole Alignment & Validation
+
+### 8.1 Discovery & Initial Audit Findings
+- **Existing Stack Identified:** Project `diyar-vps-sim` defined in `docker-compose.production-like.yml`.
+- **Initial Runtime:** Container `diyar-vps-sim-app-1` was running PHP-FPM (`php-fpm -F`, PID 1) with 3 dynamic pool workers (`php-fpm: pool www`, PIDs 7, 8, 9). Swoole extension was **absent** from the container image.
+- **Initial Resource Envelope:** Unbounded (cgroup `cpuset` and `memory` limits omitted).
+- **Data Preservation Verified:** Named volumes `diyar-vps-sim_diyar_sim_mysql` (130 schema tables preserved intact) and `diyar-vps-sim_diyar_sim_redis` (54 keys in `db0` preserved intact) were retained with zero data loss, zero volume deletion, and zero database resets.
+
+### 8.2 Runtime Configuration Changes Implemented
+1. **`backend/Dockerfile.octane`:**
+   - Base image: `diyar-kvm2-test-app:latest` (contains compiled Swoole v5.1.3, Redis, pcntl, bcmath, opcache, gd).
+   - Aligned `WORKDIR` to `/var/www/diyar/backend` matching the production simulation mount path.
+   - Added automatic vendor synchronization from base image during build.
+2. **`docker-compose.production-like.octane.yml`:**
+   - Dedicated override defining:
+     - `app`: image `diyar-octane-test:latest`, `command: ['php', 'artisan', 'octane:start', '--server=swoole', '--host=0.0.0.0', '--port=8000', '--workers=2', '--task-workers=1', '--max-requests=500']`.
+     - Mounts: `./backend:/var/www/diyar/backend`.
+     - `nginx`: mounted with `deploy/nginx/production-like-octane.conf` reverse-proxying HTTP to `http://diyar_app:8000`.
+   - **Hostinger KVM 2 Resource Envelope Enforced:**
+     - `cpuset: '0-1'` applied across all 7 containers (pins stack to 2 shared vCPU cores).
+     - Strict container memory caps: `mysql` (2560M), `redis` (576M), `app` (1536M), `queue-worker` (384M), `reverb` (384M), `scheduler` (128M), `nginx` (128M). Total allocated: ~5.69 GB, preserving ~2.3 GB host/OS headroom.
+3. **`backend/scripts/test-octane-worker-recycling.php`:**
+   - Added `Connection: close` header to prevent curl_multi keep-alive connection pooling from pinning requests to a single worker, ensuring request distribution triggers worker retirement.
+   - Set target requests to 1,500 to cleanly trigger the 500 max-request threshold across 2 workers.
+
+### 8.3 Live Octane/Swoole Verification Results
+
+| Invariant / Verification Target | Command / Method | Status | Verified Evidence |
+| :--- | :--- | :--- | :--- |
+| **Loaded Swoole Extension** | `docker exec diyar-vps-sim-app-1 php -m` | **VERIFIED** | Swoole v5.1.3 loaded alongside Redis, BCMath, PCNTL, OPcache, GD |
+| **Octane Process Topology** | `php scripts/inspect-octane-workers.php` | **VERIFIED** | **1 Master** (PID 10), **1 Manager** (PID 11), **1 Task Worker** (PID 23), **2 App Workers** (PIDs 57, 58) |
+| **Worker Recycling Policy** | `test-octane-worker-recycling.php` | **VERIFIED** | 1,500 requests processed in 17.89s (0 errors). Workers PIDs 15 & 16 retired at 500-request limit; PIDs 57 & 58 seamlessly spawned |
+| **Nginx Octane Proxy** | `curl -i http://localhost:8092/api/v1/health` | **VERIFIED** | `HTTP/1.1 200 OK`, `checks.database.ok = true`, `checks.cache.ok = true`, `checks.queue.ok = true` |
+| **Liveness Endpoint** | `curl -i http://localhost:8092/api/v1/health/live` | **VERIFIED** | `HTTP/1.1 200 OK`, `{"status":"live"}` |
+| **Redis Cache Acceleration** | `step13b-runtime-octane-validation.mjs` | **VERIFIED** | Cold query: 109.9ms → Warm query (Redis cache hit): 5.4ms |
+| **Database Connection Lifecycle** | `step13b-runtime-octane-validation.mjs` | **VERIFIED** | 15 sustained query cycles across worker reuse passed cleanly |
+| **Reverb WebSocket Upgrade** | `step13b-runtime-octane-validation.mjs` | **VERIFIED** | HTTP 101 Switching Protocols passed cleanly via Nginx `/app/` |
+| **Redis Runtime Integration Suite** | `php artisan test tests/Integration/Redis` | **VERIFIED** | **6 passed (11 assertions, 27.83s)** (Note: Reconciles earlier 18-assertion figure, which bundled 7 assertions from `RedisSessionSecurityIntegrationTest`) |
+| **Frontend Unit & Component Suite** | `npm --prefix frontend run test` | **VERIFIED** | **87 test files passed, 350 / 350 tests passed (64.15s)** |
+| **Unauthenticated Browser Journey** | Playwright against `http://localhost:8092` | **VERIFIED** | Unauthenticated cart prompt does not crash passed (11.2s) |
+| **Authenticated Journeys & User Tests**| Playwright & Multi-Principal Login | **VERIFIED (5/6)** | 5 of 6 journeys PASSED on :8092 (Customer, Vendor, Provider, Admin, Checkout). 2FA failed due to production-mode OTP guard defect |
+| **Container Resource Limits (KVM 2)** | `docker stats --no-stream` | **VERIFIED** | All 7 containers constrained to `cpuset: 0-1` and bounded memory limits (App 166.2M / 1.5G, MySQL 390M / 2.5G, Redis 4.1M / 576M) |
+| **Container Restart Reproducibility** | `docker compose restart app nginx` | **VERIFIED** | Octane + Swoole runtime cleanly re-established with exact 2 app + 1 task worker topology and healthy endpoints |
+
+### 8.4 Octane Stage 31 Validation Status Determination
+- **Octane/Swoole Runtime Alignment & Resource Profile:** **VERIFIED**
+- **Process Topology & 500-Request Recycling:** **VERIFIED**
+- **Health, MySQL, Redis, Queue & Reverb Connectivity:** **VERIFIED**
+- **Unauthenticated Browser Journey on :8092:** **VERIFIED**
+- **Authenticated Multi-Role Browser Journeys:** **VERIFIED (Customer, Vendor, Provider, Admin, Checkout)**
+- **Two-Factor Challenge on Production-Like Stack:** **DEFECT IDENTIFIED** (Environment guard in `OtpTestCodeResolver`)
+
+---
+
+## 9. Approved Option 1 Fixture Provisioning & Authenticated E2E Validation
+
+### 9.1 Phase 1 — Pre-Execution Review & Schema Invariant Audit
+- **Authorization:** Option 1 (Non-destructive fixture provisioning on desktop simulation stack `diyar-vps-sim`, base URL `http://localhost:8092`) approved by project owner.
+- **Active Database Verified:** MySQL database `diyar_vps_simulation` inside container `diyar-vps-sim-mysql-1` on network `diyar-vps-sim_diyar_sim_net`.
+- **Runtime Verified:** Octane + Swoole v5.1.3 on `diyar-vps-sim-app-1` with 2 app workers, 1 task worker, and `--max-requests=500`.
+- **Script Path Designed:** `backend/scripts/provision-vps-sim-test-fixtures.php` (v1.0.0).
+- **Safety Invariants Verified:**
+  - Strictly non-destructive insert-only operations using `firstOrCreate` / uniqueness checks.
+  - Zero deletes (`delete()`), zero truncates, zero migration resets, zero volume drops.
+  - Zero modifications to unrelated records or existing credentials.
+  - Bounded side effects: Mail disabled (`MAIL_MAILER: log`), SMS disabled (`DIYAR_SMS_DRIVER: log`), Payments mocked (`DIYAR_PAYMENT_USE_FAKE_GATEWAY: 'true'`).
+
+### 9.2 Phase 2 — Fixture Provisioning Execution & Evidence
+
+**Execution Command:**
+```bash
+docker exec diyar-vps-sim-app-1 php scripts/provision-vps-sim-test-fixtures.php
+```
+**Exit Code:** `0`
+
+**Database Row Counts (Initial -> Provisioned -> Idempotency Rerun):**
+
+| Table | Before Count | After Provisioning | Delta | Rerun Count | Rerun Delta | Unique Keys / Invariants |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `roles` | 0 | 5 | +5 | 5 | +0 | `name` (customer, vendor, provider, marketer, admin) |
+| `permissions` | 11 | 64 | +53 | 64 | +0 | `key` (all 64 `AdminPermission` cases attached to Admin) |
+| `users` | 0 | 5 | +5 | 5 | +0 | `phone`, `email` (5 isolated identities) |
+| `vendor_accounts` | 0 | 1 | +1 | 1 | +0 | `user_id`, `slug` (`diyar-furniture`) |
+| `vendor_shipping_settings` | 0 | 1 | +1 | 1 | +0 | `vendor_account_id` (carrier flat rate 28.00, pickup enabled) |
+| `categories` | 0 | 2 | +2 | 2 | +0 | `slug` (`living-room`, `interior-design`) |
+| `products` | 0 | 1 | +1 | 1 | +0 | `slug` (`kanaba-thulathiya-fakhira`, matches search 'كنب') |
+| `product_colors` | 0 | 1 | +1 | 1 | +0 | `['product_id', 'name']` (`رمادي`, `#9CA3AF`) |
+| `product_inventory` | 0 | 1 | +1 | 1 | +0 | `product_id` (stock: 50, reserved: 0, available: 50) |
+| `service_categories` | 0 | 1 | +1 | 1 | +0 | `slug` (`interior-design`, icon `palette`) |
+| `provider_accounts` | 0 | 1 | +1 | 1 | +0 | `user_id`, `slug` (`eiwan-design`) |
+| `provider_work_policies` | 0 | 1 | +1 | 1 | +0 | `provider_account_id` (delivery 7d, 2 revisions) |
+| `services` | 0 | 2 | +2 | 2 | +0 | `slug` (`integrated-apartment-design`, `office-3d-design`) |
+| `commission_rules` | 0 | 1 | +1 | 1 | +0 | `['scope', 'scope_id']` (Global 10.00%) |
+| `system_settings` | 0 | 44 | +44 | 44 | +0 | `['group', 'key']` (Default platform definitions) |
+
+**Created Fixture UUIDs:**
+- Customer: `01a12fc7-f102-73e7-b5a5-b030f8132a6e` (Phone: `966500000010`)
+- 2FA Customer: `01a12fc7-f173-71e9-bc19-1c073e62db26` (Phone: `966500000012`)
+- Vendor: `01a12fc7-f17e-728d-9945-45c676914458` (Phone: `966500000002`)
+- Vendor Account: `01a12fc7-f189-700e-809e-384df78525f1` (Slug: `diyar-furniture`)
+- Provider: `01a12fc7-f190-73ea-b446-79e7ca110d3b` (Phone: `966500000101`)
+- Provider Account: `01a12fc7-f1b8-7355-ab64-ac5b12262db2` (Slug: `eiwan-design`)
+- Admin: `01a12fc7-f1be-7244-b797-d56d634b1d3d` (Phone: `966500000001`)
+- Living Room Category: `01a12fc7-f1d6-73a9-b749-01324aa4c580`
+- Service Category: `01a12fc7-f1da-721d-bf6a-c56ee6c41391`
+- Product (Sofa): `01a12fc7-f1ea-73d6-8429-59af75e98c9c` (Stock: 50)
+- Services: `01a12fc7-f206-72ae-9ee8-1b56ebc09cd9`, `01a12fc7-f20a-7017-b9b3-f1b99d5a0891`
+
+### 9.3 Phase 3 — Authenticated Playwright Verification Results
+
+All tests executed with:
+```powershell
+$env:E2E_BASE_URL="http://localhost:8092"
+$env:E2E_API_URL="http://localhost:8092/api/v1"
+```
+
+| # | User Journey / Specification | Command Executed | Exit Code | Tests Passed | Duration | Status | Evidence / Notes |
+| :- | :--- | :--- | :-: | :-: | :-: | :--- | :--- |
+| **1** | **Customer Authentication & Core Journey** | `npx playwright test e2e/customer-journey.spec.ts --workers=1` | `0` | **3 / 3** | 21.1s | **VERIFIED** | Home browse, search ("كنب"), open product, login (966500000010), view profile, services catalog with filters, unauthenticated cart prompt all passed. |
+| **2** | **Vendor Authentication & Journey** | `npx playwright test e2e/vendor-journey.spec.ts --workers=1` | `0` | **3 / 3** | 5.7s | **VERIFIED** | Vendor login (966500000002) reaches `/dashboard/vendor`, `/dashboard/vendor/products`, `/dashboard/vendor/orders`. |
+| **3** | **Service-Provider Journey** | `npx playwright test e2e/provider-journey.spec.ts --workers=1` | `0` | **3 / 3** | 5.5s | **VERIFIED** | Provider login (966500000101) reaches `/dashboard/service`, `/dashboard/service/services`, and public services catalog lists seeded Eiwan Design services. |
+| **4** | **Admin Authentication & Journey** | `npx playwright test e2e/admin-journey.spec.ts --workers=1` | `0` | **2 / 2** | 4.7s | **VERIFIED** | Admin login (966500000001), dashboard, `/admin/users`, `/admin/settings`, `/admin/finance`, `/admin/audit`, and unauthorized marketplace profile isolation verified. |
+| **5** | **Two-Factor Authentication (2FA)** | `npx playwright test e2e/two-factor.spec.ts --workers=1` | `1` | **1 / 5** | 3.1s | **FAILED (Defect Identified)** | `E2E-01 login without 2FA authenticates directly` passed. `E2E-03` failed at `POST /profile/security/two-factor/confirm` with code `123456`. See Section 9.4 for root-cause analysis. |
+| **6** | **Checkout Journey** | `npx playwright test e2e/checkout-journey.spec.ts --workers=1` | `0` | **2 / 2** | 14.7s | **VERIFIED** | 1) API checkout: cart items, address creation, checkout preview, order placement, fake payment simulation (`paid`), status `confirmed`. 2) UI cart to fake payment simulator (`/checkout/payment/.../simulate`) redirecting to `/orders`. |
+
+### 9.4 Identified Defects & Limitations
+1. **Defect — Production Simulation OTP Test Mode Incompatibility:**
+   - **File:** `backend/app/Domains/Identity/Support/OtpTestCodeResolver.php` (Line 35):
+     ```php
+     public static function testModeEnabled(): bool
+     {
+         if (! app()->environment(['local', 'testing'])) {
+             return false;
+         }
+         return (bool) config('diyar.otp.test_mode', false);
+     }
+     ```
+   - **Root Cause:** In the simulation stack (`docker-compose.production-like.yml`), `APP_ENV: production`. Even though Compose explicitly configures `DIYAR_OTP_TEST_MODE: 'true'` and `DIYAR_OTP_TEST_CODE: '123456'`, the application code strictly denies test OTP resolution unless `APP_ENV` is `local` or `testing`. Consequently, the OTP service issues a randomized code and hashes it without exposing or matching `123456`, causing Playwright's `confirm` call in `two-factor.spec.ts` to receive HTTP 422 (`code: diyar.otp.invalid`).
+   - **Scope Discipline:** Per instructions, application logic was not altered merely to make the suite green. The defect is documented here for resolution (e.g. updating `testModeEnabled()` to also evaluate `config('diyar.vps_simulation')`).
+
+### 9.5 Final Evidence-Based Status Determination
+- **Local VPS-Simulation Stack (`diyar-vps-sim`):** **VERIFIED** (Hostinger KVM 2 resource envelope, 2 app workers + 1 task worker on Octane/Swoole v5.1.3, worker recycling at 500 requests, MySQL 8.0, Redis 7.0, Reverb WebSockets).
+- **Non-Destructive Fixture Provisioning:** **VERIFIED** (15 tables populated idempotently without data loss or existing record alteration).
+- **Customer, Vendor, Provider, Admin, and Checkout User Journeys:** **VERIFIED** (13 / 13 test cases passed on `http://localhost:8092`).
+- **Two-Factor Authentication Interactive Challenge:** **NOT VERIFIED / DEFECT IDENTIFIED** (Blocked by `APP_ENV=production` guard in `OtpTestCodeResolver`).
+- **Overall Stage 31 Release Candidate Status:** **VERIFIED WITH DOCUMENTED 2FA SIMULATION LIMITATION**.
+
+
+

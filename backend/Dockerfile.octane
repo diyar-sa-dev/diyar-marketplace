@@ -1,6 +1,9 @@
 FROM diyar-kvm2-test-app:latest
 
-WORKDIR /var/www/html
+WORKDIR /var/www/diyar/backend
+
+# Copy vendor from base image if available, then copy app code
+RUN if [ -d /var/www/html/vendor ]; then cp -r /var/www/html/vendor ./vendor; fi
 
 COPY . .
 
@@ -20,3 +23,4 @@ RUN composer dump-autoload --optimize \
 EXPOSE 8000
 
 CMD ["php", "artisan", "octane:start", "--server=swoole", "--host=0.0.0.0", "--port=8000", "--workers=2", "--task-workers=1", "--max-requests=500"]
+
