@@ -1,0 +1,73 @@
+# DIYAR Octane/Swoole standalone production image (Stage 32 Phase A)
+# Clean, reproducible build based on official PHP 8.3 CLI Bookworm
+FROM php:8.3-cli-bookworm
+
+# Install build and system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    unzip \
+    pkg-config \
+    libzip-dev \
+    libicu-dev \
+    libsqlite3-dev \
+    libbrotli-dev \
+    libssl-dev \
+    zlib1g-dev \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libwebp-dev \
+    ghostscript \
+    && docker-php-ext-configure gd --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) \
+        bcmath \
+        gd \
+        intl \
+        pcntl \
+        pdo_mysql \
+        zip \
+        opcache \
+    && pecl install redis \
+    && pecl install swoole-6.2.2 \
+    && docker-php-ext-enable redis swoole \
+    && rm -rf /var/lib/apt/lists/* /tmp/pear
+
+# Copy composer binary from official composer image
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/diyar/backend
+
+# Copy composer manifests first for layer caching
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+
+# Copy application source code
+COPY . .
+
+# Prevent booting Laravel with production config during image build (no Redis/DB available)
+ENV APP_ENV=production \
+    DIYAR_ENFORCE_REDIS_IN_PRODUCTION=false \
+    CACHE_STORE=array \
+    QUEUE_CONNECTION=sync
+
+# Optimize class autoloader and verify extensions
+RUN composer dump-autoload --optimize \
+    && php -r "if (!extension_loaded('bcmath') || !extension_loaded('swoole') || !extension_loaded('redis')) { fwrite(STDERR, 'Required extensions missing\n'); exit(1); }"
+
+# Ensure required storage and cache directories exist with proper ownership and permissions
+RUN mkdir -p \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+        storage/app/public/media \
+        bootstrap/cache \
+    && rm -rf public/storage \
+    && ln -snf ../storage/app/public public/storage \
+    && chown -R www-data:www-data storage bootstrap/cache public/storage \
+    && chmod -R 775 storage bootstrap/cache
+
+USER www-data
+
+EXPOSE 8000
+
+CMD ["php", "artisan", "octane:start", "--server=swoole", "--host=0.0.0.0", "--port=8000", "--workers=2", "--task-workers=1", "--max-requests=500"]

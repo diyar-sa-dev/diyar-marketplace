@@ -1,11 +1,46 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-10-08
+> **Last updated:** 2026-10-14
 > **Maintained by:** AI development agents after each phase completion
 
 ---
 
-## Active Phase: Modular Monolith Architecture — Step 15 (Security Hardening & Production Certification)
+## Active Phase: Stage 32 — Senior Production Architecture, Deployment Audit & KVM2 Plan
+
+```text
+STAGE 32
+STATUS: AUDIT COMPLETE — PLAN PREPARED — AWAITING OWNER APPROVAL
+ENVIRONMENT: READ-ONLY AUDIT OF LOCAL REPOSITORY AND DOCKER CONFIGURATIONS
+PRODUCTION VPS: STRICTLY NOT TOUCHED — SSH ACCESS BLOCKED
+DECISION: AWAITING OWNER DECISIONS ON Q1–Q6 AND P0 BLOCKER APPROVAL
+```
+
+- **Objective:** Produce a technically accurate, evidence-based production deployment plan for Hostinger KVM2.
+- **Authority Document:** [`conception/Stages/Stage 32 - Deploy/STAGE_32_MASTER.md`](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%2032%20-%20Deploy/STAGE_32_MASTER.md)
+- **Audit Scope:** Repository code, Docker configurations, Compose files, Dockerfiles, Nginx configs, boot scripts, queue architecture, Redis configuration, migration files, environment variables, health endpoints, deployment documentation.
+- **Key Findings (P0 Blockers):**
+  - `laravel/octane` is in `require-dev` — production `--no-dev` build excludes Octane
+  - `Dockerfile.octane` depends on local `diyar-kvm2-test-app:latest` — not standalone/reproducible
+  - Octane overlay storage volume path disagrees with Dockerfile WORKDIR
+- **Option C Decision:** 8-container topology PROPOSED (Nginx, Octane, Scheduler, Queue-Critical, Queue-Background, Reverb ×1, MySQL, Redis)
+- **Existing production compose audited:** 11 containers (3 queue workers + 2 Reverb) — merging to 8 recommended
+- **Redis `allkeys-lru` audit:** Unsafe for queues/sessions — `volatile-lru` recommended
+- **No code, VPS, Git, or Docker changes were made.** This was a read-only audit and planning phase.
+
+### Stage 32 Open Decisions (Owner Required)
+
+| # | Question | Recommendation |
+|---|----------|----------------|
+| Q1 | Move `laravel/octane` to `require`? | Yes |
+| Q2 | Reduce Reverb from 2 to 1? | Yes |
+| Q3 | Merge 3 queue workers to 2? | Yes |
+| Q4 | Redis `volatile-lru` instead of `allkeys-lru`? | Yes |
+| Q5 | RPO 24h / RTO 2h acceptable? | Yes |
+| Q6 | External uptime monitoring? | UptimeRobot free tier |
+
+---
+
+## Previous Active Phase: Modular Monolith Architecture — Step 15 (Security Hardening & Production Certification)
 
 ```text
 STEP 15
