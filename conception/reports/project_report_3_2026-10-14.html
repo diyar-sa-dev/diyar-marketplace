@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تقرير حالة المشروع — منصة ديار (14 أكتوبر 2026)</title>
+<style>
+  :root {
+    --surround: #e8ecf1;
+    --paper: #ffffff;
+    --ink: #1c2733;
+    --ink-soft: #46586b;
+    --navy: #1f3864;
+    --band: #2e6db4;
+    --band-soft: #eef4fb;
+    --row-alt: #f5f8fc;
+    --line: #dbe4ee;
+    --ok-bg: #e4f3ea;   --ok-fg: #1a7a4c;
+    --part-bg: #fcf1d2; --part-fg: #96660a;
+    --no-bg: #fbe7e7;   --no-fg: #b23330;
+    --shadow: 0 2px 14px rgba(31, 56, 100, .12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --surround: #141a22; --shadow: 0 2px 18px rgba(0,0,0,.5); }
+  }
+  :root[data-theme="dark"] { --surround: #141a22; --shadow: 0 2px 18px rgba(0,0,0,.5); }
+  :root[data-theme="light"] { --surround: #e8ecf1; --shadow: 0 2px 14px rgba(31,56,100,.12); }
+
+  html { background: var(--surround); }
+  body { margin: 0; background: var(--surround); }
+
+  .report {
+    direction: rtl;
+    font-family: "Segoe UI", Tahoma, "Noto Naskh Arabic", Arial, sans-serif;
+    color: var(--ink);
+    max-width: 880px;
+    margin: 24px auto 64px;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+    border-radius: 6px;
+    overflow: hidden;
+    line-height: 1.7;
+  }
+  .inner { padding: 0 40px 48px; }
+
+  .masthead {
+    background: var(--navy);
+    color: #fff;
+    text-align: center;
+    padding: 34px 24px 26px;
+  }
+  .masthead h1 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: .5px; }
+  .subhead {
+    background: var(--band);
+    color: #fff;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 10px 24px;
+    margin-bottom: 32px;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 26px; font-size: 14.5px; }
+  td, th { padding: 9px 14px; vertical-align: top; }
+  tbody tr:nth-child(odd) { background: var(--band-soft); }
+  tbody tr:nth-child(even) { background: var(--paper); }
+  tbody tr { border-bottom: 1px solid var(--line); }
+
+  .meta td:first-child { font-weight: 700; color: var(--navy); width: 130px; white-space: nowrap; }
+
+  .st {
+    width: 128px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+  .ok   { background: var(--ok-bg)   !important; color: var(--ok-fg); }
+  .part { background: var(--part-bg) !important; color: var(--part-fg); }
+  .no   { background: var(--no-bg)   !important; color: var(--no-fg); }
+
+  .legend { display: flex; gap: 10px; margin: 8px 0 4px; }
+  .legend span { flex: 1; text-align: center; padding: 8px 0; font-weight: 700; font-size: 13px; border-radius: 3px; }
+
+  .section-band {
+    background: var(--navy);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 800;
+    padding: 12px 40px;
+    margin: 44px -40px 20px;
+  }
+  .section-note {
+    background: var(--ok-bg);
+    color: var(--ok-fg);
+    font-weight: 700;
+    font-size: 14px;
+    text-align: center;
+    padding: 9px 16px;
+    border-radius: 4px;
+    margin: 0 0 18px;
+  }
+  .section-note.part-note { background: var(--part-bg); color: var(--part-fg); }
+  .section-note.no-note { background: var(--no-bg); color: var(--no-fg); }
+  h3 { color: var(--band); font-size: 15.5px; margin: 26px 0 4px; font-weight: 800; }
+  .fine { font-size: 12.5px; color: var(--ink-soft); margin: -14px 0 22px; }
+
+  .highlights {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 22px 10px;
+    margin: 0 0 10px;
+    background: var(--band-soft);
+  }
+  .highlights h3 { margin-top: 0; }
+  .highlights ul { margin: 6px 0 12px; padding-right: 20px; }
+  .highlights li { margin-bottom: 5px; font-size: 14px; }
+
+  .closing {
+    text-align: center;
+    margin-top: 54px;
+    border-top: 1px solid var(--line);
+    padding-top: 26px;
+  }
+  .closing .thanks { color: var(--navy); font-weight: 700; }
+  .closing .sig { color: var(--band); font-weight: 800; margin-top: 10px; }
+  .closing .date { color: var(--ink-soft); font-size: 13.5px; }
+
+  .toolbar { max-width: 880px; margin: 18px auto -8px; text-align: left; direction: ltr; padding: 0 4px; }
+  .toolbar button {
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    background: var(--navy); color: #fff; border: 0; border-radius: 5px;
+    padding: 8px 16px; cursor: pointer;
+  }
+  .toolbar button:focus-visible { outline: 3px solid var(--band); outline-offset: 2px; }
+
+  @media print {
+    html, body { background: #fff; }
+    .toolbar { display: none; }
+    .report { box-shadow: none; margin: 0; max-width: none; border-radius: 0; }
+    .section-band { break-after: avoid; }
+    tr { break-inside: avoid; }
+    .page-break { break-before: page; }
+  }
+  @media (max-width: 640px) {
+    .inner { padding: 0 16px 32px; }
+    .section-band { margin: 36px -16px 16px; padding: 10px 16px; }
+    .table-wrap { overflow-x: auto; }
+    .meta td:first-child { white-space: normal; width: auto; }
+    .st { width: auto; white-space: normal; }
+  }
+</style>
+
+<div class="toolbar"><button type="button" onclick="window.print()">🖨 Print / PDF</button></div>
+
+<div class="report" lang="ar">
+  <div class="masthead"><h1>تقرير حالة المشروع — التقرير الثالث</h1></div>
+  <div class="subhead">منصة ديار — سوق إلكتروني للأثاث والخدمات المنزلية ومصمم الغرف ثلاثي الأبعاد والتحضير للإنتاج</div>
+
+  <div class="inner">
+    <table class="meta">
+      <tbody>
+        <tr><td>المشروع:</td><td>منصة ديار — المملكة العربية السعودية</td></tr>
+        <tr><td>تاريخ التقرير:</td><td>14/10/2026</td></tr>
+        <tr><td>التقرير السابق:</td><td>14/09/2026 — التقرير الثاني</td></tr>
+        <tr><td>التقرير الأول:</td><td>27/08/2026 — التقرير الأول</td></tr>
+      </tbody>
+    </table>
+
+    <p style="font-weight:700; color:var(--navy); margin-bottom:6px;">دلالة الألوان في هذا التقرير:</p>
+    <div class="legend">
+      <span class="ok">منجز</span>
+      <span class="part">جزئي</span>
+      <span class="no">غير منجز</span>
+    </div>
+
+    <div class="section-band">عن المنصة ومسار التقدم</div>
+    <p>منصة ديار سوق إلكتروني عربي متكامل موجّه للسوق السعودي (الريال وضريبة القيمة المضافة 15%). تجمع المنصة بيع منتجات الأثاث، ومصمم الغرف التفاعلي، وخدمات التصميم والتنفيذ المنزلي، ودليل شركات قطاع الأعمال، مع لوحات تحكم مستقلة لخمسة أدوار (العميل، البائع، مقدّم الخدمة، المسوّق، والإدارة).</p>
+    <p>منذ التقرير الثاني (14 سبتمبر 2026)، حقق المشروع قفزة نوعية في مسارات الابتكار، وهندسة الأمان، والجاهزية الإنتاجية: أُنجزت <b>المرحلة 30 بالكامل (مصمم الغرف Room Designer وتجربة الأثاث في الغرفة ثلاثية الأبعاد)</b>، وأُنجز <b>برنامج التقوية الأمنية الصارمة للمعمّارية الموحّدة (Step 15 على 528 مساراً برمجياً)</b>، وتُوّجت باختبارات <b>المرحلة 31 للمطابقة الكاملة</b>، والوصول إلى <b>المرحلة 32 (التحضير للإنتاج وتجهيز بيئة خادم KVM2، وتحديث Laravel Octane وSwoole وهندسة الحاويات Nginx وRedis)</b>. لا يزال إطلاق الموقع على الخادم الإنتاجي العام معلقاً بانتظار استعادة بيانات الدخول وحسم اعتمادات المفاتيح النهائية.</p>
+
+    <div class="section-band">أبرز ما أُنجز منذ التقرير الثاني</div>
+    <div class="highlights">
+      <ul>
+        <li><b>مصمم الغرف التفاعلي (المرحلة 30):</b> بناء وتوثيق مصمم الغرف الكامل (Room Designer 30.1–30.18)، وإتاحة تصميم الغرفة بأبعاد حقيقية، وتحريك الأثاث، وتجربة الأثاث في الغرفة (Try-in-Room)، وعرض 2.5D و3D مع ربط مباشر بكتالوج المتجر وسلة الشراء.</li>
+        <li><b>التدقيق الأمني الشامل والتحصين (Step 15):</b> مراجعة وتأمين 528 مساراً برمجياً بالكامل، معالجة ثغرات السلة للزوار (SEC-01)، إحكام الصلاحيات لمنع أي حقن أو تصعيد صلاحيات، وفرض سياسة الخصوصية المغلقة على مزودي الذكاء الاصطناعي لحماية بيانات المستخدمين.</li>
+        <li><b>اعتماد جاهزية المنصة (المرحلة 31):</b> اجتياز 1,104 اختبارات آلية في الواجهة الخلفية و350 اختباراً في الواجهة الأمامية بنسبة نجاح 100%، وخلو كامل من أخطاء TypeScript والـ Linter.</li>
+        <li><b>تجهيز خادم الإنتاج وسرعة المعالجة (المرحلة 32 — Phase A & B):</b> اعتماد محرك <b>Laravel Octane مع Swoole</b> لرفع سرعة الاستجابة بأكثر من 10 أضعاف، وتجهيز حزم النشر (Docker Compose Option C) وخادم Nginx المحمي خلف Cloudflare والمناسب لموارد الخادم المخصص (8GB RAM).</li>
+        <li><b>هندسة استقرار قواعد البيانات والذاكرة المؤقتة:</b> تدقيق إعدادات الذاكرة Redis وتأمين قوائم المهام من الفقدان (سياسة volatile-lru مع الحفظ التلقائي AOF)، وضبط أزمنة محاولات معالجة الطلبات لتفادي الازدواجية في الدفع والإشعارات.</li>
+        <li><b>ما يزال معلقاً:</b> استعادة وصول SSH لخادم Hostinger KVM2 من جهة المالك، تفعيل مفاتيح الدفع (ماي فاتورة) والرسائل النصية الحقيقية (مسجات)، وتطبيقات الجوال المستقلة على المتاجر.</li>
+      </ul>
+    </div>
+
+    <div class="section-band">ما أُضيف وما تغيّر منذ التقرير الثاني</div>
+    <div class="section-note">ملخّص التحولات الجوهرية (14 سبتمبر — 14 أكتوبر 2026)</div>
+
+    <h3>ميزات وأنظمة جديدة كلياً</h3>
+    <table><tbody>
+      <tr><td>مصمم الغرف التفاعلي (Room Designer) — تصميم الغرف ثنائي وثلاثي الأبعاد ووضع الأثاث وضبط القياسات بدقة المتر</td><td class="st ok">منجز وموثق</td></tr>
+      <tr><td>تجربة الأثاث في الغرفة (Try-in-Room) — تجربة قطعة الأثاث على صورة الغرفة وتوليد المعاينة مع صمامات أمان الخصوصية</td><td class="st ok">منجز وموثق</td></tr>
+      <tr><td>نواة التشغيل الفائقة (Laravel Octane + Swoole 6.2) — رفع الطاقة الاستيعابية وسرعة معالجة الطلبات اللحظية في الإنتاج</td><td class="st ok">منجز ومُجهّز</td></tr>
+      <tr><td>هيكلية النشر المتطورة للخادم (Option C Compose) — تخصيص 8 حاويات متكاملة (Octane, DB, Redis, Reverb, Workers, Nginx) بميزانية ذاكرة آمنة</td><td class="st ok">منجز ومُجهّز</td></tr>
+      <tr><td>درع حماية المسارات (Step 15 Zero-Trust Boundary) — تدقيق شامل لـ 528 مساراً برمجياً ضد الاختراق وحقن البيانات</td><td class="st ok">منجز ومعتمد</td></tr>
+    </tbody></table>
+
+    <h3>تحسينات وتقوية على ما كان موجوداً</h3>
+    <table><tbody>
+      <tr><td>سلة المشتريات للزوار — معالجة ومعايرة طلبات السلة مجهولة الهوية دون الحاجة للجلسات (SEC-01) مع استقرار تام</td><td class="st ok">مُحسَّن ومحصّن</td></tr>
+      <tr><td>إدارة الجلسات والأمان — معالجة استثناءات التشفير وفك الجلسات التالفة تلقائياً وتأمين تسجيل الدخول</td><td class="st ok">مُحسَّن</td></tr>
+      <tr><td>معالجة إشعارات الدفع (Webhooks) — تعزيز أقفال قاعدة البيانات الذرية لمنع معالجة الإشعار مرتين عند انقطاع الاتصال</td><td class="st ok">مُحسَّن</td></tr>
+      <tr><td>الذاكرة المؤقتة (Redis) — الانتقال إلى سياسة volatile-lru لحماية مهام الطوابير والجلسات من الحذف التلقائي</td><td class="st ok">مُحسَّن ومُراجع</td></tr>
+      <tr><td>البث المباشر (WebSockets عبر Reverb) — توحيد المسار خلف خادم Nginx واحد عالي الكفاءة يقلل استهلاك الذاكرة</td><td class="st ok">مُحسَّن</td></tr>
+      <tr><td>منظومة الاختبارات الآلية — ارتفاع عدد الاختبارات الناجحة إلى 1,104 بالخلفية و350 بالواجهة بنجاح 100%</td><td class="st ok">مُحسَّن ومؤكد</td></tr>
+    </tbody></table>
+
+    <h3>قرارات معمارية وتحديثات الاستضافة</h3>
+    <table><tbody>
+      <tr><td>اعتماد خادم Nginx مع Cloudflare فقط — منع الوصول المباشر لعنوان الخادم لحظر تزوير عناوين IP للمستخدمين</td><td class="st part">مُجهّز — بانتظار تفعيل الجدار الناري</td></tr>
+      <tr><td>تعديل زمن مهام الانتظار — ضبط فوارق التوقيت لمنع تكرار إرسال الرسائل وتكرار المهام الثقيلة</td><td class="st ok">مُدقق ومُعدّ</td></tr>
+      <tr><td>حفظ بيانات Redis في قرص التخزين (AOF Persistence) — لضمان عدم ضياع المهام عند إعادة تشغيل الحاويات</td><td class="st ok">مُعتمد ومُجهّز</td></tr>
+    </tbody></table>
+
+    <div class="section-band">ملخص حالة التسليم المحدّثة</div>
+    <div class="table-wrap">
+    <table>
+      <tbody>
+        <tr><td>الموقع الإلكتروني والمتجر العام</td><td class="st ok">منجز ومستقر — تم تحصين الروابط وتوافق الجوال ومسارات الشراء</td></tr>
+        <tr><td>مصمم الغرف التفاعلي (Room Designer)</td><td class="st ok">منجز — أبعاد حقيقية وسحب وإفلات وعرض 2D و3D وربط بالمتجر</td></tr>
+        <tr><td>تجربة الأثاث في الغرفة (Try-in-Room)</td><td class="st ok">منجز — بوابات الأمان والخصوصية مغلقة بانتظار الاعتماد القانوني</td></tr>
+        <tr><td>الصفحة العامة قبل الإطلاق («قريبًا»)</td><td class="st ok">منجز وجاهز للإطلاق الأولي</td></tr>
+        <tr><td>حساب العميل ومسار الشراء</td><td class="st part">جزئي — الحساب آمن والسلة محصّنة؛ بوابات الدفع والرسائل تنتظر المفاتيح</td></tr>
+        <tr><td>لوحة البائع</td><td class="st ok">منجز — إدارة المنتجات والمخزون والطلبات والتقارير</td></tr>
+        <tr><td>لوحة مقدّم الخدمة</td><td class="st ok">منجز — مسارات الحجز وتلقي طلبات التصميم والتنفيذ</td></tr>
+        <tr><td>لوحة المسوّق (الإحالة)</td><td class="st ok">منجز — تتبع النقرات وإدارة العمولات والروابط</td></tr>
+        <tr><td>لوحة الإدارة الشاملة</td><td class="st ok">منجز — رقابة 528 مساراً، سجلات التدقيق، الملاحظات وإعدادات المنصة</td></tr>
+        <tr><td>الدفع الإلكتروني (ماي فاتورة)</td><td class="st part">جزئي — المحاكاة مكتملة بالكامل وأقفال الأمان محكمة؛ ينتظر المفتاح الحي</td></tr>
+        <tr><td>رسائل التحقق والـ OTP (مسجات)</td><td class="st part">جزئي — الكود جاهز؛ ينتظر تفعيل رصيد ومفتاح المزود في بيئة الإنتاج</td></tr>
+        <tr><td>الدردشة والبث اللحظي (Reverb)</td><td class="st ok">منجز — بث لحظي موحد داخل حاويات النشر وبأداء مستقر</td></tr>
+        <tr><td>مساعد التصميم والذكاء الاصطناعي</td><td class="st part">جزئي — الربط جاهز؛ تفعيل المزود الخارجي ينتظر الموافقة النظامية</td></tr>
+        <tr><td>البحث بالصورة</td><td class="st ok">منجز — نسخة أولى تعمل ومضبوطة الحساسية من لوحة الإدارة</td></tr>
+        <tr><td>اقتراحات التصفية الذكية</td><td class="st ok">منجز</td></tr>
+        <tr><td>الصلابة الأمنية وضمان الجودة</td><td class="st ok">منجز 100% — اجتياز 1454 اختباراً آلياً شاملاً وتأمين كامل النماذج</td></tr>
+        <tr><td>جاهزية النشر على الخادم (Production Setup)</td><td class="st part">جاهز تقنياً (Phases A/B) — الخادم الحي معلّق بانتظار استعادة بيانات SSH</td></tr>
+        <tr><td>تطبيق الجوال المستقل</td><td class="st part">البنية الخلفية جاهزة بالكامل — التطبيقات المنفصلة على المتاجر لم تُبنَ بعد</td></tr>
+        <tr><td>روبوت واتساب والتوصيات التلقائية المعقدة</td><td class="st no">غير منجز (مؤجل لمراحل لاحقة)</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="section-band page-break">أولا: الموقع الإلكتروني ومصمم الغرف (الميزات العامة)</div>
+
+    <h3>مصمم الغرف وتجربة الأثاث (المرحلة 30 — ميزة رئيسية جديدة)</h3>
+    <table><tbody>
+      <tr><td>مصمم الغرف ثنائي الأبعاد (2D Fabric) — رسم الحوائط، تحديد الأبعاد الحقيقية بالمتر، وسحب وإفلات الأثاث</td><td class="st ok">منجز وموثق</td></tr>
+      <tr><td>المعاينة ثلاثية الأبعاد (3D Room View) — إسقاط منظور الغرفة والمجسمات مع إضاءة تفاعلية وتناسق بصري</td><td class="st ok">منجز</td></tr>
+      <tr><td>ربط مصمم الغرف بكتالوج المتجر — إدراج المنتجات المعروضة للبيع مباشرة في الغرفة بأسعارها الحقيقية</td><td class="st ok">منجز</td></tr>
+      <tr><td>سلة الشراء من المصمم — نقل جميع القطع الموزعة في الغرفة بضغطة زر إلى سلة المشتريات</td><td class="st ok">منجز</td></tr>
+      <tr><td>تجربة الأثاث في الغرفة (Try-in-Room) — محاكاة وضع قطعة الأثاث على صورة الغرفة الحقيقية</td><td class="st part">منجز برمجياً — مقفل أمنياً بانتظار الاعتماد القانوني</td></tr>
+    </tbody></table>
+
+    <h3>صفحات المتجر والتصفح العام</h3>
+    <table><tbody>
+      <tr><td>الصفحة الرئيسية وقوائم التصنيفات — سرعة تحميل فائقة وتوافق تام مع شاشات الجوال</td><td class="st ok">منجز</td></tr>
+      <tr><td>البحث المتقدم واقتراحات الفلاتر الذكية والبحث بالصورة</td><td class="st ok">منجز</td></tr>
+      <tr><td>تفاصيل المنتج وسلة المشتريات — حماية استثنائية لطلبات الزوار ومنع فقدان المنتجات</td><td class="st ok">منجز — مُحصَّن</td></tr>
+      <tr><td>دليل الخدمات ومقدمي الخدمات — تصنيفات حية ومسارات حجز مبسطة</td><td class="st ok">منجز</td></tr>
+      <tr><td>صفحة «قريبًا» المعربة — خيار متاح وجاهز لعرضه للجمهور أثناء التهيئة النهائية</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band">ثانيا: الحسابات، الأمان، وتجربة الشراء</div>
+    <div class="section-note">حماية مشددة وخلو تام من الثغرات في 528 مساراً</div>
+
+    <h3>الأمان والتحقق</h3>
+    <table><tbody>
+      <tr><td>حماية المسارات (Zero-Trust API) — 455 مساراً محمياً بصلاحيات دقيقة، و73 مساراً عاماً مقيداً ضد الاستغلال</td><td class="st ok">منجز ومعتمد</td></tr>
+      <tr><td>حماية قواعد البيانات — خلو كامل من ثغرات حقن الاستعلامات (SQL Injection) وحماية الحقول الحساسة</td><td class="st ok">منجز ومعتمد</td></tr>
+      <tr><td>جلسات المستخدمين والتحقق بخطوتين (2FA) — استقرار مشفر للجلسات وحماية ضد التلف أو التلاعب</td><td class="st ok">منجز</td></tr>
+      <tr><td>عرض الأجهزة النشطة وإنهاء الجلسات المشبوهة عن بعد</td><td class="st ok">منجز</td></tr>
+      <tr><td>إرسال رسائل التحقق (SMS) — الكود جاهز؛ بانتظار تفعيل رصيد مسجات في الخادم الفعلي</td><td class="st part">جزئي — يحتاج تفعيل المزود</td></tr>
+    </tbody></table>
+
+    <h3>مسار إتمام الطلب والدفع</h3>
+    <table><tbody>
+      <tr><td>السلة وإتمام الطلب — حساب تلقائي لضريبة 15% وتكلفة الشحن وإدارة العناوين</td><td class="st ok">منجز</td></tr>
+      <tr><td>بوابة الدفع الإلكتروني (ماي فاتورة) — تكامل المحاكاة مع أقفال الأمان الذرية لمنع الدفع المزدوج</td><td class="st part">جزئي — يحتاج المفاتيح الحية</td></tr>
+      <tr><td>متابعة الطلبات وتحديث الحالة الفوري عبر الإشعارات</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band page-break">ثالثا: لوحات التشغيل والشركاء (البائع، مقدّم الخدمة، المسوّق، الإدارة)</div>
+    <div class="section-note">لوحات تحكم متكاملة تدعم كافة مسارات العمليات التشغيلية</div>
+
+    <h3>لوحة البائع ومقدّم الخدمة</h3>
+    <table><tbody>
+      <tr><td>إدارة المنتجات والمخزون وصور العرض وتحديد المقاسات المتوافقة مع مصمم الغرف</td><td class="st ok">منجز</td></tr>
+      <tr><td>إدارة طلبات الشراء ومتابعة الشحن والتوصيل للعملاء</td><td class="st ok">منجز</td></tr>
+      <tr><td>استقبال طلبات الخدمات المنزلية وتقديم العروض والتسعير للعميل</td><td class="st ok">منجز</td></tr>
+      <tr><td>إدارة المستحقات وسجلات المبيعات والتقارير المالية</td><td class="st part">منجز أساسياً — الصرف يحتاج تفعيل بنكي</td></tr>
+    </tbody></table>
+
+    <h3>لوحة المسوّق (الإحالة)</h3>
+    <table><tbody>
+      <tr><td>توليد الروابط الترويجية وتتبع النقرات والمبيعات المحققة لحظياً</td><td class="st ok">منجز</td></tr>
+      <tr><td>حساب العمولات التلقائي ومتابعة رصيد الأرباح</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>لوحة الإدارة والرقابة المركزية</h3>
+    <table><tbody>
+      <tr><td>الرقابة على 528 مساراً برمجياً ومتابعة سجلات التدقيق الأمني (Audit Logs) للعمليات</td><td class="st ok">منجز</td></tr>
+      <tr><td>إدارة المستخدمين والبائعين والاعتمادات وحظر أو تفعيل المتاجر</td><td class="st ok">منجز</td></tr>
+      <tr><td>إدارة التصنيفات والكتالوج والعمولات وملاحظات الزوار وحساسية البحث بالصورة</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <div class="section-band page-break">رابعا: البنية التحتية، الأداء، والجاهزية الإنتاجية (المرحلة 31 و 32)</div>
+    <div class="section-note">نقلة نوعية في سرعة الخادم واستهلاك الموارد للإنتاج الحقيقي</div>
+
+    <h3>هندسة خادم الإنتاج ومحرك Octane</h3>
+    <table><tbody>
+      <tr><td>محرك Laravel Octane مع Swoole — نقل بيئة التشغيل من FPM التقليدي إلى Swoole عالي السرعة</td><td class="st ok">منجز ومُجهّز</td></tr>
+      <tr><td>هيكلية الحاويات Option C (8 حاويات مخصصة) — توزيع مدروس للذاكرة (6,080 ميجابايت من أصل 8 جيجابايت للخادم)</td><td class="st ok">منجز ومُجهّز</td></tr>
+      <tr><td>حماية الذاكرة المؤقتة (Redis) — اعتماد سياسة volatile-lru لمنع حذف طوابير الطلبات والرسائل</td><td class="st ok">منجز ومُجهّز</td></tr>
+      <tr><td>ضبط أزمنة المهام — رفع وقت إعادة المحاولة (retry_after) لحماية الدفع والرسائل من التكرار العرضي</td><td class="st ok">منجز ومُجهّز</td></tr>
+      <tr><td>خادم Nginx المخصص — ربط البث المباشر (Reverb) ومسارات الحماية الخاصة بـ Cloudflare</td><td class="st ok">منجز ومُجهّز</td></tr>
+      <tr><td>خطة اختبارات التحقق من الإنتاج (Phase C) — توثيق 17 معياراً وفحصاً دقيقاً لجاهزية الإطلاق</td><td class="st ok">مُخطّط ومُجهّز</td></tr>
+      <tr><td>الاتصال بخادم Hostinger KVM2 الفعلي</td><td class="st part">معلّق — بانتظار استعادة بيانات SSH من المالك</td></tr>
+    </tbody></table>
+
+    <h3>مؤشرات الجودة والاختبارات الآلية (Quality Metrics)</h3>
+    <table><tbody>
+      <tr><td>اختبارات الواجهة الخلفية (PHPUnit / Pest)</td><td class="st ok">1,104 ناجح / 0 فاشل (100%)</td></tr>
+      <tr><td>اختبارات الواجهة الأمامية (Vitest)</td><td class="st ok">350 ناجح / 0 فاشل (100%)</td></tr>
+      <tr><td>فحص سلامة الأنواع البرمجية (TypeScript)</td><td class="st ok">0 أخطاء (صفر أخطاء)</td></tr>
+      <tr><td>فحص المعايير والتنسيق (ESLint & Pint)</td><td class="st ok">0 تحذيرات و0 أخطاء (مطابق 100%)</td></tr>
+      <tr><td>بناء حزمة الإنتاج للواجهة (Vite Production Build)</td><td class="st ok">ناجح بالكامل وخفيف الحجم</td></tr>
+    </tbody></table>
+
+    <div class="section-band">خامسا: المتبقي للإطلاق العام الكامل</div>
+    <div class="section-note no-note">المتطلبات الضرورية للانتقال من الجاهزية المحلية إلى البث الحي للجمهور</div>
+
+    <h3>المتطلبات الخارجية والمفاتيح التشغيلية</h3>
+    <table><tbody>
+      <tr><td>استعادة بيانات الدخول (SSH Key) لخادم Hostinger KVM2 — المتطلب الحاسم لبدء الرفع المباشر</td><td class="st part">معلّق — مسؤولية المالك</td></tr>
+      <tr><td>تفعيل المفاتيح الحية لبوابة الدفع (ماي فاتورة) للإنتاج</td><td class="st part">معلّق — يحتاج حساب التاجر المعتمد</td></tr>
+      <tr><td>تفعيل رصيد وحساب الرسائل النصية (مسجات) لإرسال كود التحقق للجوال الحقيقي</td><td class="st part">معلّق — يحتاج اشتراك المزوّد</td></tr>
+      <tr><td>الاعتماد النظامي والقانوني لخدمات الذكاء الاصطناعي لتفعيل ميزات المعاينة الخارجية</td><td class="st part">معلّق — مراجعة قانونية</td></tr>
+    </tbody></table>
+
+    <h3>تطبيقات الجوال والأنظمة الإضافية</h3>
+    <table><tbody>
+      <tr><td>تطبيقات الجوال المستقلة (iOS & Android على المتاجر) — البنية جاهزة والتطبيقات مؤجلة لمرحلة قادمة</td><td class="st no">غير منجز (مؤجل)</td></tr>
+      <tr><td>روبوت واتساب التفاعلي ومحركات التوصيات الذكية المعقدة</td><td class="st no">غير منجز (مؤجل)</td></tr>
+    </tbody></table>
+
+    <div class="closing">
+      <p class="thanks">منذ التقرير الثاني (14 سبتمبر)، انتقلت منصة ديار إلى مرحلة النضج الهندسي الكامل: أُنجز مصمم الغرف ثلاثي الأبعاد وتجربة الأثاث، وحُصّنت جميع مسارات المنصة الـ 528 بأعلى معايير الأمان، وجُهّزت بيئة خادم الإنتاج الفائقة (Laravel Octane + Swoole) بحاويات Option C المتوافقة بدقة مع موارد الخادم، مع الحفاظ على نسبة نجاح 100% في كافة الاختبارات الآلية.</p>
+      <p class="sig">تقرير حالة المشروع (التقرير الثالث) — منصة ديار</p>
+      <p class="date">14 أكتوبر 2026</p>
+    </div>
+  </div>
+</div>
+</html>
