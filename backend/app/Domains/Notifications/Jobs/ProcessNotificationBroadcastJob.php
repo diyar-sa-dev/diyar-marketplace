@@ -22,7 +22,7 @@ final class ProcessNotificationBroadcastJob implements ShouldQueue
     /** @var list<int> */
     public array $backoff = [30, 120, 300];
 
-    public int $timeout = 300;
+    public int $timeout = 90;
 
     private const CHUNK_SIZE = 200;
 

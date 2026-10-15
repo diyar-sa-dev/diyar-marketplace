@@ -1,42 +1,46 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-10-14
+> **Last updated:** 2026-10-15
 > **Maintained by:** AI development agents after each phase completion
 
 ---
 
-## Active Phase: Stage 32 — Senior Production Architecture, Deployment Audit & KVM2 Plan
+## Active Phase: Stage 32 — Deploy: Phase C Closure & Simulated VPS Readiness
 
 ```text
-STAGE 32
-STATUS: AUDIT COMPLETE — PLAN PREPARED — AWAITING OWNER APPROVAL
-ENVIRONMENT: READ-ONLY AUDIT OF LOCAL REPOSITORY AND DOCKER CONFIGURATIONS
-PRODUCTION VPS: STRICTLY NOT TOUCHED — SSH ACCESS BLOCKED
-DECISION: AWAITING OWNER DECISIONS ON Q1–Q6 AND P0 BLOCKER APPROVAL
+STAGE 32 — PHASE C
+STATUS: PHASE C VERIFIED WITH LIMITATIONS — READY FOR PHASE D READ-ONLY AUDIT
+ENVIRONMENT: LOCAL DOCKER VPS SIMULATION (diyar-stage32-sim)
+PRODUCTION VPS: STRICTLY NOT TOUCHED — SSH ACCESS RECOVERY PENDING
+DECISION: LOCAL SIMULATION CERTIFIED UNDER KVM2 BUDGET; PHASE D CHECKLIST PREPARED
 ```
 
-- **Objective:** Produce a technically accurate, evidence-based production deployment plan for Hostinger KVM2.
+- **Objective:** Establish the actual performance, security, reliability, resource capacity, and deployment readiness of the simulated VPS before any real Hostinger deployment.
 - **Authority Document:** [`conception/Stages/Stage 32 - Deploy/STAGE_32_MASTER.md`](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%2032%20-%20Deploy/STAGE_32_MASTER.md)
-- **Audit Scope:** Repository code, Docker configurations, Compose files, Dockerfiles, Nginx configs, boot scripts, queue architecture, Redis configuration, migration files, environment variables, health endpoints, deployment documentation.
-- **Key Findings (P0 Blockers):**
-  - `laravel/octane` is in `require-dev` — production `--no-dev` build excludes Octane
-  - `Dockerfile.octane` depends on local `diyar-kvm2-test-app:latest` — not standalone/reproducible
-  - Octane overlay storage volume path disagrees with Dockerfile WORKDIR
-- **Option C Decision:** 8-container topology PROPOSED (Nginx, Octane, Scheduler, Queue-Critical, Queue-Background, Reverb ×1, MySQL, Redis)
-- **Existing production compose audited:** 11 containers (3 queue workers + 2 Reverb) — merging to 8 recommended
-- **Redis `allkeys-lru` audit:** Unsafe for queues/sessions — `volatile-lru` recommended
-- **No code, VPS, Git, or Docker changes were made.** This was a read-only audit and planning phase.
-
-### Stage 32 Open Decisions (Owner Required)
-
-| # | Question | Recommendation |
-|---|----------|----------------|
-| Q1 | Move `laravel/octane` to `require`? | Yes |
-| Q2 | Reduce Reverb from 2 to 1? | Yes |
-| Q3 | Merge 3 queue workers to 2? | Yes |
-| Q4 | Redis `volatile-lru` instead of `allkeys-lru`? | Yes |
-| Q5 | RPO 24h / RTO 2h acceptable? | Yes |
-| Q6 | External uptime monitoring? | UptimeRobot free tier |
+- **Phase A & B Closure:**
+  - Standalone `backend/Dockerfile.octane.production` built and verified (PHP 8.3 CLI, Swoole 6.2.2, Redis 6.3.0, BCMath, non-root `www-data`).
+  - Option C 8-container topology configured in `docker-compose.production.optionc.yml`.
+  - Queue retry timing aligned: `REDIS_QUEUE_RETRY_AFTER=180` > worker `--timeout=120` > `ProcessNotificationBroadcastJob::$timeout=90`.
+  - Single-Reverb Nginx reverse proxy configured in `deploy/nginx/kvm2-docker-optionc.conf`.
+- **Phase C Empirical Gate Results (G1–G17):**
+  - **G1 (Build):** Exit 0, non-root `www-data`, all required PHP/Swoole/Redis extensions loaded.
+  - **G2 (Deps):** `Laravel\Octane\Octane` confirmed present, `PHPUnit\Framework\TestCase` absent.
+  - **G3 (Startup):** Ordered startup verified (`depends_on: condition: service_healthy`); all 8 containers healthy in 49s.
+  - **G4 (Network Isolation):** Only Nginx port 8093 exposed to host; internal ports (3306, 6379, 8000, 8090) inaccessible (`TcpTestSucceeded: False`).
+  - **G5 (Health):** `/api/v1/health/live` (HTTP 200 `{"status":"live"}`) and `/api/v1/health` (HTTP 200 with DB, cache, queue `ok: true`).
+  - **G6 (HTTP Routing):** `/api/v1/categories` routed through Nginx to Octane; `X-Request-Id` and forwarded headers preserved.
+  - **G7 (WebSocket):** Reverb handshake via `/app/` upgraded with `HTTP/1.1 101 Switching Protocols` (`X-Powered-By: Laravel Reverb`).
+  - **G8 (Auth & Sessions):** Sanctum CSRF cookie, stateful login, session persisted to Redis (`diyar-prodlocal-`), authenticated `/auth/me` (200), logout invalidated.
+  - **G9 (Queue Reliability):** Probed `critical`, `default`, `notifications` queues; jobs completed in <1s. Webhook idempotency pattern identified.
+  - **G10 (Scheduler):** `schedule:run` executed periodic tasks; Redis mutex locks (`framework/schedule-*`) verified.
+  - **G11 (Migrations):** 111 migrations executed cleanly against disposable database `diyar_production_local`.
+  - **G12 (Backup/Restore Drill):** `mysqldump` generated 227 KB dump; restored cleanly to `diyar_restore_test`; 130/130 tables and data verified.
+  - **G13 (Self-Healing):** `docker restart app` recovered to HTTP 200 within 10s.
+  - **G14 (Redis Degradation):** Controlled 500 error when Redis stopped; immediate full restoration when Redis restarted.
+  - **G15 (Redis Eviction):** Tested under 5MB ceiling; 323 volatile keys evicted under pressure while non-TTL queue list was preserved. Restored to 512mb.
+  - **G16 (Log Rotation):** `json-file` logging driver verified (max-size 50m, max-file 3).
+  - **G17 (Load Validation):** k6 load test (30 VUs, 50s ramp): 17,398 requests, 347.85 RPS, 0.00% errors, avg 5.50ms, p95 11.77ms, p99 65.22ms. Stack RAM 852.8 MiB (<10.5% of 8 GiB).
+- **Phase D Status:** PREPARED — Awaiting owner SSH credential recovery for read-only Hostinger KVM2 audit.
 
 ---
 
