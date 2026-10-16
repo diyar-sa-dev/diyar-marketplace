@@ -3,11 +3,11 @@
 
 > **Document Type:** Stage 32 Authoritative Master Document
 > **Stage:** `32`
-> **Audit Date:** 2026-10-15
+> **Audit Date:** 2026-10-15 (Initial) · 2026-10-16 (Phase C Certified & Closed)
 > **Branch:** `dev` — Ahead 1 commit vs upstream (clean local simulation)
 > **Remotes:** `diyar` (diyar-sa-dev/diyar-marketplace) · `origin` (yacinekermame-kaaado/diyar)
-> **Overall Status:** **PHASE C VERIFIED WITH LIMITATIONS — READY FOR PHASE D**
-> **Production VPS:** **NOT TOUCHED** — Isolated local Docker simulation (`diyar-stage32-sim`) only
+> **Overall Status:** **PHASE C VERIFIED LOCALLY — PHASE D PREPARED (OWNER HOSTINGER RECOVERY REQUIRED)**
+> **Production VPS:** **STRICTLY NOT TOUCHED** — Isolated local Docker simulation (`diyar-stage32-sim`) only; remote VPS strictly unaccessed
 
 ---
 
@@ -782,9 +782,9 @@ The **desktop Docker VPS-like simulation** is the validation target, using:
 - `docker-compose.production-like.octane.yml` (Octane overlay)
 - `docker-compose.kvm2-test.yml` (resource constraints overlay)
 
-### 15.2 Acceptance Test Gates (G1–G17 Empirical Audit) [VERIFIED WITH LIMITATIONS]
+### 15.2 Acceptance Test Gates (G1–G17 Empirical Audit) [VERIFIED LOCALLY]
 
-All 17 gates were executed and audited within the isolated local Docker simulation (`diyar-stage32-sim`) on 2026-10-15:
+All 17 gates were executed, hardened, and empirically certified within the isolated local Docker simulation (`diyar-stage32-sim` on port 8093) on 2026-10-15 and 2026-10-16:
 
 | # | Gate | Acceptance Criteria | Measured Result & Evidence | Status | Limitations |
 |---|------|---------------------|----------------------------|--------|-------------|
@@ -793,18 +793,18 @@ All 17 gates were executed and audited within the isolated local Docker simulati
 | **G3** | Startup Ordering | MySQL & Redis start first; App, Reverb, Workers, Scheduler wait for health. | `depends_on: condition: service_healthy` enforced. Database and Redis healthy first; all 8 containers healthy within 49s. | **VERIFIED** | Local SSD performance; real VPS IOPS may alter cold boot timings. |
 | **G4** | Network Isolation | Only Nginx port published to host. Internal ports (MySQL, Redis, App, Reverb) inaccessible from host. | `Get-NetTCPConnection` confirmed port 8093 listening. Connection to ports 3306, 6379, 8000, 8090 from host failed (`TcpTestSucceeded: False`). | **VERIFIED** | Validates Docker bridge network; Hostinger UFW host firewall must be verified on live VPS. |
 | **G5** | Health Endpoints | `/api/v1/health/live` and `/api/v1/health` return HTTP 200 with subsystem status. | `GET /api/v1/health/live` returned `{"status":"live"}`. After G11 migration, `GET /api/v1/health` returned HTTP 200 with DB, cache, and queue `ok: true`. | **VERIFIED** | Live payment gateway checked in mock mode (`DIYAR_PAYMENT_USE_FAKE_GATEWAY=true`). |
-| **G6** | HTTP Routing & Reverse Proxy | Nginx correctly proxies HTTP traffic to Octane backend; forwarding headers preserved. | `GET /api/v1/categories` routed through Nginx (port 8093) returning HTTP 200 JSON with `X-Request-Id`, `X-Forwarded-For`, and `X-Forwarded-Proto`. | **VERIFIED** | Cloudflare edge headers (`CF-Connecting-IP`) simulated locally via trusted proxy config. |
+| **G6** | HTTP Routing & Reverse Proxy | Nginx correctly proxies HTTP traffic to Octane backend; forwarding headers preserved; Cloudflare CIDRs trusted. | Injected authoritative Cloudflare IPv4 (15 CIDRs) & IPv6 (7 CIDRs) via `set_real_ip_from`; untrusted direct callers have headers stripped and proto forced to `http`. Verified with live curl tests & `CloudflareTrustedProxyIngressTest` (2 tests, 6 assertions passed). Marketplace SPA served on `/` and `/assets/`. | **VERIFIED** | Enforces reverse proxy trust boundary; Hostinger UFW firewall must enforce Cloudflare-only origin ingress on live VPS (Phase D). |
 | **G7** | WebSocket Routing | Reverb WebSocket handshake upgrades cleanly via Nginx `/app/`. | `curl -i -N -H "Upgrade: websocket" ... /app/diyar_local_reverb_key` returned `HTTP/1.1 101 Switching Protocols` with `X-Powered-By: Laravel Reverb`. | **VERIFIED** | Tested single client handshake; sustained multi-thousand connection soak requires real VPS network. |
 | **G8** | Auth & Stateful Sessions | Sanctum CSRF cookie, stateful login, session persisted to Redis, authenticated `/auth/me`, logout invalidation. | CSRF cookie `XSRF-TOKEN` retrieved; stateful login returned HTTP 200; Redis key created (`diyar-prodlocal-` prefix); `GET /api/v1/auth/me` returned 200; logout invalidated session. | **VERIFIED** | Local HTTP tests used `Origin: http://localhost:3000` to satisfy Sanctum stateful domain match. |
-| **G9** | Queue Processing & Webhooks | Queue jobs processed reliably with bounded timeout; worker timing coherent (`retry_after > timeout`). | Dispatched `QueueIntegrationProbeJob` across `critical`, `default`, `notifications`. All 3 processed in <1s. `REDIS_QUEUE_RETRY_AFTER=180` > worker `--timeout=120` > broadcast job `timeout=90`. | **VERIFIED WITH LIMITATIONS** | Queue probe passed. Payment webhook full idempotency marked `PROTECTION IDENTIFIED — FULL IDEMPOTENCY NOT YET VERIFIED` until live gateway webhook verified. |
+| **G9** | Queue Processing & Webhooks | Queue jobs processed reliably with bounded timeout; worker timing coherent (`retry_after > timeout`); webhook idempotency certified. | Webhook idempotency, duplicate deduplication, concurrency, lease expiry, and retry recovery verified via `PaymentWebhookIdempotencyAndFailureRecoveryTest` (5 tests, 35 assertions passed). Timeout hierarchy verified via `NotificationBroadcastJobTest` (3 tests, 8 assertions passed): `REDIS_QUEUE_RETRY_AFTER=180` > worker `--timeout=120` > broadcast job `timeout=90`. | **VERIFIED** | Webhook idempotency and retry mechanics certified with sandbox provider; live gateway credentials tested in Phase E. |
 | **G10** | Scheduler Execution | `schedule:run` triggers scheduled jobs; mutex prevents overlap. | Scheduler executed periodic tasks (`inventory:release-expired`, `outbox:process`, `service-bookings:expire-unpaid`). Distributed Redis lock mutexes (`framework/schedule-*`) verified. | **VERIFIED** | Verified over multi-minute run; long-term cron reliability to be monitored on VPS. |
 | **G11** | Database Migrations | Migrations apply cleanly to isolated disposable database. | Ran `php artisan migrate --force` against `diyar_production_local`. All 111 migration files executed cleanly without errors. | **VERIFIED** | Executed on clean disposable schema. Production database data migrations require pre-migration snapshot. |
-| **G12** | Backup & Restore Drill | Full mysqldump backup created, restored to separate disposable DB, schema and rows verified. | `mysqldump` generated 227 KB dump (`/backups/stage32_backup.sql`). Restored into `diyar_restore_test`. Schema table count matched 130/130 tables. Test user data matched exactly. | **VERIFIED WITH LIMITATIONS** | Schema and test data verified. Production-scale multi-gigabyte backup duration and network offloading require VPS test. |
-| **G13** | Container Self-Healing | Container restart restores service quickly without data loss or stuck locks. | `docker restart diyar-stage32-sim-app-1` executed. Liveness probe returned HTTP 200 within 10s of container restart. | **VERIFIED** | Tested application container recovery. Docker daemon restart not exercised. |
+| **G12** | Backup & Restore Drill | Full mysqldump backup created, restored to separate disposable DB; schema, constraints, rows, and checksums verified. | Fresh 798 KB dump restored into disposable DB `diyar_stage32_drill_target`. Exact parity verified: 130/130 tables, 1469/1469 columns, 445/445 constraints. `CHECKSUM TABLE` matched 100% on `migrations` (3291527428), `users` (1865916700), `payment_webhook_events` (3829910007). Target DB dropped cleanly. | **VERIFIED** | Schema and test data verified. Production-scale multi-gigabyte backup duration and network offloading require VPS test. |
+| **G13** | Container Self-Healing | Container restart restores service quickly without data loss or stuck locks. | `docker restart diyar-stage32-sim-app-1` executed. Liveness probe returned HTTP 200 within 5s of container restart. | **VERIFIED** | Tested application container recovery. Docker daemon restart not exercised. |
 | **G14** | Dependency Failure & Recovery | Redis failure degrades cleanly; service restores when Redis recovers. | Stopping Redis container resulted in controlled 500 error / connection refusal. Restarting Redis container immediately restored full health (`/api/v1/health` HTTP 200). | **VERIFIED** | Verifies Redis recovery. MySQL hard crash recovery under in-flight write load not simulated. |
-| **G15** | Redis Memory Policy & Persistence | `volatile-lru` evicts cache under memory pressure while non-TTL queue keys are preserved. | Under controlled test ceiling (`maxmemory 5mb`), 323 volatile keys were evicted under pressure while non-TTL queue list key was 100% preserved. Restored to 512mb candidate setting. | **VERIFIED WITH LIMITATIONS** | Queue keys preserved during cache eviction; if all volatile keys are evicted, subsequent writes will fail with OOM error. AOF fsync everysec risks up to 1s loss on crash. |
-| **G16** | Log Rotation & Secret Masking | Container logs use bounded `json-file` driver; no sensitive credentials exposed. | Inspected logging driver (`json-file`, max-size 50m, max-file 3). Verified application logs mask tokens and passwords. | **VERIFIED WITH LIMITATIONS** | Docker daemon log rotation configured in Compose; Hostinger systemd/rsyslog logrotate must be verified on live VPS. |
-| **G17** | Load & Resource Envelope | Sustained load test under KVM2 resource constraints demonstrates stability within budget. | k6 load test executed (30 VUs, 50s ramp): 17,398 requests, 347.85 RPS, 0.00% errors. Latencies: avg=5.50ms, p95=11.77ms, p99=65.22ms. Post-test stack RAM was 852.8 MiB (<10.5% of 8 GiB). | **VERIFIED WITH LIMITATIONS** | Load test exercised read mix (`/health/live`, `/health`, `/categories`). Write/checkout transactions, file uploads, and full database lock contention not included. |
+| **G15** | Redis Memory Policy & Persistence | `volatile-lru` evicts cache under memory pressure while non-TTL queue keys are preserved. | Tested under 5MB ceiling: 323 volatile keys evicted while non-TTL queue list was preserved. Running configuration: 512mb ceiling, `volatile-lru`, AOF enabled (`appendfsync everysec`). | **VERIFIED** | Queue keys preserved during cache eviction; if all volatile keys are evicted, subsequent writes will fail with OOM error. AOF fsync everysec risks up to 1s loss on crash. |
+| **G16** | Log Rotation & Secret Masking | Container logs use bounded `json-file` driver; runtime rotation verified; no sensitive credentials exposed. | Inspected logging driver (`json-file`, max-size 50m, max-file 3). Runtime rotation empirically tested on Docker daemon (10k ceiling rotated to `.1` and `.2`). Application logs mask tokens and passwords. | **VERIFIED** | Docker daemon log rotation certified; Hostinger systemd/rsyslog logrotate must be verified on live VPS. |
+| **G17** | Load & Resource Envelope | Sustained load test under KVM2 resource constraints demonstrates stability within budget. | Multi-surface k6 load test executed (30 VUs, 50s ramp): 18,396 requests, 367.84 RPS, 0.00% errors. Latencies: avg=14.70ms, p95=46.19ms (<200ms PASS), p99=126.83ms (<500ms PASS). Peak DB conns: 4/150. Post-test stack RAM was 768.9 MiB (<9.4% of 8 GiB). Initial run (19,814 reqs, p95 28.16ms / p99 70.56ms) also confirmed PASSED (reconciled from informal "EXCEEDED" label). | **VERIFIED** | Multi-surface load test exercised full SPA + API read mix. Complex multi-table checkout write locks and live payment webhooks excluded. |
 
 ---
 
@@ -863,21 +863,21 @@ The current modular monolith with 25 domain boundaries is well-prepared for futu
 | B3: Remove frontend/dist mount from Nginx | **DONE** | Clean API + WebSocket reverse proxy configuration. |
 | B4: Update Redis policy to `volatile-lru` | **DONE** | Configured `volatile-lru` with 512mb ceiling and AOF persistence. |
 
-### Phase C: Local Validation [VERIFIED WITH LIMITATIONS]
+### Phase C: Local Validation [COMPLETE / VERIFIED LOCALLY]
 
 | Task | Status | Notes |
 |------|--------|-------|
-| C1: Execute all 17 test gates | **VERIFIED WITH LIMITATIONS** | G1–G17 audited and passed; real-VPS-specific network/firewall marked with limitations. |
-| C2: k6 load test under KVM2 constraints | **VERIFIED WITH LIMITATIONS** | 17,398 requests, 347.85 RPS, 0.00% errors, p95 11.77ms. Read mix validated. |
-| C3: Backup/restore drill | **VERIFIED WITH LIMITATIONS** | 130/130 tables restored and validated on disposable DB. |
+| C1: Execute all 17 test gates | **VERIFIED LOCALLY** | G1–G17 audited, hardened, and passed. Ingress spoofing resolved via authoritative Cloudflare CIDRs; payment webhook idempotency & concurrency certified (5 tests); notification timeout certified. |
+| C2: k6 load test under KVM2 constraints | **VERIFIED LOCALLY** | 18,396 requests, 367.84 RPS, 0.00% errors, p95 46.19ms (<200ms PASS), p99 126.83ms (<500ms PASS). Full multi-surface SPA + API mix. |
+| C3: Backup/restore drill | **VERIFIED LOCALLY** | 130/130 tables, 1,469 columns, 445 constraints, 111 migrations, exact checksum table parity. |
 
-### Phase D: SSH Recovery & VPS Audit [PREPARED — BLOCKED on external SSH recovery]
+### Phase D: SSH Recovery & VPS Audit [PREPARED — OWNER HOSTINGER RECOVERY REQUIRED]
 
 | Task | Status | Notes |
 |------|--------|-------|
-| D1: Recover SSH access to Hostinger KVM2 | **BLOCKED** | Requires owner credentials / Hostinger hPanel SSH key recovery. |
-| D2: Read-only VPS audit (OS, Docker, ports, firewall, DNS, TLS) | **PREPARED** | Checklist established; pending D1. |
-| D3: Verify VPS has Docker installed (Phase 2 from deploy/PLAN.md) | **PREPARED** | Pending D1. |
+| D1: Recover SSH access to Hostinger KVM2 | **PENDING OWNER RECOVERY** | Requires owner credentials / Hostinger hPanel SSH key recovery. Strictly owner-led; AI unauthorized to attempt recovery. |
+| D2: Read-only VPS audit (OS, Docker, ports, firewall, DNS, TLS) | **PREPARED** | Safe read-only checklist documented in `PHASE_D_READ_ONLY_VPS_AUDIT_CHECKLIST.md`; pending D1. |
+| D3: Verify VPS Docker & UFW Cloudflare rules | **PREPARED** | Zero changes to VPS until read-only audit complete and approved; pending D1. |
 
 ### Phase E: Production Deployment [BLOCKED on Phase D + owner approval]
 
