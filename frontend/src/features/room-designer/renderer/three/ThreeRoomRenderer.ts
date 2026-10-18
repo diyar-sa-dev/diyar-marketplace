@@ -41,6 +41,8 @@ export class ThreeRoomRenderer implements RoomRenderer {
 
   private itemMeshes = new Map<string, ItemMesh>();
 
+  private textureCache = new Map<string, import('three').Texture>();
+
   private rafId: number | null = null;
 
   private disposed = false;
@@ -163,6 +165,8 @@ export class ThreeRoomRenderer implements RoomRenderer {
     this.hasInitiallyFramed = false;
     this.lastRoomDimensionsKey = '';
     this.itemMeshes.clear();
+    this.textureCache.forEach((t) => t.dispose());
+    this.textureCache.clear();
     this.mountContainerCleanup();
     this.currentDocument = null;
     this.mountOptions = null;
@@ -246,10 +250,29 @@ export class ThreeRoomRenderer implements RoomRenderer {
     }
     const selected = new Set(ids);
     for (const [id, mesh] of this.itemMeshes) {
-      const mat = (mesh as import('three').Mesh).material;
-      if (mat && 'emissive' in mat && mat.emissive instanceof this.three.Color) {
-        mat.emissive.set(selected.has(id) ? 0x335544 : 0x000000);
+      const isSelected = selected.has(id);
+
+      // Update Blender-style wireframe color
+      const wireframe = mesh.getObjectByName('blender_wireframe') as
+        | import('three').LineSegments
+        | undefined;
+      if (wireframe && wireframe.material instanceof this.three.LineBasicMaterial) {
+        wireframe.material.color.set(isSelected ? 0xf59e0b : 0x5a4433);
+        wireframe.material.opacity = isSelected ? 1.0 : 0.85;
       }
+
+      // Update mesh materials emissive glow
+      mesh.traverse((node) => {
+        const m = node as import('three').Mesh;
+        if (m.material) {
+          const mats = Array.isArray(m.material) ? m.material : [m.material];
+          for (const mat of mats) {
+            if ('emissive' in mat && mat.emissive instanceof this.three!.Color) {
+              mat.emissive.set(isSelected ? 0x332205 : 0x000000);
+            }
+          }
+        }
+      });
     }
   }
 
@@ -403,24 +426,86 @@ export class ThreeRoomRenderer implements RoomRenderer {
     return this.createBoxMesh(item);
   }
 
+  private loadTexture(url: string): import('three').Texture | null {
+    if (!this.three || !url) return null;
+    const cached = this.textureCache.get(url);
+    if (cached) return cached;
+
+    const loader = new this.three.TextureLoader();
+    try {
+      const texture = loader.load(
+        url,
+        () => {
+          if (this.renderer && this.scene && this.camera) {
+            this.renderer.render(this.scene, this.camera);
+          }
+        },
+        undefined,
+        () => {
+          // Texture load error fallback
+        },
+      );
+      texture.colorSpace = this.three.SRGBColorSpace;
+      this.textureCache.set(url, texture);
+      return texture;
+    } catch {
+      return null;
+    }
+  }
+
   private createBoxMesh(item: RoomDesignItem): ItemMesh {
     const three = this.three!;
     const size = itemSizeToThreeMeters(item);
     const center = itemCenterToThreeMeters(item);
-    const mesh = new three.Mesh(
-      new three.BoxGeometry(size.x, size.y, size.z),
-      new three.MeshStandardMaterial({
+    const geo = new three.BoxGeometry(size.x, size.y, size.z);
+
+    const texture = item.snapshot.thumbnail_url ? this.loadTexture(item.snapshot.thumbnail_url) : null;
+
+    let materials: import('three').Material | import('three').Material[];
+    if (texture) {
+      const topAndFrontMat = new three.MeshStandardMaterial({
+        map: texture,
+        roughness: 0.55,
+        metalness: 0.05,
+        emissive: new three.Color(0x000000),
+        color: item.locked ? 0xcccccc : 0xffffff,
+      });
+      const sideMat = new three.MeshStandardMaterial({
+        color: item.locked ? 0x94a3b8 : 0x735942,
+        roughness: 0.65,
+        metalness: 0.05,
+        emissive: new three.Color(0x000000),
+      });
+      // BoxGeometry faces: 0: +X (right), 1: -X (left), 2: +Y (top), 3: -Y (bottom), 4: +Z (front), 5: -Z (back)
+      materials = [sideMat, sideMat, topAndFrontMat, sideMat, topAndFrontMat, sideMat];
+    } else {
+      materials = new three.MeshStandardMaterial({
         color: item.locked ? 0x94a3b8 : 0x856a52,
         roughness: 0.65,
         metalness: 0.05,
         emissive: new three.Color(0x000000),
-      }),
-    );
+      });
+    }
+
+    const mesh = new three.Mesh(geo, materials);
     mesh.position.set(center.x, center.y, center.z);
     mesh.rotation.y = itemRotationYRadians(item);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     (mesh as ItemMesh).diyarItemId = item.id;
+
+    // Blender-style EdgesGeometry Wireframe overlay
+    const edgesGeo = new three.EdgesGeometry(geo);
+    const edgesMat = new three.LineBasicMaterial({
+      color: 0x5a4433,
+      linewidth: 1.5,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const wireframe = new three.LineSegments(edgesGeo, edgesMat);
+    wireframe.name = 'blender_wireframe';
+    mesh.add(wireframe);
+
     return mesh as ItemMesh;
   }
 
@@ -446,6 +531,21 @@ export class ThreeRoomRenderer implements RoomRenderer {
       clone.position.set(center.x, center.y, center.z);
       clone.rotation.y = itemRotationYRadians(item);
       (clone as ItemMesh).diyarItemId = item.id;
+
+      // Blender-style EdgesGeometry Wireframe bounds for 3D model
+      const edgesGeo = new this.three.EdgesGeometry(
+        new this.three.BoxGeometry(catalog.x, catalog.y, catalog.z),
+      );
+      const edgesMat = new this.three.LineBasicMaterial({
+        color: 0x5a4433,
+        linewidth: 1.5,
+        transparent: true,
+        opacity: 0.85,
+      });
+      const wireframe = new this.three.LineSegments(edgesGeo, edgesMat);
+      wireframe.name = 'blender_wireframe';
+      clone.add(wireframe);
+
       return clone as ItemMesh;
     } catch {
       return this.createBoxMesh(item);

@@ -316,18 +316,32 @@ export function RoomDesignerShell({
     try {
       const storedPhoto = sessionStorage.getItem('diyar:try-in-room:photo');
       const storedProductId = sessionStorage.getItem('diyar:try-in-room:product-id');
+      const storedRot = sessionStorage.getItem('diyar:try-in-room:product-rotation');
       if (storedPhoto) {
         setRoomBackdropPhoto(storedPhoto);
         sessionStorage.removeItem('diyar:try-in-room:photo');
       }
       if (storedProductId) {
         sessionStorage.removeItem('diyar:try-in-room:product-id');
-        void handleSelectProduct(storedProductId);
+        void handleSelectProduct(storedProductId).then(() => {
+          if (storedRot) {
+            const rot = parseFloat(storedRot);
+            if (!isNaN(rot) && rot !== 0) {
+              const session = sessionRef.current;
+              const lastItem = session?.getDocument().items.slice(-1)[0];
+              if (lastItem) {
+                runSessionAction((s) =>
+                  s.applyCommands([{ type: 'ROTATE', itemId: lastItem.id, rotation_deg: rot }]),
+                );
+              }
+            }
+          }
+        });
       }
     } catch {
       // Safe fallback
     }
-  }, [handleSelectProduct]);
+  }, [handleSelectProduct, runSessionAction]);
 
   const handleOpenAr = useCallback(async () => {
     const session = sessionRef.current;

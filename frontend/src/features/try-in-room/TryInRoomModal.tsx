@@ -14,6 +14,8 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCcw,
+  RotateCw,
+  FlipHorizontal,
 } from 'lucide-react';
 import { useModalDialog } from '../../hooks/useModalDialog.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
@@ -43,6 +45,8 @@ export function TryInRoomModal({
   const [productX, setProductX] = useState(50);
   const [productY, setProductY] = useState(65);
   const [productScale, setProductScale] = useState(1.0);
+  const [productRotation, setProductRotation] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ startX: number; startY: number; initX: number; initY: number }>({
     startX: 0,
@@ -53,6 +57,33 @@ export function TryInRoomModal({
 
   const { phase, sourceUrl, resultUrl, confirming, errorKey, submitFile, reset } =
     useTryInRoomFlow({ productId, productImageUrl });
+
+  /**
+   * Strictly clamps coordinates so the furniture item NEVER goes outside the photo boundaries,
+   * accounting for container size, scale, and rotation footprint.
+   */
+  const clampCoords = useCallback(
+    (rawX: number, rawY: number, scale: number, rotDeg: number = 0) => {
+      const rect = previewContainerRef.current?.getBoundingClientRect();
+      const contW = rect?.width || 560;
+      const contH = rect?.height || 420;
+      const baseSize = 140 * scale;
+      const rad = (rotDeg * Math.PI) / 180;
+      const rotW = Math.abs(baseSize * Math.cos(rad)) + Math.abs(baseSize * Math.sin(rad));
+      const rotH = Math.abs(baseSize * Math.sin(rad)) + Math.abs(baseSize * Math.cos(rad));
+      const halfWPercent = (rotW / 2 / contW) * 100;
+      const halfHPercent = (rotH / 2 / contH) * 100;
+      const minX = Math.min(48, Math.max(3, halfWPercent));
+      const maxX = Math.max(minX, 100 - halfWPercent);
+      const minY = Math.min(48, Math.max(3, halfHPercent));
+      const maxY = Math.max(minY, 100 - halfHPercent);
+      return {
+        x: Math.round(Math.max(minX, Math.min(maxX, rawX))),
+        y: Math.round(Math.max(minY, Math.min(maxY, rawY))),
+      };
+    },
+    [],
+  );
 
   const handlePointerDown = (e: React.PointerEvent) => {
     e.stopPropagation();
@@ -71,8 +102,12 @@ export function TryInRoomModal({
     const rect = previewContainerRef.current.getBoundingClientRect();
     const dx = ((e.clientX - dragStartRef.current.startX) / rect.width) * 100;
     const dy = ((e.clientY - dragStartRef.current.startY) / rect.height) * 100;
-    const nextX = Math.max(10, Math.min(90, Math.round(dragStartRef.current.initX + dx)));
-    const nextY = Math.max(10, Math.min(90, Math.round(dragStartRef.current.initY + dy)));
+    const { x: nextX, y: nextY } = clampCoords(
+      dragStartRef.current.initX + dx,
+      dragStartRef.current.initY + dy,
+      productScale,
+      productRotation,
+    );
     setProductX(nextX);
     setProductY(nextY);
   };
@@ -88,6 +123,36 @@ export function TryInRoomModal({
     }
   };
 
+  const updateScale = (delta: number) => {
+    setProductScale((prevScale) => {
+      const nextScale = Math.min(2.0, Math.max(0.4, Number((prevScale + delta).toFixed(1))));
+      setProductX((currX) => clampCoords(currX, productY, nextScale, productRotation).x);
+      setProductY((currY) => clampCoords(productX, currY, nextScale, productRotation).y);
+      return nextScale;
+    });
+  };
+
+  const updateRotation = (delta: number) => {
+    setProductRotation((prevRot) => {
+      const nextRot = (prevRot + delta + 360) % 360;
+      setProductX((currX) => clampCoords(currX, productY, productScale, nextRot).x);
+      setProductY((currY) => clampCoords(productX, currY, productScale, nextRot).y);
+      return nextRot;
+    });
+  };
+
+  const toggleFlip = () => {
+    setIsFlipped((f) => !f);
+  };
+
+  const resetTransform = () => {
+    setProductX(50);
+    setProductY(65);
+    setProductScale(1.0);
+    setProductRotation(0);
+    setIsFlipped(false);
+  };
+
   const handleOpenDesigner = () => {
     if (typeof sessionStorage !== 'undefined') {
       const photoToSave = roomDataUrlRef.current || sourceUrl;
@@ -97,6 +162,11 @@ export function TryInRoomModal({
       if (productId) {
         sessionStorage.setItem('diyar:try-in-room:product-id', productId);
       }
+      sessionStorage.setItem('diyar:try-in-room:product-flipped', isFlipped ? '1' : '0');
+      sessionStorage.setItem('diyar:try-in-room:product-rotation', String(productRotation));
+      sessionStorage.setItem('diyar:try-in-room:product-scale', String(productScale));
+      sessionStorage.setItem('diyar:try-in-room:product-x', String(productX));
+      sessionStorage.setItem('diyar:try-in-room:product-y', String(productY));
     }
     onClose();
   };
@@ -190,7 +260,7 @@ export function TryInRoomModal({
                       style={{
                         left: `${productX}%`,
                         top: `${productY}%`,
-                        transform: `translate(-50%, -50%) scale(${productScale})`,
+                        transform: `translate(-50%, -50%) scale(${isFlipped ? -productScale : productScale}, ${productScale}) rotate(${productRotation}deg)`,
                         cursor: isDragging ? 'grabbing' : 'grab',
                       }}
                       className="absolute z-10 touch-none flex flex-col items-center group transition-transform"
@@ -198,8 +268,9 @@ export function TryInRoomModal({
                       <img
                         src={productImageUrl}
                         alt="المنتج"
-                        className="max-h-[140px] max-w-[140px] object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.5)] pointer-events-none"
+                        className="max-h-[140px] max-w-[140px] object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.5)] pointer-events-none select-none"
                         data-testid="try-in-room-result"
+                        draggable={false}
                       />
                       <div className="absolute inset-0 border border-dashed border-diyar-brown/60 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
@@ -221,69 +292,120 @@ export function TryInRoomModal({
                     </div>
                   )}
 
-                  {/* D-Pad & Scale Controls */}
+                  {/* D-Pad, Scale, Flip & Rotate Controls */}
                   {productImageUrl ? (
-                    <div className="absolute bottom-2 start-2 z-20 flex items-center gap-1 rounded-xl bg-diyar-dark/85 p-1 text-white shadow-md backdrop-blur-xs border border-white/10 pointer-events-auto">
+                    <div className="absolute bottom-2 start-2 z-20 flex flex-wrap items-center gap-1 rounded-xl bg-diyar-dark/90 p-1 text-white shadow-lg backdrop-blur-md border border-white/10 pointer-events-auto">
+                      {/* Movement Nudges */}
                       <button
                         type="button"
-                        onClick={() => setProductY((y) => Math.max(10, y - 5))}
+                        onClick={() => setProductY((y) => clampCoords(productX, y - 5, productScale, productRotation).y)}
                         className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
                         title="تحريك لأعلى"
+                        aria-label="تحريك لأعلى"
                       >
                         <ArrowUp size={12} />
                       </button>
                       <button
                         type="button"
-                        onClick={() => setProductY((y) => Math.min(90, y + 5))}
+                        onClick={() => setProductY((y) => clampCoords(productX, y + 5, productScale, productRotation).y)}
                         className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
                         title="تحريك لأسفل"
+                        aria-label="تحريك لأسفل"
                       >
                         <ArrowDown size={12} />
                       </button>
                       <button
                         type="button"
-                        onClick={() => setProductX((x) => Math.max(10, x - 5))}
+                        onClick={() => setProductX((x) => clampCoords(x - 5, productY, productScale, productRotation).x)}
                         className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
                         title="تحريك لليسار"
+                        aria-label="تحريك لليسار"
                       >
                         <ArrowLeft size={12} />
                       </button>
                       <button
                         type="button"
-                        onClick={() => setProductX((x) => Math.min(90, x + 5))}
+                        onClick={() => setProductX((x) => clampCoords(x + 5, productY, productScale, productRotation).x)}
                         className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
                         title="تحريك لليمين"
+                        aria-label="تحريك لليمين"
                       >
                         <ArrowRight size={12} />
                       </button>
-                      <div className="h-3 w-px bg-white/20" />
+
+                      <div className="h-3 w-px bg-white/20 mx-0.5" />
+
+                      {/* Zoom Controls */}
                       <button
                         type="button"
-                        onClick={() => setProductScale((s) => Math.min(2.0, Number((s + 0.1).toFixed(1))))}
+                        onClick={() => updateScale(0.1)}
                         className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
                         title="تكبير"
+                        aria-label="تكبير"
                       >
                         <ZoomIn size={12} />
                       </button>
                       <button
                         type="button"
-                        onClick={() => setProductScale((s) => Math.max(0.4, Number((s - 0.1).toFixed(1))))}
+                        onClick={() => updateScale(-0.1)}
                         className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
                         title="تصغير"
+                        aria-label="تصغير"
                       >
                         <ZoomOut size={12} />
                       </button>
+
+                      <div className="h-3 w-px bg-white/20 mx-0.5" />
+
+                      {/* Flip / Face Opposite Controls */}
                       <button
                         type="button"
-                        onClick={() => {
-                          setProductX(50);
-                          setProductY(65);
-                          setProductScale(1.0);
-                        }}
+                        onClick={toggleFlip}
+                        className={`p-1 rounded transition cursor-pointer ${
+                          isFlipped ? 'bg-diyar-brown text-white ring-1 ring-white/40' : 'hover:bg-white/20'
+                        }`}
+                        title="عكس الاتجاه (الوجه المقابل)"
+                        aria-label="عكس الاتجاه أفقيًا"
+                      >
+                        <FlipHorizontal size={12} />
+                      </button>
+
+                      {/* Rotation Controls */}
+                      <button
+                        type="button"
+                        onClick={() => updateRotation(-15)}
                         className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
-                        title="إعادة ضبط"
+                        title="تدوير عكس عقارب الساعة (-15°)"
+                        aria-label="تدوير -15°"
                       >
                         <RotateCcw size={12} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateRotation(15)}
+                        className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
+                        title="تدوير مع عقارب الساعة (+15°)"
+                        aria-label="تدوير +15°"
+                      >
+                        <RotateCw size={12} />
+                      </button>
+                      {productRotation !== 0 ? (
+                        <span className="px-1 text-[9px] font-mono font-bold text-amber-300">
+                          {Math.round(productRotation)}°
+                        </span>
+                      ) : null}
+
+                      <div className="h-3 w-px bg-white/20 mx-0.5" />
+
+                      {/* Reset Transform */}
+                      <button
+                        type="button"
+                        onClick={resetTransform}
+                        className="p-1 hover:bg-white/20 rounded transition cursor-pointer text-gray-300 hover:text-white"
+                        title="إعادة ضبط الموضع والحجم"
+                        aria-label="إعادة ضبط"
+                      >
+                        <RotateCcw size={11} className="rotate-180" />
                       </button>
                     </div>
                   ) : null}

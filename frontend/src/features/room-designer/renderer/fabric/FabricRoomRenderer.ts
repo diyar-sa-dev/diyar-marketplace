@@ -21,6 +21,102 @@ import {
 
 type TaggedFabricObject = FabricObject & { diyarItemId?: string };
 
+export class BlenderItemRect extends Rect {
+  diyarItemId?: string;
+  productImg: HTMLImageElement | null = null;
+  isBlenderSelected = false;
+  itemName?: string;
+  isLockedItem = false;
+
+  override _render(ctx: CanvasRenderingContext2D): void {
+    super._render(ctx);
+
+    const w = this.width;
+    const h = this.height;
+
+    // 1. Draw Product Image inside bounding box
+    if (this.productImg && this.productImg.complete && (this.productImg.naturalWidth > 0 || this.productImg.width > 0)) {
+      const pad = 3;
+      const maxW = Math.max(1, w - pad * 2);
+      const maxH = Math.max(1, h - pad * 2);
+      const imgW = this.productImg.naturalWidth || this.productImg.width || 1;
+      const imgH = this.productImg.naturalHeight || this.productImg.height || 1;
+      const fitScale = Math.min(maxW / imgW, maxH / imgH);
+      const drawW = imgW * fitScale;
+      const drawH = imgH * fitScale;
+      const drawX = -drawW / 2;
+      const drawY = -drawH / 2;
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 2;
+      try {
+        ctx.drawImage(this.productImg, drawX, drawY, drawW, drawH);
+      } catch {
+        // Fallback silently if canvas draw throws
+      }
+      ctx.restore();
+    }
+
+    // 2. Blender Corner Vertex Brackets: ⎡ ⎤ ⎣ ⎦
+    const bracketLen = Math.max(4, Math.min(10, w / 4, h / 4));
+    const strokeCol = this.isLockedItem
+      ? '#94a3b8'
+      : this.isBlenderSelected
+        ? '#f59e0b'
+        : '#735942';
+
+    ctx.save();
+    ctx.strokeStyle = strokeCol;
+    ctx.lineWidth = this.isBlenderSelected ? 2.5 : 1.8;
+    ctx.lineCap = 'square';
+
+    const halfW = w / 2;
+    const halfH = h / 2;
+
+    // Top-Left ⎡
+    ctx.beginPath();
+    ctx.moveTo(-halfW, -halfH + bracketLen);
+    ctx.lineTo(-halfW, -halfH);
+    ctx.lineTo(-halfW + bracketLen, -halfH);
+    ctx.stroke();
+
+    // Top-Right ⎤
+    ctx.beginPath();
+    ctx.moveTo(halfW - bracketLen, -halfH);
+    ctx.lineTo(halfW, -halfH);
+    ctx.lineTo(halfW, -halfH + bracketLen);
+    ctx.stroke();
+
+    // Bottom-Left ⎣
+    ctx.beginPath();
+    ctx.moveTo(-halfW, halfH - bracketLen);
+    ctx.lineTo(-halfW, halfH);
+    ctx.lineTo(-halfW + bracketLen, halfH);
+    ctx.stroke();
+
+    // Bottom-Right ⎦
+    ctx.beginPath();
+    ctx.moveTo(halfW - bracketLen, halfH);
+    ctx.lineTo(halfW, halfH);
+    ctx.lineTo(halfW, halfH - bracketLen);
+    ctx.stroke();
+
+    // 3. Blender Direction Notch / Front Indicator Arrow
+    ctx.beginPath();
+    ctx.moveTo(-5, -halfH + 6);
+    ctx.lineTo(0, -halfH - 2);
+    ctx.lineTo(5, -halfH + 6);
+    ctx.strokeStyle = strokeCol;
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+
+    ctx.restore();
+  }
+}
+
 export class FabricRoomRenderer implements RoomRenderer {
   private canvas: Canvas | null = null;
 
@@ -28,7 +124,7 @@ export class FabricRoomRenderer implements RoomRenderer {
 
   private interactionHandler: ((event: RendererInteraction) => void) | null = null;
 
-  private itemObjects = new Map<string, FabricObject>();
+  private itemObjects = new Map<string, BlenderItemRect>();
 
   private currentDocument: RoomDesignDocument | null = null;
 
@@ -261,7 +357,7 @@ export class FabricRoomRenderer implements RoomRenderer {
 
       const sorted = [...document.items].sort((a, b) => a.layer - b.layer);
       for (const item of sorted) {
-        const existing = this.itemObjects.get(item.id) as Rect | undefined;
+        const existing = this.itemObjects.get(item.id);
         const box = itemFootprintTopLeftPx(
           this.currentProjection,
           item.position_m,
@@ -290,8 +386,9 @@ export class FabricRoomRenderer implements RoomRenderer {
             width: w,
             height: h,
             angle: item.rotation_deg,
-            stroke: item.locked ? '#94a3b8' : '#735942',
-            fill: item.locked ? 'rgba(203, 213, 225, 0.35)' : (existing.fill ?? 'rgba(255, 255, 255, 0.08)'),
+            stroke: item.locked ? '#94a3b8' : (existing.isBlenderSelected ? '#f59e0b' : '#735942'),
+            strokeWidth: existing.isBlenderSelected ? 2.2 : 1.5,
+            fill: item.locked ? 'rgba(203, 213, 225, 0.35)' : 'rgba(255, 255, 255, 0.08)',
             selectable: true,
             evented: true,
             lockMovementX: item.locked,
@@ -301,8 +398,12 @@ export class FabricRoomRenderer implements RoomRenderer {
             lockScalingY: item.locked,
             hasControls: !item.locked,
           });
+          existing.isLockedItem = item.locked;
+          existing.itemName = item.snapshot.name;
           existing.setCoords();
-          this.applyItemPattern(existing, item.snapshot.thumbnail_url, w, h);
+          if (!existing.productImg && item.snapshot.thumbnail_url) {
+            this.loadImageForRect(existing, item.snapshot.thumbnail_url);
+          }
         } else {
           this.canvas.add(this.createItemObject(item, scale));
         }
@@ -351,9 +452,22 @@ export class FabricRoomRenderer implements RoomRenderer {
     if (!this.canvas) return;
     this.programmaticSync = true;
     try {
+      const selectedSet = new Set(ids);
+      for (const [id, itemRect] of this.itemObjects) {
+        const isSelected = selectedSet.has(id);
+        itemRect.isBlenderSelected = isSelected;
+        itemRect.set({
+          stroke: itemRect.isLockedItem ? '#94a3b8' : isSelected ? '#f59e0b' : '#735942',
+          strokeWidth: isSelected ? 2.2 : 1.5,
+          borderColor: isSelected ? '#f59e0b' : '#735942',
+          cornerColor: isSelected ? '#f59e0b' : '#ffffff',
+          cornerStrokeColor: isSelected ? '#ffffff' : '#735942',
+        });
+      }
+
       const objects = ids
         .map((id) => this.itemObjects.get(id))
-        .filter((obj): obj is FabricObject => obj != null);
+        .filter((obj): obj is BlenderItemRect => obj != null);
       if (objects.length === 0) {
         this.canvas.discardActiveObject();
       } else if (objects.length === 1) {
@@ -382,38 +496,13 @@ export class FabricRoomRenderer implements RoomRenderer {
     this.centerRoomInViewport();
   }
 
-  private applyItemPattern(rect: Rect, imageUrl: string | undefined, boxW: number, boxH: number): void {
+  private loadImageForRect(rect: BlenderItemRect, imageUrl: string | undefined): void {
     if (!imageUrl || typeof Image === 'undefined') return;
-
-    const setPatternWithImage = (img: HTMLImageElement) => {
-      try {
-        const w = Math.max(boxW, 4);
-        const h = Math.max(boxH, 4);
-        const imgW = img.width || 1;
-        const imgH = img.height || 1;
-        const fitScale = Math.min((w * 0.88) / imgW, (h * 0.88) / imgH);
-        const pattern = new Pattern({
-          source: img,
-          repeat: 'no-repeat',
-          patternTransform: [
-            fitScale,
-            0,
-            0,
-            fitScale,
-            (w - imgW * fitScale) / 2,
-            (h - imgH * fitScale) / 2,
-          ],
-        });
-        rect.set('fill', pattern);
-        this.canvas?.requestRenderAll();
-      } catch {
-        // Keep transparent Blender-style box on error
-      }
-    };
 
     const cached = this.imageCache.get(imageUrl);
     if (cached) {
-      setPatternWithImage(cached);
+      rect.productImg = cached;
+      this.canvas?.requestRenderAll();
       return;
     }
 
@@ -421,13 +510,25 @@ export class FabricRoomRenderer implements RoomRenderer {
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       this.imageCache.set(imageUrl, img);
+      rect.productImg = img;
       if (!this.canvas || this.programmaticSync) return;
-      setPatternWithImage(img);
+      this.canvas.requestRenderAll();
+    };
+    img.onerror = () => {
+      // Retry without anonymous crossOrigin to avoid CORS taint blocks on canvas 2D drawImage
+      const fallbackImg = new Image();
+      fallbackImg.onload = () => {
+        this.imageCache.set(imageUrl, fallbackImg);
+        rect.productImg = fallbackImg;
+        if (!this.canvas || this.programmaticSync) return;
+        this.canvas.requestRenderAll();
+      };
+      fallbackImg.src = imageUrl;
     };
     img.src = imageUrl;
   }
 
-  private createItemObject(item: RoomDesignItem, scalePxPerM: number): Rect {
+  private createItemObject(item: RoomDesignItem, scalePxPerM: number): BlenderItemRect {
     const box = itemFootprintTopLeftPx(
       this.currentProjection,
       item.position_m,
@@ -449,7 +550,7 @@ export class FabricRoomRenderer implements RoomRenderer {
     const imageUrl = item.snapshot.thumbnail_url;
 
     // Blender-style transparent bounding rectangle with corner vertex handles
-    const rect = new Rect({
+    const rect = new BlenderItemRect({
       left: center.x,
       top: center.y - isoLift,
       width: Math.max(box.widthPx, 4),
@@ -482,10 +583,14 @@ export class FabricRoomRenderer implements RoomRenderer {
       borderScaleFactor: 1.5,
       padding: touch ? 6 : 2,
     });
-    (rect as TaggedFabricObject).diyarItemId = item.id;
+    rect.diyarItemId = item.id;
+    rect.itemName = item.snapshot.name;
+    rect.isLockedItem = item.locked;
     this.itemObjects.set(item.id, rect);
 
-    this.applyItemPattern(rect, imageUrl, box.widthPx, box.heightPx);
+    if (imageUrl) {
+      this.loadImageForRect(rect, imageUrl);
+    }
 
     return rect;
   }
@@ -614,6 +719,19 @@ export class FabricRoomRenderer implements RoomRenderer {
     const ids = active
       .map((obj) => (obj as TaggedFabricObject).diyarItemId)
       .filter((id): id is string => typeof id === 'string');
+    const selectedSet = new Set(ids);
+    for (const [id, itemRect] of this.itemObjects) {
+      const isSelected = selectedSet.has(id);
+      itemRect.isBlenderSelected = isSelected;
+      itemRect.set({
+        stroke: itemRect.isLockedItem ? '#94a3b8' : isSelected ? '#f59e0b' : '#735942',
+        strokeWidth: isSelected ? 2.2 : 1.5,
+        borderColor: isSelected ? '#f59e0b' : '#735942',
+        cornerColor: isSelected ? '#f59e0b' : '#ffffff',
+        cornerStrokeColor: isSelected ? '#ffffff' : '#735942',
+      });
+    }
+    this.canvas.requestRenderAll();
     this.interactionHandler({ type: 'select', ids });
   }
 }

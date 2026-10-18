@@ -1,5 +1,5 @@
-import { ChevronLeft, ChevronRight, Loader2, Plus, Search, Store, X } from 'lucide-react';
-import { useState } from 'react';
+import { Box, ChevronLeft, ChevronRight, Loader2, Plus, Search, Store, X } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import type { ProductCard } from '../../../types/catalog.ts';
 import {
   CATALOG_PICKER_MIN_SEARCH_CHARS,
@@ -21,6 +21,7 @@ export function CatalogPanel({ onSelectProduct, isAdding = false, enabled = true
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [selectedAddingId, setSelectedAddingId] = useState<string | null>(null);
+  const [filter3dOnly, setFilter3dOnly] = useState(false);
 
   const { data, isLoading, isFetching, isError, error } = useRoomDesignerProductSearch(
     query,
@@ -28,7 +29,19 @@ export function CatalogPanel({ onSelectProduct, isAdding = false, enabled = true
     enabled,
   );
 
-  const items = data?.items ?? [];
+  const rawItems = data?.items ?? [];
+  const items = useMemo(() => {
+    if (!filter3dOnly) return rawItems;
+    return rawItems.filter((p) =>
+      Boolean(
+        (p as { model_3d?: string; model3d?: string; glb_url?: string; has_3d?: boolean; asset_ref?: string }).model_3d ||
+        (p as { model3d?: string }).model3d ||
+        (p as { glb_url?: string }).glb_url ||
+        (p as { has_3d?: boolean }).has_3d ||
+        (p as { asset_ref?: string }).asset_ref
+      ),
+    );
+  }, [rawItems, filter3dOnly]);
   const pagination = data?.pagination;
   const trimmed = query.replace(/\s+/g, ' ').trim();
   const showSearchHint =
@@ -91,6 +104,33 @@ export function CatalogPanel({ onSelectProduct, isAdding = false, enabled = true
           {(error as Error)?.message ?? 'تعذّر تحميل المنتجات'}
         </p>
       ) : null}
+
+      {/* 3D / Category Quick Filter Tabs */}
+      <div className="flex items-center gap-1.5 p-1 rounded-xl bg-diyar-cream/35 border border-diyar-brown/15 text-xs">
+        <button
+          type="button"
+          onClick={() => setFilter3dOnly(false)}
+          className={`flex-1 py-1 px-2 rounded-lg text-center font-bold transition-all cursor-pointer ${
+            !filter3dOnly
+              ? 'bg-white text-diyar-dark shadow-2xs border border-diyar-brown/20'
+              : 'text-muted-foreground hover:text-diyar-dark'
+          }`}
+        >
+          جميع القطع
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilter3dOnly(true)}
+          className={`flex-1 py-1 px-2 rounded-lg text-center font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+            filter3dOnly
+              ? 'bg-diyar-dark text-amber-300 shadow-2xs border border-diyar-dark'
+              : 'text-muted-foreground hover:text-diyar-dark'
+          }`}
+        >
+          <Box size={13} />
+          <span>مجسمات 3D</span>
+        </button>
+      </div>
 
       {/* Catalog List (Single column rows) */}
       <div className="min-h-[160px]">
@@ -165,7 +205,8 @@ function CatalogProductRow({
   const priceNum = Number(product.sale_price ?? 0);
   const formattedPrice = priceNum > 0 ? priceNum.toLocaleString('en-US') : null;
   const has3dModel = Boolean(
-    (product as { model_3d?: string; glb_url?: string; has_3d?: boolean; asset_ref?: string }).model_3d ||
+    (product as { model_3d?: string; model3d?: string; glb_url?: string; has_3d?: boolean; asset_ref?: string }).model_3d ||
+    (product as { model3d?: string }).model3d ||
     (product as { glb_url?: string }).glb_url ||
     (product as { has_3d?: boolean }).has_3d ||
     (product as { asset_ref?: string }).asset_ref
