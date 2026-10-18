@@ -263,7 +263,9 @@ export function TryInRoomModal({
                         transform: `translate(-50%, -50%) scale(${isFlipped ? -productScale : productScale}, ${productScale}) rotate(${productRotation}deg)`,
                         cursor: isDragging ? 'grabbing' : 'grab',
                       }}
-                      className="absolute z-10 touch-none flex flex-col items-center group transition-transform"
+                      className={`absolute z-10 touch-none flex flex-col items-center group ${
+                        isDragging ? '' : 'transition-transform duration-150 ease-out'
+                      }`}
                     >
                       <img
                         src={productImageUrl}
@@ -272,7 +274,17 @@ export function TryInRoomModal({
                         data-testid="try-in-room-result"
                         draggable={false}
                       />
-                      <div className="absolute inset-0 border border-dashed border-diyar-brown/60 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {/* Blender-style corner accents + outline when hovered or active */}
+                      <div
+                        className={`absolute -inset-1 border border-diyar-brown/60 rounded-lg pointer-events-none transition-opacity ${
+                          isDragging ? 'opacity-100 ring-2 ring-diyar-brown/40' : 'opacity-0 group-hover:opacity-100'
+                        }`}
+                      >
+                        <span className="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2 border-diyar-brown rounded-tl-sm" />
+                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 border-t-2 border-r-2 border-diyar-brown rounded-tr-sm" />
+                        <span className="absolute -bottom-1 -left-1 w-2.5 h-2.5 border-b-2 border-l-2 border-diyar-brown rounded-bl-sm" />
+                        <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 border-b-2 border-r-2 border-diyar-brown rounded-br-sm" />
+                      </div>
                     </div>
                   ) : resultUrl ? (
                     <img

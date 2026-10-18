@@ -73,6 +73,16 @@ export function parseApiError(error: unknown, locale: Locale = readStoredLocale(
     return { message: clientMessage(locale, 'errors.network'), status: 0 };
   }
 
+  if (axiosError.response.status === 413) {
+    return {
+      message:
+        locale === 'ar'
+          ? 'حجم الملفات المرفقة يتجاوز الحد المسموح به. يرجى التأكد من أن حجم الملف لا يتجاوز 25 ميجابايت.'
+          : 'The uploaded file exceeds the allowed limit. Please ensure file size is under 25 MB.',
+      status: 413,
+    };
+  }
+
   if (axiosError.response.status === 419) {
     return {
       message: clientMessage(locale, 'errors.csrf'),

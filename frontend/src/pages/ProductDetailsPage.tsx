@@ -9,6 +9,7 @@ import {
   Ruler,
   Palette,
   Box,
+  Boxes,
   CheckCircle,
   Store,
   Truck,
@@ -22,6 +23,7 @@ import {
   Clock,
 } from 'lucide-react';
 import ProductCard from '../components/cards/ProductCard.tsx';
+import { Product3dModelViewer } from '../components/product/Product3dModelViewer.tsx';
 import { ProductReviewsSection } from '../components/product/ProductReviewsSection.tsx';
 import { AuthPromptModal } from '../components/product/AuthPromptModal.tsx';
 import { ProductShareSheet } from '../components/product/ProductShareSheet.tsx';
@@ -98,6 +100,7 @@ export default function ProductDetailsPage() {
   const submitPreorder = useSubmitProductPreorder(id);
   const { addItem } = useCart();
 
+  const [viewMode, setViewMode] = useState<'image' | '3d'>('image');
   const [activeImage, setActiveImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -115,6 +118,7 @@ export default function ProductDetailsPage() {
     if (!product) {
       return;
     }
+    setViewMode('image');
     setActiveImage(0);
     setSelectedColor(0);
     setQuantity(1);
@@ -439,90 +443,141 @@ export default function ProductDetailsPage() {
       <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
           <div className="lg:w-1/2 flex flex-col gap-4">
-            <div
-              className="relative isolate aspect-square md:aspect-4/3 bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm group cursor-pointer"
-              onClick={() => setIsGalleryOpen(true)}
-            >
-              <img
-                src={images[activeImage]}
-                alt={product.name}
-                referrerPolicy="no-referrer"
-                className="pointer-events-none relative z-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute top-4 right-4 flex flex-col gap-2">
-                {discountPct != null && discountPct > 0 && (
-                  <span className="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
-                    {t('catalog.productDetail.discount', { percent: discountPct })}
-                  </span>
-                )}
+            {viewMode === '3d' && product.model_3d_url ? (
+              <div className="relative isolate aspect-square md:aspect-4/3 w-full">
+                <Product3dModelViewer
+                  modelUrl={product.model_3d_url}
+                  productName={product.name}
+                  onClose={() => setViewMode('image')}
+                />
               </div>
+            ) : (
               <div
-                className="absolute top-4 left-4 z-20 flex flex-col gap-2"
-                onClick={(e) => e.stopPropagation()}
+                className="relative isolate aspect-square md:aspect-4/3 bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm group cursor-pointer"
+                onClick={() => setIsGalleryOpen(true)}
               >
-                <button
-                  type="button"
-                  onClick={handleToggleSave}
-                  className={`${vendorButtonClass} bg-white/80 backdrop-blur text-gray-500 hover:text-diyar-brown p-2.5 rounded-full shadow-sm`}
-                  title={t('catalog.productDetail.save')}
-                >
-                  <Bookmark
-                    size={20}
-                    fill={isFavorite ? 'currentColor' : 'none'}
-                    className={isFavorite ? 'text-diyar-brown' : ''}
-                  />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  className={`${vendorButtonClass} bg-white/80 backdrop-blur text-gray-500 hover:text-diyar-dark p-2.5 rounded-full shadow-sm`}
-                  title={t('catalog.productDetail.share')}
-                >
-                  <Share2 size={20} />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleToggleLike}
-                  className={`${vendorButtonClass} bg-white/80 backdrop-blur text-gray-500 hover:text-red-500 p-2.5 rounded-full shadow-sm relative`}
-                  title={t('catalog.productDetail.like')}
-                >
-                  <Heart
-                    size={20}
-                    fill={isLiked ? 'currentColor' : 'none'}
-                    className={`transition-all ${isLiked ? 'text-red-500 scale-110' : 'hover:scale-110'}`}
-                  />
-                  {likesCount > 0 && (
-                    <span className="absolute -bottom-1 -left-1 bg-diyar-dark text-white text-[9px] font-bold px-1 rounded-full border border-white tabular-nums">
-                      {likesCount}
+                <img
+                  src={images[activeImage]}
+                  alt={product.name}
+                  referrerPolicy="no-referrer"
+                  className="pointer-events-none relative z-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute top-4 right-4 flex flex-col gap-2">
+                  {discountPct != null && discountPct > 0 && (
+                    <span className="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+                      {t('catalog.productDetail.discount', { percent: discountPct })}
                     </span>
                   )}
-                </button>
-              </div>
-              <div
-                className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2 flex items-center gap-2 w-max max-w-[90%]"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  type="button"
-                  data-testid="try-in-room-open"
-                  onClick={openTryInRoom}
-                  className={`${vendorButtonClass} flex min-h-10 items-center gap-1.5 bg-diyar-dark/90 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur hover:bg-black md:min-h-11 md:px-4 md:text-sm rounded-full`}
+                  {product.has_3d && product.model_3d_url ? (
+                    <span className="bg-amber-500/95 text-white text-[11px] font-black px-2.5 py-1 rounded-full shadow-sm backdrop-blur-xs flex items-center gap-1 border border-amber-300/40">
+                      <Boxes size={13} />
+                      3D متوفر
+                    </span>
+                  ) : null}
+                </div>
+                <div
+                  className="absolute top-4 left-4 z-20 flex flex-col gap-2"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <Sparkles size={16} className="text-yellow-400 shrink-0 inline mr-1" />
-                  <span className="sm:hidden">{t('catalog.productDetail.tryInRoomShort')}</span>
-                  <span className="hidden sm:inline">{t('catalog.productDetail.tryInRoom')}</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={handleToggleSave}
+                    className={`${vendorButtonClass} bg-white/80 backdrop-blur text-gray-500 hover:text-diyar-brown p-2.5 rounded-full shadow-sm`}
+                    title={t('catalog.productDetail.save')}
+                  >
+                    <Bookmark
+                      size={20}
+                      fill={isFavorite ? 'currentColor' : 'none'}
+                      className={isFavorite ? 'text-diyar-brown' : ''}
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleShare}
+                    className={`${vendorButtonClass} bg-white/80 backdrop-blur text-gray-500 hover:text-diyar-dark p-2.5 rounded-full shadow-sm`}
+                    title={t('catalog.productDetail.share')}
+                  >
+                    <Share2 size={20} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleToggleLike}
+                    className={`${vendorButtonClass} bg-white/80 backdrop-blur text-gray-500 hover:text-red-500 p-2.5 rounded-full shadow-sm relative`}
+                    title={t('catalog.productDetail.like')}
+                  >
+                    <Heart
+                      size={20}
+                      fill={isLiked ? 'currentColor' : 'none'}
+                      className={`transition-all ${isLiked ? 'text-red-500 scale-110' : 'hover:scale-110'}`}
+                    />
+                    {likesCount > 0 && (
+                      <span className="absolute -bottom-1 -left-1 bg-diyar-dark text-white text-[9px] font-bold px-1 rounded-full border border-white tabular-nums">
+                        {likesCount}
+                      </span>
+                    )}
+                  </button>
+                </div>
+                <div
+                  className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2 flex flex-wrap items-center justify-center gap-2 w-max max-w-[92%]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* 3D Model View Button - Only shown if product has 3D */}
+                  {product.has_3d && product.model_3d_url ? (
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('3d')}
+                      className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-linear-to-r from-amber-600 to-[#735942] px-3.5 py-2 text-xs font-bold text-white shadow-lg backdrop-blur hover:opacity-95 active:scale-95 transition-all cursor-pointer md:min-h-11 md:px-4 md:text-sm"
+                      title="معاينة النموذج ثلاثي الأبعاد (3D)"
+                    >
+                      <Boxes size={16} className="text-amber-300 shrink-0" />
+                      <span>معاينة ثلاثية الأبعاد (3D)</span>
+                    </button>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    data-testid="try-in-room-open"
+                    onClick={openTryInRoom}
+                    className={`${vendorButtonClass} flex min-h-10 items-center gap-1.5 bg-diyar-dark/90 px-3 py-2 text-xs font-medium text-white shadow-lg backdrop-blur hover:bg-black md:min-h-11 md:px-4 md:text-sm rounded-full`}
+                  >
+                    <Sparkles size={16} className="text-yellow-400 shrink-0 inline mr-1" />
+                    <span className="sm:hidden">{t('catalog.productDetail.tryInRoomShort')}</span>
+                    <span className="hidden sm:inline">{t('catalog.productDetail.tryInRoom')}</span>
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
+              {/* 3D Model Thumbnail - Shown when product has 3D */}
+              {product.has_3d && product.model_3d_url ? (
+                <button
+                  type="button"
+                  onClick={() => setViewMode('3d')}
+                  className={`relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden shrink-0 snap-start transition-all border-2 cursor-pointer flex flex-col items-center justify-center gap-1 ${
+                    viewMode === '3d'
+                      ? 'border-amber-500 bg-amber-50/90 ring-2 ring-amber-400/40 shadow-md scale-102'
+                      : 'border-amber-300/70 bg-gradient-to-b from-amber-50/50 to-white hover:border-amber-500 opacity-90 hover:opacity-100'
+                  }`}
+                  title="معاينة النموذج ثلاثي الأبعاد 3D"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-[#735942] text-white shadow-xs">
+                    <Boxes size={18} />
+                  </div>
+                  <span className="text-[10px] font-black text-amber-900 tracking-wide">3D تفاعلي</span>
+                </button>
+              ) : null}
+
               {images.map((img, idx) => (
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => setActiveImage(idx)}
+                  onClick={() => {
+                    setViewMode('image');
+                    setActiveImage(idx);
+                  }}
                   className={`relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden shrink-0 snap-start transition-all border-2 cursor-pointer ${
-                    activeImage === idx
+                    viewMode === 'image' && activeImage === idx
                       ? 'border-diyar-brown shadow-md'
                       : 'border-transparent opacity-70 hover:opacity-100'
                   }`}

@@ -143,6 +143,15 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
+        $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return ApiResponse::error(
+                    'حجم الملفات المرفوعة يتجاوز الحد المسموح به (الحد الأقصى 25 ميجابايت)',
+                    413,
+                );
+            }
+        });
+
         $exceptions->render(function (QueryException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 report($e);

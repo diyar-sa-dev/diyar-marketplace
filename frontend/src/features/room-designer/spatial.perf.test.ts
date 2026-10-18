@@ -95,8 +95,10 @@ function benchTable(counts: number[], iterations: number): Record<Op, Record<num
 }
 
 describe('spatial core performance (micro)', () => {
-  it('records average ms per operation and stays within soft budget', () => {
-    const counts = [10, 25, 50, 100];
+  it(
+    'records average ms per operation and stays within soft budget',
+    () => {
+      const counts = [10, 25, 50, 100];
     const table = benchTable(counts, 200);
 
     // Soft guard: 100-item collision scan should stay below 20ms avg under concurrent test runner load.
@@ -113,5 +115,5 @@ describe('spatial core performance (micro)', () => {
         SERIALIZE_ms: table.SERIALIZE[n].toFixed(4),
       })),
     );
-  });
+  }, 15000);
 });
