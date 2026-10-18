@@ -147,13 +147,25 @@ export default function VendorProducts() {
     }
   };
 
-  const handleFormSubmit = async ({ payload, stockAdjust, images }: VendorProductFormSubmit) => {
+  const handleFormSubmit = async ({
+    payload,
+    stockAdjust,
+    images,
+    model3d,
+    removeModel3d,
+  }: VendorProductFormSubmit) => {
     setUploadProgress(null);
     setUploadComplete(false);
     try {
       if (editingId) {
         const { stock_quantity: _stock, ...updatePayload } = payload;
-        await update.mutateAsync({ id: editingId, payload: updatePayload });
+        await update.mutateAsync({
+          id: editingId,
+          payload: updatePayload,
+          model3d,
+          removeModel3d,
+          onProgress: model3d ? setUploadProgress : undefined,
+        });
 
         if (stockAdjust !== undefined) {
           await adjustInventory.mutateAsync({
@@ -174,13 +186,15 @@ export default function VendorProducts() {
           await new Promise((resolve) => setTimeout(resolve, 700));
         }
       } else {
-        setUploadProgress(images.length > 0 ? 0 : null);
+        const hasUploads = images.length > 0 || Boolean(model3d);
+        setUploadProgress(hasUploads ? 0 : null);
         await create.mutateAsync({
           payload: { ...payload, stock_quantity: payload.stock_quantity },
           images: images.length > 0 ? images : undefined,
-          onProgress: images.length > 0 ? setUploadProgress : undefined,
+          model3d,
+          onProgress: hasUploads ? setUploadProgress : undefined,
         });
-        if (images.length > 0) {
+        if (hasUploads) {
           setUploadProgress(100);
           setUploadComplete(true);
           await new Promise((resolve) => setTimeout(resolve, 700));

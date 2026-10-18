@@ -40,6 +40,7 @@ class VendorProductController extends Controller
                 user: $request->user(),
                 attributes: $request->validated(),
                 images: $request->file('images'),
+                model3d: $request->file('model_3d'),
             );
         } catch (InvalidArgumentException $exception) {
             return ApiResponse::error($exception->getMessage(), 422);
@@ -68,11 +69,16 @@ class VendorProductController extends Controller
         $model = $this->products->findOwnedProduct($request->user(), $product);
         $this->authorize('update', $model);
 
-        $updated = $this->products->update(
-            user: $request->user(),
-            product: $model,
-            attributes: $request->validated(),
-        );
+        try {
+            $updated = $this->products->update(
+                user: $request->user(),
+                product: $model,
+                attributes: $request->validated(),
+                model3d: $request->file('model_3d'),
+            );
+        } catch (InvalidArgumentException $exception) {
+            return ApiResponse::error($exception->getMessage(), 422);
+        }
 
         return ApiResponse::success(
             data: ['product' => new ProductDetailResource($updated)],

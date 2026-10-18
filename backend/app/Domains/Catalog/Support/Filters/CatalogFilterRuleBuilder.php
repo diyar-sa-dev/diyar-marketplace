@@ -53,7 +53,7 @@ final class CatalogFilterRuleBuilder
             'category' => ['nullable', 'string', 'max:120'],
             'color' => ['nullable', 'string', 'max:60'],
             'colors' => ['nullable', 'string', 'max:300'],
-            'discounted', 'remote' => ['nullable', 'boolean'],
+            'discounted', 'remote', 'has_3d', 'only_3d', 'model_3d' => ['nullable', 'boolean'],
             'availability_mode' => ['nullable', Rule::in($capability->enumValues ?? [])],
             'product_type' => ['nullable', Rule::in($capability->enumValues ?? [])],
             'pricing_mode' => ['nullable', Rule::in($capability->enumValues ?? [])],

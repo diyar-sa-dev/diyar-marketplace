@@ -46,6 +46,7 @@ class FilterCapabilityContractTest extends TestCase
             'availability_mode',
             'product_type',
             'discounted',
+            'has_3d',
             'min_price',
             'max_price',
             'sort',

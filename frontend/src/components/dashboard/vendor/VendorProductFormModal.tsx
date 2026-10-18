@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, X, Upload, Check, Loader2 } from 'lucide-react';
+import { Plus, X, Upload, Check, Loader2, Box, Trash2 } from 'lucide-react';
 import type { Category, ProductImage } from '../../../types/catalog.ts';
 import type { ProductDetail } from '../../../types/catalog.ts';
 import type { VendorProductPayload } from '../../../api/vendorDashboard.ts';
@@ -70,6 +70,8 @@ export interface VendorProductFormSubmit {
   payload: VendorProductPayload;
   stockAdjust?: number;
   images: File[];
+  model3d?: File | null;
+  removeModel3d?: boolean;
 }
 
 interface VendorProductFormModalProps {
@@ -138,6 +140,28 @@ export function VendorProductFormModal({
   const [returnReasons, setReturnReasons] = useState<ReturnReason[]>(['manufacturing_defect']);
   const [returnRequiresEvidence, setReturnRequiresEvidence] = useState(false);
   const [returnShippingRefundable, setReturnShippingRefundable] = useState(false);
+
+  const [pendingModel3d, setPendingModel3d] = useState<File | null>(null);
+  const [removeExistingModel3d, setRemoveExistingModel3d] = useState(false);
+  const [model3dError, setModel3dError] = useState<string | null>(null);
+  const [isDragging3d, setIsDragging3d] = useState(false);
+  const model3dInputRef = useRef<HTMLInputElement>(null);
+
+  const validateAndSetModel3d = (file: File) => {
+    setModel3dError(null);
+    const maxBytes = 25 * 1024 * 1024; // 25 MB
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    if (!ext || !['glb', 'gltf'].includes(ext)) {
+      setModel3dError('صيغة الملف غير مدعومة. يرجى اختيار ملف ثلاثي الأبعاد بصيغة GLB أو GLTF');
+      return;
+    }
+    if (file.size > maxBytes) {
+      setModel3dError('حجم الملف يتجاوز الحد المسموح به (25 ميجابايت)');
+      return;
+    }
+    setPendingModel3d(file);
+    setRemoveExistingModel3d(false);
+  };
 
   const existingImages: ProductImage[] = useMemo(
     () => productDetail?.images ?? [],
@@ -241,6 +265,10 @@ export function VendorProductFormModal({
         return [];
       });
       setCustomColorText('');
+      setPendingModel3d(null);
+      setRemoveExistingModel3d(false);
+      setModel3dError(null);
+      setIsDragging3d(false);
       return;
     }
 
@@ -268,6 +296,10 @@ export function VendorProductFormModal({
         return [];
       });
       setCustomColorText('');
+      setPendingModel3d(null);
+      setRemoveExistingModel3d(false);
+      setModel3dError(null);
+      setIsDragging3d(false);
     }
   }, [open, editingId, productDetail, categories]);
 
@@ -391,6 +423,8 @@ export function VendorProductFormModal({
           ? Number(stockAdjust)
           : undefined,
       images: pendingImages.map((item) => item.file),
+      model3d: pendingModel3d,
+      removeModel3d: removeExistingModel3d,
     });
   };
 
@@ -561,6 +595,151 @@ export function VendorProductFormModal({
                     }}
                   />
                   <FieldError message={showError('images')} />
+                </div>
+
+                {/* 3D Model Upload & Configuration for Room Designer */}
+                <div className="bg-amber-50/30 p-4 rounded-2xl border border-amber-200/60 space-y-3 text-right">
+                  <div className="flex items-center justify-between pb-2 border-b border-amber-100">
+                    <span className="text-[11px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                      <Box size={13} />
+                      <span>مصمم الغرف ثلاثي الأبعاد</span>
+                    </span>
+                    <h4 className="text-xs font-bold text-diyar-dark flex items-center gap-1.5">
+                      <span>نموذج 3D للمنتج (اختياري)</span>
+                    </h4>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    ارفع نموذج 3D بصيغة <b>GLB</b> أو <b>GLTF</b> لتمكين العملاء من تجربة القطعة تفاعلياً داخل مصمم الغرف واستعراض أبعادها الواقعية (الحد الأقصى: 25 ميجابايت).
+                  </p>
+
+                  {/* Existing Model State */}
+                  {productDetail?.has_3d && !removeExistingModel3d && !pendingModel3d ? (
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-amber-300/60 bg-white shadow-2xs">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="p-2 bg-amber-500/10 text-amber-800 rounded-lg shrink-0">
+                          <Box size={18} />
+                        </div>
+                        <div className="min-w-0 text-right">
+                          <p className="text-xs font-bold text-diyar-dark truncate">نموذج 3D حالي مرتبط بالمنتج</p>
+                          <p className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 mt-0.5">
+                            <Check size={11} /> جاهز للعرض في مصمم الغرف
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => model3dInputRef.current?.click()}
+                          disabled={isSaving}
+                          className="px-2.5 py-1 text-xs font-bold text-diyar-brown hover:bg-diyar-cream/60 rounded-lg border border-diyar-brown/30 transition cursor-pointer"
+                        >
+                          استبدال
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setRemoveExistingModel3d(true)}
+                          disabled={isSaving}
+                          className="p-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                          title="حذف النموذج ثلاثي الأبعاد"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : pendingModel3d ? (
+                    /* Pending New File Selected */
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-emerald-300 bg-emerald-50/40 shadow-2xs">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="p-2 bg-emerald-600/10 text-emerald-700 rounded-lg shrink-0">
+                          <Check size={18} />
+                        </div>
+                        <div className="min-w-0 text-right">
+                          <p className="text-xs font-bold text-diyar-dark truncate" title={pendingModel3d.name}>
+                            {pendingModel3d.name}
+                          </p>
+                          <p className="text-[10px] text-emerald-700 font-bold mt-0.5">
+                            {(pendingModel3d.size / (1024 * 1024)).toFixed(2)} ميجابايت — جاهز للحفظ
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPendingModel3d(null);
+                          if (productDetail?.has_3d) {
+                            setRemoveExistingModel3d(false);
+                          }
+                        }}
+                        disabled={isSaving}
+                        className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition cursor-pointer"
+                        title="إلغاء الملف"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    /* Dropzone when no model is attached */
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragging3d(true);
+                      }}
+                      onDragLeave={() => setIsDragging3d(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDragging3d(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) validateAndSetModel3d(file);
+                      }}
+                      onClick={() => model3dInputRef.current?.click()}
+                      className={`relative flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
+                        isDragging3d
+                          ? 'border-amber-600 bg-amber-100/50 scale-[0.99]'
+                          : 'border-amber-300/70 bg-white hover:bg-amber-50/50 hover:border-amber-500'
+                      }`}
+                    >
+                      <div className="p-2.5 bg-amber-50 text-amber-800 rounded-xl mb-2">
+                        <Box size={20} />
+                      </div>
+                      <p className="text-xs font-bold text-diyar-dark text-center">
+                        اضغط لاختيار ملف النموذج ثلاثي الأبعاد أو اسحبه إلى هنا
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-1 text-center font-sans">
+                        الصيغ المدعومة: .GLB أو .GLTF حتى 25 ميجابايت
+                      </p>
+                    </div>
+                  )}
+
+                  {removeExistingModel3d && !pendingModel3d ? (
+                    <div className="flex items-center justify-between text-xs text-red-600 bg-red-50 p-2 rounded-lg border border-red-200">
+                      <span>سيتم حذف النموذج ثلاثي الأبعاد عند الحفظ</span>
+                      <button
+                        type="button"
+                        onClick={() => setRemoveExistingModel3d(false)}
+                        className="text-diyar-brown font-bold hover:underline cursor-pointer"
+                      >
+                        تراجع
+                      </button>
+                    </div>
+                  ) : null}
+
+                  {model3dError ? (
+                    <p className="text-xs text-red-600 bg-red-50 p-2 rounded-lg border border-red-200" role="alert">
+                      {model3dError}
+                    </p>
+                  ) : null}
+
+                  <input
+                    ref={model3dInputRef}
+                    type="file"
+                    accept=".glb,.gltf,model/gltf-binary"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) validateAndSetModel3d(file);
+                      e.target.value = '';
+                    }}
+                  />
                 </div>
 
                 <div className="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 space-y-4 text-right">

@@ -11,8 +11,8 @@ import {
 } from './constants.ts';
 
 export const roomDesignerCatalogKeys = {
-  browse: (page: number) => ['room-designer', 'catalog', 'browse', page] as const,
-  search: (q: string, page: number) => ['room-designer', 'catalog', 'search', q, page] as const,
+  browse: (page: number, only3d: boolean) => ['room-designer', 'catalog', 'browse', page, only3d] as const,
+  search: (q: string, page: number, only3d: boolean) => ['room-designer', 'catalog', 'search', q, page, only3d] as const,
 };
 
 export interface RoomDesignerProductSearchResult {
@@ -22,15 +22,24 @@ export interface RoomDesignerProductSearchResult {
   effectiveQuery: string;
 }
 
-export function useRoomDesignerProductSearch(rawQuery: string, page: number, enabled = true) {
+export function useRoomDesignerProductSearch(
+  rawQuery: string,
+  page: number,
+  enabled = true,
+  only3d = false,
+) {
   const debouncedQuery = useDebouncedValue(rawQuery, CATALOG_PICKER_DEBOUNCE_MS);
   const trimmed = debouncedQuery.replace(/\s+/g, ' ').trim();
   const isSearch = trimmed.length >= CATALOG_PICKER_MIN_SEARCH_CHARS;
 
   const browse = useQuery({
-    queryKey: roomDesignerCatalogKeys.browse(page),
+    queryKey: roomDesignerCatalogKeys.browse(page, only3d),
     queryFn: async (): Promise<RoomDesignerProductSearchResult> => {
-      const data = await fetchProducts({ page, per_page: CATALOG_PICKER_PER_PAGE });
+      const data = await fetchProducts({
+        page,
+        per_page: CATALOG_PICKER_PER_PAGE,
+        ...(only3d ? { has_3d: true } : {}),
+      });
       return {
         items: data.items,
         pagination: data.pagination,
@@ -44,13 +53,14 @@ export function useRoomDesignerProductSearch(rawQuery: string, page: number, ena
   });
 
   const search = useQuery({
-    queryKey: roomDesignerCatalogKeys.search(trimmed, page),
+    queryKey: roomDesignerCatalogKeys.search(trimmed, page, only3d),
     queryFn: async (): Promise<RoomDesignerProductSearchResult> => {
       const data = await fetchCatalogSearch({
         type: 'products',
         q: trimmed,
         page,
         per_page: CATALOG_PICKER_PER_PAGE,
+        ...(only3d ? { has_3d: true } : {}),
       });
       const section = data.products;
       return {

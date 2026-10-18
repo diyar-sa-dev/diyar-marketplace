@@ -53,6 +53,8 @@ class ProductDetailResource extends JsonResource
             'promotion_ends_at' => $this->promotion_ends_at?->toIso8601String(),
             'product_type' => $this->product_type->value,
             'availability_mode' => $this->availability_mode->value,
+            'has_3d' => ! empty($this->model_3d_path),
+            'model_3d_url' => $this->model_3d_url,
             'expected_available_at' => $this->expected_available_at?->toDateString(),
             'status' => $this->status->value,
             'dimensions' => [

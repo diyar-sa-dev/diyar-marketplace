@@ -8,7 +8,7 @@ trait PreparesCatalogFilterQuery
     {
         $merged = [];
 
-        foreach (['discounted', 'remote'] as $booleanKey) {
+        foreach (['discounted', 'remote', 'has_3d', 'only_3d', 'model_3d'] as $booleanKey) {
             if (! $this->has($booleanKey)) {
                 continue;
             }

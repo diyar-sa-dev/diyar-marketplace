@@ -38,12 +38,14 @@ export function useVendorProductMutations() {
     mutationFn: ({
       payload,
       images,
+      model3d,
       onProgress,
     }: {
       payload: vendorApi.VendorProductPayload;
       images?: File[];
+      model3d?: File | null;
       onProgress?: (percent: number) => void;
-    }) => vendorApi.createVendorProduct(payload, images, onProgress),
+    }) => vendorApi.createVendorProduct(payload, images, model3d, onProgress),
     onSuccess: invalidate,
   });
 
@@ -51,10 +53,16 @@ export function useVendorProductMutations() {
     mutationFn: ({
       id,
       payload,
+      model3d,
+      removeModel3d,
+      onProgress,
     }: {
       id: string;
       payload: Partial<vendorApi.VendorProductPayload>;
-    }) => vendorApi.updateVendorProduct(id, payload),
+      model3d?: File | null;
+      removeModel3d?: boolean;
+      onProgress?: (percent: number) => void;
+    }) => vendorApi.updateVendorProduct(id, payload, model3d, removeModel3d, onProgress),
     onSuccess: invalidate,
   });
 

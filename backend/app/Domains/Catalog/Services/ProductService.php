@@ -183,12 +183,16 @@ final class ProductService
      * @param  array<string, mixed>  $attributes
      * @param  list<UploadedFile>|null  $images
      */
-    public function create(User $user, array $attributes, ?array $images = null): Product
+    public function create(User $user, array $attributes, ?array $images = null, ?UploadedFile $model3d = null): Product
     {
         $vendorAccount = $this->requireVendorAccount($user);
         $category = Category::query()->active()->findOrFail($attributes['category_id']);
+        $model3dFile = $model3d ?? ($attributes['model_3d'] ?? null);
+        if (! ($model3dFile instanceof UploadedFile)) {
+            $model3dFile = null;
+        }
 
-        return DB::transaction(function () use ($user, $vendorAccount, $category, $attributes, $images) {
+        return DB::transaction(function () use ($user, $vendorAccount, $category, $attributes, $images, $model3dFile) {
             $slug = SlugGenerator::unique(
                 $attributes['name'],
                 new Product,
@@ -221,6 +225,11 @@ final class ProductService
                 'status' => ProductStatus::Active->value,
             ]);
 
+            if ($model3dFile !== null) {
+                $path = $this->media->storeProduct3dModel($product->id, $model3dFile);
+                $product->forceFill(['model_3d_path' => $path])->save();
+            }
+
             $this->syncColors($product, $attributes['colors'] ?? []);
             $this->inventory->createInitial($product, (int) ($attributes['stock_quantity'] ?? 0), $user);
 
@@ -237,11 +246,15 @@ final class ProductService
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function update(User $user, Product $product, array $attributes): Product
+    public function update(User $user, Product $product, array $attributes, ?UploadedFile $model3d = null): Product
     {
         $this->inventory->assertProductOwnership($user, $product);
+        $model3dFile = $model3d ?? ($attributes['model_3d'] ?? null);
+        if (! ($model3dFile instanceof UploadedFile)) {
+            $model3dFile = null;
+        }
 
-        return DB::transaction(function () use ($product, $attributes) {
+        return DB::transaction(function () use ($product, $attributes, $model3dFile) {
             if (isset($attributes['category_id'])) {
                 Category::query()->active()->findOrFail($attributes['category_id']);
             }
@@ -264,6 +277,19 @@ final class ProductService
                     ? $attributes['expected_available_at']
                     : $product->expected_available_at,
             ])->save();
+
+            if ($model3dFile !== null) {
+                if ($product->model_3d_path) {
+                    $this->media->deletePath($product->model_3d_path);
+                }
+                $path = $this->media->storeProduct3dModel($product->id, $model3dFile);
+                $product->forceFill(['model_3d_path' => $path])->save();
+            } elseif (! empty($attributes['remove_model_3d'])) {
+                if ($product->model_3d_path) {
+                    $this->media->deletePath($product->model_3d_path);
+                }
+                $product->forceFill(['model_3d_path' => null])->save();
+            }
 
             if (array_key_exists('colors', $attributes)) {
                 $this->syncColors($product, $attributes['colors']);
@@ -462,6 +488,7 @@ final class ProductService
             "{$table}.promotion_ends_at",
             "{$table}.product_type",
             "{$table}.availability_mode",
+            "{$table}.model_3d_path",
             "{$table}.created_at",
         ];
     }
@@ -589,6 +616,10 @@ final class ProductService
 
         if ($this->isTruthy($filters['discounted'] ?? null)) {
             $query->withActiveDiscount();
+        }
+
+        if ($this->isTruthy($filters['has_3d'] ?? $filters['only_3d'] ?? $filters['model_3d'] ?? null)) {
+            $query->whereNotNull("{$table}.model_3d_path")->where("{$table}.model_3d_path", '!=', '');
         }
 
         if (isset($filters['min_price'])) {

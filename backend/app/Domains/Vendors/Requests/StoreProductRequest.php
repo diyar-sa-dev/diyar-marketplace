@@ -43,6 +43,7 @@ class StoreProductRequest extends FormRequest
             'colors.*.hex_code' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'images' => ['sometimes', 'array', 'max:5'],
             'images.*' => ['file', 'max:'.$maxKb, 'mimes:jpg,jpeg,png,webp'],
+            'model_3d' => ['sometimes', 'nullable', 'file', 'max:25600'],
             'vendor_account_id' => ['prohibited'],
             'user_id' => ['prohibited'],
         ];

@@ -41,6 +41,8 @@ class ProductCardResource extends JsonResource
             'discount_percent' => $discountPercent,
             'availability_mode' => $this->availability_mode->value,
             'product_type' => $this->product_type->value,
+            'has_3d' => ! empty($this->model_3d_path),
+            'model_3d_url' => $this->model_3d_url,
             'created_at' => $this->created_at?->toIso8601String(),
             'image_url' => $cover?->relationLoaded('mediaFile')
                 ? $media->url($cover->mediaFile->path)

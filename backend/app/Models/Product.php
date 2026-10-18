@@ -40,6 +40,7 @@ class Product extends Model
         'weight_kg',
         'materials',
         'warranty',
+        'model_3d_path',
         'return_policy_override_enabled',
         'returnable',
         'return_window_days',
@@ -153,6 +154,24 @@ class Product extends Model
                     ->whereColumn('vendor_accounts.id', "{$table}.vendor_account_id")
                     ->where('vendor_accounts.status', 'active');
             });
+    }
+
+    public function getModel3dUrlAttribute(): ?string
+    {
+        if (empty($this->model_3d_path)) {
+            return null;
+        }
+
+        return app(\App\Core\Support\Media\MediaUploadService::class)->url($this->model_3d_path);
+    }
+
+    /**
+     * @param  Builder<Product>  $query
+     */
+    public function scopeWith3dModel(Builder $query): void
+    {
+        $table = $query->getModel()->getTable();
+        $query->whereNotNull("{$table}.model_3d_path")->where("{$table}.model_3d_path", '!=', '');
     }
 
     /**

@@ -53,6 +53,8 @@ export interface ProductCard {
   reviews_count?: number;
   user_saved?: boolean;
   is_own_store?: boolean;
+  has_3d?: boolean;
+  model_3d_url?: string | null;
   /** Server-computed estimate from admin loyalty rules */
   loyalty_points_estimate?: number;
 }
@@ -114,6 +116,8 @@ export interface ProductDetail {
   vendor?: ProductVendor & { id: string };
   category?: ProductCategoryRef & { id: string };
   related_products?: ProductCard[];
+  has_3d?: boolean;
+  model_3d_url?: string | null;
   sales_stats?: {
     orders_count: number;
     total_revenue: string;
@@ -181,6 +185,8 @@ export interface ProductListFilters {
   availability_mode?: 'in_stock' | 'out_of_stock' | 'preorder';
   product_type?: 'single' | 'bundle';
   discounted?: boolean | string;
+  has_3d?: boolean | string;
+  only_3d?: boolean | string;
   sort?: string;
   page?: number;
   per_page?: number;

@@ -49,6 +49,8 @@ class UpdateProductRequest extends FormRequest
             'return_requires_evidence' => ['sometimes', 'nullable', 'boolean'],
             'return_shipping_paid_by' => ['sometimes', 'nullable', 'string', Rule::in(ReturnShippingPaidBy::values())],
             'return_shipping_refundable' => ['sometimes', 'nullable', 'boolean'],
+            'model_3d' => ['sometimes', 'nullable', 'file', 'max:25600'],
+            'remove_model_3d' => ['sometimes', 'nullable', 'boolean'],
             'vendor_account_id' => ['prohibited'],
             'user_id' => ['prohibited'],
         ];

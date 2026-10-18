@@ -141,4 +141,28 @@ class ProductFilterTest extends TestCase
 
         $this->assertGreaterThan(0, count($response->json('data.items')));
     }
+
+    public function test_products_can_be_filtered_by_has_3d_flag(): void
+    {
+        $diskName = (string) config('diyar_media.disk', 'media');
+        \Illuminate\Support\Facades\Storage::fake($diskName);
+        \Illuminate\Support\Facades\Storage::disk($diskName)->put('products/sample/model.glb', 'glTF binary content');
+
+        $target = Product::query()->firstOrFail();
+        $target->forceFill(['model_3d_path' => 'products/sample/model.glb'])->save();
+
+        $response = $this->getJson('/api/v1/products?has_3d=true&per_page=50');
+        $response->assertOk();
+
+        $items = $response->json('data.items');
+        $this->assertNotEmpty($items);
+
+        foreach ($items as $item) {
+            $this->assertTrue($item['has_3d']);
+            $this->assertNotNull($item['model_3d_url']);
+        }
+
+        $ids = collect($items)->pluck('id')->all();
+        $this->assertContains($target->id, $ids);
+    }
 }

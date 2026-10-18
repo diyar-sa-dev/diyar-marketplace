@@ -119,6 +119,42 @@ final class MediaUploadService
         )->path;
     }
 
+    public function storeProduct3dModel(string $productId, UploadedFile $file): string
+    {
+        if (! $file->isValid()) {
+            throw new InvalidArgumentException(__('diyar.media.invalid_upload'));
+        }
+
+        $maxBytes = 25 * 1024 * 1024; // 25 MB max limit for 3D assets
+        if ($file->getSize() > $maxBytes) {
+            throw new InvalidArgumentException(__('diyar.media.file_too_large'));
+        }
+
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        if (! in_array($extension, ['glb', 'gltf'], true)) {
+            throw new InvalidArgumentException(__('diyar.media.invalid_extension'));
+        }
+
+        // Binary verification for GLB format (first 4 bytes must be 'glTF')
+        if ($extension === 'glb') {
+            $realPath = $file->getRealPath();
+            if ($realPath && file_exists($realPath)) {
+                $handle = @fopen($realPath, 'rb');
+                if ($handle) {
+                    $magic = fread($handle, 4);
+                    fclose($handle);
+                    if ($magic !== 'glTF') {
+                        throw new InvalidArgumentException('الملف المحدد ليس نموذج 3D صالح بصيغة GLB');
+                    }
+                }
+            }
+        }
+
+        $directory = sprintf('products/%s/model3d', $productId);
+
+        return $this->persistRawUpload($directory, $file, $extension)->path;
+    }
+
     public function storeCmsImage(User $user, UploadedFile $file, string $directory): string
     {
         unset($user);

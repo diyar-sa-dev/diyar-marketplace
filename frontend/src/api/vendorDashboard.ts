@@ -71,6 +71,7 @@ type UploadProgressHandler = (percent: number) => void;
 export async function createVendorProduct(
   payload: VendorProductPayload,
   images?: File[],
+  model3d?: File | null,
   onProgress?: UploadProgressHandler,
 ): Promise<ProductDetail> {
   const formData = new FormData();
@@ -94,6 +95,9 @@ export async function createVendorProduct(
     formData.append(key, String(value));
   });
   images?.forEach((file) => formData.append('images[]', file));
+  if (model3d) {
+    formData.append('model_3d', model3d);
+  }
 
   const response = await withCsrf(() =>
     apiClient.post<ProductDetailResponse>('/dashboard/vendor/products', formData, {
@@ -112,7 +116,53 @@ export async function createVendorProduct(
 export async function updateVendorProduct(
   id: string,
   payload: Partial<VendorProductPayload>,
+  model3d?: File | null,
+  removeModel3d?: boolean,
+  onProgress?: UploadProgressHandler,
 ): Promise<ProductDetail> {
+  if (model3d || removeModel3d) {
+    const formData = new FormData();
+    formData.append('_method', 'PATCH');
+    Object.entries(payload).forEach(([key, value]) => {
+      if (value === undefined || value === null) {
+        return;
+      }
+      if (key === 'colors' && Array.isArray(value)) {
+        value.forEach((color, index) => {
+          formData.append(`colors[${index}][name]`, color.name);
+          formData.append(`colors[${index}][hex_code]`, color.hex_code);
+        });
+        return;
+      }
+      if (key === 'materials' && Array.isArray(value)) {
+        value.forEach((material, index) => {
+          formData.append(`materials[${index}]`, material);
+        });
+        return;
+      }
+      formData.append(key, String(value));
+    });
+    if (model3d) {
+      formData.append('model_3d', model3d);
+    }
+    if (removeModel3d) {
+      formData.append('remove_model_3d', '1');
+    }
+
+    const response = await withCsrf(() =>
+      apiClient.post<ProductDetailResponse>(`/dashboard/vendor/products/${id}`, formData, {
+        adapter: 'xhr',
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (event) => {
+          if (event.total) {
+            onProgress?.(Math.round((event.loaded * 100) / event.total));
+          }
+        },
+      }),
+    );
+    return response.data.data.product;
+  }
+
   const response = await withCsrf(() =>
     apiClient.patch<ProductDetailResponse>(`/dashboard/vendor/products/${id}`, payload),
   );

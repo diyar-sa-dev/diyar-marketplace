@@ -27,21 +27,10 @@ export function CatalogPanel({ onSelectProduct, isAdding = false, enabled = true
     query,
     page,
     enabled,
+    filter3dOnly,
   );
 
-  const rawItems = data?.items ?? [];
-  const items = useMemo(() => {
-    if (!filter3dOnly) return rawItems;
-    return rawItems.filter((p) =>
-      Boolean(
-        (p as { model_3d?: string; model3d?: string; glb_url?: string; has_3d?: boolean; asset_ref?: string }).model_3d ||
-        (p as { model3d?: string }).model3d ||
-        (p as { glb_url?: string }).glb_url ||
-        (p as { has_3d?: boolean }).has_3d ||
-        (p as { asset_ref?: string }).asset_ref
-      ),
-    );
-  }, [rawItems, filter3dOnly]);
+  const items = data?.items ?? [];
   const pagination = data?.pagination;
   const trimmed = query.replace(/\s+/g, ' ').trim();
   const showSearchHint =
@@ -109,7 +98,10 @@ export function CatalogPanel({ onSelectProduct, isAdding = false, enabled = true
       <div className="flex items-center gap-1.5 p-1 rounded-xl bg-diyar-cream/35 border border-diyar-brown/15 text-xs">
         <button
           type="button"
-          onClick={() => setFilter3dOnly(false)}
+          onClick={() => {
+            setFilter3dOnly(false);
+            setPage(1);
+          }}
           className={`flex-1 py-1 px-2 rounded-lg text-center font-bold transition-all cursor-pointer ${
             !filter3dOnly
               ? 'bg-white text-diyar-dark shadow-2xs border border-diyar-brown/20'
@@ -120,7 +112,10 @@ export function CatalogPanel({ onSelectProduct, isAdding = false, enabled = true
         </button>
         <button
           type="button"
-          onClick={() => setFilter3dOnly(true)}
+          onClick={() => {
+            setFilter3dOnly(true);
+            setPage(1);
+          }}
           className={`flex-1 py-1 px-2 rounded-lg text-center font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
             filter3dOnly
               ? 'bg-diyar-dark text-amber-300 shadow-2xs border border-diyar-dark'

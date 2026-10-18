@@ -164,6 +164,12 @@ final class CatalogFilterNormalizer
             unset($normalized['colors']);
         }
 
+        if (isset($normalized['has_3d']) || isset($normalized['only_3d']) || isset($normalized['model_3d'])) {
+            $raw3d = $normalized['has_3d'] ?? $normalized['only_3d'] ?? $normalized['model_3d'];
+            $normalized['has_3d'] = filter_var($raw3d, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
+            unset($normalized['only_3d'], $normalized['model_3d']);
+        }
+
         return $normalized;
     }
 
