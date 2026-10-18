@@ -18,8 +18,33 @@ import {
   type RoomRenderer,
   type ViewState,
 } from '../types.ts';
+import { resolveMediaUrl } from '../../../../lib/media.ts';
 
 type TaggedFabricObject = FabricObject & { diyarItemId?: string };
+
+export interface ItemColorPalette {
+  fill: string;
+  stroke: string;
+  lightBg: string;
+}
+
+export function getItemAccentColor(id: string): ItemColorPalette {
+  const PALETTE: ItemColorPalette[] = [
+    { fill: 'rgba(166, 123, 91, 0.22)', stroke: '#8a6549', lightBg: '#fbf7f4' }, // diyar brown
+    { fill: 'rgba(217, 119, 6, 0.22)', stroke: '#b45309', lightBg: '#fffbeb' },  // warm amber
+    { fill: 'rgba(2, 132, 199, 0.22)', stroke: '#0369a1', lightBg: '#f0f9ff' },  // sky blue
+    { fill: 'rgba(5, 150, 105, 0.22)', stroke: '#047857', lightBg: '#ecfdf5' },  // emerald
+    { fill: 'rgba(124, 58, 237, 0.22)', stroke: '#6d28d9', lightBg: '#f5f3ff' }, // violet
+    { fill: 'rgba(225, 29, 72, 0.22)', stroke: '#be123c', lightBg: '#fff1f2' },  // rose
+    { fill: 'rgba(13, 148, 136, 0.22)', stroke: '#0f766e', lightBg: '#f0fdfa' }, // teal
+    { fill: 'rgba(194, 65, 12, 0.22)', stroke: '#9a3412', lightBg: '#fff7ed' },  // terracotta
+  ];
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  }
+  return PALETTE[hash % PALETTE.length];
+}
 
 export class BlenderItemRect extends Rect {
   diyarItemId?: string;
@@ -27,14 +52,43 @@ export class BlenderItemRect extends Rect {
   isBlenderSelected = false;
   itemName?: string;
   isLockedItem = false;
+  accentColor: ItemColorPalette = {
+    fill: 'rgba(166, 123, 91, 0.22)',
+    stroke: '#8a6549',
+    lightBg: '#fbf7f4',
+  };
 
   override _render(ctx: CanvasRenderingContext2D): void {
     super._render(ctx);
 
     const w = this.width;
     const h = this.height;
+    const halfW = w / 2;
+    const halfH = h / 2;
+    const r = Math.min(6, Math.max(2, w / 8, h / 8));
 
-    // 1. Draw Product Image inside bounding box
+    // 1. Draw rounded box with distinct accent color tint
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(-halfW + r, -halfH);
+    ctx.lineTo(halfW - r, -halfH);
+    ctx.arcTo(halfW, -halfH, halfW, -halfH + r, r);
+    ctx.lineTo(halfW, halfH - r);
+    ctx.arcTo(halfW, halfH, halfW - r, halfH, r);
+    ctx.lineTo(-halfW + r, halfH);
+    ctx.arcTo(-halfW, halfH, -halfW, halfH - r, r);
+    ctx.lineTo(-halfW, -halfH + r);
+    ctx.arcTo(-halfW, -halfH, -halfW + r, -halfH, r);
+    ctx.closePath();
+
+    ctx.fillStyle = this.isLockedItem
+      ? 'rgba(203, 213, 225, 0.45)'
+      : this.isBlenderSelected
+        ? 'rgba(245, 158, 11, 0.28)'
+        : this.accentColor.fill;
+    ctx.fill();
+
+    // 2. Draw Product Image inside bounding box
     if (this.productImg && this.productImg.complete && (this.productImg.naturalWidth > 0 || this.productImg.width > 0)) {
       const pad = 3;
       const maxW = Math.max(1, w - pad * 2);
@@ -48,7 +102,7 @@ export class BlenderItemRect extends Rect {
       const drawY = -drawH / 2;
 
       ctx.save();
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
       ctx.shadowBlur = 6;
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 2;
@@ -60,21 +114,17 @@ export class BlenderItemRect extends Rect {
       ctx.restore();
     }
 
-    // 2. Blender Corner Vertex Brackets: ⎡ ⎤ ⎣ ⎦
+    // 3. Blender Corner Vertex Brackets: ⎡ ⎤ ⎣ ⎦
     const bracketLen = Math.max(4, Math.min(10, w / 4, h / 4));
     const strokeCol = this.isLockedItem
       ? '#94a3b8'
       : this.isBlenderSelected
         ? '#f59e0b'
-        : '#735942';
+        : this.accentColor.stroke;
 
-    ctx.save();
     ctx.strokeStyle = strokeCol;
-    ctx.lineWidth = this.isBlenderSelected ? 2.5 : 1.8;
+    ctx.lineWidth = this.isBlenderSelected ? 2.6 : 1.8;
     ctx.lineCap = 'square';
-
-    const halfW = w / 2;
-    const halfH = h / 2;
 
     // Top-Left ⎡
     ctx.beginPath();
@@ -104,7 +154,7 @@ export class BlenderItemRect extends Rect {
     ctx.lineTo(halfW, halfH - bracketLen);
     ctx.stroke();
 
-    // 3. Blender Direction Notch / Front Indicator Arrow
+    // 4. Blender Direction Notch / Front Indicator Arrow
     ctx.beginPath();
     ctx.moveTo(-5, -halfH + 6);
     ctx.lineTo(0, -halfH - 2);
@@ -173,13 +223,17 @@ export class FabricRoomRenderer implements RoomRenderer {
   mount(container: HTMLElement, options: RenderOptions): void {
     this.destroy();
     this.mountContainer = container;
-    this.mountOptions = options;
+    const rect = container.getBoundingClientRect();
+    const width = Math.max(Math.floor(rect.width) || options.widthPx, 100);
+    const height = Math.max(Math.floor(rect.height) || options.heightPx, 100);
+    this.mountOptions = { ...options, widthPx: width, heightPx: height };
+
     const canvasEl = document.createElement('canvas');
     container.replaceChildren(canvasEl);
     container.style.touchAction = 'none';
     this.canvas = new Canvas(canvasEl, {
-      width: options.widthPx,
-      height: options.heightPx,
+      width,
+      height,
       backgroundColor: '#faf8f5',
       selection: true,
       allowTouchScrolling: false,
@@ -196,14 +250,14 @@ export class FabricRoomRenderer implements RoomRenderer {
       const evt = opt.e as MouseEvent | TouchEvent;
       const target = opt.target as TaggedFabricObject | undefined;
       const isItem = Boolean(target?.diyarItemId);
+      if (this.canvas) {
+        this.canvas.defaultCursor = 'grabbing';
+      }
       if (!isItem) {
         this.isPanning = true;
         const coords = this.getPointerCoords(evt);
         this.panStartX = coords.x;
         this.panStartY = coords.y;
-        if (this.canvas) {
-          this.canvas.defaultCursor = 'grabbing';
-        }
       }
     });
 
@@ -217,6 +271,7 @@ export class FabricRoomRenderer implements RoomRenderer {
       if (vpt) {
         vpt[4] += dx;
         vpt[5] += dy;
+        this.clampViewportTransform();
         this.panStartX = coords.x;
         this.panStartY = coords.y;
         this.canvas.requestRenderAll();
@@ -224,8 +279,8 @@ export class FabricRoomRenderer implements RoomRenderer {
     });
 
     const stopPan = () => {
-      if (this.isPanning && this.canvas) {
-        this.isPanning = false;
+      this.isPanning = false;
+      if (this.canvas) {
         this.canvas.defaultCursor = 'default';
       }
     };
@@ -268,8 +323,12 @@ export class FabricRoomRenderer implements RoomRenderer {
     if (!this.canvas || !this.mountOptions) {
       return;
     }
-    this.mountOptions = { ...this.mountOptions, widthPx, heightPx };
-    this.canvas.setDimensions({ width: widthPx, height: heightPx });
+    const container = this.mountContainer;
+    const realW = Math.max(container?.clientWidth || widthPx, 100);
+    const realH = Math.max(container?.clientHeight || heightPx, 100);
+    this.mountOptions = { ...this.mountOptions, widthPx: realW, heightPx: realH };
+    this.canvas.setDimensions({ width: realW, height: realH });
+    this.clampViewportTransform();
     if (this.currentDocument) {
       this.render(this.currentDocument, {
         scalePxPerM: this.currentScale,
@@ -380,17 +439,21 @@ export class FabricRoomRenderer implements RoomRenderer {
         const h = Math.max(box.heightPx, 4);
 
         if (existing) {
+          const accent = existing.accentColor || getItemAccentColor(item.id);
+          existing.accentColor = accent;
           existing.set({
             left: center.x,
             top: center.y - isoLift,
             width: w,
             height: h,
             angle: item.rotation_deg,
-            stroke: item.locked ? '#94a3b8' : (existing.isBlenderSelected ? '#f59e0b' : '#735942'),
-            strokeWidth: existing.isBlenderSelected ? 2.2 : 1.5,
-            fill: item.locked ? 'rgba(203, 213, 225, 0.35)' : 'rgba(255, 255, 255, 0.08)',
+            stroke: item.locked ? '#94a3b8' : (existing.isBlenderSelected ? '#f59e0b' : accent.stroke),
+            strokeWidth: existing.isBlenderSelected ? 2.5 : 1.8,
+            fill: item.locked ? 'rgba(203, 213, 225, 0.45)' : (existing.isBlenderSelected ? 'rgba(245, 158, 11, 0.28)' : accent.fill),
             selectable: true,
             evented: true,
+            hoverCursor: 'grab',
+            moveCursor: 'grabbing',
             lockMovementX: item.locked,
             lockMovementY: item.locked,
             lockRotation: item.locked,
@@ -401,8 +464,9 @@ export class FabricRoomRenderer implements RoomRenderer {
           existing.isLockedItem = item.locked;
           existing.itemName = item.snapshot.name;
           existing.setCoords();
-          if (!existing.productImg && item.snapshot.thumbnail_url) {
-            this.loadImageForRect(existing, item.snapshot.thumbnail_url);
+          const imgUrl = item.snapshot.thumbnail_url;
+          if (!existing.productImg && imgUrl) {
+            this.loadImageForRect(existing, imgUrl);
           }
         } else {
           this.canvas.add(this.createItemObject(item, scale));
@@ -456,12 +520,18 @@ export class FabricRoomRenderer implements RoomRenderer {
       for (const [id, itemRect] of this.itemObjects) {
         const isSelected = selectedSet.has(id);
         itemRect.isBlenderSelected = isSelected;
+        const accent = itemRect.accentColor;
         itemRect.set({
-          stroke: itemRect.isLockedItem ? '#94a3b8' : isSelected ? '#f59e0b' : '#735942',
-          strokeWidth: isSelected ? 2.2 : 1.5,
-          borderColor: isSelected ? '#f59e0b' : '#735942',
+          stroke: itemRect.isLockedItem ? '#94a3b8' : isSelected ? '#f59e0b' : accent.stroke,
+          strokeWidth: isSelected ? 2.5 : 1.8,
+          borderColor: isSelected ? '#f59e0b' : accent.stroke,
           cornerColor: isSelected ? '#f59e0b' : '#ffffff',
-          cornerStrokeColor: isSelected ? '#ffffff' : '#735942',
+          cornerStrokeColor: isSelected ? '#ffffff' : accent.stroke,
+          fill: itemRect.isLockedItem
+            ? 'rgba(203, 213, 225, 0.45)'
+            : isSelected
+              ? 'rgba(245, 158, 11, 0.28)'
+              : accent.fill,
         });
       }
 
@@ -497,6 +567,7 @@ export class FabricRoomRenderer implements RoomRenderer {
     if (!vpt) return;
     vpt[4] += dx;
     vpt[5] += dy;
+    this.clampViewportTransform();
     this.canvas.requestRenderAll();
   }
 
@@ -506,6 +577,7 @@ export class FabricRoomRenderer implements RoomRenderer {
     const current = this.canvas.getZoom();
     const next = Math.min(4, Math.max(0.4, current * factor));
     this.canvas.zoomToPoint(new Point(center.left, center.top), next);
+    this.clampViewportTransform();
     this.canvas.requestRenderAll();
   }
 
@@ -515,8 +587,46 @@ export class FabricRoomRenderer implements RoomRenderer {
     this.centerRoomInViewport();
   }
 
-  private loadImageForRect(rect: BlenderItemRect, imageUrl: string | undefined): void {
-    if (!imageUrl || typeof Image === 'undefined') return;
+  private clampViewportTransform(): void {
+    if (!this.canvas || !this.currentDocument) return;
+    const vpt = this.canvas.viewportTransform;
+    if (!vpt) return;
+
+    const w = this.canvas.getWidth();
+    const h = this.canvas.getHeight();
+    if (w <= 0 || h <= 0) return;
+
+    const room = this.currentDocument.room;
+    const scale = this.currentScale;
+    const zoom = vpt[0] || 1;
+
+    let minRoomX = 0;
+    let maxRoomX = room.width_m * scale;
+    let minRoomY = 0;
+    let maxRoomY = room.depth_m * scale;
+
+    if (this.currentProjection === 'isometric_25d') {
+      const corners = projectRoomFloorToCanvas(room.width_m, room.depth_m, scale);
+      minRoomX = Math.min(...corners.map((c) => c.x));
+      maxRoomX = Math.max(...corners.map((c) => c.x));
+      minRoomY = Math.min(...corners.map((c) => c.y));
+      maxRoomY = Math.max(...corners.map((c) => c.y));
+    }
+
+    // Keep at least 15% of the room visible inside the canvas viewport margins
+    const minPanX = -maxRoomX * zoom + w * 0.15;
+    const maxPanX = -minRoomX * zoom + w * 0.85;
+    const minPanY = -maxRoomY * zoom + h * 0.15;
+    const maxPanY = -minRoomY * zoom + h * 0.85;
+
+    vpt[4] = Math.max(minPanX, Math.min(maxPanX, vpt[4]));
+    vpt[5] = Math.max(minPanY, Math.min(maxPanY, vpt[5]));
+  }
+
+  private loadImageForRect(rect: BlenderItemRect, rawImageUrl: string | undefined): void {
+    if (!rawImageUrl || typeof Image === 'undefined') return;
+    const imageUrl = resolveMediaUrl(rawImageUrl) ?? rawImageUrl;
+    if (!imageUrl) return;
 
     const cached = this.imageCache.get(imageUrl);
     if (cached) {
@@ -567,8 +677,9 @@ export class FabricRoomRenderer implements RoomRenderer {
         ? elevationScreenOffsetPx(item.snapshot.height_m, scalePxPerM)
         : 0;
     const imageUrl = item.snapshot.thumbnail_url;
+    const accent = getItemAccentColor(item.id);
 
-    // Blender-style transparent bounding rectangle with corner vertex handles
+    // Blender-style colored bounding rectangle with corner vertex handles
     const rect = new BlenderItemRect({
       left: center.x,
       top: center.y - isoLift,
@@ -577,12 +688,14 @@ export class FabricRoomRenderer implements RoomRenderer {
       angle: item.rotation_deg,
       originX: 'center',
       originY: 'center',
-      fill: item.locked ? 'rgba(203, 213, 225, 0.35)' : 'rgba(255, 255, 255, 0.08)',
-      stroke: item.locked ? '#94a3b8' : '#735942',
-      strokeWidth: 1.5,
+      fill: item.locked ? 'rgba(203, 213, 225, 0.45)' : accent.fill,
+      stroke: item.locked ? '#94a3b8' : accent.stroke,
+      strokeWidth: 1.8,
       strokeDashArray: [4, 3],
       selectable: true,
       evented: true,
+      hoverCursor: 'grab',
+      moveCursor: 'grabbing',
       lockMovementX: item.locked,
       lockMovementY: item.locked,
       lockRotation: item.locked,
@@ -595,16 +708,17 @@ export class FabricRoomRenderer implements RoomRenderer {
       transparentCorners: false,
       cornerStyle: 'circle',
       cornerColor: '#ffffff',
-      cornerStrokeColor: '#735942',
+      cornerStrokeColor: accent.stroke,
       cornerSize: touch ? 12 : 7,
       touchCornerSize: touch ? 26 : 12,
-      borderColor: '#735942',
+      borderColor: accent.stroke,
       borderScaleFactor: 1.5,
       padding: touch ? 6 : 2,
     });
     rect.diyarItemId = item.id;
     rect.itemName = item.snapshot.name;
     rect.isLockedItem = item.locked;
+    rect.accentColor = accent;
     this.itemObjects.set(item.id, rect);
 
     if (imageUrl) {

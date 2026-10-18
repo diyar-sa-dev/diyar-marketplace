@@ -43,7 +43,14 @@ export function VendorProductsGrid({
               tabIndex={0}
             >
               {img ? (
-                <img src={img} alt={product.name} className="w-full h-full object-cover" />
+                <img
+                  src={img}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
               ) : (
                 <Tag size={48} />
               )}

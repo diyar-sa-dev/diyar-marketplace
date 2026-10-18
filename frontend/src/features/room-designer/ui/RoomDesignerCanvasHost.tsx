@@ -263,7 +263,7 @@ export function RoomDesignerCanvasHost({
     >
       <div
         ref={containerRef}
-        className={fillContainer ? 'h-full w-full' : undefined}
+        className={fillContainer ? 'h-full w-full overflow-hidden [&_.canvas-container]:!w-full [&_.canvas-container]:!h-full' : undefined}
         dir="ltr"
         data-testid="room-designer-canvas-host"
         aria-label="Room designer canvas"

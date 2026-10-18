@@ -13,6 +13,8 @@ export interface ItemSnapshot {
   height_m?: number | null;
   thumbnail_url?: string | null;
   asset_ref?: string | null;
+  has_3d?: boolean;
+  model_3d_url?: string | null;
   /** When true, RESIZE may change width_m/depth_m on snapshot (not used in V1 catalog). */
   resizable?: boolean;
 }

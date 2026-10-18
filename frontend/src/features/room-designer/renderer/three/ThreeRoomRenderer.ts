@@ -123,8 +123,17 @@ export class ThreeRoomRenderer implements RoomRenderer {
     controls.maxPolarAngle = Math.PI / 2.05;
     this.controls = controls;
 
-    this.pointerDownHandler = (ev: PointerEvent) => this.onPointerDown(ev);
+    canvas.style.cursor = 'grab';
+    this.pointerDownHandler = (ev: PointerEvent) => {
+      canvas.style.cursor = 'grabbing';
+      this.onPointerDown(ev);
+    };
     canvas.addEventListener('pointerdown', this.pointerDownHandler);
+    window.addEventListener('pointerup', () => {
+      if (!this.disposed && canvas) {
+        canvas.style.cursor = 'grab';
+      }
+    });
 
     this.startLoop();
     if (this.currentDocument) {
@@ -415,8 +424,9 @@ export class ThreeRoomRenderer implements RoomRenderer {
     for (const item of document.items) {
       const existing = this.itemMeshes.get(item.id);
       if (existing) {
-        const center = itemCenterToThreeMeters(item);
-        existing.position.set(center.x, center.y, center.z);
+        const isGlbGroup = existing.type === 'Group';
+        const yPos = isGlbGroup ? 0 : itemCenterToThreeMeters(item).y;
+        existing.position.set(item.position_m.x, yPos, item.position_m.z);
         existing.rotation.y = itemRotationYRadians(item);
       } else {
         const mesh = await this.createItemMesh(item);
@@ -541,23 +551,49 @@ export class ThreeRoomRenderer implements RoomRenderer {
       return this.createBoxMesh(item);
     }
     try {
-      const clone = await this.loadGlbGroup(url);
-      clone.traverse((child) => {
-        if ((child as import('three').Mesh).isMesh) {
-          child.castShadow = true;
-          child.receiveShadow = true;
+      const gltfScene = await this.loadGlbGroup(url);
+      gltfScene.traverse((child) => {
+        const mesh = child as import('three').Mesh;
+        if (mesh.isMesh) {
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+          if (mesh.material) {
+            const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+            for (const m of mats) {
+              if ('envMapIntensity' in m) {
+                (m as any).envMapIntensity = 1.0;
+              }
+            }
+          }
         }
       });
-      const box = new this.three.Box3().setFromObject(clone);
-      const size = box.getSize(new this.three.Vector3());
+
+      // Compute raw bounds of the GLB model
+      const rawBox = new this.three.Box3().setFromObject(gltfScene);
+      const rawCenter = rawBox.getCenter(new this.three.Vector3());
+      const rawSize = rawBox.getSize(new this.three.Vector3());
       const catalog = itemSizeToThreeMeters(item);
-      if (size.x > 0 && size.y > 0 && size.z > 0) {
-        clone.scale.set(catalog.x / size.x, catalog.y / size.y, catalog.z / size.z);
+
+      const rootGroup = new this.three.Group();
+      (rootGroup as ItemMesh).diyarItemId = item.id;
+
+      // Inner container to normalize pivot to horizontal center and rest on floor (Y=0)
+      const innerContainer = new this.three.Group();
+      innerContainer.add(gltfScene);
+      gltfScene.position.set(-rawCenter.x, -rawBox.min.y, -rawCenter.z);
+
+      if (rawSize.x > 0 && rawSize.y > 0 && rawSize.z > 0) {
+        const scaleX = catalog.x / rawSize.x;
+        const scaleY = catalog.y / rawSize.y;
+        const scaleZ = catalog.z / rawSize.z;
+        innerContainer.scale.set(scaleX, scaleY, scaleZ);
       }
-      const center = itemCenterToThreeMeters(item);
-      clone.position.set(center.x, center.y, center.z);
-      clone.rotation.y = itemRotationYRadians(item);
-      (clone as ItemMesh).diyarItemId = item.id;
+
+      rootGroup.add(innerContainer);
+
+      // Position on floor at item's coordinates
+      rootGroup.position.set(item.position_m.x, 0, item.position_m.z);
+      rootGroup.rotation.y = itemRotationYRadians(item);
 
       // Blender-style EdgesGeometry Wireframe bounds for 3D model
       const edgesGeo = new this.three.EdgesGeometry(
@@ -567,14 +603,16 @@ export class ThreeRoomRenderer implements RoomRenderer {
         color: 0x5a4433,
         linewidth: 1.5,
         transparent: true,
-        opacity: 0.85,
+        opacity: 0.7,
       });
       const wireframe = new this.three.LineSegments(edgesGeo, edgesMat);
       wireframe.name = 'blender_wireframe';
-      clone.add(wireframe);
+      wireframe.position.set(0, catalog.y / 2, 0);
+      rootGroup.add(wireframe);
 
-      return clone as ItemMesh;
-    } catch {
+      return rootGroup as ItemMesh;
+    } catch (err) {
+      console.warn('[ThreeRoomRenderer] Failed to load GLB model, falling back to box mesh:', err);
       return this.createBoxMesh(item);
     }
   }

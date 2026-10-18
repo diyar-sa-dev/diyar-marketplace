@@ -267,6 +267,7 @@ export function Product3dModelViewer({
         };
       } catch (err) {
         if (!isDisposed) {
+          console.error('[Product3dModelViewer] Failed to load 3D model:', err);
           setLoading(false);
           setError('تعذّر تحميل النموذج ثلاثي الأبعاد. يرجى التحقق من اتصالك والمحاولة مجدداً.');
         }

@@ -52,13 +52,18 @@ export function productDetailToSnapshot(
 ): ItemSnapshot {
   const mapped = dimensionsCmToSnapshotMeters(product.dimensions);
   const thumbnail_url = product.images?.[0]?.url ?? null;
-  const asset_ref =
+  const rawModel3d =
     product.model_3d_url ??
     product.model_3d ??
     product.glb_url ??
     product.model3d ??
     product.asset_ref ??
     null;
+  const model_3d_url =
+    typeof rawModel3d === 'string' && rawModel3d.trim() !== '' ? rawModel3d.trim() : null;
+  const has_3d = Boolean(
+    (product as any).has_3d || model_3d_url || (product as any).model_3d_path,
+  );
 
   return {
     name: product.name,
@@ -66,7 +71,9 @@ export function productDetailToSnapshot(
     depth_m: mapped.depth_m,
     height_m: mapped.height_m,
     thumbnail_url,
-    asset_ref: typeof asset_ref === 'string' && asset_ref.trim() !== '' ? asset_ref.trim() : null,
+    asset_ref: model_3d_url,
+    has_3d,
+    model_3d_url,
   };
 }
 

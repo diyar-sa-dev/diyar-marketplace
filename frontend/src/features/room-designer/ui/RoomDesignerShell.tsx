@@ -202,19 +202,19 @@ export function RoomDesignerShell({
         const panStep = e.shiftKey ? 60 : 25;
         if (e.key === 'ArrowUp') {
           e.preventDefault();
-          canvasControlsRef.current?.panBy?.(0, panStep);
+          canvasControlsRef.current?.panBy?.(0, -panStep);
           return;
         } else if (e.key === 'ArrowDown') {
           e.preventDefault();
-          canvasControlsRef.current?.panBy?.(0, -panStep);
+          canvasControlsRef.current?.panBy?.(0, panStep);
           return;
         } else if (e.key === 'ArrowLeft') {
           e.preventDefault();
-          canvasControlsRef.current?.panBy?.(panStep, 0);
+          canvasControlsRef.current?.panBy?.(-panStep, 0);
           return;
         } else if (e.key === 'ArrowRight') {
           e.preventDefault();
-          canvasControlsRef.current?.panBy?.(-panStep, 0);
+          canvasControlsRef.current?.panBy?.(panStep, 0);
           return;
         } else if (e.key === 'Escape') {
           setIsRoomSelected(false);
@@ -1172,7 +1172,7 @@ export function RoomDesignerShell({
                 type="button"
                 className="h-7 w-7 flex items-center justify-center rounded-lg border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream transition cursor-pointer"
                 title="تحريك لأعلى (ArrowUp)"
-                onClick={() => canvasControlsRef.current?.panBy?.(0, 30)}
+                onClick={() => canvasControlsRef.current?.panBy?.(0, -30)}
               >
                 <ArrowUp size={13} />
               </button>
@@ -1180,7 +1180,7 @@ export function RoomDesignerShell({
                 type="button"
                 className="h-7 w-7 flex items-center justify-center rounded-lg border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream transition cursor-pointer"
                 title="تحريك لأسفل (ArrowDown)"
-                onClick={() => canvasControlsRef.current?.panBy?.(0, -30)}
+                onClick={() => canvasControlsRef.current?.panBy?.(0, 30)}
               >
                 <ArrowDown size={13} />
               </button>
@@ -1188,7 +1188,7 @@ export function RoomDesignerShell({
                 type="button"
                 className="h-7 w-7 flex items-center justify-center rounded-lg border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream transition cursor-pointer"
                 title="تحريك لليمين (ArrowRight)"
-                onClick={() => canvasControlsRef.current?.panBy?.(-30, 0)}
+                onClick={() => canvasControlsRef.current?.panBy?.(30, 0)}
               >
                 <ArrowRight size={13} />
               </button>
@@ -1196,7 +1196,7 @@ export function RoomDesignerShell({
                 type="button"
                 className="h-7 w-7 flex items-center justify-center rounded-lg border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream transition cursor-pointer"
                 title="تحريك لليسار (ArrowLeft)"
-                onClick={() => canvasControlsRef.current?.panBy?.(30, 0)}
+                onClick={() => canvasControlsRef.current?.panBy?.(-30, 0)}
               >
                 <ArrowLeft size={13} />
               </button>

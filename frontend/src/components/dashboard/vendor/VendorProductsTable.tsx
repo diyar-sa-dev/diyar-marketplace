@@ -17,13 +17,22 @@ export interface VendorProductRow {
 }
 
 export function mapToVendorProductRow(product: ProductCard): VendorProductRow {
+  const p = product as any;
+  const rawImage =
+    product.image_url ??
+    p.primary_image_url ??
+    p.images?.[0]?.url ??
+    p.images?.[0]?.media_file?.path ??
+    p.image ??
+    null;
+
   return {
     id: product.id,
     name: product.name,
     category: product.category?.name ?? '—',
     price: Number(product.sale_price),
-    stock: product.inventory?.available_quantity ?? 0,
-    imageUrl: product.image_url,
+    stock: product.inventory?.available_quantity ?? p.stock_quantity ?? 0,
+    imageUrl: rawImage,
   };
 }
 
@@ -84,6 +93,9 @@ export function VendorProductsTable({
                             src={img}
                             alt={product.name}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
                           />
                         ) : (
                           <Tag size={16} />

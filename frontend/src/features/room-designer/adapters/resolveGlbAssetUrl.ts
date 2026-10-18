@@ -1,12 +1,19 @@
 import type { ItemSnapshot } from '../domain/models.ts';
+import { resolveMediaUrl } from '../../../lib/media.ts';
 
 export const TIER3_GLB_PREFIX = 'tier3:';
 
 const ALLOWED = ['http:', 'https:'] as const;
 
 export function isAllowedGlbHttpUrl(url: string): boolean {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim();
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
+    return true;
+  }
   try {
-    const parsed = new URL(url);
+    const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+    const parsed = new URL(trimmed, base);
     return ALLOWED.includes(parsed.protocol as (typeof ALLOWED)[number]);
   } catch {
     return false;
@@ -15,21 +22,22 @@ export function isAllowedGlbHttpUrl(url: string): boolean {
 
 /** Resolve GLB URL for 3D presentation only (browser fetch — no server-side fetch). */
 export function resolveGlbAssetUrl(snapshot: ItemSnapshot): string | null {
-  const ref = snapshot.asset_ref?.trim();
-  if (ref?.startsWith(TIER3_GLB_PREFIX)) {
-    const rest = ref.slice(TIER3_GLB_PREFIX.length).trim();
-    if (isAllowedGlbHttpUrl(rest)) {
-      return rest;
-    }
-    return null;
+  const candidate = (snapshot.model_3d_url ?? snapshot.asset_ref)?.trim();
+  if (!candidate) return null;
+
+  let raw = candidate;
+  if (raw.startsWith(TIER3_GLB_PREFIX)) {
+    raw = raw.slice(TIER3_GLB_PREFIX.length).trim();
   }
+
+  const resolved = resolveMediaUrl(raw) ?? raw;
   if (
-    ref.endsWith('.glb') ||
-    ref.endsWith('.gltf') ||
-    /\.gl(b|tf)(\?.*)?$/i.test(ref)
+    resolved.endsWith('.glb') ||
+    resolved.endsWith('.gltf') ||
+    /\.gl(b|tf)(\?.*)?$/i.test(resolved)
   ) {
-    if (isAllowedGlbHttpUrl(ref)) {
-      return ref;
+    if (isAllowedGlbHttpUrl(resolved)) {
+      return resolved;
     }
   }
   return null;

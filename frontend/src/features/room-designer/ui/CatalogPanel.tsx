@@ -7,6 +7,7 @@ import {
 } from '../catalog/constants.ts';
 import { useRoomDesignerProductSearch } from '../catalog/useRoomDesignerProductSearch.ts';
 import { CatalogRowSkeleton } from './RoomDesignerWorkspaceSkeleton.tsx';
+import { resolveMediaUrl } from '../../../lib/media.ts';
 
 const PLACEHOLDER_FURNITURE =
   'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=60&w=400';
@@ -212,7 +213,7 @@ function CatalogProductRow({
       {/* Compact Thumbnail */}
       <div className="relative h-13 w-13 shrink-0 overflow-hidden rounded-lg bg-diyar-cream/30 border border-diyar-brown/10">
         <img
-          src={product.image_url || PLACEHOLDER_FURNITURE}
+          src={resolveMediaUrl(product.image_url) || PLACEHOLDER_FURNITURE}
           alt={product.name}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           loading="lazy"
