@@ -33,12 +33,9 @@ export function attachViewportPinchZoom(canvas: Canvas, surface: HTMLElement): (
   };
 
   const onWheel = (event: WheelEvent) => {
-    if (!event.ctrlKey) {
-      return;
-    }
     event.preventDefault();
     const delta = event.deltaY > 0 ? 0.92 : 1.08;
-    const zoom = Math.min(4, Math.max(0.5, canvas.getZoom() * delta));
+    const zoom = Math.min(4, Math.max(0.4, canvas.getZoom() * delta));
     const point = canvas.getPointer(event);
     canvas.zoomToPoint(point, zoom);
     canvas.requestRenderAll();

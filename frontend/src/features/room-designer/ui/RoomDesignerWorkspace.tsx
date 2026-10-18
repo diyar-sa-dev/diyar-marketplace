@@ -80,17 +80,17 @@ export function RoomDesignerWorkspace({
 
   if (!designIdFromRoute && draftEngine) {
     return (
-      <div className="flex min-h-0 flex-col gap-2">
+      <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
         {createMutation.isError ? (
-          <div className="px-1 text-center" data-testid="room-designer-page-error" role="alert">
-            <p className="text-sm text-muted-foreground">
+          <div className="px-1 text-center shrink-0 mb-1" data-testid="room-designer-page-error" role="alert">
+            <p className="text-xs text-muted-foreground">
               {parseApiError(createMutation.error).status === 403
                 ? 'مصمّم الغرف غير متاح حالياً.'
                 : parseApiError(createMutation.error).message || 'تعذّر حفظ التصميم.'}
             </p>
             <button
               type="button"
-              className="mt-2 text-sm text-diyar-brown underline"
+              className="mt-1 text-xs text-diyar-brown underline cursor-pointer"
               onClick={() => {
                 createStarted.current = false;
                 resetCreate();
@@ -105,6 +105,7 @@ export function RoomDesignerWorkspace({
           designId={designId}
           designVersion={data?.version}
           sessionResetKey="draft"
+          className="h-full"
         />
       </div>
     );
@@ -171,6 +172,13 @@ export function RoomDesignerWorkspace({
   }
 
   return (
-    <RoomDesignerShell engine={loadedEngine} designId={data!.id} designVersion={data!.version} />
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <RoomDesignerShell
+        engine={loadedEngine}
+        designId={data!.id}
+        designVersion={data!.version}
+        className="h-full"
+      />
+    </div>
   );
 }

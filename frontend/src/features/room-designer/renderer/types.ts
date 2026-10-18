@@ -33,6 +33,9 @@ export interface RoomRenderer {
   render(document: RoomDesignDocument, view: ViewState): void;
   setSelection(ids: string[]): void;
   onInteraction(handler: (event: RendererInteraction) => void): void;
+  zoomBy?(factor: number): void;
+  resetView?(): void;
+  rotateView?(angleRad: number): void;
 }
 
 export const DEFAULT_SCALE_PX_PER_M = 80;

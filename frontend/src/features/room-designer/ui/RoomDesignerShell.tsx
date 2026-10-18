@@ -1,4 +1,22 @@
-import { Box, Boxes, LayoutGrid, Redo2, RefreshCw, ScanLine, ShoppingCart, Sparkles, Trash2, Undo2, Upload, X } from 'lucide-react';
+import {
+  Box,
+  Boxes,
+  Camera,
+  LayoutGrid,
+  Maximize2,
+  Redo2,
+  RefreshCw,
+  RotateCcw,
+  RotateCw,
+  ScanLine,
+  ShoppingCart,
+  Sparkles,
+  Trash2,
+  Undo2,
+  ZoomIn,
+  ZoomOut,
+  X,
+} from 'lucide-react';
 import { useCallback, useMemo, useReducer, useRef, useState } from 'react';
 import { ErrorBoundary } from '../../../components/common/ErrorBoundary.tsx';
 import { useLocale } from '../../../hooks/useLocale.ts';
@@ -19,7 +37,7 @@ import { useRoomDesignAutosave } from '../persistence/useRoomDesignAutosave.ts';
 import { useRoomDesignAddToCart } from '../persistence/useRoomDesignAddToCart.ts';
 import { AddToCartReviewModal } from './AddToCartReviewModal.tsx';
 import { CatalogPanel } from './CatalogPanel.tsx';
-import { RoomDesignerCanvasHost } from './RoomDesignerCanvasHost.tsx';
+import { RoomDesignerCanvasHost, type RoomCanvasControls } from './RoomDesignerCanvasHost.tsx';
 import {
   hasPresentationModeToggle,
   isRoomDesignerAiSpatialEnabled,
@@ -42,7 +60,7 @@ export type RoomDesignerShellProps = {
 };
 
 const touchBtn =
-  'inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border bg-background px-2.5 text-sm sm:px-3 disabled:opacity-40';
+  'inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-diyar-brown/20 bg-white text-diyar-dark shadow-xs hover:border-diyar-brown hover:bg-diyar-cream/30 px-2.5 text-xs sm:text-sm font-medium transition-all disabled:opacity-40 cursor-pointer';
 
 export function RoomDesignerShell({
   engine: initialEngine,
@@ -69,6 +87,7 @@ export function RoomDesignerShell({
   const [arError, setArError] = useState<string | null>(null);
   const catalogSheetRef = useRef<HTMLDivElement>(null);
   const tryInRoomInputRef = useRef<HTMLInputElement>(null);
+  const canvasControlsRef = useRef<RoomCanvasControls | null>(null);
   const [canvasCrashKey, setCanvasCrashKey] = useState(0);
   const { t } = useLocale();
   useModalDialog(catalogOpen && !isLargeScreen, () => setCatalogOpen(false), catalogSheetRef);
@@ -229,101 +248,154 @@ export function RoomDesignerShell({
 
   return (
     <div
-      className={`flex min-h-0 flex-col gap-2 lg:grid lg:grid-cols-[minmax(240px,300px)_minmax(0,1fr)] lg:gap-4 ${className ?? ''}`}
+      className={`flex h-full min-h-0 flex-1 flex-col gap-2.5 overflow-hidden lg:grid lg:grid-cols-[minmax(280px,330px)_minmax(0,1fr)] lg:grid-rows-[auto_auto_minmax(0,1fr)] lg:gap-3 ${className ?? ''}`}
       data-testid="room-designer-shell"
       dir="rtl"
     >
-      <header className="flex items-center gap-2 overflow-x-auto overscroll-x-contain border-b border-border pb-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:col-span-2 [&::-webkit-scrollbar]:hidden">
-        <button
-          type="button"
-          className={touchBtn}
-          aria-label="تراجع"
-          disabled={!canUndo}
-          onClick={() => runSessionAction((s) => s.undo())}
-        >
-          <Undo2 size={18} />
-        </button>
-        <button
-          type="button"
-          className={touchBtn}
-          aria-label="إعادة"
-          disabled={!canRedo}
-          onClick={() => runSessionAction((s) => s.redo())}
-        >
-          <Redo2 size={18} />
-        </button>
-        <button
-          type="button"
-          className={touchBtn}
-          aria-label="حذف العنصر المحدد"
-          onClick={() => runSessionAction((s) => s.removeSelected())}
-        >
-          <Trash2 size={18} />
-        </button>
-        <button
-          type="button"
-          className={touchBtn}
-          aria-label="إفراغ الغرفة"
-          onClick={() => {
-            runSessionAction((s) => s.applyCommands([{ type: 'CLEAR_ROOM' }]));
-            resetTryInRoom();
-          }}
-        >
-          <RefreshCw size={18} />
-          <span className="hidden sm:inline">إفراغ الغرفة</span>
-        </button>
-        {designId ? (
+      {/* Top Toolbar Ribbon */}
+      <header className="flex shrink-0 items-center gap-2 overflow-x-auto overscroll-x-contain rounded-2xl border border-diyar-brown/20 bg-white p-2 shadow-2xs [-ms-overflow-style:none] [scrollbar-width:none] lg:col-span-2 [&::-webkit-scrollbar]:hidden">
+        {/* History Group */}
+        <div className="flex items-center gap-1">
           <button
             type="button"
             className={touchBtn}
-            aria-label={t('tryInRoom.choosePhoto')}
-            data-testid="try-in-room-open-designer"
-            onClick={() => tryInRoomInputRef.current?.click()}
+            aria-label="تراجع"
+            title="تراجع (Ctrl+Z)"
+            disabled={!canUndo}
+            onClick={() => runSessionAction((s) => s.undo())}
           >
-            <Upload size={18} />
-            <span className="hidden sm:inline">{t('tryInRoom.choosePhoto')}</span>
+            <Undo2 size={16} />
           </button>
-        ) : null}
+          <button
+            type="button"
+            className={touchBtn}
+            aria-label="إعادة"
+            title="إعادة (Ctrl+Y)"
+            disabled={!canRedo}
+            onClick={() => runSessionAction((s) => s.redo())}
+          >
+            <Redo2 size={16} />
+          </button>
+        </div>
 
+        <div className="h-6 w-px bg-diyar-brown/15 shrink-0" />
+
+        {/* Edit Actions */}
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            className={touchBtn}
+            aria-label="حذف العنصر المحدد"
+            title="حذف القطعة المحددة"
+            onClick={() => runSessionAction((s) => s.removeSelected())}
+          >
+            <Trash2 size={16} />
+          </button>
+          <button
+            type="button"
+            className={touchBtn}
+            aria-label="إفراغ الغرفة"
+            onClick={() => {
+              runSessionAction((s) => s.applyCommands([{ type: 'CLEAR_ROOM' }]));
+              resetTryInRoom();
+            }}
+          >
+            <RefreshCw size={16} />
+            <span className="hidden sm:inline">إفراغ الغرفة</span>
+          </button>
+        </div>
+
+        <div className="h-6 w-px bg-diyar-brown/15 shrink-0" />
+
+        {/* 2D / 2.5D / 3D Segmented Switcher */}
         {presentationToggleEnabled ? (
+          <div className="inline-flex items-center rounded-xl border border-diyar-brown/20 bg-diyar-cream/40 p-0.5 shadow-xs shrink-0">
+            <button
+              type="button"
+              className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
+                projection === 'top_down'
+                  ? 'bg-diyar-brown text-white shadow-xs'
+                  : 'text-diyar-dark/80 hover:bg-white/80'
+              }`}
+              aria-label="عرض علوي"
+              onClick={() => setProjection('top_down')}
+            >
+              <Box size={14} />
+              <span>2D علوي</span>
+            </button>
+            {isRoomDesigner25dEnabled() ? (
+              <button
+                type="button"
+                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
+                  projection === 'isometric_25d'
+                    ? 'bg-diyar-brown text-white shadow-xs'
+                    : 'text-diyar-dark/80 hover:bg-white/80'
+                }`}
+                aria-label="عرض منظور 2.5D"
+                onClick={() => setProjection('isometric_25d')}
+              >
+                <LayoutGrid size={14} />
+                <span>2.5D مجسم</span>
+              </button>
+            ) : null}
+            {isRoomDesigner3dEnabled() ? (
+              <button
+                type="button"
+                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
+                  projection === 'room_3d'
+                    ? 'bg-diyar-brown text-white shadow-xs'
+                    : 'text-diyar-dark/80 hover:bg-white/80'
+                }`}
+                aria-label="عرض ثلاثي الأبعاد"
+                onClick={() => setProjection('room_3d')}
+              >
+                <Boxes size={14} />
+                <span>3D واقعي</span>
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+
+        {/* Try in Room (AI) */}
+        {designId ? (
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-linear-to-r from-diyar-brown to-[#735942] px-3 py-1 text-xs font-bold text-white shadow-xs hover:opacity-95 active:scale-95 transition-all cursor-pointer shrink-0"
+              aria-label={t('tryInRoom.choosePhoto')}
+              data-testid="try-in-room-open-designer"
+              onClick={() => tryInRoomInputRef.current?.click()}
+            >
+              <Camera size={15} />
+              <span className="hidden sm:inline">معاينة في غرفتك (AI)</span>
+            </button>
+            {tryInRoomPreview ? (
+              <button
+                type="button"
+                onClick={resetTryInRoom}
+                className="inline-flex min-h-9 items-center gap-1 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 px-2 py-1 text-xs font-bold hover:bg-amber-200 transition cursor-pointer"
+                aria-label="إلغاء صورة الغرفة"
+                title="إلغاء صورة الغرفة"
+              >
+                <X size={12} />
+                <span className="hidden md:inline">إلغاء المعاينة</span>
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+
+        {/* AI Auto-Arrange */}
+        {designId && aiSpatialEnabled ? (
           <button
             type="button"
             className={touchBtn}
-            aria-pressed={projection !== 'top_down'}
-            aria-label={
-              projection === 'room_3d'
-                ? 'عرض ثلاثي الأبعاد'
-                : projection === 'isometric_25d'
-                  ? 'عرض منظور 2.5D'
-                  : 'عرض علوي'
-            }
-            title={projection}
-            onClick={() =>
-              setProjection((mode) =>
-                nextPresentationMode(mode, {
-                  allow25d: isRoomDesigner25dEnabled(),
-                  allow3d: isRoomDesigner3dEnabled(),
-                }),
-              )
-            }
+            aria-label="اقتراح ترتيب ذكي"
+            title="اقتراح ترتيب ذكي للمساحة"
+            disabled={layoutSuggesting}
+            onClick={() => void handleSuggestLayout()}
           >
-            {projection === 'room_3d' ? (
-              <Boxes size={18} />
-            ) : projection === 'isometric_25d' ? (
-              <LayoutGrid size={18} />
-            ) : (
-              <Box size={18} />
-            )}
-          </button>
-        ) : null}
-
-        {!isLargeScreen ? (
-          <button
-            type="button"
-            className={`${touchBtn} ms-auto`}
-            onClick={() => setCatalogOpen(true)}
-          >
-            المنتجات
+            <Sparkles size={16} className="text-diyar-brown" />
+            <span className="hidden md:inline">اقتراح ذكي</span>
           </button>
         ) : null}
 
@@ -334,102 +406,215 @@ export function RoomDesignerShell({
             aria-label="عرض بالواقع المعزّز"
             onClick={() => void handleOpenAr()}
           >
-            <ScanLine size={18} />
+            <ScanLine size={16} />
           </button>
         ) : null}
 
-        {designId && aiSpatialEnabled ? (
+        {/* Mobile Catalog Trigger */}
+        {!isLargeScreen ? (
           <button
             type="button"
-            className={touchBtn}
-            aria-label="اقتراح ترتيب ذكي"
-            disabled={layoutSuggesting}
-            onClick={() => void handleSuggestLayout()}
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-diyar-brown px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-diyar-brown/90 active:scale-95 transition-all ms-auto cursor-pointer shrink-0"
+            onClick={() => setCatalogOpen(true)}
           >
-            <Sparkles size={18} />
+            <Sparkles size={14} />
+            <span>المنتجات</span>
           </button>
         ) : null}
 
+        {/* Autosave & Cart Review */}
         {designId ? (
-          <>
-            <span className="shrink-0 whitespace-nowrap text-xs text-muted-foreground" aria-live="polite">
+          <div className="flex items-center gap-2 ms-auto shrink-0">
+            <span
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-diyar-cream/60 px-2.5 py-1 text-[11px] font-semibold text-diyar-dark border border-diyar-brown/15"
+              aria-live="polite"
+            >
+              <span className={`h-1.5 w-1.5 rounded-full ${syncStateLabel === 'محفوظ' ? 'bg-emerald-600' : 'bg-amber-500 animate-pulse'}`} />
               {syncStateLabel}
             </span>
             <button
               type="button"
-              className={`${touchBtn} ${isLargeScreen ? 'ms-auto' : ''}`}
+              className="relative inline-flex min-h-10 min-w-10 items-center justify-center rounded-xl border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-brown hover:text-white shadow-xs transition-all cursor-pointer"
               onClick={() => setCartModalOpen(true)}
               aria-label="إضافة إلى السلة"
+              title="مراجعة وإضافة قطع الغرفة للسلة"
             >
-              <ShoppingCart size={18} />
+              <ShoppingCart size={17} />
+              {cartLines.length > 0 ? (
+                <span className="absolute -top-1.5 -end-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-diyar-brown px-1 text-[10px] font-black text-white shadow-xs">
+                  {cartLines.length}
+                </span>
+              ) : null}
             </button>
-          </>
+          </div>
         ) : null}
       </header>
 
       {layoutError ? (
-        <p className="text-sm text-destructive lg:col-span-2" role="alert">
+        <p className="text-sm text-destructive lg:col-span-2 bg-red-50 p-2.5 rounded-xl border border-red-200" role="alert">
           {layoutError}
         </p>
       ) : null}
       {arError ? (
-        <p className="text-sm text-destructive lg:col-span-2" role="alert">
+        <p className="text-sm text-destructive lg:col-span-2 bg-red-50 p-2.5 rounded-xl border border-red-200" role="alert">
           {arError}
         </p>
       ) : null}
       {tryInRoomErrorKey ? (
-        <p className="text-sm text-destructive lg:col-span-2" role="alert">
+        <p className="text-sm text-destructive lg:col-span-2 bg-red-50 p-2.5 rounded-xl border border-red-200" role="alert">
           {t(`tryInRoom.errors.${tryInRoomErrorKey}`)}
         </p>
       ) : null}
 
-      <div className="flex gap-2 overflow-x-auto overscroll-x-contain pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] lg:col-span-2 [&::-webkit-scrollbar]:hidden" data-testid="room-designer-presets">
-        {listRoomPresets().map((preset) => (
-          <button
-            key={preset.id}
-            type="button"
-            className={`${touchBtn} ${engine.document.room.preset_id === preset.id ? 'border-diyar-brown bg-diyar-brown/10' : ''}`}
-            onClick={() =>
-              runSessionAction((s) => s.applyCommands([{ type: 'APPLY_ROOM_PRESET', preset_id: preset.id }]))
-            }
-          >
-            {preset.name_ar}
-          </button>
-        ))}
+      {/* Room Presets Selection */}
+      <div className="flex shrink-0 items-center gap-2 overflow-x-auto overscroll-x-contain pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] lg:col-span-2 [&::-webkit-scrollbar]:hidden" data-testid="room-designer-presets">
+        <span className="text-xs font-bold text-diyar-dark whitespace-nowrap ps-0.5 flex items-center gap-1 shrink-0">
+          <Sparkles size={13} className="text-diyar-brown" />
+          طابع الغرفة:
+        </span>
+        {listRoomPresets().map((preset) => {
+          const isActive = engine.document.room.preset_id === preset.id;
+          const dimensions = `${preset.width_m} × ${preset.depth_m} م`;
+          return (
+            <button
+              key={preset.id}
+              type="button"
+              className={`group inline-flex min-h-9 items-center gap-2 rounded-xl px-3 py-1 text-xs font-bold transition-all shadow-2xs cursor-pointer shrink-0 ${
+                isActive
+                  ? 'border-2 border-diyar-brown bg-diyar-brown text-white shadow-sm ring-2 ring-diyar-brown/20 scale-[1.01]'
+                  : 'border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream/40 hover:border-diyar-brown'
+              }`}
+              onClick={() =>
+                runSessionAction((s) => s.applyCommands([{ type: 'APPLY_ROOM_PRESET', preset_id: preset.id }]))
+              }
+            >
+              <span>{preset.name_ar}</span>
+              <span
+                className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold transition-colors ${
+                  isActive
+                    ? 'bg-white/20 text-white'
+                    : 'bg-diyar-cream/60 text-diyar-dark/75 group-hover:bg-diyar-cream'
+                }`}
+              >
+                {dimensions}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
+      {/* Desktop Catalog Sidebar */}
       {isLargeScreen ? (
         <aside
-          className="flex max-h-[min(70dvh,640px)] min-h-0 flex-col overflow-hidden rounded-2xl border border-border p-3"
+          className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-diyar-brown/20 bg-white p-3 shadow-2xs"
           aria-label="معرض المنتجات"
         >
-          <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mb-2 flex items-center justify-between border-b border-diyar-brown/15 pb-2">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-diyar-brown text-white shadow-2xs">
+                <Sparkles size={14} />
+              </div>
+              <h3 className="text-xs font-bold text-diyar-dark">معرض قطع الأثاث</h3>
+            </div>
+            <span className="text-[10px] text-muted-foreground font-medium">8 قطع بالصفحة</span>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto ps-0.5 pe-1">
             <CatalogPanel onSelectProduct={handleSelectProduct} isAdding={addingProduct} />
           </div>
           {addProductError ? (
-            <p className="text-sm text-destructive" role="alert">
+            <p className="mt-2 text-xs text-destructive bg-red-50 p-2 rounded-lg" role="alert">
               {addProductError}
             </p>
           ) : null}
         </aside>
       ) : null}
 
-      <div className="relative flex min-h-[min(42dvh,380px)] min-w-0 flex-1 flex-col md:min-h-[min(52dvh,560px)]">
+      {/* Canvas Viewport */}
+      <div className="relative flex h-full min-h-[300px] lg:min-h-0 min-w-0 flex-1 flex-col rounded-2xl border-2 border-diyar-brown/25 bg-linear-to-b from-[#faf7f2] to-[#f4ede2] shadow-2xs overflow-hidden">
         {tryInRoomPreview ? (
           <img
             src={tryInRoomPreview}
             alt={t('tryInRoom.yourRoom')}
-            className="pointer-events-none absolute inset-0 z-0 h-full w-full rounded-xl object-cover opacity-40"
+            className="pointer-events-none absolute inset-0 z-0 h-full w-full rounded-2xl object-cover opacity-50"
           />
         ) : null}
         {tryInRoomConfirming ? (
           <>
             <TryInRoomShimmer />
-            <p className="pointer-events-none absolute top-3 start-3 z-20 rounded-full bg-diyar-dark/85 px-3 py-1 text-[11px] font-medium text-white">
+            <p className="pointer-events-none absolute top-3 start-3 z-20 rounded-full bg-diyar-dark/85 px-3 py-1 text-[11px] font-medium text-white shadow-md">
               {t('tryInRoom.processing')}
             </p>
           </>
         ) : null}
+
+        {/* 3D Mode Live Interaction Hint */}
+        {projection === 'room_3d' ? (
+          <div className="pointer-events-none absolute top-3 end-3 z-20 inline-flex items-center gap-1.5 rounded-full bg-diyar-dark/85 px-3 py-1 text-[11px] font-bold text-white shadow-md backdrop-blur-xs border border-white/10">
+            <Boxes size={13} className="text-amber-300" />
+            <span>تدوير 360° بالسحب • تكبير بالعجلة</span>
+          </div>
+        ) : null}
+
+        {/* Floating Canvas Controls HUD */}
+        <div
+          className="absolute bottom-3 start-3 z-20 flex items-center gap-1 rounded-xl border border-diyar-brown/25 bg-white/95 p-1 shadow-md backdrop-blur-md"
+          role="toolbar"
+          aria-label="أدوات التحكم بالمنظور"
+        >
+          <button
+            type="button"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-diyar-dark hover:bg-diyar-cream hover:text-diyar-brown transition active:scale-95 cursor-pointer"
+            onClick={() => canvasControlsRef.current?.zoomIn()}
+            title="تكبير (+)"
+            aria-label="تكبير"
+          >
+            <ZoomIn size={15} />
+          </button>
+          <button
+            type="button"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-diyar-dark hover:bg-diyar-cream hover:text-diyar-brown transition active:scale-95 cursor-pointer"
+            onClick={() => canvasControlsRef.current?.zoomOut()}
+            title="تصغير (-)"
+            aria-label="تصغير"
+          >
+            <ZoomOut size={15} />
+          </button>
+          <div className="h-4 w-px bg-diyar-brown/20 shrink-0" />
+          {projection === 'room_3d' ? (
+            <>
+              <button
+                type="button"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-diyar-dark hover:bg-diyar-cream hover:text-diyar-brown transition active:scale-95 cursor-pointer"
+                onClick={() => canvasControlsRef.current?.rotate?.(-25)}
+                title="تدوير لليسار"
+                aria-label="تدوير لليسار"
+              >
+                <RotateCcw size={14} />
+              </button>
+              <button
+                type="button"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-diyar-dark hover:bg-diyar-cream hover:text-diyar-brown transition active:scale-95 cursor-pointer"
+                onClick={() => canvasControlsRef.current?.rotate?.(25)}
+                title="تدوير لليمين"
+                aria-label="تدوير لليمين"
+              >
+                <RotateCw size={14} />
+              </button>
+              <div className="h-4 w-px bg-diyar-brown/20 shrink-0" />
+            </>
+          ) : null}
+          <button
+            type="button"
+            className="flex h-8 px-2 items-center justify-center gap-1 rounded-lg text-[11px] font-bold text-diyar-dark hover:bg-diyar-cream hover:text-diyar-brown transition active:scale-95 cursor-pointer"
+            onClick={() => canvasControlsRef.current?.resetView()}
+            title="إعادة ضبط زاوية الرؤية"
+            aria-label="إعادة ضبط الرؤية"
+          >
+            <Maximize2 size={13} />
+            <span className="hidden sm:inline">إعادة ضبط</span>
+          </button>
+        </div>
+
         <ErrorBoundary
           key={canvasCrashKey}
           fallback={
@@ -452,31 +637,40 @@ export function RoomDesignerShell({
             touchFriendly={!isLargeScreen}
             projection={projection}
             sessionRef={sessionRef}
+            controlsRef={canvasControlsRef}
             onEngineChange={handleEngineChange}
-            className="relative z-10 h-full min-h-[220px] w-full rounded-xl border border-border bg-muted/10"
+            className="relative z-10 h-full w-full"
           />
         </ErrorBoundary>
+
+        {/* Empty State Overlay */}
         {engine.document.items.length === 0 ? (
-          <div className="pointer-events-none absolute inset-x-0 top-[16%] z-20 flex flex-col items-center px-4 text-center sm:px-6">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-background/90 text-diyar-brown shadow-sm">
-              <Sparkles size={22} />
+          <div className="pointer-events-none absolute inset-x-0 top-[18%] z-20 flex flex-col items-center px-4 text-center sm:px-6">
+            <div className="rounded-3xl border border-diyar-brown/20 bg-white/95 p-6 shadow-lg backdrop-blur-md max-w-sm mx-auto">
+              <div className="mb-3 mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-diyar-brown/10 text-diyar-brown shadow-xs">
+                <Sparkles size={22} />
+              </div>
+              <p className="text-sm font-extrabold text-diyar-dark">ابدأ بتأثيث غرفتك</p>
+              <p className="mt-1.5 text-xs leading-relaxed text-gray-600">
+                اختر طابع الغرفة، ثم اضغط على أي قطعة أثاث من القائمة لإضافتها هنا.
+              </p>
             </div>
-            <p className="text-sm font-bold text-diyar-dark">ابدأ بتأثيث غرفتك</p>
-            <p className="mt-1 max-w-xs text-xs leading-relaxed text-muted-foreground">
-              اختر طابع الغرفة، ثم اضغط على أي قطعة أثاث من القائمة لإضافتها هنا.
-            </p>
           </div>
         ) : null}
-        <p className="pointer-events-none absolute bottom-3 left-3 right-3 z-20 text-center text-[11px] text-muted-foreground">
-          <span className="inline-block rounded-full bg-background/80 px-3 py-1 backdrop-blur-sm">
+
+        {/* Bottom Helper Hint Pill */}
+        <p className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 z-20 hidden md:block text-center text-[11px] text-white">
+          <span className="inline-block rounded-full bg-diyar-dark/80 px-4 py-1.5 backdrop-blur-md shadow-md border border-white/10 font-medium whitespace-nowrap">
             اسحب القطع، كبّرها أو دوّرها لترتيب غرفتك بسهولة
           </span>
         </p>
+
+        {/* Hidden File Input (Strictly hidden to prevent "No file chosen" leakage) */}
         <input
           ref={tryInRoomInputRef}
           type="file"
           accept="image/jpeg,image/png,image/webp"
-          className="sr-only"
+          className="hidden"
           tabIndex={-1}
           data-testid="try-in-room-file-designer"
           onChange={(event) => {
@@ -489,27 +683,33 @@ export function RoomDesignerShell({
         />
       </div>
 
+      {/* Mobile Catalog Bottom Sheet */}
       {!isLargeScreen && catalogOpen ? (
         <div
-          className="fixed inset-0 z-100 flex flex-col justify-end bg-black/50 p-0"
+          className="fixed inset-0 z-100 flex flex-col justify-end bg-black/60 backdrop-blur-xs p-0"
           role="presentation"
           onClick={() => setCatalogOpen(false)}
         >
           <div
             ref={catalogSheetRef}
-            className="flex max-h-[min(70dvh,640px)] flex-col rounded-t-3xl bg-background p-4 pb-safe shadow-xl"
+            className="flex max-h-[min(82dvh,740px)] flex-col rounded-t-3xl bg-white p-4 pb-safe shadow-2xl border-t border-diyar-brown/20"
             role="dialog"
             aria-modal="true"
             aria-labelledby="room-designer-catalog-sheet-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-3 flex items-center justify-between gap-2">
-              <h2 id="room-designer-catalog-sheet-title" className="text-base font-semibold">
-                المنتجات
-              </h2>
+            <div className="mb-3 flex items-center justify-between gap-2 border-b border-diyar-brown/15 pb-2">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-diyar-brown text-white">
+                  <Sparkles size={16} />
+                </div>
+                <h2 id="room-designer-catalog-sheet-title" className="text-base font-bold text-diyar-dark">
+                  معرض قطع الأثاث
+                </h2>
+              </div>
               <button
                 type="button"
-                className={touchBtn}
+                className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100 hover:text-diyar-dark transition"
                 aria-label="إغلاق"
                 onClick={() => setCatalogOpen(false)}
               >
@@ -520,7 +720,7 @@ export function RoomDesignerShell({
               <CatalogPanel onSelectProduct={handleSelectProduct} isAdding={addingProduct} />
             </div>
             {addProductError ? (
-              <p className="mt-2 text-sm text-destructive" role="alert">
+              <p className="mt-2 text-sm text-destructive bg-red-50 p-2 rounded-lg" role="alert">
                 {addProductError}
               </p>
             ) : null}

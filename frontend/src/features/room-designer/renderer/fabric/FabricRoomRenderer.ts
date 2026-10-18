@@ -1,4 +1,4 @@
-import { ActiveSelection, Canvas, Polygon, Rect, type FabricObject, type ModifiedEvent } from 'fabric';
+import { ActiveSelection, Canvas, Point, Polygon, Rect, type FabricObject, type ModifiedEvent } from 'fabric';
 import { resolveItemRenderImageUrl } from '../../adapters/itemDisplayAsset.ts';
 import { fabricModifyToCommands } from '../../interaction/fabricModifyToCommands.ts';
 import { attachViewportPinchZoom } from './viewportPinchZoom.ts';
@@ -171,6 +171,21 @@ export class FabricRoomRenderer implements RoomRenderer {
     } finally {
       this.programmaticSync = false;
     }
+  }
+
+  zoomBy(factor: number): void {
+    if (!this.canvas) return;
+    const center = this.canvas.getCenter();
+    const current = this.canvas.getZoom();
+    const next = Math.min(4, Math.max(0.4, current * factor));
+    this.canvas.zoomToPoint(new Point(center.left, center.top), next);
+    this.canvas.requestRenderAll();
+  }
+
+  resetView(): void {
+    if (!this.canvas) return;
+    this.canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+    this.canvas.requestRenderAll();
   }
 
   private createItemObject(item: RoomDesignItem, scalePxPerM: number): Rect {

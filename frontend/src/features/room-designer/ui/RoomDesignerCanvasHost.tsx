@@ -13,6 +13,13 @@ import type { RoomRenderer } from '../renderer/types.ts';
 import { useContainerSize } from './useContainerSize.ts';
 import { ShimmerBone } from '../../try-in-room/TryInRoomShimmer.tsx';
 
+export type RoomCanvasControls = {
+  zoomIn: () => void;
+  zoomOut: () => void;
+  resetView: () => void;
+  rotate?: (deltaDeg: number) => void;
+};
+
 export type RoomDesignerCanvasHostProps = {
   engine: SpatialEngineState;
   /** Reset session when loading a different persisted design (not on every local edit). */
@@ -26,6 +33,7 @@ export type RoomDesignerCanvasHostProps = {
   projection?: RoomProjectionMode;
   className?: string;
   sessionRef?: MutableRefObject<DesignerSession | null>;
+  controlsRef?: MutableRefObject<RoomCanvasControls | null>;
   onEngineChange?: (state: SpatialEngineState) => void;
   onSelectionChange?: (ids: string[]) => void;
 };
@@ -45,6 +53,7 @@ export function RoomDesignerCanvasHost({
   projection = DEFAULT_PROJECTION_MODE,
   className,
   sessionRef,
+  controlsRef,
   onEngineChange,
   onSelectionChange,
 }: RoomDesignerCanvasHostProps) {
@@ -70,6 +79,25 @@ export function RoomDesignerCanvasHost({
       sessionRef.current = sessionRefInternal.current;
     }
   }, [sessionRef]);
+
+  useEffect(() => {
+    if (controlsRef) {
+      controlsRef.current = {
+        zoomIn: () => {
+          rendererRef.current?.zoomBy?.(1.18);
+        },
+        zoomOut: () => {
+          rendererRef.current?.zoomBy?.(0.85);
+        },
+        resetView: () => {
+          rendererRef.current?.resetView?.();
+        },
+        rotate: (deltaDeg: number) => {
+          rendererRef.current?.rotateView?.((deltaDeg * Math.PI) / 180);
+        },
+      };
+    }
+  }, [controlsRef]);
 
   const syncRender = useCallback(() => {
     const renderer = rendererRef.current;

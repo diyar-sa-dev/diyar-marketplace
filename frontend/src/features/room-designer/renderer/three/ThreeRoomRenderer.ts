@@ -45,6 +45,16 @@ export class ThreeRoomRenderer implements RoomRenderer {
 
   private disposed = false;
 
+  private hasInitiallyFramed = false;
+
+  private lastRoomDimensionsKey = '';
+
+  private floorMesh: import('three').Mesh | null = null;
+
+  private ambientLight: import('three').AmbientLight | null = null;
+
+  private directionalLight: import('three').DirectionalLight | null = null;
+
   private fallbackMessage: HTMLElement | null = null;
 
   private pointerDownHandler: ((ev: PointerEvent) => void) | null = null;
@@ -53,6 +63,7 @@ export class ThreeRoomRenderer implements RoomRenderer {
     this.destroy();
     this.disposed = false;
     this.container = container;
+    container.style.overflow = 'hidden';
     this.mountOptions = options;
     container.replaceChildren();
 
@@ -73,6 +84,10 @@ export class ThreeRoomRenderer implements RoomRenderer {
     this.three = three;
 
     const canvas = document.createElement('canvas');
+    canvas.style.display = 'block';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.touchAction = 'none';
     this.container.appendChild(canvas);
 
     const renderer = new three.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -126,6 +141,11 @@ export class ThreeRoomRenderer implements RoomRenderer {
     this.scene = null;
     this.camera = null;
     this.three = null;
+    this.floorMesh = null;
+    this.ambientLight = null;
+    this.directionalLight = null;
+    this.hasInitiallyFramed = false;
+    this.lastRoomDimensionsKey = '';
     this.itemMeshes.clear();
     this.mountContainerCleanup();
     this.currentDocument = null;
@@ -163,8 +183,45 @@ export class ThreeRoomRenderer implements RoomRenderer {
     if (!this.scene || !this.three) {
       return;
     }
+    const roomKey = `${document.room.preset_id ?? ''}_${document.room.width_m}_${document.room.depth_m}`;
+    const roomChanged = this.lastRoomDimensionsKey !== roomKey;
+    this.lastRoomDimensionsKey = roomKey;
+
     void this.syncScene(document);
-    this.frameCamera(document);
+
+    if (!this.hasInitiallyFramed || roomChanged) {
+      this.frameCamera(document);
+      this.hasInitiallyFramed = true;
+    }
+  }
+
+  zoomBy(factor: number): void {
+    if (!this.camera || !this.controls || !this.three) {
+      return;
+    }
+    const offset = new this.three.Vector3().subVectors(this.camera.position, this.controls.target);
+    offset.multiplyScalar(1 / factor);
+    const len = offset.length();
+    if (len >= 2 && len <= 45) {
+      this.camera.position.copy(this.controls.target).add(offset);
+      this.controls.update();
+    }
+  }
+
+  resetView(): void {
+    if (this.currentDocument) {
+      this.frameCamera(this.currentDocument);
+    }
+  }
+
+  rotateView(angleRad: number): void {
+    if (!this.camera || !this.controls || !this.three) {
+      return;
+    }
+    const offset = new this.three.Vector3().subVectors(this.camera.position, this.controls.target);
+    offset.applyAxisAngle(new this.three.Vector3(0, 1, 0), angleRad);
+    this.camera.position.copy(this.controls.target).add(offset);
+    this.controls.update();
   }
 
   setSelection(ids: string[]): void {
@@ -199,9 +256,11 @@ export class ThreeRoomRenderer implements RoomRenderer {
       return;
     }
     const center = roomCenterMeters(document.room);
-    const span = Math.max(document.room.width_m, document.room.depth_m, 3);
-    this.controls.target.set(center.x, 0.5, center.z);
-    this.camera.position.set(center.x + span * 1.2, span * 1.1, center.z + span * 1.2);
+    const span = Math.max(document.room.width_m, document.room.depth_m, 3.5);
+    this.controls.target.set(center.x, 0.4, center.z);
+    this.camera.position.set(center.x + span * 1.35, span * 1.3, center.z + span * 1.35);
+    this.controls.minDistance = 2;
+    this.controls.maxDistance = 45;
     this.controls.update();
   }
 
@@ -210,29 +269,77 @@ export class ThreeRoomRenderer implements RoomRenderer {
       return;
     }
 
-    this.disposeSceneObjects();
+    // Ensure lighting
+    if (!this.directionalLight) {
+      this.directionalLight = new this.three.DirectionalLight(0xffffff, 1.15);
+      this.directionalLight.position.set(5, 12, 6);
+      this.scene.add(this.directionalLight);
+    }
+    if (!this.ambientLight) {
+      this.ambientLight = new this.three.AmbientLight(0xffffff, 0.5);
+      this.scene.add(this.ambientLight);
+    }
 
-    const floor = new this.three.Mesh(
-      new this.three.BoxGeometry(document.room.width_m, 0.05, document.room.depth_m),
-      new this.three.MeshStandardMaterial({ color: 0xe8dfd0 }),
-    );
-    floor.position.set(document.room.width_m / 2, -0.025, document.room.depth_m / 2);
-    floor.receiveShadow = true;
-    this.scene.add(floor);
-
-    const light = new this.three.DirectionalLight(0xffffff, 1.1);
-    light.position.set(5, 12, 6);
-    this.scene.add(light);
-    this.scene.add(new this.three.AmbientLight(0xffffff, 0.45));
-
-    const sorted = [...document.items].sort((a, b) => a.layer - b.layer);
-    for (const item of sorted) {
-      const mesh = await this.createItemMesh(item);
-      if (mesh && this.scene && !this.disposed) {
-        this.scene.add(mesh);
-        this.itemMeshes.set(item.id, mesh);
+    // Ensure floor
+    if (!this.floorMesh) {
+      this.floorMesh = new this.three.Mesh(
+        new this.three.BoxGeometry(document.room.width_m, 0.05, document.room.depth_m),
+        new this.three.MeshStandardMaterial({ color: 0xe8dfd0 }),
+      );
+      this.floorMesh.position.set(document.room.width_m / 2, -0.025, document.room.depth_m / 2);
+      this.floorMesh.receiveShadow = true;
+      this.scene.add(this.floorMesh);
+    } else {
+      const geo = this.floorMesh.geometry as import('three').BoxGeometry;
+      const params = (geo as unknown as { parameters?: { width?: number; depth?: number } }).parameters;
+      if (params?.width !== document.room.width_m || params?.depth !== document.room.depth_m) {
+        geo.dispose();
+        this.floorMesh.geometry = new this.three.BoxGeometry(document.room.width_m, 0.05, document.room.depth_m);
+        this.floorMesh.position.set(document.room.width_m / 2, -0.025, document.room.depth_m / 2);
       }
     }
+
+    // Reconcile items
+    const docItemIds = new Set(document.items.map((i) => i.id));
+
+    // Remove deleted items
+    for (const [id, mesh] of this.itemMeshes) {
+      if (!docItemIds.has(id)) {
+        this.scene.remove(mesh);
+        this.disposeMesh(mesh);
+        this.itemMeshes.delete(id);
+      }
+    }
+
+    // Update existing or add new items
+    for (const item of document.items) {
+      const existing = this.itemMeshes.get(item.id);
+      if (existing) {
+        const center = itemCenterToThreeMeters(item);
+        existing.position.set(center.x, center.y, center.z);
+        existing.rotation.y = itemRotationYRadians(item);
+      } else {
+        const mesh = await this.createItemMesh(item);
+        if (mesh && this.scene && !this.disposed && docItemIds.has(item.id)) {
+          this.scene.add(mesh);
+          this.itemMeshes.set(item.id, mesh);
+        }
+      }
+    }
+  }
+
+  private disposeMesh(obj: import('three').Object3D): void {
+    obj.traverse((node) => {
+      const mesh = node as import('three').Mesh;
+      mesh.geometry?.dispose();
+      if (mesh.material) {
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach((m) => m.dispose());
+        } else {
+          mesh.material.dispose();
+        }
+      }
+    });
   }
 
   private async createItemMesh(item: RoomDesignItem): Promise<ItemMesh | null> {
