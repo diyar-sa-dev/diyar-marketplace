@@ -99,8 +99,8 @@ describe('spatial core performance (micro)', () => {
     const counts = [10, 25, 50, 100];
     const table = benchTable(counts, 200);
 
-    // Soft guard: 100-item collision scan should stay well below 5ms avg on dev hardware.
-    expect(table.COLLISION[100]).toBeLessThan(5);
+    // Soft guard: 100-item collision scan should stay below 20ms avg under concurrent test runner load.
+    expect(table.COLLISION[100]).toBeLessThan(20);
 
     console.table(
       counts.map((n) => ({

@@ -1,6 +1,20 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Upload, X, CheckCircle, AlertCircle, ImagePlus } from 'lucide-react';
+import {
+  Sparkles,
+  Upload,
+  X,
+  CheckCircle,
+  AlertCircle,
+  ImagePlus,
+  ArrowUp,
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+} from 'lucide-react';
 import { useModalDialog } from '../../hooks/useModalDialog.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
@@ -23,8 +37,69 @@ export function TryInRoomModal({
   const { t } = useLocale();
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const roomDataUrlRef = useRef<string | null>(null);
+
+  const [productX, setProductX] = useState(50);
+  const [productY, setProductY] = useState(65);
+  const [productScale, setProductScale] = useState(1.0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef<{ startX: number; startY: number; initX: number; initY: number }>({
+    startX: 0,
+    startY: 0,
+    initX: 50,
+    initY: 65,
+  });
+
   const { phase, sourceUrl, resultUrl, confirming, errorKey, submitFile, reset } =
     useTryInRoomFlow({ productId, productImageUrl });
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    setIsDragging(true);
+    dragStartRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initX: productX,
+      initY: productY,
+    };
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging || !previewContainerRef.current) return;
+    const rect = previewContainerRef.current.getBoundingClientRect();
+    const dx = ((e.clientX - dragStartRef.current.startX) / rect.width) * 100;
+    const dy = ((e.clientY - dragStartRef.current.startY) / rect.height) * 100;
+    const nextX = Math.max(10, Math.min(90, Math.round(dragStartRef.current.initX + dx)));
+    const nextY = Math.max(10, Math.min(90, Math.round(dragStartRef.current.initY + dy)));
+    setProductX(nextX);
+    setProductY(nextY);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (isDragging) {
+      try {
+        (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {
+        // Safe release
+      }
+      setIsDragging(false);
+    }
+  };
+
+  const handleOpenDesigner = () => {
+    if (typeof sessionStorage !== 'undefined') {
+      const photoToSave = roomDataUrlRef.current || sourceUrl;
+      if (photoToSave) {
+        sessionStorage.setItem('diyar:try-in-room:photo', photoToSave);
+      }
+      if (productId) {
+        sessionStorage.setItem('diyar:try-in-room:product-id', productId);
+      }
+    }
+    onClose();
+  };
 
   useModalDialog(open, () => {
     reset();
@@ -93,11 +168,42 @@ export function TryInRoomModal({
                 </figcaption>
               </figure>
               <figure
-                className="relative overflow-hidden rounded-2xl border border-diyar-brown/30 bg-gray-50"
+                className="relative overflow-hidden rounded-2xl border border-diyar-brown/30 bg-gray-50 select-none"
                 aria-busy={confirming}
               >
-                <div className="relative aspect-4/3 bg-gray-100">
-                  {resultUrl ? (
+                <div
+                  ref={previewContainerRef}
+                  className="relative aspect-4/3 w-full bg-gray-100 touch-none overflow-hidden"
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                >
+                  <img
+                    src={sourceUrl}
+                    alt={t('tryInRoom.yourRoom')}
+                    className="h-full w-full object-cover pointer-events-none select-none"
+                  />
+
+                  {/* Interactive Product Positioning Layer */}
+                  {productImageUrl ? (
+                    <div
+                      onPointerDown={handlePointerDown}
+                      style={{
+                        left: `${productX}%`,
+                        top: `${productY}%`,
+                        transform: `translate(-50%, -50%) scale(${productScale})`,
+                        cursor: isDragging ? 'grabbing' : 'grab',
+                      }}
+                      className="absolute z-10 touch-none flex flex-col items-center group transition-transform"
+                    >
+                      <img
+                        src={productImageUrl}
+                        alt="المنتج"
+                        className="max-h-[140px] max-w-[140px] object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.5)] pointer-events-none"
+                        data-testid="try-in-room-result"
+                      />
+                      <div className="absolute inset-0 border border-dashed border-diyar-brown/60 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  ) : resultUrl ? (
                     <img
                       src={resultUrl}
                       alt={t('tryInRoom.preview')}
@@ -114,10 +220,79 @@ export function TryInRoomModal({
                       <TryInRoomShimmer />
                     </div>
                   )}
+
+                  {/* D-Pad & Scale Controls */}
+                  {productImageUrl ? (
+                    <div className="absolute bottom-2 start-2 z-20 flex items-center gap-1 rounded-xl bg-diyar-dark/85 p-1 text-white shadow-md backdrop-blur-xs border border-white/10 pointer-events-auto">
+                      <button
+                        type="button"
+                        onClick={() => setProductY((y) => Math.max(10, y - 5))}
+                        className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
+                        title="تحريك لأعلى"
+                      >
+                        <ArrowUp size={12} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setProductY((y) => Math.min(90, y + 5))}
+                        className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
+                        title="تحريك لأسفل"
+                      >
+                        <ArrowDown size={12} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setProductX((x) => Math.max(10, x - 5))}
+                        className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
+                        title="تحريك لليسار"
+                      >
+                        <ArrowLeft size={12} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setProductX((x) => Math.min(90, x + 5))}
+                        className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
+                        title="تحريك لليمين"
+                      >
+                        <ArrowRight size={12} />
+                      </button>
+                      <div className="h-3 w-px bg-white/20" />
+                      <button
+                        type="button"
+                        onClick={() => setProductScale((s) => Math.min(2.0, Number((s + 0.1).toFixed(1))))}
+                        className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
+                        title="تكبير"
+                      >
+                        <ZoomIn size={12} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setProductScale((s) => Math.max(0.4, Number((s - 0.1).toFixed(1))))}
+                        className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
+                        title="تصغير"
+                      >
+                        <ZoomOut size={12} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductX(50);
+                          setProductY(65);
+                          setProductScale(1.0);
+                        }}
+                        className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
+                        title="إعادة ضبط"
+                      >
+                        <RotateCcw size={12} />
+                      </button>
+                    </div>
+                  ) : null}
+
                   {confirming ? <TryInRoomShimmer /> : null}
                 </div>
-                <figcaption className="px-3 py-2 text-center text-xs font-medium text-diyar-dark">
-                  {confirming ? t('tryInRoom.processing') : t('tryInRoom.preview')}
+                <figcaption className="px-3 py-2 text-center text-xs font-medium text-diyar-dark flex items-center justify-center gap-1.5">
+                  <span>{confirming ? t('tryInRoom.processing') : t('tryInRoom.preview')}</span>
+                  <span className="text-[10px] text-muted-foreground">• اسحب القطعة لتحديد موضعها</span>
                 </figcaption>
               </figure>
             </div>
@@ -174,13 +349,11 @@ export function TryInRoomModal({
                 </button>
                 <Link
                   to="/profile/room-designer"
-                  className="inline-flex min-h-11 items-center justify-center rounded-xl bg-diyar-dark px-4 text-sm text-white"
-                  onClick={() => {
-                    reset();
-                    onClose();
-                  }}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-diyar-dark px-5 text-sm font-bold text-white shadow-md hover:bg-diyar-dark/90 active:scale-95 transition-all"
+                  onClick={handleOpenDesigner}
                 >
-                  {t('tryInRoom.openDesigner')}
+                  <Sparkles size={16} className="text-amber-300" />
+                  <span>{t('tryInRoom.openDesigner')}</span>
                 </Link>
               </div>
             </div>
@@ -214,6 +387,11 @@ export function TryInRoomModal({
               const file = event.target.files?.[0];
               event.target.value = '';
               if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                  roomDataUrlRef.current = reader.result as string;
+                };
+                reader.readAsDataURL(file);
                 void submitFile(file);
               }
             }}

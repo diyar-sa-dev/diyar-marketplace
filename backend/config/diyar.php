@@ -831,6 +831,10 @@ return [
             'request_timeout_seconds' => (int) env('DIYAR_VISUALIZATION_OPENAI_REQUEST_TIMEOUT', 90),
             'composite_prompt' => env('DIYAR_VISUALIZATION_OPENAI_COMPOSITE_PROMPT'),
         ],
+        'gemini' => [
+            'api_key' => env('DIYAR_VISUALIZATION_GEMINI_API_KEY', env('GEMINI_API_KEY', env('GOOGLE_API_KEY'))),
+            'model' => env('DIYAR_VISUALIZATION_GEMINI_MODEL', 'gemini-1.5-flash'),
+        ],
     ],
 
     'try_in_room' => [

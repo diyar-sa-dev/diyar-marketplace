@@ -3,6 +3,7 @@
 namespace App\Domains\VisualSearch\Services;
 
 use App\Domains\VisualSearch\Contracts\VisualizationProviderInterface;
+use App\Domains\VisualSearch\Services\Providers\Gemini\GeminiTryInRoomCompositeProvider;
 use App\Domains\VisualSearch\Services\Providers\NullVisualizationProvider;
 use App\Domains\VisualSearch\Services\Providers\OpenAi\OpenAiTryInRoomCompositeProvider;
 use App\Domains\VisualSearch\Services\Providers\StubVisualizationProvider;
@@ -16,6 +17,7 @@ class VisualizationProviderRegistry
         'null' => NullVisualizationProvider::class,
         'stub' => StubVisualizationProvider::class,
         'openai' => OpenAiTryInRoomCompositeProvider::class,
+        'gemini' => GeminiTryInRoomCompositeProvider::class,
     ];
 
     public function __construct(

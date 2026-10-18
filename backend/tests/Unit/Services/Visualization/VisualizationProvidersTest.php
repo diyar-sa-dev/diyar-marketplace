@@ -48,4 +48,34 @@ class VisualizationProvidersTest extends TestCase
         $this->assertNotEmpty($payload['result_path']);
         Storage::disk('try_in_room')->assertExists($payload['result_path']);
     }
+
+    #[Test]
+    public function registry_resolves_gemini_driver(): void
+    {
+        config(['diyar.visualization.driver' => 'gemini']);
+
+        $provider = app(VisualizationProviderRegistry::class)->resolve('gemini');
+        $this->assertSame('gemini', $provider->key());
+        $this->assertTrue($provider->supports(VisualizationCapability::TryInRoomComposite));
+    }
+
+    #[Test]
+    public function gemini_provider_returns_composite_image_payload(): void
+    {
+        Storage::fake('try_in_room');
+
+        $gate = \Mockery::mock(\App\Domains\VisualSearch\Services\VisualizationPrivacyGate::class);
+        $gate->shouldReceive('allowsExternalImageTransfer')->andReturn(true);
+        $this->app->instance(\App\Domains\VisualSearch\Services\VisualizationPrivacyGate::class, $gate);
+
+        $user = User::factory()->create();
+        $job = new TryInRoomJob(['user_id' => $user->id, 'product_id' => null]);
+
+        $provider = app(VisualizationProviderRegistry::class)->resolve('gemini');
+        $payload = $provider->process($job);
+        $this->assertSame('composite_image', $payload['kind']);
+        $this->assertSame('gemini', $payload['provider']);
+        $this->assertNotEmpty($payload['result_path']);
+        Storage::disk('try_in_room')->assertExists($payload['result_path']);
+    }
 }

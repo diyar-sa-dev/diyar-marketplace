@@ -53,6 +53,18 @@ export class FabricRoomRenderer implements RoomRenderer {
 
   private panStartY = 0;
 
+  private floorObject: FabricObject | null = null;
+
+  private currentFloorPreset: string | null = null;
+
+  private currentFloorWidth = 0;
+
+  private currentFloorDepth = 0;
+
+  private currentFloorProjection: RoomProjectionMode | null = null;
+
+  private imageCache = new Map<string, HTMLImageElement>();
+
   private getPointerCoords(e: Event): { x: number; y: number } {
     if ('touches' in e && (e as TouchEvent).touches?.length > 0) {
       const t = (e as TouchEvent).touches[0];
@@ -138,6 +150,10 @@ export class FabricRoomRenderer implements RoomRenderer {
       this.canvas.off('mouse:up');
     }
     this.itemObjects.clear();
+    this.imageCache.clear();
+    this.floorObject = null;
+    this.currentFloorPreset = null;
+    this.currentFloorProjection = null;
     this.currentDocument = null;
     if (this.canvas) {
       this.canvas.dispose();
@@ -178,48 +194,118 @@ export class FabricRoomRenderer implements RoomRenderer {
 
     this.programmaticSync = true;
     try {
-      this.canvas.clear();
-      this.itemObjects.clear();
-
       const presetId = document.room.preset_id;
       const floorFill =
         this.mountOptions.roomFloorColor ??
         (presetId === 'majlis' ? '#f4ece1' : presetId === 'bedroom' ? '#f8f4ec' : '#f5f0e6');
       const wallColor = this.mountOptions.roomBorderColor ?? '#735942';
 
-      if (this.currentProjection === 'isometric_25d') {
-        const corners = projectRoomFloorToCanvas(document.room.width_m, document.room.depth_m, scale);
-        const floor = new Polygon(
-          corners.map((p) => ({ x: p.x, y: p.y })),
-          {
+      const needsNewFloor =
+        !this.floorObject ||
+        this.currentFloorProjection !== this.currentProjection ||
+        this.currentFloorPreset !== (presetId ?? '') ||
+        this.currentFloorWidth !== document.room.width_m ||
+        this.currentFloorDepth !== document.room.depth_m;
+
+      if (needsNewFloor) {
+        if (this.floorObject) {
+          this.canvas.remove(this.floorObject);
+          this.floorObject = null;
+        }
+
+        if (this.currentProjection === 'isometric_25d') {
+          const corners = projectRoomFloorToCanvas(document.room.width_m, document.room.depth_m, scale);
+          this.floorObject = new Polygon(
+            corners.map((p) => ({ x: p.x, y: p.y })),
+            {
+              fill: floorFill,
+              stroke: wallColor,
+              strokeWidth: 3,
+              selectable: false,
+              evented: false,
+            },
+          );
+        } else {
+          this.floorObject = new Rect({
+            left: 0,
+            top: 0,
+            width: document.room.width_m * scale,
+            height: document.room.depth_m * scale,
             fill: floorFill,
             stroke: wallColor,
             strokeWidth: 3,
+            rx: 2,
+            ry: 2,
             selectable: false,
             evented: false,
-          },
-        );
-        this.canvas.add(floor);
-      } else {
-        const floor = new Rect({
-          left: 0,
-          top: 0,
-          width: document.room.width_m * scale,
-          height: document.room.depth_m * scale,
-          fill: floorFill,
-          stroke: wallColor,
-          strokeWidth: 3,
-          rx: 2,
-          ry: 2,
-          selectable: false,
-          evented: false,
-        });
-        this.canvas.add(floor);
+          });
+        }
+
+        this.canvas.add(this.floorObject);
+        this.canvas.sendObjectToBack(this.floorObject);
+
+        this.currentFloorPreset = presetId ?? '';
+        this.currentFloorWidth = document.room.width_m;
+        this.currentFloorDepth = document.room.depth_m;
+        this.currentFloorProjection = this.currentProjection;
+      }
+
+      // Reconcile items in-place to prevent flicker and model disappearance
+      const currentItemIds = new Set(document.items.map((i) => i.id));
+      for (const [id, obj] of this.itemObjects) {
+        if (!currentItemIds.has(id)) {
+          this.canvas.remove(obj);
+          this.itemObjects.delete(id);
+        }
       }
 
       const sorted = [...document.items].sort((a, b) => a.layer - b.layer);
       for (const item of sorted) {
-        this.canvas.add(this.createItemObject(item, scale));
+        const existing = this.itemObjects.get(item.id) as Rect | undefined;
+        const box = itemFootprintTopLeftPx(
+          this.currentProjection,
+          item.position_m,
+          item.snapshot.width_m,
+          item.snapshot.depth_m,
+          scale,
+        );
+        const center = metersToCanvasPoint(
+          this.currentProjection,
+          item.position_m.x,
+          item.position_m.z,
+          scale,
+        );
+        const isoLift =
+          this.currentProjection === 'isometric_25d'
+            ? elevationScreenOffsetPx(item.snapshot.height_m, scale)
+            : 0;
+
+        const w = Math.max(box.widthPx, 4);
+        const h = Math.max(box.heightPx, 4);
+
+        if (existing) {
+          existing.set({
+            left: center.x,
+            top: center.y - isoLift,
+            width: w,
+            height: h,
+            angle: item.rotation_deg,
+            stroke: item.locked ? '#94a3b8' : '#735942',
+            fill: item.locked ? 'rgba(203, 213, 225, 0.35)' : (existing.fill ?? 'rgba(255, 255, 255, 0.08)'),
+            selectable: true,
+            evented: true,
+            lockMovementX: item.locked,
+            lockMovementY: item.locked,
+            lockRotation: item.locked,
+            lockScalingX: item.locked,
+            lockScalingY: item.locked,
+            hasControls: !item.locked,
+          });
+          existing.setCoords();
+          this.applyItemPattern(existing, item.snapshot.thumbnail_url, w, h);
+        } else {
+          this.canvas.add(this.createItemObject(item, scale));
+        }
       }
 
       if (!this.hasInitialCentered || this.lastCenteredPresetId !== (presetId ?? '')) {
@@ -296,6 +382,51 @@ export class FabricRoomRenderer implements RoomRenderer {
     this.centerRoomInViewport();
   }
 
+  private applyItemPattern(rect: Rect, imageUrl: string | undefined, boxW: number, boxH: number): void {
+    if (!imageUrl || typeof Image === 'undefined') return;
+
+    const setPatternWithImage = (img: HTMLImageElement) => {
+      try {
+        const w = Math.max(boxW, 4);
+        const h = Math.max(boxH, 4);
+        const imgW = img.width || 1;
+        const imgH = img.height || 1;
+        const fitScale = Math.min((w * 0.88) / imgW, (h * 0.88) / imgH);
+        const pattern = new Pattern({
+          source: img,
+          repeat: 'no-repeat',
+          patternTransform: [
+            fitScale,
+            0,
+            0,
+            fitScale,
+            (w - imgW * fitScale) / 2,
+            (h - imgH * fitScale) / 2,
+          ],
+        });
+        rect.set('fill', pattern);
+        this.canvas?.requestRenderAll();
+      } catch {
+        // Keep transparent Blender-style box on error
+      }
+    };
+
+    const cached = this.imageCache.get(imageUrl);
+    if (cached) {
+      setPatternWithImage(cached);
+      return;
+    }
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      this.imageCache.set(imageUrl, img);
+      if (!this.canvas || this.programmaticSync) return;
+      setPatternWithImage(img);
+    };
+    img.src = imageUrl;
+  }
+
   private createItemObject(item: RoomDesignItem, scalePxPerM: number): Rect {
     const box = itemFootprintTopLeftPx(
       this.currentProjection,
@@ -330,8 +461,16 @@ export class FabricRoomRenderer implements RoomRenderer {
       stroke: item.locked ? '#94a3b8' : '#735942',
       strokeWidth: 1.5,
       strokeDashArray: [4, 3],
-      selectable: !item.locked,
-      evented: !item.locked,
+      selectable: true,
+      evented: true,
+      lockMovementX: item.locked,
+      lockMovementY: item.locked,
+      lockRotation: item.locked,
+      lockScalingX: item.locked,
+      lockScalingY: item.locked,
+      hasControls: !item.locked,
+      snapAngle: 0,
+      snapThreshold: 0,
       centeredRotation: true,
       transparentCorners: false,
       cornerStyle: 'circle',
@@ -346,38 +485,7 @@ export class FabricRoomRenderer implements RoomRenderer {
     (rect as TaggedFabricObject).diyarItemId = item.id;
     this.itemObjects.set(item.id, rect);
 
-    // Render product image inside the transparent Blender-style box
-    if (imageUrl && typeof Image !== 'undefined') {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        if (!this.canvas || this.programmaticSync) return;
-        try {
-          const w = Math.max(box.widthPx, 4);
-          const h = Math.max(box.heightPx, 4);
-          const imgW = img.width || 1;
-          const imgH = img.height || 1;
-          const fitScale = Math.min((w * 0.88) / imgW, (h * 0.88) / imgH);
-          const pattern = new Pattern({
-            source: img,
-            repeat: 'no-repeat',
-            patternTransform: [
-              fitScale,
-              0,
-              0,
-              fitScale,
-              (w - imgW * fitScale) / 2,
-              (h - imgH * fitScale) / 2,
-            ],
-          });
-          rect.set('fill', pattern);
-          this.canvas?.requestRenderAll();
-        } catch {
-          // Keep transparent Blender-style box on error
-        }
-      };
-      img.src = imageUrl;
-    }
+    this.applyItemPattern(rect, imageUrl, box.widthPx, box.heightPx);
 
     return rect;
   }

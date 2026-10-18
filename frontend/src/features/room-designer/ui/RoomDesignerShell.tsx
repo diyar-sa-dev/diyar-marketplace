@@ -102,6 +102,8 @@ export function RoomDesignerShell({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [emptyHintDismissed, setEmptyHintDismissed] = useState(false);
   const [canvasCrashKey, setCanvasCrashKey] = useState(0);
+  const [roomBackdropPhoto, setRoomBackdropPhoto] = useState<string | null>(null);
+  const [placedItemsOpen, setPlacedItemsOpen] = useState(true);
 
   useEffect(() => {
     const handleFsChange = () => {
@@ -308,6 +310,24 @@ export function RoomDesignerShell({
     },
     [autosave, isLargeScreen],
   );
+
+  useEffect(() => {
+    if (typeof sessionStorage === 'undefined') return;
+    try {
+      const storedPhoto = sessionStorage.getItem('diyar:try-in-room:photo');
+      const storedProductId = sessionStorage.getItem('diyar:try-in-room:product-id');
+      if (storedPhoto) {
+        setRoomBackdropPhoto(storedPhoto);
+        sessionStorage.removeItem('diyar:try-in-room:photo');
+      }
+      if (storedProductId) {
+        sessionStorage.removeItem('diyar:try-in-room:product-id');
+        void handleSelectProduct(storedProductId);
+      }
+    } catch {
+      // Safe fallback
+    }
+  }, [handleSelectProduct]);
 
   const handleOpenAr = useCallback(async () => {
     const session = sessionRef.current;
@@ -674,12 +694,30 @@ export function RoomDesignerShell({
 
       {/* Canvas Viewport */}
       <div className="relative flex h-full min-h-[300px] lg:min-h-0 min-w-0 flex-1 flex-col rounded-2xl border-2 border-diyar-brown/25 bg-[#faf8f5] shadow-2xs overflow-hidden">
-        {tryInRoomPreview ? (
-          <img
-            src={tryInRoomPreview}
-            alt={t('tryInRoom.yourRoom')}
-            className="pointer-events-none absolute inset-0 z-0 h-full w-full rounded-2xl object-cover opacity-50"
-          />
+        {(roomBackdropPhoto || tryInRoomPreview) ? (
+          <div className="absolute inset-0 z-0 overflow-hidden">
+            <img
+              src={roomBackdropPhoto || tryInRoomPreview!}
+              alt="صورة الغرفة"
+              className="h-full w-full object-cover opacity-60 pointer-events-none"
+            />
+            <div className="pointer-events-auto absolute top-3 start-3 z-20 flex items-center gap-1.5 rounded-full bg-diyar-dark/85 px-3 py-1 text-[11px] font-bold text-white shadow-md backdrop-blur-xs border border-white/10">
+              <Camera size={13} className="text-amber-300" />
+              <span>خلفية غرفتك الحقيقية</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setRoomBackdropPhoto(null);
+                  resetTryInRoom();
+                }}
+                className="ms-1 p-0.5 rounded-full hover:bg-white/20 transition cursor-pointer"
+                title="إزالة صورة الغرفة"
+                aria-label="إزالة صورة الغرفة"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          </div>
         ) : null}
         {tryInRoomConfirming ? (
           <>
@@ -938,7 +976,49 @@ export function RoomDesignerShell({
 
             <div className="h-4 w-px bg-diyar-brown/20 shrink-0" />
 
-            {/* Quick Actions */}
+            {/* Fine & Continuous Rotation Controls */}
+            <div className="flex items-center gap-0.5 bg-diyar-cream/30 p-0.5 rounded-lg border border-diyar-brown/15">
+              <button
+                type="button"
+                className="h-7 w-7 flex items-center justify-center rounded text-diyar-dark hover:bg-white transition cursor-pointer"
+                title="تدوير عكس عقارب الساعة -15°"
+                onClick={() =>
+                  runSessionAction((s) =>
+                    s.applyCommands([
+                      {
+                        type: 'ROTATE',
+                        itemId: selectedItem.id,
+                        rotation_deg: (Math.round(selectedItem.rotation_deg - 15) + 360) % 360,
+                      },
+                    ]),
+                  )
+                }
+              >
+                <RotateCcw size={12} />
+              </button>
+              <span className="px-1 text-[10px] font-black text-diyar-dark min-w-[28px] text-center font-mono">
+                {Math.round(selectedItem.rotation_deg)}°
+              </span>
+              <button
+                type="button"
+                className="h-7 w-7 flex items-center justify-center rounded text-diyar-dark hover:bg-white transition cursor-pointer"
+                title="تدوير مع عقارب الساعة +15°"
+                onClick={() =>
+                  runSessionAction((s) =>
+                    s.applyCommands([
+                      {
+                        type: 'ROTATE',
+                        itemId: selectedItem.id,
+                        rotation_deg: (Math.round(selectedItem.rotation_deg + 15)) % 360,
+                      },
+                    ]),
+                  )
+                }
+              >
+                <RotateCw size={12} />
+              </button>
+            </div>
+
             <button
               type="button"
               className="h-7 px-2 flex items-center gap-1 rounded-lg border border-diyar-brown/20 bg-white text-[11px] font-bold text-diyar-dark hover:bg-diyar-cream transition cursor-pointer"
@@ -955,9 +1035,26 @@ export function RoomDesignerShell({
                 )
               }
             >
-              <RotateCw size={12} />
+              <RotateCw size={11} />
               <span>45°</span>
             </button>
+
+            {Boolean(selectedItem.snapshot.asset_ref) ? (
+              <button
+                type="button"
+                className={`h-7 px-2 flex items-center gap-1 rounded-lg border text-[10px] font-bold transition cursor-pointer ${
+                  projection === 'room_3d'
+                    ? 'border-diyar-brown bg-diyar-brown text-white'
+                    : 'border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100'
+                }`}
+                title="معاينة النموذج ثلاثي الأبعاد"
+                onClick={() => setProjection('room_3d')}
+              >
+                <Boxes size={12} />
+                <span>3D</span>
+              </button>
+            ) : null}
+
             <button
               type="button"
               className="h-7 w-7 flex items-center justify-center rounded-lg border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream transition cursor-pointer"
@@ -995,6 +1092,103 @@ export function RoomDesignerShell({
             >
               <Trash2 size={12} />
             </button>
+          </div>
+        ) : null}
+
+        {/* Placed Items Drawer / Tray ("قطع الغرفة") */}
+        {engine.document.items.length > 0 ? (
+          <div
+            className="absolute bottom-3 end-3 z-20 max-w-[calc(100%-140px)] flex flex-col items-end gap-1.5"
+            dir="rtl"
+          >
+            <button
+              type="button"
+              onClick={() => setPlacedItemsOpen((prev) => !prev)}
+              className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-diyar-brown/25 bg-white/95 px-2.5 py-1 text-xs font-bold text-diyar-dark shadow-md backdrop-blur-md hover:bg-diyar-cream/60 transition cursor-pointer"
+            >
+              <LayoutGrid size={13} className="text-diyar-brown" />
+              <span>قطع الغرفة ({engine.document.items.length})</span>
+            </button>
+
+            {placedItemsOpen ? (
+              <div className="flex max-w-full items-center gap-2 overflow-x-auto rounded-2xl border border-diyar-brown/25 bg-white/95 p-1.5 shadow-xl backdrop-blur-md [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {engine.document.items.map((item) => {
+                  const isSelected = selectedIds.includes(item.id);
+                  const has3d = Boolean(item.snapshot.asset_ref);
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => setSelectedIds([item.id])}
+                      className={`group relative flex shrink-0 items-center gap-2 rounded-xl border p-1.5 transition-all cursor-pointer ${
+                        isSelected
+                          ? 'border-diyar-brown bg-diyar-cream/40 ring-2 ring-diyar-brown/30 shadow-xs'
+                          : 'border-diyar-brown/15 bg-white hover:border-diyar-brown/35 hover:bg-diyar-cream/20 shadow-2xs'
+                      }`}
+                    >
+                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-diyar-cream/30 border border-diyar-brown/10">
+                        {item.snapshot.thumbnail_url ? (
+                          <img
+                            src={item.snapshot.thumbnail_url}
+                            alt={item.snapshot.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-diyar-brown/60">
+                            <Box size={16} />
+                          </div>
+                        )}
+                        {has3d ? (
+                          <span className="absolute bottom-0.5 start-0.5 rounded bg-diyar-dark/85 px-1 text-[7px] font-black text-amber-300">
+                            3D
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <div className="min-w-0 max-w-[90px] text-start pe-1">
+                        <p className="truncate text-[11px] font-bold text-diyar-dark">
+                          {item.snapshot.name}
+                        </p>
+                        <p className="text-[9px] text-muted-foreground">
+                          {item.snapshot.width_m} × {item.snapshot.depth_m} م
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-0.5">
+                        <button
+                          type="button"
+                          className="h-6 w-6 flex items-center justify-center rounded text-gray-500 hover:text-diyar-dark hover:bg-diyar-cream transition"
+                          title={item.locked ? 'إلغاء القفل' : 'قفل'}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            runSessionAction((s) =>
+                              s.applyCommands([
+                                {
+                                  type: item.locked ? 'UNLOCK' : 'LOCK',
+                                  itemId: item.id,
+                                },
+                              ]),
+                            );
+                          }}
+                        >
+                          {item.locked ? <Lock size={11} className="text-amber-600" /> : <Unlock size={11} />}
+                        </button>
+                        <button
+                          type="button"
+                          className="h-6 w-6 flex items-center justify-center rounded text-red-500 hover:bg-red-50 transition"
+                          title="حذف القطعة"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            runSessionAction((s) => s.applyCommands([{ type: 'REMOVE_ITEM', itemId: item.id }]));
+                          }}
+                        >
+                          <Trash2 size={11} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
         ) : null}
 
