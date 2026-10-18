@@ -1,5 +1,18 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, X, Upload, Check, Loader2, Box, Trash2 } from 'lucide-react';
+import {
+  Plus,
+  X,
+  Upload,
+  Check,
+  Loader2,
+  Box,
+  Trash2,
+  FileText,
+  Image as ImageIcon,
+  Ruler,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import type { Category, ProductImage } from '../../../types/catalog.ts';
 import type { ProductDetail } from '../../../types/catalog.ts';
 import type { VendorProductPayload } from '../../../api/vendorDashboard.ts';
@@ -145,6 +158,7 @@ export function VendorProductFormModal({
   const [removeExistingModel3d, setRemoveExistingModel3d] = useState(false);
   const [model3dError, setModel3dError] = useState<string | null>(null);
   const [isDragging3d, setIsDragging3d] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'info' | 'media' | 'specs' | 'all'>('info');
   const model3dInputRef = useRef<HTMLInputElement>(null);
 
   const validateAndSetModel3d = (file: File) => {
@@ -269,6 +283,7 @@ export function VendorProductFormModal({
       setRemoveExistingModel3d(false);
       setModel3dError(null);
       setIsDragging3d(false);
+      setMobileTab('info');
       return;
     }
 
@@ -300,6 +315,7 @@ export function VendorProductFormModal({
       setRemoveExistingModel3d(false);
       setModel3dError(null);
       setIsDragging3d(false);
+      setMobileTab('info');
     }
   }, [open, editingId, productDetail, categories]);
 
@@ -361,12 +377,46 @@ export function VendorProductFormModal({
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
+  const hasInfoErrors = Boolean(
+    showError('name') ||
+      showError('categoryId') ||
+      showError('salePrice') ||
+      showError('stock') ||
+      showError('stockAdjust') ||
+      showError('expectedAvailableAt'),
+  );
+  const hasMediaErrors = Boolean(showError('images') || model3dError);
+  const hasSpecsErrors = Boolean(
+    showError('description') ||
+      showError('width') ||
+      showError('height') ||
+      showError('depth'),
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTouched({ form: true });
     const nextErrors = runValidation();
     setErrors(nextErrors);
     if (hasFormErrors(nextErrors)) {
+      if (
+        nextErrors.name ||
+        nextErrors.categoryId ||
+        nextErrors.salePrice ||
+        nextErrors.stock ||
+        nextErrors.expectedAvailableAt
+      ) {
+        setMobileTab('info');
+      } else if (nextErrors.images) {
+        setMobileTab('media');
+      } else if (
+        nextErrors.description ||
+        nextErrors.width ||
+        nextErrors.height ||
+        nextErrors.depth
+      ) {
+        setMobileTab('specs');
+      }
       return;
     }
 
@@ -433,10 +483,10 @@ export function VendorProductFormModal({
       className="fixed inset-0 bg-black/60 z-300 flex items-center justify-center p-4 animate-in fade-in duration-300"
       dir={dir}
     >
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-gray-100">
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[94vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-gray-100">
+        <div className="shrink-0 p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
           <div className="text-right flex-1 select-none pr-1">
-            <h3 className="font-bold text-xl text-diyar-dark flex items-center gap-2">
+            <h3 className="font-bold text-lg sm:text-xl text-diyar-dark flex items-center gap-2">
               <span className="p-2 bg-diyar-brown/10 text-diyar-brown rounded-xl">
                 <Plus size={18} />
               </span>
@@ -456,16 +506,89 @@ export function VendorProductFormModal({
         {editingId && detailLoading ? (
           <LoadingState className="min-h-80" />
         ) : (
-          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 md:p-8">
+          <form onSubmit={handleSubmit} className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
             {touched.form && hasFormErrors(errors) && (
-              <div className="mb-6 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-700 font-medium text-right">
+              <div className="mb-4 sm:mb-6 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-700 font-medium text-right">
                 {t('vendor.form.fixErrors')}
               </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-5 space-y-6 text-right">
-                <div className="space-y-2">
+            {/* Mobile Tab Switcher (< md) */}
+            <div className="md:hidden sticky -top-4 z-20 bg-white/95 backdrop-blur-md pb-3 pt-1 border-b border-gray-150 mb-4">
+              <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-2xl">
+                <button
+                  type="button"
+                  onClick={() => setMobileTab('info')}
+                  className={`flex-1 py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    mobileTab === 'info'
+                      ? 'bg-white text-diyar-dark shadow-xs'
+                      : 'text-gray-500 hover:text-diyar-dark'
+                  }`}
+                >
+                  <FileText size={13} className={mobileTab === 'info' ? 'text-diyar-brown' : ''} />
+                  <span>البيانات والأسعار</span>
+                  {hasInfoErrors && <span className="w-1.5 h-1.5 rounded-full bg-red-500" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMobileTab('media')}
+                  className={`flex-1 py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    mobileTab === 'media'
+                      ? 'bg-white text-diyar-dark shadow-xs'
+                      : 'text-gray-500 hover:text-diyar-dark'
+                  }`}
+                >
+                  <ImageIcon size={13} className={mobileTab === 'media' ? 'text-diyar-brown' : ''} />
+                  <span>الصور و 3D</span>
+                  {hasMediaErrors ? (
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                  ) : totalImageCount > 0 ? (
+                    <span className="text-[10px] px-1 rounded-full bg-diyar-brown/10 text-diyar-brown font-mono">
+                      {totalImageCount}
+                    </span>
+                  ) : null}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMobileTab('specs')}
+                  className={`flex-1 py-2 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    mobileTab === 'specs'
+                      ? 'bg-white text-diyar-dark shadow-xs'
+                      : 'text-gray-500 hover:text-diyar-dark'
+                  }`}
+                >
+                  <Ruler size={13} className={mobileTab === 'specs' ? 'text-diyar-brown' : ''} />
+                  <span>المقاسات والوصف</span>
+                  {hasSpecsErrors && <span className="w-1.5 h-1.5 rounded-full bg-red-500" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMobileTab('all')}
+                  className={`py-2 px-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    mobileTab === 'all'
+                      ? 'bg-white text-diyar-dark shadow-xs'
+                      : 'text-gray-400 hover:text-diyar-dark'
+                  }`}
+                  title="عرض كل الأقسام"
+                >
+                  الكل
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start">
+              {/* Media & 3D Column (Col 5) */}
+              <div
+                className={`order-2 md:order-2 md:col-span-5 space-y-6 text-right ${
+                  mobileTab === 'media' || mobileTab === 'all' || mobileTab === 'info'
+                    ? 'block'
+                    : 'hidden md:block'
+                }`}
+              >
+                <div className={`space-y-2 ${mobileTab === 'media' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
                   <label className="text-xs font-bold text-gray-400 block">
                     {t('vendor.form.images.label')}
                   </label>
@@ -598,7 +721,7 @@ export function VendorProductFormModal({
                 </div>
 
                 {/* 3D Model Upload & Configuration for Room Designer */}
-                <div className="bg-amber-50/30 p-4 rounded-2xl border border-amber-200/60 space-y-3 text-right">
+                <div className={`bg-amber-50/30 p-4 rounded-2xl border border-amber-200/60 space-y-3 text-right ${mobileTab === 'media' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
                   <div className="flex items-center justify-between pb-2 border-b border-amber-100">
                     <span className="text-[11px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-lg flex items-center gap-1">
                       <Box size={13} />
@@ -742,7 +865,7 @@ export function VendorProductFormModal({
                   />
                 </div>
 
-                <div className="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 space-y-4 text-right">
+                <div className={`bg-gray-50/60 p-4 rounded-2xl border border-gray-100 space-y-4 text-right ${mobileTab === 'info' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
                   <h4 className="text-xs font-bold text-gray-500 pb-2 border-b border-gray-100 text-right">
                     {t('vendor.form.categorySection')} <span className="text-red-500">*</span>
                   </h4>
@@ -769,7 +892,7 @@ export function VendorProductFormModal({
                   </div>
                 </div>
 
-                <div className="space-y-3 text-right">
+                <div className={`space-y-3 text-right ${mobileTab === 'media' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
                   <label className="text-xs font-bold text-gray-400 block text-right">
                     {t('vendor.form.colors.label')}
                   </label>
@@ -869,11 +992,32 @@ export function VendorProductFormModal({
                       )}
                     </div>
                   </div>
+
+                  {/* Mobile Navigation Buttons for Media tab */}
+                  <div className={`md:hidden pt-2 flex items-center justify-between gap-2 ${mobileTab === 'media' ? 'flex' : 'hidden'}`}>
+                    <button
+                      type="button"
+                      onClick={() => setMobileTab('info')}
+                      className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl cursor-pointer"
+                    >
+                      <ChevronRight size={14} />
+                      <span>السابق: البيانات والأسعار</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMobileTab('specs')}
+                      className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-white bg-diyar-brown hover:bg-diyar-brown/90 rounded-xl cursor-pointer shadow-sm"
+                    >
+                      <span>التالي: المقاسات والوصف</span>
+                      <ChevronLeft size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="lg:col-span-7 space-y-6 text-right">
-                <div className="space-y-4 text-right">
+              {/* Product Details Column (Col 7 - Primary) */}
+              <div className="order-1 md:order-1 md:col-span-7 space-y-6 text-right">
+                <div className={`space-y-4 text-right ${mobileTab === 'info' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
                   <div className="space-y-1.5 text-right">
                     <RequiredLabel required className="text-sm font-bold text-gray-700">
                       {t('vendor.form.name')}
@@ -995,7 +1139,7 @@ export function VendorProductFormModal({
                         </>
                       )}
                     </div>
-                    <div className="md:col-span-3 space-y-3 rounded-xl border border-purple-100 bg-purple-50/40 p-4">
+                    <div className="sm:col-span-3 space-y-3 rounded-xl border border-purple-100 bg-purple-50/40 p-4">
                       <label className="flex items-start gap-3 cursor-pointer">
                         <input
                           type="checkbox"
@@ -1041,9 +1185,21 @@ export function VendorProductFormModal({
                       )}
                     </div>
                   </div>
+
+                  {/* Mobile Next button from Info to Media */}
+                  <div className="md:hidden pt-2 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setMobileTab('media')}
+                      className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-white bg-diyar-brown hover:bg-diyar-brown/90 rounded-xl cursor-pointer shadow-sm"
+                    >
+                      <span>التالي: صور المنتج ونموذج 3D</span>
+                      <ChevronLeft size={14} />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="p-5 bg-stone-50/50 rounded-2xl border border-stone-150 space-y-4 text-right">
+                <div className={`p-5 bg-stone-50/50 rounded-2xl border border-stone-150 space-y-4 text-right ${mobileTab === 'specs' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
                   <h4 className="text-xs font-bold text-stone-600 block border-b border-stone-100 pb-2 text-right">
                     {t('vendor.form.specsTitle')}
                   </h4>
@@ -1135,10 +1291,14 @@ export function VendorProductFormModal({
                   </div>
                 </div>
 
-                {editingId && <VendorProductAffiliateSection productId={editingId} />}
+                {editingId && (
+                  <div className={mobileTab === 'specs' || mobileTab === 'all' ? 'block' : 'hidden md:block'}>
+                    <VendorProductAffiliateSection productId={editingId} />
+                  </div>
+                )}
 
                 {editingId && (
-                  <div className="p-5 bg-amber-50/50 rounded-2xl border border-amber-100 space-y-4 text-right">
+                  <div className={`p-5 bg-amber-50/50 rounded-2xl border border-amber-100 space-y-4 text-right ${mobileTab === 'specs' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
                     <h4 className="text-xs font-bold text-amber-900 block border-b border-amber-100 pb-2">
                       {t('returns.productPolicyTitle')}
                     </h4>
@@ -1228,7 +1388,7 @@ export function VendorProductFormModal({
                   </div>
                 )}
 
-                <div className="space-y-1.5 text-right font-sans">
+                <div className={`space-y-1.5 text-right font-sans ${mobileTab === 'specs' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
                   <label className="text-sm font-bold text-gray-700 block text-right">
                     {t('vendor.form.description')}
                   </label>
@@ -1244,25 +1404,42 @@ export function VendorProductFormModal({
                     className={`${vendorFieldClass(Boolean(showError('description')))} p-3 text-sm text-right resize-y min-h-25`}
                   />
                   <FieldError message={showError('description')} />
+
+                  {/* Mobile Back button from Specs to Media */}
+                  <div className="md:hidden pt-3 flex justify-start">
+                    <button
+                      type="button"
+                      onClick={() => setMobileTab('media')}
+                      className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl cursor-pointer"
+                    >
+                      <ChevronRight size={14} />
+                      <span>السابق: صور المنتج ونموذج 3D</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-gray-150 flex items-center justify-end gap-3 text-right">
-              <button
-                type="button"
-                onClick={onClose}
-                className={`${vendorButtonClass} px-6 py-3 text-sm text-gray-500 hover:text-diyar-dark hover:bg-gray-50 border border-transparent hover:border-gray-200`}
-              >
-                {t('vendor.form.cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={isSaving}
-                className={`${vendorButtonClass} px-8 py-3 text-sm bg-diyar-brown hover:bg-[#A67B5B]/90 text-white shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] font-sans`}
-              >
-                {isSaving ? t('vendor.form.saving') : t('vendor.form.submit')}
-              </button>
+            <div className="shrink-0 mt-8 pt-6 border-t border-gray-150 flex items-center justify-between gap-3 text-right">
+              <span className="text-xs text-gray-400 font-sans hidden sm:inline">
+                * الحقول المميزة بعلامة النجمة إلزامية
+              </span>
+              <div className="flex items-center gap-3 ms-auto">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className={`${vendorButtonClass} px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-500 hover:text-diyar-dark hover:bg-gray-50 border border-transparent hover:border-gray-200`}
+                >
+                  {t('vendor.form.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className={`${vendorButtonClass} px-6 sm:px-8 py-2.5 sm:py-3 text-xs sm:text-sm bg-diyar-brown hover:bg-[#A67B5B]/90 text-white shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] font-sans`}
+                >
+                  {isSaving ? t('vendor.form.saving') : t('vendor.form.submit')}
+                </button>
+              </div>
             </div>
           </form>
         )}
