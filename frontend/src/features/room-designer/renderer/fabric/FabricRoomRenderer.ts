@@ -465,7 +465,17 @@ export class FabricRoomRenderer implements RoomRenderer {
         });
       }
 
+      const isRoomSelected = ids.includes('__ROOM__');
+      if (this.floorObject) {
+        const defaultWallColor = this.mountOptions?.roomBorderColor ?? '#735942';
+        this.floorObject.set({
+          stroke: isRoomSelected ? '#f59e0b' : defaultWallColor,
+          strokeWidth: isRoomSelected ? 4 : 3,
+        });
+      }
+
       const objects = ids
+        .filter((id) => id !== '__ROOM__')
         .map((id) => this.itemObjects.get(id))
         .filter((obj): obj is BlenderItemRect => obj != null);
       if (objects.length === 0) {
@@ -479,6 +489,15 @@ export class FabricRoomRenderer implements RoomRenderer {
     } finally {
       this.programmaticSync = false;
     }
+  }
+
+  panBy(dx: number, dy: number): void {
+    if (!this.canvas) return;
+    const vpt = this.canvas.viewportTransform;
+    if (!vpt) return;
+    vpt[4] += dx;
+    vpt[5] += dy;
+    this.canvas.requestRenderAll();
   }
 
   zoomBy(factor: number): void {

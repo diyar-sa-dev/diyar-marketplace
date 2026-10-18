@@ -33,6 +33,10 @@ export class DesignerSession {
     return this.engine;
   }
 
+  replaceState(state: SpatialEngineState): void {
+    this.engine = state;
+  }
+
   canUndo(): boolean {
     return engineCanUndo(this.engine);
   }

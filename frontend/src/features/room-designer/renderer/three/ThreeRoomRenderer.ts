@@ -244,11 +244,38 @@ export class ThreeRoomRenderer implements RoomRenderer {
     this.controls.update();
   }
 
+  panBy(dx: number, dy: number): void {
+    if (!this.camera || !this.controls || !this.three) {
+      return;
+    }
+    const right = new this.three.Vector3();
+    const up = new this.three.Vector3(0, 1, 0);
+    this.camera.getWorldDirection(right);
+    right.cross(up).normalize();
+
+    const forward = new this.three.Vector3();
+    this.camera.getWorldDirection(forward);
+    forward.y = 0;
+    forward.normalize();
+
+    const panFactor = 0.035;
+    const move = right.multiplyScalar(-dx * panFactor).add(forward.multiplyScalar(dy * panFactor));
+    this.camera.position.add(move);
+    this.controls.target.add(move);
+    this.controls.update();
+  }
+
   setSelection(ids: string[]): void {
     if (!this.three) {
       return;
     }
     const selected = new Set(ids);
+    const isRoomSelected = selected.has('__ROOM__');
+    if (this.floorMesh?.material && 'emissive' in this.floorMesh.material) {
+      const mat = this.floorMesh.material as import('three').MeshStandardMaterial;
+      mat.emissive.set(isRoomSelected ? 0x2b1c09 : 0x000000);
+    }
+
     for (const [id, mesh] of this.itemMeshes) {
       const isSelected = selected.has(id);
 

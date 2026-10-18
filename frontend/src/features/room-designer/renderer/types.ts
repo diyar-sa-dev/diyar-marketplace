@@ -36,6 +36,7 @@ export interface RoomRenderer {
   zoomBy?(factor: number): void;
   resetView?(): void;
   rotateView?(angleRad: number): void;
+  panBy?(dx: number, dy: number): void;
 }
 
 export const DEFAULT_SCALE_PX_PER_M = 80;

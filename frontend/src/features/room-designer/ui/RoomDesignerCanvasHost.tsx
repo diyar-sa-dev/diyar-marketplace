@@ -18,6 +18,7 @@ export type RoomCanvasControls = {
   zoomOut: () => void;
   resetView: () => void;
   rotate?: (deltaDeg: number) => void;
+  panBy?: (dx: number, dy: number) => void;
 };
 
 export type RoomDesignerCanvasHostProps = {
@@ -36,6 +37,8 @@ export type RoomDesignerCanvasHostProps = {
   controlsRef?: MutableRefObject<RoomCanvasControls | null>;
   onEngineChange?: (state: SpatialEngineState) => void;
   onSelectionChange?: (ids: string[]) => void;
+  selectedIds?: string[];
+  isRoomSelected?: boolean;
 };
 
 /**
@@ -56,6 +59,8 @@ export function RoomDesignerCanvasHost({
   controlsRef,
   onEngineChange,
   onSelectionChange,
+  selectedIds,
+  isRoomSelected = false,
 }: RoomDesignerCanvasHostProps) {
   const outerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,6 +78,24 @@ export function RoomDesignerCanvasHost({
     sessionRefInternal.current = new DesignerSession(initialEngine);
   }
   const [, bump] = useReducer((n: number) => n + 1, 0);
+
+  const onEngineChangeRef = useRef(onEngineChange);
+  onEngineChangeRef.current = onEngineChange;
+
+  const onSelectionChangeRef = useRef(onSelectionChange);
+  onSelectionChangeRef.current = onSelectionChange;
+
+  const projectionRef = useRef(projection);
+  projectionRef.current = projection;
+
+  const scalePxPerMRef = useRef(scalePxPerM);
+  scalePxPerMRef.current = scalePxPerM;
+
+  const selectedIdsRef = useRef(selectedIds);
+  selectedIdsRef.current = selectedIds;
+
+  const isRoomSelectedRef = useRef(isRoomSelected);
+  isRoomSelectedRef.current = isRoomSelected;
 
   useEffect(() => {
     if (sessionRef) {
@@ -95,6 +118,9 @@ export function RoomDesignerCanvasHost({
         rotate: (deltaDeg: number) => {
           rendererRef.current?.rotateView?.((deltaDeg * Math.PI) / 180);
         },
+        panBy: (dx: number, dy: number) => {
+          rendererRef.current?.panBy?.(dx, dy);
+        },
       };
     }
   }, [controlsRef]);
@@ -104,11 +130,14 @@ export function RoomDesignerCanvasHost({
     const session = sessionRefInternal.current;
     if (!renderer || !session) return;
     try {
-      renderer.render(session.getDocument(), { scalePxPerM, projection });
+      renderer.render(session.getDocument(), {
+        scalePxPerM: scalePxPerMRef.current,
+        projection: projectionRef.current,
+      });
     } catch {
       setBootError('تعذّر تحميل مساحة التصميم. أعد المحاولة.');
     }
-  }, [projection, scalePxPerM]);
+  }, []);
 
   const handleInteraction = useCallback(
     (event: RendererInteraction) => {
@@ -118,7 +147,7 @@ export function RoomDesignerCanvasHost({
 
       if (event.type === 'select') {
         session.setSelection(event.ids);
-        onSelectionChange?.(event.ids);
+        onSelectionChangeRef.current?.(event.ids);
         return;
       }
 
@@ -127,17 +156,23 @@ export function RoomDesignerCanvasHost({
           event.command.type === 'BATCH' ? [...event.command.commands] : [event.command];
         const result = session.applyCommands(commands);
         if (result.ok) {
-          onEngineChange?.(result.state);
-          syncRender();
+          onEngineChangeRef.current?.(result.state);
+          renderer?.render(session.getDocument(), {
+            scalePxPerM: scalePxPerMRef.current,
+            projection: projectionRef.current,
+          });
           bump();
         } else if (renderer) {
-          renderer.render(session.getDocument(), { scalePxPerM, projection });
+          renderer.render(session.getDocument(), {
+            scalePxPerM: scalePxPerMRef.current,
+            projection: projectionRef.current,
+          });
         }
       } catch {
         setBootError('تعذّر تحميل مساحة التصميم. أعد المحاولة.');
       }
     },
-    [onEngineChange, onSelectionChange, projection, scalePxPerM, syncRender],
+    [],
   );
 
   const lastSessionResetKey = useRef<string | undefined>(undefined);
@@ -154,6 +189,7 @@ export function RoomDesignerCanvasHost({
     bump();
   }, [initialEngine, sessionRef, sessionResetKey, syncRender]);
 
+  // Mount renderer only when backend type changes (2D/2.5D vs 3D) or on manual retry
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return undefined;
@@ -163,7 +199,7 @@ export function RoomDesignerCanvasHost({
     setBooting(true);
     void (async () => {
       try {
-        const renderer = await createRoomRenderer(projection);
+        const renderer = await createRoomRenderer(projectionRef.current);
         if (cancelled) {
           renderer.destroy();
           return;
@@ -172,11 +208,15 @@ export function RoomDesignerCanvasHost({
         renderer.mount(container, {
           widthPx: viewportWidth,
           heightPx: viewportHeight,
-          scalePxPerM,
+          scalePxPerM: scalePxPerMRef.current,
           touchFriendly,
         });
         renderer.onInteraction(handleInteraction);
         syncRender();
+        const effectiveSelectedIds = isRoomSelectedRef.current
+          ? ['__ROOM__']
+          : (selectedIdsRef.current ?? []);
+        renderer.setSelection(effectiveSelectedIds);
         if (!cancelled) {
           setBooting(false);
         }
@@ -193,15 +233,28 @@ export function RoomDesignerCanvasHost({
       rendererRef.current?.destroy();
       rendererRef.current = null;
     };
-  }, [bootKey, handleInteraction, projection, rendererBackend, scalePxPerM, syncRender, touchFriendly]);
+  }, [bootKey, rendererBackend, touchFriendly]);
 
   useEffect(() => {
     rendererRef.current?.resizeViewport(viewportWidth, viewportHeight);
   }, [viewportHeight, viewportWidth]);
 
+  // Fast in-place updates for engine modifications, projection switch, and selection
   useEffect(() => {
-    syncRender();
-  }, [projection, syncRender]);
+    const renderer = rendererRef.current;
+    const session = sessionRefInternal.current;
+    if (!renderer || !session) return;
+
+    if (session.getState() !== initialEngine) {
+      session.replaceState(initialEngine);
+    }
+    renderer.render(session.getDocument(), {
+      scalePxPerM,
+      projection,
+    });
+    const effectiveSelectedIds = isRoomSelected ? ['__ROOM__'] : (selectedIds ?? []);
+    renderer.setSelection(effectiveSelectedIds);
+  }, [initialEngine, isRoomSelected, projection, scalePxPerM, selectedIds]);
 
   return (
     <div

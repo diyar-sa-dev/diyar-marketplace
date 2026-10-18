@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { LocaleProvider } from '../../../lib/i18n/LocaleProvider.tsx';
 import { createSpatialEngineFromPreset } from '../application/spatialEngine.ts';
@@ -33,8 +33,30 @@ describe('RoomDesignerShell mobile layout', () => {
     expect(screen.getByTestId('room-designer-canvas-host')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /المنتجات/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'إفراغ الغرفة' })).toBeInTheDocument();
-    expect(screen.getByText('ابدأ بتأثيث غرفتك')).toBeInTheDocument();
-    expect(screen.getByText('اسحب القطع، كبّرها أو دوّرها لترتيب غرفتك بسهولة')).toBeInTheDocument();
     expect(screen.queryByLabelText('معرض المنتجات')).not.toBeInTheDocument();
+  });
+
+  it('renders room base model card and opens room layout HUD on click', () => {
+    const preset = createSpatialEngineFromPreset('majlis');
+    if (preset.ok === false) {
+      throw new Error('preset');
+    }
+
+    const client = new QueryClient();
+    render(
+      <LocaleProvider>
+        <QueryClientProvider client={client}>
+          <RoomDesignerShell engine={preset.state} />
+        </QueryClientProvider>
+      </LocaleProvider>,
+    );
+
+    expect(screen.getByText(/قطع ومخطط الغرفة/i)).toBeInTheDocument();
+    const roomCard = screen.getByTitle('تحديد طابع ومجسم الغرفة للتحكم والتنقل');
+    expect(roomCard).toBeInTheDocument();
+    fireEvent.click(roomCard);
+
+    expect(screen.getByRole('toolbar', { name: 'التحكم بمجسم وطابع الغرفة' })).toBeInTheDocument();
+    expect(screen.getByText(/تحريك الغرفة:/i)).toBeInTheDocument();
   });
 });

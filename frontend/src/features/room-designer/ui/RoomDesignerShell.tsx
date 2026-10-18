@@ -7,6 +7,7 @@ import {
   Boxes,
   Camera,
   Copy,
+  Home,
   LayoutGrid,
   Lock,
   Maximize,
@@ -84,6 +85,7 @@ export function RoomDesignerShell({
   const isLargeScreen = useLargeScreen();
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isRoomSelected, setIsRoomSelected] = useState(false);
   const [cartModalOpen, setCartModalOpen] = useState(false);
   const [projection, setProjection] = useState<RoomProjectionMode>('top_down');
   const presentationToggleEnabled = hasPresentationModeToggle();
@@ -196,6 +198,30 @@ export function RoomDesignerShell({
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
         return;
       }
+      if (isRoomSelected) {
+        const panStep = e.shiftKey ? 60 : 25;
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          canvasControlsRef.current?.panBy?.(0, panStep);
+          return;
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          canvasControlsRef.current?.panBy?.(0, -panStep);
+          return;
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          canvasControlsRef.current?.panBy?.(panStep, 0);
+          return;
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          canvasControlsRef.current?.panBy?.(-panStep, 0);
+          return;
+        } else if (e.key === 'Escape') {
+          setIsRoomSelected(false);
+          return;
+        }
+      }
+
       const selItem = engine.document.items.find((i) => selectedIds.includes(i.id));
       if (!selItem) {
         return;
@@ -282,7 +308,7 @@ export function RoomDesignerShell({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [engine, selectedIds, runSessionAction]);
+  }, [engine, selectedIds, isRoomSelected, runSessionAction]);
 
   const handleSelectProduct = useCallback(
     async (productId: string) => {
@@ -406,6 +432,8 @@ export function RoomDesignerShell({
   const canUndo = engineCanUndo(engine);
   const canRedo = engineCanRedo(engine);
   const selectedItem = engine.document.items.find((i) => selectedIds.includes(i.id));
+  const currentPreset = listRoomPresets().find((p) => p.id === engine.document.room.preset_id);
+  const presetLabel = currentPreset?.name_ar ?? 'طابع ومخطط الغرفة';
   const hasPresetSelected = Boolean(engine.document.room.preset_id);
   const showEmptyHint =
     !hasPresetSelected && engine.document.items.length === 0 && !emptyHintDismissed;
@@ -661,9 +689,11 @@ export function RoomDesignerShell({
                   ? 'border-2 border-diyar-brown bg-diyar-brown text-white shadow-sm ring-2 ring-diyar-brown/20 scale-[1.01]'
                   : 'border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream/40 hover:border-diyar-brown'
               }`}
-              onClick={() =>
-                runSessionAction((s) => s.applyCommands([{ type: 'APPLY_ROOM_PRESET', preset_id: preset.id }]))
-              }
+              onClick={() => {
+                runSessionAction((s) => s.applyCommands([{ type: 'APPLY_ROOM_PRESET', preset_id: preset.id }]));
+                setIsRoomSelected(true);
+                setSelectedIds([]);
+              }}
             >
               <span>{preset.name_ar}</span>
               <span
@@ -834,7 +864,14 @@ export function RoomDesignerShell({
             sessionRef={sessionRef}
             controlsRef={canvasControlsRef}
             onEngineChange={handleEngineChange}
-            onSelectionChange={setSelectedIds}
+            onSelectionChange={(ids) => {
+              setSelectedIds(ids);
+              if (ids.length > 0) {
+                setIsRoomSelected(false);
+              }
+            }}
+            selectedIds={selectedIds}
+            isRoomSelected={isRoomSelected}
             className="relative z-10 h-full w-full"
           />
         </ErrorBoundary>
@@ -1109,36 +1146,144 @@ export function RoomDesignerShell({
           </div>
         ) : null}
 
-        {/* Placed Items Drawer / Tray ("قطع الغرفة") */}
-        {engine.document.items.length > 0 ? (
+        {/* Floating Quick Room Layout Controls HUD */}
+        {isRoomSelected && !selectedItem ? (
           <div
-            className="absolute bottom-3 end-3 z-20 max-w-[calc(100%-140px)] flex flex-col items-end gap-1.5"
-            dir="rtl"
+            className="absolute top-3 left-1/2 -translate-x-1/2 z-25 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-diyar-brown/25 bg-white/95 px-3.5 py-1.5 shadow-lg backdrop-blur-md max-w-[95%]"
+            role="toolbar"
+            aria-label="التحكم بمجسم وطابع الغرفة"
           >
+            <div className="flex items-center gap-1.5 pe-1.5 border-e border-diyar-brown/20">
+              <Home size={15} className="text-diyar-brown" />
+              <div className="text-start">
+                <span className="text-[11px] font-bold text-diyar-dark block leading-tight">
+                  طابع الغرفة: {presetLabel}
+                </span>
+                <span className="text-[9px] text-muted-foreground block">
+                  {engine.document.room.width_m} × {engine.document.room.depth_m} م
+                </span>
+              </div>
+            </div>
+
+            {/* Room Pan Controls (Move Entire Room With All Items) */}
+            <div className="flex items-center gap-0.5 bg-diyar-cream/40 p-0.5 rounded-lg border border-diyar-brown/15">
+              <span className="text-[10px] font-bold text-diyar-dark/70 px-1">تحريك الغرفة:</span>
+              <button
+                type="button"
+                className="h-7 w-7 flex items-center justify-center rounded-lg border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream transition cursor-pointer"
+                title="تحريك لأعلى (ArrowUp)"
+                onClick={() => canvasControlsRef.current?.panBy?.(0, 30)}
+              >
+                <ArrowUp size={13} />
+              </button>
+              <button
+                type="button"
+                className="h-7 w-7 flex items-center justify-center rounded-lg border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream transition cursor-pointer"
+                title="تحريك لأسفل (ArrowDown)"
+                onClick={() => canvasControlsRef.current?.panBy?.(0, -30)}
+              >
+                <ArrowDown size={13} />
+              </button>
+              <button
+                type="button"
+                className="h-7 w-7 flex items-center justify-center rounded-lg border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream transition cursor-pointer"
+                title="تحريك لليمين (ArrowRight)"
+                onClick={() => canvasControlsRef.current?.panBy?.(-30, 0)}
+              >
+                <ArrowRight size={13} />
+              </button>
+              <button
+                type="button"
+                className="h-7 w-7 flex items-center justify-center rounded-lg border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream transition cursor-pointer"
+                title="تحريك لليسار (ArrowLeft)"
+                onClick={() => canvasControlsRef.current?.panBy?.(30, 0)}
+              >
+                <ArrowLeft size={13} />
+              </button>
+            </div>
+
             <button
               type="button"
-              onClick={() => setPlacedItemsOpen((prev) => !prev)}
-              className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-diyar-brown/25 bg-white/95 px-2.5 py-1 text-xs font-bold text-diyar-dark shadow-md backdrop-blur-md hover:bg-diyar-cream/60 transition cursor-pointer"
+              className="h-7 px-2 flex items-center gap-1 rounded-lg border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream text-[10px] font-bold transition cursor-pointer"
+              title="إعادة ضبط الرؤية لمنتصف الغرفة"
+              onClick={() => canvasControlsRef.current?.resetView?.()}
             >
-              <LayoutGrid size={13} className="text-diyar-brown" />
-              <span>قطع الغرفة ({engine.document.items.length})</span>
+              <Maximize2 size={11} />
+              <span>توسيط</span>
             </button>
 
-            {placedItemsOpen ? (
-              <div className="flex max-w-full items-center gap-2 overflow-x-auto rounded-2xl border border-diyar-brown/25 bg-white/95 p-1.5 shadow-xl backdrop-blur-md [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {engine.document.items.map((item) => {
-                  const isSelected = selectedIds.includes(item.id);
-                  const has3d = Boolean(item.snapshot.asset_ref);
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => setSelectedIds([item.id])}
-                      className={`group relative flex shrink-0 items-center gap-2 rounded-xl border p-1.5 transition-all cursor-pointer ${
-                        isSelected
-                          ? 'border-diyar-brown bg-diyar-cream/40 ring-2 ring-diyar-brown/30 shadow-xs'
-                          : 'border-diyar-brown/15 bg-white hover:border-diyar-brown/35 hover:bg-diyar-cream/20 shadow-2xs'
-                      }`}
-                    >
+            <button
+              type="button"
+              className="h-7 w-7 flex items-center justify-center rounded-lg border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream transition cursor-pointer"
+              title="إلغاء التحديد"
+              onClick={() => setIsRoomSelected(false)}
+            >
+              <X size={12} />
+            </button>
+          </div>
+        ) : null}
+
+        {/* Placed Items Drawer / Tray ("قطع ومخطط الغرفة") */}
+        <div
+          className="absolute bottom-3 end-3 z-20 max-w-[calc(100%-140px)] flex flex-col items-end gap-1.5"
+          dir="rtl"
+        >
+          <button
+            type="button"
+            onClick={() => setPlacedItemsOpen((prev) => !prev)}
+            className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-diyar-brown/25 bg-white/95 px-2.5 py-1 text-xs font-bold text-diyar-dark shadow-md backdrop-blur-md hover:bg-diyar-cream/60 transition cursor-pointer"
+          >
+            <LayoutGrid size={13} className="text-diyar-brown" />
+            <span>قطع ومخطط الغرفة ({engine.document.items.length + 1})</span>
+          </button>
+
+          {placedItemsOpen ? (
+            <div className="flex max-w-full items-center gap-2 overflow-x-auto rounded-2xl border border-diyar-brown/25 bg-white/95 p-1.5 shadow-xl backdrop-blur-md [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {/* Room Base Model Card */}
+              <div
+                onClick={() => {
+                  setSelectedIds([]);
+                  setIsRoomSelected(true);
+                }}
+                className={`group relative flex shrink-0 items-center gap-2 rounded-xl border p-1.5 transition-all cursor-pointer ${
+                  isRoomSelected
+                    ? 'border-diyar-brown bg-diyar-cream/50 ring-2 ring-diyar-brown/40 shadow-xs'
+                    : 'border-diyar-brown/20 bg-white hover:border-diyar-brown/40 hover:bg-diyar-cream/20 shadow-2xs'
+                }`}
+                title="تحديد طابع ومجسم الغرفة للتحكم والتنقل"
+              >
+                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-diyar-cream/50 border border-diyar-brown/15 flex items-center justify-center text-diyar-brown">
+                  <Home size={18} />
+                  <span className="absolute bottom-0.5 start-0.5 rounded bg-diyar-dark/85 px-1 text-[7px] font-black text-amber-300">
+                    قاعدة
+                  </span>
+                </div>
+                <div className="min-w-0 max-w-[100px] text-start pe-1">
+                  <p className="truncate text-[11px] font-bold text-diyar-dark">
+                    {presetLabel}
+                  </p>
+                  <p className="text-[9px] text-muted-foreground">
+                    {engine.document.room.width_m} × {engine.document.room.depth_m} م
+                  </p>
+                </div>
+              </div>
+
+              {engine.document.items.map((item) => {
+                const isSelected = selectedIds.includes(item.id);
+                const has3d = Boolean(item.snapshot.asset_ref);
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => {
+                      setIsRoomSelected(false);
+                      setSelectedIds([item.id]);
+                    }}
+                    className={`group relative flex shrink-0 items-center gap-2 rounded-xl border p-1.5 transition-all cursor-pointer ${
+                      isSelected
+                        ? 'border-diyar-brown bg-diyar-cream/40 ring-2 ring-diyar-brown/30 shadow-xs'
+                        : 'border-diyar-brown/15 bg-white hover:border-diyar-brown/35 hover:bg-diyar-cream/20 shadow-2xs'
+                    }`}
+                  >
                       <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-diyar-cream/30 border border-diyar-brown/10">
                         {item.snapshot.thumbnail_url ? (
                           <img
@@ -1204,7 +1349,6 @@ export function RoomDesignerShell({
               </div>
             ) : null}
           </div>
-        ) : null}
 
         {/* Empty State Overlay (auto-hides visually when a room preset is chosen or item added, plus dismiss button) */}
         {engine.document.items.length === 0 ? (

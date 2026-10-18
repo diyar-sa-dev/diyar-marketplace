@@ -15,6 +15,7 @@ const mockRenderer = {
   resizeViewport: vi.fn(),
   setSelection: vi.fn(),
   onInteraction: vi.fn(),
+  panBy: vi.fn(),
 };
 
 vi.mock('../renderer/createRoomRenderer.ts', () => ({
@@ -22,6 +23,7 @@ vi.mock('../renderer/createRoomRenderer.ts', () => ({
 }));
 
 beforeEach(() => {
+  vi.clearAllMocks();
   class ResizeObserverMock {
     observe = vi.fn();
     disconnect = vi.fn();
@@ -73,5 +75,96 @@ describe('RoomDesignerCanvasHost session lifecycle', () => {
 
     expect(sessionRef.current).toBe(sessionAfterMount);
     expect(sessionRef.current?.selectedIds).toEqual(['keep-selection']);
+  });
+
+  it('does not destroy or remount renderer during local interactions, rotations, or engine updates', async () => {
+    const preset = createSpatialEngineFromPreset('salon');
+    if (preset.ok === false) throw new Error('preset');
+    let engine = preset.state;
+
+    const { rerender } = render(
+      <RoomDesignerCanvasHost
+        engine={engine}
+        sessionResetKey="design-stable"
+        onEngineChange={() => {}}
+        widthPx={400}
+        heightPx={300}
+      />,
+    );
+
+    await waitFor(() => expect(mockRenderer.mount).toHaveBeenCalledTimes(1));
+    expect(mockRenderer.destroy).not.toHaveBeenCalled();
+
+    // Simulate engine update from toolbar rotate/move action with fresh inline callback
+    const item = makeItem({ id: 'item-1' });
+    const withItem = executeCommand(engine, { type: 'ADD_ITEM', item });
+    if (withItem.ok === false) throw new Error('add item');
+    engine = withItem.state;
+
+    rerender(
+      <RoomDesignerCanvasHost
+        engine={engine}
+        sessionResetKey="design-stable"
+        onEngineChange={() => {}}
+        widthPx={400}
+        heightPx={300}
+      />,
+    );
+
+    // Renderer must NOT be destroyed or remounted
+    expect(mockRenderer.destroy).not.toHaveBeenCalled();
+    expect(mockRenderer.mount).toHaveBeenCalledTimes(1);
+    expect(mockRenderer.render).toHaveBeenCalled();
+  });
+
+  it('exposes panBy in controlsRef and delegates to renderer.panBy', async () => {
+    const preset = createSpatialEngineFromPreset('salon');
+    if (preset.ok === false) throw new Error('preset');
+
+    const controlsRef: { current: any } = { current: null };
+
+    render(
+      <RoomDesignerCanvasHost
+        engine={preset.state}
+        controlsRef={controlsRef}
+        widthPx={400}
+        heightPx={300}
+      />,
+    );
+
+    await waitFor(() => expect(controlsRef.current).toBeTruthy());
+    expect(typeof controlsRef.current.panBy).toBe('function');
+
+    controlsRef.current.panBy(45, -30);
+    expect(mockRenderer.panBy).toHaveBeenCalledWith(45, -30);
+  });
+
+  it('forwards __ROOM__ selection when isRoomSelected is true', async () => {
+    const preset = createSpatialEngineFromPreset('salon');
+    if (preset.ok === false) throw new Error('preset');
+
+    const { rerender } = render(
+      <RoomDesignerCanvasHost
+        engine={preset.state}
+        isRoomSelected={false}
+        selectedIds={['item-abc']}
+        widthPx={400}
+        heightPx={300}
+      />,
+    );
+
+    await waitFor(() => expect(mockRenderer.setSelection).toHaveBeenCalledWith(['item-abc']));
+
+    rerender(
+      <RoomDesignerCanvasHost
+        engine={preset.state}
+        isRoomSelected={true}
+        selectedIds={[]}
+        widthPx={400}
+        heightPx={300}
+      />,
+    );
+
+    expect(mockRenderer.setSelection).toHaveBeenCalledWith(['__ROOM__']);
   });
 });
