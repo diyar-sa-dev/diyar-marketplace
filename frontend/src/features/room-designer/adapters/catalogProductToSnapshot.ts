@@ -42,10 +42,23 @@ export function dimensionsCmToSnapshotMeters(dimensions: ProductDetail['dimensio
 }
 
 export function productDetailToSnapshot(
-  product: Pick<ProductDetail, 'name' | 'dimensions' | 'images'>,
+  product: Pick<ProductDetail, 'name' | 'dimensions' | 'images'> & {
+    model_3d?: string | null;
+    model_3d_url?: string | null;
+    glb_url?: string | null;
+    model3d?: string | null;
+    asset_ref?: string | null;
+  },
 ): ItemSnapshot {
   const mapped = dimensionsCmToSnapshotMeters(product.dimensions);
   const thumbnail_url = product.images?.[0]?.url ?? null;
+  const asset_ref =
+    product.model_3d_url ??
+    product.model_3d ??
+    product.glb_url ??
+    product.model3d ??
+    product.asset_ref ??
+    null;
 
   return {
     name: product.name,
@@ -53,7 +66,7 @@ export function productDetailToSnapshot(
     depth_m: mapped.depth_m,
     height_m: mapped.height_m,
     thumbnail_url,
-    asset_ref: null,
+    asset_ref: typeof asset_ref === 'string' && asset_ref.trim() !== '' ? asset_ref.trim() : null,
   };
 }
 

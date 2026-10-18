@@ -23,7 +23,11 @@ export function resolveGlbAssetUrl(snapshot: ItemSnapshot): string | null {
     }
     return null;
   }
-  if (ref?.endsWith('.glb') || ref?.endsWith('.gltf')) {
+  if (
+    ref.endsWith('.glb') ||
+    ref.endsWith('.gltf') ||
+    /\.gl(b|tf)(\?.*)?$/i.test(ref)
+  ) {
     if (isAllowedGlbHttpUrl(ref)) {
       return ref;
     }

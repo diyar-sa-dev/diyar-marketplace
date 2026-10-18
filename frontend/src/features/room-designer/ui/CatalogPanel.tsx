@@ -163,7 +163,13 @@ function CatalogProductRow({
   onSelect: () => void;
 }) {
   const priceNum = Number(product.sale_price ?? 0);
-  const formattedPrice = priceNum > 0 ? priceNum.toLocaleString('ar-SA') : null;
+  const formattedPrice = priceNum > 0 ? priceNum.toLocaleString('en-US') : null;
+  const has3dModel = Boolean(
+    (product as { model_3d?: string; glb_url?: string; has_3d?: boolean; asset_ref?: string }).model_3d ||
+    (product as { glb_url?: string }).glb_url ||
+    (product as { has_3d?: boolean }).has_3d ||
+    (product as { asset_ref?: string }).asset_ref
+  );
 
   return (
     <div className="group flex items-center gap-2.5 rounded-xl border border-diyar-brown/15 bg-white p-2 hover:border-diyar-brown/40 hover:bg-diyar-cream/15 shadow-2xs transition-all duration-150">
@@ -178,6 +184,11 @@ function CatalogProductRow({
             (e.target as HTMLImageElement).src = PLACEHOLDER_FURNITURE;
           }}
         />
+        {has3dModel ? (
+          <span className="absolute bottom-0.5 start-0.5 rounded bg-diyar-dark/85 px-1 py-0.2 text-[8px] font-black text-amber-300 shadow-xs">
+            3D
+          </span>
+        ) : null}
       </div>
 
       {/* Title + Short Info */}
@@ -200,11 +211,18 @@ function CatalogProductRow({
           <span className="truncate">
             {product.category?.name || product.vendor?.store_name || 'أثاث ديار'}
           </span>
-          {product.discount_percent ? (
-            <span className="font-bold text-red-600 bg-red-50 px-1 py-0.2 rounded text-[9px]">
-              -{product.discount_percent}%
-            </span>
-          ) : null}
+          <div className="flex items-center gap-1">
+            {has3dModel ? (
+              <span className="font-bold text-amber-800 bg-amber-50 px-1 py-0.2 rounded text-[9px] border border-amber-200">
+                مجسم 3D
+              </span>
+            ) : null}
+            {product.discount_percent ? (
+              <span className="font-bold text-red-600 bg-red-50 px-1 py-0.2 rounded text-[9px]">
+                -{product.discount_percent}%
+              </span>
+            ) : null}
+          </div>
         </div>
       </div>
 

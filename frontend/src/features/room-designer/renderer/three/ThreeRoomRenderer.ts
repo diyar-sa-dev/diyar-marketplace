@@ -90,13 +90,22 @@ export class ThreeRoomRenderer implements RoomRenderer {
     canvas.style.touchAction = 'none';
     this.container.appendChild(canvas);
 
-    const renderer = new three.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    const renderer = new three.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance',
+    });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(options.widthPx, options.heightPx, false);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = three.PCFSoftShadowMap;
+    renderer.toneMapping = three.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.06;
     this.renderer = renderer;
 
     const scene = new three.Scene();
-    scene.background = new three.Color(0xf5f0e8);
+    scene.background = new three.Color(0xf6f3ed);
     this.scene = scene;
 
     const camera = new three.PerspectiveCamera(50, options.widthPx / options.heightPx, 0.1, 200);
@@ -269,14 +278,18 @@ export class ThreeRoomRenderer implements RoomRenderer {
       return;
     }
 
-    // Ensure lighting
+    // Ensure lighting with realistic shadows
     if (!this.directionalLight) {
-      this.directionalLight = new this.three.DirectionalLight(0xffffff, 1.15);
-      this.directionalLight.position.set(5, 12, 6);
+      this.directionalLight = new this.three.DirectionalLight(0xfffbf2, 1.3);
+      this.directionalLight.position.set(6, 14, 8);
+      this.directionalLight.castShadow = true;
+      this.directionalLight.shadow.mapSize.width = 1024;
+      this.directionalLight.shadow.mapSize.height = 1024;
+      this.directionalLight.shadow.bias = -0.0005;
       this.scene.add(this.directionalLight);
     }
     if (!this.ambientLight) {
-      this.ambientLight = new this.three.AmbientLight(0xffffff, 0.5);
+      this.ambientLight = new this.three.AmbientLight(0xfff8ee, 0.6);
       this.scene.add(this.ambientLight);
     }
 
@@ -284,7 +297,7 @@ export class ThreeRoomRenderer implements RoomRenderer {
     if (!this.floorMesh) {
       this.floorMesh = new this.three.Mesh(
         new this.three.BoxGeometry(document.room.width_m, 0.05, document.room.depth_m),
-        new this.three.MeshStandardMaterial({ color: 0xe8dfd0 }),
+        new this.three.MeshStandardMaterial({ color: 0xe8dfd0, roughness: 0.75 }),
       );
       this.floorMesh.position.set(document.room.width_m / 2, -0.025, document.room.depth_m / 2);
       this.floorMesh.receiveShadow = true;
@@ -360,12 +373,16 @@ export class ThreeRoomRenderer implements RoomRenderer {
     const mesh = new three.Mesh(
       new three.BoxGeometry(size.x, size.y, size.z),
       new three.MeshStandardMaterial({
-        color: item.locked ? 0x94a3b8 : 0x947961,
+        color: item.locked ? 0x94a3b8 : 0x856a52,
+        roughness: 0.65,
+        metalness: 0.05,
         emissive: new three.Color(0x000000),
       }),
     );
     mesh.position.set(center.x, center.y, center.z);
     mesh.rotation.y = itemRotationYRadians(item);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
     (mesh as ItemMesh).diyarItemId = item.id;
     return mesh as ItemMesh;
   }
@@ -376,6 +393,12 @@ export class ThreeRoomRenderer implements RoomRenderer {
     }
     try {
       const clone = await this.loadGlbGroup(url);
+      clone.traverse((child) => {
+        if ((child as import('three').Mesh).isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
       const box = new this.three.Box3().setFromObject(clone);
       const size = box.getSize(new this.three.Vector3());
       const catalog = itemSizeToThreeMeters(item);

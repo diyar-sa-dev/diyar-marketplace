@@ -1,4 +1,4 @@
-import { ActiveSelection, Canvas, Point, Polygon, Rect, type FabricObject, type ModifiedEvent } from 'fabric';
+import { ActiveSelection, Canvas, Pattern, Point, Polygon, Rect, type FabricObject, type ModifiedEvent } from 'fabric';
 import { resolveItemRenderImageUrl } from '../../adapters/itemDisplayAsset.ts';
 import { fabricModifyToCommands } from '../../interaction/fabricModifyToCommands.ts';
 import { attachViewportPinchZoom } from './viewportPinchZoom.ts';
@@ -6,6 +6,7 @@ import type { RoomDesignDocument, RoomDesignItem } from '../../domain/models.ts'
 import { elevationScreenOffsetPx, projectRoomFloorToCanvas } from '../isometric25d.ts';
 import {
   DEFAULT_PROJECTION_MODE,
+  canvasPointToMeters,
   itemFootprintTopLeftPx,
   metersToCanvasPoint,
   type RoomProjectionMode,
@@ -52,6 +53,7 @@ export class FabricRoomRenderer implements RoomRenderer {
     this.canvas = new Canvas(canvasEl, {
       width: options.widthPx,
       height: options.heightPx,
+      backgroundColor: '#faf8f5',
       selection: true,
       allowTouchScrolling: false,
     });
@@ -112,16 +114,20 @@ export class FabricRoomRenderer implements RoomRenderer {
       this.canvas.clear();
       this.itemObjects.clear();
 
-      const floorFill = this.mountOptions.roomFloorColor ?? '#f3ecdb';
-      const floorStroke = this.mountOptions.roomBorderColor ?? '#947961';
+      const presetId = document.room.preset_id;
+      const floorFill =
+        this.mountOptions.roomFloorColor ??
+        (presetId === 'majlis' ? '#f4ece1' : presetId === 'bedroom' ? '#f8f4ec' : '#f5f0e6');
+      const wallColor = this.mountOptions.roomBorderColor ?? '#735942';
+
       if (this.currentProjection === 'isometric_25d') {
         const corners = projectRoomFloorToCanvas(document.room.width_m, document.room.depth_m, scale);
         const floor = new Polygon(
           corners.map((p) => ({ x: p.x, y: p.y })),
           {
             fill: floorFill,
-            stroke: floorStroke,
-            strokeWidth: 2,
+            stroke: wallColor,
+            strokeWidth: 3,
             selectable: false,
             evented: false,
           },
@@ -134,8 +140,10 @@ export class FabricRoomRenderer implements RoomRenderer {
           width: document.room.width_m * scale,
           height: document.room.depth_m * scale,
           fill: floorFill,
-          stroke: floorStroke,
-          strokeWidth: 2,
+          stroke: wallColor,
+          strokeWidth: 3,
+          rx: 2,
+          ry: 2,
           selectable: false,
           evented: false,
         });
@@ -207,7 +215,9 @@ export class FabricRoomRenderer implements RoomRenderer {
       this.currentProjection === 'isometric_25d'
         ? elevationScreenOffsetPx(item.snapshot.height_m, scalePxPerM)
         : 0;
-    const hasTierImage = resolveItemRenderImageUrl(item.snapshot, this.currentProjection) != null;
+    const imageUrl = item.snapshot.thumbnail_url;
+
+    // Blender-style transparent bounding rectangle with corner vertex handles
     const rect = new Rect({
       left: center.x,
       top: center.y - isoLift,
@@ -216,19 +226,59 @@ export class FabricRoomRenderer implements RoomRenderer {
       angle: item.rotation_deg,
       originX: 'center',
       originY: 'center',
-      fill: item.locked ? '#cbd5e1' : hasTierImage ? '#e8dfd0' : '#947961',
-      opacity: 0.85,
-      stroke: '#1f3d3a',
-      strokeWidth: 1,
+      fill: item.locked ? 'rgba(203, 213, 225, 0.35)' : 'rgba(255, 255, 255, 0.08)',
+      stroke: item.locked ? '#94a3b8' : '#735942',
+      strokeWidth: 1.5,
+      strokeDashArray: [4, 3],
       selectable: !item.locked,
       evented: !item.locked,
       centeredRotation: true,
-      cornerSize: touch ? 14 : 8,
-      touchCornerSize: touch ? 28 : 12,
+      transparentCorners: false,
+      cornerStyle: 'circle',
+      cornerColor: '#ffffff',
+      cornerStrokeColor: '#735942',
+      cornerSize: touch ? 12 : 7,
+      touchCornerSize: touch ? 26 : 12,
+      borderColor: '#735942',
+      borderScaleFactor: 1.5,
       padding: touch ? 6 : 2,
     });
     (rect as TaggedFabricObject).diyarItemId = item.id;
     this.itemObjects.set(item.id, rect);
+
+    // Render product image inside the transparent Blender-style box
+    if (imageUrl && typeof Image !== 'undefined') {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        if (!this.canvas || this.programmaticSync) return;
+        try {
+          const w = Math.max(box.widthPx, 4);
+          const h = Math.max(box.heightPx, 4);
+          const imgW = img.width || 1;
+          const imgH = img.height || 1;
+          const fitScale = Math.min((w * 0.88) / imgW, (h * 0.88) / imgH);
+          const pattern = new Pattern({
+            source: img,
+            repeat: 'no-repeat',
+            patternTransform: [
+              fitScale,
+              0,
+              0,
+              fitScale,
+              (w - imgW * fitScale) / 2,
+              (h - imgH * fitScale) / 2,
+            ],
+          });
+          rect.set('fill', pattern);
+          this.canvas?.requestRenderAll();
+        } catch {
+          // Keep transparent Blender-style box on error
+        }
+      };
+      img.src = imageUrl;
+    }
+
     return rect;
   }
 
@@ -250,9 +300,33 @@ export class FabricRoomRenderer implements RoomRenderer {
       this.currentProjection === 'isometric_25d'
         ? elevationScreenOffsetPx(item.snapshot.height_m, this.currentScale)
         : 0;
+
+    // Gracefully clamp coordinates so the model can be placed smoothly anywhere inside the room
+    const roomW = this.currentDocument.room.width_m;
+    const roomD = this.currentDocument.room.depth_m;
+    const halfW = (item.snapshot.width_m || 0.8) / 2;
+    const halfD = (item.snapshot.depth_m || 0.8) / 2;
+
+    const rawMeters = canvasPointToMeters(
+      this.currentProjection,
+      target.left ?? 0,
+      (target.top ?? 0) + isoLift,
+      this.currentScale,
+    );
+    const clampedX = Math.max(halfW, Math.min(roomW - halfW, rawMeters.x));
+    const clampedZ = Math.max(halfD, Math.min(roomD - halfD, rawMeters.z));
+
+    const corrected = metersToCanvasPoint(
+      this.currentProjection,
+      clampedX,
+      clampedZ,
+      this.currentScale,
+    );
+    target.set({ left: corrected.x, top: corrected.y - isoLift });
+
     const commands = fabricModifyToCommands(
       item,
-      { x: target.left ?? 0, y: (target.top ?? 0) + isoLift },
+      { x: corrected.x, y: corrected.y },
       target.angle ?? 0,
       this.currentScale,
       this.currentProjection,

@@ -3,7 +3,9 @@ import {
   Boxes,
   Camera,
   LayoutGrid,
+  Maximize,
   Maximize2,
+  Minimize2,
   Redo2,
   RefreshCw,
   RotateCcw,
@@ -17,7 +19,7 @@ import {
   ZoomOut,
   X,
 } from 'lucide-react';
-import { useCallback, useMemo, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { ErrorBoundary } from '../../../components/common/ErrorBoundary.tsx';
 import { useLocale } from '../../../hooks/useLocale.ts';
 import { useModalDialog } from '../../../hooks/useModalDialog.ts';
@@ -88,7 +90,29 @@ export function RoomDesignerShell({
   const catalogSheetRef = useRef<HTMLDivElement>(null);
   const tryInRoomInputRef = useRef<HTMLInputElement>(null);
   const canvasControlsRef = useRef<RoomCanvasControls | null>(null);
+  const shellRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [canvasCrashKey, setCanvasCrashKey] = useState(0);
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    const el = shellRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) {
+      void document.exitFullscreen().catch(() => {});
+    } else {
+      void el.requestFullscreen().catch(() => {
+        setIsFullscreen((prev) => !prev);
+      });
+    }
+  }, []);
   const { t } = useLocale();
   useModalDialog(catalogOpen && !isLargeScreen, () => setCatalogOpen(false), catalogSheetRef);
 
@@ -248,7 +272,10 @@ export function RoomDesignerShell({
 
   return (
     <div
-      className={`flex h-full min-h-0 flex-1 flex-col gap-2.5 overflow-hidden lg:grid lg:grid-cols-[minmax(280px,330px)_minmax(0,1fr)] lg:grid-rows-[auto_auto_minmax(0,1fr)] lg:gap-3 ${className ?? ''}`}
+      ref={shellRef}
+      className={`flex h-full min-h-0 flex-1 flex-col gap-2.5 overflow-hidden lg:grid lg:grid-cols-[minmax(280px,330px)_minmax(0,1fr)] lg:grid-rows-[auto_auto_minmax(0,1fr)] lg:gap-3 ${
+        isFullscreen ? 'fixed inset-0 z-100 bg-[#fbf9f5] p-3' : ''
+      } ${className ?? ''}`}
       data-testid="room-designer-shell"
       dir="rtl"
     >
@@ -302,6 +329,16 @@ export function RoomDesignerShell({
           >
             <RefreshCw size={16} />
             <span className="hidden sm:inline">إفراغ الغرفة</span>
+          </button>
+          <button
+            type="button"
+            className={touchBtn}
+            aria-label={isFullscreen ? 'الخروج من ملء الشاشة' : 'ملء الشاشة'}
+            title={isFullscreen ? 'الخروج من ملء الشاشة (Esc)' : 'عرض بملء الشاشة'}
+            onClick={toggleFullscreen}
+          >
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize size={16} />}
+            <span className="hidden sm:inline">{isFullscreen ? 'تصغير' : 'ملء الشاشة'}</span>
           </button>
         </div>
 
@@ -530,7 +567,7 @@ export function RoomDesignerShell({
       ) : null}
 
       {/* Canvas Viewport */}
-      <div className="relative flex h-full min-h-[300px] lg:min-h-0 min-w-0 flex-1 flex-col rounded-2xl border-2 border-diyar-brown/25 bg-linear-to-b from-[#faf7f2] to-[#f4ede2] shadow-2xs overflow-hidden">
+      <div className="relative flex h-full min-h-[300px] lg:min-h-0 min-w-0 flex-1 flex-col rounded-2xl border-2 border-diyar-brown/25 bg-[#faf8f5] shadow-2xs overflow-hidden">
         {tryInRoomPreview ? (
           <img
             src={tryInRoomPreview}
