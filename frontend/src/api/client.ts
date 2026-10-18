@@ -20,7 +20,7 @@ function createApiClient(adapter?: 'fetch' | 'xhr'): AxiosInstance {
     withCredentials: true,
     xsrfCookieName: 'XSRF-TOKEN',
     xsrfHeaderName: 'X-XSRF-TOKEN',
-    timeout: 30_000,
+    timeout: 60_000,
     ...(adapter ? { adapter } : {}),
   });
 }
@@ -29,6 +29,10 @@ function prepareRequestBody(config: InternalAxiosRequestConfig): InternalAxiosRe
   if (config.data instanceof FormData) {
     // Let the browser set multipart boundaries; the default JSON header breaks uploads.
     config.headers.delete('Content-Type');
+    // Generous timeout for large media/3D uploads (5 minutes)
+    if (!config.timeout || config.timeout < 300_000) {
+      config.timeout = 300_000;
+    }
   }
 
   return config;

@@ -176,8 +176,14 @@ export function VendorProductDetailPanel({
                   {t('vendor.products.detail.colors')}
                 </span>
                 <span className="col-span-2 text-diyar-dark font-medium text-sm flex gap-1.5 items-center justify-start flex-wrap">
-                  {product.colors?.length
-                    ? product.colors.map((col) => (
+                  {(() => {
+                    const rawColors = Array.isArray(product.colors)
+                      ? product.colors
+                      : product.colors && typeof product.colors === 'object'
+                        ? Object.values(product.colors)
+                        : [];
+                    return rawColors.length ? (
+                      rawColors.map((col: any) => (
                         <span
                           key={col.name}
                           className="bg-stone-50 px-2 py-0.5 rounded-lg border text-xs text-stone-600"
@@ -185,7 +191,10 @@ export function VendorProductDetailPanel({
                           {col.name}
                         </span>
                       ))
-                    : t('vendor.products.detail.multiColor')}
+                    ) : (
+                      t('vendor.products.detail.multiColor')
+                    );
+                  })()}
                 </span>
               </div>
               <div className="grid grid-cols-3 py-2 border-b border-gray-50 text-right hover:bg-gray-50/50 rounded-lg px-1 transition-colors">

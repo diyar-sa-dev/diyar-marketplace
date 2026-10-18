@@ -109,7 +109,14 @@ export class ThreeRoomRenderer implements RoomRenderer {
     this.renderer = renderer;
 
     const scene = new three.Scene();
-    scene.background = new three.Color(0xf6f3ed);
+    const hasBackdrop = Boolean(options.hasBackdrop);
+    if (hasBackdrop) {
+      scene.background = null;
+      renderer.setClearColor(0x000000, 0);
+    } else {
+      scene.background = new three.Color(0xf6f3ed);
+      renderer.setClearColor(0xf6f3ed, 1);
+    }
     this.scene = scene;
 
     const camera = new three.PerspectiveCamera(50, options.widthPx / options.heightPx, 0.1, 200);
@@ -272,6 +279,18 @@ export class ThreeRoomRenderer implements RoomRenderer {
     this.camera.position.add(move);
     this.controls.target.add(move);
     this.controls.update();
+  }
+
+  setHasBackdrop(hasBackdrop: boolean): void {
+    if (this.scene && this.renderer && this.three) {
+      if (hasBackdrop) {
+        this.scene.background = null;
+        this.renderer.setClearColor(0x000000, 0);
+      } else {
+        this.scene.background = new this.three.Color(0xf6f3ed);
+        this.renderer.setClearColor(0xf6f3ed, 1);
+      }
+    }
   }
 
   setSelection(ids: string[]): void {

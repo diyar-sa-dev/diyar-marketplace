@@ -737,16 +737,16 @@ export function RoomDesignerShell({
       ) : null}
 
       {/* Canvas Viewport */}
-      <div className="relative flex h-full min-h-[300px] lg:min-h-0 min-w-0 flex-1 flex-col rounded-2xl border-2 border-diyar-brown/25 bg-[#faf8f5] shadow-2xs overflow-hidden">
+      <div className={`relative flex h-full min-h-[300px] lg:min-h-0 min-w-0 flex-1 flex-col rounded-2xl border-2 border-diyar-brown/25 shadow-2xs overflow-hidden ${roomBackdropPhoto || tryInRoomPreview ? 'bg-transparent' : 'bg-[#faf8f5]'}`}>
         {(roomBackdropPhoto || tryInRoomPreview) ? (
           <div className="absolute inset-0 z-0 overflow-hidden">
             <img
               src={roomBackdropPhoto || tryInRoomPreview!}
               alt="صورة الغرفة"
-              className="h-full w-full object-cover opacity-60 pointer-events-none"
+              className="h-full w-full object-cover pointer-events-none"
             />
-            <div className="pointer-events-auto absolute top-3 start-3 z-20 flex items-center gap-1.5 rounded-full bg-diyar-dark/85 px-3 py-1 text-[11px] font-bold text-white shadow-md backdrop-blur-xs border border-white/10">
-              <Camera size={13} className="text-amber-300" />
+            <div className="pointer-events-auto absolute top-3 start-3 z-30 flex items-center gap-2 rounded-full bg-diyar-dark/90 px-3.5 py-1.5 text-xs font-bold text-white shadow-lg backdrop-blur-md border border-white/20">
+              <Camera size={14} className="text-amber-300" />
               <span>خلفية غرفتك الحقيقية</span>
               <button
                 type="button"
@@ -754,11 +754,11 @@ export function RoomDesignerShell({
                   setRoomBackdropPhoto(null);
                   resetTryInRoom();
                 }}
-                className="ms-1 p-0.5 rounded-full hover:bg-white/20 transition cursor-pointer"
+                className="ms-1.5 p-1 rounded-full bg-white/10 hover:bg-red-500/80 text-white transition cursor-pointer"
                 title="إزالة صورة الغرفة"
                 aria-label="إزالة صورة الغرفة"
               >
-                <X size={12} />
+                <X size={13} />
               </button>
             </div>
           </div>
@@ -872,6 +872,7 @@ export function RoomDesignerShell({
             }}
             selectedIds={selectedIds}
             isRoomSelected={isRoomSelected}
+            hasBackdrop={Boolean(roomBackdropPhoto || tryInRoomPreview)}
             className="relative z-10 h-full w-full"
           />
         </ErrorBoundary>

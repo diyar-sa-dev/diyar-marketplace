@@ -39,6 +39,7 @@ export type RoomDesignerCanvasHostProps = {
   onSelectionChange?: (ids: string[]) => void;
   selectedIds?: string[];
   isRoomSelected?: boolean;
+  hasBackdrop?: boolean;
 };
 
 /**
@@ -61,6 +62,7 @@ export function RoomDesignerCanvasHost({
   onSelectionChange,
   selectedIds,
   isRoomSelected = false,
+  hasBackdrop = false,
 }: RoomDesignerCanvasHostProps) {
   const outerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -96,6 +98,9 @@ export function RoomDesignerCanvasHost({
 
   const isRoomSelectedRef = useRef(isRoomSelected);
   isRoomSelectedRef.current = isRoomSelected;
+
+  const hasBackdropRef = useRef(hasBackdrop);
+  hasBackdropRef.current = hasBackdrop;
 
   useEffect(() => {
     if (sessionRef) {
@@ -210,6 +215,7 @@ export function RoomDesignerCanvasHost({
           heightPx: viewportHeight,
           scalePxPerM: scalePxPerMRef.current,
           touchFriendly,
+          hasBackdrop: hasBackdropRef.current,
         });
         renderer.onInteraction(handleInteraction);
         syncRender();
@@ -238,6 +244,10 @@ export function RoomDesignerCanvasHost({
   useEffect(() => {
     rendererRef.current?.resizeViewport(viewportWidth, viewportHeight);
   }, [viewportHeight, viewportWidth]);
+
+  useEffect(() => {
+    rendererRef.current?.setHasBackdrop?.(hasBackdrop);
+  }, [hasBackdrop]);
 
   // Fast in-place updates for engine modifications, projection switch, and selection
   useEffect(() => {

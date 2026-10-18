@@ -289,7 +289,14 @@ export default function ProductDetailsPage() {
           .sort((a, b) => a.sort_order - b.sort_order)
           .map((img) => resolveMediaUrl(img.url) ?? PLACEHOLDER_IMAGE)
       : [PLACEHOLDER_IMAGE];
-  const colors = product.colors?.map((color) => ({ name: color.name, hex: color.hex_code })) ?? [];
+  const rawColors = Array.isArray(product.colors)
+    ? product.colors
+    : product.colors && typeof product.colors === 'object'
+      ? Object.values(product.colors)
+      : [];
+  const colors = rawColors
+    .filter((color): color is { name?: string; hex_code?: string; hex?: string } => Boolean(color && typeof color === 'object'))
+    .map((color) => ({ name: color.name ?? '', hex: color.hex_code ?? color.hex ?? '#D4AF37' }));
   const availableQty = product.inventory?.available_quantity ?? 0;
   const availabilityLabels = {
     preorder: t('catalog.product.preorder'),

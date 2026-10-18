@@ -261,8 +261,16 @@ export function VendorProductFormModal({
       );
       setMaterial(materialsToString(productDetail.materials));
       setWarranty(productDetail.warranty || 'سنتين');
-      setDescription(productDetail.description || '');
-      setColors(productDetail.colors?.map((c) => ({ name: c.name, hex_code: c.hex_code })) ?? []);
+      const rawDetailColors = Array.isArray(productDetail.colors)
+        ? productDetail.colors
+        : productDetail.colors && typeof productDetail.colors === 'object'
+          ? Object.values(productDetail.colors)
+          : [];
+      setColors(
+        rawDetailColors
+          .filter((c: any) => c && typeof c === 'object')
+          .map((c: any) => ({ name: c.name ?? '', hex_code: c.hex_code ?? c.hex ?? '#9CA3AF' }))
+      );
       const rp = productDetail.return_policy;
       setReturnPolicyCustom(Boolean(rp?.override_enabled));
       setReturnable(rp?.returnable ?? true);

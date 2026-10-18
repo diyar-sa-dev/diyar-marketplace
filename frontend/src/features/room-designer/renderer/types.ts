@@ -19,6 +19,8 @@ export interface RenderOptions {
   roomBorderColor?: string;
   /** Larger Fabric controls for touch (Stage 30.9). */
   touchFriendly?: boolean;
+  /** Whether a real room photo backdrop is active behind the canvas. */
+  hasBackdrop?: boolean;
 }
 
 export type RendererInteraction =
@@ -37,6 +39,7 @@ export interface RoomRenderer {
   resetView?(): void;
   rotateView?(angleRad: number): void;
   panBy?(dx: number, dy: number): void;
+  setHasBackdrop?(hasBackdrop: boolean): void;
 }
 
 export const DEFAULT_SCALE_PX_PER_M = 80;

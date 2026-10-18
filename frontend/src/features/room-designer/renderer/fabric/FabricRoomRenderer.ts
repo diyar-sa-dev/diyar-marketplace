@@ -88,24 +88,30 @@ export class BlenderItemRect extends Rect {
         : this.accentColor.fill;
     ctx.fill();
 
-    // 2. Draw Product Image inside bounding box
+    // 2. Draw Product Image inside bounding box (cover full width and height with rounded clipping)
     if (this.productImg && this.productImg.complete && (this.productImg.naturalWidth > 0 || this.productImg.width > 0)) {
-      const pad = 3;
-      const maxW = Math.max(1, w - pad * 2);
-      const maxH = Math.max(1, h - pad * 2);
       const imgW = this.productImg.naturalWidth || this.productImg.width || 1;
       const imgH = this.productImg.naturalHeight || this.productImg.height || 1;
-      const fitScale = Math.min(maxW / imgW, maxH / imgH);
-      const drawW = imgW * fitScale;
-      const drawH = imgH * fitScale;
+      const coverScale = Math.max(w / imgW, h / imgH);
+      const drawW = imgW * coverScale;
+      const drawH = imgH * coverScale;
       const drawX = -drawW / 2;
       const drawY = -drawH / 2;
 
       ctx.save();
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
-      ctx.shadowBlur = 6;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 2;
+      ctx.beginPath();
+      ctx.moveTo(-halfW + r, -halfH);
+      ctx.lineTo(halfW - r, -halfH);
+      ctx.arcTo(halfW, -halfH, halfW, -halfH + r, r);
+      ctx.lineTo(halfW, halfH - r);
+      ctx.arcTo(halfW, halfH, halfW - r, halfH, r);
+      ctx.lineTo(-halfW + r, halfH);
+      ctx.arcTo(-halfW, halfH, -halfW, halfH - r, r);
+      ctx.lineTo(-halfW, -halfH + r);
+      ctx.arcTo(-halfW, -halfH, -halfW + r, -halfH, r);
+      ctx.closePath();
+      ctx.clip();
+
       try {
         ctx.drawImage(this.productImg, drawX, drawY, drawW, drawH);
       } catch {
@@ -231,10 +237,11 @@ export class FabricRoomRenderer implements RoomRenderer {
     const canvasEl = document.createElement('canvas');
     container.replaceChildren(canvasEl);
     container.style.touchAction = 'none';
+    const hasBackdrop = Boolean(options.hasBackdrop);
     this.canvas = new Canvas(canvasEl, {
       width,
       height,
-      backgroundColor: '#faf8f5',
+      backgroundColor: hasBackdrop ? '' : '#faf8f5',
       selection: true,
       allowTouchScrolling: false,
     });
@@ -568,6 +575,12 @@ export class FabricRoomRenderer implements RoomRenderer {
     vpt[4] += dx;
     vpt[5] += dy;
     this.clampViewportTransform();
+    this.canvas.requestRenderAll();
+  }
+
+  setHasBackdrop(hasBackdrop: boolean): void {
+    if (!this.canvas) return;
+    this.canvas.backgroundColor = hasBackdrop ? '' : '#faf8f5';
     this.canvas.requestRenderAll();
   }
 

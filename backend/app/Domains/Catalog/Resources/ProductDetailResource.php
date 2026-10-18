@@ -74,10 +74,10 @@ class ProductDetailResource extends JsonResource
                 'return_shipping_paid_by' => $this->return_shipping_paid_by,
                 'return_shipping_refundable' => $this->return_shipping_refundable,
             ],
-            'colors' => $this->when($this->relationLoaded('colors'), fn () => $this->colors->map(fn ($color) => [
+            'colors' => $this->when($this->relationLoaded('colors'), fn () => $this->colors->values()->map(fn ($color) => [
                 'name' => $color->name,
                 'hex_code' => $color->hex_code,
-            ])),
+            ])->values()->all()),
             'images' => $this->when($this->relationLoaded('images'), fn () => $this->images->map(fn ($image) => [
                 'id' => $image->id,
                 'url' => $image->relationLoaded('mediaFile')

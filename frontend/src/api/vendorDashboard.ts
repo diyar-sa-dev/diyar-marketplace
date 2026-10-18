@@ -103,6 +103,7 @@ export async function createVendorProduct(
     apiClient.post<ProductDetailResponse>('/dashboard/vendor/products', formData, {
       adapter: 'xhr',
       headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 300_000,
       onUploadProgress: (event) => {
         if (event.total) {
           onProgress?.(Math.round((event.loaded * 100) / event.total));
@@ -153,6 +154,7 @@ export async function updateVendorProduct(
       apiClient.post<ProductDetailResponse>(`/dashboard/vendor/products/${id}`, formData, {
         adapter: 'xhr',
         headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 300_000,
         onUploadProgress: (event) => {
           if (event.total) {
             onProgress?.(Math.round((event.loaded * 100) / event.total));
@@ -198,6 +200,7 @@ export async function uploadVendorProductImages(
       {
         adapter: 'xhr',
         headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 300_000,
         onUploadProgress: (event) => {
           if (event.total) {
             onProgress?.(Math.round((event.loaded * 100) / event.total));
