@@ -30,10 +30,10 @@ foreach (glob('/proc/[0-9]*') as $p) {
     ];
 }
 
-usort($processes, fn($a, $b) => $a['pid'] <=> $b['pid']);
+usort($processes, fn ($a, $b) => $a['pid'] <=> $b['pid']);
 
-echo sprintf("%-6s %-6s %-12s %s\n", "PID", "PPID", "RSS (MB)", "COMMAND");
-echo str_repeat("-", 80)."\n";
+echo sprintf("%-6s %-6s %-12s %s\n", 'PID', 'PPID', 'RSS (MB)', 'COMMAND');
+echo str_repeat('-', 80)."\n";
 foreach ($processes as $proc) {
     echo sprintf(
         "%-6d %-6d %-12.2f %s\n",
@@ -49,9 +49,9 @@ $stateFile = __DIR__.'/../storage/logs/octane-server-state.json';
 if (file_exists($stateFile)) {
     $state = json_decode(file_get_contents($stateFile), true);
     echo "\nOctane Server State JSON:\n";
-    echo "  Master PID:  ".($state['masterProcessId'] ?? 'N/A')."\n";
-    echo "  Manager PID: ".($state['managerProcessId'] ?? 'N/A')."\n";
-    echo "  Workers:     ".($state['state']['workers'] ?? 'N/A')."\n";
-    echo "  TaskWorkers: ".($state['state']['taskWorkers'] ?? 'N/A')."\n";
-    echo "  MaxRequests: ".($state['state']['maxRequests'] ?? 'N/A')."\n";
+    echo '  Master PID:  '.($state['masterProcessId'] ?? 'N/A')."\n";
+    echo '  Manager PID: '.($state['managerProcessId'] ?? 'N/A')."\n";
+    echo '  Workers:     '.($state['state']['workers'] ?? 'N/A')."\n";
+    echo '  TaskWorkers: '.($state['state']['taskWorkers'] ?? 'N/A')."\n";
+    echo '  MaxRequests: '.($state['state']['maxRequests'] ?? 'N/A')."\n";
 }

@@ -17,6 +17,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 final class AffiliateDashboardService
 {
@@ -212,15 +213,19 @@ final class AffiliateDashboardService
         $from = now()->subMonths($months - 1)->startOfMonth();
         $to = now()->endOfMonth();
 
+        $periodExpr = DB::connection()->getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m', created_at)"
+            : 'DATE_FORMAT(created_at, "%Y-%m")';
+
         $clickRows = AffiliateClick::query()
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as period, COUNT(*) as total')
+            ->selectRaw("{$periodExpr} as period, COUNT(*) as total")
             ->where('affiliate_profile_id', $profile->id)
             ->whereBetween('created_at', [$from, $to])
             ->groupBy('period')
             ->pluck('total', 'period');
 
         $conversionRows = AffiliateCommission::query()
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as period, COUNT(*) as total, SUM(commission_amount) as earnings')
+            ->selectRaw("{$periodExpr} as period, COUNT(*) as total, SUM(commission_amount) as earnings")
             ->where('affiliate_profile_id', $profile->id)
             ->whereBetween('created_at', [$from, $to])
             ->whereNotIn('status', [AffiliateCommissionStatus::Reversed->value, AffiliateCommissionStatus::Cancelled->value])

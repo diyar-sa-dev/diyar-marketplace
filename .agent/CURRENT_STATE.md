@@ -1,11 +1,54 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-10-08
+> **Last updated:** 2026-10-16
 > **Maintained by:** AI development agents after each phase completion
 
 ---
 
-## Active Phase: Modular Monolith Architecture — Step 15 (Security Hardening & Production Certification)
+## Active Phase: Stage 32 — Deploy: Phase C Certified Locally & Phase D Prepared
+
+```text
+STAGE 32 — PHASE C
+STATUS: PHASE C VERIFIED LOCALLY — PHASE D PREPARED (OWNER HOSTINGER RECOVERY REQUIRED)
+ENVIRONMENT: LOCAL DOCKER VPS SIMULATION (diyar-stage32-sim on port 8093)
+PRODUCTION VPS: STRICTLY NOT TOUCHED — ZERO REMOTE MUTATIONS
+DECISION: SIMULATION CERTIFIED UNDER KVM2 BUDGET; PHASE D READ-ONLY AUDIT CHECKLIST READY
+```
+
+- **Objective:** Complete Phase C validation, resolve proxy header trust findings, reconcile performance evidence and thresholds, run full regression suites, verify webhook idempotency and backup/restore, and prepare Phase D documentation for owner-led recovery.
+- **Authority Documents:**
+  - [`conception/Stages/Stage 32 - Deploy/STAGE_32_MASTER.md`](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%2032%20-%20Deploy/STAGE_32_MASTER.md)
+  - [`conception/Stages/Stage 32 - Deploy/PHASE_C_CLOSURE_REPORT_2026-10-15.md`](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%2032%20-%20Deploy/PHASE_C_CLOSURE_REPORT_2026-10-15.md)
+  - [`conception/Stages/Stage 32 - Deploy/PHASE_D_READ_ONLY_VPS_AUDIT_CHECKLIST.md`](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%2032%20-%20Deploy/PHASE_D_READ_ONLY_VPS_AUDIT_CHECKLIST.md)
+- **Phase C Empirical Gate Results (G1–G17):**
+  - **G1 (Build):** Exit 0, non-root `www-data` (UID 33), all required PHP 8.3/Swoole 6.2.2/Redis 6.3.0 extensions loaded.
+  - **G2 (Deps):** `Laravel\Octane\Octane` confirmed present, `PHPUnit\Framework\TestCase` absent.
+  - **G3 (Startup):** Ordered startup verified (`depends_on: condition: service_healthy`); all 8 containers healthy in 49s.
+  - **G4 (Network Isolation):** Only Nginx port 8093 exposed to host; internal ports (3306, 6379, 8000, 8090) inaccessible (`TcpTestSucceeded: False`).
+  - **G5 (Health):** `/api/v1/health/live` (HTTP 200 `{"status":"live"}`) and `/api/v1/health` (HTTP 200 with DB, cache, queue `ok: true`).
+  - **G6 (HTTP Routing & Cloudflare Real-IP):** Nginx serves Marketplace SPA (`frontend/dist`) on `/` and `/assets/`; `/api/v1/*` cleanly routed to Octane. Authoritative Cloudflare IPv4/IPv6 CIDRs injected; untrusted direct callers have spoofed headers stripped and proto forced to `http`. Verified with live curl tests & `CloudflareTrustedProxyIngressTest` (2 tests, 6 assertions passed).
+  - **G7 (WebSocket):** Reverb handshake via `/app/` upgraded with `HTTP/1.1 101 Switching Protocols` (`X-Powered-By: Laravel Reverb`).
+  - **G8 (Auth & Sessions):** Sanctum CSRF cookie, stateful login, session persisted to Redis (`diyar-prodlocal-`), authenticated `/auth/me` (200), logout invalidated.
+  - **G9 (Queue Reliability & Webhook Idempotency):** Dispatched `critical`, `default`, `notifications` queue jobs in <1s. Webhook idempotency, duplicate deduplication, concurrency, lease timeouts, and retry recovery verified via `PaymentWebhookIdempotencyAndFailureRecoveryTest` (5 tests, 35 assertions passed). Timeout hierarchy verified via `NotificationBroadcastJobTest` (3 tests, 8 assertions passed): `REDIS_QUEUE_RETRY_AFTER=180` > worker `--timeout=120` > broadcast job `timeout=90`.
+  - **G10 (Scheduler):** `schedule:run` executed periodic tasks; Redis mutex locks (`framework/schedule-*`) verified.
+  - **G11 (Migrations):** 111 migrations executed cleanly against disposable database `diyar_production_local`.
+  - **G12 (Backup/Restore Drill):** `mysqldump` generated 798 KB dump; restored cleanly to disposable `diyar_stage32_drill_target`; 130/130 tables, 1,469/1,469 columns, 445/445 constraints, 111 migrations, and exact checksum matches (`migrations`: 3291527428, `users`: 1865916700, `payment_webhook_events`: 3829910007). Target DB dropped cleanly.
+  - **G13 (Self-Healing):** `docker restart app` recovered to HTTP 200 within 5s.
+  - **G14 (Redis Degradation):** Controlled 500 error when Redis stopped; immediate full restoration when Redis restarted.
+  - **G15 (Redis Eviction):** Tested under 5MB ceiling: 323 volatile keys evicted while non-TTL queue list was preserved. Running configuration: 512mb ceiling, `volatile-lru`, AOF enabled (`appendfsync everysec`).
+  - **G16 (Log Rotation):** `json-file` logging driver verified; runtime rotation certified on Docker daemon with active file rotation.
+  - **G17 (Load Validation & Threshold Reconciliation):** Multi-surface k6 load test (30 VUs, 50s ramp): 18,396 requests, 367.84 RPS, 0.00% errors, avg 14.70ms, p95 46.19ms (<200ms PASS), p99 126.83ms (<500ms PASS). Peak DB conns: 4/150. Post-test stack RAM was 768.9 MiB (<9.4% of 8 GiB). Initial run (19,814 reqs, p95 28.16ms / p99 70.56ms) also confirmed PASSED (reconciled from informal "EXCEEDED" label).
+- **Regression Suite Evidence:**
+  - Backend Full PHPUnit: **1,114 passed, 7 skipped, 0 failed** (4,624 assertions in 165.23s, Exit 0). 7 intentional skips: AI/Gemini privacy gate fail-closed policy.
+  - Frontend Vitest: **87 files / 350 tests passed, 0 failed** (Exit 0).
+  - Frontend TypeScript: **0 errors** (`tsc --noEmit`, Exit 0).
+  - Frontend ESLint: **0 warnings, 0 errors** (`npm run lint`, Exit 0).
+  - Frontend Production Build: **PASS** in 25.10s (`npm run build`, Exit 0).
+- **Phase D Status:** PREPARED — Ready for owner-led Hostinger account recovery. Detailed read-only VPS inspection protocol documented in [`PHASE_D_READ_ONLY_VPS_AUDIT_CHECKLIST.md`](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%2032%20-%20Deploy/PHASE_D_READ_ONLY_VPS_AUDIT_CHECKLIST.md).
+
+---
+
+## Previous Active Phase: Modular Monolith Architecture — Step 15 (Security Hardening & Production Certification)
 
 ```text
 STEP 15
