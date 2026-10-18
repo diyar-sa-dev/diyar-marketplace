@@ -23,7 +23,7 @@ export function SidebarAiStudioModal({ onClose }: SidebarAiStudioModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="room-studio-title"
-        className="relative flex h-[100dvh] max-h-[100dvh] w-full max-w-6xl flex-col overflow-hidden rounded-none bg-[#fbf9f5] text-diyar-dark shadow-2xl sm:h-[min(94dvh,920px)] sm:max-h-[94vh] sm:rounded-3xl border border-diyar-brown/30"
+        className="relative flex h-[100dvh] max-h-[100dvh] w-full max-w-7xl flex-col overflow-hidden rounded-none bg-[#fbf9f5] text-diyar-dark shadow-2xl sm:h-[min(96dvh,980px)] sm:max-h-[96vh] sm:rounded-3xl border border-diyar-brown/30"
       >
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-diyar-brown/30 bg-diyar-dark px-3 py-3 text-white sm:px-5 sm:py-3.5">
           <div className="flex min-w-0 items-center gap-2.5">

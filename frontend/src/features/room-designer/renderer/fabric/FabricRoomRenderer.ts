@@ -3,7 +3,7 @@ import { resolveItemRenderImageUrl } from '../../adapters/itemDisplayAsset.ts';
 import { fabricModifyToCommands } from '../../interaction/fabricModifyToCommands.ts';
 import { attachViewportPinchZoom } from './viewportPinchZoom.ts';
 import type { RoomDesignDocument, RoomDesignItem } from '../../domain/models.ts';
-import { elevationScreenOffsetPx, projectRoomFloorToCanvas } from '../isometric25d.ts';
+import { elevationScreenOffsetPx, projectRoomFloorToCanvas, ISO_X, ISO_Y } from '../isometric25d.ts';
 import {
   DEFAULT_PROJECTION_MODE,
   canvasPointToMeters,
@@ -43,6 +43,25 @@ export class FabricRoomRenderer implements RoomRenderer {
 
   private mountContainer: HTMLElement | null = null;
 
+  private hasInitialCentered = false;
+
+  private lastCenteredPresetId: string | null = null;
+
+  private isPanning = false;
+
+  private panStartX = 0;
+
+  private panStartY = 0;
+
+  private getPointerCoords(e: Event): { x: number; y: number } {
+    if ('touches' in e && (e as TouchEvent).touches?.length > 0) {
+      const t = (e as TouchEvent).touches[0];
+      return { x: t.clientX, y: t.clientY };
+    }
+    const me = e as MouseEvent;
+    return { x: me.clientX ?? 0, y: me.clientY ?? 0 };
+  }
+
   mount(container: HTMLElement, options: RenderOptions): void {
     this.destroy();
     this.mountContainer = container;
@@ -61,14 +80,62 @@ export class FabricRoomRenderer implements RoomRenderer {
     this.canvas.on('selection:created', () => this.emitSelection());
     this.canvas.on('selection:updated', () => this.emitSelection());
     this.canvas.on('selection:cleared', () => this.emitSelection());
+    this.canvas.on('object:moving', (event) => this.onObjectMoving(event));
     this.canvas.on('object:modified', (event) => this.onObjectModified(event));
+
+    // Smooth drag-and-sweep canvas panning across the studio
+    this.canvas.on('mouse:down', (opt) => {
+      const evt = opt.e as MouseEvent | TouchEvent;
+      const target = opt.target as TaggedFabricObject | undefined;
+      const isItem = Boolean(target?.diyarItemId);
+      if (!isItem) {
+        this.isPanning = true;
+        const coords = this.getPointerCoords(evt);
+        this.panStartX = coords.x;
+        this.panStartY = coords.y;
+        if (this.canvas) {
+          this.canvas.defaultCursor = 'grabbing';
+        }
+      }
+    });
+
+    this.canvas.on('mouse:move', (opt) => {
+      if (!this.isPanning || !this.canvas) return;
+      const evt = opt.e as MouseEvent | TouchEvent;
+      const coords = this.getPointerCoords(evt);
+      const dx = coords.x - this.panStartX;
+      const dy = coords.y - this.panStartY;
+      const vpt = this.canvas.viewportTransform;
+      if (vpt) {
+        vpt[4] += dx;
+        vpt[5] += dy;
+        this.panStartX = coords.x;
+        this.panStartY = coords.y;
+        this.canvas.requestRenderAll();
+      }
+    });
+
+    const stopPan = () => {
+      if (this.isPanning && this.canvas) {
+        this.isPanning = false;
+        this.canvas.defaultCursor = 'default';
+      }
+    };
+    this.canvas.on('mouse:up', stopPan);
   }
 
   destroy(): void {
     this.detachViewportZoom?.();
     this.detachViewportZoom = null;
+    this.isPanning = false;
+    this.hasInitialCentered = false;
+    this.lastCenteredPresetId = null;
     if (this.canvas) {
+      this.canvas.off('object:moving');
       this.canvas.off('object:modified');
+      this.canvas.off('mouse:down');
+      this.canvas.off('mouse:move');
+      this.canvas.off('mouse:up');
     }
     this.itemObjects.clear();
     this.currentDocument = null;
@@ -155,10 +222,43 @@ export class FabricRoomRenderer implements RoomRenderer {
         this.canvas.add(this.createItemObject(item, scale));
       }
 
+      if (!this.hasInitialCentered || this.lastCenteredPresetId !== (presetId ?? '')) {
+        this.hasInitialCentered = true;
+        this.lastCenteredPresetId = presetId ?? '';
+        this.centerRoomInViewport();
+      }
+
       this.canvas.requestRenderAll();
     } finally {
       this.programmaticSync = false;
     }
+  }
+
+  centerRoomInViewport(): void {
+    if (!this.canvas || !this.mountOptions || !this.currentDocument) return;
+    const w = this.mountOptions.widthPx;
+    const h = this.mountOptions.heightPx;
+    if (w <= 0 || h <= 0) return;
+
+    const room = this.currentDocument.room;
+    const scale = this.currentScale;
+
+    let cx = 0;
+    let cy = 0;
+    if (this.currentProjection === 'isometric_25d') {
+      cx = ((room.width_m - room.depth_m) * ISO_X * scale) / 2;
+      cy = ((room.width_m + room.depth_m) * ISO_Y * scale) / 2;
+    } else {
+      cx = (room.width_m * scale) / 2;
+      cy = (room.depth_m * scale) / 2;
+    }
+
+    const zoom = this.canvas.getZoom() || 1;
+    const panX = w / 2 - cx * zoom;
+    const panY = h / 2 - cy * zoom;
+
+    this.canvas.setViewportTransform([zoom, 0, 0, zoom, panX, panY]);
+    this.canvas.requestRenderAll();
   }
 
   setSelection(ids: string[]): void {
@@ -193,7 +293,7 @@ export class FabricRoomRenderer implements RoomRenderer {
   resetView(): void {
     if (!this.canvas) return;
     this.canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
-    this.canvas.requestRenderAll();
+    this.centerRoomInViewport();
   }
 
   private createItemObject(item: RoomDesignItem, scalePxPerM: number): Rect {
@@ -282,6 +382,61 @@ export class FabricRoomRenderer implements RoomRenderer {
     return rect;
   }
 
+  private onObjectMoving(event: { target?: FabricObject }): void {
+    if (this.programmaticSync || !this.currentDocument) {
+      return;
+    }
+    const target = event.target as TaggedFabricObject | undefined;
+    const itemId = target?.diyarItemId;
+    if (!itemId || !target) {
+      return;
+    }
+    const item = this.currentDocument.items.find((i) => i.id === itemId);
+    if (!item || item.locked) {
+      return;
+    }
+
+    const isoLift =
+      this.currentProjection === 'isometric_25d'
+        ? elevationScreenOffsetPx(item.snapshot.height_m, this.currentScale)
+        : 0;
+
+    const roomW = this.currentDocument.room.width_m;
+    const roomD = this.currentDocument.room.depth_m;
+    const halfW = (item.snapshot.width_m || 0.8) / 2;
+    const halfD = (item.snapshot.depth_m || 0.8) / 2;
+
+    const rawMeters = canvasPointToMeters(
+      this.currentProjection,
+      target.left ?? 0,
+      (target.top ?? 0) + isoLift,
+      this.currentScale,
+    );
+
+    const hitLeft = rawMeters.x <= halfW + 0.04;
+    const hitRight = rawMeters.x >= roomW - halfW - 0.04;
+    const hitTop = rawMeters.z <= halfD + 0.04;
+    const hitBottom = rawMeters.z >= roomD - halfD - 0.04;
+    const isHittingWall = hitLeft || hitRight || hitTop || hitBottom;
+
+    const clampedX = Math.max(halfW, Math.min(roomW - halfW, rawMeters.x));
+    const clampedZ = Math.max(halfD, Math.min(roomD - halfD, rawMeters.z));
+
+    const corrected = metersToCanvasPoint(
+      this.currentProjection,
+      clampedX,
+      clampedZ,
+      this.currentScale,
+    );
+
+    target.set({
+      left: corrected.x,
+      top: corrected.y - isoLift,
+      stroke: isHittingWall ? '#ef4444' : '#735942',
+      strokeWidth: isHittingWall ? 2.5 : 1.5,
+    });
+  }
+
   private onObjectModified(event: ModifiedEvent): void {
     if (this.programmaticSync || !this.interactionHandler || !this.currentDocument) {
       return;
@@ -322,7 +477,12 @@ export class FabricRoomRenderer implements RoomRenderer {
       clampedZ,
       this.currentScale,
     );
-    target.set({ left: corrected.x, top: corrected.y - isoLift });
+    target.set({
+      left: corrected.x,
+      top: corrected.y - isoLift,
+      stroke: '#735942',
+      strokeWidth: 1.5,
+    });
 
     const commands = fabricModifyToCommands(
       item,

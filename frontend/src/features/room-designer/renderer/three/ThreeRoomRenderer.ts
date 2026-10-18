@@ -55,6 +55,8 @@ export class ThreeRoomRenderer implements RoomRenderer {
 
   private directionalLight: import('three').DirectionalLight | null = null;
 
+  private wallMeshGroup: import('three').Group | null = null;
+
   private fallbackMessage: HTMLElement | null = null;
 
   private pointerDownHandler: ((ev: PointerEvent) => void) | null = null;
@@ -115,7 +117,7 @@ export class ThreeRoomRenderer implements RoomRenderer {
     const { OrbitControls } = await import('three/examples/jsm/controls/OrbitControls.js');
     const controls = new OrbitControls(camera, canvas);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
+    controls.dampingFactor = 0.05;
     controls.maxPolarAngle = Math.PI / 2.05;
     this.controls = controls;
 
@@ -145,6 +147,11 @@ export class ThreeRoomRenderer implements RoomRenderer {
     this.controls = null;
 
     this.disposeSceneObjects();
+    if (this.wallMeshGroup) {
+      this.scene?.remove(this.wallMeshGroup);
+      this.disposeMesh(this.wallMeshGroup);
+      this.wallMeshGroup = null;
+    }
     this.renderer?.dispose();
     this.renderer = null;
     this.scene = null;
@@ -310,6 +317,36 @@ export class ThreeRoomRenderer implements RoomRenderer {
         this.floorMesh.geometry = new this.three.BoxGeometry(document.room.width_m, 0.05, document.room.depth_m);
         this.floorMesh.position.set(document.room.width_m / 2, -0.025, document.room.depth_m / 2);
       }
+    }
+
+    // Ensure architectural walls enclosing the 3D room
+    if (!this.wallMeshGroup) {
+      this.wallMeshGroup = new this.three.Group();
+      const wallMat = new this.three.MeshStandardMaterial({
+        color: 0xede8df,
+        roughness: 0.82,
+        metalness: 0.02,
+      });
+      const wallH = 2.6;
+      const wallThick = 0.08;
+
+      // Back wall along Z=0
+      const backGeo = new this.three.BoxGeometry(document.room.width_m, wallH, wallThick);
+      const backWall = new this.three.Mesh(backGeo, wallMat);
+      backWall.position.set(document.room.width_m / 2, wallH / 2, -wallThick / 2);
+      backWall.receiveShadow = true;
+      backWall.castShadow = true;
+      this.wallMeshGroup.add(backWall);
+
+      // Left wall along X=0
+      const leftGeo = new this.three.BoxGeometry(wallThick, wallH, document.room.depth_m);
+      const leftWall = new this.three.Mesh(leftGeo, wallMat);
+      leftWall.position.set(-wallThick / 2, wallH / 2, document.room.depth_m / 2);
+      leftWall.receiveShadow = true;
+      leftWall.castShadow = true;
+      this.wallMeshGroup.add(leftWall);
+
+      this.scene.add(this.wallMeshGroup);
     }
 
     // Reconcile items
