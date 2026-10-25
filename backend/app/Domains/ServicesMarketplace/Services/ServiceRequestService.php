@@ -2,11 +2,13 @@
 
 namespace App\Domains\ServicesMarketplace\Services;
 
+use App\Domains\ServicesMarketplace\Jobs\NotifyMatchingProvidersJob;
 use App\Domains\ServicesMarketplace\Support\ProviderSelfInteractionGuard;
 use App\Enums\ServiceRequestStatus;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
+use App\Models\ServiceRequestTimeline;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -75,9 +77,25 @@ final class ServiceRequestService
                 'status' => ServiceRequestStatus::Pending,
             ]);
 
-            $request->categories()->sync($categories->pluck('id')->all());
+            $catIds = $categories->pluck('id')->all();
+            $request->categories()->sync($catIds);
 
-            return $request->fresh(['categories', 'attachments', 'service', 'providerAccount']);
+            // Record creation timeline event
+            ServiceRequestTimeline::query()->create([
+                'service_request_id' => $request->id,
+                'status' => ServiceRequestStatus::Pending->value,
+                'actor_type' => 'customer',
+                'actor_id' => $user->id,
+                'title' => 'تم إنشاء طلب الخدمة',
+                'notes' => 'تم استلام الطلب وتوجيهه لمزودي الخدمة المؤهلين.',
+            ]);
+
+            // Dispatch asynchronous notification to matching providers
+            DB::afterCommit(function () use ($request, $catIds, $user) {
+                NotifyMatchingProvidersJob::dispatch($request->id, $catIds, $user->id);
+            });
+
+            return $request->fresh(['categories', 'attachments', 'service', 'providerAccount', 'timelines']);
         });
     }
 
@@ -107,6 +125,7 @@ final class ServiceRequestService
                 'acceptedOffer.providerAccount',
                 'booking.payment',
                 'service',
+                'timelines',
             ])
             ->whereKey($id)
             ->first();
@@ -136,7 +155,16 @@ final class ServiceRequestService
             'cancelled_at' => now(),
         ]);
 
-        return $request->fresh(['categories', 'attachments']);
+        ServiceRequestTimeline::query()->create([
+            'service_request_id' => $request->id,
+            'status' => ServiceRequestStatus::Cancelled->value,
+            'actor_type' => 'customer',
+            'actor_id' => $user->id,
+            'title' => 'تم إلغاء الطلب',
+            'notes' => 'تم إلغاء طلب الخدمة بواسطة العميل.',
+        ]);
+
+        return $request->fresh(['categories', 'attachments', 'timelines']);
     }
 
     /**

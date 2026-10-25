@@ -58,6 +58,9 @@ class ServiceDetailResource extends JsonResource
             ),
             'user_saved' => $this->resolveUserSaved($request),
             'user_active_booking' => $this->resolveUserActiveBooking($request),
+            'is_own_service' => $request->user() !== null
+                && $this->providerAccount !== null
+                && $this->providerAccount->user_id === $request->user()->id,
         ];
     }
 

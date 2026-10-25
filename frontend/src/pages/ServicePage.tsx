@@ -194,7 +194,7 @@ export default function ServicePage() {
     SERVICE_IMAGE_FALLBACK;
   const features = service.features ?? [];
   const isDirectBooking = service.booking_mode === 'direct';
-  const isOwnProvider = Boolean(service.provider?.is_own_provider);
+  const isOwnProvider = Boolean(service.provider?.is_own_provider || service.is_own_service);
   const isCommerceBlocked = isOwnProvider || shouldHideMarketplaceCommerce(user?.roles);
   const activeBooking = service.user_active_booking ?? null;
 
@@ -358,7 +358,22 @@ export default function ServicePage() {
               </div>
             </div>
 
-            {!isCommerceBlocked && (
+            {isCommerceBlocked ? (
+              <div className="flex flex-col gap-2 md:w-auto w-full md:min-w-52">
+                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+                  <p className="text-sm font-bold text-gray-700">
+                    {isOwnProvider
+                      ? (t('serviceMarketplace.detail.ownServiceWarning') || 'لا يمكنك حجز خدمتك الخاصة')
+                      : (t('serviceMarketplace.detail.commerceBlocked') || 'العمليات التجارية غير متاحة لهذا الحساب')}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {isOwnProvider
+                      ? 'أنت مسجل كمزود لهذه الخدمة'
+                      : 'حسابات إدارة العمليات مخصصة للتحكم فقط'}
+                  </p>
+                </div>
+              </div>
+            ) : (
               <div className="flex flex-col gap-3 md:w-auto w-full md:min-w-52">
                 {activeBooking && (
                   <div className="rounded-xl border border-diyar-brown/20 bg-diyar-brown/5 p-4 space-y-3">
@@ -393,23 +408,30 @@ export default function ServicePage() {
                 )}
 
                 {!activeBooking && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!user) {
-                        toast.error(t('serviceMarketplace.detail.loginRequired'));
-                        return;
-                      }
-                      if (isDirectBooking) {
-                        setIsBookingOpen(true);
-                      } else {
-                        setIsRequestOpen(true);
-                      }
-                    }}
-                    className="flex-1 md:flex-none font-bold py-3 px-8 rounded-xl transition shadow-md w-full md:w-48 text-center text-lg bg-diyar-dark text-white hover:bg-black cursor-pointer"
-                  >
-                    {primaryActionLabel}
-                  </button>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!user) {
+                          toast.error(t('serviceMarketplace.detail.loginRequired'));
+                          return;
+                        }
+                        if (isDirectBooking) {
+                          setIsBookingOpen(true);
+                        } else {
+                          setIsRequestOpen(true);
+                        }
+                      }}
+                      className="flex-1 md:flex-none font-bold py-3 px-8 rounded-xl transition shadow-md w-full md:w-48 text-center text-lg bg-diyar-dark text-white hover:bg-black cursor-pointer"
+                    >
+                      {primaryActionLabel}
+                    </button>
+                    {!isDirectBooking && (
+                      <span className="text-xs text-center text-gray-500">
+                        {t('serviceMarketplace.detail.rfqExplanation') || 'احجز عبر طلب عرض سعر مخصص'}
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
             )}

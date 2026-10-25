@@ -1,19 +1,37 @@
 # CURRENT_STATE.md
 
-> **Last updated:** 2026-10-16
+> **Last updated:** 2026-10-25
 > **Maintained by:** AI development agents after each phase completion
 
 ---
 
-## Active Phase: Stage 32 — Deploy: Phase C Certified Locally & Phase D Prepared
+## Active Phase: Stage 32 — Deploy: Pre-Hosting Certification VERIFIED
 
 ```text
-STAGE 32 — PHASE C
-STATUS: PHASE C VERIFIED LOCALLY — PHASE D PREPARED (OWNER HOSTINGER RECOVERY REQUIRED)
-ENVIRONMENT: LOCAL DOCKER VPS SIMULATION (diyar-stage32-sim on port 8093)
+STAGE 32 — PRE-HOSTING CERTIFICATION & PHASE C ADVANCED
+STATUS: PRE-HOSTING CERTIFICATION VERIFIED — READY FOR PHASE D HOSTING PREPARATION
+ENVIRONMENT: LOCAL DOCKER CANDIDATE STACK (diyar-vps-sim on port 8092 with Octane/Swoole 2 workers)
 PRODUCTION VPS: STRICTLY NOT TOUCHED — ZERO REMOTE MUTATIONS
-DECISION: SIMULATION CERTIFIED UNDER KVM2 BUDGET; PHASE D READ-ONLY AUDIT CHECKLIST READY
+DECISION: READY FOR PHASE D HOSTING PREPARATION (OWNER HOSTINGER RECOVERY REQUIRED)
 ```
+
+- **Pre-Hosting Certification Report:** [`conception/Stages/Stage 32 - Deploy/PRE_HOSTING_CERTIFICATION_REPORT.md`](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%2032%20-%20Deploy/PRE_HOSTING_CERTIFICATION_REPORT.md)
+- **Phase C Advanced Authority Report:** [`conception/Stages/Stage 32 - Deploy/PHASE_C_ADVANCED.md`](file:///c:/Users/APL%20TECH/OneDrive/Documents/Web/Work/Hamid/project/diyar-marketplace/conception/Stages/Stage%2032%20-%20Deploy/PHASE_C_ADVANCED.md)
+- **Phase C Advanced Remediation Summary:**
+  - **Fix A (Checkout Redirect):** Verified customer guest checkout preservation and role-based guards.
+  - **Fix B (Category Selectors):** Remedied database seeding under `diyar.vps_simulation`. All 6 service categories and product catalog populated.
+  - **Fix C (Special Services Notifications):** Created and dispatched `NotifyMatchingProvidersJob` asynchronously upon service request creation.
+  - **Fix D (Service Request Lifecycle Timeline):** Created `service_request_timelines` table, Eloquent model, resource, and frontend component to track status progression.
+  - **Fix E (Money Request Updates):** Implemented asynchronous notifications on vendor/provider payout approvals/rejections in `AdminPayoutActionService`.
+  - **Fix F (Prevent Self-Interactions):** Added `is_own_service` check to `ServiceDetailResource` and blocked self-actions in frontend and backend guards.
+  - **Fix G (Reserve Now CTA):** Clarified Reserve Now action flow and RFQ quotation logic on storefront service page.
+- **Verification Evidence:**
+  - Frontend Vitest: **87 files passed, 354 tests passed, 0 failures** (Duration 45.16s).
+  - Frontend Build: `npm run build` compiled 3,108 modules cleanly in 11.05s with code 0.
+  - Backend Service Marketplace: **62/62 tests passed, 338 assertions** across all service marketplace suites.
+  - Backend Commerce & Security: `CheckoutPreviewTest` (3/3 passed), `SelfPurchaseTest` (4/4 passed), `CloudflareTrustedProxyIngressTest` (3/3 passed), `PayoutConcurrencyTest` (3/3 passed), `PaymentWebhookIdempotencyTest` (3/3 passed), `ProcessPaymentWebhookJobTest` (2/2 passed).
+  - Octane Runtime: 2 Swoole application workers resident; measured p50 6.2ms - 10.1ms internal direct, 7.2ms - 11.1ms via Nginx (N=30 per endpoint).
+  - Active Container RAM: 818.8 MiB across all 7 containers (~7.18 GB headroom on 8 GB Hostinger KVM 2 target).
 
 - **Objective:** Complete Phase C validation, resolve proxy header trust findings, reconcile performance evidence and thresholds, run full regression suites, verify webhook idempotency and backup/restore, and prepare Phase D documentation for owner-led recovery.
 - **Authority Documents:**

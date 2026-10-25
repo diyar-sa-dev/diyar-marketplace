@@ -12,7 +12,11 @@ services:
       OCTANE_TASK_WORKERS: 1
       OCTANE_MAX_REQUESTS: 500
     volumes:
-      - ./backend:/var/www/diyar/backend
+      - ./backend/app:/var/www/diyar/backend/app
+      - ./backend/config:/var/www/diyar/backend/config
+      - ./backend/database:/var/www/diyar/backend/database
+      - ./backend/routes:/var/www/diyar/backend/routes
+      - ./backend/storage:/var/www/diyar/backend/storage
     cpuset: '0-1'
     deploy:
       resources:

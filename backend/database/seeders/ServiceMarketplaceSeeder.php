@@ -24,7 +24,7 @@ class ServiceMarketplaceSeeder extends Seeder
 
     public function run(): void
     {
-        if (app()->environment('production')) {
+        if (app()->environment('production') && ! config('diyar.vps_simulation', false)) {
             return;
         }
 

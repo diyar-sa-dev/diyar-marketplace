@@ -106,6 +106,7 @@ export interface ServiceDetail extends ServiceCard {
   provider?: ProviderPublic;
   portfolio?: ServicePortfolioItem[];
   user_active_booking?: ServiceUserActiveBooking | null;
+  is_own_service?: boolean;
 }
 
 export interface ServiceUserActiveBooking {

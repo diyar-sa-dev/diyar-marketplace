@@ -32,6 +32,10 @@ final class OtpTestCodeResolver
 
     public static function testModeEnabled(): bool
     {
+        if (config('diyar.vps_simulation', false)) {
+            return (bool) config('diyar.otp.test_mode', false);
+        }
+
         if (! app()->environment(['local', 'testing'])) {
             return false;
         }

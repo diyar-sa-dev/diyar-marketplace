@@ -12,6 +12,7 @@ use App\Models\ProviderAccount;
 use App\Models\ServiceCategory;
 use App\Models\ServiceOffer;
 use App\Models\ServiceRequest;
+use App\Models\ServiceRequestTimeline;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -215,7 +216,7 @@ final class ServiceOfferService
             $this->availability->assertMinimumLeadTime($proposedDate, $proposedTime);
         }
 
-        return DB::transaction(function () use ($request, $provider, $payload, $quotation, $price) {
+        return DB::transaction(function () use ($request, $provider, $payload, $quotation, $price, $user) {
             $quotationMeta = $quotation !== null
                 ? $this->storeQuotation($request, $quotation)
                 : null;
@@ -239,6 +240,19 @@ final class ServiceOfferService
             if ($request->status === ServiceRequestStatus::Pending) {
                 $request->update(['status' => ServiceRequestStatus::OffersReceived]);
             }
+
+            ServiceRequestTimeline::query()->create([
+                'service_request_id' => $request->id,
+                'status' => ServiceRequestStatus::OffersReceived->value,
+                'actor_type' => 'provider',
+                'actor_id' => $user->id,
+                'title' => 'تم تقديم عرض جديد',
+                'notes' => 'قدم ' . ($provider->business_name ?? 'مزود الخدمة') . ' عرضاً بقيمة ' . $price . ' ريال.',
+                'metadata' => [
+                    'offer_id' => $offer->id,
+                    'proposed_price' => (string) $price,
+                ],
+            ]);
 
             $fresh = $offer->fresh(['providerAccount', 'serviceRequest']);
             DB::afterCommit(fn () => event(new ServiceOfferReceived($fresh)));
@@ -284,6 +298,19 @@ final class ServiceOfferService
             $request->update([
                 'status' => ServiceRequestStatus::OfferAccepted,
                 'accepted_offer_id' => $offer->id,
+            ]);
+
+            ServiceRequestTimeline::query()->create([
+                'service_request_id' => $request->id,
+                'status' => ServiceRequestStatus::OfferAccepted->value,
+                'actor_type' => 'customer',
+                'actor_id' => $user->id,
+                'title' => 'تم قبول العرض وتحويله لحجز',
+                'notes' => 'وافق العميل على العرض المقدم وتم إنشاء الحجز بنجاح.',
+                'metadata' => [
+                    'offer_id' => $offer->id,
+                    'accepted_price' => (string) $offer->proposed_price,
+                ],
             ]);
 
             $this->bookings->createFromAcceptedOffer($user, $offer, array_merge([

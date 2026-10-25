@@ -146,6 +146,16 @@ export type ServiceRequestCard = {
   created_at?: string;
 };
 
+export type ServiceRequestTimelineItem = {
+  id: string;
+  status: string;
+  actor_type?: 'customer' | 'provider' | 'system' | 'admin' | null;
+  title: string;
+  notes?: string | null;
+  metadata?: Record<string, unknown> | null;
+  created_at?: string;
+};
+
 export type ServiceRequestDetail = ServiceRequestCard & {
   reference_links: string[];
   attachments?: ServiceRequestAttachment[];
@@ -153,6 +163,7 @@ export type ServiceRequestDetail = ServiceRequestCard & {
   accepted_offer?: ServiceOffer | null;
   booking?: ServiceBooking | null;
   service?: { id: string; title: string; slug: string } | null;
+  timelines?: ServiceRequestTimelineItem[];
   updated_at?: string;
 };
 

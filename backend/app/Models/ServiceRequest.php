@@ -89,4 +89,9 @@ class ServiceRequest extends Model
     {
         return $this->hasOne(ServiceBooking::class);
     }
+
+    public function timelines(): HasMany
+    {
+        return $this->hasMany(ServiceRequestTimeline::class)->orderBy('created_at', 'asc');
+    }
 }

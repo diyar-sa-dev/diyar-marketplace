@@ -4,12 +4,15 @@ namespace App\Domains\Admin\Services;
 
 use App\Domains\Affiliate\Services\AffiliateAdminPayoutService;
 use App\Domains\Finance\Services\PayoutService;
+use App\Domains\Notifications\Services\NotificationDispatcher;
 use App\Domains\ServicesMarketplace\Services\ProviderPayoutService;
+use App\Enums\NotificationType;
 use App\Models\AffiliatePayout;
 use App\Models\ProviderPayout;
 use App\Models\User;
 use App\Models\VendorPayout;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 final class AdminPayoutActionService
 {
@@ -18,6 +21,7 @@ final class AdminPayoutActionService
         private readonly AffiliateAdminPayoutService $affiliatePayouts,
         private readonly ProviderPayoutService $providerPayouts,
         private readonly AdminAuditService $audit,
+        private readonly NotificationDispatcher $notifications,
     ) {}
 
     public function approveVendorPayout(VendorPayout $payout, User $actor): VendorPayout
@@ -33,6 +37,8 @@ final class AdminPayoutActionService
                 before: $before,
                 after: ['status' => $updated->status->value],
             );
+
+            $this->notifyVendorUser($updated, 'تمت الموافقة على طلب السحب', "تمت الموافقة على طلب سحب الرصيد بقيمة {$updated->amount} {$updated->currency}.");
 
             return $updated;
         });
@@ -53,6 +59,8 @@ final class AdminPayoutActionService
                 reason: $reason,
             );
 
+            $this->notifyVendorUser($updated, 'تم رفض طلب السحب', "تم رفض طلب سحب الرصيد بقيمة {$updated->amount} {$updated->currency}. السبب: {$reason}");
+
             return $updated;
         });
     }
@@ -70,6 +78,8 @@ final class AdminPayoutActionService
                 before: $before,
                 after: ['status' => $updated->status->value],
             );
+
+            $this->notifyVendorUser($updated, 'تم تحويل مبلغ السحب بنجاح', "تم تحويل مبلغ {$updated->amount} {$updated->currency} إلى حسابك البنكي بنجاح.");
 
             return $updated;
         });
@@ -162,6 +172,8 @@ final class AdminPayoutActionService
                 after: ['status' => $updated->status->value],
             );
 
+            $this->notifyProviderUser($updated, 'تمت الموافقة على طلب السحب', "تمت الموافقة على طلب سحب الرصيد بقيمة {$updated->amount} {$updated->currency}.");
+
             return $updated;
         });
     }
@@ -181,6 +193,8 @@ final class AdminPayoutActionService
                 reason: $reason,
             );
 
+            $this->notifyProviderUser($updated, 'تم رفض طلب السحب', "تم رفض طلب سحب الرصيد بقيمة {$updated->amount} {$updated->currency}. السبب: {$reason}");
+
             return $updated;
         });
     }
@@ -199,7 +213,63 @@ final class AdminPayoutActionService
                 after: ['status' => $updated->status->value],
             );
 
+            $this->notifyProviderUser($updated, 'تم تحويل مبلغ السحب بنجاح', "تم تحويل مبلغ {$updated->amount} {$updated->currency} إلى حسابك البنكي بنجاح.");
+
             return $updated;
         });
+    }
+
+    private function notifyVendorUser(VendorPayout $payout, string $title, string $message): void
+    {
+        try {
+            $user = $payout->vendorAccount?->user;
+            if ($user === null) {
+                return;
+            }
+
+            $frontendUrl = rtrim((string) config('diyar.frontend_url', 'http://localhost:3000'), '/');
+            $this->notifications->dispatch(
+                type: NotificationType::SystemAlert,
+                recipients: [$user],
+                payload: [
+                    'title' => $title,
+                    'message' => $message,
+                    'action_url' => "{$frontendUrl}/dashboard/vendor/finance",
+                    'reference' => $payout->reference,
+                ],
+                entityType: 'vendor_payout',
+                entityId: $payout->id,
+                dedupeKey: "payout.vendor.status:{$payout->id}:{$payout->status->value}",
+            );
+        } catch (\Throwable $e) {
+            Log::warning('Failed sending payout notification to vendor', ['error' => $e->getMessage()]);
+        }
+    }
+
+    private function notifyProviderUser(ProviderPayout $payout, string $title, string $message): void
+    {
+        try {
+            $user = $payout->providerAccount?->user;
+            if ($user === null) {
+                return;
+            }
+
+            $frontendUrl = rtrim((string) config('diyar.frontend_url', 'http://localhost:3000'), '/');
+            $this->notifications->dispatch(
+                type: NotificationType::SystemAlert,
+                recipients: [$user],
+                payload: [
+                    'title' => $title,
+                    'message' => $message,
+                    'action_url' => "{$frontendUrl}/dashboard/provider/finance",
+                    'reference' => $payout->reference,
+                ],
+                entityType: 'provider_payout',
+                entityId: $payout->id,
+                dedupeKey: "payout.provider.status:{$payout->id}:{$payout->status->value}",
+            );
+        } catch (\Throwable $e) {
+            Log::warning('Failed sending payout notification to provider', ['error' => $e->getMessage()]);
+        }
     }
 }

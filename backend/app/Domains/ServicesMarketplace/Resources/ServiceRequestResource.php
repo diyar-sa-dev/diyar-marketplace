@@ -43,6 +43,7 @@ class ServiceRequestResource extends JsonResource
                 'title' => $this->service->title,
                 'slug' => $this->service->slug,
             ] : null),
+            'timelines' => ServiceRequestTimelineResource::collection($this->whenLoaded('timelines')),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

@@ -10,6 +10,7 @@ import {
   Paperclip,
 } from 'lucide-react';
 import { BookingScheduleSection } from './BookingScheduleSection.tsx';
+import { ServiceRequestTimelineView } from './ServiceRequestTimelineView.tsx';
 import { formatOrderDate } from '../../lib/formatOrderDate.ts';
 import { formatProviderBudget, formatAttachmentSize } from '../../lib/providerDashboardUi.ts';
 import type { ServiceRequestDetail } from '../../types/serviceRequests.ts';
@@ -156,6 +157,15 @@ export function ServiceRequestDetailSection({
             {booking.customer_notes}
           </p>
         </div>
+      ) : null}
+
+      {request.timelines && request.timelines.length > 0 ? (
+        <ServiceRequestTimelineView
+          timelines={request.timelines}
+          currentStatus={request.status}
+          locale={locale}
+          t={t}
+        />
       ) : null}
     </div>
   );
