@@ -22,7 +22,7 @@ class OtpTestCodeResolverTest extends TestCase
     public function test_production_environment_never_enables_test_mode(): void
     {
         app()->detectEnvironment(fn () => 'production');
-        config(['diyar.otp.test_mode' => true, 'diyar.otp.test_code' => '123456']);
+        config(['diyar.vps_simulation' => false, 'diyar.otp.test_mode' => true, 'diyar.otp.test_code' => '123456']);
 
         $generator = $this->createMock(OtpCodeGenerator::class);
         $generator->expects($this->once())->method('generate')->with(6)->willReturn('654321');
@@ -34,7 +34,7 @@ class OtpTestCodeResolverTest extends TestCase
     public function test_staging_environment_never_enables_test_mode(): void
     {
         app()->detectEnvironment(fn () => 'staging');
-        config(['diyar.otp.test_mode' => true, 'diyar.otp.test_code' => '123456']);
+        config(['diyar.vps_simulation' => false, 'diyar.otp.test_mode' => true, 'diyar.otp.test_code' => '123456']);
 
         $generator = $this->createMock(OtpCodeGenerator::class);
         $generator->expects($this->once())->method('generate')->with(6)->willReturn('111222');

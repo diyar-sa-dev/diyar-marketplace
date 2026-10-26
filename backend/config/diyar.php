@@ -29,7 +29,7 @@ return [
         'max_resends_per_hour' => (int) env('DIYAR_OTP_MAX_RESENDS', 5),
         'resend_cooldown_seconds' => (int) env('DIYAR_OTP_RESEND_COOLDOWN', 60),
         'test_mode' => filter_var(env('DIYAR_OTP_TEST_MODE', false), FILTER_VALIDATE_BOOL),
-        'test_code' => env('DIYAR_OTP_TEST_CODE', '123456'),
+        'test_code' => env('DIYAR_OTP_TEST_CODE', null),
     ],
 
     'sms' => [

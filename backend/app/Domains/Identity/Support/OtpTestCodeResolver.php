@@ -21,7 +21,13 @@ final class OtpTestCodeResolver
             return null;
         }
 
-        $testCode = trim((string) config('diyar.otp.test_code', ''));
+        $rawTestCode = config('diyar.otp.test_code') ?? env('DIYAR_OTP_TEST_CODE');
+
+        if ($rawTestCode === null || $rawTestCode === '') {
+            return null;
+        }
+
+        $testCode = trim((string) $rawTestCode);
 
         if ($length === 6 && strlen($testCode) === 6 && ctype_digit($testCode)) {
             return $testCode;
