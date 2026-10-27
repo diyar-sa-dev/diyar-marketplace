@@ -42,8 +42,11 @@ use App\Domains\Admin\Controllers\AdminRoleController;
 use App\Domains\Admin\Controllers\AdminServiceBookingController;
 use App\Domains\Admin\Controllers\AdminServiceRequestController;
 use App\Domains\Admin\Controllers\AdminSessionController;
+use App\Domains\Admin\Controllers\AdminCarrierIntegrationController;
 use App\Domains\Admin\Controllers\AdminShipmentController;
 use App\Domains\Admin\Controllers\AdminShippingConfigurationController;
+use App\Domains\Shipping\Controllers\ShippingWebhookController;
+use App\Domains\Shipping\Controllers\VendorPickupAddressController;
 use App\Domains\Admin\Controllers\AdminSystemSettingController;
 use App\Domains\Admin\Controllers\AdminUserController;
 use App\Domains\Admin\Controllers\AdminVendorAccountController;
@@ -493,6 +496,13 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
     Route::delete('/shipping/vendor-profiles/{profile}', [AdminShippingConfigurationController::class, 'destroyVendorProfile'])
         ->middleware('admin.permission:shipping.manage');
 
+    Route::get('/shipping/carrier-integrations', [AdminCarrierIntegrationController::class, 'index'])
+        ->middleware('admin.permission:shipping.view');
+    Route::put('/shipping/carrier-integrations/{carrierCode}', [AdminCarrierIntegrationController::class, 'update'])
+        ->middleware('admin.permission:shipping.manage');
+    Route::get('/shipping/reconciliations', [AdminCarrierIntegrationController::class, 'reconciliations'])
+        ->middleware('admin.permission:shipping.view');
+
     Route::get('/notifications/deliveries', [AdminNotificationController::class, 'deliveries'])
         ->middleware('admin.permission:notifications.view');
     Route::post('/notifications/deliveries/{delivery}/retry', [AdminNotificationController::class, 'retryDelivery'])
@@ -696,6 +706,8 @@ Route::middleware(['auth:admin', 'admin.active', 'role:admin'])->prefix('admin')
             ->middleware('admin.permission:loyalty.adjust');
     });
 });
+
+Route::post('/webhooks/shipping/{carrier}', [ShippingWebhookController::class, 'handle']);
 
 Route::middleware([
     'auth:sanctum',
@@ -949,6 +961,9 @@ Route::middleware([
             Route::get('/b2b/reviews', [PartnerB2bReviewController::class, 'indexVendor']);
             Route::get('/shipping-settings', [VendorShippingSettingsController::class, 'show']);
             Route::put('/shipping-settings', [VendorShippingSettingsController::class, 'update']);
+            Route::get('/pickup-addresses', [VendorPickupAddressController::class, 'index']);
+            Route::post('/pickup-addresses', [VendorPickupAddressController::class, 'store']);
+            Route::get('/orders/{vendorOrder}/shipping-label', [VendorPickupAddressController::class, 'downloadLabel']);
             Route::get('/return-policy', [VendorReturnPolicyController::class, 'show']);
             Route::put('/return-policy', [VendorReturnPolicyController::class, 'update']);
             Route::get('/returns', [VendorReturnController::class, 'index']);

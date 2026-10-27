@@ -21,7 +21,7 @@ const defaultForm: VendorShippingSettingsPayload = {
 };
 
 export function VendorShippingSettingsPanel() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { toast } = useToast();
   const { data, isLoading } = useVendorShippingSettings();
   const saveMutation = useUpdateVendorShippingSettings();
@@ -188,6 +188,58 @@ export function VendorShippingSettingsPanel() {
               {t('shipping.pickupNoDeliveryCost')}
             </div>
           </ShippingMethodOptionCard>
+        </div>
+      </div>
+
+      {/* Saudi Carrier Integration & Pickup Warehouse Details */}
+      <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+          <div className="flex items-center gap-2">
+            <Truck className="text-diyar-brown" size={20} />
+            <h3 className="font-bold text-diyar-dark">
+              {locale === 'ar' ? 'إعدادات الشحن عبر شركات التوصيل المعتمدة (V2)' : 'Approved Carrier Fulfillment Settings (V2)'}
+            </h3>
+          </div>
+          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+            {locale === 'ar' ? 'شركات الشحن المعتمدة في السعودية' : 'Saudi Carriers Active'}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-700">
+              {locale === 'ar' ? 'نموذج التنفيذ' : 'Fulfillment Model'}
+            </label>
+            <select
+              value={form.fulfillment_type ?? 'manual'}
+              onChange={(e) => update('fulfillment_type', e.target.value as any)}
+              className="w-full rounded-lg border border-gray-200 p-2.5 text-sm focus:border-diyar-brown focus:outline-none"
+            >
+              <option value="manual">{locale === 'ar' ? 'توصيل يدوي / أسطول المتجر الخاص' : 'Manual / Store Dedicated Fleet'}</option>
+              <option value="carrier">{locale === 'ar' ? 'ربط آلي عبر بوليصات شركات الشحن (أي مكان / SMSA)' : 'Automated Carrier Waybills (AyMakan / SMSA)'}</option>
+              <option value="hybrid">{locale === 'ar' ? 'هجين (آلي للطرود الخفيفة + يدوي للأثاث الثقيل)' : 'Hybrid (Automated Parcels + Manual Furniture)'}</option>
+            </select>
+            <p className="text-[11px] text-gray-500">
+              {locale === 'ar'
+                ? 'الطرود التي تتجاوز 30 كجم أو 150 سم يتم تحويلها تلقائياً للشحن اليدوي/نقل العفش لسلامة المنتج.'
+                : 'Parcels over 30kg or 150cm route to freight/manual fleet automatically.'}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-700">
+              {locale === 'ar' ? 'شركة الشحن الافتراضية' : 'Default Assigned Carrier'}
+            </label>
+            <select
+              value={form.selected_carrier_code ?? 'manual'}
+              onChange={(e) => update('selected_carrier_code', e.target.value)}
+              className="w-full rounded-lg border border-gray-200 p-2.5 text-sm focus:border-diyar-brown focus:outline-none"
+            >
+              <option value="manual">{locale === 'ar' ? 'بدون ربط آلي (شحن يدوي)' : 'No automated carrier (Manual)'}</option>
+              <option value="aymakan">AyMakan Express (أي مكان - تغطية المملكة)</option>
+              <option value="mock">DIYAR Sandbox Test Carrier (Mock)</option>
+            </select>
+          </div>
         </div>
       </div>
 

@@ -19,3 +19,20 @@ export async function updateVendorShippingSettings(
   >('/dashboard/vendor/shipping-settings', payload);
   return data.data.shipping_settings;
 }
+
+export async function fetchVendorPickupAddresses(): Promise<import('../types/shipping.ts').VendorPickupAddress[]> {
+  const { data } = await apiClient.get<
+    ApiSuccessResponse<{ addresses: import('../types/shipping.ts').VendorPickupAddress[] }>
+  >('/dashboard/vendor/pickup-addresses');
+  return data.data.addresses;
+}
+
+export async function createVendorPickupAddress(
+  payload: Omit<import('../types/shipping.ts').VendorPickupAddress, 'id'>,
+): Promise<import('../types/shipping.ts').VendorPickupAddress> {
+  await ensureCsrfCookie();
+  const { data } = await apiClient.post<
+    ApiSuccessResponse<{ address: import('../types/shipping.ts').VendorPickupAddress }>
+  >('/dashboard/vendor/pickup-addresses', payload);
+  return data.data.address;
+}

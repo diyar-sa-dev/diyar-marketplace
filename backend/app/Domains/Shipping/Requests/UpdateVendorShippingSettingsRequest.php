@@ -25,6 +25,8 @@ class UpdateVendorShippingSettingsRequest extends FormRequest
             'pickup_enabled' => ['required', 'boolean'],
             'pickup_location_label' => ['nullable', 'string', 'max:255'],
             'use_advanced_rules' => ['sometimes', 'boolean'],
+            'fulfillment_type' => ['sometimes', 'string', 'in:manual,carrier,hybrid'],
+            'selected_carrier_code' => ['nullable', 'string', 'max:32'],
         ];
     }
 

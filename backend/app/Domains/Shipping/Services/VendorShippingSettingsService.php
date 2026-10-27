@@ -86,6 +86,8 @@ final class VendorShippingSettingsService
                 'pickup_enabled' => (bool) ($attributes['pickup_enabled'] ?? false),
                 'pickup_location_label' => $attributes['pickup_location_label'] ?? null,
                 'use_advanced_rules' => (bool) ($attributes['use_advanced_rules'] ?? false),
+                'fulfillment_type' => $attributes['fulfillment_type'] ?? $settings?->fulfillment_type ?? 'manual',
+                'selected_carrier_code' => $attributes['selected_carrier_code'] ?? $settings?->selected_carrier_code ?? 'manual',
             ];
 
             if ($settings === null) {
