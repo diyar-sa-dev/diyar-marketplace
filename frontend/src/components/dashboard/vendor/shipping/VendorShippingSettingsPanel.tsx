@@ -28,8 +28,8 @@ export function VendorShippingSettingsPanel() {
   const [form, setForm] = useState<VendorShippingSettingsPayload>(defaultForm);
 
   useEffect(() => {
-    if (data) {
-      setForm(data);
+    if (data?.settings) {
+      setForm(data.settings);
     }
   }, [data]);
 
@@ -236,8 +236,11 @@ export function VendorShippingSettingsPanel() {
               className="w-full rounded-lg border border-gray-200 p-2.5 text-sm focus:border-diyar-brown focus:outline-none"
             >
               <option value="manual">{locale === 'ar' ? 'بدون ربط آلي (شحن يدوي)' : 'No automated carrier (Manual)'}</option>
-              <option value="aymakan">AyMakan Express (أي مكان - تغطية المملكة)</option>
-              <option value="mock">DIYAR Sandbox Test Carrier (Mock)</option>
+              {(data?.availableCarriers ?? []).map((carrier) => (
+                <option key={carrier.carrier_code} value={carrier.carrier_code}>
+                  {carrier.name} {carrier.is_sandbox ? '(Sandbox)' : ''}
+                </option>
+              ))}
             </select>
           </div>
         </div>

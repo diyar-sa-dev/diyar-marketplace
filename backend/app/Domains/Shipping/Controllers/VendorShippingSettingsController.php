@@ -7,6 +7,7 @@ use App\Domains\Shipping\Requests\UpdateVendorShippingSettingsRequest;
 use App\Domains\Shipping\Resources\VendorShippingSettingsResource;
 use App\Domains\Shipping\Services\VendorShippingSettingsService;
 use App\Http\Controllers\Controller;
+use App\Models\CarrierConfiguration;
 use App\Models\VendorShippingSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,11 +23,15 @@ class VendorShippingSettingsController extends Controller
         $this->authorize('view', VendorShippingSettings::class);
 
         $model = $this->settings->getForAuthenticatedVendor($request->user());
+        $activeCarriers = CarrierConfiguration::query()
+            ->where('is_active', true)
+            ->get(['carrier_code', 'name', 'is_sandbox']);
 
         return ApiResponse::success(data: [
             'shipping_settings' => $model !== null
                 ? new VendorShippingSettingsResource($model)
                 : null,
+            'available_carriers' => $activeCarriers,
         ]);
     }
 

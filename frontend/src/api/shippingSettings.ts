@@ -3,11 +3,28 @@ import { ensureCsrfCookie } from '../lib/csrf.ts';
 import type { ApiSuccessResponse } from '../types/api.ts';
 import type { VendorShippingSettings, VendorShippingSettingsPayload } from '../types/shipping.ts';
 
-export async function fetchVendorShippingSettings(): Promise<VendorShippingSettings | null> {
+export type AvailableCarrier = {
+  carrier_code: string;
+  name: string;
+  is_sandbox: boolean;
+};
+
+export type VendorShippingSettingsResponse = {
+  settings: VendorShippingSettings | null;
+  availableCarriers: AvailableCarrier[];
+};
+
+export async function fetchVendorShippingSettings(): Promise<VendorShippingSettingsResponse> {
   const { data } = await apiClient.get<
-    ApiSuccessResponse<{ shipping_settings: VendorShippingSettings | null }>
+    ApiSuccessResponse<{
+      shipping_settings: VendorShippingSettings | null;
+      available_carriers?: AvailableCarrier[];
+    }>
   >('/dashboard/vendor/shipping-settings');
-  return data.data.shipping_settings;
+  return {
+    settings: data.data.shipping_settings,
+    availableCarriers: data.data.available_carriers ?? [],
+  };
 }
 
 export async function updateVendorShippingSettings(

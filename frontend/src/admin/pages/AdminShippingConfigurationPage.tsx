@@ -79,7 +79,8 @@ export default function AdminShippingConfigurationPage() {
   const { t, locale } = useLocale();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<ShippingTab>('integrations');
+  const [mainMode, setMainMode] = useState<'v2' | 'v1'>('v2');
+  const [tab, setTab] = useState<ShippingTab>('carriers');
   const [selectedCarrierId, setSelectedCarrierId] = useState('');
   const [selectedMethodId, setSelectedMethodId] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -98,7 +99,7 @@ export default function AdminShippingConfigurationPage() {
       }> }>>('/admin/shipping/carrier-integrations');
       return response.data.data.carrier_configurations;
     },
-    enabled: tab === 'integrations',
+    enabled: mainMode === 'v2',
   });
 
   const toggleIntegrationMutation = useMutation({
@@ -338,21 +339,48 @@ export default function AdminShippingConfigurationPage() {
         <p className="mt-1 text-sm text-gray-500">{t('admin.shipping.subtitle')}</p>
       </div>
 
-      <div className="rounded-3xl border border-gray-100 bg-white px-2 shadow-sm sm:px-4">
-        <DetailTabs
-          tabs={[
-            { id: 'integrations', label: locale === 'ar' ? 'الربط الآلي السعودي (V2)' : 'Saudi Carrier Integrations (V2)' },
-            { id: 'carriers', label: t('admin.shipping.tabs.carriers') },
-            { id: 'zones', label: t('admin.shipping.tabs.zones') },
-            { id: 'methods', label: t('admin.shipping.tabs.methods') },
-            { id: 'rules', label: t('admin.shipping.tabs.rules') },
-          ]}
-          activeTab={tab}
-          onChange={(id) => setTab(id as ShippingTab)}
-        />
+      {/* 2 Main Top-Level Modes with animated pill */}
+      <div className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-gray-100/80 p-1.5 shadow-sm max-w-lg">
+        <button
+          type="button"
+          onClick={() => setMainMode('v2')}
+          className={`flex-1 rounded-xl py-2.5 px-4 text-sm font-extrabold transition-all duration-200 cursor-pointer ${
+            mainMode === 'v2'
+              ? 'bg-white text-diyar-dark shadow-sm'
+              : 'text-gray-500 hover:text-gray-900'
+          }`}
+        >
+          {locale === 'ar' ? 'الربط الآلي السعودي (V2)' : 'Saudi Carrier Providers (V2)'}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMainMode('v1')}
+          className={`flex-1 rounded-xl py-2.5 px-4 text-sm font-extrabold transition-all duration-200 cursor-pointer ${
+            mainMode === 'v1'
+              ? 'bg-white text-diyar-dark shadow-sm'
+              : 'text-gray-500 hover:text-gray-900'
+          }`}
+        >
+          {locale === 'ar' ? 'الإعداد اليدوي / أسطول المتجر' : 'Manual Shipping Config (V1)'}
+        </button>
       </div>
 
-      {tab === 'integrations' ? (
+      {mainMode === 'v1' ? (
+        <div className="rounded-3xl border border-gray-100 bg-white px-2 shadow-sm sm:px-4 animate-in fade-in duration-200">
+          <DetailTabs
+            tabs={[
+              { id: 'carriers', label: t('admin.shipping.tabs.carriers') },
+              { id: 'zones', label: t('admin.shipping.tabs.zones') },
+              { id: 'methods', label: t('admin.shipping.tabs.methods') },
+              { id: 'rules', label: t('admin.shipping.tabs.rules') },
+            ]}
+            activeTab={tab}
+            onChange={(id) => setTab(id as ShippingTab)}
+          />
+        </div>
+      ) : null}
+
+      {mainMode === 'v2' ? (
         <div className="space-y-6">
           <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
             <h3 className="font-bold text-amber-900">
@@ -435,7 +463,7 @@ export default function AdminShippingConfigurationPage() {
         </div>
       ) : null}
 
-      {needsCarrier ? (
+      {mainMode === 'v1' && needsCarrier ? (
         <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
           <div className={`grid gap-4 ${tab === 'rules' ? 'sm:grid-cols-2' : 'max-w-md'}`}>
             <div>
@@ -539,7 +567,7 @@ export default function AdminShippingConfigurationPage() {
         onSubmit={(payload) => saveMutation.mutate(payload)}
       />
 
-      {tab !== 'integrations' ? (
+      {mainMode === 'v1' ? (
         <AdminResourceTable
         title={
           tab === 'zones'
