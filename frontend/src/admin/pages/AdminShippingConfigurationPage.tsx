@@ -79,11 +79,43 @@ export default function AdminShippingConfigurationPage() {
   const { t, locale } = useLocale();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<ShippingTab>('carriers');
+  const [tab, setTab] = useState<ShippingTab>('integrations');
   const [selectedCarrierId, setSelectedCarrierId] = useState('');
   const [selectedMethodId, setSelectedMethodId] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<ShippingRow | null>(null);
+
+  const integrationsQuery = useQuery({
+    queryKey: ['admin-shipping-carrier-integrations'],
+    queryFn: async () => {
+      const response = await adminApi.get<ApiSuccessResponse<{ carrier_configurations: Array<{
+        id: string;
+        carrier_code: string;
+        name: string;
+        is_active: boolean;
+        is_sandbox: boolean;
+        created_at: string;
+      }> }>>('/admin/shipping/carrier-integrations');
+      return response.data.data.carrier_configurations;
+    },
+    enabled: tab === 'integrations',
+  });
+
+  const toggleIntegrationMutation = useMutation({
+    mutationFn: async ({ carrierCode, isActive, isSandbox }: { carrierCode: string; isActive: boolean; isSandbox: boolean }) => {
+      await adminApi.put(`/admin/shipping/carrier-integrations/${carrierCode}`, {
+        is_active: isActive,
+        is_sandbox: isSandbox,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-shipping-carrier-integrations'] });
+      toast.success(locale === 'ar' ? 'تم تحديث حالة الناقل الآلي' : 'Carrier integration updated successfully');
+    },
+    onError: (err) => {
+      toast.error(parseApiError(err).message);
+    },
+  });
 
   const carriersQuery = useAdminListQuery<Carrier>({
     resourceKey: 'admin-shipping-carriers',
@@ -271,6 +303,7 @@ export default function AdminShippingConfigurationPage() {
   const deleteMutation = useMutation({
     mutationFn: async ({ kind, id }: { kind: ShippingTab; id: string }) => {
       const paths: Record<ShippingTab, string> = {
+        integrations: '',
         carriers: `/admin/shipping/carriers/${id}`,
         zones: `/admin/shipping/zones/${id}`,
         methods: `/admin/shipping/methods/${id}`,
@@ -308,6 +341,7 @@ export default function AdminShippingConfigurationPage() {
       <div className="rounded-3xl border border-gray-100 bg-white px-2 shadow-sm sm:px-4">
         <DetailTabs
           tabs={[
+            { id: 'integrations', label: locale === 'ar' ? 'الربط الآلي السعودي (V2)' : 'Saudi Carrier Integrations (V2)' },
             { id: 'carriers', label: t('admin.shipping.tabs.carriers') },
             { id: 'zones', label: t('admin.shipping.tabs.zones') },
             { id: 'methods', label: t('admin.shipping.tabs.methods') },
@@ -317,6 +351,89 @@ export default function AdminShippingConfigurationPage() {
           onChange={(id) => setTab(id as ShippingTab)}
         />
       </div>
+
+      {tab === 'integrations' ? (
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
+            <h3 className="font-bold text-amber-900">
+              {locale === 'ar' ? 'بوابات الشحن الآلية (Shipping V2 Gateway Engine)' : 'Automated Saudi Carrier Gateway Integrations'}
+            </h3>
+            <p className="mt-1 text-xs text-amber-800 leading-relaxed">
+              {locale === 'ar'
+                ? 'تتيح هذه البوابات إصدار بوليصات الشحن (AWB) وتتبع الشحنات آلياً مع شركات النقل المعتمدة في المملكة العربية السعودية مع الحفاظ على تسعيرة العميل المستقلة.'
+                : 'Manage automated AWB booking and tracking with certified Saudi courier providers.'}
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            {(integrationsQuery.data ?? []).map((carrier) => (
+              <div
+                key={carrier.id}
+                className="flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+              >
+                <div>
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <div>
+                      <h4 className="text-base font-bold text-diyar-dark">{carrier.name}</h4>
+                      <span className="font-mono text-xs text-gray-500 uppercase">{carrier.carrier_code}</span>
+                    </div>
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                        carrier.is_active
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}
+                    >
+                      {carrier.is_active ? (locale === 'ar' ? 'مفعل' : 'Active') : (locale === 'ar' ? 'معطل' : 'Disabled')}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 space-y-2 text-xs text-gray-600">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">{locale === 'ar' ? 'البيئة التشغيلية:' : 'Environment:'}</span>
+                      <span className="font-semibold text-gray-800">
+                        {carrier.is_sandbox ? (locale === 'ar' ? 'بيئة تجريبية (Sandbox)' : 'Sandbox') : (locale === 'ar' ? 'إنتاج فعلي (Production)' : 'Production')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">{locale === 'ar' ? 'تاريخ التهيأة:' : 'Configured At:'}</span>
+                      <span className="font-mono text-gray-700">{new Date(carrier.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-4">
+                  <span className="text-xs font-medium text-gray-500">
+                    {locale === 'ar' ? 'تبديل الحالة' : 'Toggle State'}
+                  </span>
+                  <PermissionGate permission="shipping.manage">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        toggleIntegrationMutation.mutate({
+                          carrierCode: carrier.carrier_code,
+                          isActive: !carrier.is_active,
+                          isSandbox: carrier.is_sandbox,
+                        })
+                      }
+                      disabled={toggleIntegrationMutation.isPending}
+                      className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+                        carrier.is_active
+                          ? 'border border-red-200 bg-red-50 text-red-700 hover:bg-red-100'
+                          : 'bg-diyar-dark text-white hover:bg-[#3D261C]'
+                      }`}
+                    >
+                      {carrier.is_active
+                        ? (locale === 'ar' ? 'تعطيل الناقل' : 'Disable Carrier')
+                        : (locale === 'ar' ? 'تفعيل الناقل' : 'Enable Carrier')}
+                    </button>
+                  </PermissionGate>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {needsCarrier ? (
         <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
@@ -422,7 +539,8 @@ export default function AdminShippingConfigurationPage() {
         onSubmit={(payload) => saveMutation.mutate(payload)}
       />
 
-      <AdminResourceTable
+      {tab !== 'integrations' ? (
+        <AdminResourceTable
         title={
           tab === 'zones'
             ? t('admin.shipping.tabs.zones')
@@ -566,6 +684,7 @@ export default function AdminShippingConfigurationPage() {
             </tr>
           ))}
       </AdminResourceTable>
+      ) : null}
     </div>
   );
 }

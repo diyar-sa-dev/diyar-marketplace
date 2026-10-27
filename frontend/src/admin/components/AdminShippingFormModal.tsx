@@ -3,7 +3,7 @@ import { Loader2, X } from 'lucide-react';
 import { useLocale } from '../../hooks/useLocale.ts';
 import { slugifyShippingCode } from '../utils/shippingCode.ts';
 
-export type ShippingTab = 'carriers' | 'zones' | 'methods' | 'rules';
+export type ShippingTab = 'integrations' | 'carriers' | 'zones' | 'methods' | 'rules';
 
 export type CarrierFormValues = {
   name: string;
@@ -130,6 +130,11 @@ function ShippingForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const titles: Record<ShippingTab, { create: string; edit: string; hint: string }> = {
+    integrations: {
+      create: '',
+      edit: '',
+      hint: '',
+    },
     carriers: {
       create: t('admin.shipping.addCarrier'),
       edit: t('admin.shipping.editCarrier'),
