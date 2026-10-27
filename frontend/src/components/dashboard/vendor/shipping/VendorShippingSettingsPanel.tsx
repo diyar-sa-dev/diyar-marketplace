@@ -135,9 +135,93 @@ export function VendorShippingSettingsPanel() {
               </label>
             </div>
             {form.use_advanced_rules ? (
-              <p className="text-[11px] text-gray-500 leading-normal">
-                {t('shipping.advancedRulesHint')}
-              </p>
+              <div className="space-y-4 pt-3 border-t border-gray-100 animate-in fade-in duration-200">
+                <p className="text-[11px] text-gray-500 leading-normal">
+                  {t('shipping.advancedRulesHint')}
+                </p>
+
+                {/* Sub-section 1: Manual configured carriers & rate rules from Admin */}
+                <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-3.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-800">
+                      {locale === 'ar' ? '1. الناقلون المعتمدون يدوياً وقواعد الأسعار' : '1. Configured Carriers & Rate Rules'}
+                    </span>
+                    <span className="text-[10px] bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full font-medium">
+                      {locale === 'ar' ? 'من لوحة الإدارة' : 'From Admin'}
+                    </span>
+                  </div>
+
+                  {(data?.manualCarriers && data.manualCarriers.length > 0) ? (
+                    <div className="space-y-2 pt-1">
+                      {data.manualCarriers.map((carrier) => (
+                        <div key={carrier.id} className="rounded-lg border border-gray-200 bg-white p-2.5 text-xs">
+                          <div className="font-bold text-diyar-dark flex justify-between">
+                            <span>{carrier.name}</span>
+                            <span className="text-gray-400 font-mono">{carrier.code}</span>
+                          </div>
+                          {(carrier.methods ?? []).map((method) => (
+                            <div key={method.id} className="mt-1 text-[11px] text-gray-600 border-t border-gray-50 pt-1">
+                              <div className="flex justify-between font-medium">
+                                <span>{method.name}</span>
+                                <span>{method.rate_rules?.[0]?.rate ? `${method.rate_rules[0].rate} SAR` : '-'}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-gray-400 italic">
+                      {locale === 'ar' ? 'لا توجد قواعد أسعار يدوية مهيأة حالياً في لوحة الإدارة.' : 'No manual carrier rate rules configured currently by admin.'}
+                    </p>
+                  )}
+                </div>
+
+                {/* Sub-section 2: Automated Saudi Courier Providers */}
+                <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3.5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-amber-900">
+                      {locale === 'ar' ? '2. إعدادات الشحن عبر شركات التوصيل المعتمدة' : '2. Approved Courier Providers'}
+                    </span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">
+                      {locale === 'ar' ? 'ربط آلي' : 'Automated'}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-gray-700">
+                      {locale === 'ar' ? 'نموذج التنفيذ' : 'Fulfillment Model'}
+                    </label>
+                    <select
+                      value={form.fulfillment_type ?? 'manual'}
+                      onChange={(e) => update('fulfillment_type', e.target.value as any)}
+                      className="w-full rounded-lg border border-gray-200 bg-white p-2 text-xs focus:border-diyar-brown focus:outline-none"
+                    >
+                      <option value="manual">{locale === 'ar' ? 'توصيل يدوي / أسطول المتجر الخاص' : 'Manual / Store Dedicated Fleet'}</option>
+                      <option value="carrier">{locale === 'ar' ? 'ربط آلي عبر بوليصات شركات الشحن' : 'Automated Carrier Waybills'}</option>
+                      <option value="hybrid">{locale === 'ar' ? 'هجين (آلي للطرود + يدوي للأثاث الثقيل)' : 'Hybrid (Automated Parcels + Manual Furniture)'}</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-gray-700">
+                      {locale === 'ar' ? 'شركة الشحن المختارة' : 'Selected Carrier Provider'}
+                    </label>
+                    <select
+                      value={form.selected_carrier_code ?? 'manual'}
+                      onChange={(e) => update('selected_carrier_code', e.target.value)}
+                      className="w-full rounded-lg border border-gray-200 bg-white p-2 text-xs focus:border-diyar-brown focus:outline-none"
+                    >
+                      <option value="manual">{locale === 'ar' ? 'بدون ربط آلي (شحن يدوي)' : 'No automated carrier (Manual)'}</option>
+                      {(data?.availableCarriers ?? []).map((carrier) => (
+                        <option key={carrier.carrier_code} value={carrier.carrier_code}>
+                          {carrier.name} {carrier.is_sandbox ? '(Sandbox)' : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
             ) : null}
           </ShippingMethodOptionCard>
 
@@ -188,61 +272,6 @@ export function VendorShippingSettingsPanel() {
               {t('shipping.pickupNoDeliveryCost')}
             </div>
           </ShippingMethodOptionCard>
-        </div>
-      </div>
-
-      {/* Saudi Carrier Integration & Pickup Warehouse Details */}
-      <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-          <div className="flex items-center gap-2">
-            <Truck className="text-diyar-brown" size={20} />
-            <h3 className="font-bold text-diyar-dark">
-              {locale === 'ar' ? 'إعدادات الشحن عبر شركات التوصيل المعتمدة (V2)' : 'Approved Carrier Fulfillment Settings (V2)'}
-            </h3>
-          </div>
-          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-            {locale === 'ar' ? 'شركات الشحن المعتمدة في السعودية' : 'Saudi Carriers Active'}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-700">
-              {locale === 'ar' ? 'نموذج التنفيذ' : 'Fulfillment Model'}
-            </label>
-            <select
-              value={form.fulfillment_type ?? 'manual'}
-              onChange={(e) => update('fulfillment_type', e.target.value as any)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 text-sm focus:border-diyar-brown focus:outline-none"
-            >
-              <option value="manual">{locale === 'ar' ? 'توصيل يدوي / أسطول المتجر الخاص' : 'Manual / Store Dedicated Fleet'}</option>
-              <option value="carrier">{locale === 'ar' ? 'ربط آلي عبر بوليصات شركات الشحن (أي مكان / SMSA)' : 'Automated Carrier Waybills (AyMakan / SMSA)'}</option>
-              <option value="hybrid">{locale === 'ar' ? 'هجين (آلي للطرود الخفيفة + يدوي للأثاث الثقيل)' : 'Hybrid (Automated Parcels + Manual Furniture)'}</option>
-            </select>
-            <p className="text-[11px] text-gray-500">
-              {locale === 'ar'
-                ? 'الطرود التي تتجاوز 30 كجم أو 150 سم يتم تحويلها تلقائياً للشحن اليدوي/نقل العفش لسلامة المنتج.'
-                : 'Parcels over 30kg or 150cm route to freight/manual fleet automatically.'}
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-700">
-              {locale === 'ar' ? 'شركة الشحن الافتراضية' : 'Default Assigned Carrier'}
-            </label>
-            <select
-              value={form.selected_carrier_code ?? 'manual'}
-              onChange={(e) => update('selected_carrier_code', e.target.value)}
-              className="w-full rounded-lg border border-gray-200 p-2.5 text-sm focus:border-diyar-brown focus:outline-none"
-            >
-              <option value="manual">{locale === 'ar' ? 'بدون ربط آلي (شحن يدوي)' : 'No automated carrier (Manual)'}</option>
-              {(data?.availableCarriers ?? []).map((carrier) => (
-                <option key={carrier.carrier_code} value={carrier.carrier_code}>
-                  {carrier.name} {carrier.is_sandbox ? '(Sandbox)' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
       </div>
 

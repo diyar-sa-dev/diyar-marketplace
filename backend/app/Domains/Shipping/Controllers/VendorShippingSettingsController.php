@@ -8,6 +8,7 @@ use App\Domains\Shipping\Resources\VendorShippingSettingsResource;
 use App\Domains\Shipping\Services\VendorShippingSettingsService;
 use App\Http\Controllers\Controller;
 use App\Models\CarrierConfiguration;
+use App\Models\ShippingCarrier;
 use App\Models\VendorShippingSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,11 +28,21 @@ class VendorShippingSettingsController extends Controller
             ->where('is_active', true)
             ->get(['carrier_code', 'name', 'is_sandbox']);
 
+        $manualCarriers = ShippingCarrier::query()
+            ->where('is_active', true)
+            ->with(['methods' => function ($query) {
+                $query->where('is_active', true)->with(['rateRules' => function ($rQuery) {
+                    $rQuery->where('is_active', true)->orderBy('sort_order');
+                }]);
+            }])
+            ->get();
+
         return ApiResponse::success(data: [
             'shipping_settings' => $model !== null
                 ? new VendorShippingSettingsResource($model)
                 : null,
             'available_carriers' => $activeCarriers,
+            'manual_carriers' => $manualCarriers,
         ]);
     }
 

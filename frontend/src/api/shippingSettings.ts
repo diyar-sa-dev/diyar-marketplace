@@ -9,9 +9,32 @@ export type AvailableCarrier = {
   is_sandbox: boolean;
 };
 
+export type ManualCarrierRateRule = {
+  id: string;
+  rate: string;
+  min_weight_kg: string;
+  max_weight_kg?: string | null;
+  delivery_estimate_days?: number | null;
+};
+
+export type ManualCarrierMethod = {
+  id: string;
+  code: string;
+  name: string;
+  rate_rules?: ManualCarrierRateRule[];
+};
+
+export type ManualCarrier = {
+  id: string;
+  code: string;
+  name: string;
+  methods?: ManualCarrierMethod[];
+};
+
 export type VendorShippingSettingsResponse = {
   settings: VendorShippingSettings | null;
   availableCarriers: AvailableCarrier[];
+  manualCarriers: ManualCarrier[];
 };
 
 export async function fetchVendorShippingSettings(): Promise<VendorShippingSettingsResponse> {
@@ -19,11 +42,13 @@ export async function fetchVendorShippingSettings(): Promise<VendorShippingSetti
     ApiSuccessResponse<{
       shipping_settings: VendorShippingSettings | null;
       available_carriers?: AvailableCarrier[];
+      manual_carriers?: ManualCarrier[];
     }>
   >('/dashboard/vendor/shipping-settings');
   return {
     settings: data.data.shipping_settings,
     availableCarriers: data.data.available_carriers ?? [],
+    manualCarriers: data.data.manual_carriers ?? [],
   };
 }
 
