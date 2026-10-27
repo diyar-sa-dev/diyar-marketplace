@@ -350,7 +350,7 @@ export default function AdminShippingConfigurationPage() {
               : 'text-gray-500 hover:text-gray-900'
           }`}
         >
-          {locale === 'ar' ? 'الربط الآلي السعودي (V2)' : 'Saudi Carrier Providers (V2)'}
+          {locale === 'ar' ? 'الربط الآلي السعودي' : 'Saudi Carrier Providers'}
         </button>
         <button
           type="button"
