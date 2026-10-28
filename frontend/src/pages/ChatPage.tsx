@@ -23,7 +23,19 @@ import {
   CHAT_ATTACHMENT_ACCEPT,
   validateChatAttachment,
 } from '../lib/chat/attachmentValidation.ts';
-import { getConversationParticipants, getOtherParticipant, getMessagePreviewContent, groupConversationsByCounterparty, conversationContextLabel, conversationParticipantRoleLabel, conversationParty, isConversationInInbox, mergeConversationRecords, resolveConversationProfilePath, resolveMessageSenderName } from '../lib/chat/conversationHelpers.ts';
+import {
+  getConversationParticipants,
+  getOtherParticipant,
+  getMessagePreviewContent,
+  groupConversationsByCounterparty,
+  conversationContextLabel,
+  conversationParticipantRoleLabel,
+  conversationParty,
+  isConversationInInbox,
+  mergeConversationRecords,
+  resolveConversationProfilePath,
+  resolveMessageSenderName,
+} from '../lib/chat/conversationHelpers.ts';
 import { confirmRemoveConversation } from '../lib/confirmDialog.ts';
 import { isNearContainerBottom, scrollContainerToBottom } from '../lib/chat/scroll.ts';
 import type { ChatMessage } from '../types/chat.ts';
@@ -105,7 +117,9 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
       const validation = validateChatAttachment(file);
       if (validation.ok === false) {
         const message =
-          validation.error === 'tooLarge' ? t('chat.attachmentTooLarge') : t('chat.attachmentInvalidType');
+          validation.error === 'tooLarge'
+            ? t('chat.attachmentTooLarge')
+            : t('chat.attachmentInvalidType');
         toast.error(message);
         return;
       }
@@ -145,7 +159,9 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
 
           return {
             ...current,
-            conversations: current.conversations.filter((conversation) => conversation.id !== conversationId),
+            conversations: current.conversations.filter(
+              (conversation) => conversation.id !== conversationId,
+            ),
           };
         },
       );
@@ -182,7 +198,10 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
   const directConversationQuery = useConversation(activeId);
 
   const activeConversation = useMemo(() => {
-    const candidate = mergeConversationRecords(conversationFromList, directConversationQuery.data ?? null);
+    const candidate = mergeConversationRecords(
+      conversationFromList,
+      directConversationQuery.data ?? null,
+    );
     if (!candidate || !isConversationInInbox(candidate, user?.id)) {
       return null;
     }
@@ -200,7 +219,8 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
   const hideConversationMutation = useHideConversation();
   const sendTypingMutation = useSendTyping(activeId ?? 'none');
   const { mutate: markConversationRead } = useMarkConversationRead();
-  const { connectionState, subscribeConversation, typingUsers, counterpartyActivityAt } = useChatRealtime();
+  const { connectionState, subscribeConversation, typingUsers, counterpartyActivityAt } =
+    useChatRealtime();
 
   const filteredConversations = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -240,11 +260,11 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
     () => resolveConversationProfilePath(activeConversation, user?.id),
     [activeConversation, user?.id],
   );
-  const messages = useMemo(
-    () => flattenMessages(messagesQuery.data),
-    [messagesQuery.data],
+  const messages = useMemo(() => flattenMessages(messagesQuery.data), [messagesQuery.data]);
+  const messageById = useMemo(
+    () => new Map(messages.map((message) => [message.id, message])),
+    [messages],
   );
-  const messageById = useMemo(() => new Map(messages.map((message) => [message.id, message])), [messages]);
   const previewLabels = useMemo(
     () => ({
       deleted: t('chat.messageDeleted'),
@@ -355,7 +375,12 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
     if (isForbidden(parseApiError(directConversationQuery.error))) {
       dismissInaccessibleConversation(activeId);
     }
-  }, [activeId, directConversationQuery.error, directConversationQuery.isError, dismissInaccessibleConversation]);
+  }, [
+    activeId,
+    directConversationQuery.error,
+    directConversationQuery.isError,
+    dismissInaccessibleConversation,
+  ]);
 
   useEffect(() => {
     if (!activeId || !messagesQuery.isError) {
@@ -504,7 +529,7 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
     stopTyping();
 
     const trimmed = retryMessage?.body?.trim() ?? input.trim();
-    const attachment = editingMessage ? undefined : selectedFile ?? undefined;
+    const attachment = editingMessage ? undefined : (selectedFile ?? undefined);
 
     if (
       !activeId ||
@@ -532,7 +557,8 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
       return;
     }
 
-    const idempotencyKey = retryMessage?.idempotency_key ?? retryMessage?.client_message_id ?? randomUUID();
+    const idempotencyKey =
+      retryMessage?.idempotency_key ?? retryMessage?.client_message_id ?? randomUUID();
 
     if (!retryMessage) {
       setInput('');
@@ -573,12 +599,15 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
     setReplyToMessage(message);
   }, []);
 
-  const handleEdit = useCallback((message: ChatMessage) => {
-    setReplyToMessage(null);
-    setEditingMessage(message);
-    setInput(message.body ?? '');
-    clearAttachmentDraft();
-  }, [clearAttachmentDraft]);
+  const handleEdit = useCallback(
+    (message: ChatMessage) => {
+      setReplyToMessage(null);
+      setEditingMessage(message);
+      setInput(message.body ?? '');
+      clearAttachmentDraft();
+    },
+    [clearAttachmentDraft],
+  );
 
   const handleDelete = useCallback(
     async (message: ChatMessage) => {
@@ -599,16 +628,28 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
         toast.error(t('chat.deleteFailed'));
       }
     },
-    [activeId, canAccessThread, clearComposerMode, deleteMessageMutation, editingMessage?.id, replyToMessage?.id, t, toast],
+    [
+      activeId,
+      canAccessThread,
+      clearComposerMode,
+      deleteMessageMutation,
+      editingMessage?.id,
+      replyToMessage?.id,
+      t,
+      toast,
+    ],
   );
 
-  const handleReport = useCallback((message: ChatMessage) => {
-    if (!activeId || !canAccessThread || message.reported_by_me) {
-      return;
-    }
+  const handleReport = useCallback(
+    (message: ChatMessage) => {
+      if (!activeId || !canAccessThread || message.reported_by_me) {
+        return;
+      }
 
-    setReportingMessage(message);
-  }, [activeId, canAccessThread]);
+      setReportingMessage(message);
+    },
+    [activeId, canAccessThread],
+  );
 
   const handleSubmitReport = useCallback(
     async (payload: { reason: string; details?: string }) => {
@@ -635,15 +676,7 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
         toast.error(parsed.message || t('chat.reportFailed'));
       }
     },
-    [
-      activeId,
-      canAccessThread,
-      locale,
-      reportMessageMutation,
-      reportingMessage,
-      t,
-      toast,
-    ],
+    [activeId, canAccessThread, locale, reportMessageMutation, reportingMessage, t, toast],
   );
 
   const handleRemoveConversation = useCallback(async () => {
@@ -683,10 +716,15 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
     return null;
   }
 
-  const panelHeightClass = embedded ? 'h-[calc(100dvh-12rem)] max-h-[calc(100dvh-12rem)]' : 'h-[70vh] max-h-[70vh]';
+  const panelHeightClass = embedded
+    ? 'h-[calc(100dvh-12rem)] max-h-[calc(100dvh-12rem)]'
+    : 'h-[70vh] max-h-[70vh]';
 
   return (
-    <div className={embedded ? 'flex h-full min-h-0 flex-col' : 'max-w-6xl mx-auto px-4 py-6'} dir={dir}>
+    <div
+      className={embedded ? 'flex h-full min-h-0 flex-col' : 'max-w-6xl mx-auto px-4 py-6'}
+      dir={dir}
+    >
       {!embedded ? (
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
@@ -706,368 +744,383 @@ export default function ChatPage({ embedded = false }: ChatPageProps) {
         fallbackTitle={t('chat.title')}
         fallbackMessage={t('chat.loadError')}
       >
-      <div
-        className={`grid min-h-0 grid-cols-1 md:grid-cols-[minmax(280px,340px)_1fr] bg-white border border-gray-100 rounded-3xl overflow-hidden ${panelHeightClass} shadow-sm ${embedded ? 'flex-1' : ''}`}
-      >
-        <aside
-          className={`border-e border-gray-100 bg-[#f8f7f5] ${showThreadOnMobile && activeId ? 'hidden md:flex' : 'flex'} flex-col min-h-0 h-full overflow-hidden`}
+        <div
+          className={`grid min-h-0 grid-cols-1 md:grid-cols-[minmax(280px,340px)_1fr] bg-white border border-gray-100 rounded-3xl overflow-hidden ${panelHeightClass} shadow-sm ${embedded ? 'flex-1' : ''}`}
         >
-          <div className="p-4 border-b border-gray-100 bg-white/70 backdrop-blur-sm">
-            <div className="relative">
-              <Search className="absolute inset-s-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={t('chat.searchConversations')}
-                className="w-full bg-white border border-gray-200 rounded-xl ps-9 pe-3 py-2.5 text-sm outline-none focus:border-diyar-brown focus:ring-2 focus:ring-diyar-brown/10"
-              />
+          <aside
+            className={`border-e border-gray-100 bg-[#f8f7f5] ${showThreadOnMobile && activeId ? 'hidden md:flex' : 'flex'} flex-col min-h-0 h-full overflow-hidden`}
+          >
+            <div className="p-4 border-b border-gray-100 bg-white/70 backdrop-blur-sm">
+              <div className="relative">
+                <Search className="absolute inset-s-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder={t('chat.searchConversations')}
+                  className="w-full bg-white border border-gray-200 rounded-xl ps-9 pe-3 py-2.5 text-sm outline-none focus:border-diyar-brown focus:ring-2 focus:ring-diyar-brown/10"
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="flex-1 min-h-0 overflow-y-auto chat-scrollbar overscroll-y-contain">
-            {conversationsQuery.isLoading ? (
-              <div className="p-8 flex justify-center">
+            <div className="flex-1 min-h-0 overflow-y-auto chat-scrollbar overscroll-y-contain">
+              {conversationsQuery.isLoading ? (
+                <div className="p-8 flex justify-center">
+                  <Loader2 className="animate-spin text-diyar-brown" />
+                </div>
+              ) : groupedConversations.length === 0 ? (
+                <ChatSidebarEmpty
+                  title={t('chat.noConversations')}
+                  hint={t('chat.noConversationsHint')}
+                />
+              ) : (
+                groupedConversations.map((group) => (
+                  <ChatConversationListItem
+                    key={group.groupKey}
+                    conversation={group.primary}
+                    relatedConversations={
+                      group.conversations.length > 1 ? group.conversations : undefined
+                    }
+                    currentUserId={user?.id}
+                    isActive={group.conversations.some(
+                      (conversation) => conversation.id === activeId,
+                    )}
+                    locale={locale}
+                    noMessagesLabel={t('chat.noMessagesYet')}
+                    previewLabels={previewLabels}
+                    fallbackTitle={t('chat.conversation')}
+                    t={t}
+                    onSelect={() => {
+                      setActiveId(group.primary.id);
+                      setShowThreadOnMobile(true);
+                    }}
+                  />
+                ))
+              )}
+            </div>
+          </aside>
+
+          <section
+            className={`${!showThreadOnMobile && !activeId ? 'hidden md:flex' : 'flex'} h-full min-h-0 flex-col overflow-hidden`}
+          >
+            {activeId &&
+            !activeConversation &&
+            (directConversationQuery.isLoading || conversationsQuery.isLoading) ? (
+              <div className="flex flex-1 items-center justify-center">
                 <Loader2 className="animate-spin text-diyar-brown" />
               </div>
-            ) : groupedConversations.length === 0 ? (
-              <ChatSidebarEmpty
-                title={t('chat.noConversations')}
-                hint={t('chat.noConversationsHint')}
+            ) : !activeConversation ? (
+              <ChatSelectConversation
+                title={t('chat.selectConversation')}
+                hint={t('chat.selectConversationHint')}
               />
             ) : (
-              groupedConversations.map((group) => (
-                <ChatConversationListItem
-                  key={group.groupKey}
-                  conversation={group.primary}
-                  relatedConversations={group.conversations.length > 1 ? group.conversations : undefined}
-                  currentUserId={user?.id}
-                  isActive={group.conversations.some((conversation) => conversation.id === activeId)}
-                  locale={locale}
-                  noMessagesLabel={t('chat.noMessagesYet')}
-                  previewLabels={previewLabels}
-                  fallbackTitle={t('chat.conversation')}
-                  t={t}
-                  onSelect={() => {
-                    setActiveId(group.primary.id);
-                    setShowThreadOnMobile(true);
-                  }}
-                />
-              ))
-            )}
-          </div>
-        </aside>
-
-        <section
-          className={`${!showThreadOnMobile && !activeId ? 'hidden md:flex' : 'flex'} h-full min-h-0 flex-col overflow-hidden`}
-        >
-          {activeId && !activeConversation && (directConversationQuery.isLoading || conversationsQuery.isLoading) ? (
-            <div className="flex flex-1 items-center justify-center">
-              <Loader2 className="animate-spin text-diyar-brown" />
-            </div>
-          ) : !activeConversation ? (
-            <ChatSelectConversation
-              title={t('chat.selectConversation')}
-              hint={t('chat.selectConversationHint')}
-            />
-          ) : (
-            <>
-              <div className="p-4 border-b border-gray-100 flex items-center gap-3 bg-white/90 backdrop-blur-sm shrink-0">
-                <button
-                  type="button"
-                  className="md:hidden shrink-0 w-9 h-9 rounded-full border border-gray-100 flex items-center justify-center text-diyar-brown hover:bg-gray-50 transition-colors cursor-pointer"
-                  onClick={() => setShowThreadOnMobile(false)}
-                  aria-label={t('chat.backToList')}
-                  title={t('chat.backToList')}
-                >
-                  {dir === 'rtl' ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-                </button>
-                {counterpartyProfilePath ? (
-                  <Link to={counterpartyProfilePath} className="shrink-0 rounded-full hover:opacity-90 transition-opacity">
+              <>
+                <div className="p-4 border-b border-gray-100 flex items-center gap-3 bg-white/90 backdrop-blur-sm shrink-0">
+                  <button
+                    type="button"
+                    className="md:hidden shrink-0 w-9 h-9 rounded-full border border-gray-100 flex items-center justify-center text-diyar-brown hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => setShowThreadOnMobile(false)}
+                    aria-label={t('chat.backToList')}
+                    title={t('chat.backToList')}
+                  >
+                    {dir === 'rtl' ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                  </button>
+                  {counterpartyProfilePath ? (
+                    <Link
+                      to={counterpartyProfilePath}
+                      className="shrink-0 rounded-full hover:opacity-90 transition-opacity"
+                    >
+                      <ChatAvatar
+                        name={activeParty.name}
+                        avatarUrl={activeParty.avatarUrl}
+                        size="md"
+                        online={false}
+                      />
+                    </Link>
+                  ) : (
                     <ChatAvatar
                       name={activeParty.name}
                       avatarUrl={activeParty.avatarUrl}
                       size="md"
                       online={false}
                     />
-                  </Link>
-                ) : (
-                  <ChatAvatar
-                    name={activeParty.name}
-                    avatarUrl={activeParty.avatarUrl}
-                    size="md"
-                    online={false}
-                  />
-                )}
-                <div className="min-w-0 flex-1">
-                  {counterpartyProfilePath ? (
-                    <Link
-                      to={counterpartyProfilePath}
-                      className="font-bold text-diyar-dark truncate block hover:text-diyar-brown transition-colors"
-                    >
-                      {activeParty.name}
-                    </Link>
-                  ) : (
-                    <h2 className="font-bold text-diyar-dark truncate">
-                      {activeParty.name}
-                    </h2>
                   )}
-                  {activePartyRoleLabel ? (
-                    <p className="text-xs text-gray-500 truncate">{activePartyRoleLabel}</p>
-                  ) : null}
-                  {showConnectionSubtitle ? (
-                    <p className="text-xs text-gray-500 truncate">
-                      {isSomeoneTyping
-                        ? t('chat.isTyping', { name: activeTyperNames.join(', ') })
-                        : counterpartyRecentlyActive
-                          ? t('chat.recentlyActive')
-                          : connectionState === 'connecting' || connectionState === 'reconnecting'
-                            ? t('chat.reconnecting')
-                            : t('chat.disconnected')}
-                    </p>
-                  ) : null}
-                  {activeConversationGroup && activeConversationGroup.conversations.length > 1 ? (
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {activeConversationGroup.conversations.map((conversation) => {
-                        const label = conversationContextLabel(conversation, t);
-                        if (!label) {
-                          return null;
-                        }
-
-                        const isSelected = conversation.id === activeId;
-
-                        return (
-                          <button
-                            key={conversation.id}
-                            type="button"
-                            onClick={() => setActiveId(conversation.id)}
-                            className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
-                              isSelected
-                                ? 'bg-diyar-brown text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                            }`}
-                            aria-label={`${t('chat.switchConversation')}: ${label}`}
-                          >
-                            {label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : null}
-                </div>
-                <ChatConnectionStatus state={connectionState} compact hideWhenConnected />
-                <button
-                  type="button"
-                  onClick={() => void handleRemoveConversation()}
-                  disabled={hideConversationMutation.isPending}
-                  className="shrink-0 w-9 h-9 rounded-full border border-gray-100 flex items-center justify-center text-gray-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-60"
-                  aria-label={t('chat.removeConversation')}
-                  title={t('chat.removeConversation')}
-                >
-                  {hideConversationMutation.isPending ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <Trash2 size={16} />
-                  )}
-                </button>
-              </div>
-
-              <div
-                ref={scrollRef}
-                onScroll={handleScroll}
-                className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain chat-scrollbar p-4 space-y-4 bg-linear-to-b from-[#faf9f7] to-[#f5f3ef]"
-              >
-                {messagesQuery.hasNextPage ? (
-                  <div className="flex justify-center pb-1">
-                    <button
-                      type="button"
-                      onClick={() => void handleLoadOlder()}
-                      disabled={messagesQuery.isFetchingNextPage}
-                      className="text-xs font-bold text-diyar-brown bg-white border border-gray-200 rounded-full px-4 py-1.5 cursor-pointer disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      {messagesQuery.isFetchingNextPage ? t('chat.loadingOlder') : t('chat.loadOlder')}
-                    </button>
-                  </div>
-                ) : messages.length > 0 ? (
-                  <p className="text-center text-[11px] text-gray-400">{t('chat.noMoreMessages')}</p>
-                ) : null}
-
-                {messagesQuery.isLoading ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="animate-spin text-diyar-brown" />
-                  </div>
-                ) : messages.length === 0 ? (
-                  <ChatThreadEmpty
-                    name={activeParty.name}
-                    avatarUrl={activeParty.avatarUrl}
-                    title={t('chat.emptyThreadTitle')}
-                    hint={t('chat.emptyThreadHint')}
-                  />
-                ) : (
-                  messages.map((message) => {
-                    const isMine = message.sender_id === user?.id;
-                    const senderParticipant = getConversationParticipants(activeConversation).find(
-                      (participant) => participant.user_id === message.sender_id,
-                    );
-                    const repliedMessage = message.reply_to_message_id
-                      ? messageById.get(message.reply_to_message_id) ?? null
-                      : null;
-
-                    return (
-                      <ChatMessageBubble
-                        key={message.client_message_id ?? message.id}
-                        message={message}
-                        isMine={isMine}
-                        dir={dir}
-                        senderName={message.sender_name ?? senderParticipant?.name}
-                        senderAvatarUrl={senderParticipant?.avatar_url}
-                        currentUserName={user?.name}
-                        currentUserAvatarUrl={user?.avatar_url}
-                        replyToMessage={repliedMessage}
-                        replyToSenderName={
-                          repliedMessage
-                            ? resolveMessageSenderName(
-                                repliedMessage,
-                                activeConversation,
-                                user?.id,
-                                t('chat.you'),
-                                t('chat.conversation'),
-                              )
-                            : null
-                        }
-                        replyPreview={
-                          repliedMessage ? getMessagePreviewContent(repliedMessage, previewLabels) : null
-                        }
-                        sendingLabel={t('chat.sending')}
-                        retryLabel={t('chat.retry')}
-                        editedLabel={t('chat.edited')}
-                        deletedLabel={t('chat.messageDeleted')}
-                        openAttachmentLabel={t('chat.openAttachment')}
-                        saveAttachmentLabel={t('chat.saveAttachment')}
-                        loadingAttachmentLabel={t('chat.loadingAttachment')}
-                        attachmentFailedLabel={t('chat.attachmentPreviewFailed')}
-                        replyActionLabel={t('chat.reply')}
-                        editActionLabel={t('chat.edit')}
-                        deleteActionLabel={t('chat.delete')}
-                        reportActionLabel={t('chat.report')}
-                        onRetry={() => void handleSend(message)}
-                        onReply={() => handleReply(message)}
-                        onEdit={() => handleEdit(message)}
-                        onDelete={() => void handleDelete(message)}
-                        onReport={() => void handleReport(message)}
-                      />
-                    );
-                  })
-                )}
-
-                {isSomeoneTyping ? (
-                  <ChatTypingIndicator
-                    dir={dir}
-                    name={activeTyperNames[0] ?? activeParty.name}
-                    avatarUrl={activeParty.avatarUrl}
-                  />
-                ) : null}
-              </div>
-
-              <div className="p-4 border-t border-gray-100 bg-white shrink-0">
-                {replyToMessage ? (
-                  <ChatComposerBanner
-                    mode="reply"
-                    title={t('chat.replyingToName', {
-                      name: resolveMessageSenderName(
-                        replyToMessage,
-                        activeConversation,
-                        user?.id,
-                        t('chat.you'),
-                        t('chat.conversation'),
-                      ),
-                    })}
-                    preview={getMessagePreviewContent(replyToMessage, previewLabels)}
-                    cancelLabel={t('chat.cancelReply')}
-                    onCancel={() => setReplyToMessage(null)}
-                  />
-                ) : null}
-                {editingMessage ? (
-                  <ChatComposerBanner
-                    mode="edit"
-                    title={t('chat.editingMessage')}
-                    preview={getMessagePreviewContent(editingMessage, previewLabels)}
-                    cancelLabel={t('chat.cancelEdit')}
-                    onCancel={() => {
-                      clearComposerMode();
-                      setInput('');
-                    }}
-                  />
-                ) : null}
-                {selectedFile && attachmentPreviewUrl && !editingMessage ? (
-                  <ChatAttachmentDraft
-                    file={selectedFile}
-                    previewUrl={attachmentPreviewUrl}
-                    uploadProgress={uploadProgress}
-                    removeLabel={t('chat.removeAttachment')}
-                    uploadingLabel={t('chat.uploadingAttachment')}
-                    onRemove={clearAttachmentDraft}
-                  />
-                ) : null}
-                <div className="flex items-end gap-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept={CHAT_ATTACHMENT_ACCEPT}
-                    className="hidden"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0] ?? null;
-                      handleAttachmentSelect(file);
-                      event.target.value = '';
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={Boolean(editingMessage)}
-                    className="w-11 h-11 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 cursor-pointer hover:bg-gray-50 hover:text-diyar-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label={t('chat.attach')}
-                  >
-                    <Paperclip size={18} />
-                  </button>
-                  <textarea
-                    value={input}
-                    onChange={(event) => handleInputChange(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' && !event.shiftKey) {
-                        event.preventDefault();
-                        void handleSend();
-                      }
-                    }}
-                    placeholder={
-                      editingMessage ? t('chat.editMessagePlaceholder') : t('chat.messagePlaceholder')
-                    }
-                    className="flex-1 min-h-11 max-h-32 resize-none rounded-2xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-diyar-brown focus:ring-2 focus:ring-diyar-brown/10 bg-[#faf9f7]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => void handleSend()}
-                    disabled={
-                      (!input.trim() && !selectedFile && !editingMessage) ||
-                      sendMessageMutation.isPending ||
-                      updateMessageMutation.isPending
-                    }
-                    className="w-11 h-11 rounded-xl bg-diyar-brown text-white flex items-center justify-center disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed hover:bg-diyar-brown/90 transition-colors shadow-sm"
-                  >
-                    {sendMessageMutation.isPending ? (
-                      <Loader2 size={18} className="animate-spin" />
+                  <div className="min-w-0 flex-1">
+                    {counterpartyProfilePath ? (
+                      <Link
+                        to={counterpartyProfilePath}
+                        className="font-bold text-diyar-dark truncate block hover:text-diyar-brown transition-colors"
+                      >
+                        {activeParty.name}
+                      </Link>
                     ) : (
-                      <Send size={18} />
+                      <h2 className="font-bold text-diyar-dark truncate">{activeParty.name}</h2>
+                    )}
+                    {activePartyRoleLabel ? (
+                      <p className="text-xs text-gray-500 truncate">{activePartyRoleLabel}</p>
+                    ) : null}
+                    {showConnectionSubtitle ? (
+                      <p className="text-xs text-gray-500 truncate">
+                        {isSomeoneTyping
+                          ? t('chat.isTyping', { name: activeTyperNames.join(', ') })
+                          : counterpartyRecentlyActive
+                            ? t('chat.recentlyActive')
+                            : connectionState === 'connecting' || connectionState === 'reconnecting'
+                              ? t('chat.reconnecting')
+                              : t('chat.disconnected')}
+                      </p>
+                    ) : null}
+                    {activeConversationGroup && activeConversationGroup.conversations.length > 1 ? (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {activeConversationGroup.conversations.map((conversation) => {
+                          const label = conversationContextLabel(conversation, t);
+                          if (!label) {
+                            return null;
+                          }
+
+                          const isSelected = conversation.id === activeId;
+
+                          return (
+                            <button
+                              key={conversation.id}
+                              type="button"
+                              onClick={() => setActiveId(conversation.id)}
+                              className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
+                                isSelected
+                                  ? 'bg-diyar-brown text-white'
+                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              }`}
+                              aria-label={`${t('chat.switchConversation')}: ${label}`}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : null}
+                  </div>
+                  <ChatConnectionStatus state={connectionState} compact hideWhenConnected />
+                  <button
+                    type="button"
+                    onClick={() => void handleRemoveConversation()}
+                    disabled={hideConversationMutation.isPending}
+                    className="shrink-0 w-9 h-9 rounded-full border border-gray-100 flex items-center justify-center text-gray-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-60"
+                    aria-label={t('chat.removeConversation')}
+                    title={t('chat.removeConversation')}
+                  >
+                    {hideConversationMutation.isPending ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <Trash2 size={16} />
                     )}
                   </button>
                 </div>
-                {sendMessageMutation.isError ? (
-                  <p className="text-xs text-red-500 mt-2">{t('chat.sendFailed')}</p>
-                ) : null}
-              </div>
-            </>
-          )}
-        </section>
-      </div>
+
+                <div
+                  ref={scrollRef}
+                  onScroll={handleScroll}
+                  className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain chat-scrollbar p-4 space-y-4 bg-linear-to-b from-[#faf9f7] to-[#f5f3ef]"
+                >
+                  {messagesQuery.hasNextPage ? (
+                    <div className="flex justify-center pb-1">
+                      <button
+                        type="button"
+                        onClick={() => void handleLoadOlder()}
+                        disabled={messagesQuery.isFetchingNextPage}
+                        className="text-xs font-bold text-diyar-brown bg-white border border-gray-200 rounded-full px-4 py-1.5 cursor-pointer disabled:opacity-50 hover:bg-gray-50"
+                      >
+                        {messagesQuery.isFetchingNextPage
+                          ? t('chat.loadingOlder')
+                          : t('chat.loadOlder')}
+                      </button>
+                    </div>
+                  ) : messages.length > 0 ? (
+                    <p className="text-center text-[11px] text-gray-400">
+                      {t('chat.noMoreMessages')}
+                    </p>
+                  ) : null}
+
+                  {messagesQuery.isLoading ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="animate-spin text-diyar-brown" />
+                    </div>
+                  ) : messages.length === 0 ? (
+                    <ChatThreadEmpty
+                      name={activeParty.name}
+                      avatarUrl={activeParty.avatarUrl}
+                      title={t('chat.emptyThreadTitle')}
+                      hint={t('chat.emptyThreadHint')}
+                    />
+                  ) : (
+                    messages.map((message) => {
+                      const isMine = message.sender_id === user?.id;
+                      const senderParticipant = getConversationParticipants(
+                        activeConversation,
+                      ).find((participant) => participant.user_id === message.sender_id);
+                      const repliedMessage = message.reply_to_message_id
+                        ? (messageById.get(message.reply_to_message_id) ?? null)
+                        : null;
+
+                      return (
+                        <ChatMessageBubble
+                          key={message.client_message_id ?? message.id}
+                          message={message}
+                          isMine={isMine}
+                          dir={dir}
+                          senderName={message.sender_name ?? senderParticipant?.name}
+                          senderAvatarUrl={senderParticipant?.avatar_url}
+                          currentUserName={user?.name}
+                          currentUserAvatarUrl={user?.avatar_url}
+                          replyToMessage={repliedMessage}
+                          replyToSenderName={
+                            repliedMessage
+                              ? resolveMessageSenderName(
+                                  repliedMessage,
+                                  activeConversation,
+                                  user?.id,
+                                  t('chat.you'),
+                                  t('chat.conversation'),
+                                )
+                              : null
+                          }
+                          replyPreview={
+                            repliedMessage
+                              ? getMessagePreviewContent(repliedMessage, previewLabels)
+                              : null
+                          }
+                          sendingLabel={t('chat.sending')}
+                          retryLabel={t('chat.retry')}
+                          editedLabel={t('chat.edited')}
+                          deletedLabel={t('chat.messageDeleted')}
+                          openAttachmentLabel={t('chat.openAttachment')}
+                          saveAttachmentLabel={t('chat.saveAttachment')}
+                          loadingAttachmentLabel={t('chat.loadingAttachment')}
+                          attachmentFailedLabel={t('chat.attachmentPreviewFailed')}
+                          replyActionLabel={t('chat.reply')}
+                          editActionLabel={t('chat.edit')}
+                          deleteActionLabel={t('chat.delete')}
+                          reportActionLabel={t('chat.report')}
+                          onRetry={() => void handleSend(message)}
+                          onReply={() => handleReply(message)}
+                          onEdit={() => handleEdit(message)}
+                          onDelete={() => void handleDelete(message)}
+                          onReport={() => void handleReport(message)}
+                        />
+                      );
+                    })
+                  )}
+
+                  {isSomeoneTyping ? (
+                    <ChatTypingIndicator
+                      dir={dir}
+                      name={activeTyperNames[0] ?? activeParty.name}
+                      avatarUrl={activeParty.avatarUrl}
+                    />
+                  ) : null}
+                </div>
+
+                <div className="p-4 border-t border-gray-100 bg-white shrink-0">
+                  {replyToMessage ? (
+                    <ChatComposerBanner
+                      mode="reply"
+                      title={t('chat.replyingToName', {
+                        name: resolveMessageSenderName(
+                          replyToMessage,
+                          activeConversation,
+                          user?.id,
+                          t('chat.you'),
+                          t('chat.conversation'),
+                        ),
+                      })}
+                      preview={getMessagePreviewContent(replyToMessage, previewLabels)}
+                      cancelLabel={t('chat.cancelReply')}
+                      onCancel={() => setReplyToMessage(null)}
+                    />
+                  ) : null}
+                  {editingMessage ? (
+                    <ChatComposerBanner
+                      mode="edit"
+                      title={t('chat.editingMessage')}
+                      preview={getMessagePreviewContent(editingMessage, previewLabels)}
+                      cancelLabel={t('chat.cancelEdit')}
+                      onCancel={() => {
+                        clearComposerMode();
+                        setInput('');
+                      }}
+                    />
+                  ) : null}
+                  {selectedFile && attachmentPreviewUrl && !editingMessage ? (
+                    <ChatAttachmentDraft
+                      file={selectedFile}
+                      previewUrl={attachmentPreviewUrl}
+                      uploadProgress={uploadProgress}
+                      removeLabel={t('chat.removeAttachment')}
+                      uploadingLabel={t('chat.uploadingAttachment')}
+                      onRemove={clearAttachmentDraft}
+                    />
+                  ) : null}
+                  <div className="flex items-end gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept={CHAT_ATTACHMENT_ACCEPT}
+                      className="hidden"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0] ?? null;
+                        handleAttachmentSelect(file);
+                        event.target.value = '';
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={Boolean(editingMessage)}
+                      className="w-11 h-11 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 cursor-pointer hover:bg-gray-50 hover:text-diyar-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label={t('chat.attach')}
+                    >
+                      <Paperclip size={18} />
+                    </button>
+                    <textarea
+                      value={input}
+                      onChange={(event) => handleInputChange(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' && !event.shiftKey) {
+                          event.preventDefault();
+                          void handleSend();
+                        }
+                      }}
+                      placeholder={
+                        editingMessage
+                          ? t('chat.editMessagePlaceholder')
+                          : t('chat.messagePlaceholder')
+                      }
+                      className="flex-1 min-h-11 max-h-32 resize-none rounded-2xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-diyar-brown focus:ring-2 focus:ring-diyar-brown/10 bg-[#faf9f7]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void handleSend()}
+                      disabled={
+                        (!input.trim() && !selectedFile && !editingMessage) ||
+                        sendMessageMutation.isPending ||
+                        updateMessageMutation.isPending
+                      }
+                      className="w-11 h-11 rounded-xl bg-diyar-brown text-white flex items-center justify-center disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed hover:bg-diyar-brown/90 transition-colors shadow-sm"
+                    >
+                      {sendMessageMutation.isPending ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <Send size={18} />
+                      )}
+                    </button>
+                  </div>
+                  {sendMessageMutation.isError ? (
+                    <p className="text-xs text-red-500 mt-2">{t('chat.sendFailed')}</p>
+                  ) : null}
+                </div>
+              </>
+            )}
+          </section>
+        </div>
       </MessagingSectionErrorBoundary>
 
       {!isAuthenticated ? (

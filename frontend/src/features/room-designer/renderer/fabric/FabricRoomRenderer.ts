@@ -1,9 +1,23 @@
-import { ActiveSelection, Canvas, Pattern, Point, Polygon, Rect, type FabricObject, type ModifiedEvent } from 'fabric';
+import {
+  ActiveSelection,
+  Canvas,
+  Pattern,
+  Point,
+  Polygon,
+  Rect,
+  type FabricObject,
+  type ModifiedEvent,
+} from 'fabric';
 import { resolveItemRenderImageUrl } from '../../adapters/itemDisplayAsset.ts';
 import { fabricModifyToCommands } from '../../interaction/fabricModifyToCommands.ts';
 import { attachViewportPinchZoom } from './viewportPinchZoom.ts';
 import type { RoomDesignDocument, RoomDesignItem } from '../../domain/models.ts';
-import { elevationScreenOffsetPx, projectRoomFloorToCanvas, ISO_X, ISO_Y } from '../isometric25d.ts';
+import {
+  elevationScreenOffsetPx,
+  projectRoomFloorToCanvas,
+  ISO_X,
+  ISO_Y,
+} from '../isometric25d.ts';
 import {
   DEFAULT_PROJECTION_MODE,
   canvasPointToMeters,
@@ -31,13 +45,13 @@ export interface ItemColorPalette {
 export function getItemAccentColor(id: string): ItemColorPalette {
   const PALETTE: ItemColorPalette[] = [
     { fill: 'rgba(166, 123, 91, 0.22)', stroke: '#8a6549', lightBg: '#fbf7f4' }, // diyar brown
-    { fill: 'rgba(217, 119, 6, 0.22)', stroke: '#b45309', lightBg: '#fffbeb' },  // warm amber
-    { fill: 'rgba(2, 132, 199, 0.22)', stroke: '#0369a1', lightBg: '#f0f9ff' },  // sky blue
-    { fill: 'rgba(5, 150, 105, 0.22)', stroke: '#047857', lightBg: '#ecfdf5' },  // emerald
+    { fill: 'rgba(217, 119, 6, 0.22)', stroke: '#b45309', lightBg: '#fffbeb' }, // warm amber
+    { fill: 'rgba(2, 132, 199, 0.22)', stroke: '#0369a1', lightBg: '#f0f9ff' }, // sky blue
+    { fill: 'rgba(5, 150, 105, 0.22)', stroke: '#047857', lightBg: '#ecfdf5' }, // emerald
     { fill: 'rgba(124, 58, 237, 0.22)', stroke: '#6d28d9', lightBg: '#f5f3ff' }, // violet
-    { fill: 'rgba(225, 29, 72, 0.22)', stroke: '#be123c', lightBg: '#fff1f2' },  // rose
+    { fill: 'rgba(225, 29, 72, 0.22)', stroke: '#be123c', lightBg: '#fff1f2' }, // rose
     { fill: 'rgba(13, 148, 136, 0.22)', stroke: '#0f766e', lightBg: '#f0fdfa' }, // teal
-    { fill: 'rgba(194, 65, 12, 0.22)', stroke: '#9a3412', lightBg: '#fff7ed' },  // terracotta
+    { fill: 'rgba(194, 65, 12, 0.22)', stroke: '#9a3412', lightBg: '#fff7ed' }, // terracotta
   ];
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
@@ -89,7 +103,11 @@ export class BlenderItemRect extends Rect {
     ctx.fill();
 
     // 2. Draw Product Image inside bounding box (cover full width and height with rounded clipping)
-    if (this.productImg && this.productImg.complete && (this.productImg.naturalWidth > 0 || this.productImg.width > 0)) {
+    if (
+      this.productImg &&
+      this.productImg.complete &&
+      (this.productImg.naturalWidth > 0 || this.productImg.width > 0)
+    ) {
       const imgW = this.productImg.naturalWidth || this.productImg.width || 1;
       const imgH = this.productImg.naturalHeight || this.productImg.height || 1;
       const coverScale = Math.max(w / imgW, h / imgH);
@@ -376,7 +394,11 @@ export class FabricRoomRenderer implements RoomRenderer {
         }
 
         if (this.currentProjection === 'isometric_25d') {
-          const corners = projectRoomFloorToCanvas(document.room.width_m, document.room.depth_m, scale);
+          const corners = projectRoomFloorToCanvas(
+            document.room.width_m,
+            document.room.depth_m,
+            scale,
+          );
           this.floorObject = new Polygon(
             corners.map((p) => ({ x: p.x, y: p.y })),
             {
@@ -454,9 +476,17 @@ export class FabricRoomRenderer implements RoomRenderer {
             width: w,
             height: h,
             angle: item.rotation_deg,
-            stroke: item.locked ? '#94a3b8' : (existing.isBlenderSelected ? '#f59e0b' : accent.stroke),
+            stroke: item.locked
+              ? '#94a3b8'
+              : existing.isBlenderSelected
+                ? '#f59e0b'
+                : accent.stroke,
             strokeWidth: existing.isBlenderSelected ? 2.5 : 1.8,
-            fill: item.locked ? 'rgba(203, 213, 225, 0.45)' : (existing.isBlenderSelected ? 'rgba(245, 158, 11, 0.28)' : accent.fill),
+            fill: item.locked
+              ? 'rgba(203, 213, 225, 0.45)'
+              : existing.isBlenderSelected
+                ? 'rgba(245, 158, 11, 0.28)'
+                : accent.fill,
             selectable: true,
             evented: true,
             hoverCursor: 'grab',

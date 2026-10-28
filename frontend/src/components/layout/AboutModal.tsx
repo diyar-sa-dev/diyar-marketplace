@@ -55,10 +55,15 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
 
         <div className="p-8 bg-[#132624] text-white shrink-0 text-center relative overflow-hidden">
           <div className="absolute -bottom-10 -start-10 w-44 h-44 bg-white/2 rounded-full" />
-          <h3 id="about-modal-title" className="text-xl md:text-2xl font-bold mb-2 text-diyar-cream">
+          <h3
+            id="about-modal-title"
+            className="text-xl md:text-2xl font-bold mb-2 text-diyar-cream"
+          >
             {t('layout.aboutModal.headline')}
           </h3>
-          <p className="text-xs text-diyar-brown font-bold leading-6">{t('layout.aboutModal.subtitle')}</p>
+          <p className="text-xs text-diyar-brown font-bold leading-6">
+            {t('layout.aboutModal.subtitle')}
+          </p>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 leading-relaxed text-sm scrollbar-hide">
@@ -66,7 +71,9 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
             <h4 className="text-[#132624] font-bold text-base mb-2 border-s-4 border-diyar-brown ps-3">
               {t('layout.aboutModal.storyTitle')}
             </h4>
-            <p className="text-gray-600 font-normal text-xs md:text-sm">{t('layout.aboutModal.storyBody')}</p>
+            <p className="text-gray-600 font-normal text-xs md:text-sm">
+              {t('layout.aboutModal.storyBody')}
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -75,14 +82,18 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#132624]" />
                 {t('layout.aboutModal.visionTitle')}
               </h5>
-              <p className="text-xs text-gray-500 font-normal">{t('layout.aboutModal.visionBody')}</p>
+              <p className="text-xs text-gray-500 font-normal">
+                {t('layout.aboutModal.visionBody')}
+              </p>
             </div>
             <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
               <h5 className="font-bold text-diyar-dark mb-1.5 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-diyar-brown" />
                 {t('layout.aboutModal.qualityTitle')}
               </h5>
-              <p className="text-xs text-gray-500 font-normal">{t('layout.aboutModal.qualityBody')}</p>
+              <p className="text-xs text-gray-500 font-normal">
+                {t('layout.aboutModal.qualityBody')}
+              </p>
             </div>
           </div>
 

@@ -31,7 +31,12 @@ describe('buildGmailComposeUrl', () => {
 describe('openShareHref', () => {
   it('clicks a temporary anchor for custom schemes', () => {
     const click = vi.fn();
-    const anchor = { href: '', rel: '', style: { display: '' }, click } as unknown as HTMLAnchorElement;
+    const anchor = {
+      href: '',
+      rel: '',
+      style: { display: '' },
+      click,
+    } as unknown as HTMLAnchorElement;
     const createElement = vi.spyOn(document, 'createElement').mockReturnValue(anchor);
     const appendChild = vi.spyOn(document.body, 'appendChild').mockImplementation(() => anchor);
     const removeChild = vi.spyOn(document.body, 'removeChild').mockImplementation(() => anchor);
@@ -72,7 +77,12 @@ describe('openEmailShare', () => {
   it('uses mailto on mobile', () => {
     const ua = vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue('iPhone');
     const click = vi.fn();
-    const anchor = { href: '', rel: '', style: { display: '' }, click } as unknown as HTMLAnchorElement;
+    const anchor = {
+      href: '',
+      rel: '',
+      style: { display: '' },
+      click,
+    } as unknown as HTMLAnchorElement;
     vi.spyOn(document, 'createElement').mockReturnValue(anchor);
     vi.spyOn(document.body, 'appendChild').mockImplementation(() => anchor);
     vi.spyOn(document.body, 'removeChild').mockImplementation(() => anchor);

@@ -69,12 +69,7 @@ export function VendorProductAffiliateSection({ productId }: VendorProductAffili
   }
 
   if (isError) {
-    return (
-      <ErrorState
-        message={t('affiliate.vendor.loadError')}
-        onRetry={() => void refetch()}
-      />
-    );
+    return <ErrorState message={t('affiliate.vendor.loadError')} onRetry={() => void refetch()} />;
   }
 
   return (
@@ -93,9 +88,7 @@ export function VendorProductAffiliateSection({ productId }: VendorProductAffili
 
       <p className="text-xs text-emerald-800/80">{t('affiliate.vendor.subtitle')}</p>
 
-      {enabled && platform ? (
-        <AffiliatePlatformHints platform={platform} variant="vendor" />
-      ) : null}
+      {enabled && platform ? <AffiliatePlatformHints platform={platform} variant="vendor" /> : null}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="space-y-1.5">
@@ -123,7 +116,9 @@ export function VendorProductAffiliateSection({ productId }: VendorProductAffili
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-gray-600">{t('affiliate.vendor.defaultRate')}</label>
+          <label className="text-xs font-bold text-gray-600">
+            {t('affiliate.vendor.defaultRate')}
+          </label>
           <input
             type="text"
             inputMode="decimal"
@@ -143,7 +138,11 @@ export function VendorProductAffiliateSection({ productId }: VendorProductAffili
           disabled={updateAffiliate.isPending}
           className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition disabled:opacity-60 cursor-pointer"
         >
-          {updateAffiliate.isPending ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+          {updateAffiliate.isPending ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <Save size={16} />
+          )}
           {t('affiliate.vendor.save')}
         </button>
       </div>

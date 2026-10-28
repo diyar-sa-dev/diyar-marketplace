@@ -24,7 +24,11 @@ export function PlatformContactModal({ open, onClose }: PlatformContactModalProp
 
   return (
     <div className="fixed inset-0 z-120 flex items-end sm:items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
       <div
         role="dialog"
         aria-modal="true"
@@ -76,7 +80,10 @@ export function PlatformContactModal({ open, onClose }: PlatformContactModalProp
               <p className="text-[11px] font-bold text-gray-400 mb-0.5">
                 {t('layout.contactBar.phoneLabel')}
               </p>
-              <p className="text-sm font-bold text-diyar-dark group-hover:text-diyar-brown transition-colors" dir="ltr">
+              <p
+                className="text-sm font-bold text-diyar-dark group-hover:text-diyar-brown transition-colors"
+                dir="ltr"
+              >
                 {phoneDisplay}
               </p>
             </div>

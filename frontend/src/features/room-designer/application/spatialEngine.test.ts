@@ -3,13 +3,7 @@ import { DomainErrorCode } from '../domain/errors.ts';
 import { MAX_HISTORY } from '../domain/constants.ts';
 import { createEmptyDocument } from '../domain/models.ts';
 import { makeItem } from '../domain/testFixtures.ts';
-import {
-  createSpatialEngine,
-  engineCanRedo,
-  executeCommand,
-  redo,
-  undo,
-} from './spatialEngine.ts';
+import { createSpatialEngine, engineCanRedo, executeCommand, redo, undo } from './spatialEngine.ts';
 
 describe('spatialEngine', () => {
   it('rejects move outside room', () => {

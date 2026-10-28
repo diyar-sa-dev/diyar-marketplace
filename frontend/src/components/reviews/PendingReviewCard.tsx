@@ -9,7 +9,11 @@ import { submitProviderReview } from '../../api/providerReviews.ts';
 import { submitB2bCompanyReview } from '../../api/b2bReviews.ts';
 import { showErrorAlert, showSuccessToast } from '../../lib/confirmDialog.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
-import { customerReviewSubjectImage, customerReviewSubjectTitle, customerReviewServiceSource } from '../../lib/customerReviewSubject.ts';
+import {
+  customerReviewSubjectImage,
+  customerReviewSubjectTitle,
+  customerReviewServiceSource,
+} from '../../lib/customerReviewSubject.ts';
 import type { PendingCustomerReview } from '../../api/customerReviews.ts';
 
 interface PendingReviewCardProps {
@@ -28,14 +32,13 @@ export function PendingReviewCard({ item, t, onSkipped, onSubmitted }: PendingRe
   const isProduct = item.type === 'product';
   const isService = item.type === 'service';
   const isB2b = item.type === 'b2b';
-  const untitled =
-    isProduct
-      ? t('customerReviews.typeProduct')
-      : isService
-        ? t('serviceBookings.defaultServiceTitle')
-        : isB2b
-          ? t('customerReviews.typeB2b')
-          : t('customerReviews.typeStore');
+  const untitled = isProduct
+    ? t('customerReviews.typeProduct')
+    : isService
+      ? t('serviceBookings.defaultServiceTitle')
+      : isB2b
+        ? t('customerReviews.typeB2b')
+        : t('customerReviews.typeStore');
   const title = customerReviewSubjectTitle(item, untitled);
   const imageUrl = customerReviewSubjectImage(item);
 

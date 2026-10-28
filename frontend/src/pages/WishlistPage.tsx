@@ -1,6 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, BookOpen, ChevronLeft, ChevronRight, FolderHeart, ShoppingBag } from 'lucide-react';
+import {
+  Bookmark,
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  FolderHeart,
+  ShoppingBag,
+} from 'lucide-react';
 import ProductCard from '../components/cards/ProductCard.tsx';
 import ServiceCard from '../components/cards/ServiceCard.tsx';
 import { BlogArticleCardLink } from '../components/blog/BlogArticleCardLink.tsx';
@@ -106,7 +113,10 @@ export default function WishlistPage() {
               {t('common.home')}
             </Link>
             <BreadcrumbChevron size={16} />
-            <Link to={accountHubPath} className="hover:text-diyar-dark transition-colors cursor-pointer">
+            <Link
+              to={accountHubPath}
+              className="hover:text-diyar-dark transition-colors cursor-pointer"
+            >
               {t('common.myAccount')}
             </Link>
             <BreadcrumbChevron size={16} />
@@ -184,7 +194,12 @@ export default function WishlistPage() {
           <LoadingState className="min-h-60" />
         ) : isError ? (
           <ErrorState
-            error={(productsQuery.error ?? servicesQuery.error ?? articlesQuery.error ?? summaryQuery.error) as Error}
+            error={
+              (productsQuery.error ??
+                servicesQuery.error ??
+                articlesQuery.error ??
+                summaryQuery.error) as Error
+            }
             title={t('profile.wishlistPage.loadError')}
             onRetry={() => {
               void summaryQuery.refetch();

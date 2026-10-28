@@ -6,9 +6,9 @@ import { NotificationProvider } from '../../context/NotificationProvider.tsx';
 
 function needsChatRealtime(pathname: string): boolean {
   return (
-    pathname.startsWith('/chat')
-    || pathname.includes('/messages')
-    || pathname.startsWith('/dashboard')
+    pathname.startsWith('/chat') ||
+    pathname.includes('/messages') ||
+    pathname.startsWith('/dashboard')
   );
 }
 

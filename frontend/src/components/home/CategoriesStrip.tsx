@@ -97,13 +97,7 @@ function fallbackServiceCategories(): Cat[] {
   }));
 }
 
-function CategoryTile({
-  cat,
-  accent,
-}: {
-  cat: Cat;
-  accent: 'product' | 'service';
-}) {
+function CategoryTile({ cat, accent }: { cat: Cat; accent: 'product' | 'service' }) {
   const tileRef = useRef<HTMLDivElement>(null);
   const [shouldLoadImage, setShouldLoadImage] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);

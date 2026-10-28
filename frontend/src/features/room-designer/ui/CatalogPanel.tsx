@@ -1,10 +1,7 @@
 import { Box, ChevronLeft, ChevronRight, Loader2, Plus, Search, Store, X } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import type { ProductCard } from '../../../types/catalog.ts';
-import {
-  CATALOG_PICKER_MIN_SEARCH_CHARS,
-  CATALOG_PICKER_PER_PAGE,
-} from '../catalog/constants.ts';
+import { CATALOG_PICKER_MIN_SEARCH_CHARS, CATALOG_PICKER_PER_PAGE } from '../catalog/constants.ts';
 import { useRoomDesignerProductSearch } from '../catalog/useRoomDesignerProductSearch.ts';
 import { CatalogRowSkeleton } from './RoomDesignerWorkspaceSkeleton.tsx';
 import { resolveMediaUrl } from '../../../lib/media.ts';
@@ -18,7 +15,11 @@ export type CatalogPanelProps = {
   enabled?: boolean;
 };
 
-export function CatalogPanel({ onSelectProduct, isAdding = false, enabled = true }: CatalogPanelProps) {
+export function CatalogPanel({
+  onSelectProduct,
+  isAdding = false,
+  enabled = true,
+}: CatalogPanelProps) {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [selectedAddingId, setSelectedAddingId] = useState<string | null>(null);
@@ -34,8 +35,7 @@ export function CatalogPanel({ onSelectProduct, isAdding = false, enabled = true
   const items = data?.items ?? [];
   const pagination = data?.pagination;
   const trimmed = query.replace(/\s+/g, ' ').trim();
-  const showSearchHint =
-    trimmed.length > 0 && trimmed.length < CATALOG_PICKER_MIN_SEARCH_CHARS;
+  const showSearchHint = trimmed.length > 0 && trimmed.length < CATALOG_PICKER_MIN_SEARCH_CHARS;
 
   const handleSelect = (productId: string) => {
     setSelectedAddingId(productId);
@@ -90,7 +90,10 @@ export function CatalogPanel({ onSelectProduct, isAdding = false, enabled = true
       ) : null}
 
       {isError ? (
-        <p className="text-sm text-destructive bg-red-50 p-2.5 rounded-xl border border-red-200" role="alert">
+        <p
+          className="text-sm text-destructive bg-red-50 p-2.5 rounded-xl border border-red-200"
+          role="alert"
+        >
           {(error as Error)?.message ?? 'تعذّر تحميل المنتجات'}
         </p>
       ) : null}
@@ -135,7 +138,9 @@ export function CatalogPanel({ onSelectProduct, isAdding = false, enabled = true
         ) : items.length === 0 ? (
           <div className="py-8 text-center rounded-2xl border border-dashed border-diyar-brown/20 bg-diyar-cream/15 p-4">
             <p className="text-xs font-semibold text-diyar-dark">لا توجد منتجات مطابقة</p>
-            <p className="text-[11px] text-muted-foreground mt-1">جرّب البحث بكلمة أخرى أو تصفح القائمة</p>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              جرّب البحث بكلمة أخرى أو تصفح القائمة
+            </p>
           </div>
         ) : (
           <div className="flex flex-col gap-2">
@@ -201,11 +206,19 @@ function CatalogProductRow({
   const priceNum = Number(product.sale_price ?? 0);
   const formattedPrice = priceNum > 0 ? priceNum.toLocaleString('en-US') : null;
   const has3dModel = Boolean(
-    (product as { model_3d?: string; model3d?: string; glb_url?: string; has_3d?: boolean; asset_ref?: string }).model_3d ||
+    (
+      product as {
+        model_3d?: string;
+        model3d?: string;
+        glb_url?: string;
+        has_3d?: boolean;
+        asset_ref?: string;
+      }
+    ).model_3d ||
     (product as { model3d?: string }).model3d ||
     (product as { glb_url?: string }).glb_url ||
     (product as { has_3d?: boolean }).has_3d ||
-    (product as { asset_ref?: string }).asset_ref
+    (product as { asset_ref?: string }).asset_ref,
   );
 
   return (
@@ -281,4 +294,3 @@ function CatalogProductRow({
     </div>
   );
 }
-

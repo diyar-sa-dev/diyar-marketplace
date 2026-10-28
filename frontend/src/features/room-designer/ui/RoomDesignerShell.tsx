@@ -633,7 +633,9 @@ export function RoomDesignerShell({
                 className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-diyar-cream/60 px-2.5 py-1 text-[11px] font-semibold text-diyar-dark border border-diyar-brown/15"
                 aria-live="polite"
               >
-                <span className={`h-1.5 w-1.5 rounded-full ${syncStateLabel === 'محفوظ' ? 'bg-emerald-600' : 'bg-amber-500 animate-pulse'}`} />
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${syncStateLabel === 'محفوظ' ? 'bg-emerald-600' : 'bg-amber-500 animate-pulse'}`}
+                />
                 {syncStateLabel}
               </span>
               <button
@@ -656,23 +658,35 @@ export function RoomDesignerShell({
       </header>
 
       {layoutError ? (
-        <p className="text-sm text-destructive lg:col-span-2 bg-red-50 p-2.5 rounded-xl border border-red-200" role="alert">
+        <p
+          className="text-sm text-destructive lg:col-span-2 bg-red-50 p-2.5 rounded-xl border border-red-200"
+          role="alert"
+        >
           {layoutError}
         </p>
       ) : null}
       {arError ? (
-        <p className="text-sm text-destructive lg:col-span-2 bg-red-50 p-2.5 rounded-xl border border-red-200" role="alert">
+        <p
+          className="text-sm text-destructive lg:col-span-2 bg-red-50 p-2.5 rounded-xl border border-red-200"
+          role="alert"
+        >
           {arError}
         </p>
       ) : null}
       {tryInRoomErrorKey ? (
-        <p className="text-sm text-destructive lg:col-span-2 bg-red-50 p-2.5 rounded-xl border border-red-200" role="alert">
+        <p
+          className="text-sm text-destructive lg:col-span-2 bg-red-50 p-2.5 rounded-xl border border-red-200"
+          role="alert"
+        >
           {t(`tryInRoom.errors.${tryInRoomErrorKey}`)}
         </p>
       ) : null}
 
       {/* Room Presets Selection */}
-      <div className="flex shrink-0 items-center gap-2 overflow-x-auto overscroll-x-contain pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] lg:col-span-2 [&::-webkit-scrollbar]:hidden" data-testid="room-designer-presets">
+      <div
+        className="flex shrink-0 items-center gap-2 overflow-x-auto overscroll-x-contain pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] lg:col-span-2 [&::-webkit-scrollbar]:hidden"
+        data-testid="room-designer-presets"
+      >
         <span className="text-xs font-bold text-diyar-dark whitespace-nowrap ps-0.5 flex items-center gap-1 shrink-0">
           <Sparkles size={13} className="text-diyar-brown" />
           طابع الغرفة:
@@ -690,7 +704,9 @@ export function RoomDesignerShell({
                   : 'border border-diyar-brown/20 bg-white text-diyar-dark hover:bg-diyar-cream/40 hover:border-diyar-brown'
               }`}
               onClick={() => {
-                runSessionAction((s) => s.applyCommands([{ type: 'APPLY_ROOM_PRESET', preset_id: preset.id }]));
+                runSessionAction((s) =>
+                  s.applyCommands([{ type: 'APPLY_ROOM_PRESET', preset_id: preset.id }]),
+                );
                 setIsRoomSelected(true);
                 setSelectedIds([]);
               }}
@@ -737,8 +753,10 @@ export function RoomDesignerShell({
       ) : null}
 
       {/* Canvas Viewport */}
-      <div className={`relative flex h-full min-h-[300px] lg:min-h-0 min-w-0 flex-1 flex-col rounded-2xl border-2 border-diyar-brown/25 shadow-2xs overflow-hidden ${roomBackdropPhoto || tryInRoomPreview ? 'bg-transparent' : 'bg-[#faf8f5]'}`}>
-        {(roomBackdropPhoto || tryInRoomPreview) ? (
+      <div
+        className={`relative flex h-full min-h-[300px] lg:min-h-0 min-w-0 flex-1 flex-col rounded-2xl border-2 border-diyar-brown/25 shadow-2xs overflow-hidden ${roomBackdropPhoto || tryInRoomPreview ? 'bg-transparent' : 'bg-[#faf8f5]'}`}
+      >
+        {roomBackdropPhoto || tryInRoomPreview ? (
           <div className="absolute inset-0 z-0 overflow-hidden">
             <img
               src={roomBackdropPhoto || tryInRoomPreview!}
@@ -843,7 +861,10 @@ export function RoomDesignerShell({
         <ErrorBoundary
           key={canvasCrashKey}
           fallback={
-            <div className="flex h-full min-h-[220px] flex-col items-center justify-center gap-2 p-6 text-center" role="alert">
+            <div
+              className="flex h-full min-h-[220px] flex-col items-center justify-center gap-2 p-6 text-center"
+              role="alert"
+            >
               <p className="text-sm text-muted-foreground">تعذّر عرض المصمم.</p>
               <button
                 type="button"
@@ -908,7 +929,9 @@ export function RoomDesignerShell({
                 title="توجيه لليمين (90°)"
                 onClick={() =>
                   runSessionAction((s) =>
-                    s.applyCommands([{ type: 'ROTATE', itemId: selectedItem.id, rotation_deg: 90 }]),
+                    s.applyCommands([
+                      { type: 'ROTATE', itemId: selectedItem.id, rotation_deg: 90 },
+                    ]),
                   )
                 }
               >
@@ -920,7 +943,9 @@ export function RoomDesignerShell({
                 title="توجيه للأسفل (180°)"
                 onClick={() =>
                   runSessionAction((s) =>
-                    s.applyCommands([{ type: 'ROTATE', itemId: selectedItem.id, rotation_deg: 180 }]),
+                    s.applyCommands([
+                      { type: 'ROTATE', itemId: selectedItem.id, rotation_deg: 180 },
+                    ]),
                   )
                 }
               >
@@ -932,7 +957,9 @@ export function RoomDesignerShell({
                 title="توجيه لليسار (270°)"
                 onClick={() =>
                   runSessionAction((s) =>
-                    s.applyCommands([{ type: 'ROTATE', itemId: selectedItem.id, rotation_deg: 270 }]),
+                    s.applyCommands([
+                      { type: 'ROTATE', itemId: selectedItem.id, rotation_deg: 270 },
+                    ]),
                   )
                 }
               >
@@ -1061,7 +1088,7 @@ export function RoomDesignerShell({
                       {
                         type: 'ROTATE',
                         itemId: selectedItem.id,
-                        rotation_deg: (Math.round(selectedItem.rotation_deg + 15)) % 360,
+                        rotation_deg: Math.round(selectedItem.rotation_deg + 15) % 360,
                       },
                     ]),
                   )
@@ -1134,7 +1161,11 @@ export function RoomDesignerShell({
                 )
               }
             >
-              {selectedItem.locked ? <Lock size={12} className="text-amber-600" /> : <Unlock size={12} />}
+              {selectedItem.locked ? (
+                <Lock size={12} className="text-amber-600" />
+              ) : (
+                <Unlock size={12} />
+              )}
             </button>
             <button
               type="button"
@@ -1260,9 +1291,7 @@ export function RoomDesignerShell({
                   </span>
                 </div>
                 <div className="min-w-0 max-w-[100px] text-start pe-1">
-                  <p className="truncate text-[11px] font-bold text-diyar-dark">
-                    {presetLabel}
-                  </p>
+                  <p className="truncate text-[11px] font-bold text-diyar-dark">{presetLabel}</p>
                   <p className="text-[9px] text-muted-foreground">
                     {engine.document.room.width_m} × {engine.document.room.depth_m} م
                   </p>
@@ -1285,71 +1314,77 @@ export function RoomDesignerShell({
                         : 'border-diyar-brown/15 bg-white hover:border-diyar-brown/35 hover:bg-diyar-cream/20 shadow-2xs'
                     }`}
                   >
-                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-diyar-cream/30 border border-diyar-brown/10">
-                        {item.snapshot.thumbnail_url ? (
-                          <img
-                            src={item.snapshot.thumbnail_url}
-                            alt={item.snapshot.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-diyar-brown/60">
-                            <Box size={16} />
-                          </div>
-                        )}
-                        {has3d ? (
-                          <span className="absolute bottom-0.5 start-0.5 rounded bg-diyar-dark/85 px-1 text-[7px] font-black text-amber-300">
-                            3D
-                          </span>
-                        ) : null}
-                      </div>
-
-                      <div className="min-w-0 max-w-[90px] text-start pe-1">
-                        <p className="truncate text-[11px] font-bold text-diyar-dark">
-                          {item.snapshot.name}
-                        </p>
-                        <p className="text-[9px] text-muted-foreground">
-                          {item.snapshot.width_m} × {item.snapshot.depth_m} م
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-0.5">
-                        <button
-                          type="button"
-                          className="h-6 w-6 flex items-center justify-center rounded text-gray-500 hover:text-diyar-dark hover:bg-diyar-cream transition"
-                          title={item.locked ? 'إلغاء القفل' : 'قفل'}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            runSessionAction((s) =>
-                              s.applyCommands([
-                                {
-                                  type: item.locked ? 'UNLOCK' : 'LOCK',
-                                  itemId: item.id,
-                                },
-                              ]),
-                            );
-                          }}
-                        >
-                          {item.locked ? <Lock size={11} className="text-amber-600" /> : <Unlock size={11} />}
-                        </button>
-                        <button
-                          type="button"
-                          className="h-6 w-6 flex items-center justify-center rounded text-red-500 hover:bg-red-50 transition"
-                          title="حذف القطعة"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            runSessionAction((s) => s.applyCommands([{ type: 'REMOVE_ITEM', itemId: item.id }]));
-                          }}
-                        >
-                          <Trash2 size={11} />
-                        </button>
-                      </div>
+                    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-diyar-cream/30 border border-diyar-brown/10">
+                      {item.snapshot.thumbnail_url ? (
+                        <img
+                          src={item.snapshot.thumbnail_url}
+                          alt={item.snapshot.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-diyar-brown/60">
+                          <Box size={16} />
+                        </div>
+                      )}
+                      {has3d ? (
+                        <span className="absolute bottom-0.5 start-0.5 rounded bg-diyar-dark/85 px-1 text-[7px] font-black text-amber-300">
+                          3D
+                        </span>
+                      ) : null}
                     </div>
-                  );
-                })}
-              </div>
-            ) : null}
-          </div>
+
+                    <div className="min-w-0 max-w-[90px] text-start pe-1">
+                      <p className="truncate text-[11px] font-bold text-diyar-dark">
+                        {item.snapshot.name}
+                      </p>
+                      <p className="text-[9px] text-muted-foreground">
+                        {item.snapshot.width_m} × {item.snapshot.depth_m} م
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-0.5">
+                      <button
+                        type="button"
+                        className="h-6 w-6 flex items-center justify-center rounded text-gray-500 hover:text-diyar-dark hover:bg-diyar-cream transition"
+                        title={item.locked ? 'إلغاء القفل' : 'قفل'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          runSessionAction((s) =>
+                            s.applyCommands([
+                              {
+                                type: item.locked ? 'UNLOCK' : 'LOCK',
+                                itemId: item.id,
+                              },
+                            ]),
+                          );
+                        }}
+                      >
+                        {item.locked ? (
+                          <Lock size={11} className="text-amber-600" />
+                        ) : (
+                          <Unlock size={11} />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        className="h-6 w-6 flex items-center justify-center rounded text-red-500 hover:bg-red-50 transition"
+                        title="حذف القطعة"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          runSessionAction((s) =>
+                            s.applyCommands([{ type: 'REMOVE_ITEM', itemId: item.id }]),
+                          );
+                        }}
+                      >
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
 
         {/* Empty State Overlay (auto-hides visually when a room preset is chosen or item added, plus dismiss button) */}
         {engine.document.items.length === 0 ? (
@@ -1423,7 +1458,10 @@ export function RoomDesignerShell({
                 <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-diyar-brown text-white">
                   <Sparkles size={16} />
                 </div>
-                <h2 id="room-designer-catalog-sheet-title" className="text-base font-bold text-diyar-dark">
+                <h2
+                  id="room-designer-catalog-sheet-title"
+                  className="text-base font-bold text-diyar-dark"
+                >
                   معرض قطع الأثاث
                 </h2>
               </div>
@@ -1456,7 +1494,6 @@ export function RoomDesignerShell({
         isSubmitting={addToCartMutation.isPending}
         errorMessage={cartError}
       />
-
     </div>
   );
 }

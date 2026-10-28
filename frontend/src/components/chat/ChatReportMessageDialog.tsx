@@ -75,7 +75,9 @@ export function ChatReportMessageDialog({
         </div>
 
         <h3 className="text-lg font-bold text-diyar-dark mb-1">{t('chat.reportDialog.title')}</h3>
-        <p className="text-sm text-gray-500 mb-4 leading-relaxed">{t('chat.reportDialog.subtitle')}</p>
+        <p className="text-sm text-gray-500 mb-4 leading-relaxed">
+          {t('chat.reportDialog.subtitle')}
+        </p>
 
         <blockquote className="rounded-xl border border-gray-100 bg-[#f7f4f1]/70 px-4 py-3 text-sm text-diyar-dark mb-5 line-clamp-3">
           {preview}

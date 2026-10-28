@@ -89,21 +89,33 @@ export default function AdminShippingConfigurationPage() {
   const integrationsQuery = useQuery({
     queryKey: ['admin-shipping-carrier-integrations'],
     queryFn: async () => {
-      const response = await adminApi.get<ApiSuccessResponse<{ carrier_configurations: Array<{
-        id: string;
-        carrier_code: string;
-        name: string;
-        is_active: boolean;
-        is_sandbox: boolean;
-        created_at: string;
-      }> }>>('/admin/shipping/carrier-integrations');
+      const response = await adminApi.get<
+        ApiSuccessResponse<{
+          carrier_configurations: Array<{
+            id: string;
+            carrier_code: string;
+            name: string;
+            is_active: boolean;
+            is_sandbox: boolean;
+            created_at: string;
+          }>;
+        }>
+      >('/admin/shipping/carrier-integrations');
       return response.data.data.carrier_configurations;
     },
     enabled: mainMode === 'v2',
   });
 
   const toggleIntegrationMutation = useMutation({
-    mutationFn: async ({ carrierCode, isActive, isSandbox }: { carrierCode: string; isActive: boolean; isSandbox: boolean }) => {
+    mutationFn: async ({
+      carrierCode,
+      isActive,
+      isSandbox,
+    }: {
+      carrierCode: string;
+      isActive: boolean;
+      isSandbox: boolean;
+    }) => {
       await adminApi.put(`/admin/shipping/carrier-integrations/${carrierCode}`, {
         is_active: isActive,
         is_sandbox: isSandbox,
@@ -111,7 +123,9 @@ export default function AdminShippingConfigurationPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-shipping-carrier-integrations'] });
-      toast.success(locale === 'ar' ? 'تم تحديث حالة الناقل الآلي' : 'Carrier integration updated successfully');
+      toast.success(
+        locale === 'ar' ? 'تم تحديث حالة الناقل الآلي' : 'Carrier integration updated successfully',
+      );
     },
     onError: (err) => {
       toast.error(parseApiError(err).message);
@@ -384,7 +398,9 @@ export default function AdminShippingConfigurationPage() {
         <div className="space-y-6">
           <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
             <h3 className="font-bold text-amber-900">
-              {locale === 'ar' ? 'بوابات الشحن الآلية (Shipping V2 Gateway Engine)' : 'Automated Saudi Carrier Gateway Integrations'}
+              {locale === 'ar'
+                ? 'بوابات الشحن الآلية (Shipping V2 Gateway Engine)'
+                : 'Automated Saudi Carrier Gateway Integrations'}
             </h3>
             <p className="mt-1 text-xs text-amber-800 leading-relaxed">
               {locale === 'ar'
@@ -403,7 +419,9 @@ export default function AdminShippingConfigurationPage() {
                   <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <div>
                       <h4 className="text-base font-bold text-diyar-dark">{carrier.name}</h4>
-                      <span className="font-mono text-xs text-gray-500 uppercase">{carrier.carrier_code}</span>
+                      <span className="font-mono text-xs text-gray-500 uppercase">
+                        {carrier.carrier_code}
+                      </span>
                     </div>
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-semibold ${
@@ -412,20 +430,38 @@ export default function AdminShippingConfigurationPage() {
                           : 'bg-gray-100 text-gray-600'
                       }`}
                     >
-                      {carrier.is_active ? (locale === 'ar' ? 'مفعل' : 'Active') : (locale === 'ar' ? 'معطل' : 'Disabled')}
+                      {carrier.is_active
+                        ? locale === 'ar'
+                          ? 'مفعل'
+                          : 'Active'
+                        : locale === 'ar'
+                          ? 'معطل'
+                          : 'Disabled'}
                     </span>
                   </div>
 
                   <div className="mt-4 space-y-2 text-xs text-gray-600">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">{locale === 'ar' ? 'البيئة التشغيلية:' : 'Environment:'}</span>
+                      <span className="text-gray-500">
+                        {locale === 'ar' ? 'البيئة التشغيلية:' : 'Environment:'}
+                      </span>
                       <span className="font-semibold text-gray-800">
-                        {carrier.is_sandbox ? (locale === 'ar' ? 'بيئة تجريبية (Sandbox)' : 'Sandbox') : (locale === 'ar' ? 'إنتاج فعلي (Production)' : 'Production')}
+                        {carrier.is_sandbox
+                          ? locale === 'ar'
+                            ? 'بيئة تجريبية (Sandbox)'
+                            : 'Sandbox'
+                          : locale === 'ar'
+                            ? 'إنتاج فعلي (Production)'
+                            : 'Production'}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">{locale === 'ar' ? 'تاريخ التهيأة:' : 'Configured At:'}</span>
-                      <span className="font-mono text-gray-700">{new Date(carrier.created_at).toLocaleDateString()}</span>
+                      <span className="text-gray-500">
+                        {locale === 'ar' ? 'تاريخ التهيأة:' : 'Configured At:'}
+                      </span>
+                      <span className="font-mono text-gray-700">
+                        {new Date(carrier.created_at).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -452,8 +488,12 @@ export default function AdminShippingConfigurationPage() {
                       }`}
                     >
                       {carrier.is_active
-                        ? (locale === 'ar' ? 'تعطيل الناقل' : 'Disable Carrier')
-                        : (locale === 'ar' ? 'تفعيل الناقل' : 'Enable Carrier')}
+                        ? locale === 'ar'
+                          ? 'تعطيل الناقل'
+                          : 'Disable Carrier'
+                        : locale === 'ar'
+                          ? 'تفعيل الناقل'
+                          : 'Enable Carrier'}
                     </button>
                   </PermissionGate>
                 </div>
@@ -569,149 +609,149 @@ export default function AdminShippingConfigurationPage() {
 
       {mainMode === 'v1' ? (
         <AdminResourceTable
-        title={
-          tab === 'zones'
-            ? t('admin.shipping.tabs.zones')
-            : tab === 'methods'
-              ? t('admin.shipping.tabs.methods')
-              : tab === 'rules'
-                ? t('admin.shipping.tabs.rules')
-                : t('admin.shipping.tabs.carriers')
-        }
-        searchValue={activeQuery.search}
-        onSearchChange={activeQuery.setSearch}
-        searchPlaceholder={searchPlaceholder}
-        actions={
-          <PermissionGate permission="shipping.manage">
-            <button
-              type="button"
-              onClick={openCreate}
-              disabled={!canCreate}
-              className="inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-4 py-2.5 text-sm font-bold text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Plus size={16} />
-              {addLabel}
-            </button>
-          </PermissionGate>
-        }
-        isLoading={isLoading}
-        isError={!waitingOnFilter && activeQuery.isError}
-        isEmpty={isEmpty}
-        emptyTitle={emptyTitle}
-        columns={
-          <tr>
-            <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.shipping.colName')}
-            </th>
-            <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.shipping.colDetails')}
-            </th>
-            <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.tables.status')}
-            </th>
-            <th className="px-4 py-3 text-end text-xs font-bold uppercase tracking-wide text-gray-500">
-              {t('admin.tables.actions')}
-            </th>
-          </tr>
-        }
-        footer={
-          waitingOnFilter ? null : (
-            <AdminTablePagination
-              meta={meta}
-              page={activeQuery.page}
-              onPageChange={activeQuery.setPage}
-              perPage={activeQuery.perPage}
-              onPerPageChange={activeQuery.setPerPage}
-              isLoading={activeQuery.isFetching}
-            />
-          )
-        }
-      >
-        {tab === 'carriers' &&
-          (carriersQuery.data?.items ?? []).map((carrier) => (
-            <tr key={carrier.id} className="hover:bg-[#f7f4f1]/50">
-              <td className="px-4 py-3 font-semibold text-diyar-dark">{carrier.name}</td>
-              <td className="px-4 py-3 text-start">
-                <TableLtrValue className="font-mono text-xs text-gray-500">
-                  {carrier.code}
-                </TableLtrValue>
-              </td>
-              <td className="px-4 py-3">
-                <AdminStatusBadge status={carrier.is_active ? 'active' : 'inactive'} />
-              </td>
-              <td className="px-4 py-3">
-                <RowActions
-                  name={carrier.name}
-                  onEdit={() => openEdit(carrier)}
-                  onDelete={() => deleteMutation.mutate({ kind: 'carriers', id: carrier.id })}
-                  deleting={deleteMutation.isPending}
-                />
-              </td>
+          title={
+            tab === 'zones'
+              ? t('admin.shipping.tabs.zones')
+              : tab === 'methods'
+                ? t('admin.shipping.tabs.methods')
+                : tab === 'rules'
+                  ? t('admin.shipping.tabs.rules')
+                  : t('admin.shipping.tabs.carriers')
+          }
+          searchValue={activeQuery.search}
+          onSearchChange={activeQuery.setSearch}
+          searchPlaceholder={searchPlaceholder}
+          actions={
+            <PermissionGate permission="shipping.manage">
+              <button
+                type="button"
+                onClick={openCreate}
+                disabled={!canCreate}
+                className="inline-flex items-center gap-2 rounded-xl bg-diyar-dark px-4 py-2.5 text-sm font-bold text-white cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Plus size={16} />
+                {addLabel}
+              </button>
+            </PermissionGate>
+          }
+          isLoading={isLoading}
+          isError={!waitingOnFilter && activeQuery.isError}
+          isEmpty={isEmpty}
+          emptyTitle={emptyTitle}
+          columns={
+            <tr>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.shipping.colName')}
+              </th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.shipping.colDetails')}
+              </th>
+              <th className="px-4 py-3 text-start text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.tables.status')}
+              </th>
+              <th className="px-4 py-3 text-end text-xs font-bold uppercase tracking-wide text-gray-500">
+                {t('admin.tables.actions')}
+              </th>
             </tr>
-          ))}
-        {tab === 'zones' &&
-          (zonesQuery.data?.items ?? []).map((zone) => (
-            <tr key={zone.id} className="hover:bg-[#f7f4f1]/50">
-              <td className="px-4 py-3 font-semibold text-diyar-dark">{zone.name}</td>
-              <td className="px-4 py-3 text-sm text-gray-600">
-                {[zone.city, zone.region, zone.postal_prefix].filter(Boolean).join(' · ') || '—'}
-              </td>
-              <td className="px-4 py-3">
-                <AdminStatusBadge status={zone.is_active ? 'active' : 'inactive'} />
-              </td>
-              <td className="px-4 py-3">
-                <RowActions
-                  name={zone.name}
-                  onEdit={() => openEdit(zone)}
-                  onDelete={() => deleteMutation.mutate({ kind: 'zones', id: zone.id })}
-                  deleting={deleteMutation.isPending}
-                />
-              </td>
-            </tr>
-          ))}
-        {tab === 'methods' &&
-          (methodsQuery.data?.items ?? []).map((method) => (
-            <tr key={method.id} className="hover:bg-[#f7f4f1]/50">
-              <td className="px-4 py-3 font-semibold text-diyar-dark">{method.name}</td>
-              <td className="px-4 py-3 text-start">
-                <TableLtrValue className="font-mono text-xs text-gray-500">
-                  {method.code}
-                </TableLtrValue>
-              </td>
-              <td className="px-4 py-3">
-                <AdminStatusBadge status={method.is_active ? 'active' : 'inactive'} />
-              </td>
-              <td className="px-4 py-3">
-                <RowActions
-                  name={method.name}
-                  onEdit={() => openEdit(method)}
-                  onDelete={() => deleteMutation.mutate({ kind: 'methods', id: method.id })}
-                  deleting={deleteMutation.isPending}
-                />
-              </td>
-            </tr>
-          ))}
-        {tab === 'rules' &&
-          (rulesQuery.data?.items ?? []).map((rule) => (
-            <tr key={rule.id} className="hover:bg-[#f7f4f1]/50">
-              <td className="px-4 py-3 font-semibold text-diyar-dark">{rule.rate} SAR</td>
-              <td className="px-4 py-3 text-sm text-gray-600">
-                {rule.min_weight_kg}–{rule.max_weight_kg ?? '∞'} kg
-              </td>
-              <td className="px-4 py-3">
-                <AdminStatusBadge status={rule.is_active ? 'active' : 'inactive'} />
-              </td>
-              <td className="px-4 py-3">
-                <RowActions
-                  name={`${rule.rate} SAR`}
-                  onEdit={() => openEdit(rule)}
-                  onDelete={() => deleteMutation.mutate({ kind: 'rules', id: rule.id })}
-                  deleting={deleteMutation.isPending}
-                />
-              </td>
-            </tr>
-          ))}
-      </AdminResourceTable>
+          }
+          footer={
+            waitingOnFilter ? null : (
+              <AdminTablePagination
+                meta={meta}
+                page={activeQuery.page}
+                onPageChange={activeQuery.setPage}
+                perPage={activeQuery.perPage}
+                onPerPageChange={activeQuery.setPerPage}
+                isLoading={activeQuery.isFetching}
+              />
+            )
+          }
+        >
+          {tab === 'carriers' &&
+            (carriersQuery.data?.items ?? []).map((carrier) => (
+              <tr key={carrier.id} className="hover:bg-[#f7f4f1]/50">
+                <td className="px-4 py-3 font-semibold text-diyar-dark">{carrier.name}</td>
+                <td className="px-4 py-3 text-start">
+                  <TableLtrValue className="font-mono text-xs text-gray-500">
+                    {carrier.code}
+                  </TableLtrValue>
+                </td>
+                <td className="px-4 py-3">
+                  <AdminStatusBadge status={carrier.is_active ? 'active' : 'inactive'} />
+                </td>
+                <td className="px-4 py-3">
+                  <RowActions
+                    name={carrier.name}
+                    onEdit={() => openEdit(carrier)}
+                    onDelete={() => deleteMutation.mutate({ kind: 'carriers', id: carrier.id })}
+                    deleting={deleteMutation.isPending}
+                  />
+                </td>
+              </tr>
+            ))}
+          {tab === 'zones' &&
+            (zonesQuery.data?.items ?? []).map((zone) => (
+              <tr key={zone.id} className="hover:bg-[#f7f4f1]/50">
+                <td className="px-4 py-3 font-semibold text-diyar-dark">{zone.name}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">
+                  {[zone.city, zone.region, zone.postal_prefix].filter(Boolean).join(' · ') || '—'}
+                </td>
+                <td className="px-4 py-3">
+                  <AdminStatusBadge status={zone.is_active ? 'active' : 'inactive'} />
+                </td>
+                <td className="px-4 py-3">
+                  <RowActions
+                    name={zone.name}
+                    onEdit={() => openEdit(zone)}
+                    onDelete={() => deleteMutation.mutate({ kind: 'zones', id: zone.id })}
+                    deleting={deleteMutation.isPending}
+                  />
+                </td>
+              </tr>
+            ))}
+          {tab === 'methods' &&
+            (methodsQuery.data?.items ?? []).map((method) => (
+              <tr key={method.id} className="hover:bg-[#f7f4f1]/50">
+                <td className="px-4 py-3 font-semibold text-diyar-dark">{method.name}</td>
+                <td className="px-4 py-3 text-start">
+                  <TableLtrValue className="font-mono text-xs text-gray-500">
+                    {method.code}
+                  </TableLtrValue>
+                </td>
+                <td className="px-4 py-3">
+                  <AdminStatusBadge status={method.is_active ? 'active' : 'inactive'} />
+                </td>
+                <td className="px-4 py-3">
+                  <RowActions
+                    name={method.name}
+                    onEdit={() => openEdit(method)}
+                    onDelete={() => deleteMutation.mutate({ kind: 'methods', id: method.id })}
+                    deleting={deleteMutation.isPending}
+                  />
+                </td>
+              </tr>
+            ))}
+          {tab === 'rules' &&
+            (rulesQuery.data?.items ?? []).map((rule) => (
+              <tr key={rule.id} className="hover:bg-[#f7f4f1]/50">
+                <td className="px-4 py-3 font-semibold text-diyar-dark">{rule.rate} SAR</td>
+                <td className="px-4 py-3 text-sm text-gray-600">
+                  {rule.min_weight_kg}–{rule.max_weight_kg ?? '∞'} kg
+                </td>
+                <td className="px-4 py-3">
+                  <AdminStatusBadge status={rule.is_active ? 'active' : 'inactive'} />
+                </td>
+                <td className="px-4 py-3">
+                  <RowActions
+                    name={`${rule.rate} SAR`}
+                    onEdit={() => openEdit(rule)}
+                    onDelete={() => deleteMutation.mutate({ kind: 'rules', id: rule.id })}
+                    deleting={deleteMutation.isPending}
+                  />
+                </td>
+              </tr>
+            ))}
+        </AdminResourceTable>
       ) : null}
     </div>
   );

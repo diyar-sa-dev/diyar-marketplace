@@ -39,11 +39,7 @@ type CardInput = Omit<Partial<UiProductCard>, 'id' | 'price'> & {
   interactionRate?: number;
 };
 
-function normalizeProduct(
-  product: CardInput,
-  sarPerPoint = 50,
-  pointsPerUnit = 1,
-): UiProductCard {
+function normalizeProduct(product: CardInput, sarPerPoint = 50, pointsPerUnit = 1): UiProductCard {
   const price = Number(product.price ?? 0);
   const oldPrice = product.oldPrice ?? product.originalPrice;
   const ratingAvg = product.ratingAvg ?? product.rating ?? null;
@@ -64,8 +60,7 @@ function normalizeProduct(
     ratingAvg: ratingAvg != null ? Number(ratingAvg) : null,
     reviewsCount: Number(reviewsCount),
     loyaltyPoints:
-      product.loyalty_points_estimate ??
-      estimateLoyaltyPoints(price, sarPerPoint, pointsPerUnit),
+      product.loyalty_points_estimate ?? estimateLoyaltyPoints(price, sarPerPoint, pointsPerUnit),
     loyalty_points_estimate: product.loyalty_points_estimate,
     userSaved: product.userSaved,
     isOwnStore: product.isOwnStore,
@@ -111,8 +106,7 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
   const availability = availabilityLabel(mode, availableQty, availabilityLabels);
   const canPurchase = !item.isOwnStore && mode === 'in_stock' && availableQty > 0;
   const isPreorder = !item.isOwnStore && mode === 'preorder';
-  const showProductRating =
-    (item.ratingAvg ?? 0) > 0 && (item.reviewsCount ?? 0) > 0;
+  const showProductRating = (item.ratingAvg ?? 0) > 0 && (item.reviewsCount ?? 0) > 0;
   const displayLoyaltyPoints = useMemo(() => {
     if (!loyaltyEnabled) {
       return 0;
@@ -267,11 +261,7 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
         {showProductRating && (
           <div className={`${layout === 'list' ? 'mb-1' : 'mb-1.5'}`}>
             <div className="inline-flex items-center gap-1 min-w-0">
-              <StarRating
-                value={item.ratingAvg ?? 0}
-                readOnly
-                size={layout === 'list' ? 10 : 11}
-              />
+              <StarRating value={item.ratingAvg ?? 0} readOnly size={layout === 'list' ? 10 : 11} />
               <span className="text-[10px] text-gray-500 font-medium tabular-nums">
                 {t('catalog.product.reviewCount', { count: item.reviewsCount ?? 0 })}
               </span>
@@ -332,17 +322,23 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
             <span className="inline-flex items-center gap-1 font-medium text-gray-600">
               <Eye size={11} className="text-gray-400 shrink-0" />
               <span className="tabular-nums font-bold text-gray-700">{item.viewsCount ?? 0}</span>
-              <span className="text-[9px] text-gray-400">{t('catalog.product.viewsShort') || 'مشاهدة'}</span>
+              <span className="text-[9px] text-gray-400">
+                {t('catalog.product.viewsShort') || 'مشاهدة'}
+              </span>
             </span>
             <span className="inline-flex items-center gap-1 font-medium text-gray-600">
               <Heart size={11} className="text-rose-400 shrink-0" fill="currentColor" />
               <span className="tabular-nums font-bold text-gray-700">{item.likesCount ?? 0}</span>
-              <span className="text-[9px] text-gray-400">{t('catalog.product.likesShort') || 'إعجاب'}</span>
+              <span className="text-[9px] text-gray-400">
+                {t('catalog.product.likesShort') || 'إعجاب'}
+              </span>
             </span>
             <span className="inline-flex items-center gap-1 font-medium text-gray-600">
               <Bookmark size={11} className="text-amber-500 shrink-0" />
               <span className="tabular-nums font-bold text-gray-700">{item.savesCount ?? 0}</span>
-              <span className="text-[9px] text-gray-400">{t('catalog.product.savesShort') || 'حفظ'}</span>
+              <span className="text-[9px] text-gray-400">
+                {t('catalog.product.savesShort') || 'حفظ'}
+              </span>
             </span>
           </div>
         )}

@@ -51,9 +51,7 @@ export function VisualSearchResultsSection({
 }: VisualSearchResultsSectionProps) {
   const { t } = useLocale();
 
-  const matchedItems = items.filter(
-    (item) => (item.similarity ?? 0) >= minSimilarity,
-  );
+  const matchedItems = items.filter((item) => (item.similarity ?? 0) >= minSimilarity);
   const total = pagination?.total ?? matchedItems.length;
   const showInitialSkeleton = isLoading && items.length === 0;
   const showSubtleLoading = isFetching && items.length > 0;
@@ -71,7 +69,9 @@ export function VisualSearchResultsSection({
               />
             </div>
             <div className="min-w-0 flex-1 text-center md:text-start">
-              <p className="text-sm font-bold text-diyar-dark">{t('catalog.search.uploadedImage')}</p>
+              <p className="text-sm font-bold text-diyar-dark">
+                {t('catalog.search.uploadedImage')}
+              </p>
               <p className="mt-2 text-sm leading-relaxed text-gray-500">
                 {t('catalog.search.uploadedImageDescription')}
               </p>

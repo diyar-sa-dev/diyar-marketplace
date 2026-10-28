@@ -144,41 +144,38 @@ export function RoomDesignerCanvasHost({
     }
   }, []);
 
-  const handleInteraction = useCallback(
-    (event: RendererInteraction) => {
-      const session = sessionRefInternal.current;
-      const renderer = rendererRef.current;
-      if (!session) return;
+  const handleInteraction = useCallback((event: RendererInteraction) => {
+    const session = sessionRefInternal.current;
+    const renderer = rendererRef.current;
+    if (!session) return;
 
-      if (event.type === 'select') {
-        session.setSelection(event.ids);
-        onSelectionChangeRef.current?.(event.ids);
-        return;
-      }
+    if (event.type === 'select') {
+      session.setSelection(event.ids);
+      onSelectionChangeRef.current?.(event.ids);
+      return;
+    }
 
-      try {
-        const commands =
-          event.command.type === 'BATCH' ? [...event.command.commands] : [event.command];
-        const result = session.applyCommands(commands);
-        if (result.ok) {
-          onEngineChangeRef.current?.(result.state);
-          renderer?.render(session.getDocument(), {
-            scalePxPerM: scalePxPerMRef.current,
-            projection: projectionRef.current,
-          });
-          bump();
-        } else if (renderer) {
-          renderer.render(session.getDocument(), {
-            scalePxPerM: scalePxPerMRef.current,
-            projection: projectionRef.current,
-          });
-        }
-      } catch {
-        setBootError('تعذّر تحميل مساحة التصميم. أعد المحاولة.');
+    try {
+      const commands =
+        event.command.type === 'BATCH' ? [...event.command.commands] : [event.command];
+      const result = session.applyCommands(commands);
+      if (result.ok) {
+        onEngineChangeRef.current?.(result.state);
+        renderer?.render(session.getDocument(), {
+          scalePxPerM: scalePxPerMRef.current,
+          projection: projectionRef.current,
+        });
+        bump();
+      } else if (renderer) {
+        renderer.render(session.getDocument(), {
+          scalePxPerM: scalePxPerMRef.current,
+          projection: projectionRef.current,
+        });
       }
-    },
-    [],
-  );
+    } catch {
+      setBootError('تعذّر تحميل مساحة التصميم. أعد المحاولة.');
+    }
+  }, []);
 
   const lastSessionResetKey = useRef<string | undefined>(undefined);
   useEffect(() => {
@@ -269,17 +266,24 @@ export function RoomDesignerCanvasHost({
   return (
     <div
       ref={outerRef}
-      className={`relative ${fillContainer ? `h-full w-full ${className ?? ''}` : className ?? ''}`}
+      className={`relative ${fillContainer ? `h-full w-full ${className ?? ''}` : (className ?? '')}`}
     >
       <div
         ref={containerRef}
-        className={fillContainer ? 'h-full w-full overflow-hidden [&_.canvas-container]:!w-full [&_.canvas-container]:!h-full' : undefined}
+        className={
+          fillContainer
+            ? 'h-full w-full overflow-hidden [&_.canvas-container]:!w-full [&_.canvas-container]:!h-full'
+            : undefined
+        }
         dir="ltr"
         data-testid="room-designer-canvas-host"
         aria-label="Room designer canvas"
       />
       {booting && !bootError ? (
-        <div className="absolute inset-0 z-10 overflow-hidden rounded-[inherit]" data-testid="room-designer-canvas-skeleton">
+        <div
+          className="absolute inset-0 z-10 overflow-hidden rounded-[inherit]"
+          data-testid="room-designer-canvas-skeleton"
+        >
           <ShimmerBone className="h-full w-full rounded-xl" />
         </div>
       ) : null}

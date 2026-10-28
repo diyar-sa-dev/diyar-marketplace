@@ -35,12 +35,14 @@ describe('FabricRoomRenderer interaction', () => {
     expect(canvas).toBeTruthy();
 
     // Simulate end-of-drag via fabric internal API
-    const fabricCanvas = (renderer as unknown as {
-      canvas: {
-        getObjects: () => Array<{ diyarItemId?: string; set: (p: object) => void }>;
-        fire: (name: string, payload: { target: unknown }) => void;
-      };
-    }).canvas;
+    const fabricCanvas = (
+      renderer as unknown as {
+        canvas: {
+          getObjects: () => Array<{ diyarItemId?: string; set: (p: object) => void }>;
+          fire: (name: string, payload: { target: unknown }) => void;
+        };
+      }
+    ).canvas;
     const obj = fabricCanvas.getObjects().find((o) => o.diyarItemId === 'drag-me');
     expect(obj).toBeTruthy();
     obj?.set({ left: 240, top: 240 });
@@ -80,12 +82,14 @@ describe('FabricRoomRenderer interaction', () => {
       }
     });
 
-    const fabricCanvas = (renderer as unknown as {
-      canvas: {
-        getObjects: () => Array<{ diyarItemId?: string; set: (p: object) => void }>;
-        fire: (name: string, payload: { target: unknown }) => void;
-      };
-    }).canvas;
+    const fabricCanvas = (
+      renderer as unknown as {
+        canvas: {
+          getObjects: () => Array<{ diyarItemId?: string; set: (p: object) => void }>;
+          fire: (name: string, payload: { target: unknown }) => void;
+        };
+      }
+    ).canvas;
     const obj = fabricCanvas.getObjects().find((o) => o.diyarItemId === 'iso-drag');
     expect(obj).toBeTruthy();
     obj?.set({ left: 0, top: 240 });

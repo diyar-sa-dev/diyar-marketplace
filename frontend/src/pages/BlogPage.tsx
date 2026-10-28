@@ -95,17 +95,26 @@ export default function BlogPage() {
       <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
-            <span className="text-diyar-brown text-sm font-bold mb-2 block">{t('home.blog.badge')}</span>
-            <h1 className="text-3xl md:text-4xl font-bold text-diyar-dark">{t('home.blog.title')}</h1>
+            <span className="text-diyar-brown text-sm font-bold mb-2 block">
+              {t('home.blog.badge')}
+            </span>
+            <h1 className="text-3xl md:text-4xl font-bold text-diyar-dark">
+              {t('home.blog.title')}
+            </h1>
             {tagSlug ? (
-              <p className="mt-2 text-sm text-gray-500">{t('blog.tagFilterHint', { tag: tagSlug })}</p>
+              <p className="mt-2 text-sm text-gray-500">
+                {t('blog.tagFilterHint', { tag: tagSlug })}
+              </p>
             ) : null}
           </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 mb-8">
           <div className="relative flex-1">
-            <Search size={18} className="absolute top-1/2 -translate-y-1/2 inset-s-3 text-gray-400 pointer-events-none" />
+            <Search
+              size={18}
+              className="absolute top-1/2 -translate-y-1/2 inset-s-3 text-gray-400 pointer-events-none"
+            />
             <input
               type="search"
               value={searchInput}
@@ -128,9 +137,7 @@ export default function BlogPage() {
             {filterableCategories.map((item) => (
               <option key={item.id} value={item.slug}>
                 {item.name}
-                {item.published_articles_count
-                  ? ` (${item.published_articles_count})`
-                  : ''}
+                {item.published_articles_count ? ` (${item.published_articles_count})` : ''}
               </option>
             ))}
           </select>
@@ -172,7 +179,10 @@ export default function BlogPage() {
         {isPending ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, index) => (
-              <div key={index} className="rounded-3xl border border-gray-100 overflow-hidden bg-white">
+              <div
+                key={index}
+                className="rounded-3xl border border-gray-100 overflow-hidden bg-white"
+              >
                 <div className="h-48 bg-gray-100 animate-pulse" />
                 <div className="p-5 space-y-3">
                   <div className="h-3 w-24 bg-gray-100 animate-pulse rounded" />

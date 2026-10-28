@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Clock,
-  CheckCircle2,
-  User,
-  Wrench,
-} from 'lucide-react';
+import { Clock, CheckCircle2, User, Wrench } from 'lucide-react';
 import { formatOrderDate } from '../../lib/formatOrderDate.ts';
 import type { Locale } from '../../lib/i18n/types.ts';
 import type { ServiceRequestTimelineItem } from '../../types/serviceRequests.ts';

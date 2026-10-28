@@ -5,7 +5,11 @@ import { StarRating } from '../product/StarRating.tsx';
 import { ReviewTypeBadge } from './ReviewTypeBadge.tsx';
 import { VendorReplyBlock } from './VendorReplyBlock.tsx';
 import { formatRelativeReviewDate } from '../../lib/formatRelativeReviewDate.ts';
-import { customerReviewSubjectImage, customerReviewSubjectTitle, customerReviewServiceSource } from '../../lib/customerReviewSubject.ts';
+import {
+  customerReviewSubjectImage,
+  customerReviewSubjectTitle,
+  customerReviewServiceSource,
+} from '../../lib/customerReviewSubject.ts';
 import { validateStoreReviewInput, MAX_COMMENT_LENGTH } from '../../lib/storeReviewValidation.ts';
 import { updateProductReview, deleteProductReview } from '../../api/productEngagement.ts';
 import { updateStoreReview, deleteStoreReview } from '../../api/storeReviews.ts';
@@ -32,14 +36,13 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
   const isProduct = review.type === 'product';
   const isService = review.type === 'service';
   const isB2b = review.type === 'b2b';
-  const untitled =
-    isProduct
-      ? t('customerReviews.typeProduct')
-      : isService
-        ? t('serviceBookings.defaultServiceTitle')
-        : isB2b
-          ? t('customerReviews.typeB2b')
-          : t('customerReviews.typeStore');
+  const untitled = isProduct
+    ? t('customerReviews.typeProduct')
+    : isService
+      ? t('serviceBookings.defaultServiceTitle')
+      : isB2b
+        ? t('customerReviews.typeB2b')
+        : t('customerReviews.typeStore');
   const title = customerReviewSubjectTitle(review, untitled);
   const imageUrl = customerReviewSubjectImage(review);
   const serviceSource = customerReviewServiceSource(review);
@@ -135,10 +138,10 @@ export function PublishedReviewCard({ review, t, locale, onUpdated }: PublishedR
       ? review.company_reply
       : review.vendor_reply;
   const replyAuthor = isService
-    ? review.provider_responded_by ?? review.provider?.name
+    ? (review.provider_responded_by ?? review.provider?.name)
     : isB2b
-      ? review.company_replied_by ?? review.company?.name
-      : review.vendor_replied_by ?? review.store?.name;
+      ? (review.company_replied_by ?? review.company?.name)
+      : (review.vendor_replied_by ?? review.store?.name);
   const replyAt = isService
     ? review.provider_responded_at
     : isB2b

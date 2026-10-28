@@ -61,9 +61,7 @@ export function productDetailToSnapshot(
     null;
   const model_3d_url =
     typeof rawModel3d === 'string' && rawModel3d.trim() !== '' ? rawModel3d.trim() : null;
-  const has_3d = Boolean(
-    (product as any).has_3d || model_3d_url || (product as any).model_3d_path,
-  );
+  const has_3d = Boolean((product as any).has_3d || model_3d_url || (product as any).model_3d_path);
 
   return {
     name: product.name,

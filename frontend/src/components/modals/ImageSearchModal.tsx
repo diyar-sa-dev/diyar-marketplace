@@ -4,7 +4,10 @@ import { useLocale } from '../../hooks/useLocale.ts';
 import { useVisualSearch } from '../../hooks/useVisualSearch.ts';
 import { resolveVisualSearchErrorKey, validateVisualSearchFile } from '../../api/visualSearch.ts';
 import { saveVisualSearchSession } from '../../lib/visualSearchSession.ts';
-import { VISUAL_SEARCH_DEFAULT_PER_PAGE, type VisualSearchResponse } from '../../types/visualSearch.ts';
+import {
+  VISUAL_SEARCH_DEFAULT_PER_PAGE,
+  type VisualSearchResponse,
+} from '../../types/visualSearch.ts';
 
 interface ImageSearchModalProps {
   isOpen: boolean;
@@ -91,9 +94,7 @@ export function ImageSearchModal({ isOpen, onClose, onResults }: ImageSearchModa
     }
   };
 
-  const errorMessage = errorKey
-    ? t(`catalog.search.visualSearchErrors.${errorKey}`)
-    : null;
+  const errorMessage = errorKey ? t(`catalog.search.visualSearchErrors.${errorKey}`) : null;
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
@@ -111,7 +112,10 @@ export function ImageSearchModal({ isOpen, onClose, onResults }: ImageSearchModa
         aria-labelledby="image-search-modal-title"
       >
         <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-          <h2 id="image-search-modal-title" className="text-xl font-bold text-diyar-dark flex items-center gap-2">
+          <h2
+            id="image-search-modal-title"
+            className="text-xl font-bold text-diyar-dark flex items-center gap-2"
+          >
             <Camera className="text-diyar-brown" size={24} />
             {t('catalog.search.imageSearch')}
           </h2>
@@ -135,7 +139,9 @@ export function ImageSearchModal({ isOpen, onClose, onResults }: ImageSearchModa
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm">
                 <UploadCloud size={28} className="text-diyar-brown" />
               </div>
-              <p className="font-bold text-lg text-diyar-dark mb-2">{t('catalog.search.imageSearchUploadTitle')}</p>
+              <p className="font-bold text-lg text-diyar-dark mb-2">
+                {t('catalog.search.imageSearchUploadTitle')}
+              </p>
               <p className="text-sm text-gray-500">{t('catalog.search.imageSearchUploadHint')}</p>
             </button>
           ) : (

@@ -233,7 +233,10 @@ export function SuggestedFiltersSection({
   };
 
   return (
-    <section aria-labelledby="suggested-filters-heading" className="space-y-3 animate-in fade-in duration-300">
+    <section
+      aria-labelledby="suggested-filters-heading"
+      className="space-y-3 animate-in fade-in duration-300"
+    >
       {degraded ? (
         <p className="rounded-lg border border-amber-100 bg-amber-50/80 px-3 py-2 text-xs text-amber-800">
           {t('catalog.search.suggestedFilters.degradedDescription')}

@@ -57,7 +57,11 @@ export function UserAvatar({
 
   const dimension =
     className ??
-    (size === 'lg' ? 'w-24 h-24 text-3xl' : size === 'md' ? 'w-16 h-16 text-xl' : 'w-9 h-9 text-xs');
+    (size === 'lg'
+      ? 'w-24 h-24 text-3xl'
+      : size === 'md'
+        ? 'w-16 h-16 text-xl'
+        : 'w-9 h-9 text-xs');
   const borderWidth = size === 'sm' ? 'border-2' : 'border-4';
   const roundedClass = shape === 'square' ? 'rounded-xl md:rounded-2xl' : 'rounded-full';
   const shellClassName = (() => {
@@ -68,14 +72,10 @@ export function UserAvatar({
     }
 
     if (variant === 'onDark') {
-      return showImage
-        ? 'border-white/50'
-        : 'bg-white text-diyar-dark border-white/80';
+      return showImage ? 'border-white/50' : 'bg-white text-diyar-dark border-white/80';
     }
 
-    return showImage
-      ? 'border-white bg-white'
-      : 'bg-diyar-brown/10 text-diyar-dark border-white';
+    return showImage ? 'border-white bg-white' : 'bg-diyar-brown/10 text-diyar-dark border-white';
   })();
   const initialsClassName =
     variant === 'storefront'

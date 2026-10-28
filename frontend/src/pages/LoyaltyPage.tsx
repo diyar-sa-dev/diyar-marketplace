@@ -34,7 +34,10 @@ function transactionIcon(type: LoyaltyTransactionType) {
   return ArrowDownRight;
 }
 
-function transactionTone(type: LoyaltyTransactionType, points: number): 'positive' | 'negative' | 'neutral' {
+function transactionTone(
+  type: LoyaltyTransactionType,
+  points: number,
+): 'positive' | 'negative' | 'neutral' {
   if (points > 0) return 'positive';
   if (points < 0) return 'negative';
   return 'neutral';
@@ -155,7 +158,9 @@ export default function LoyaltyPage() {
                   <ArrowUpRight size={24} />
                 </div>
                 <div>
-                  <span className="text-gray-500 text-sm block">{t('loyaltyPage.totalEarned')}</span>
+                  <span className="text-gray-500 text-sm block">
+                    {t('loyaltyPage.totalEarned')}
+                  </span>
                   <span className="font-bold text-xl text-diyar-dark">
                     {(summary?.total_earned ?? 0).toLocaleString(locale)}{' '}
                     {t('loyaltyPage.pointsUnit')}
@@ -167,7 +172,9 @@ export default function LoyaltyPage() {
                   <ArrowDownRight size={24} />
                 </div>
                 <div>
-                  <span className="text-gray-500 text-sm block">{t('loyaltyPage.totalRedeemed')}</span>
+                  <span className="text-gray-500 text-sm block">
+                    {t('loyaltyPage.totalRedeemed')}
+                  </span>
                   <span className="font-bold text-xl text-diyar-dark">
                     {(summary?.total_redeemed ?? 0).toLocaleString(locale)}{' '}
                     {t('loyaltyPage.pointsUnit')}
@@ -197,9 +204,11 @@ export default function LoyaltyPage() {
               <ul className="space-y-3">
                 {rewardsQuery.data.items.map((reward, index) => (
                   <li
-                    key={typeof reward === 'object' && reward !== null && 'id' in reward
-                      ? String((reward as { id: string }).id)
-                      : `reward-${index}`}
+                    key={
+                      typeof reward === 'object' && reward !== null && 'id' in reward
+                        ? String((reward as { id: string }).id)
+                        : `reward-${index}`
+                    }
                     className="rounded-xl border border-gray-100 p-4 text-sm text-diyar-dark"
                   >
                     {typeof reward === 'object' && reward !== null && 'name' in reward
@@ -306,15 +315,15 @@ export default function LoyaltyPage() {
                       >
                         {item.points >= 0 ? '+' : ''}
                         {item.points.toLocaleString(locale)}
-                        <span className="text-sm font-normal">
-                          {t('loyaltyPage.pointsUnit')}
-                        </span>
+                        <span className="text-sm font-normal">{t('loyaltyPage.pointsUnit')}</span>
                       </div>
                     </div>
                   );
                 })}
                 {(transactionsQuery.data?.items ?? []).length === 0 ? (
-                  <div className="p-12 text-center text-gray-500">{t('loyaltyPage.noTransactions')}</div>
+                  <div className="p-12 text-center text-gray-500">
+                    {t('loyaltyPage.noTransactions')}
+                  </div>
                 ) : null}
               </div>
 

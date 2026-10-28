@@ -94,7 +94,9 @@ export default function NotificationsPage() {
               markAllPending={markAllRead.isPending}
               deleteAllPending={deleteAll.isPending}
               onMarkAllRead={() =>
-                void markAllRead.mutateAsync().catch(() => toast.error(t('notifications.actionError')))
+                void markAllRead
+                  .mutateAsync()
+                  .catch(() => toast.error(t('notifications.actionError')))
               }
               onDeleteAll={() => void handleDeleteAll()}
             />

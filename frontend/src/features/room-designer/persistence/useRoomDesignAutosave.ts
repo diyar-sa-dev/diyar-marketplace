@@ -42,8 +42,7 @@ export function useRoomDesignAutosave(
         } catch (error) {
           const axiosError = error as AxiosError<{ code?: string }>;
           const code = axiosError.response?.data?.code;
-          const wrapped =
-            error instanceof Error ? error : new Error('room_design_save_failed');
+          const wrapped = error instanceof Error ? error : new Error('room_design_save_failed');
           throw Object.assign(wrapped, { code });
         }
       },

@@ -101,7 +101,9 @@ export function NotificationBellDropdown({
               {listQuery.isLoading && items.length === 0 ? (
                 <NotificationSkeleton count={3} compact />
               ) : items.length === 0 ? (
-                <div className="p-8 text-center text-sm text-gray-500">{t('notifications.empty')}</div>
+                <div className="p-8 text-center text-sm text-gray-500">
+                  {t('notifications.empty')}
+                </div>
               ) : (
                 <div className="divide-y divide-gray-50">
                   {items.map((notification) => (

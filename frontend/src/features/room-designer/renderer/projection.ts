@@ -32,7 +32,11 @@ export function itemFootprintTopLeftPx(
   };
 }
 
-export function canvasPointToMeters(xPx: number, yPx: number, scalePxPerM: number): { x: number; z: number } {
+export function canvasPointToMeters(
+  xPx: number,
+  yPx: number,
+  scalePxPerM: number,
+): { x: number; z: number } {
   if (scalePxPerM === 0) {
     return { x: 0, z: 0 };
   }

@@ -12,8 +12,7 @@ export function deriveCartLinesFromDocument(
   document: RoomDesignDocument,
   roomItemIds?: string[],
 ): DesignCartLine[] {
-  const filter =
-    roomItemIds && roomItemIds.length > 0 ? new Set(roomItemIds) : null;
+  const filter = roomItemIds && roomItemIds.length > 0 ? new Set(roomItemIds) : null;
 
   const byProduct = new Map<string, { quantity: number; label: string }>();
 

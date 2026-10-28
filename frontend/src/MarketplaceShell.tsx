@@ -4,14 +4,7 @@
  */
 import React, { Suspense, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import {
-  ShoppingCart,
-  User,
-  Search,
-  Menu,
-  SlidersHorizontal,
-  Bell,
-} from 'lucide-react';
+import { ShoppingCart, User, Search, Menu, SlidersHorizontal, Bell } from 'lucide-react';
 import { Footer } from './components/layout/Footer.tsx';
 import { AnnouncementBar } from './components/layout/AnnouncementBar.tsx';
 import { FloatingContactBar } from './components/layout/FloatingContactBar.tsx';
@@ -83,11 +76,7 @@ export default function MarketplaceShell() {
     user?.roles,
   );
   const hideStoreCommerce = shouldHideMarketplaceCommerce(user?.roles);
-  const showAdminPanelLink = shouldShowAdminPanelLink(
-    isAuthenticated,
-    user?.status,
-    user?.roles,
-  );
+  const showAdminPanelLink = shouldShowAdminPanelLink(isAuthenticated, user?.status, user?.roles);
 
   useEffect(() => {
     // reset scroll to top on every navigation (so pages don't open mid-scroll)
@@ -172,7 +161,13 @@ export default function MarketplaceShell() {
                       <Menu size={20} />
                     </button>
                     <Link to="/" className="cursor-pointer" aria-label="DIYAR">
-                      <img src="/logo_diyar.svg" alt="" width={120} height={32} className="h-7 md:h-8 mr-2 lg:mr-0" />
+                      <img
+                        src="/logo_diyar.svg"
+                        alt=""
+                        width={120}
+                        height={32}
+                        className="h-7 md:h-8 mr-2 lg:mr-0"
+                      />
                     </Link>
                   </div>
 
@@ -242,7 +237,9 @@ export default function MarketplaceShell() {
                     onClick={() => setIsFilterOpen(true)}
                   >
                     <SlidersHorizontal className="w-4 h-4 md:w-5 md:h-5" />
-                    <span className="text-sm font-medium hidden sm:block">{t('layout.nav.filters')}</span>
+                    <span className="text-sm font-medium hidden sm:block">
+                      {t('layout.nav.filters')}
+                    </span>
                   </button>
                 </form>
 
@@ -289,19 +286,19 @@ export default function MarketplaceShell() {
                       </Link>
                     )}
                     {!hideStoreCommerce ? (
-                    <button
-                      type="button"
-                      aria-label={t('layout.nav.cart')}
-                      className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
-                      onClick={() => setIsCartOpen(true)}
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                      {cartCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-diyar-dark text-diyar-cream text-[10px] items-center justify-center border border-white font-bold rounded-full w-4 h-4 flex">
-                          {cartCount}
-                        </span>
-                      )}
-                    </button>
+                      <button
+                        type="button"
+                        aria-label={t('layout.nav.cart')}
+                        className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center relative cursor-pointer text-gray-600 hover:bg-diyar-dark hover:text-diyar-cream hover:border-diyar-dark transition-colors"
+                        onClick={() => setIsCartOpen(true)}
+                      >
+                        <ShoppingCart className="w-5 h-5" />
+                        {cartCount > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-diyar-dark text-diyar-cream text-[10px] items-center justify-center border border-white font-bold rounded-full w-4 h-4 flex">
+                            {cartCount}
+                          </span>
+                        )}
+                      </button>
                     ) : null}
                     {isAuthenticated ? (
                       <Suspense fallback={<HeaderWidgetFallback />}>
@@ -332,12 +329,12 @@ export default function MarketplaceShell() {
 
                   {/* CTA Button */}
                   {!hideStoreCommerce ? (
-                  <button
-                    onClick={() => setIsRequestServiceOpen(true)}
-                    className="hidden md:flex text-sm font-bold bg-diyar-dark text-diyar-cream px-5 py-2.5 rounded-2xl hover:bg-diyar-dark/90 transition-colors items-center gap-2 shrink-0 cursor-pointer"
-                  >
-                    {t('layout.nav.requestService')}
-                  </button>
+                    <button
+                      onClick={() => setIsRequestServiceOpen(true)}
+                      className="hidden md:flex text-sm font-bold bg-diyar-dark text-diyar-cream px-5 py-2.5 rounded-2xl hover:bg-diyar-dark/90 transition-colors items-center gap-2 shrink-0 cursor-pointer"
+                    >
+                      {t('layout.nav.requestService')}
+                    </button>
                   ) : null}
                 </div>
               </div>

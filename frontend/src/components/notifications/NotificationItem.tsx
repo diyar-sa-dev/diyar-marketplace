@@ -43,7 +43,9 @@ export function NotificationItem({
   return (
     <div
       className={`${wrapperClass} flex items-start transition-colors hover:bg-gray-50/80 group ${
-        !notification.is_read ? 'bg-amber-50/30 border-s-4 border-s-amber-400' : 'border-s-4 border-s-transparent'
+        !notification.is_read
+          ? 'bg-amber-50/30 border-s-4 border-s-amber-400'
+          : 'border-s-4 border-s-transparent'
       }`}
     >
       <button
@@ -89,7 +91,9 @@ export function NotificationItem({
                   key={`${line.label}-${line.value}`}
                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 text-[11px] text-gray-600 max-w-full"
                 >
-                  <span className="font-bold text-gray-500 shrink-0">{detailLabel(t, line.label)}:</span>
+                  <span className="font-bold text-gray-500 shrink-0">
+                    {detailLabel(t, line.label)}:
+                  </span>
                   <span className="truncate">{line.value}</span>
                 </span>
               ))}

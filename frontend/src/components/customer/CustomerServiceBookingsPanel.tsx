@@ -103,9 +103,7 @@ function ServiceBookingCard({
     <article
       id={`service-booking-${booking.id}`}
       className={`bg-white rounded-2xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow ${
-        highlighted
-          ? 'border-diyar-brown ring-2 ring-diyar-brown/20'
-          : 'border-gray-100'
+        highlighted ? 'border-diyar-brown ring-2 ring-diyar-brown/20' : 'border-gray-100'
       }`}
     >
       <div className="h-1.5 bg-linear-to-r from-diyar-brown via-diyar-dark to-diyar-brown" />
@@ -249,22 +247,21 @@ function ServiceBookingCard({
             </div>
           )}
 
-          {booking.can_cancel &&
-            !['pending_customer_acceptance'].includes(booking.status) && (
-              <button
-                type="button"
-                disabled={isBusy}
-                onClick={() =>
-                  void runAction(
-                    () => cancelMutation.mutateAsync(booking.id),
-                    'serviceBookings.cancelSuccess',
-                  )
-                }
-                className="inline-flex items-center gap-1.5 border border-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-gray-50 cursor-pointer disabled:opacity-60"
-              >
-                <XCircle size={16} /> {t('serviceBookings.cancelBooking')}
-              </button>
-            )}
+          {booking.can_cancel && !['pending_customer_acceptance'].includes(booking.status) && (
+            <button
+              type="button"
+              disabled={isBusy}
+              onClick={() =>
+                void runAction(
+                  () => cancelMutation.mutateAsync(booking.id),
+                  'serviceBookings.cancelSuccess',
+                )
+              }
+              className="inline-flex items-center gap-1.5 border border-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-gray-50 cursor-pointer disabled:opacity-60"
+            >
+              <XCircle size={16} /> {t('serviceBookings.cancelBooking')}
+            </button>
+          )}
 
           {booking.can_review && (
             <button

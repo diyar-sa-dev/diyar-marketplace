@@ -104,7 +104,9 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
         <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-100">
           <div className="flex items-center gap-3 text-diyar-dark">
             <ShoppingBag className="w-6 h-6" aria-hidden />
-            <h2 id="cart-sidebar-title" className="text-xl font-bold">{t('cart.sidebar.title')}</h2>
+            <h2 id="cart-sidebar-title" className="text-xl font-bold">
+              {t('cart.sidebar.title')}
+            </h2>
             {count > 0 && (
               <span className="bg-diyar-brown text-white text-xs font-bold px-2 py-0.5 rounded-full">
                 {count}

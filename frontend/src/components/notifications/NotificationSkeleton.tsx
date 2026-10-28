@@ -8,7 +8,9 @@ export function NotificationSkeleton({ count = 3, compact = false }: Notificatio
     <div className="divide-y divide-gray-50">
       {Array.from({ length: count }).map((_, index) => (
         <div key={index} className={`${compact ? 'p-4' : 'p-5 md:p-6'} flex gap-4 animate-pulse`}>
-          <div className={`${compact ? 'w-10 h-10' : 'w-12 h-12'} rounded-2xl bg-gray-100 shrink-0`} />
+          <div
+            className={`${compact ? 'w-10 h-10' : 'w-12 h-12'} rounded-2xl bg-gray-100 shrink-0`}
+          />
           <div className="flex-1 space-y-2">
             <div className="h-4 bg-gray-100 rounded w-1/3" />
             <div className="h-3 bg-gray-100 rounded w-full" />

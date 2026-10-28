@@ -8,7 +8,11 @@ type NotificationEmptyStateProps = {
   hasCategoryFilter: boolean;
 };
 
-export function NotificationEmptyState({ t, status, hasCategoryFilter }: NotificationEmptyStateProps) {
+export function NotificationEmptyState({
+  t,
+  status,
+  hasCategoryFilter,
+}: NotificationEmptyStateProps) {
   const messageKey =
     status === 'unread'
       ? 'notifications.emptyUnread'

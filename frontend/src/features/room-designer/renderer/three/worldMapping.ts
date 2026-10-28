@@ -43,10 +43,7 @@ export function roomCenterMeters(room: Room): ThreeVec3 {
 }
 
 /** Normalize GLB root so 1 unit = 1 meter when catalog dimensions provided. */
-export function scaleVectorToFitCatalog(
-  measured: ThreeVec3,
-  catalog: ThreeVec3,
-): ThreeVec3 {
+export function scaleVectorToFitCatalog(measured: ThreeVec3, catalog: ThreeVec3): ThreeVec3 {
   const sx = measured.x > 0 ? catalog.x / measured.x : 1;
   const sy = measured.y > 0 ? catalog.y / measured.y : 1;
   const sz = measured.z > 0 ? catalog.z / measured.z : 1;

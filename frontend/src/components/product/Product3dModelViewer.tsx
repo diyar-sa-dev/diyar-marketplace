@@ -40,7 +40,9 @@ export function Product3dModelViewer({
   const rendererRef = useRef<import('three').WebGLRenderer | null>(null);
   const sceneRef = useRef<import('three').Scene | null>(null);
   const cameraRef = useRef<import('three').PerspectiveCamera | null>(null);
-  const controlsRef = useRef<import('three/examples/jsm/controls/OrbitControls.js').OrbitControls | null>(null);
+  const controlsRef = useRef<
+    import('three/examples/jsm/controls/OrbitControls.js').OrbitControls | null
+  >(null);
   const rafIdRef = useRef<number | null>(null);
   const initialCameraPosRef = useRef<import('three').Vector3 | null>(null);
   const initialTargetRef = useRef<import('three').Vector3 | null>(null);
@@ -64,7 +66,8 @@ export function Product3dModelViewer({
         .then(() => setIsFullscreen(true))
         .catch(() => setIsFullscreen((prev) => !prev));
     } else {
-      document.exitFullscreen?.()
+      document
+        .exitFullscreen?.()
         .then(() => setIsFullscreen(false))
         .catch(() => setIsFullscreen(false));
     }
@@ -170,19 +173,21 @@ export function Product3dModelViewer({
 
         // Load 3D Model
         const loader = new GLTFLoader();
-        const gltf = await new Promise<import('three/examples/jsm/loaders/GLTFLoader.js').GLTF>((resolve, reject) => {
-          loader.load(
-            resolvedUrl,
-            (loaded) => resolve(loaded),
-            (xhr) => {
-              if (xhr.total > 0) {
-                const pct = Math.round((xhr.loaded / xhr.total) * 100);
-                setLoadProgress(pct);
-              }
-            },
-            (err) => reject(err),
-          );
-        });
+        const gltf = await new Promise<import('three/examples/jsm/loaders/GLTFLoader.js').GLTF>(
+          (resolve, reject) => {
+            loader.load(
+              resolvedUrl,
+              (loaded) => resolve(loaded),
+              (xhr) => {
+                if (xhr.total > 0) {
+                  const pct = Math.round((xhr.loaded / xhr.total) * 100);
+                  setLoadProgress(pct);
+                }
+              },
+              (err) => reject(err),
+            );
+          },
+        );
 
         if (isDisposed) return;
 
@@ -312,7 +317,12 @@ export function Product3dModelViewer({
   }, [autoRotate]);
 
   const handleResetView = () => {
-    if (cameraRef.current && controlsRef.current && initialCameraPosRef.current && initialTargetRef.current) {
+    if (
+      cameraRef.current &&
+      controlsRef.current &&
+      initialCameraPosRef.current &&
+      initialTargetRef.current
+    ) {
       cameraRef.current.position.copy(initialCameraPosRef.current);
       controlsRef.current.target.copy(initialTargetRef.current);
       controlsRef.current.update();

@@ -37,7 +37,11 @@ export function ChatConversationListItem({
 }: ChatConversationListItemProps) {
   const party = conversationParty(conversation, currentUserId, fallbackTitle);
   const roleLabel = conversationParticipantRoleLabel(party.role, t);
-  const preview = getConversationListPreview(conversation.last_message, previewLabels, noMessagesLabel);
+  const preview = getConversationListPreview(
+    conversation.last_message,
+    previewLabels,
+    noMessagesLabel,
+  );
   const timeLabel = formatConversationPreviewTime(
     conversation.last_message_at ?? conversation.created_at,
     locale,
@@ -54,22 +58,18 @@ export function ChatConversationListItem({
       type="button"
       onClick={onSelect}
       className={`w-full text-start px-3 py-3 transition cursor-pointer border-b border-gray-100/80 ${
-        isActive ? 'bg-white shadow-[inset_3px_0_0_0_var(--color-diyar-brown)]' : 'hover:bg-white/80'
+        isActive
+          ? 'bg-white shadow-[inset_3px_0_0_0_var(--color-diyar-brown)]'
+          : 'hover:bg-white/80'
       }`}
     >
       <div className="flex items-start gap-3">
-        <ChatAvatar
-          name={party.name}
-          avatarUrl={party.avatarUrl}
-          size="sm"
-        />
+        <ChatAvatar name={party.name} avatarUrl={party.avatarUrl} size="sm" />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <p className="font-bold text-sm text-diyar-dark truncate">{party.name}</p>
-              {roleLabel ? (
-                <p className="text-[11px] text-gray-500 truncate">{roleLabel}</p>
-              ) : null}
+              {roleLabel ? <p className="text-[11px] text-gray-500 truncate">{roleLabel}</p> : null}
               {contextBadges.length > 0 ? (
                 <div className="mt-1 flex flex-wrap gap-1">
                   {contextBadges.map((label) => (
@@ -83,7 +83,9 @@ export function ChatConversationListItem({
                 </div>
               ) : null}
             </div>
-            {timeLabel ? <span className="shrink-0 text-[10px] text-gray-400 tabular-nums">{timeLabel}</span> : null}
+            {timeLabel ? (
+              <span className="shrink-0 text-[10px] text-gray-400 tabular-nums">{timeLabel}</span>
+            ) : null}
           </div>
           <div className="flex items-center justify-between gap-2 mt-1">
             <p className="text-xs text-gray-500 truncate">{preview}</p>

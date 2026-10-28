@@ -18,12 +18,6 @@ export function HomeRouteFallback() {
   );
 }
 
-export function LazyRoute({
-  children,
-  fallback,
-}: {
-  children: ReactNode;
-  fallback?: ReactNode;
-}) {
+export function LazyRoute({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
   return <Suspense fallback={fallback ?? <PageRouteFallback />}>{children}</Suspense>;
 }

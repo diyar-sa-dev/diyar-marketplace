@@ -61,7 +61,9 @@ export function BlogArticleCardLink({
           {article.title}
         </h3>
         {article.excerpt ? (
-          <p className="mt-2 text-sm text-gray-500 line-clamp-2 leading-relaxed">{article.excerpt}</p>
+          <p className="mt-2 text-sm text-gray-500 line-clamp-2 leading-relaxed">
+            {article.excerpt}
+          </p>
         ) : null}
       </div>
     </Link>

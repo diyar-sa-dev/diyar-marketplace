@@ -229,9 +229,12 @@ export function SearchAutocomplete({
                   >
                     <Icon size={16} className="text-diyar-brown shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold text-diyar-dark">{suggestion.label}</p>
+                      <p className="truncate text-sm font-bold text-diyar-dark">
+                        {suggestion.label}
+                      </p>
                       <p className="truncate text-xs text-gray-500">
-                        {suggestion.subtitle ?? t(`catalog.search.suggestionType.${suggestion.type}`)}
+                        {suggestion.subtitle ??
+                          t(`catalog.search.suggestionType.${suggestion.type}`)}
                       </p>
                     </div>
                   </button>

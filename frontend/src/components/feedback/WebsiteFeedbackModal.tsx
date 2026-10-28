@@ -143,13 +143,17 @@ export function WebsiteFeedbackModal({ open, onClose, onSubmitted }: WebsiteFeed
             <div className="w-16 h-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto mb-4">
               <Star size={28} fill="currentColor" />
             </div>
-            <h3 className="text-xl font-bold text-diyar-dark">{t('layout.feedback.successTitle')}</h3>
+            <h3 className="text-xl font-bold text-diyar-dark">
+              {t('layout.feedback.successTitle')}
+            </h3>
             <p className="text-gray-500 mt-2">{t('layout.feedback.successBody')}</p>
           </div>
         ) : (
           <div className="p-5 space-y-5 max-h-[70vh] overflow-y-auto">
             <div>
-              <p className="text-sm font-bold text-diyar-dark mb-2">{t('layout.feedback.ratingLabel')}</p>
+              <p className="text-sm font-bold text-diyar-dark mb-2">
+                {t('layout.feedback.ratingLabel')}
+              </p>
               <div className="flex items-center gap-1">
                 {Array.from({ length: 5 }, (_, index) => {
                   const value = index + 1;
@@ -176,7 +180,9 @@ export function WebsiteFeedbackModal({ open, onClose, onSubmitted }: WebsiteFeed
             </div>
 
             <div>
-              <p className="text-sm font-bold text-diyar-dark mb-2">{t('layout.feedback.typeLabel')}</p>
+              <p className="text-sm font-bold text-diyar-dark mb-2">
+                {t('layout.feedback.typeLabel')}
+              </p>
               <div className="flex flex-wrap gap-2">
                 {typeOptions.map((option) => (
                   <button
@@ -197,7 +203,10 @@ export function WebsiteFeedbackModal({ open, onClose, onSubmitted }: WebsiteFeed
             </div>
 
             <div>
-              <label htmlFor="website-feedback-message" className="text-sm font-bold text-diyar-dark">
+              <label
+                htmlFor="website-feedback-message"
+                className="text-sm font-bold text-diyar-dark"
+              >
                 {t('layout.feedback.messageLabel')}
               </label>
               <textarea
@@ -208,7 +217,9 @@ export function WebsiteFeedbackModal({ open, onClose, onSubmitted }: WebsiteFeed
                 placeholder={t('layout.feedback.messagePlaceholder')}
                 className="mt-2 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-diyar-brown focus:ring-1 focus:ring-diyar-brown resize-none"
               />
-              {errors.message ? <p className="text-xs text-red-600 mt-1">{errors.message}</p> : null}
+              {errors.message ? (
+                <p className="text-xs text-red-600 mt-1">{errors.message}</p>
+              ) : null}
             </div>
 
             <button

@@ -13,9 +13,4 @@ export interface TryInRoomJob {
   completed_at: string | null;
 }
 
-export type TryInRoomFlowPhase =
-  | 'idle'
-  | 'uploading'
-  | 'polling'
-  | 'completed'
-  | 'failed';
+export type TryInRoomFlowPhase = 'idle' | 'uploading' | 'polling' | 'completed' | 'failed';

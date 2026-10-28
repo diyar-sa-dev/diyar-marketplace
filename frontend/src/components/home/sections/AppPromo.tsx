@@ -73,7 +73,9 @@ export function AppPromo() {
                   <Box size={16} />
                 </div>
                 <div>
-                  <h4 className="text-white text-sm font-bold mb-0.5">{t('home.appPromo.arTitle')}</h4>
+                  <h4 className="text-white text-sm font-bold mb-0.5">
+                    {t('home.appPromo.arTitle')}
+                  </h4>
                   <p className="text-white/60 text-[10px]">{t('home.appPromo.arDesc')}</p>
                 </div>
               </div>
@@ -93,14 +95,20 @@ export function AppPromo() {
             <div
               className={`flex flex-row items-center gap-3 justify-center ${isRtl ? 'md:justify-end' : 'md:justify-start'}`}
             >
-              <button type="button" className="transition-transform hover:scale-105 active:scale-95">
+              <button
+                type="button"
+                className="transition-transform hover:scale-105 active:scale-95"
+              >
                 <img
                   src={APP_STORE_BADGE}
                   alt={t('home.appPromo.appStoreAlt')}
                   className="h-10 md:h-12 w-auto"
                 />
               </button>
-              <button type="button" className="transition-transform hover:scale-105 active:scale-95">
+              <button
+                type="button"
+                className="transition-transform hover:scale-105 active:scale-95"
+              >
                 <img
                   src={googlePlayBadgeSrc}
                   alt={t('home.appPromo.googlePlayAlt')}

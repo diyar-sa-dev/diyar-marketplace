@@ -11,7 +11,13 @@ interface AuthPromptModalProps {
   testId?: string;
 }
 
-export function AuthPromptModal({ open, onClose, title, message, testId = 'auth-prompt-modal' }: AuthPromptModalProps) {
+export function AuthPromptModal({
+  open,
+  onClose,
+  title,
+  message,
+  testId = 'auth-prompt-modal',
+}: AuthPromptModalProps) {
   const { t, dir } = useLocale();
   const location = useLocation();
 

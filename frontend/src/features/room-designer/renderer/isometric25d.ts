@@ -44,7 +44,10 @@ export function isometricCanvasPointToMeters(
 }
 
 /** Room floor corners in world meters (corner origin). */
-export function roomFloorCornersMeters(width_m: number, depth_m: number): Array<{ x: number; z: number }> {
+export function roomFloorCornersMeters(
+  width_m: number,
+  depth_m: number,
+): Array<{ x: number; z: number }> {
   return [
     { x: 0, z: 0 },
     { x: width_m, z: 0 },
@@ -82,7 +85,10 @@ export function itemFootprintIsometricPx(
 }
 
 /** Presentation-only vertical lift from catalog height (not persisted). */
-export function elevationScreenOffsetPx(height_m: number | null | undefined, scalePxPerM: number): number {
+export function elevationScreenOffsetPx(
+  height_m: number | null | undefined,
+  scalePxPerM: number,
+): number {
   const h = height_m ?? 0;
   if (!Number.isFinite(h) || h <= 0) {
     return 0;

@@ -13,8 +13,7 @@ vi.mock('../../hooks/useLocale.ts', () => ({
         'catalog.search.suggestedFilters.unavailableDescription': 'Try another category or search.',
         'catalog.search.suggestedFilters.degradedTitle':
           'Smart suggestions are temporarily unavailable',
-        'catalog.search.suggestedFilters.degradedDescription':
-          'You can use all available filters.',
+        'catalog.search.suggestedFilters.degradedDescription': 'You can use all available filters.',
         'catalog.search.suggestedFilters.errorTitle': 'Unable to load suggestions',
         'catalog.search.suggestedFilters.errorDescription': 'Please try again.',
         'catalog.search.suggestedFilters.retry': 'Retry',

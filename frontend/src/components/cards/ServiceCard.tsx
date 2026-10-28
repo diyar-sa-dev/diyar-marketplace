@@ -44,9 +44,7 @@ function normalizeServiceCard(
   const slug = service.slug || String(('id' in service && service.id) ?? '');
   const imageUrl =
     resolveMediaUrl(
-      ('image_url' in service && service.image_url) ||
-        ('img' in service && service.img) ||
-        null,
+      ('image_url' in service && service.image_url) || ('img' in service && service.img) || null,
     ) ||
     ('img' in service && service.img) ||
     SERVICE_IMAGE_FALLBACK;
@@ -66,8 +64,7 @@ function normalizeServiceCard(
     resolveServiceTypeLabel(service as ServiceCardType) ||
     ('type' in service && service.type) ||
     scheduleFallback;
-  const currency =
-    ('currency' in service && service.currency) || currencyLabel;
+  const currency = ('currency' in service && service.currency) || currencyLabel;
   const startingPrice =
     'starting_price' in service && service.starting_price != null
       ? Number(service.starting_price)
@@ -78,8 +75,7 @@ function normalizeServiceCard(
       : 'price' in service && service.price != null
         ? String(service.price)
         : null;
-  const priceLabel =
-    ('pricing_label' in service && service.pricing_label) || priceAmount || '—';
+  const priceLabel = ('pricing_label' in service && service.pricing_label) || priceAmount || '—';
 
   return {
     title,

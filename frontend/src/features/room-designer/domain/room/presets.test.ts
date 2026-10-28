@@ -4,10 +4,7 @@ import { centimetersToMeters } from '../units.ts';
 import { createCustomRoomDocument, validateCustomRoom } from './customRoom.ts';
 import { createDocumentFromPreset } from './initializeFromPreset.ts';
 import { getRoomPreset, listRoomPresets, ROOM_PRESETS } from './presets.ts';
-import {
-  createSpatialEngine,
-  executeCommand,
-} from '../../application/spatialEngine.ts';
+import { createSpatialEngine, executeCommand } from '../../application/spatialEngine.ts';
 import { makeItem } from '../testFixtures.ts';
 
 describe('room presets', () => {

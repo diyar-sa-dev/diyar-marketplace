@@ -191,7 +191,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const isTransientNetworkFailure = parsed.status === 0;
 
         if (isTransientNetworkFailure) {
-          setStatus((current) => (current === 'authenticated' ? 'authenticated' : 'unauthenticated'));
+          setStatus((current) =>
+            current === 'authenticated' ? 'authenticated' : 'unauthenticated',
+          );
           return null;
         }
 

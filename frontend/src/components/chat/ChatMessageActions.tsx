@@ -53,7 +53,10 @@ export function ChatMessageActions({
   }
 
   return (
-    <div ref={menuRef} className="relative shrink-0 self-end pb-1 opacity-70 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+    <div
+      ref={menuRef}
+      className="relative shrink-0 self-end pb-1 opacity-70 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+    >
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}

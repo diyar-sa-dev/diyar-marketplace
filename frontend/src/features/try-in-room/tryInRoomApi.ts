@@ -11,9 +11,10 @@ export async function createTryInRoomJobForProduct(
   formData.append('photo', file);
   formData.append('idempotency_key', idempotencyKey);
 
-  const { data } = await marketplaceApi.post<
-    ApiSuccessResponse<{ try_in_room_job: TryInRoomJob }>
-  >(`/products/${productId}/try-in-room`, formData);
+  const { data } = await marketplaceApi.post<ApiSuccessResponse<{ try_in_room_job: TryInRoomJob }>>(
+    `/products/${productId}/try-in-room`,
+    formData,
+  );
 
   return data.data.try_in_room_job;
 }
@@ -27,17 +28,18 @@ export async function createTryInRoomJobForRoomDesign(
   formData.append('photo', file);
   formData.append('idempotency_key', idempotencyKey);
 
-  const { data } = await marketplaceApi.post<
-    ApiSuccessResponse<{ try_in_room_job: TryInRoomJob }>
-  >(`/room-designs/${roomDesignId}/try-in-room`, formData);
+  const { data } = await marketplaceApi.post<ApiSuccessResponse<{ try_in_room_job: TryInRoomJob }>>(
+    `/room-designs/${roomDesignId}/try-in-room`,
+    formData,
+  );
 
   return data.data.try_in_room_job;
 }
 
 export async function fetchTryInRoomJob(jobId: string): Promise<TryInRoomJob> {
-  const { data } = await marketplaceApi.get<
-    ApiSuccessResponse<{ try_in_room_job: TryInRoomJob }>
-  >(`/try-in-room/${jobId}`);
+  const { data } = await marketplaceApi.get<ApiSuccessResponse<{ try_in_room_job: TryInRoomJob }>>(
+    `/try-in-room/${jobId}`,
+  );
 
   return data.data.try_in_room_job;
 }

@@ -15,9 +15,7 @@ export default function MaintenancePage({ message }: MaintenancePageProps) {
           <Wrench size={28} />
         </div>
         <h1 className="text-2xl font-bold text-diyar-dark mb-3">{t('maintenance.title')}</h1>
-        <p className="text-gray-600 leading-relaxed">
-          {message || t('maintenance.description')}
-        </p>
+        <p className="text-gray-600 leading-relaxed">{message || t('maintenance.description')}</p>
       </div>
     </div>
   );

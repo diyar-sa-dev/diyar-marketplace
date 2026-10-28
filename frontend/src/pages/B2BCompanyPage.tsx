@@ -186,7 +186,9 @@ export default function B2BCompanyPage() {
     {
       icon: Users,
       label: t('b2b.company.teamSize'),
-      value: company.stats.team_size_label ?? (company.stats.team_size ? String(company.stats.team_size) : '—'),
+      value:
+        company.stats.team_size_label ??
+        (company.stats.team_size ? String(company.stats.team_size) : '—'),
     },
   ];
 
@@ -332,7 +334,9 @@ export default function B2BCompanyPage() {
                   <s.icon size={20} />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-bold text-diyar-dark text-base md:text-lg leading-none">{s.value}</p>
+                  <p className="font-bold text-diyar-dark text-base md:text-lg leading-none">
+                    {s.value}
+                  </p>
                   <p className="text-[11px] md:text-xs text-gray-500 mt-1 truncate">{s.label}</p>
                 </div>
               </div>
@@ -385,9 +389,7 @@ export default function B2BCompanyPage() {
                         referrerPolicy="no-referrer"
                         loading="lazy"
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        onError={() =>
-                          setBrokenPortfolioIds((prev) => new Set(prev).add(item.id))
-                        }
+                        onError={() => setBrokenPortfolioIds((prev) => new Set(prev).add(item.id))}
                       />
                       <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
@@ -404,7 +406,8 @@ export default function B2BCompanyPage() {
             {company.testimonials && company.testimonials.length > 0 ? (
               <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
                 <h2 className="text-lg font-bold text-diyar-dark mb-5 flex items-center gap-2">
-                  <Star size={20} className="text-amber-400 fill-amber-400" /> {t('b2b.company.testimonials')}
+                  <Star size={20} className="text-amber-400 fill-amber-400" />{' '}
+                  {t('b2b.company.testimonials')}
                 </h2>
                 <div className="flex flex-col gap-4">
                   {company.testimonials.map((r) => (
@@ -416,7 +419,9 @@ export default function B2BCompanyPage() {
                             {r.author_name.charAt(0)}
                           </div>
                           <div className="min-w-0">
-                            <h4 className="font-bold text-diyar-dark text-sm truncate">{r.author_name}</h4>
+                            <h4 className="font-bold text-diyar-dark text-sm truncate">
+                              {r.author_name}
+                            </h4>
                             {r.author_role ? (
                               <span className="text-[11px] text-gray-500">{r.author_role}</span>
                             ) : null}
@@ -444,7 +449,8 @@ export default function B2BCompanyPage() {
             {company.customer_reviews && company.customer_reviews.length > 0 ? (
               <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
                 <h2 className="text-lg font-bold text-diyar-dark mb-5 flex items-center gap-2">
-                  <Star size={20} className="text-amber-400 fill-amber-400" /> {t('b2b.company.customerReviews')}
+                  <Star size={20} className="text-amber-400 fill-amber-400" />{' '}
+                  {t('b2b.company.customerReviews')}
                 </h2>
                 <div className="flex flex-col gap-4">
                   {company.customer_reviews.map((review) => (
@@ -459,7 +465,9 @@ export default function B2BCompanyPage() {
                               {review.author_name ?? t('storeReviews.anonymous')}
                             </h4>
                             {review.project_type ? (
-                              <span className="text-[11px] text-gray-500">{review.project_type}</span>
+                              <span className="text-[11px] text-gray-500">
+                                {review.project_type}
+                              </span>
                             ) : null}
                           </div>
                         </div>
@@ -469,7 +477,9 @@ export default function B2BCompanyPage() {
                               key={s}
                               size={12}
                               className={
-                                s <= review.rating ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
+                                s <= review.rating
+                                  ? 'fill-amber-400 text-amber-400'
+                                  : 'text-gray-300'
                               }
                             />
                           ))}
@@ -478,7 +488,9 @@ export default function B2BCompanyPage() {
                       {review.comment ? (
                         <p className="text-gray-600 text-sm leading-relaxed">{review.comment}</p>
                       ) : (
-                        <p className="text-sm text-gray-400 italic">{t('customerReviews.noComment')}</p>
+                        <p className="text-sm text-gray-400 italic">
+                          {t('customerReviews.noComment')}
+                        </p>
                       )}
                     </div>
                   ))}
@@ -509,7 +521,10 @@ export default function B2BCompanyPage() {
                 <h3 className="font-bold text-diyar-dark mb-4">{t('b2b.company.services')}</h3>
                 <ul className="flex flex-col gap-3">
                   {company.services.map((service) => (
-                    <li key={service.id} className="rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+                    <li
+                      key={service.id}
+                      className="rounded-xl border border-gray-100 bg-gray-50/60 p-3"
+                    >
                       <div className="flex items-start gap-2 text-sm">
                         <CheckCircle2 size={18} className="text-diyar-brown shrink-0 mt-0.5" />
                         <div className="min-w-0">
@@ -558,7 +573,9 @@ export default function B2BCompanyPage() {
                     className="flex items-center gap-3 text-gray-600 hover:text-diyar-brown transition cursor-pointer"
                   >
                     <Globe size={16} className="text-diyar-brown shrink-0" />
-                    <span dir="ltr" className="truncate">{contact.website.replace(/^https?:\/\//, '')}</span>
+                    <span dir="ltr" className="truncate">
+                      {contact.website.replace(/^https?:\/\//, '')}
+                    </span>
                   </a>
                 ) : null}
                 {contact.businessHours ? (
@@ -587,7 +604,10 @@ export default function B2BCompanyPage() {
                 <div className="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Send size={30} />
                 </div>
-                <h2 className="text-2xl font-bold text-diyar-dark mb-2" data-testid="b2b-rfq-success">
+                <h2
+                  className="text-2xl font-bold text-diyar-dark mb-2"
+                  data-testid="b2b-rfq-success"
+                >
                   {t('b2b.company.successTitle')}
                 </h2>
                 <p className="text-gray-500">{t('b2b.company.successBody')}</p>
@@ -600,7 +620,10 @@ export default function B2BCompanyPage() {
                       <MessageSquare size={20} />
                     </div>
                     <div>
-                      <h2 id="b2b-rfq-title" className="text-lg font-bold text-diyar-dark leading-tight">
+                      <h2
+                        id="b2b-rfq-title"
+                        className="text-lg font-bold text-diyar-dark leading-tight"
+                      >
                         {t('b2b.company.quoteModalTitle')}
                       </h2>
                       <p className="text-xs text-gray-500 mt-0.5">{company.name}</p>
@@ -678,7 +701,9 @@ export default function B2BCompanyPage() {
                   <div className="mt-2 flex gap-3">
                     <button
                       type="submit"
-                      disabled={submitLead.isPending || details.trim().length < 10 || !projectType.trim()}
+                      disabled={
+                        submitLead.isPending || details.trim().length < 10 || !projectType.trim()
+                      }
                       data-testid="b2b-rfq-submit"
                       className="flex-1 bg-diyar-brown text-white py-3 rounded-xl font-bold hover:bg-diyar-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
                     >

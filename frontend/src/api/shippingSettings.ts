@@ -62,7 +62,9 @@ export async function updateVendorShippingSettings(
   return data.data.shipping_settings;
 }
 
-export async function fetchVendorPickupAddresses(): Promise<import('../types/shipping.ts').VendorPickupAddress[]> {
+export async function fetchVendorPickupAddresses(): Promise<
+  import('../types/shipping.ts').VendorPickupAddress[]
+> {
   const { data } = await apiClient.get<
     ApiSuccessResponse<{ addresses: import('../types/shipping.ts').VendorPickupAddress[] }>
   >('/dashboard/vendor/pickup-addresses');

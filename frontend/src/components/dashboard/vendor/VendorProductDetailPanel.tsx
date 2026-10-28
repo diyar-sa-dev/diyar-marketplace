@@ -182,18 +182,16 @@ export function VendorProductDetailPanel({
                       : product.colors && typeof product.colors === 'object'
                         ? Object.values(product.colors)
                         : [];
-                    return rawColors.length ? (
-                      rawColors.map((col: any) => (
-                        <span
-                          key={col.name}
-                          className="bg-stone-50 px-2 py-0.5 rounded-lg border text-xs text-stone-600"
-                        >
-                          {col.name}
-                        </span>
-                      ))
-                    ) : (
-                      t('vendor.products.detail.multiColor')
-                    );
+                    return rawColors.length
+                      ? rawColors.map((col: any) => (
+                          <span
+                            key={col.name}
+                            className="bg-stone-50 px-2 py-0.5 rounded-lg border text-xs text-stone-600"
+                          >
+                            {col.name}
+                          </span>
+                        ))
+                      : t('vendor.products.detail.multiColor');
                   })()}
                 </span>
               </div>

@@ -72,7 +72,9 @@ function RoomCard({
       />
       <div className="absolute inset-0 bg-linear-to-t from-diyar-dark/85 via-black/25 to-transparent" />
       <div className="absolute bottom-4 md:bottom-5 inset-x-3 text-white text-center">
-        <h3 className="text-sm md:text-lg font-bold font-sans mb-1 md:mb-2 line-clamp-2">{room.name}</h3>
+        <h3 className="text-sm md:text-lg font-bold font-sans mb-1 md:mb-2 line-clamp-2">
+          {room.name}
+        </h3>
         <span className="text-[10px] md:text-xs border border-white/35 px-2.5 md:px-3 py-1 rounded-full backdrop-blur-sm inline-block group-hover:bg-white/10 transition-colors">
           {shopNowLabel}
         </span>

@@ -18,7 +18,11 @@ import {
   prepareRealtimeConnection,
   type RealtimeConnectionState,
 } from '../lib/realtime/echo.ts';
-import { notificationKeys, reconcileNotifications, LIST_STALE_MS } from '../hooks/profile/useNotifications.ts';
+import {
+  notificationKeys,
+  reconcileNotifications,
+  LIST_STALE_MS,
+} from '../hooks/profile/useNotifications.ts';
 import { fetchNotifications } from '../api/notifications.ts';
 import { chatKeys } from '../hooks/chat/useChat.ts';
 import { bumpConversationPreview } from '../lib/chat/conversationListCache.ts';
@@ -71,8 +75,7 @@ function toUserNotification(payload: NotificationCreatedPayload): Notification {
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, user } = useAuth();
   const queryClient = useQueryClient();
-  const [connectionState, setConnectionState] =
-    useState<RealtimeConnectionState>('idle');
+  const [connectionState, setConnectionState] = useState<RealtimeConnectionState>('idle');
   const crossTabRef = useRef<BroadcastChannel | null>(null);
   const previousConnectionRef = useRef<RealtimeConnectionState>('idle');
 
@@ -86,10 +89,17 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const upsertNotification = useCallback(
     (notification: Notification) => {
       const applyToList = (
-        current: {
-          notifications: Notification[];
-          pagination: { total: number; current_page: number; last_page: number; per_page: number };
-        } | undefined,
+        current:
+          | {
+              notifications: Notification[];
+              pagination: {
+                total: number;
+                current_page: number;
+                last_page: number;
+                per_page: number;
+              };
+            }
+          | undefined,
         prependIfNew: boolean,
       ) => {
         if (!current?.notifications) {
@@ -108,7 +118,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           };
         }
 
-        const existingIndex = current.notifications.findIndex((item) => item.id === notification.id);
+        const existingIndex = current.notifications.findIndex(
+          (item) => item.id === notification.id,
+        );
         if (existingIndex >= 0) {
           const notifications = [...current.notifications];
           notifications[existingIndex] = { ...notifications[existingIndex], ...notification };
@@ -122,7 +134,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
         return {
           ...current,
-          notifications: [notification, ...current.notifications].slice(0, current.pagination.per_page),
+          notifications: [notification, ...current.notifications].slice(
+            0,
+            current.pagination.per_page,
+          ),
           pagination: {
             ...current.pagination,
             total: current.pagination.total + 1,
@@ -323,9 +338,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     [connectionState, reconcile],
   );
 
-  return (
-    <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>
-  );
+  return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>;
 }
 
 export function useNotificationRealtime(): NotificationContextValue {

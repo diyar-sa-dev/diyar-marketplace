@@ -30,12 +30,7 @@ interface TryInRoomModalProps {
   onClose: () => void;
 }
 
-export function TryInRoomModal({
-  productId,
-  productImageUrl,
-  open,
-  onClose,
-}: TryInRoomModalProps) {
+export function TryInRoomModal({ productId, productImageUrl, open, onClose }: TryInRoomModalProps) {
   const { t } = useLocale();
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,8 +50,9 @@ export function TryInRoomModal({
     initY: 65,
   });
 
-  const { phase, sourceUrl, resultUrl, confirming, errorKey, submitFile, reset } =
-    useTryInRoomFlow({ productId, productImageUrl });
+  const { phase, sourceUrl, resultUrl, confirming, errorKey, submitFile, reset } = useTryInRoomFlow(
+    { productId, productImageUrl },
+  );
 
   /**
    * Strictly clamps coordinates so the furniture item NEVER goes outside the photo boundaries,
@@ -171,10 +167,14 @@ export function TryInRoomModal({
     onClose();
   };
 
-  useModalDialog(open, () => {
-    reset();
-    onClose();
-  }, panelRef);
+  useModalDialog(
+    open,
+    () => {
+      reset();
+      onClose();
+    },
+    panelRef,
+  );
 
   if (!open) {
     return null;
@@ -277,7 +277,9 @@ export function TryInRoomModal({
                       {/* Blender-style corner accents + outline when hovered or active */}
                       <div
                         className={`absolute -inset-1 border border-diyar-brown/60 rounded-lg pointer-events-none transition-opacity ${
-                          isDragging ? 'opacity-100 ring-2 ring-diyar-brown/40' : 'opacity-0 group-hover:opacity-100'
+                          isDragging
+                            ? 'opacity-100 ring-2 ring-diyar-brown/40'
+                            : 'opacity-0 group-hover:opacity-100'
                         }`}
                       >
                         <span className="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2 border-diyar-brown rounded-tl-sm" />
@@ -294,7 +296,10 @@ export function TryInRoomModal({
                       data-testid="try-in-room-result"
                     />
                   ) : (
-                    <div className="absolute inset-0 overflow-hidden" data-testid="try-in-room-skeleton">
+                    <div
+                      className="absolute inset-0 overflow-hidden"
+                      data-testid="try-in-room-skeleton"
+                    >
                       <img
                         src={sourceUrl}
                         alt=""
@@ -310,7 +315,11 @@ export function TryInRoomModal({
                       {/* Movement Nudges */}
                       <button
                         type="button"
-                        onClick={() => setProductY((y) => clampCoords(productX, y - 5, productScale, productRotation).y)}
+                        onClick={() =>
+                          setProductY(
+                            (y) => clampCoords(productX, y - 5, productScale, productRotation).y,
+                          )
+                        }
                         className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
                         title="تحريك لأعلى"
                         aria-label="تحريك لأعلى"
@@ -319,7 +328,11 @@ export function TryInRoomModal({
                       </button>
                       <button
                         type="button"
-                        onClick={() => setProductY((y) => clampCoords(productX, y + 5, productScale, productRotation).y)}
+                        onClick={() =>
+                          setProductY(
+                            (y) => clampCoords(productX, y + 5, productScale, productRotation).y,
+                          )
+                        }
                         className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
                         title="تحريك لأسفل"
                         aria-label="تحريك لأسفل"
@@ -328,7 +341,11 @@ export function TryInRoomModal({
                       </button>
                       <button
                         type="button"
-                        onClick={() => setProductX((x) => clampCoords(x - 5, productY, productScale, productRotation).x)}
+                        onClick={() =>
+                          setProductX(
+                            (x) => clampCoords(x - 5, productY, productScale, productRotation).x,
+                          )
+                        }
                         className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
                         title="تحريك لليسار"
                         aria-label="تحريك لليسار"
@@ -337,7 +354,11 @@ export function TryInRoomModal({
                       </button>
                       <button
                         type="button"
-                        onClick={() => setProductX((x) => clampCoords(x + 5, productY, productScale, productRotation).x)}
+                        onClick={() =>
+                          setProductX(
+                            (x) => clampCoords(x + 5, productY, productScale, productRotation).x,
+                          )
+                        }
                         className="p-1 hover:bg-white/20 rounded transition cursor-pointer"
                         title="تحريك لليمين"
                         aria-label="تحريك لليمين"
@@ -374,7 +395,9 @@ export function TryInRoomModal({
                         type="button"
                         onClick={toggleFlip}
                         className={`p-1 rounded transition cursor-pointer ${
-                          isFlipped ? 'bg-diyar-brown text-white ring-1 ring-white/40' : 'hover:bg-white/20'
+                          isFlipped
+                            ? 'bg-diyar-brown text-white ring-1 ring-white/40'
+                            : 'hover:bg-white/20'
                         }`}
                         title="عكس الاتجاه (الوجه المقابل)"
                         aria-label="عكس الاتجاه أفقيًا"
@@ -426,7 +449,9 @@ export function TryInRoomModal({
                 </div>
                 <figcaption className="px-3 py-2 text-center text-xs font-medium text-diyar-dark flex items-center justify-center gap-1.5">
                   <span>{confirming ? t('tryInRoom.processing') : t('tryInRoom.preview')}</span>
-                  <span className="text-[10px] text-muted-foreground">• اسحب القطعة لتحديد موضعها</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    • اسحب القطعة لتحديد موضعها
+                  </span>
                 </figcaption>
               </figure>
             </div>
@@ -440,7 +465,9 @@ export function TryInRoomModal({
               <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-diyar-brown text-white">
                 <ImagePlus size={26} aria-hidden />
               </span>
-              <span className="text-base font-bold text-diyar-dark">{t('tryInRoom.choosePhoto')}</span>
+              <span className="text-base font-bold text-diyar-dark">
+                {t('tryInRoom.choosePhoto')}
+              </span>
               <span className="max-w-xs text-sm leading-relaxed text-muted-foreground">
                 {t('tryInRoom.uploadHint')}
               </span>
@@ -496,7 +523,9 @@ export function TryInRoomModal({
           {phase === 'failed' ? (
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-4 text-center text-red-700">
               <AlertCircle size={22} />
-              <p className="text-sm font-medium">{t(`tryInRoom.errors.${errorKey ?? 'request_failed'}`)}</p>
+              <p className="text-sm font-medium">
+                {t(`tryInRoom.errors.${errorKey ?? 'request_failed'}`)}
+              </p>
               <button
                 type="button"
                 onClick={() => {

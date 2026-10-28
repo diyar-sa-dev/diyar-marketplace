@@ -111,7 +111,11 @@ export default function BlogArticlePage() {
   if (isError || !data) {
     return (
       <div className="bg-gray-50 min-h-screen pb-24 md:pb-12 font-sans" dir={dir}>
-        <ErrorState error={error} onRetry={() => void refetch()} title={t('blog.article.loadError')} />
+        <ErrorState
+          error={error}
+          onRetry={() => void refetch()}
+          title={t('blog.article.loadError')}
+        />
       </div>
     );
   }
@@ -220,7 +224,9 @@ export default function BlogArticlePage() {
 
             {tags.length > 0 ? (
               <div className="mt-12 pt-6 border-t border-gray-200 flex flex-wrap gap-2 items-center">
-                <span className="text-gray-500 text-sm py-1.5 font-medium">{t('blog.article.tagsLabel')}</span>
+                <span className="text-gray-500 text-sm py-1.5 font-medium">
+                  {t('blog.article.tagsLabel')}
+                </span>
                 {tags.map((tag) => (
                   <Link
                     key={tag.id}
@@ -236,7 +242,9 @@ export default function BlogArticlePage() {
 
           <div className="lg:w-1/3 space-y-8">
             <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm sticky top-24">
-              <h3 className="font-bold text-diyar-dark mb-4 text-lg">{t('blog.article.shareTitle')}</h3>
+              <h3 className="font-bold text-diyar-dark mb-4 text-lg">
+                {t('blog.article.shareTitle')}
+              </h3>
               <button
                 type="button"
                 onClick={() => setShareOpen(true)}
@@ -275,7 +283,9 @@ export default function BlogArticlePage() {
         <div className="bg-white border-t border-gray-200 py-16">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-diyar-dark">{t('blog.article.relatedTitle')}</h2>
+              <h2 className="text-2xl font-bold text-diyar-dark">
+                {t('blog.article.relatedTitle')}
+              </h2>
               <Link
                 to="/blog"
                 className="cursor-pointer text-diyar-brown font-bold hover:text-diyar-dark transition-colors text-sm"

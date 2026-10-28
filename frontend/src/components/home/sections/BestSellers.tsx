@@ -111,9 +111,7 @@ export function BestSellers() {
           browseTo="/category/all?sort=-popular"
         />
       ) : (
-        <HorizontalRail
-          className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-2"
-        >
+        <HorizontalRail className="flex md:grid md:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-hide snap-x py-2">
           {isLoading
             ? [...Array(5)].map((_, i) => (
                 <div key={i} className="w-50 md:w-auto shrink-0 snap-start">

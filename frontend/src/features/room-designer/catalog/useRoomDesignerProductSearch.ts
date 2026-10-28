@@ -11,8 +11,10 @@ import {
 } from './constants.ts';
 
 export const roomDesignerCatalogKeys = {
-  browse: (page: number, only3d: boolean) => ['room-designer', 'catalog', 'browse', page, only3d] as const,
-  search: (q: string, page: number, only3d: boolean) => ['room-designer', 'catalog', 'search', q, page, only3d] as const,
+  browse: (page: number, only3d: boolean) =>
+    ['room-designer', 'catalog', 'browse', page, only3d] as const,
+  search: (q: string, page: number, only3d: boolean) =>
+    ['room-designer', 'catalog', 'search', q, page, only3d] as const,
 };
 
 export interface RoomDesignerProductSearchResult {

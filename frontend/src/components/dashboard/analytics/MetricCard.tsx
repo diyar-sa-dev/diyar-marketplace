@@ -51,7 +51,10 @@ export function MetricCard({
     <div className="flex h-full min-h-28 items-start justify-between gap-3">
       <div className="min-w-0 flex-1">
         <p className="text-xs font-semibold text-gray-500 sm:text-sm">{label}</p>
-        <p className="mt-2 text-2xl font-extrabold text-diyar-dark tabular-nums sm:text-3xl" dir="ltr">
+        <p
+          className="mt-2 text-2xl font-extrabold text-diyar-dark tabular-nums sm:text-3xl"
+          dir="ltr"
+        >
           {displayValue}
         </p>
         {trend != null ? (
@@ -61,11 +64,17 @@ export function MetricCard({
             }`}
             dir="ltr"
           >
-            {trendPositive ? <TrendingUp size={14} aria-hidden /> : <TrendingDown size={14} aria-hidden />}
+            {trendPositive ? (
+              <TrendingUp size={14} aria-hidden />
+            ) : (
+              <TrendingDown size={14} aria-hidden />
+            )}
             <span>{formatPercent(trend, locale)}</span>
           </p>
         ) : null}
-        {hint ? <p className="mt-1 line-clamp-2 text-[11px] text-gray-500 sm:text-xs">{hint}</p> : null}
+        {hint ? (
+          <p className="mt-1 line-clamp-2 text-[11px] text-gray-500 sm:text-xs">{hint}</p>
+        ) : null}
       </div>
       {icon ? <div className={`shrink-0 rounded-xl p-2.5 ${iconClassName}`}>{icon}</div> : null}
     </div>

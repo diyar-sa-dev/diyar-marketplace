@@ -11,7 +11,10 @@ const SECTION_PLACEHOLDERS = [
 /** Reserves approximate below-fold homepage height to reduce CLS when lazy chunk mounts. */
 export function HomeSectionSkeleton() {
   return (
-    <div className="mx-auto max-w-350 w-full px-4 py-8 space-y-8 md:space-y-12 animate-pulse" aria-hidden>
+    <div
+      className="mx-auto max-w-350 w-full px-4 py-8 space-y-8 md:space-y-12 animate-pulse"
+      aria-hidden
+    >
       {SECTION_PLACEHOLDERS.map((section) => (
         <div key={section.key}>
           <div className="h-6 w-40 rounded-lg bg-gray-100 mb-4" />

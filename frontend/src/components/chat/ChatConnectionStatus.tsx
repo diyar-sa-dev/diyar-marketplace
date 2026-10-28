@@ -52,7 +52,9 @@ export function ChatConnectionStatus({
     >
       <span className="relative flex h-2 w-2">
         {styles.ping ? (
-          <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${styles.dotClass}`} />
+          <span
+            className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${styles.dotClass}`}
+          />
         ) : null}
         <span className={`relative inline-flex h-2 w-2 rounded-full ${styles.dotClass}`} />
       </span>

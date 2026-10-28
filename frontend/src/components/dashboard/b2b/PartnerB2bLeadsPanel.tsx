@@ -105,7 +105,9 @@ function LeadDetailModal({
       >
         <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-start justify-between gap-3">
           <div>
-            <h3 className="font-bold text-lg text-diyar-dark">{t('b2b.partner.leads.detailTitle')}</h3>
+            <h3 className="font-bold text-lg text-diyar-dark">
+              {t('b2b.partner.leads.detailTitle')}
+            </h3>
             <p className="text-sm text-gray-500">{t('b2b.partner.leads.detailSubtitle')}</p>
           </div>
           <button
@@ -297,7 +299,11 @@ export function PartnerB2bLeadsPanel({ portal }: PartnerB2bLeadsPanelProps) {
           ))}
         </div>
       ) : isError ? (
-        <ErrorState error={error as Error} message={t('b2b.partner.leads.loadError')} onRetry={() => void refetch()} />
+        <ErrorState
+          error={error as Error}
+          message={t('b2b.partner.leads.loadError')}
+          onRetry={() => void refetch()}
+        />
       ) : items.length === 0 ? (
         <EmptyState
           title={t('b2b.partner.leads.emptyTitle')}

@@ -31,7 +31,9 @@ export function canRedo(state: HistoryState): boolean {
   return state.future.length > 0;
 }
 
-export function popUndoEntry(state: HistoryState): { entry: HistoryEntry; state: HistoryState } | null {
+export function popUndoEntry(
+  state: HistoryState,
+): { entry: HistoryEntry; state: HistoryState } | null {
   if (state.past.length === 0) return null;
   const past = [...state.past];
   const entry = past.pop() as HistoryEntry;
@@ -42,7 +44,9 @@ export function pushRedoEntry(state: HistoryState, entry: HistoryEntry): History
   return { ...state, future: [...state.future, entry] };
 }
 
-export function popRedoEntry(state: HistoryState): { entry: HistoryEntry; state: HistoryState } | null {
+export function popRedoEntry(
+  state: HistoryState,
+): { entry: HistoryEntry; state: HistoryState } | null {
   if (state.future.length === 0) return null;
   const future = [...state.future];
   const entry = future.pop() as HistoryEntry;

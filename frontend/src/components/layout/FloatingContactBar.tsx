@@ -53,10 +53,7 @@ export function FloatingContactBar() {
     setLocalSubmitted(false);
   }, [user?.id]);
 
-  const guestKey = useMemo(
-    () => (user ? undefined : getOrCreateWebsiteFeedbackGuestKey()),
-    [user],
-  );
+  const guestKey = useMemo(() => (user ? undefined : getOrCreateWebsiteFeedbackGuestKey()), [user]);
 
   const { data: apiSubmitted } = useQuery({
     queryKey: ['website-feedback-status', user?.id ?? null, guestKey ?? null],

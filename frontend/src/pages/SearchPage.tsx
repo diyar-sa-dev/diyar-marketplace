@@ -195,14 +195,9 @@ export default function SearchPage() {
 
   const searchEnabled = !isVisualSearch && hasCatalogSearchContext(filters, rawQuery);
 
-  const {
-    data,
-    isLoading,
-    isFetching,
-    isError,
-    error,
-    refetch,
-  } = useCatalogSearch(filters, { enabled: searchEnabled });
+  const { data, isLoading, isFetching, isError, error, refetch } = useCatalogSearch(filters, {
+    enabled: searchEnabled,
+  });
 
   const products = useMemo(
     () =>
@@ -457,7 +452,9 @@ export default function SearchPage() {
             perPage={filters.per_page ?? 48}
             perPageOptions={[...PER_PAGE_OPTIONS]}
             onPageChange={(page) => updateFilters({ product_page: page }, false)}
-            onPerPageChange={(perPage) => updateFilters({ per_page: perPage, product_page: 1 }, false)}
+            onPerPageChange={(perPage) =>
+              updateFilters({ per_page: perPage, product_page: 1 }, false)
+            }
             alwaysShow={productPagination.total > 0}
           />
         )}
@@ -487,7 +484,9 @@ export default function SearchPage() {
             perPage={filters.per_page ?? 48}
             perPageOptions={[...PER_PAGE_OPTIONS]}
             onPageChange={(page) => updateFilters({ service_page: page }, false)}
-            onPerPageChange={(perPage) => updateFilters({ per_page: perPage, service_page: 1 }, false)}
+            onPerPageChange={(perPage) =>
+              updateFilters({ per_page: perPage, service_page: 1 }, false)
+            }
             alwaysShow={servicePagination.total > 0}
           />
         )}
@@ -726,11 +725,19 @@ export default function SearchPage() {
                           }
                           className="bg-transparent border-none outline-none font-bold text-diyar-dark cursor-pointer"
                         >
-                          <option value="-created_at">{t('catalog.search.filters.sortNewest')}</option>
-                          <option value="-popular">{t('catalog.search.filters.sortPopular')}</option>
-                          <option value="-discount">{t('catalog.search.filters.sortOffers')}</option>
+                          <option value="-created_at">
+                            {t('catalog.search.filters.sortNewest')}
+                          </option>
+                          <option value="-popular">
+                            {t('catalog.search.filters.sortPopular')}
+                          </option>
+                          <option value="-discount">
+                            {t('catalog.search.filters.sortOffers')}
+                          </option>
                           <option value="price">{t('catalog.search.filters.sortPriceLow')}</option>
-                          <option value="-price">{t('catalog.search.filters.sortPriceHigh')}</option>
+                          <option value="-price">
+                            {t('catalog.search.filters.sortPriceHigh')}
+                          </option>
                           <option value="rating">{t('catalog.search.filters.sortRating')}</option>
                         </select>
                       </div>
@@ -824,7 +831,10 @@ export default function SearchPage() {
       </div>
 
       {isFilterOpen && !isVisualSearch && (
-        <div className="fixed inset-0 z-250 flex items-end overscroll-none md:items-stretch md:justify-end" dir={dir}>
+        <div
+          className="fixed inset-0 z-250 flex items-end overscroll-none md:items-stretch md:justify-end"
+          dir={dir}
+        >
           <button
             type="button"
             className="absolute inset-0 bg-black/50 cursor-pointer"

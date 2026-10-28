@@ -126,7 +126,9 @@ export function NotificationCategorySettingsGrid({
                   />
                 </div>
 
-                <p className="text-xs text-gray-500 leading-relaxed mt-2">{categoryHint(t, category.key, locked)}</p>
+                <p className="text-xs text-gray-500 leading-relaxed mt-2">
+                  {categoryHint(t, category.key, locked)}
+                </p>
               </div>
             </div>
           </div>

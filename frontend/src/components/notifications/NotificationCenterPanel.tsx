@@ -13,10 +13,7 @@ import { ErrorState } from '../common/ErrorState.tsx';
 import { NotificationFilters } from './NotificationFilters.tsx';
 import { NotificationItem } from './NotificationItem.tsx';
 import { NotificationEmptyState } from './NotificationEmptyState.tsx';
-import {
-  NotificationFiltersSkeleton,
-  NotificationSkeleton,
-} from './NotificationSkeleton.tsx';
+import { NotificationFiltersSkeleton, NotificationSkeleton } from './NotificationSkeleton.tsx';
 import type { Notification } from '../../types/notification.ts';
 import type { NotificationStatusFilter } from '../../types/notification.ts';
 
@@ -58,7 +55,9 @@ export function NotificationCenterPanel({
 
   const handleOpen = (notification: Notification, href: string | null) => {
     if (!notification.is_read) {
-      void markRead.mutateAsync(notification.id).catch(() => toast.error(t('notifications.actionError')));
+      void markRead
+        .mutateAsync(notification.id)
+        .catch(() => toast.error(t('notifications.actionError')));
     }
     if (href) {
       navigate(href);
@@ -107,7 +106,9 @@ export function NotificationCenterPanel({
                   onOpen={handleOpen}
                   showDelete
                   onDelete={(id) =>
-                    void deleteOne.mutateAsync(id).catch(() => toast.error(t('notifications.actionError')))
+                    void deleteOne
+                      .mutateAsync(id)
+                      .catch(() => toast.error(t('notifications.actionError')))
                   }
                   deletePending={deleteOne.isPending}
                 />

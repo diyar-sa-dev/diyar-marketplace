@@ -15,7 +15,10 @@ export interface EvaluateConstraintsOptions {
   excludeOverlapForItemId?: string;
 }
 
-function roomBoundaryViolation(item: RoomDesignItem, roomAabbVal: ReturnType<typeof roomAabb>): ConstraintViolation | null {
+function roomBoundaryViolation(
+  item: RoomDesignItem,
+  roomAabbVal: ReturnType<typeof roomAabb>,
+): ConstraintViolation | null {
   const corners = getItemCornerPoints(item);
   if (!areAllCornersInsideRoom(corners, roomAabbVal)) {
     return {
@@ -28,10 +31,7 @@ function roomBoundaryViolation(item: RoomDesignItem, roomAabbVal: ReturnType<typ
   return null;
 }
 
-function overlapWarnings(
-  items: RoomDesignItem[],
-  excludeId?: string,
-): ConstraintViolation[] {
+function overlapWarnings(items: RoomDesignItem[], excludeId?: string): ConstraintViolation[] {
   const warnings: ConstraintViolation[] = [];
   for (let i = 0; i < items.length; i += 1) {
     const a = items[i];

@@ -47,9 +47,13 @@ export default function ProviderPage() {
 
   const { data: provider, isLoading, isPending, isError, error } = useProvider(slug);
   const providerUnavailable = isNotFoundError(error);
-  const { data: servicesData, isLoading: servicesLoading } = useProviderServices(slug, { sort }, {
-    enabled: Boolean(provider) && !providerUnavailable,
-  });
+  const { data: servicesData, isLoading: servicesLoading } = useProviderServices(
+    slug,
+    { sort },
+    {
+      enabled: Boolean(provider) && !providerUnavailable,
+    },
+  );
   const { followMutation, unfollowMutation } = useProviderFollow(slug);
   const { startProviderChat, isStarting: isStartingChat } = useStartChat();
   const services = servicesData?.items ?? [];

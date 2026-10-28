@@ -309,8 +309,7 @@ export class ThreeRoomRenderer implements RoomRenderer {
 
       // Update Blender-style wireframe color
       const wireframe = mesh.getObjectByName('blender_wireframe') as
-        | import('three').LineSegments
-        | undefined;
+        import('three').LineSegments | undefined;
       if (wireframe && wireframe.material instanceof this.three.LineBasicMaterial) {
         wireframe.material.color.set(isSelected ? 0xf59e0b : 0x5a4433);
         wireframe.material.opacity = isSelected ? 1.0 : 0.85;
@@ -389,10 +388,15 @@ export class ThreeRoomRenderer implements RoomRenderer {
       this.scene.add(this.floorMesh);
     } else {
       const geo = this.floorMesh.geometry as import('three').BoxGeometry;
-      const params = (geo as unknown as { parameters?: { width?: number; depth?: number } }).parameters;
+      const params = (geo as unknown as { parameters?: { width?: number; depth?: number } })
+        .parameters;
       if (params?.width !== document.room.width_m || params?.depth !== document.room.depth_m) {
         geo.dispose();
-        this.floorMesh.geometry = new this.three.BoxGeometry(document.room.width_m, 0.05, document.room.depth_m);
+        this.floorMesh.geometry = new this.three.BoxGeometry(
+          document.room.width_m,
+          0.05,
+          document.room.depth_m,
+        );
         this.floorMesh.position.set(document.room.width_m / 2, -0.025, document.room.depth_m / 2);
       }
     }
@@ -515,7 +519,9 @@ export class ThreeRoomRenderer implements RoomRenderer {
     const center = itemCenterToThreeMeters(item);
     const geo = new three.BoxGeometry(size.x, size.y, size.z);
 
-    const texture = item.snapshot.thumbnail_url ? this.loadTexture(item.snapshot.thumbnail_url) : null;
+    const texture = item.snapshot.thumbnail_url
+      ? this.loadTexture(item.snapshot.thumbnail_url)
+      : null;
 
     let materials: import('three').Material | import('three').Material[];
     if (texture) {
@@ -720,7 +726,8 @@ export class ThreeRoomRenderer implements RoomRenderer {
     this.fallbackMessage = document.createElement('div');
     this.fallbackMessage.setAttribute('role', 'status');
     this.fallbackMessage.dataset.testid = 'room-designer-3d-unavailable';
-    this.fallbackMessage.className = 'flex h-full items-center justify-center p-4 text-sm text-muted-foreground';
+    this.fallbackMessage.className =
+      'flex h-full items-center justify-center p-4 text-sm text-muted-foreground';
     this.fallbackMessage.textContent = message;
     this.container.appendChild(this.fallbackMessage);
   }

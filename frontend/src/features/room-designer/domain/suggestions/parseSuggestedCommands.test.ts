@@ -26,11 +26,12 @@ describe('parseSuggestedCommands (30.16)', () => {
   });
 
   it('rejects unknown item ids and non-finite coordinates', () => {
-    expect(parseSuggestedCommands([{ type: 'MOVE', itemId: 'x', position_m: { x: 1, z: 1 } }], known).ok).toBe(
-      false,
-    );
     expect(
-      parseSuggestedCommands([{ type: 'MOVE', itemId: 'a', position_m: { x: NaN, z: 1 } }], known).ok,
+      parseSuggestedCommands([{ type: 'MOVE', itemId: 'x', position_m: { x: 1, z: 1 } }], known).ok,
+    ).toBe(false);
+    expect(
+      parseSuggestedCommands([{ type: 'MOVE', itemId: 'a', position_m: { x: NaN, z: 1 } }], known)
+        .ok,
     ).toBe(false);
   });
 

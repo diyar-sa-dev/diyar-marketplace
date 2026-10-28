@@ -156,7 +156,9 @@ export function SidebarContactModal({ onClose }: SidebarContactModalProps) {
                 <h5 className="font-bold text-base text-diyar-dark mb-2">
                   {t('layout.consultation.successTitle')}
                 </h5>
-                <p className="text-sm text-gray-500 max-w-xs">{t('layout.consultation.successBody')}</p>
+                <p className="text-sm text-gray-500 max-w-xs">
+                  {t('layout.consultation.successBody')}
+                </p>
               </div>
             ) : (
               <form onSubmit={(e) => void handleContactSubmit(e)} className="space-y-4">

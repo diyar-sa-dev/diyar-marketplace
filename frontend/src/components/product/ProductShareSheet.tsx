@@ -57,7 +57,11 @@ export async function copyShareText(text: string): Promise<boolean> {
 }
 
 /** Mobile: native mail app. Desktop: Gmail compose (mailto often has no handler on Windows). */
-export function openEmailShare(options: { subject: string; body: string; mailtoHref: string }): void {
+export function openEmailShare(options: {
+  subject: string;
+  body: string;
+  mailtoHref: string;
+}): void {
   if (isMobileShareDevice()) {
     openShareHref(options.mailtoHref);
     return;
@@ -80,13 +84,7 @@ export interface ShareTarget {
 }
 
 export type SharePlatformId =
-  | 'whatsapp'
-  | 'telegram'
-  | 'facebook'
-  | 'twitter'
-  | 'linkedin'
-  | 'instagram'
-  | 'email';
+  'whatsapp' | 'telegram' | 'facebook' | 'twitter' | 'linkedin' | 'instagram' | 'email';
 
 export function buildShareTargets(url: string, title: string): Omit<ShareTarget, 'label'>[] {
   const text = `${title}\n${url}`;

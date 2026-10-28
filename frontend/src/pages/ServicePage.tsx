@@ -363,8 +363,10 @@ export default function ServicePage() {
                 <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
                   <p className="text-sm font-bold text-gray-700">
                     {isOwnProvider
-                      ? (t('serviceMarketplace.detail.ownServiceWarning') || 'لا يمكنك حجز خدمتك الخاصة')
-                      : (t('serviceMarketplace.detail.commerceBlocked') || 'العمليات التجارية غير متاحة لهذا الحساب')}
+                      ? t('serviceMarketplace.detail.ownServiceWarning') ||
+                        'لا يمكنك حجز خدمتك الخاصة'
+                      : t('serviceMarketplace.detail.commerceBlocked') ||
+                        'العمليات التجارية غير متاحة لهذا الحساب'}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     {isOwnProvider
@@ -428,7 +430,8 @@ export default function ServicePage() {
                     </button>
                     {!isDirectBooking && (
                       <span className="text-xs text-center text-gray-500">
-                        {t('serviceMarketplace.detail.rfqExplanation') || 'احجز عبر طلب عرض سعر مخصص'}
+                        {t('serviceMarketplace.detail.rfqExplanation') ||
+                          'احجز عبر طلب عرض سعر مخصص'}
                       </span>
                     )}
                   </div>
@@ -519,44 +522,44 @@ export default function ServicePage() {
 
           <div className="md:col-span-1 space-y-6">
             {!isCommerceBlocked ? (
-            <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-5 shadow-sm">
-              <h3 className="font-bold text-lg text-diyar-dark mb-4">
-                {t('serviceMarketplace.detail.contactProvider')}
-              </h3>
-              <div className="space-y-3">
-                {whatsappUrl ? (
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full bg-green-50 text-green-700 border border-green-200 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-green-100 transition-colors cursor-pointer"
-                  >
-                    <Smartphone size={18} /> {t('serviceMarketplace.detail.whatsapp')}
-                  </a>
-                ) : (
+              <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-5 shadow-sm">
+                <h3 className="font-bold text-lg text-diyar-dark mb-4">
+                  {t('serviceMarketplace.detail.contactProvider')}
+                </h3>
+                <div className="space-y-3">
+                  {whatsappUrl ? (
+                    <a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full bg-green-50 text-green-700 border border-green-200 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-green-100 transition-colors cursor-pointer"
+                    >
+                      <Smartphone size={18} /> {t('serviceMarketplace.detail.whatsapp')}
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled
+                      className="w-full bg-green-50 text-green-400 border border-green-100 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed"
+                    >
+                      <Smartphone size={18} /> {t('serviceMarketplace.detail.whatsapp')}
+                    </button>
+                  )}
                   <button
                     type="button"
-                    disabled
-                    className="w-full bg-green-50 text-green-400 border border-green-100 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed"
+                    onClick={() => void handleSendMessage()}
+                    disabled={isStartingChat}
+                    className="w-full bg-diyar-dark text-diyar-cream border border-diyar-dark font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-diyar-dark/90 transition-colors cursor-pointer disabled:opacity-60"
                   >
-                    <Smartphone size={18} /> {t('serviceMarketplace.detail.whatsapp')}
+                    {isStartingChat ? (
+                      <Loader2 size={18} className="animate-spin" />
+                    ) : (
+                      <MessagesSquare size={18} />
+                    )}
+                    {t('serviceMarketplace.detail.sendMessage')}
                   </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => void handleSendMessage()}
-                  disabled={isStartingChat}
-                  className="w-full bg-diyar-dark text-diyar-cream border border-diyar-dark font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-diyar-dark/90 transition-colors cursor-pointer disabled:opacity-60"
-                >
-                  {isStartingChat ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <MessagesSquare size={18} />
-                  )}
-                  {t('serviceMarketplace.detail.sendMessage')}
-                </button>
+                </div>
               </div>
-            </div>
             ) : null}
 
             {provider && (

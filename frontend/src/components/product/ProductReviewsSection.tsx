@@ -10,7 +10,12 @@ import {
   useProductEngagementMutations,
   useProductReviews,
 } from '../../hooks/catalog/useProductEngagement.ts';
-import { confirmDeleteReview, showApiErrorAlert, showErrorAlert, showSuccessToast } from '../../lib/confirmDialog.ts';
+import {
+  confirmDeleteReview,
+  showApiErrorAlert,
+  showErrorAlert,
+  showSuccessToast,
+} from '../../lib/confirmDialog.ts';
 import { vendorButtonClass } from '../../lib/vendorProductValidation.ts';
 import { VendorReplyBlock } from '../reviews/VendorReplyBlock.tsx';
 import { formatLocaleDate } from '../../lib/intlLocale.ts';

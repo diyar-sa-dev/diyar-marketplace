@@ -12,7 +12,12 @@ import {
 } from './VendorOrderDetailPanels.tsx';
 import { VendorOrderInfoSidebar } from './VendorOrderInfoSidebar.tsx';
 import { VendorOrderShipModal } from './VendorOrderShipModal.tsx';
-import { vendorOrderDisplayNumber, vendorOrderCanManageStatus, vendorOrderCanCancel, type VendorOrderAction } from './vendorOrderUtils.ts';
+import {
+  vendorOrderDisplayNumber,
+  vendorOrderCanManageStatus,
+  vendorOrderCanCancel,
+  type VendorOrderAction,
+} from './vendorOrderUtils.ts';
 import type { VendorOrder } from '../../../../types/order.ts';
 
 export function VendorOrderDetailView({

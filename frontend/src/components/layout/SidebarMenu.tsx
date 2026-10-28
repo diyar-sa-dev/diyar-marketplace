@@ -32,11 +32,7 @@ export function SidebarMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     user?.status,
     user?.roles,
   );
-  const showAdminPanelLink = shouldShowAdminPanelLink(
-    isAuthenticated,
-    user?.status,
-    user?.roles,
-  );
+  const showAdminPanelLink = shouldShowAdminPanelLink(isAuthenticated, user?.status, user?.roles);
 
   const [isProjectsOpen, setIsProjectsOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);

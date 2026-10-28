@@ -85,7 +85,9 @@ function StyleCard({
       />
       <div className="absolute inset-0 bg-linear-to-t from-diyar-dark/90 via-diyar-dark/25 to-transparent" />
       <div className="relative z-10 p-5 md:p-8">
-        <span className="block font-sans font-bold text-xl md:text-3xl text-white mb-2">{style.name}</span>
+        <span className="block font-sans font-bold text-xl md:text-3xl text-white mb-2">
+          {style.name}
+        </span>
         <span className="inline-flex items-center gap-1.5 text-white/90 text-xs md:text-sm font-semibold border border-white/30 px-3 py-1.5 rounded-full backdrop-blur-sm group-hover:bg-white/10 transition-colors">
           {shopNowLabel}
           <ArrowLeft size={14} className={dir === 'rtl' ? '' : 'rotate-180'} />

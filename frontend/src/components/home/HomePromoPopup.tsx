@@ -18,13 +18,15 @@ type PromoAd = {
 const PROMO_ADS: PromoAd[] = [
   {
     id: 'summer-offers-1',
-    imageSrc: '/%D8%A8%D9%86%D8%B1%20%D8%B9%D8%B1%D9%88%D8%B6%20%D8%A7%D9%84%D8%B5%D9%8A%D9%81.webp',
+    imageSrc:
+      '/%D8%A8%D9%86%D8%B1%20%D8%B9%D8%B1%D9%88%D8%B6%20%D8%A7%D9%84%D8%B5%D9%8A%D9%81.webp',
     link: '/category/all?discounted=1&sort=-discount',
     altKey: 'home.adPopup.alt',
   },
   {
     id: 'summer-offers-2',
-    imageSrc: '/%D8%A8%D9%86%D8%B1%20%D8%B9%D8%B1%D9%88%D8%B6%20%D8%A7%D9%84%D8%B5%D9%8A%D9%81%202.webp',
+    imageSrc:
+      '/%D8%A8%D9%86%D8%B1%20%D8%B9%D8%B1%D9%88%D8%B6%20%D8%A7%D9%84%D8%B5%D9%8A%D9%81%202.webp',
     link: '/category/all?discounted=1&sort=-discount',
     altKey: 'home.adPopup.alt2',
   },

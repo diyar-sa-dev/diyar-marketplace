@@ -15,7 +15,8 @@ export function RailControls({
   hideWhenNoOverflow = true,
 }: RailControlsProps) {
   const { t, dir } = useLocale();
-  const { overflow, canScrollStart, canScrollEnd, scrollByPage } = useHorizontalRailScroll(scroller);
+  const { overflow, canScrollStart, canScrollEnd, scrollByPage } =
+    useHorizontalRailScroll(scroller);
 
   if (hideWhenNoOverflow && !overflow) {
     return null;
@@ -74,10 +75,7 @@ export function HorizontalRail({
   return (
     <div className="flex flex-col gap-2 md:gap-2.5">
       <div className={`flex justify-end ${controlsClassName}`}>
-        <RailControls
-          scroller={scrollerRef}
-          hideWhenNoOverflow={hideControlsWhenNoOverflow}
-        />
+        <RailControls scroller={scrollerRef} hideWhenNoOverflow={hideControlsWhenNoOverflow} />
       </div>
       <div ref={scrollerRef} className={className}>
         {children}

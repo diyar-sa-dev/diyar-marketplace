@@ -83,9 +83,7 @@ export default function AIDesignerPage() {
           id: `a-err-${Date.now()}`,
           type: 'assistant',
           content:
-            parsed.status === 503
-              ? t('layout.assistant.unavailable')
-              : t('layout.assistant.error'),
+            parsed.status === 503 ? t('layout.assistant.unavailable') : t('layout.assistant.error'),
         },
       ]);
     } finally {

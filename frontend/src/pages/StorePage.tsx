@@ -91,9 +91,13 @@ export default function StorePage() {
     isError: productsError,
     error: productsErr,
     refetch: refetchProducts,
-  } = useVendorProducts(slug, { per_page: perPage, page, sort }, {
-    enabled: Boolean(vendor) && !vendorUnavailable,
-  });
+  } = useVendorProducts(
+    slug,
+    { per_page: perPage, page, sort },
+    {
+      enabled: Boolean(vendor) && !vendorUnavailable,
+    },
+  );
 
   const unavailableState = (
     <div className="bg-gray-50 min-h-screen pb-16 pt-8">
@@ -362,13 +366,17 @@ export default function StorePage() {
                   <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center shrink-0">
                     <Truck className="w-4 h-4 text-green-500" />
                   </div>
-                  <span className="text-gray-700 font-medium">{t('store.featureFastShipping')}</span>
+                  <span className="text-gray-700 font-medium">
+                    {t('store.featureFastShipping')}
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
                     <Award className="w-4 h-4 text-amber-500" />
                   </div>
-                  <span className="text-gray-700 font-medium">{t('store.featureQualityReturns')}</span>
+                  <span className="text-gray-700 font-medium">
+                    {t('store.featureQualityReturns')}
+                  </span>
                 </div>
               </div>
             </div>
@@ -426,7 +434,9 @@ export default function StorePage() {
             {activeTab === 'products' && (
               <div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-                  <h2 className="text-xl font-bold text-diyar-dark">{t('store.allProductsTitle')}</h2>
+                  <h2 className="text-xl font-bold text-diyar-dark">
+                    {t('store.allProductsTitle')}
+                  </h2>
                   <select
                     value={sort}
                     onChange={(e) => {

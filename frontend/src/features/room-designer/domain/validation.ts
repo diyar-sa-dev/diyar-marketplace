@@ -55,7 +55,10 @@ export function validateRoomDimensions(
   return null;
 }
 
-export function validateItemSnapshotDimensions(width_m: number, depth_m: number): DomainError | null {
+export function validateItemSnapshotDimensions(
+  width_m: number,
+  depth_m: number,
+): DomainError | null {
   for (const [label, value] of [
     ['width_m', width_m],
     ['depth_m', depth_m],
@@ -63,9 +66,13 @@ export function validateItemSnapshotDimensions(width_m: number, depth_m: number)
     const finite = assertFinite(value, label);
     if (finite) return finite;
     if (value < MIN_ITEM_EDGE_M || value > MAX_ITEM_EDGE_M) {
-      return domainError(DomainErrorCode.INVALID_DIMENSIONS, `${label} is out of allowed item range`, {
-        [label]: value,
-      });
+      return domainError(
+        DomainErrorCode.INVALID_DIMENSIONS,
+        `${label} is out of allowed item range`,
+        {
+          [label]: value,
+        },
+      );
     }
   }
   return null;

@@ -56,11 +56,11 @@ function CompanyCard({ company }: { company: B2bCompanyCard }) {
     `https://ui-avatars.com/api/?name=${encodeURIComponent(company.name)}&background=F3ECDB&color=947961&size=100`;
 
   return (
-            <div
-              key={company.slug}
-              data-testid={`b2b-company-card-${company.slug}`}
-              className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow group flex flex-col"
-            >
+    <div
+      key={company.slug}
+      data-testid={`b2b-company-card-${company.slug}`}
+      className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow group flex flex-col"
+    >
       <div className="h-40 relative overflow-hidden bg-gray-100">
         <img
           src={company.cover_image ?? FALLBACK_COVER}
@@ -83,14 +83,23 @@ function CompanyCard({ company }: { company: B2bCompanyCard }) {
 
       <div className="p-5 relative flex-1 flex flex-col">
         <div className="w-16 h-16 rounded-xl bg-white shadow-md border border-gray-100 absolute -top-8 right-5 overflow-hidden flex items-center justify-center p-1">
-          <img src={logo} alt={company.name} className="w-full h-full object-contain rounded-lg" loading="lazy" />
+          <img
+            src={logo}
+            alt={company.name}
+            className="w-full h-full object-contain rounded-lg"
+            loading="lazy"
+          />
         </div>
 
         <div className="mt-8 flex justify-between items-start mb-2 gap-2">
           <h3 className="font-bold text-lg text-diyar-dark line-clamp-1 flex items-center gap-1.5">
             {company.name}
             {company.verified ? (
-              <BadgeCheck size={16} className="text-diyar-brown shrink-0" aria-label={t('b2b.page.verified')} />
+              <BadgeCheck
+                size={16}
+                className="text-diyar-brown shrink-0"
+                aria-label={t('b2b.page.verified')}
+              />
             ) : null}
           </h3>
           <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg text-xs shrink-0">
@@ -108,7 +117,9 @@ function CompanyCard({ company }: { company: B2bCompanyCard }) {
         ) : null}
 
         {company.description ? (
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">{company.description}</p>
+          <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+            {company.description}
+          </p>
         ) : null}
 
         {company.tags && company.tags.length > 0 ? (
@@ -259,7 +270,10 @@ export default function B2BPage() {
           <span className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm border border-white/20 text-diyar-cream text-xs font-bold px-3 py-1.5 rounded-full mb-4">
             <Building2 size={14} /> {t('b2b.page.badge')}
           </span>
-          <h1 className="text-3xl md:text-4xl font-bold mb-3 leading-snug drop-shadow-sm" data-testid="b2b-page-title">
+          <h1
+            className="text-3xl md:text-4xl font-bold mb-3 leading-snug drop-shadow-sm"
+            data-testid="b2b-page-title"
+          >
             {t('b2b.page.title')}
           </h1>
           <p className="text-white/80 max-w-2xl text-sm md:text-lg leading-relaxed mb-6">

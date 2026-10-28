@@ -92,6 +92,7 @@ class SmsProviderTest extends TestCase
     {
         config([
             'app.env' => 'production',
+            'diyar.sms.driver' => 'auto',
             'services.msegat.username' => null,
             'services.msegat.api_key' => null,
             'services.msegat.sender_id' => null,

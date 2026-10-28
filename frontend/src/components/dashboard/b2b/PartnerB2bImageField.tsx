@@ -87,7 +87,9 @@ export function PartnerB2bImageField({
               <div className="rounded-xl bg-gray-50 p-2 text-diyar-brown shadow-sm">
                 {isLogo ? <ImageIcon size={20} /> : <Upload size={20} />}
               </div>
-              <span className="mt-2 text-xs font-bold text-gray-500">{t('b2b.partner.uploadImage')}</span>
+              <span className="mt-2 text-xs font-bold text-gray-500">
+                {t('b2b.partner.uploadImage')}
+              </span>
             </>
           )}
         </button>

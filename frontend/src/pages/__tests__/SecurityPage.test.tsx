@@ -27,7 +27,9 @@ vi.mock('../../hooks/profile/useTwoFactor.ts', () => ({
 }));
 
 vi.mock('../../hooks/useToast.ts', () => ({
-  useToast: () => ({ toast: { success: vi.fn(), error: vi.fn(), info: vi.fn(), warning: vi.fn() } }),
+  useToast: () => ({
+    toast: { success: vi.fn(), error: vi.fn(), info: vi.fn(), warning: vi.fn() },
+  }),
 }));
 
 vi.mock('../../hooks/profile/useSecuritySessions.ts', () => ({
@@ -233,7 +235,11 @@ describe('SecurityPage', () => {
 
   it('renders two-factor enabled status in Arabic', () => {
     mockUseTwoFactorStatus.mockReturnValue({
-      data: { enabled: true, confirmed_at: '2026-09-11T10:00:00+00:00', phone_masked: '0500000010' },
+      data: {
+        enabled: true,
+        confirmed_at: '2026-09-11T10:00:00+00:00',
+        phone_masked: '0500000010',
+      },
       isLoading: false,
     });
     renderPage('ar');

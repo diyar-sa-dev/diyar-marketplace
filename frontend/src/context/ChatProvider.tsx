@@ -10,7 +10,13 @@ import {
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { fetchMessages, markConversationRead } from '../api/chat.ts';
-import type { ChatCrossTabPayload, ChatTypingEntry, MessageCreatedPayload, MessageUpdatedPayload, TypingUpdatedPayload } from '../types/chat.ts';
+import type {
+  ChatCrossTabPayload,
+  ChatTypingEntry,
+  MessageCreatedPayload,
+  MessageUpdatedPayload,
+  TypingUpdatedPayload,
+} from '../types/chat.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { isRealtimeEnabled } from '../lib/env.ts';
 import { bumpConversationPreview } from '../lib/chat/conversationListCache.ts';
@@ -21,7 +27,12 @@ import {
   upsertMessageInInfiniteData,
   type MessagesInfiniteData,
 } from '../lib/chat/messageCache.ts';
-import { RealtimeEventRouter, subscribeRealtimeConnection, prepareRealtimeConnection, type RealtimeConnectionState } from '../lib/realtime/echo.ts';
+import {
+  RealtimeEventRouter,
+  subscribeRealtimeConnection,
+  prepareRealtimeConnection,
+  type RealtimeConnectionState,
+} from '../lib/realtime/echo.ts';
 import { chatKeys } from '../hooks/chat/useChat.ts';
 
 const CROSS_TAB_CHANNEL = 'diyar-chat';
@@ -148,7 +159,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       const isActiveThread = payload.conversation_id === subscribedIdRef.current;
 
       const writeMessageToCache = (snapshot: MessagesInfiniteData | undefined) => {
-        queryClient.setQueryData<MessagesInfiniteData>(cacheKey, mergeIncomingMessage(snapshot, message));
+        queryClient.setQueryData<MessagesInfiniteData>(
+          cacheKey,
+          mergeIncomingMessage(snapshot, message),
+        );
       };
 
       if (!existing?.pages?.length && isActiveThread) {
@@ -220,7 +234,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         upsertMessageInInfiniteData(current ?? existing, message),
       );
 
-      const flattened = flattenMessages(existing ?? queryClient.getQueryData<MessagesInfiniteData>(cacheKey));
+      const flattened = flattenMessages(
+        existing ?? queryClient.getQueryData<MessagesInfiniteData>(cacheKey),
+      );
       const lastMessage = flattened.at(-1);
       if (lastMessage?.id === message.id) {
         if (message.is_deleted || message.deleted_at) {
@@ -244,7 +260,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       }
 
       if (!fromCrossTab) {
-        publishCrossTab({ type: 'message_updated', conversation_id: payload.conversation_id, message });
+        publishCrossTab({
+          type: 'message_updated',
+          conversation_id: payload.conversation_id,
+          message,
+        });
       }
     },
     [publishCrossTab, queryClient],
@@ -258,9 +278,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
     try {
       const latest = await fetchMessages(conversationId, null, 30);
-      queryClient.setQueryData<MessagesInfiniteData>(
-        chatKeys.messages(conversationId),
-        (current) => mergeReconciledMessages(current, latest.messages),
+      queryClient.setQueryData<MessagesInfiniteData>(chatKeys.messages(conversationId), (current) =>
+        mergeReconciledMessages(current, latest.messages),
       );
 
       const lastMessage = latest.messages.at(-1);
@@ -280,8 +299,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     previousConnectionStateRef.current = connectionState;
 
     if (
-      connectionState === 'connected'
-      && (previous === 'disconnected' || previous === 'reconnecting' || previous === 'failed')
+      connectionState === 'connected' &&
+      (previous === 'disconnected' || previous === 'reconnecting' || previous === 'failed')
     ) {
       void reconcileActiveConversation();
       void queryClient.invalidateQueries({ queryKey: chatKeys.conversations() });
@@ -355,7 +374,16 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
       void markConversationRead(conversationId).catch(() => undefined);
     },
-    [applyMessageUpdate, clearConversationTyping, isAuthenticated, mergeMessage, scheduleTypingExpiry, touchCounterpartyActivity, unsubscribeConversation, user?.id],
+    [
+      applyMessageUpdate,
+      clearConversationTyping,
+      isAuthenticated,
+      mergeMessage,
+      scheduleTypingExpiry,
+      touchCounterpartyActivity,
+      unsubscribeConversation,
+      user?.id,
+    ],
   );
 
   useEffect(() => {

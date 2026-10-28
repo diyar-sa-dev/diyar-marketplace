@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { canvasPointToMeters, metersToCanvasPoint, type RoomProjectionMode } from './projectionMode.ts';
+import {
+  canvasPointToMeters,
+  metersToCanvasPoint,
+  type RoomProjectionMode,
+} from './projectionMode.ts';
 
 const MODES: RoomProjectionMode[] = ['top_down', 'isometric_25d'];
 const SCALES = [20, 80, 160, 320];

@@ -96,7 +96,10 @@ export function LoyaltyPromo() {
                 </span>
               </div>
             ) : isAuthenticated ? (
-              <div className="mb-8 h-12 w-56 max-w-full rounded-2xl bg-amber-50/80 animate-pulse" aria-hidden />
+              <div
+                className="mb-8 h-12 w-56 max-w-full rounded-2xl bg-amber-50/80 animate-pulse"
+                aria-hidden
+              />
             ) : null}
 
             <div className="flex flex-col gap-5 mb-10">

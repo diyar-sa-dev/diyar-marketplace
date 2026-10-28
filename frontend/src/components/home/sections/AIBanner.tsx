@@ -111,15 +111,15 @@ export function AIBanner() {
 
             <div className="absolute inset-0 overflow-hidden will-change-transform animate-[sweep_4s_ease-in-out_infinite] origin-left">
               <div className="absolute inset-0 w-full h-full">
-              <img
-                src="/after.webp"
-                alt={t('home.aiBanner.assistantLayout')}
-                width={1200}
-                height={900}
-                decoding="async"
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
+                <img
+                  src="/after.webp"
+                  alt={t('home.aiBanner.assistantLayout')}
+                  width={1200}
+                  height={900}
+                  decoding="async"
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
               </div>
             </div>
 

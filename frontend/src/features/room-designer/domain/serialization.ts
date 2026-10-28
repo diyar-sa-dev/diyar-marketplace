@@ -7,7 +7,9 @@ export function serializeDocument(document: RoomDesignDocument): string {
   return JSON.stringify(document);
 }
 
-export function parseDocument(json: string): { ok: true; document: RoomDesignDocument } | { ok: false; error: DomainError } {
+export function parseDocument(
+  json: string,
+): { ok: true; document: RoomDesignDocument } | { ok: false; error: DomainError } {
   let parsed: unknown;
   try {
     parsed = JSON.parse(json);
@@ -16,7 +18,10 @@ export function parseDocument(json: string): { ok: true; document: RoomDesignDoc
   }
 
   if (typeof parsed !== 'object' || parsed === null) {
-    return { ok: false, error: domainError(DomainErrorCode.INVALID_COMMAND, 'Document must be an object') };
+    return {
+      ok: false,
+      error: domainError(DomainErrorCode.INVALID_COMMAND, 'Document must be an object'),
+    };
   }
 
   const doc = parsed as RoomDesignDocument;
@@ -34,7 +39,10 @@ export function parseDocument(json: string): { ok: true; document: RoomDesignDoc
   if (roomErr) return { ok: false, error: roomErr };
 
   if (!Array.isArray(doc.items)) {
-    return { ok: false, error: domainError(DomainErrorCode.INVALID_COMMAND, 'items must be an array') };
+    return {
+      ok: false,
+      error: domainError(DomainErrorCode.INVALID_COMMAND, 'items must be an array'),
+    };
   }
 
   if (doc.items.length > MAX_ITEMS) {

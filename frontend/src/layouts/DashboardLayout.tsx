@@ -328,9 +328,9 @@ export default function DashboardLayout() {
       )}
 
       <aside
-          className={`fixed inset-y-0 z-50 flex h-dvh max-h-dvh shrink-0 flex-col overflow-hidden bg-diyar-dark text-white shadow-xl md:relative md:inset-auto md:h-full md:max-h-full md:translate-x-0 ${
-            sidebarMotionOn ? 'transition-[width,transform] duration-300' : ''
-          } ${dir === 'rtl' ? 'right-0' : 'left-0'} ${
+        className={`fixed inset-y-0 z-50 flex h-dvh max-h-dvh shrink-0 flex-col overflow-hidden bg-diyar-dark text-white shadow-xl md:relative md:inset-auto md:h-full md:max-h-full md:translate-x-0 ${
+          sidebarMotionOn ? 'transition-[width,transform] duration-300' : ''
+        } ${dir === 'rtl' ? 'right-0' : 'left-0'} ${
           isSidebarOpen
             ? 'w-64 translate-x-0'
             : `w-64 md:w-20 ${sidebarHiddenTransform} md:translate-x-0`
@@ -372,7 +372,9 @@ export default function DashboardLayout() {
           {!role ? (
             <div className="px-4 text-sm text-gray-400">{t('dashboard.selectAccountType')}</div>
           ) : (
-            <ul className={`space-y-1 ${isSidebarOpen ? 'px-3' : 'flex flex-col items-center px-0'}`}>
+            <ul
+              className={`space-y-1 ${isSidebarOpen ? 'px-3' : 'flex flex-col items-center px-0'}`}
+            >
               {links.map((link, index) => {
                 const Icon = link.icon;
                 const isActive = location.pathname === link.path;
@@ -433,191 +435,192 @@ export default function DashboardLayout() {
           >
             <LogOut size={20} className="shrink-0" />
             {isSidebarOpen && (
-              <span className="truncate font-medium whitespace-nowrap">{t('dashboard.backToStore')}</span>
+              <span className="truncate font-medium whitespace-nowrap">
+                {t('dashboard.backToStore')}
+              </span>
             )}
           </Link>
         </div>
       </aside>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <header className="z-20 flex h-14 shrink-0 items-center justify-between gap-2 border-b border-gray-100 bg-white/95 px-3 backdrop-blur sm:h-16 sm:px-4 md:px-6">
-            <div className="flex min-w-0 items-center gap-2 md:gap-4">
-              <button
-                onClick={() => {
-                  setIsAccountMenuOpen(false);
-                  setIsNotificationsOpen(false);
-                  setIsSidebarOpen(true);
-                }}
-                className="shrink-0 rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 md:hidden cursor-pointer"
-                aria-label={t('dashboard.openMenu')}
-              >
-                <Menu size={20} />
-              </button>
-              <h1 className="truncate text-base font-bold text-diyar-dark sm:text-lg md:text-xl">
-                {role ? t(`dashboard.portals.${role}.headerTitle`) : t('dashboard.selectPortal')}
-              </h1>
+        <header className="z-20 flex h-14 shrink-0 items-center justify-between gap-2 border-b border-gray-100 bg-white/95 px-3 backdrop-blur sm:h-16 sm:px-4 md:px-6">
+          <div className="flex min-w-0 items-center gap-2 md:gap-4">
+            <button
+              onClick={() => {
+                setIsAccountMenuOpen(false);
+                setIsNotificationsOpen(false);
+                setIsSidebarOpen(true);
+              }}
+              className="shrink-0 rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 md:hidden cursor-pointer"
+              aria-label={t('dashboard.openMenu')}
+            >
+              <Menu size={20} />
+            </button>
+            <h1 className="truncate text-base font-bold text-diyar-dark sm:text-lg md:text-xl">
+              {role ? t(`dashboard.portals.${role}.headerTitle`) : t('dashboard.selectPortal')}
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
+            {showRoleSwitcher && (
+              <div className="group relative hidden md:block">
+                <button className="flex cursor-pointer items-center gap-1 rounded-lg border border-gray-200 px-2 py-1.5 text-xs font-medium transition-colors hover:bg-gray-50 md:gap-2 md:px-3 md:text-sm">
+                  <span>{t('dashboard.switchAccount')}</span>
+                  <ChevronDown size={14} />
+                </button>
+                <div className="invisible absolute top-full inset-s-0 z-50 mt-1 w-48 overflow-hidden rounded-xl border border-gray-100 bg-white opacity-0 shadow-lg transition-all group-hover:visible group-hover:opacity-100">
+                  {accessiblePortals.map((portal) => {
+                    const Icon = PORTAL_ICONS[portal.key];
+
+                    return (
+                      <Link
+                        key={portal.key}
+                        to={portal.path}
+                        className={`flex items-center gap-2 px-4 py-2 text-sm transition-colors hover:bg-gray-50 ${
+                          role === portal.key ? 'bg-gray-50 font-bold text-diyar-dark' : ''
+                        }`}
+                      >
+                        <Icon size={16} className={portal.iconTextClass} />{' '}
+                        {t(`dashboard.portals.${portal.key}.switchLabel`)}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {(role === 'vendor' || role === 'service') && (
+              <ChatMessagesLink to={resolveChatHubPath(user?.roles, role)} variant="header" />
+            )}
+
+            <NotificationBellDropdown
+              viewAllPath={`/dashboard/${role}/notifications`}
+              open={isNotificationsOpen}
+              onToggle={() => {
+                setIsAccountMenuOpen(false);
+                setIsNotificationsOpen((value) => !value);
+              }}
+              onClose={() => setIsNotificationsOpen(false)}
+            />
+
+            <div className="hidden md:block">
+              <LanguageSwitcher />
             </div>
 
-            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
-              {showRoleSwitcher && (
-                <div className="group relative hidden md:block">
-                  <button className="flex cursor-pointer items-center gap-1 rounded-lg border border-gray-200 px-2 py-1.5 text-xs font-medium transition-colors hover:bg-gray-50 md:gap-2 md:px-3 md:text-sm">
-                    <span>{t('dashboard.switchAccount')}</span>
-                    <ChevronDown size={14} />
-                  </button>
-                  <div className="invisible absolute top-full inset-s-0 z-50 mt-1 w-48 overflow-hidden rounded-xl border border-gray-100 bg-white opacity-0 shadow-lg transition-all group-hover:visible group-hover:opacity-100">
-                    {accessiblePortals.map((portal) => {
-                      const Icon = PORTAL_ICONS[portal.key];
-
-                      return (
-                        <Link
-                          key={portal.key}
-                          to={portal.path}
-                          className={`flex items-center gap-2 px-4 py-2 text-sm transition-colors hover:bg-gray-50 ${
-                            role === portal.key ? 'bg-gray-50 font-bold text-diyar-dark' : ''
-                          }`}
-                        >
-                          <Icon size={16} className={portal.iconTextClass} />{' '}
-                          {t(`dashboard.portals.${portal.key}.switchLabel`)}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {(role === 'vendor' || role === 'service') && (
-                <ChatMessagesLink
-                  to={resolveChatHubPath(user?.roles, role)}
-                  variant="header"
-                />
-              )}
-
-              <NotificationBellDropdown
-                viewAllPath={`/dashboard/${role}/notifications`}
-                open={isNotificationsOpen}
-                onToggle={() => {
-                  setIsAccountMenuOpen(false);
-                  setIsNotificationsOpen((value) => !value);
-                }}
-                onClose={() => setIsNotificationsOpen(false)}
-              />
-
-              <div className="hidden md:block">
-                <LanguageSwitcher />
-              </div>
-
-              <div className="relative" ref={accountMenuRef}>
-                <button
-                  type="button"
-                  className={`cursor-pointer rounded-full transition-all hover:ring-2 md:hidden ${portalTheme.avatarRing}`}
-                  aria-label={t('common.myAccount')}
-                  aria-expanded={isAccountMenuOpen}
-                  aria-haspopup="menu"
-                  onClick={() => {
-                    setIsNotificationsOpen(false);
-                    setIsAccountMenuOpen((open) => !open);
-                  }}
-                >
-                  <UserAvatar name={headerAvatarName} avatarUrl={headerAvatarUrl} size="sm" />
-                </button>
-                <Link
-                  to={resolveAccountHubPath(user?.roles)}
-                  className={`hidden shrink-0 cursor-pointer rounded-full transition-all hover:ring-2 md:inline-flex ${portalTheme.avatarRing}`}
-                  title={t('common.myAccount')}
-                >
-                  <UserAvatar name={headerAvatarName} avatarUrl={headerAvatarUrl} size="sm" />
-                </Link>
-                {isAccountMenuOpen ? (
-                  <div
-                    role="menu"
-                    className="absolute top-full inset-e-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_16px_40px_rgba(19,38,36,0.12)] md:hidden"
-                  >
-                    <div className="flex items-center gap-3 border-b border-gray-100 px-3.5 py-3">
-                      <UserAvatar name={headerAvatarName} avatarUrl={headerAvatarUrl} size="sm" />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-diyar-dark">
-                          {headerAvatarName ?? user?.name}
-                        </p>
-                        {user?.email ? (
-                          <p className="truncate text-xs text-gray-500">{user.email}</p>
-                        ) : null}
-                      </div>
-                    </div>
-                    {showRoleSwitcher ? (
-                      <div className="border-b border-gray-100 p-1">
-                        <p className="px-2.5 py-1.5 text-xs font-medium text-gray-400">
-                          {t('dashboard.switchAccount')}
-                        </p>
-                        {accessiblePortals.map((portal) => {
-                          const Icon = PORTAL_ICONS[portal.key];
-
-                          return (
-                            <Link
-                              key={portal.key}
-                              role="menuitem"
-                              to={portal.path}
-                              onClick={() => setIsAccountMenuOpen(false)}
-                              className={`flex min-h-11 cursor-pointer items-center gap-2.5 rounded-xl px-2.5 text-sm transition-colors hover:bg-gray-50 ${
-                                role === portal.key ? 'bg-gray-50 font-semibold text-diyar-dark' : 'text-gray-700'
-                              }`}
-                            >
-                              <Icon size={16} className={portal.iconTextClass} />
-                              {t(`dashboard.portals.${portal.key}.switchLabel`)}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-                    <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-3.5 py-2.5">
-                      <span className="text-sm text-gray-600">{t('common.language')}</span>
-                      <LanguageSwitcher />
-                    </div>
-                    <div className="p-1">
-                      <Link
-                        role="menuitem"
-                        to={resolveAccountHubPath(user?.roles)}
-                        onClick={() => setIsAccountMenuOpen(false)}
-                        className="flex min-h-11 cursor-pointer items-center gap-2.5 rounded-xl px-2.5 text-sm text-diyar-dark transition-colors hover:bg-gray-50"
-                      >
-                        <User size={16} className="text-gray-400" />
-                        {t('common.myAccount')}
-                      </Link>
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={handleLogout}
-                        className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-xl px-2.5 text-start text-sm text-red-600 transition-colors hover:bg-red-50"
-                      >
-                        <LogOut size={16} />
-                        {t('common.logout')}
-                      </button>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-
+            <div className="relative" ref={accountMenuRef}>
               <button
                 type="button"
-                onClick={handleLogout}
-                className="hidden cursor-pointer items-center gap-2 rounded-lg border border-gray-200 p-2 text-sm font-medium transition hover:bg-gray-50 md:inline-flex md:px-3"
-                aria-label={t('common.logout')}
+                className={`cursor-pointer rounded-full transition-all hover:ring-2 md:hidden ${portalTheme.avatarRing}`}
+                aria-label={t('common.myAccount')}
+                aria-expanded={isAccountMenuOpen}
+                aria-haspopup="menu"
+                onClick={() => {
+                  setIsNotificationsOpen(false);
+                  setIsAccountMenuOpen((open) => !open);
+                }}
               >
-                <LogOut size={16} />
-                <span>{t('common.logout')}</span>
+                <UserAvatar name={headerAvatarName} avatarUrl={headerAvatarUrl} size="sm" />
               </button>
-            </div>
-          </header>
+              <Link
+                to={resolveAccountHubPath(user?.roles)}
+                className={`hidden shrink-0 cursor-pointer rounded-full transition-all hover:ring-2 md:inline-flex ${portalTheme.avatarRing}`}
+                title={t('common.myAccount')}
+              >
+                <UserAvatar name={headerAvatarName} avatarUrl={headerAvatarUrl} size="sm" />
+              </Link>
+              {isAccountMenuOpen ? (
+                <div
+                  role="menu"
+                  className="absolute top-full inset-e-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_16px_40px_rgba(19,38,36,0.12)] md:hidden"
+                >
+                  <div className="flex items-center gap-3 border-b border-gray-100 px-3.5 py-3">
+                    <UserAvatar name={headerAvatarName} avatarUrl={headerAvatarUrl} size="sm" />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-diyar-dark">
+                        {headerAvatarName ?? user?.name}
+                      </p>
+                      {user?.email ? (
+                        <p className="truncate text-xs text-gray-500">{user.email}</p>
+                      ) : null}
+                    </div>
+                  </div>
+                  {showRoleSwitcher ? (
+                    <div className="border-b border-gray-100 p-1">
+                      <p className="px-2.5 py-1.5 text-xs font-medium text-gray-400">
+                        {t('dashboard.switchAccount')}
+                      </p>
+                      {accessiblePortals.map((portal) => {
+                        const Icon = PORTAL_ICONS[portal.key];
 
-          <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 md:p-6">
-            {isVendorPortal ? (
-              <VendorPortalGuard>
-                <Outlet />
-              </VendorPortalGuard>
-            ) : (
+                        return (
+                          <Link
+                            key={portal.key}
+                            role="menuitem"
+                            to={portal.path}
+                            onClick={() => setIsAccountMenuOpen(false)}
+                            className={`flex min-h-11 cursor-pointer items-center gap-2.5 rounded-xl px-2.5 text-sm transition-colors hover:bg-gray-50 ${
+                              role === portal.key
+                                ? 'bg-gray-50 font-semibold text-diyar-dark'
+                                : 'text-gray-700'
+                            }`}
+                          >
+                            <Icon size={16} className={portal.iconTextClass} />
+                            {t(`dashboard.portals.${portal.key}.switchLabel`)}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                  <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-3.5 py-2.5">
+                    <span className="text-sm text-gray-600">{t('common.language')}</span>
+                    <LanguageSwitcher />
+                  </div>
+                  <div className="p-1">
+                    <Link
+                      role="menuitem"
+                      to={resolveAccountHubPath(user?.roles)}
+                      onClick={() => setIsAccountMenuOpen(false)}
+                      className="flex min-h-11 cursor-pointer items-center gap-2.5 rounded-xl px-2.5 text-sm text-diyar-dark transition-colors hover:bg-gray-50"
+                    >
+                      <User size={16} className="text-gray-400" />
+                      {t('common.myAccount')}
+                    </Link>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleLogout}
+                      className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-xl px-2.5 text-start text-sm text-red-600 transition-colors hover:bg-red-50"
+                    >
+                      <LogOut size={16} />
+                      {t('common.logout')}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="hidden cursor-pointer items-center gap-2 rounded-lg border border-gray-200 p-2 text-sm font-medium transition hover:bg-gray-50 md:inline-flex md:px-3"
+              aria-label={t('common.logout')}
+            >
+              <LogOut size={16} />
+              <span>{t('common.logout')}</span>
+            </button>
+          </div>
+        </header>
+
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 md:p-6">
+          {isVendorPortal ? (
+            <VendorPortalGuard>
               <Outlet />
-            )}
-          </main>
+            </VendorPortalGuard>
+          ) : (
+            <Outlet />
+          )}
+        </main>
       </div>
     </div>
   );

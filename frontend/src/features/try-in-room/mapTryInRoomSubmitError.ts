@@ -1,10 +1,7 @@
 import { isApiErrorDetail } from '../../utils/errors.ts';
 
 export type TryInRoomSubmitErrorKey =
-  | 'idempotency_conflict'
-  | 'request_failed'
-  | 'invalid_type'
-  | 'file_too_large';
+  'idempotency_conflict' | 'request_failed' | 'invalid_type' | 'file_too_large';
 
 export function mapTryInRoomSubmitError(error: unknown): TryInRoomSubmitErrorKey {
   if (isApiErrorDetail(error)) {

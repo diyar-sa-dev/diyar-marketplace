@@ -66,7 +66,14 @@ describe('B2BPage', () => {
     });
 
     mockUseB2bCategories.mockReturnValue({
-      data: [{ id: '1', slug: 'furniture-manufacturing', name: 'تصنيع أثاث', published_companies_count: 2 }],
+      data: [
+        {
+          id: '1',
+          slug: 'furniture-manufacturing',
+          name: 'تصنيع أثاث',
+          published_companies_count: 2,
+        },
+      ],
     });
 
     mockUseB2bCompanies.mockReturnValue({

@@ -77,28 +77,32 @@ function benchTable(counts: number[], iterations: number): Record<Op, Record<num
     });
     if (moved.ok) engine = moved.state;
 
-    table.UNDO[count] = measureMs(() => {
-      const u = undo(engine);
-      if (u.ok) undo(u.state);
-    }, Math.max(10, Math.floor(iterations / 5)));
+    table.UNDO[count] = measureMs(
+      () => {
+        const u = undo(engine);
+        if (u.ok) undo(u.state);
+      },
+      Math.max(10, Math.floor(iterations / 5)),
+    );
 
-    table.REDO[count] = measureMs(() => {
-      const u = undo(engine);
-      if (u.ok) {
-        const r = redo(u.state);
-        if (r.ok) redo(r.state);
-      }
-    }, Math.max(10, Math.floor(iterations / 5)));
+    table.REDO[count] = measureMs(
+      () => {
+        const u = undo(engine);
+        if (u.ok) {
+          const r = redo(u.state);
+          if (r.ok) redo(r.state);
+        }
+      },
+      Math.max(10, Math.floor(iterations / 5)),
+    );
   }
 
   return table;
 }
 
 describe('spatial core performance (micro)', () => {
-  it(
-    'records average ms per operation and stays within soft budget',
-    () => {
-      const counts = [10, 25, 50, 100];
+  it('records average ms per operation and stays within soft budget', () => {
+    const counts = [10, 25, 50, 100];
     const table = benchTable(counts, 200);
 
     // Soft guard: 100-item collision scan should stay below 20ms avg under concurrent test runner load.

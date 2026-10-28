@@ -4,7 +4,13 @@ import { ChevronRight, Store, Briefcase, User, Megaphone } from 'lucide-react';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { useOtpCooldown } from '../hooks/auth/useOtpCooldown.ts';
 import { useToast } from '../hooks/useToast.ts';
-import { ADMIN_PANEL_PATH, isAdminOnlyAccount, PARTNER_REGISTRATION_ROLE_PARAMS, resolvePartnerB2bDashboardPath, resolveSafeReturnPath } from '../lib/auth/roles.ts';
+import {
+  ADMIN_PANEL_PATH,
+  isAdminOnlyAccount,
+  PARTNER_REGISTRATION_ROLE_PARAMS,
+  resolvePartnerB2bDashboardPath,
+  resolveSafeReturnPath,
+} from '../lib/auth/roles.ts';
 import {
   isValidPasswordClient,
   isValidNameClient,
@@ -144,8 +150,7 @@ export default function AuthPage() {
     const from = (location.state as { from?: string } | null)?.from;
     const partnerB2bPath = resolvePartnerB2bDashboardPath(userRoles);
     const cameFromB2bFlow =
-      from === '/b2b' ||
-      (roleParam !== null && PARTNER_REGISTRATION_ROLE_PARAMS.has(roleParam));
+      from === '/b2b' || (roleParam !== null && PARTNER_REGISTRATION_ROLE_PARAMS.has(roleParam));
 
     if (partnerB2bPath && cameFromB2bFlow) {
       navigate(partnerB2bPath, { replace: true });
@@ -249,9 +254,7 @@ export default function AuthPage() {
       const twoFactor = isTwoFactorRequired(err);
       if (twoFactor) {
         setTwoFactorChallengeId(twoFactor.challengeId);
-        setPendingPhone(
-          twoFactor.phone || (loginMethod === 'phone' ? loginPhone.trim() : ''),
-        );
+        setPendingPhone(twoFactor.phone || (loginMethod === 'phone' ? loginPhone.trim() : ''));
         setOtpContext('two_factor_login');
         setOtpCode('');
         startCooldown();

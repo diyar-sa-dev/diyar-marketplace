@@ -33,8 +33,11 @@ interface ReviewTypeBadgeProps {
 }
 
 export function ReviewTypeBadge({ type, serviceSource = null, t }: ReviewTypeBadgeProps) {
-  const isServiceSource = type === 'service' && (serviceSource === 'rfq' || serviceSource === 'direct');
-  const labelKey = isServiceSource ? SERVICE_SOURCE_LABEL_KEYS[serviceSource] : TYPE_LABEL_KEYS[type];
+  const isServiceSource =
+    type === 'service' && (serviceSource === 'rfq' || serviceSource === 'direct');
+  const labelKey = isServiceSource
+    ? SERVICE_SOURCE_LABEL_KEYS[serviceSource]
+    : TYPE_LABEL_KEYS[type];
   const style = isServiceSource ? SERVICE_SOURCE_STYLES[serviceSource] : TYPE_STYLES[type];
 
   return (

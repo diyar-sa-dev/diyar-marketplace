@@ -117,10 +117,14 @@ export function ChatMessageBubble({
       ) : null}
 
       {isDeleted ? (
-        <p className={`italic text-sm ${isMine ? 'text-white/70' : 'text-gray-400'}`}>{deletedLabel}</p>
+        <p className={`italic text-sm ${isMine ? 'text-white/70' : 'text-gray-400'}`}>
+          {deletedLabel}
+        </p>
       ) : (
         <>
-          {message.body ? <p className="whitespace-pre-wrap leading-relaxed">{message.body}</p> : null}
+          {message.body ? (
+            <p className="whitespace-pre-wrap leading-relaxed">{message.body}</p>
+          ) : null}
           {message.attachments?.map((attachment) => (
             <ChatMessageAttachmentPreview
               key={attachment.id}
@@ -135,7 +139,9 @@ export function ChatMessageBubble({
         </>
       )}
 
-      <div className={`flex items-center gap-2 mt-1.5 ${isMine ? 'text-white/70' : 'text-gray-400'}`}>
+      <div
+        className={`flex items-center gap-2 mt-1.5 ${isMine ? 'text-white/70' : 'text-gray-400'}`}
+      >
         <p className="text-[10px] tabular-nums">
           {new Date(message.created_at).toLocaleTimeString([], {
             hour: '2-digit',
@@ -152,7 +158,11 @@ export function ChatMessageBubble({
           </span>
         ) : null}
         {isFailed ? (
-          <button type="button" onClick={onRetry} className="text-[10px] font-bold underline cursor-pointer">
+          <button
+            type="button"
+            onClick={onRetry}
+            className="text-[10px] font-bold underline cursor-pointer"
+          >
             {retryLabel}
           </button>
         ) : null}

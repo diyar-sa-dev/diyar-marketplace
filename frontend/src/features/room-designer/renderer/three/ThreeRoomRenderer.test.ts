@@ -36,7 +36,9 @@ describe('ThreeRoomRenderer', () => {
     const preset = createDocumentFromPreset('salon');
     if (!preset.ok) throw new Error('preset');
     const renderer = new ThreeRoomRenderer();
-    expect(() => renderer.render(preset.document, { scalePxPerM: 80, projection: 'room_3d' })).not.toThrow();
+    expect(() =>
+      renderer.render(preset.document, { scalePxPerM: 80, projection: 'room_3d' }),
+    ).not.toThrow();
     renderer.destroy();
   });
 });

@@ -19,10 +19,10 @@ function isTerminal(status: TryInRoomJob['status']): boolean {
 
 function mapJobError(code: string | null): string {
   if (
-    code === 'timeout'
-    || code === 'quota_exhausted'
-    || code === 'processing_failed'
-    || code === 'product_not_available'
+    code === 'timeout' ||
+    code === 'quota_exhausted' ||
+    code === 'processing_failed' ||
+    code === 'product_not_available'
   ) {
     return code;
   }
@@ -97,48 +97,51 @@ export function useTryInRoomFlow({
     return Boolean(resultUrlRef.current || optimisticUrlRef.current);
   }, []);
 
-  const settleJob = useCallback(async (next: TryInRoomJob) => {
-    setJob(next);
-    if (next.status === 'failed') {
-      if (keepPreview()) {
-        setPhase('completed');
+  const settleJob = useCallback(
+    async (next: TryInRoomJob) => {
+      setJob(next);
+      if (next.status === 'failed') {
+        if (keepPreview()) {
+          setPhase('completed');
+          return;
+        }
+        setPhase('failed');
+        setErrorKey(mapJobError(next.error_code));
         return;
       }
-      setPhase('failed');
-      setErrorKey(mapJobError(next.error_code));
-      return;
-    }
-    if (next.status !== 'completed') {
-      return;
-    }
+      if (next.status !== 'completed') {
+        return;
+      }
 
-    if (!next.result_url) {
-      if (keepPreview()) {
-        setPhase('completed');
+      if (!next.result_url) {
+        if (keepPreview()) {
+          setPhase('completed');
+          return;
+        }
+        setPhase('failed');
+        setErrorKey('processing_failed');
         return;
       }
-      setPhase('failed');
-      setErrorKey('processing_failed');
-      return;
-    }
 
-    try {
-      const blobUrl = await fetchTryInRoomResultImage(next.id);
-      resultUrlRef.current = blobUrl;
-      setResultUrl((prev) => {
-        revokeIfNeeded(prev);
-        return blobUrl;
-      });
-      setPhase('completed');
-    } catch {
-      if (keepPreview()) {
+      try {
+        const blobUrl = await fetchTryInRoomResultImage(next.id);
+        resultUrlRef.current = blobUrl;
+        setResultUrl((prev) => {
+          revokeIfNeeded(prev);
+          return blobUrl;
+        });
         setPhase('completed');
-        return;
+      } catch {
+        if (keepPreview()) {
+          setPhase('completed');
+          return;
+        }
+        setPhase('failed');
+        setErrorKey('processing_failed');
       }
-      setPhase('failed');
-      setErrorKey('processing_failed');
-    }
-  }, [keepPreview]);
+    },
+    [keepPreview],
+  );
 
   const schedulePoll = useCallback(
     (jobId: string) => {

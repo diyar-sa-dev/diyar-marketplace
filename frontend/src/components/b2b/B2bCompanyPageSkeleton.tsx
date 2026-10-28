@@ -4,7 +4,11 @@ type B2bCompanyPageSkeletonProps = {
 
 export function B2bCompanyPageSkeleton({ dir = 'rtl' }: B2bCompanyPageSkeletonProps) {
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 animate-pulse" dir={dir} data-testid="b2b-company-page-skeleton">
+    <div
+      className="min-h-screen bg-gray-50 pb-20 animate-pulse"
+      dir={dir}
+      data-testid="b2b-company-page-skeleton"
+    >
       <div className="h-56 md:h-72 bg-gray-200" />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative -mt-20">

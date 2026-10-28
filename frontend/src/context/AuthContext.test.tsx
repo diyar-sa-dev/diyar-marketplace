@@ -6,7 +6,13 @@ import * as authApi from '../api/auth.ts';
 const mockPathname = vi.fn(() => '/');
 
 vi.mock('react-router-dom', () => ({
-  useLocation: () => ({ pathname: mockPathname(), search: '', hash: '', state: null, key: 'default' }),
+  useLocation: () => ({
+    pathname: mockPathname(),
+    search: '',
+    hash: '',
+    state: null,
+    key: 'default',
+  }),
 }));
 
 vi.mock('../api/auth.ts', () => ({

@@ -269,7 +269,7 @@ export function VendorProductFormModal({
       setColors(
         rawDetailColors
           .filter((c: any) => c && typeof c === 'object')
-          .map((c: any) => ({ name: c.name ?? '', hex_code: c.hex_code ?? c.hex ?? '#9CA3AF' }))
+          .map((c: any) => ({ name: c.name ?? '', hex_code: c.hex_code ?? c.hex ?? '#9CA3AF' })),
       );
       const rp = productDetail.return_policy;
       setReturnPolicyCustom(Boolean(rp?.override_enabled));
@@ -387,18 +387,15 @@ export function VendorProductFormModal({
 
   const hasInfoErrors = Boolean(
     showError('name') ||
-      showError('categoryId') ||
-      showError('salePrice') ||
-      showError('stock') ||
-      showError('stockAdjust') ||
-      showError('expectedAvailableAt'),
+    showError('categoryId') ||
+    showError('salePrice') ||
+    showError('stock') ||
+    showError('stockAdjust') ||
+    showError('expectedAvailableAt'),
   );
   const hasMediaErrors = Boolean(showError('images') || model3dError);
   const hasSpecsErrors = Boolean(
-    showError('description') ||
-      showError('width') ||
-      showError('height') ||
-      showError('depth'),
+    showError('description') || showError('width') || showError('height') || showError('depth'),
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -437,9 +434,7 @@ export function VendorProductFormModal({
       sale_price: Number(salePrice),
       compare_price: comparePrice ? Number(comparePrice) : null,
       promotion_ends_at:
-        comparePrice && promotionEndsAt.trim()
-          ? new Date(promotionEndsAt).toISOString()
-          : null,
+        comparePrice && promotionEndsAt.trim() ? new Date(promotionEndsAt).toISOString() : null,
       stock_quantity: editingId ? 0 : Number(stock || 0),
       width: width ? Number(width) : null,
       height: height ? Number(height) : null,
@@ -514,7 +509,10 @@ export function VendorProductFormModal({
         {editingId && detailLoading ? (
           <LoadingState className="min-h-80" />
         ) : (
-          <form onSubmit={handleSubmit} className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
+          <form
+            onSubmit={handleSubmit}
+            className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 md:p-8"
+          >
             {touched.form && hasFormErrors(errors) && (
               <div className="mb-4 sm:mb-6 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-700 font-medium text-right">
                 {t('vendor.form.fixErrors')}
@@ -547,7 +545,10 @@ export function VendorProductFormModal({
                       : 'text-gray-500 hover:text-diyar-dark'
                   }`}
                 >
-                  <ImageIcon size={13} className={mobileTab === 'media' ? 'text-diyar-brown' : ''} />
+                  <ImageIcon
+                    size={13}
+                    className={mobileTab === 'media' ? 'text-diyar-brown' : ''}
+                  />
                   <span>الصور و 3D</span>
                   {hasMediaErrors ? (
                     <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
@@ -596,7 +597,9 @@ export function VendorProductFormModal({
                     : 'hidden md:block'
                 }`}
               >
-                <div className={`space-y-2 ${mobileTab === 'media' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
+                <div
+                  className={`space-y-2 ${mobileTab === 'media' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}
+                >
                   <label className="text-xs font-bold text-gray-400 block">
                     {t('vendor.form.images.label')}
                   </label>
@@ -729,7 +732,9 @@ export function VendorProductFormModal({
                 </div>
 
                 {/* 3D Model Upload & Configuration for Room Designer */}
-                <div className={`bg-amber-50/30 p-4 rounded-2xl border border-amber-200/60 space-y-3 text-right ${mobileTab === 'media' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
+                <div
+                  className={`bg-amber-50/30 p-4 rounded-2xl border border-amber-200/60 space-y-3 text-right ${mobileTab === 'media' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}
+                >
                   <div className="flex items-center justify-between pb-2 border-b border-amber-100">
                     <span className="text-[11px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-lg flex items-center gap-1">
                       <Box size={13} />
@@ -740,7 +745,8 @@ export function VendorProductFormModal({
                     </h4>
                   </div>
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    ارفع نموذج 3D بصيغة <b>GLB</b> أو <b>GLTF</b> لتمكين العملاء من تجربة القطعة تفاعلياً داخل مصمم الغرف واستعراض أبعادها الواقعية (الحد الأقصى: 25 ميجابايت).
+                    ارفع نموذج 3D بصيغة <b>GLB</b> أو <b>GLTF</b> لتمكين العملاء من تجربة القطعة
+                    تفاعلياً داخل مصمم الغرف واستعراض أبعادها الواقعية (الحد الأقصى: 25 ميجابايت).
                   </p>
 
                   {/* Existing Model State */}
@@ -751,7 +757,9 @@ export function VendorProductFormModal({
                           <Box size={18} />
                         </div>
                         <div className="min-w-0 text-right">
-                          <p className="text-xs font-bold text-diyar-dark truncate">نموذج 3D حالي مرتبط بالمنتج</p>
+                          <p className="text-xs font-bold text-diyar-dark truncate">
+                            نموذج 3D حالي مرتبط بالمنتج
+                          </p>
                           <p className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 mt-0.5">
                             <Check size={11} /> جاهز للعرض في مصمم الغرف
                           </p>
@@ -785,7 +793,10 @@ export function VendorProductFormModal({
                           <Check size={18} />
                         </div>
                         <div className="min-w-0 text-right">
-                          <p className="text-xs font-bold text-diyar-dark truncate" title={pendingModel3d.name}>
+                          <p
+                            className="text-xs font-bold text-diyar-dark truncate"
+                            title={pendingModel3d.name}
+                          >
                             {pendingModel3d.name}
                           </p>
                           <p className="text-[10px] text-emerald-700 font-bold mt-0.5">
@@ -855,7 +866,10 @@ export function VendorProductFormModal({
                   ) : null}
 
                   {model3dError ? (
-                    <p className="text-xs text-red-600 bg-red-50 p-2 rounded-lg border border-red-200" role="alert">
+                    <p
+                      className="text-xs text-red-600 bg-red-50 p-2 rounded-lg border border-red-200"
+                      role="alert"
+                    >
                       {model3dError}
                     </p>
                   ) : null}
@@ -873,7 +887,9 @@ export function VendorProductFormModal({
                   />
                 </div>
 
-                <div className={`bg-gray-50/60 p-4 rounded-2xl border border-gray-100 space-y-4 text-right ${mobileTab === 'info' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
+                <div
+                  className={`bg-gray-50/60 p-4 rounded-2xl border border-gray-100 space-y-4 text-right ${mobileTab === 'info' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}
+                >
                   <h4 className="text-xs font-bold text-gray-500 pb-2 border-b border-gray-100 text-right">
                     {t('vendor.form.categorySection')} <span className="text-red-500">*</span>
                   </h4>
@@ -900,7 +916,9 @@ export function VendorProductFormModal({
                   </div>
                 </div>
 
-                <div className={`space-y-3 text-right ${mobileTab === 'media' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
+                <div
+                  className={`space-y-3 text-right ${mobileTab === 'media' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}
+                >
                   <label className="text-xs font-bold text-gray-400 block text-right">
                     {t('vendor.form.colors.label')}
                   </label>
@@ -1002,7 +1020,9 @@ export function VendorProductFormModal({
                   </div>
 
                   {/* Mobile Navigation Buttons for Media tab */}
-                  <div className={`md:hidden pt-2 flex items-center justify-between gap-2 ${mobileTab === 'media' ? 'flex' : 'hidden'}`}>
+                  <div
+                    className={`md:hidden pt-2 flex items-center justify-between gap-2 ${mobileTab === 'media' ? 'flex' : 'hidden'}`}
+                  >
                     <button
                       type="button"
                       onClick={() => setMobileTab('info')}
@@ -1025,7 +1045,9 @@ export function VendorProductFormModal({
 
               {/* Product Details Column (Col 7 - Primary) */}
               <div className="order-1 md:order-1 md:col-span-7 space-y-6 text-right">
-                <div className={`space-y-4 text-right ${mobileTab === 'info' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
+                <div
+                  className={`space-y-4 text-right ${mobileTab === 'info' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}
+                >
                   <div className="space-y-1.5 text-right">
                     <RequiredLabel required className="text-sm font-bold text-gray-700">
                       {t('vendor.form.name')}
@@ -1093,7 +1115,9 @@ export function VendorProductFormModal({
                           onChange={(e) => setPromotionEndsAt(e.target.value)}
                           className={`${vendorFieldClass(false)} p-2.5 font-medium text-gray-600`}
                         />
-                        <p className="text-[11px] text-gray-500">{t('vendor.form.promotionEndsAtHint')}</p>
+                        <p className="text-[11px] text-gray-500">
+                          {t('vendor.form.promotionEndsAtHint')}
+                        </p>
                       </div>
                     ) : null}
                     <div className="space-y-1.5 text-right">
@@ -1207,7 +1231,9 @@ export function VendorProductFormModal({
                   </div>
                 </div>
 
-                <div className={`p-5 bg-stone-50/50 rounded-2xl border border-stone-150 space-y-4 text-right ${mobileTab === 'specs' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
+                <div
+                  className={`p-5 bg-stone-50/50 rounded-2xl border border-stone-150 space-y-4 text-right ${mobileTab === 'specs' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}
+                >
                   <h4 className="text-xs font-bold text-stone-600 block border-b border-stone-100 pb-2 text-right">
                     {t('vendor.form.specsTitle')}
                   </h4>
@@ -1300,13 +1326,19 @@ export function VendorProductFormModal({
                 </div>
 
                 {editingId && (
-                  <div className={mobileTab === 'specs' || mobileTab === 'all' ? 'block' : 'hidden md:block'}>
+                  <div
+                    className={
+                      mobileTab === 'specs' || mobileTab === 'all' ? 'block' : 'hidden md:block'
+                    }
+                  >
                     <VendorProductAffiliateSection productId={editingId} />
                   </div>
                 )}
 
                 {editingId && (
-                  <div className={`p-5 bg-amber-50/50 rounded-2xl border border-amber-100 space-y-4 text-right ${mobileTab === 'specs' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
+                  <div
+                    className={`p-5 bg-amber-50/50 rounded-2xl border border-amber-100 space-y-4 text-right ${mobileTab === 'specs' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}
+                  >
                     <h4 className="text-xs font-bold text-amber-900 block border-b border-amber-100 pb-2">
                       {t('returns.productPolicyTitle')}
                     </h4>
@@ -1396,7 +1428,9 @@ export function VendorProductFormModal({
                   </div>
                 )}
 
-                <div className={`space-y-1.5 text-right font-sans ${mobileTab === 'specs' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}>
+                <div
+                  className={`space-y-1.5 text-right font-sans ${mobileTab === 'specs' || mobileTab === 'all' ? 'block' : 'hidden md:block'}`}
+                >
                   <label className="text-sm font-bold text-gray-700 block text-right">
                     {t('vendor.form.description')}
                   </label>

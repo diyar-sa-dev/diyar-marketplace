@@ -38,7 +38,9 @@ function RatingOverview({
   return (
     <div className="bg-white rounded-xl md:rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-        <div className={`text-center py-2 ${dir === 'rtl' ? 'md:border-s md:border-gray-150' : 'md:border-e md:border-gray-150'}`}>
+        <div
+          className={`text-center py-2 ${dir === 'rtl' ? 'md:border-s md:border-gray-150' : 'md:border-e md:border-gray-150'}`}
+        >
           <p className="text-5xl font-extrabold text-diyar-dark mb-2">
             {hasReviews ? summary.average_rating?.toFixed(1) : '—'}
           </p>

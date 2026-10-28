@@ -1,4 +1,7 @@
-import { formatSaudiPhoneInputDisplay, toSaudiPhoneNationalInput } from '../../lib/auth/validation.ts';
+import {
+  formatSaudiPhoneInputDisplay,
+  toSaudiPhoneNationalInput,
+} from '../../lib/auth/validation.ts';
 
 type ReadOnlySaudiPhoneDisplayProps = {
   phone: string | null | undefined;

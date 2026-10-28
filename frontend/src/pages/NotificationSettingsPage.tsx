@@ -58,7 +58,10 @@ export default function NotificationSettingsPage() {
               {t('common.myAccount')}
             </Link>
             <ChevronLeft size={16} />
-            <Link to={notificationsHubPath} className="hover:text-diyar-dark transition cursor-pointer">
+            <Link
+              to={notificationsHubPath}
+              className="hover:text-diyar-dark transition cursor-pointer"
+            >
               {t('common.notifications')}
             </Link>
             <ChevronLeft size={16} />
@@ -87,7 +90,9 @@ export default function NotificationSettingsPage() {
           <div className="space-y-6">
             <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-5 md:p-6 border-b border-gray-100 bg-linear-to-r from-gray-50/80 to-white">
-                <h2 className="font-bold text-lg text-diyar-dark">{t('notifications.channelsTitle')}</h2>
+                <h2 className="font-bold text-lg text-diyar-dark">
+                  {t('notifications.channelsTitle')}
+                </h2>
                 <p className="text-xs text-gray-500 mt-1">{t('notifications.channelsSubtitle')}</p>
               </div>
 
@@ -119,7 +124,9 @@ export default function NotificationSettingsPage() {
 
             <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-5 md:p-6 border-b border-gray-100 bg-linear-to-r from-amber-50/40 to-white">
-                <h2 className="font-bold text-lg text-diyar-dark">{t('notifications.typesTitle')}</h2>
+                <h2 className="font-bold text-lg text-diyar-dark">
+                  {t('notifications.typesTitle')}
+                </h2>
                 <p className="text-xs text-gray-500 mt-1">{t('notifications.typesSubtitle')}</p>
               </div>
 
@@ -170,7 +177,12 @@ function ChannelSettingRow({
           {unavailableLabel}
         </span>
       ) : (
-        <NotificationToggle checked={checked} label={title} onChange={() => onToggle?.()} disabled={disabled} />
+        <NotificationToggle
+          checked={checked}
+          label={title}
+          onChange={() => onToggle?.()}
+          disabled={disabled}
+        />
       )}
     </div>
   );

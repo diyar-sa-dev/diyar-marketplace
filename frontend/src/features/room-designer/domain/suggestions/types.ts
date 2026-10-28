@@ -13,5 +13,4 @@ export type LayoutSuggestionResponse = {
 };
 
 export type ParseSuggestedResult =
-  | { ok: true; commands: RoomCommand[] }
-  | { ok: false; reason: string };
+  { ok: true; commands: RoomCommand[] } | { ok: false; reason: string };

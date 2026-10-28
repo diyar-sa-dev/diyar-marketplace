@@ -71,9 +71,7 @@ export default function ProductDetailsPage() {
   const [searchParams] = useSearchParams();
   const referralCode = searchParams.get('ref')?.trim() || undefined;
   const trafficSourceParam =
-    searchParams.get('src')?.trim() ||
-    searchParams.get('utm_source')?.trim() ||
-    undefined;
+    searchParams.get('src')?.trim() || searchParams.get('utm_source')?.trim() || undefined;
   const trackedReferralRef = useRef<string | null>(null);
   const { t, dir, locale } = useLocale();
   const { isAuthenticated, user } = useAuth();
@@ -295,7 +293,9 @@ export default function ProductDetailsPage() {
       ? Object.values(product.colors)
       : [];
   const colors = rawColors
-    .filter((color): color is { name?: string; hex_code?: string; hex?: string } => Boolean(color && typeof color === 'object'))
+    .filter((color): color is { name?: string; hex_code?: string; hex?: string } =>
+      Boolean(color && typeof color === 'object'),
+    )
     .map((color) => ({ name: color.name ?? '', hex: color.hex_code ?? color.hex ?? '#D4AF37' }));
   const availableQty = product.inventory?.available_quantity ?? 0;
   const availabilityLabels = {
@@ -317,7 +317,8 @@ export default function ProductDetailsPage() {
       ? t('catalog.product.limitedStock')
       : availability;
   const isPreorderProduct = product.availability_mode === 'preorder';
-  const canPurchase = !isCommerceBlocked && product.availability_mode === 'in_stock' && availableQty > 0;
+  const canPurchase =
+    !isCommerceBlocked && product.availability_mode === 'in_stock' && availableQty > 0;
   const canPreorder = !isCommerceBlocked && isPreorderProduct;
   const hasPendingPreorder = Boolean(product.user_preorder_pending) || preorderSubmitted;
   const maxQuantity = Math.max(availableQty, 1);
@@ -571,7 +572,9 @@ export default function ProductDetailsPage() {
                   <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-[#735942] text-white shadow-xs">
                     <Boxes size={18} />
                   </div>
-                  <span className="text-[10px] font-black text-amber-900 tracking-wide">3D تفاعلي</span>
+                  <span className="text-[10px] font-black text-amber-900 tracking-wide">
+                    3D تفاعلي
+                  </span>
                 </button>
               ) : null}
 

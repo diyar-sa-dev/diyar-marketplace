@@ -9,7 +9,9 @@ export function DeferredPrototypeBanner({ scopeId }: DeferredPrototypeBannerProp
   const { locale } = useLocale();
   const isAr = locale === 'ar';
 
-  const title = isAr ? 'محتوى تجريبي — ليس بيانات تشغيلية' : 'Prototype content — not live transactional data';
+  const title = isAr
+    ? 'محتوى تجريبي — ليس بيانات تشغيلية'
+    : 'Prototype content — not live transactional data';
   const description = isAr
     ? 'هذا القسم يعرض بيانات ثابتة للتصميم فقط. سيتم ربطه بواجهة API عند اعتماد نطاق المنتج.'
     : 'This section uses static design data only. It will connect to an API when the product scope is approved.';

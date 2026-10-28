@@ -78,55 +78,56 @@ export default function Hero() {
           const TitleTag = isActive ? 'h1' : 'p';
 
           return (
-          <div
-            key={slide.titleKey}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
-              isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
-            }`}
-            {...(!isActive ? { inert: true, 'aria-hidden': true } : {})}
-          >
-            {isActive ? (
-              <img
-                src={slide.img}
-                alt=""
-                width={1920}
-                height={1080}
-                decoding="async"
-                fetchPriority="high"
-                loading="eager"
-                referrerPolicy="no-referrer"
-                className="absolute inset-0 w-full h-full object-cover scale-105"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = FALLBACK_HERO;
-                }}
-              />
-            ) : null}
             <div
-              className={`absolute inset-0 bg-linear-to-t from-black/85 via-black/45 to-black/20 md:from-black/75 md:via-black/35 md:to-transparent ${
-                dir === 'rtl' ? 'md:bg-linear-to-l' : 'md:bg-linear-to-r'
+              key={slide.titleKey}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
+                isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
               }`}
-            />
-            <div className="relative h-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 lg:px-20 flex items-end md:items-center pb-24 md:pb-0 justify-center md:justify-start text-center md:text-start">
-              <div className="text-white max-w-xl md:max-w-lg space-y-4 md:space-y-6 mb-2 md:mb-0">
-                <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold backdrop-blur-md">
-                  {i + 1} / {slideCount}
-                </span>
-                <TitleTag className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-bold leading-snug tracking-tight">
-                  {t(slide.titleKey)}
-                </TitleTag>
-                <p className="text-sm sm:text-base md:text-lg leading-relaxed text-white/90 max-w-prose mx-auto md:mx-0">
-                  {t(slide.subKey)}
-                </p>
-                <Link
-                  to={slide.to}
-                  className="inline-flex items-center justify-center gap-2 bg-diyar-brown text-white px-7 py-3.5 rounded-2xl md:rounded-xl font-sans text-base md:text-lg font-bold hover:bg-[#856b54] hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-lg shadow-black/25 w-full sm:w-auto cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                >
-                  {t(slide.ctaKey)}
-                </Link>
+              {...(!isActive ? { inert: true, 'aria-hidden': true } : {})}
+            >
+              {isActive ? (
+                <img
+                  src={slide.img}
+                  alt=""
+                  width={1920}
+                  height={1080}
+                  decoding="async"
+                  fetchPriority="high"
+                  loading="eager"
+                  referrerPolicy="no-referrer"
+                  className="absolute inset-0 w-full h-full object-cover scale-105"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = FALLBACK_HERO;
+                  }}
+                />
+              ) : null}
+              <div
+                className={`absolute inset-0 bg-linear-to-t from-black/85 via-black/45 to-black/20 md:from-black/75 md:via-black/35 md:to-transparent ${
+                  dir === 'rtl' ? 'md:bg-linear-to-l' : 'md:bg-linear-to-r'
+                }`}
+              />
+              <div className="relative h-full max-w-7xl mx-auto px-5 sm:px-8 md:px-16 lg:px-20 flex items-end md:items-center pb-24 md:pb-0 justify-center md:justify-start text-center md:text-start">
+                <div className="text-white max-w-xl md:max-w-lg space-y-4 md:space-y-6 mb-2 md:mb-0">
+                  <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold backdrop-blur-md">
+                    {i + 1} / {slideCount}
+                  </span>
+                  <TitleTag className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-bold leading-snug tracking-tight">
+                    {t(slide.titleKey)}
+                  </TitleTag>
+                  <p className="text-sm sm:text-base md:text-lg leading-relaxed text-white/90 max-w-prose mx-auto md:mx-0">
+                    {t(slide.subKey)}
+                  </p>
+                  <Link
+                    to={slide.to}
+                    className="inline-flex items-center justify-center gap-2 bg-diyar-brown text-white px-7 py-3.5 rounded-2xl md:rounded-xl font-sans text-base md:text-lg font-bold hover:bg-[#856b54] hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-lg shadow-black/25 w-full sm:w-auto cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    {t(slide.ctaKey)}
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
-        );})}
+          );
+        })}
 
         <button
           type="button"

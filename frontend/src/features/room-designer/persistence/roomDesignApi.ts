@@ -16,7 +16,10 @@ export async function fetchRoomDesign(id: string): Promise<RoomDesignRecord> {
   return data.data.room_design;
 }
 
-export async function fetchRoomDesignList(page = 1, perPage = 20): Promise<{
+export async function fetchRoomDesignList(
+  page = 1,
+  perPage = 20,
+): Promise<{
   items: RoomDesignListItem[];
   pagination: { current_page: number; last_page: number; per_page: number; total: number };
 }> {
@@ -66,7 +69,10 @@ export async function addRoomDesignToCart(
   payload?: { item_ids?: string[] },
 ): Promise<AddRoomDesignToCartResult> {
   const { data } = await marketplaceApi.post<
-    ApiSuccessResponse<{ cart: AddRoomDesignToCartResult['cart']; skipped: AddRoomDesignToCartResult['skipped'] }>
+    ApiSuccessResponse<{
+      cart: AddRoomDesignToCartResult['cart'];
+      skipped: AddRoomDesignToCartResult['skipped'];
+    }>
   >(`/room-designs/${designId}/add-to-cart`, payload ?? {});
   return { cart: data.data.cart, skipped: data.data.skipped ?? [] };
 }

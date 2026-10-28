@@ -145,7 +145,10 @@ export function VendorShippingSettingsPanel() {
                 onChange={(event) => update('use_advanced_rules', event.target.checked)}
                 className="rounded text-diyar-brown focus:ring-diyar-brown"
               />
-              <label htmlFor="use-advanced-rules" className="text-xs font-medium text-gray-700 cursor-pointer">
+              <label
+                htmlFor="use-advanced-rules"
+                className="text-xs font-medium text-gray-700 cursor-pointer"
+              >
                 {t('shipping.useAdvancedRules')}
               </label>
             </div>
@@ -184,7 +187,14 @@ export function VendorShippingSettingsPanel() {
                     }`}
                   >
                     <div className="flex items-center gap-1.5">
-                      <Truck size={15} className={(form.fulfillment_type ?? 'manual') === 'manual' ? 'text-diyar-brown' : 'text-gray-400'} />
+                      <Truck
+                        size={15}
+                        className={
+                          (form.fulfillment_type ?? 'manual') === 'manual'
+                            ? 'text-diyar-brown'
+                            : 'text-gray-400'
+                        }
+                      />
                       <span>{locale === 'ar' ? 'شحن يدوي' : 'Manual'}</span>
                     </div>
                     <span className="text-[10px] text-gray-400 font-normal">
@@ -209,7 +219,14 @@ export function VendorShippingSettingsPanel() {
                     }`}
                   >
                     <div className="flex items-center gap-1.5">
-                      <Zap size={15} className={(form.fulfillment_type ?? 'manual') === 'carrier' ? 'text-amber-600' : 'text-gray-400'} />
+                      <Zap
+                        size={15}
+                        className={
+                          (form.fulfillment_type ?? 'manual') === 'carrier'
+                            ? 'text-amber-600'
+                            : 'text-gray-400'
+                        }
+                      />
                       <span>{locale === 'ar' ? 'ربط آلي V2' : 'Auto Carrier'}</span>
                     </div>
                     <span className="text-[10px] text-amber-600/90 font-medium bg-amber-100/60 px-1.5 rounded">
@@ -228,10 +245,14 @@ export function VendorShippingSettingsPanel() {
                         </div>
                         <div>
                           <h5 className="text-xs font-bold text-gray-900">
-                            {locale === 'ar' ? 'الشحن اليدوي / أسطول المتجر' : 'Manual Shipping / Dedicated Fleet'}
+                            {locale === 'ar'
+                              ? 'الشحن اليدوي / أسطول المتجر'
+                              : 'Manual Shipping / Dedicated Fleet'}
                           </h5>
                           <p className="text-[10px] text-gray-500">
-                            {locale === 'ar' ? 'توصيل عبر ناقلي المتجر أو مندوبيكم المعتمدين' : 'Delivery via store messengers or manual carriers'}
+                            {locale === 'ar'
+                              ? 'توصيل عبر ناقلي المتجر أو مندوبيكم المعتمدين'
+                              : 'Delivery via store messengers or manual carriers'}
                           </p>
                         </div>
                       </div>
@@ -239,7 +260,11 @@ export function VendorShippingSettingsPanel() {
                         type="button"
                         onClick={() => setModalType('manual')}
                         className="p-1 text-gray-400 hover:text-diyar-brown transition-colors rounded-full hover:bg-white"
-                        title={locale === 'ar' ? 'عرض تفاصيل وقواعد الأسعار' : 'View rate rules and pricing'}
+                        title={
+                          locale === 'ar'
+                            ? 'عرض تفاصيل وقواعد الأسعار'
+                            : 'View rate rules and pricing'
+                        }
                       >
                         <HelpCircle size={15} />
                       </button>
@@ -251,12 +276,18 @@ export function VendorShippingSettingsPanel() {
                           {locale === 'ar' ? 'الناقل المعتمد المختار:' : 'Selected Manual Carrier:'}
                         </label>
                         <select
-                          value={form.selected_carrier_code === 'manual' || !form.selected_carrier_code ? 'manual' : form.selected_carrier_code}
+                          value={
+                            form.selected_carrier_code === 'manual' || !form.selected_carrier_code
+                              ? 'manual'
+                              : form.selected_carrier_code
+                          }
                           onChange={(e) => update('selected_carrier_code', e.target.value)}
                           className="w-full rounded-lg border border-gray-200 bg-white p-2 text-xs focus:border-diyar-brown focus:outline-none shadow-xs"
                         >
                           <option value="manual">
-                            {locale === 'ar' ? 'الأسطول الخاص بالمتجر (افتراضي)' : 'Store Dedicated Fleet (Default)'}
+                            {locale === 'ar'
+                              ? 'الأسطول الخاص بالمتجر (افتراضي)'
+                              : 'Store Dedicated Fleet (Default)'}
                           </option>
                           {(data?.manualCarriers ?? []).map((carrier) => (
                             <option key={carrier.id} value={carrier.code}>
@@ -301,14 +332,18 @@ export function VendorShippingSettingsPanel() {
                         <div>
                           <div className="flex items-center gap-1.5">
                             <h5 className="text-xs font-bold text-gray-900">
-                              {locale === 'ar' ? 'شركات الشحن المعتمدة (الربط الآلي)' : 'Approved Courier Companies (Automated)'}
+                              {locale === 'ar'
+                                ? 'شركات الشحن المعتمدة (الربط الآلي)'
+                                : 'Approved Courier Companies (Automated)'}
                             </h5>
                             <span className="text-[9px] bg-amber-200/80 text-amber-900 font-bold px-1.5 py-0.5 rounded">
                               Live
                             </span>
                           </div>
                           <p className="text-[10px] text-gray-500">
-                            {locale === 'ar' ? 'إصدار وتتبع آلي مع شركات النقل المعتمدة في المملكة' : 'Automated waybill creation & tracking with Saudi providers'}
+                            {locale === 'ar'
+                              ? 'إصدار وتتبع آلي مع شركات النقل المعتمدة في المملكة'
+                              : 'Automated waybill creation & tracking with Saudi providers'}
                           </p>
                         </div>
                       </div>
@@ -316,27 +351,40 @@ export function VendorShippingSettingsPanel() {
                         type="button"
                         onClick={() => setModalType('carrier')}
                         className="p-1 text-gray-400 hover:text-amber-700 transition-colors rounded-full hover:bg-white"
-                        title={locale === 'ar' ? 'عرض تفاصيل الربط الآلي' : 'View carrier provider details'}
+                        title={
+                          locale === 'ar'
+                            ? 'عرض تفاصيل الربط الآلي'
+                            : 'View carrier provider details'
+                        }
                       >
                         <HelpCircle size={15} />
                       </button>
                     </div>
 
                     <div className="pt-2 border-t border-amber-200/60 space-y-2">
-                      {(data?.availableCarriers && data.availableCarriers.length > 0) ? (
+                      {data?.availableCarriers && data.availableCarriers.length > 0 ? (
                         <>
                           <div className="space-y-1">
                             <label className="text-[11px] font-semibold text-gray-700">
-                              {locale === 'ar' ? 'اختر شركة الشحن الآلية المعتمدة:' : 'Select Approved Provider:'}
+                              {locale === 'ar'
+                                ? 'اختر شركة الشحن الآلية المعتمدة:'
+                                : 'Select Approved Provider:'}
                             </label>
                             <select
-                              value={form.selected_carrier_code ?? data.availableCarriers[0].carrier_code}
+                              value={
+                                form.selected_carrier_code ?? data.availableCarriers[0].carrier_code
+                              }
                               onChange={(e) => update('selected_carrier_code', e.target.value)}
                               className="w-full rounded-lg border border-gray-200 bg-white p-2 text-xs focus:border-amber-500 focus:outline-none shadow-xs"
                             >
                               {data.availableCarriers.map((carrier) => (
                                 <option key={carrier.carrier_code} value={carrier.carrier_code}>
-                                  {carrier.name} {carrier.is_sandbox ? (locale === 'ar' ? '(بيئة تجريبية)' : '(Sandbox)') : ''}
+                                  {carrier.name}{' '}
+                                  {carrier.is_sandbox
+                                    ? locale === 'ar'
+                                      ? '(بيئة تجريبية)'
+                                      : '(Sandbox)'
+                                    : ''}
                                 </option>
                               ))}
                             </select>
@@ -344,8 +392,8 @@ export function VendorShippingSettingsPanel() {
                           <div className="flex items-center justify-between text-[11px] text-amber-900 bg-amber-100/70 border border-amber-200/70 p-2 rounded-lg">
                             <span className="truncate pe-1">
                               {locale === 'ar'
-                                ? `النشط: ${data.availableCarriers.find(c => c.carrier_code === form.selected_carrier_code)?.name ?? data.availableCarriers[0].name}`
-                                : `Active: ${data.availableCarriers.find(c => c.carrier_code === form.selected_carrier_code)?.name ?? data.availableCarriers[0].name}`}
+                                ? `النشط: ${data.availableCarriers.find((c) => c.carrier_code === form.selected_carrier_code)?.name ?? data.availableCarriers[0].name}`
+                                : `Active: ${data.availableCarriers.find((c) => c.carrier_code === form.selected_carrier_code)?.name ?? data.availableCarriers[0].name}`}
                             </span>
                             <button
                               type="button"
@@ -431,7 +479,7 @@ export function VendorShippingSettingsPanel() {
           {saveMutation.isPending ? t('common.loading') : t('shipping.saveSettings')}
         </button>
       </div>
-    
+
       {/* Information / Rate Rules Modal */}
       {modalType !== null ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm animate-in fade-in duration-200">
@@ -441,8 +489,12 @@ export function VendorShippingSettingsPanel() {
                 <Truck className="text-diyar-brown" size={20} />
                 <h4 className="font-bold text-gray-900 text-sm md:text-base">
                   {modalType === 'manual'
-                    ? (locale === 'ar' ? 'تفاصيل وقواعد أسعار الشحن اليدوي' : 'Manual Shipping & Rate Rules Details')
-                    : (locale === 'ar' ? 'تفاصيل الربط الآلي وشركات الشحن' : 'Automated Carrier Gateway Details')}
+                    ? locale === 'ar'
+                      ? 'تفاصيل وقواعد أسعار الشحن اليدوي'
+                      : 'Manual Shipping & Rate Rules Details'
+                    : locale === 'ar'
+                      ? 'تفاصيل الربط الآلي وشركات الشحن'
+                      : 'Automated Carrier Gateway Details'}
                 </h4>
               </div>
               <button
@@ -462,36 +514,56 @@ export function VendorShippingSettingsPanel() {
                       ? 'قواعد الأسعار والناقلين المعتمدين التالية تم ضبطها مركزياً من لوحة إدارة المنصة لتطبيق حساب تكلفة الشحن على طلبات عملائك تلقائياً بحسب الوزن والمنطقة:'
                       : 'The following carriers and rate rules are configured centrally by admin to calculate shipping charges by weight and zone:'}
                   </p>
-                  {(data?.manualCarriers && data.manualCarriers.length > 0) ? (
+                  {data?.manualCarriers && data.manualCarriers.length > 0 ? (
                     <div className="space-y-3">
                       {data.manualCarriers.map((carrier) => (
-                        <div key={carrier.id} className="rounded-xl border border-gray-200 bg-gray-50/60 p-3 space-y-2">
+                        <div
+                          key={carrier.id}
+                          className="rounded-xl border border-gray-200 bg-gray-50/60 p-3 space-y-2"
+                        >
                           <div className="flex items-center justify-between font-bold text-diyar-dark text-xs">
                             <span className="flex items-center gap-1.5">
                               <span className="h-2 w-2 rounded-full bg-emerald-500" />
                               {carrier.name}
                             </span>
-                            <span className="font-mono text-gray-400 text-[11px]">{carrier.code}</span>
+                            <span className="font-mono text-gray-400 text-[11px]">
+                              {carrier.code}
+                            </span>
                           </div>
 
                           {(carrier.methods ?? []).length > 0 ? (
                             <div className="space-y-1.5 pt-1">
                               {carrier.methods!.map((method) => (
-                                <div key={method.id} className="bg-white rounded-lg p-2.5 border border-gray-100 space-y-1">
+                                <div
+                                  key={method.id}
+                                  className="bg-white rounded-lg p-2.5 border border-gray-100 space-y-1"
+                                >
                                   <div className="flex justify-between font-semibold text-gray-800">
-                                    <span>{method.name} ({method.code})</span>
+                                    <span>
+                                      {method.name} ({method.code})
+                                    </span>
                                   </div>
                                   {(method.rate_rules ?? []).map((rule) => (
-                                    <div key={rule.id} className="flex justify-between text-[11px] text-gray-500 pt-0.5">
-                                      <span>نطاق الوزن: {rule.min_weight_kg} - {rule.max_weight_kg ?? '∞'} كجم</span>
-                                      <span className="font-bold text-diyar-brown">{rule.rate} SAR</span>
+                                    <div
+                                      key={rule.id}
+                                      className="flex justify-between text-[11px] text-gray-500 pt-0.5"
+                                    >
+                                      <span>
+                                        نطاق الوزن: {rule.min_weight_kg} -{' '}
+                                        {rule.max_weight_kg ?? '∞'} كجم
+                                      </span>
+                                      <span className="font-bold text-diyar-brown">
+                                        {rule.rate} SAR
+                                      </span>
                                     </div>
                                   ))}
                                 </div>
                               ))}
                             </div>
                           ) : (
-                            <p className="text-[11px] text-gray-400 italic">لا توجد طرق شحن مرتبطة بهذا الناقل حالياً.</p>
+                            <p className="text-[11px] text-gray-400 italic">
+                              لا توجد طرق شحن مرتبطة بهذا الناقل حالياً.
+                            </p>
                           )}
                         </div>
                       ))}
@@ -509,10 +581,13 @@ export function VendorShippingSettingsPanel() {
                       ? 'بوابات الشحن الآلية المعتمدة تتيح إصدار بوليصات الشحن (AWB) وتتبع الشحنات آلياً دون الحاجة لتواصل يدوي مع المناديب:'
                       : 'Automated carrier gateways issue live waybills (AWBs) and track delivery automatically:'}
                   </p>
-                  {(data?.availableCarriers && data.availableCarriers.length > 0) ? (
+                  {data?.availableCarriers && data.availableCarriers.length > 0 ? (
                     <div className="space-y-3">
                       {data.availableCarriers.map((carrier) => (
-                        <div key={carrier.carrier_code} className="rounded-xl border border-amber-200 bg-amber-50/50 p-3.5 space-y-2">
+                        <div
+                          key={carrier.carrier_code}
+                          className="rounded-xl border border-amber-200 bg-amber-50/50 p-3.5 space-y-2"
+                        >
                           <div className="flex items-center justify-between font-bold text-amber-900 text-xs">
                             <span className="flex items-center gap-1.5">
                               <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
@@ -523,7 +598,9 @@ export function VendorShippingSettingsPanel() {
                             </span>
                           </div>
                           <p className="text-[11px] text-amber-900/80 leading-normal">
-                            مزود شحن سعودي معتمد ومفعل في لوحة التحكم الإدارية. عند اختياره، سيتم إنشاء بوليصة الشحن واستدعاء المندوب لاستلام الطلب من عنوان المستودع المعتمد لمتجرك آلياً.
+                            مزود شحن سعودي معتمد ومفعل في لوحة التحكم الإدارية. عند اختياره، سيتم
+                            إنشاء بوليصة الشحن واستدعاء المندوب لاستلام الطلب من عنوان المستودع
+                            المعتمد لمتجرك آلياً.
                           </p>
                         </div>
                       ))}
@@ -549,6 +626,6 @@ export function VendorShippingSettingsPanel() {
           </div>
         </div>
       ) : null}
-</div>
+    </div>
   );
 }

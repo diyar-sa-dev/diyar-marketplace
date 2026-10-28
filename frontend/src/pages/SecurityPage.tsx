@@ -178,7 +178,10 @@ function DeviceCard({
               ) : null}
               {hasMultipleSessions ? (
                 <span className="text-[11px] font-bold uppercase tracking-wide text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
-                  {t('profile.security.activeSessionsCount').replace('{n}', String(device.session_count))}
+                  {t('profile.security.activeSessionsCount').replace(
+                    '{n}',
+                    String(device.session_count),
+                  )}
                 </span>
               ) : null}
             </div>
@@ -202,7 +205,8 @@ function DeviceCard({
               <p className="flex items-start gap-1.5">
                 <Clock size={12} className="shrink-0 text-gray-400 mt-0.5" />
                 <span className="min-w-0">
-                  {t('profile.security.lastActive')}: {formatRelativeTime(device.last_activity_at, locale)}
+                  {t('profile.security.lastActive')}:{' '}
+                  {formatRelativeTime(device.last_activity_at, locale)}
                   <span className="block sm:inline sm:ms-1" dir="ltr">
                     {formatWesternDateTime(device.last_activity_at)}
                   </span>
@@ -267,7 +271,8 @@ function DeviceCard({
                   ) : null}
                 </div>
                 <p className="text-[11px] text-gray-500">
-                  {t('profile.security.lastActive')}: {formatRelativeTime(session.last_activity_at, locale)}
+                  {t('profile.security.lastActive')}:{' '}
+                  {formatRelativeTime(session.last_activity_at, locale)}
                   {' · '}
                   <span dir="ltr">{formatWesternDateTime(session.last_activity_at)}</span>
                 </p>
@@ -456,10 +461,14 @@ function TwoFactorPanel({ maskedPhone }: { maskedPhone: string }) {
             <h2 className="font-bold text-lg text-diyar-dark leading-snug text-balance">
               {t('profile.security.twoFactorTitle')}
             </h2>
-            <p className="text-xs text-gray-500 text-balance">{t('profile.security.twoFactorHint')}</p>
+            <p className="text-xs text-gray-500 text-balance">
+              {t('profile.security.twoFactorHint')}
+            </p>
           </div>
         </div>
-        <span className={`self-start sm:self-auto shrink-0 rounded-full px-3 py-1 text-xs font-bold ${statusClass}`}>
+        <span
+          className={`self-start sm:self-auto shrink-0 rounded-full px-3 py-1 text-xs font-bold ${statusClass}`}
+        >
           {statusLoading ? <Loader2 size={14} className="animate-spin" /> : statusLabel}
         </span>
       </div>
@@ -468,7 +477,9 @@ function TwoFactorPanel({ maskedPhone }: { maskedPhone: string }) {
         <div className="flex items-start gap-4">
           <Smartphone size={24} className="text-gray-400 shrink-0 mt-1" />
           <div className="space-y-2 min-w-0">
-            <h3 className="font-bold text-sm text-gray-800">{t('profile.security.twoFactorSms')}</h3>
+            <h3 className="font-bold text-sm text-gray-800">
+              {t('profile.security.twoFactorSms')}
+            </h3>
             <p className="text-sm text-gray-600 text-balance">
               {t('profile.security.twoFactorDescription')}
             </p>
@@ -500,12 +511,19 @@ function TwoFactorPanel({ maskedPhone }: { maskedPhone: string }) {
             disabled={actionsDisabled}
             className="inline-flex w-full sm:w-auto justify-center px-6 py-3 rounded-xl font-bold text-white bg-diyar-dark hover:bg-black transition-colors cursor-pointer disabled:opacity-60"
           >
-            {busy ? <Loader2 size={18} className="animate-spin" /> : t('profile.security.twoFactorEnable')}
+            {busy ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              t('profile.security.twoFactorEnable')
+            )}
           </button>
         ) : null}
 
         {flow === 'enabling' ? (
-          <form onSubmit={(event) => void handleEnableConfirm(event)} className="space-y-4 max-w-md">
+          <form
+            onSubmit={(event) => void handleEnableConfirm(event)}
+            className="space-y-4 max-w-md"
+          >
             <p className="text-sm text-gray-600">{t('profile.security.twoFactorSetupPrompt')}</p>
             <OtpCodeField
               label={t('auth.fields.otpCode')}
@@ -563,7 +581,10 @@ function TwoFactorPanel({ maskedPhone }: { maskedPhone: string }) {
         ) : null}
 
         {flow === 'disabling_password' ? (
-          <form onSubmit={(event) => void handleDisablePassword(event)} className="space-y-4 max-w-md">
+          <form
+            onSubmit={(event) => void handleDisablePassword(event)}
+            className="space-y-4 max-w-md"
+          >
             <p className="text-sm text-gray-600">{t('profile.security.twoFactorDisablePrompt')}</p>
             <div>
               <AuthFieldLabel>{t('profile.security.twoFactorPasswordLabel')}</AuthFieldLabel>
@@ -597,8 +618,13 @@ function TwoFactorPanel({ maskedPhone }: { maskedPhone: string }) {
         ) : null}
 
         {flow === 'disabling_otp' ? (
-          <form onSubmit={(event) => void handleDisableConfirm(event)} className="space-y-4 max-w-md">
-            <p className="text-sm text-gray-600">{t('profile.security.twoFactorDisableOtpPrompt')}</p>
+          <form
+            onSubmit={(event) => void handleDisableConfirm(event)}
+            className="space-y-4 max-w-md"
+          >
+            <p className="text-sm text-gray-600">
+              {t('profile.security.twoFactorDisableOtpPrompt')}
+            </p>
             <OtpCodeField
               label={t('auth.fields.otpCode')}
               placeholder={t('auth.otp.placeholder')}
@@ -752,7 +778,11 @@ export default function SecurityPage() {
                   disabled={logoutOthers.isPending}
                   className="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-red-700 bg-red-50 hover:bg-red-100 transition-colors disabled:opacity-60 cursor-pointer"
                 >
-                  {logoutOthers.isPending ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
+                  {logoutOthers.isPending ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <LogOut size={16} />
+                  )}
                   {t('profile.security.logoutOthers')}
                 </button>
               ) : null}
@@ -793,7 +823,9 @@ export default function SecurityPage() {
       {confirmLogoutOthers ? (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40">
           <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-6 space-y-4">
-            <h3 className="font-bold text-lg text-diyar-dark">{t('profile.security.logoutOthersTitle')}</h3>
+            <h3 className="font-bold text-lg text-diyar-dark">
+              {t('profile.security.logoutOthersTitle')}
+            </h3>
             <p className="text-sm text-gray-600">{t('profile.security.logoutOthersDescription')}</p>
             <div className="flex flex-col-reverse sm:flex-row gap-3">
               <button
@@ -813,7 +845,9 @@ export default function SecurityPage() {
                 disabled={logoutOthers.isPending}
                 className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-60 cursor-pointer"
               >
-                {logoutOthers.isPending ? t('common.loading') : t('profile.security.logoutOthersConfirm')}
+                {logoutOthers.isPending
+                  ? t('common.loading')
+                  : t('profile.security.logoutOthersConfirm')}
               </button>
             </div>
           </div>

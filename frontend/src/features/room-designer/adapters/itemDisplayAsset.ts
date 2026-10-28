@@ -10,7 +10,9 @@ const ALLOWED_TIER2_PROTOCOLS = ['http:', 'https:'] as const;
 export function isAllowedTier2HttpUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
-    return ALLOWED_TIER2_PROTOCOLS.includes(parsed.protocol as (typeof ALLOWED_TIER2_PROTOCOLS)[number]);
+    return ALLOWED_TIER2_PROTOCOLS.includes(
+      parsed.protocol as (typeof ALLOWED_TIER2_PROTOCOLS)[number],
+    );
   } catch {
     return false;
   }

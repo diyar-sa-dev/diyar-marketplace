@@ -6,7 +6,11 @@ type PartnerB2bFormSectionProps = {
   children: ReactNode;
 };
 
-export function PartnerB2bFormSection({ title, description, children }: PartnerB2bFormSectionProps) {
+export function PartnerB2bFormSection({
+  title,
+  description,
+  children,
+}: PartnerB2bFormSectionProps) {
   return (
     <section className="rounded-2xl border border-gray-100 bg-gray-50/60 p-5 md:p-6 space-y-4">
       <div>

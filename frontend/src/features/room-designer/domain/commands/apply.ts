@@ -27,8 +27,7 @@ function findItem(document: RoomDesignDocument, itemId: string): RoomDesignItem 
 }
 
 export type ApplyResult =
-  | { ok: true; document: RoomDesignDocument }
-  | { ok: false; error: DomainError };
+  { ok: true; document: RoomDesignDocument } | { ok: false; error: DomainError };
 
 /** Pure state transition — no constraints or lock checks. */
 export function applyCommand(document: RoomDesignDocument, command: RoomCommand): ApplyResult {
@@ -161,11 +160,7 @@ export function applyCommand(document: RoomDesignDocument, command: RoomCommand)
       return { ok: true, document: next };
     }
     case 'SET_ROOM_SIZE': {
-      const roomErr = validateRoomDimensions(
-        command.width_m,
-        command.depth_m,
-        command.height_m,
-      );
+      const roomErr = validateRoomDimensions(command.width_m, command.depth_m, command.height_m);
       if (roomErr) return { ok: false, error: roomErr };
       next.room = {
         ...next.room,
@@ -232,7 +227,10 @@ export function applyCommand(document: RoomDesignDocument, command: RoomCommand)
       const exhaustive: never = command;
       return {
         ok: false,
-        error: domainError(DomainErrorCode.INVALID_COMMAND, `Unknown command: ${(exhaustive as RoomCommand).type}`),
+        error: domainError(
+          DomainErrorCode.INVALID_COMMAND,
+          `Unknown command: ${(exhaustive as RoomCommand).type}`,
+        ),
       };
     }
   }

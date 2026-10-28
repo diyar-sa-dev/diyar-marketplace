@@ -4,8 +4,7 @@ import type { SuggestedCommandPayload } from '../domain/suggestions/types.ts';
 import type { RoomDesignDocument } from '../domain/models.ts';
 
 export type ApplySuggestedLayoutResult =
-  | ({ ok: true } & SessionResult)
-  | { ok: false; reason: string; state: SessionResult['state'] };
+  ({ ok: true } & SessionResult) | { ok: false; reason: string; state: SessionResult['state'] };
 
 export function applySuggestedLayout(
   session: DesignerSession,

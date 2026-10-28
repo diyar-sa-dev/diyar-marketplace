@@ -42,9 +42,7 @@ export function PartnerB2bPortfolioGallery({
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
 
-  const visibleImages = images.filter(
-    (image) => image.url?.trim() && !brokenIds.has(image.id),
-  );
+  const visibleImages = images.filter((image) => image.url?.trim() && !brokenIds.has(image.id));
   const remainingSlots = B2B_PORTFOLIO_MAX_IMAGES - images.length;
   const canAddMore = remainingSlots > 0;
   const isUploading = uploadProgress !== null;
@@ -195,7 +193,9 @@ export function PartnerB2bPortfolioGallery({
               <div className="rounded-xl bg-gray-50 p-2 text-diyar-brown shadow-sm">
                 <Upload size={20} />
               </div>
-              <span className="mt-2 text-sm font-bold text-diyar-dark">{t('b2b.partner.portfolio.upload')}</span>
+              <span className="mt-2 text-sm font-bold text-diyar-dark">
+                {t('b2b.partner.portfolio.upload')}
+              </span>
               <span className="mt-1 text-xs text-gray-500">
                 {t('b2b.partner.portfolio.formats', {
                   count: images.length,
@@ -219,7 +219,10 @@ export function PartnerB2bPortfolioGallery({
             <span className="shrink-0">{uploadProgress}%</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full border border-amber-100 bg-white">
-            <div className="h-full bg-diyar-brown transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+            <div
+              className="h-full bg-diyar-brown transition-all duration-300"
+              style={{ width: `${uploadProgress}%` }}
+            />
           </div>
         </div>
       ) : null}

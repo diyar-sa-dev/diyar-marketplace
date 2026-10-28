@@ -26,7 +26,11 @@ export function NotificationFilters({
     <div className="space-y-4">
       <div>
         <p className="text-xs font-bold text-gray-500 mb-2">{t('notifications.filters.status')}</p>
-        <div className="flex flex-wrap gap-2" role="tablist" aria-label={t('notifications.filters.status')}>
+        <div
+          className="flex flex-wrap gap-2"
+          role="tablist"
+          aria-label={t('notifications.filters.status')}
+        >
           {statusOptions.map((option) => (
             <FilterButton
               key={option}
@@ -40,8 +44,14 @@ export function NotificationFilters({
 
       {filterableCategories.length > 0 && (
         <div>
-          <p className="text-xs font-bold text-gray-500 mb-2">{t('notifications.filters.category')}</p>
-          <div className="flex flex-wrap gap-2" role="tablist" aria-label={t('notifications.filters.category')}>
+          <p className="text-xs font-bold text-gray-500 mb-2">
+            {t('notifications.filters.category')}
+          </p>
+          <div
+            className="flex flex-wrap gap-2"
+            role="tablist"
+            aria-label={t('notifications.filters.category')}
+          >
             <FilterButton
               active={!category || category === 'all'}
               onClick={() => onCategoryChange(null)}

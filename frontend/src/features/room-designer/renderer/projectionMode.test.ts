@@ -29,12 +29,12 @@ describe('projectionMode', () => {
   });
 
   it('cycles presentation modes when flags allow', () => {
-    expect(
-      nextPresentationMode('top_down', { allow25d: true, allow3d: true }),
-    ).toBe('isometric_25d');
-    expect(
-      nextPresentationMode('isometric_25d', { allow25d: true, allow3d: true }),
-    ).toBe('room_3d');
+    expect(nextPresentationMode('top_down', { allow25d: true, allow3d: true })).toBe(
+      'isometric_25d',
+    );
+    expect(nextPresentationMode('isometric_25d', { allow25d: true, allow3d: true })).toBe(
+      'room_3d',
+    );
     expect(nextPresentationMode('room_3d', { allow25d: true, allow3d: true })).toBe('top_down');
   });
 });

@@ -39,13 +39,7 @@ function statusBadgeClass(status: B2bLeadStatus): string {
   }
 }
 
-function LeadDetailModal({
-  leadId,
-  onClose,
-}: {
-  leadId: string;
-  onClose: () => void;
-}) {
+function LeadDetailModal({ leadId, onClose }: { leadId: string; onClose: () => void }) {
   const { t, locale } = useLocale();
   const detailQuery = useCustomerB2bLead(leadId);
   const lead = detailQuery.data;
@@ -60,7 +54,9 @@ function LeadDetailModal({
       />
       <div className="relative w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-xl max-h-[90vh] overflow-y-auto">
         <div className="p-5 border-b border-gray-100">
-          <h3 className="font-bold text-lg text-diyar-dark">{t('b2b.customerLeads.detailTitle')}</h3>
+          <h3 className="font-bold text-lg text-diyar-dark">
+            {t('b2b.customerLeads.detailTitle')}
+          </h3>
           <p className="text-xs text-gray-500 mt-1">{t('b2b.customerLeads.detailSubtitle')}</p>
         </div>
 
@@ -96,7 +92,9 @@ function LeadDetailModal({
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <p className="text-xs text-gray-500 mb-1">{t('orders.status')}</p>
-                <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${statusBadgeClass(lead.status)}`}>
+                <span
+                  className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${statusBadgeClass(lead.status)}`}
+                >
                   {t(`b2b.partner.leads.status.${lead.status}`)}
                 </span>
               </div>
@@ -127,7 +125,9 @@ function LeadDetailModal({
 
             <div>
               <p className="text-xs text-gray-500 mb-1">{t('b2b.company.details')}</p>
-              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{lead.details}</p>
+              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                {lead.details}
+              </p>
             </div>
 
             {lead.company?.slug ? (
@@ -171,7 +171,9 @@ function LeadCard({
     <article
       id={`b2b-lead-${lead.id}`}
       className={`bg-white rounded-2xl border p-5 transition-shadow ${
-        highlighted ? 'border-diyar-brown shadow-md ring-2 ring-diyar-brown/20' : 'border-gray-100 shadow-sm'
+        highlighted
+          ? 'border-diyar-brown shadow-md ring-2 ring-diyar-brown/20'
+          : 'border-gray-100 shadow-sm'
       }`}
     >
       <div className="flex flex-col sm:flex-row sm:items-start gap-4">
@@ -190,14 +192,18 @@ function LeadCard({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-1">
               <h3 className="font-bold text-diyar-dark truncate">{lead.company?.name ?? '—'}</h3>
-              <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold ${statusBadgeClass(lead.status)}`}>
+              <span
+                className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold ${statusBadgeClass(lead.status)}`}
+              >
                 {t(`b2b.partner.leads.status.${lead.status}`)}
               </span>
             </div>
             <p className="text-sm font-medium text-gray-800 mb-1">{lead.project_type}</p>
             <p className="text-xs text-gray-500 line-clamp-2">{lead.details}</p>
             {lead.created_at ? (
-              <p className="text-[11px] text-gray-400 mt-2">{formatFinanceDateTime(lead.created_at, locale)}</p>
+              <p className="text-[11px] text-gray-400 mt-2">
+                {formatFinanceDateTime(lead.created_at, locale)}
+              </p>
             ) : null}
           </div>
         </div>

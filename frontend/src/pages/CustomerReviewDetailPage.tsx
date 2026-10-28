@@ -13,7 +13,11 @@ import { resolveAccountSettingsBackPath } from '../lib/auth/roles.ts';
 import { useAuth } from '../hooks/auth/useAuth.ts';
 import { formatRelativeReviewDate } from '../lib/formatRelativeReviewDate.ts';
 import { resolveMediaUrl } from '../lib/media.ts';
-import { customerReviewSubjectImage, customerReviewSubjectTitle, customerReviewServiceSource } from '../lib/customerReviewSubject.ts';
+import {
+  customerReviewSubjectImage,
+  customerReviewSubjectTitle,
+  customerReviewServiceSource,
+} from '../lib/customerReviewSubject.ts';
 import type { CustomerReviewType } from '../api/customerReviews.ts';
 
 export default function CustomerReviewDetailPage() {
@@ -57,14 +61,13 @@ export default function CustomerReviewDetailPage() {
   const isProduct = review.type === 'product';
   const isService = review.type === 'service';
   const isB2b = review.type === 'b2b';
-  const untitled =
-    isProduct
-      ? t('customerReviews.typeProduct')
-      : isService
-        ? t('serviceBookings.defaultServiceTitle')
-        : isB2b
-          ? t('customerReviews.typeB2b')
-          : t('customerReviews.typeStore');
+  const untitled = isProduct
+    ? t('customerReviews.typeProduct')
+    : isService
+      ? t('serviceBookings.defaultServiceTitle')
+      : isB2b
+        ? t('customerReviews.typeB2b')
+        : t('customerReviews.typeStore');
   const title = customerReviewSubjectTitle(review, untitled);
   const subjectImage = customerReviewSubjectImage(review);
   const serviceSource = customerReviewServiceSource(review);
@@ -97,10 +100,10 @@ export default function CustomerReviewDetailPage() {
       ? review.company_reply
       : review.vendor_reply;
   const replyAuthor = isService
-    ? review.provider_responded_by ?? review.provider?.name
+    ? (review.provider_responded_by ?? review.provider?.name)
     : isB2b
-      ? review.company_replied_by ?? review.company?.name
-      : review.vendor_replied_by ?? review.store?.name;
+      ? (review.company_replied_by ?? review.company?.name)
+      : (review.vendor_replied_by ?? review.store?.name);
   const replyAt = isService
     ? review.provider_responded_at
     : isB2b

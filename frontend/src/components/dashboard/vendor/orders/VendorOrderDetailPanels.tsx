@@ -79,7 +79,9 @@ export function VendorOrderProductsPanel({ order }: { order: VendorOrder }) {
               <span className="font-semibold text-emerald-800">
                 {t('vendorOrders.couponDiscount')}
                 {order.coupon_code ? (
-                  <span className="ms-1 font-mono text-xs text-emerald-700">{order.coupon_code}</span>
+                  <span className="ms-1 font-mono text-xs text-emerald-700">
+                    {order.coupon_code}
+                  </span>
                 ) : null}
               </span>
               <span className="font-bold text-emerald-700 tabular-nums">

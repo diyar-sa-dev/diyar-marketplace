@@ -54,11 +54,7 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-6 md:px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-12 mb-6 md:mb-10 text-start">
           <div>
-            <img
-              src="/logo_diyar.svg"
-              alt=""
-              className="h-8 md:h-9 mb-5 brightness-0 invert"
-            />
+            <img src="/logo_diyar.svg" alt="" className="h-8 md:h-9 mb-5 brightness-0 invert" />
             <p className="text-white/70 leading-relaxed mb-6 text-xs md:text-sm">
               {t('footer.tagline')}
             </p>
@@ -91,7 +87,9 @@ export function Footer() {
             </div>
           </div>
           <div>
-            <h3 className="text-sm md:text-base font-sans font-bold mb-4">{t('footer.quickLinks')}</h3>
+            <h3 className="text-sm md:text-base font-sans font-bold mb-4">
+              {t('footer.quickLinks')}
+            </h3>
             <ul className="space-y-2.5 text-white/70 text-xs md:text-sm">
               {quickLinks.map((item) => (
                 <li key={item.label}>
@@ -116,7 +114,9 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h3 className="text-sm md:text-base font-sans font-bold mb-4">{t('footer.ourServices')}</h3>
+            <h3 className="text-sm md:text-base font-sans font-bold mb-4">
+              {t('footer.ourServices')}
+            </h3>
             <ul className="space-y-2.5 text-white/70 text-xs md:text-sm">
               {serviceLinks.map((item) => (
                 <li key={item.label}>
@@ -132,7 +132,9 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h3 className="text-sm md:text-base font-sans font-bold mb-4">{t('footer.contactUs')}</h3>
+            <h3 className="text-sm md:text-base font-sans font-bold mb-4">
+              {t('footer.contactUs')}
+            </h3>
             <ul className="space-y-2.5 text-white/70 text-xs md:text-sm text-start">
               <li>
                 <a

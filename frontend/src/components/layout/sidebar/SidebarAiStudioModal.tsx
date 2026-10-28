@@ -66,7 +66,9 @@ export function SidebarAiStudioModal({ onClose }: SidebarAiStudioModalProps) {
             <ErrorBoundary
               fallback={
                 <div className="p-8 text-center" role="alert">
-                  <p className="text-sm text-muted-foreground">تعذّر فتح المصمم. أغلق النافذة وحاول مرة أخرى.</p>
+                  <p className="text-sm text-muted-foreground">
+                    تعذّر فتح المصمم. أغلق النافذة وحاول مرة أخرى.
+                  </p>
                   <button
                     type="button"
                     className="mt-4 min-h-11 text-sm text-diyar-brown underline"

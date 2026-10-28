@@ -77,7 +77,9 @@ describe('RoomDesignAutosave', () => {
   });
 
   it('does not auto-reschedule save after version_conflict', async () => {
-    const save = vi.fn().mockRejectedValue(Object.assign(new Error('conflict'), { code: 'version_conflict' }));
+    const save = vi
+      .fn()
+      .mockRejectedValue(Object.assign(new Error('conflict'), { code: 'version_conflict' }));
     const autosave = new RoomDesignAutosave(() => createEmptyDocument(4, 4), save);
     autosave.markDirty();
     await vi.advanceTimersByTimeAsync(ROOM_DESIGN_AUTOSAVE_DEBOUNCE_MS);
@@ -90,7 +92,9 @@ describe('RoomDesignAutosave', () => {
   });
 
   it('maps version_conflict to CONFLICT sync state', async () => {
-    const save = vi.fn().mockRejectedValue(Object.assign(new Error('conflict'), { code: 'version_conflict' }));
+    const save = vi
+      .fn()
+      .mockRejectedValue(Object.assign(new Error('conflict'), { code: 'version_conflict' }));
     const autosave = new RoomDesignAutosave(() => createEmptyDocument(4, 4), save);
     autosave.markDirty();
     await vi.advanceTimersByTimeAsync(ROOM_DESIGN_AUTOSAVE_DEBOUNCE_MS);

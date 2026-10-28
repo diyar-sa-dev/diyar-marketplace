@@ -18,7 +18,12 @@ describe('attachViewportPinchZoom', () => {
     const getZoom = vi.fn(() => 1);
     const getCenter = vi.fn(() => ({ left: 100, top: 80 }));
     const requestRenderAll = vi.fn();
-    const canvas = { zoomToPoint, getZoom, getCenter, requestRenderAll } as unknown as import('fabric').Canvas;
+    const canvas = {
+      zoomToPoint,
+      getZoom,
+      getCenter,
+      requestRenderAll,
+    } as unknown as import('fabric').Canvas;
 
     const surface = document.createElement('div');
     const detach = attachViewportPinchZoom(canvas, surface);

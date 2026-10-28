@@ -5,7 +5,10 @@ import {
   createSpatialEngineFromDocument,
   createSpatialEngineFromPreset,
 } from '../application/spatialEngine.ts';
-import { useCreateRoomDesignMutation, useRoomDesignQuery } from '../persistence/useRoomDesignQuery.ts';
+import {
+  useCreateRoomDesignMutation,
+  useRoomDesignQuery,
+} from '../persistence/useRoomDesignQuery.ts';
 import { RoomDesignerShell } from './RoomDesignerShell.tsx';
 import { RoomDesignerWorkspaceSkeleton } from './RoomDesignerWorkspaceSkeleton.tsx';
 
@@ -22,7 +25,10 @@ export function RoomDesignerWorkspace({
   const createStarted = useRef(false);
   const onCreatedRef = useRef(onCreated);
   onCreatedRef.current = onCreated;
-  const { data, isLoading, isError, error, refetch } = useRoomDesignQuery(designId, Boolean(designId));
+  const { data, isLoading, isError, error, refetch } = useRoomDesignQuery(
+    designId,
+    Boolean(designId),
+  );
   const createMutation = useCreateRoomDesignMutation();
   const createDesign = createMutation.mutate;
   const resetCreate = createMutation.reset;
@@ -82,7 +88,11 @@ export function RoomDesignerWorkspace({
     return (
       <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
         {createMutation.isError ? (
-          <div className="px-1 text-center shrink-0 mb-1" data-testid="room-designer-page-error" role="alert">
+          <div
+            className="px-1 text-center shrink-0 mb-1"
+            data-testid="room-designer-page-error"
+            role="alert"
+          >
             <p className="text-xs text-muted-foreground">
               {parseApiError(createMutation.error).status === 403
                 ? 'مصمّم الغرف غير متاح حالياً.'
@@ -149,9 +159,7 @@ export function RoomDesignerWorkspace({
     return (
       <div className="mx-auto max-w-lg p-6 text-center" data-testid="room-designer-page-error">
         <p className="text-sm text-muted-foreground">
-          {disabled
-            ? 'مصمّم الغرف غير متاح حالياً.'
-            : parsed.message || 'تعذّر تحميل التصميم.'}
+          {disabled ? 'مصمّم الغرف غير متاح حالياً.' : parsed.message || 'تعذّر تحميل التصميم.'}
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
           {!disabled ? (
