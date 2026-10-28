@@ -2,10 +2,8 @@ import React from 'react';
 import {
   Clock,
   CheckCircle2,
-  FileText,
   User,
   Wrench,
-  AlertCircle,
 } from 'lucide-react';
 import { formatOrderDate } from '../../lib/formatOrderDate.ts';
 import type { Locale } from '../../lib/i18n/types.ts';
@@ -13,14 +11,14 @@ import type { ServiceRequestTimelineItem } from '../../types/serviceRequests.ts'
 
 type ServiceRequestTimelineProps = {
   timelines: ServiceRequestTimelineItem[];
-  currentStatus: string;
+  currentStatus?: string;
   locale: Locale;
   t: (key: string, vars?: Record<string, string | number>) => string;
 };
 
 export function ServiceRequestTimelineView({
   timelines,
-  currentStatus,
+  currentStatus: _currentStatus,
   locale,
   t,
 }: ServiceRequestTimelineProps) {

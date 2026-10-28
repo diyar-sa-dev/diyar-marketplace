@@ -4,7 +4,6 @@ namespace App\Domains\Shipping\Services;
 
 use App\Domains\Orders\Services\ShipmentStateService;
 use App\Domains\Orders\Services\VendorOrderStateService;
-use App\Domains\Shipping\Contracts\CarrierGatewayInterface;
 use App\Domains\Shipping\DTO\CarrierBookingRequest;
 use App\Domains\Shipping\DTO\CarrierQuoteRequest;
 use App\Domains\Shipping\DTO\CarrierQuoteResponse;

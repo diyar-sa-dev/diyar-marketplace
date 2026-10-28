@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Tests\Feature\Notifications;
 
 use App\Domains\Notifications\Jobs\ProcessNotificationBroadcastJob;
+use App\Domains\Notifications\Services\NotificationBroadcastService;
+use App\Domains\Notifications\Services\NotificationDispatcher;
 use App\Enums\NotificationBroadcastAudience;
 use App\Enums\NotificationBroadcastStatus;
 use App\Enums\NotificationPriority;
 use App\Models\NotificationBroadcast;
+use App\Models\User;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
@@ -35,7 +38,7 @@ class NotificationBroadcastJobTest extends TestCase
     #[Test]
     public function failed_job_transitions_broadcast_to_failed_status_with_error_message(): void
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
 
         $broadcast = NotificationBroadcast::query()->create([
             'title' => 'Test Broadcast Failure',
@@ -65,7 +68,7 @@ class NotificationBroadcastJobTest extends TestCase
     #[Test]
     public function expired_broadcast_is_cancelled_cleanly_without_processing(): void
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
 
         $broadcast = NotificationBroadcast::query()->create([
             'title' => 'Expired Broadcast',
@@ -84,8 +87,8 @@ class NotificationBroadcastJobTest extends TestCase
 
         $job = new ProcessNotificationBroadcastJob($broadcast->id);
         $job->handle(
-            app(\App\Domains\Notifications\Services\NotificationBroadcastService::class),
-            app(\App\Domains\Notifications\Services\NotificationDispatcher::class)
+            app(NotificationBroadcastService::class),
+            app(NotificationDispatcher::class)
         );
 
         $broadcast->refresh();

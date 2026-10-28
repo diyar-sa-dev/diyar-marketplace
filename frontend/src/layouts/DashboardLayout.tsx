@@ -368,7 +368,7 @@ export default function DashboardLayout() {
           )}
         </div>
 
-        <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-4">
+        <nav className="dashboard-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain py-4 pe-1">
           {!role ? (
             <div className="px-4 text-sm text-gray-400">{t('dashboard.selectAccountType')}</div>
           ) : (

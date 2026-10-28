@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Core\Support\Media\MediaUploadService;
 use App\Enums\AvailabilityMode;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
@@ -162,7 +163,7 @@ class Product extends Model
             return null;
         }
 
-        return app(\App\Core\Support\Media\MediaUploadService::class)->url($this->model_3d_path);
+        return app(MediaUploadService::class)->url($this->model_3d_path);
     }
 
     /**

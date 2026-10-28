@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, Store } from 'lucide-react';
+import { Bookmark, Eye, Heart, Store } from 'lucide-react';
 import { useCart } from '../../hooks/cart/useCart.ts';
 import { useAuth } from '../../hooks/auth/useAuth.ts';
 import { useLocale } from '../../hooks/useLocale.ts';
@@ -33,6 +33,10 @@ type CardInput = Omit<Partial<UiProductCard>, 'id' | 'price'> & {
   loyaltyPoints?: number;
   loyalty_points_estimate?: number;
   tag?: string;
+  viewsCount?: number;
+  likesCount?: number;
+  savesCount?: number;
+  interactionRate?: number;
 };
 
 function normalizeProduct(
@@ -65,6 +69,10 @@ function normalizeProduct(
     loyalty_points_estimate: product.loyalty_points_estimate,
     userSaved: product.userSaved,
     isOwnStore: product.isOwnStore,
+    viewsCount: product.viewsCount,
+    likesCount: product.likesCount,
+    savesCount: product.savesCount,
+    interactionRate: product.interactionRate,
   };
 }
 
@@ -300,7 +308,7 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
         </div>
 
         {!item.isOwnStore ? (
-          <div className={`flex items-baseline gap-2 ${layout === 'list' ? 'mb-1' : 'mb-3'}`}>
+          <div className={`flex items-baseline gap-2 ${layout === 'list' ? 'mb-1' : 'mb-2'}`}>
             <span
               className={`font-bold text-diyar-dark tabular-nums ${layout === 'list' ? 'text-sm sm:text-lg' : 'text-lg'}`}
             >
@@ -316,7 +324,27 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
             )}
           </div>
         ) : (
-          <div className={layout === 'list' ? 'mb-1' : 'mb-3'} />
+          <div className={layout === 'list' ? 'mb-1' : 'mb-2'} />
+        )}
+
+        {(item.viewsCount != null || item.likesCount != null || item.savesCount != null) && (
+          <div className="mb-2.5 flex items-center justify-between rounded-lg bg-gray-50/90 px-2 py-1 text-[10px] text-gray-500 border border-gray-100/80">
+            <span className="inline-flex items-center gap-1 font-medium text-gray-600">
+              <Eye size={11} className="text-gray-400 shrink-0" />
+              <span className="tabular-nums font-bold text-gray-700">{item.viewsCount ?? 0}</span>
+              <span className="text-[9px] text-gray-400">{t('catalog.product.viewsShort') || 'مشاهدة'}</span>
+            </span>
+            <span className="inline-flex items-center gap-1 font-medium text-gray-600">
+              <Heart size={11} className="text-rose-400 shrink-0" fill="currentColor" />
+              <span className="tabular-nums font-bold text-gray-700">{item.likesCount ?? 0}</span>
+              <span className="text-[9px] text-gray-400">{t('catalog.product.likesShort') || 'إعجاب'}</span>
+            </span>
+            <span className="inline-flex items-center gap-1 font-medium text-gray-600">
+              <Bookmark size={11} className="text-amber-500 shrink-0" />
+              <span className="tabular-nums font-bold text-gray-700">{item.savesCount ?? 0}</span>
+              <span className="text-[9px] text-gray-400">{t('catalog.product.savesShort') || 'حفظ'}</span>
+            </span>
+          </div>
         )}
 
         <button

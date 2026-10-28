@@ -11,6 +11,7 @@ use Database\Seeders\CategorySeeder;
 use Database\Seeders\PlatformDemoSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ProductFilterTest extends TestCase
@@ -145,8 +146,8 @@ class ProductFilterTest extends TestCase
     public function test_products_can_be_filtered_by_has_3d_flag(): void
     {
         $diskName = (string) config('diyar_media.disk', 'media');
-        \Illuminate\Support\Facades\Storage::fake($diskName);
-        \Illuminate\Support\Facades\Storage::disk($diskName)->put('products/sample/model.glb', 'glTF binary content');
+        Storage::fake($diskName);
+        Storage::disk($diskName)->put('products/sample/model.glb', 'glTF binary content');
 
         $target = Product::query()->firstOrFail();
         $target->forceFill(['model_3d_path' => 'products/sample/model.glb'])->save();

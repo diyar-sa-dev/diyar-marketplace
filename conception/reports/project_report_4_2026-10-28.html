@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تقرير حالة المشروع — منصة ديار (28 أكتوبر 2026)</title>
+<style>
+  :root {
+    --surround: #e8ecf1;
+    --paper: #ffffff;
+    --ink: #1c2733;
+    --ink-soft: #46586b;
+    --navy: #1f3864;
+    --band: #2e6db4;
+    --band-soft: #eef4fb;
+    --row-alt: #f5f8fc;
+    --line: #dbe4ee;
+    --ok-bg: #e4f3ea;   --ok-fg: #1a7a4c;
+    --part-bg: #fcf1d2; --part-fg: #96660a;
+    --no-bg: #fbe7e7;   --no-fg: #b23330;
+    --shadow: 0 2px 14px rgba(31, 56, 100, .12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --surround: #141a22; --shadow: 0 2px 18px rgba(0,0,0,.5); }
+  }
+  :root[data-theme="dark"] { --surround: #141a22; --shadow: 0 2px 18px rgba(0,0,0,.5); }
+  :root[data-theme="light"] { --surround: #e8ecf1; --shadow: 0 2px 14px rgba(31,56,100,.12); }
+
+  html { background: var(--surround); }
+  body { margin: 0; background: var(--surround); }
+
+  .report {
+    direction: rtl;
+    font-family: "Segoe UI", Tahoma, "Noto Naskh Arabic", Arial, sans-serif;
+    color: var(--ink);
+    max-width: 880px;
+    margin: 24px auto 64px;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+    border-radius: 6px;
+    overflow: hidden;
+    line-height: 1.7;
+  }
+  .inner { padding: 0 40px 48px; }
+
+  .masthead {
+    background: var(--navy);
+    color: #fff;
+    text-align: center;
+    padding: 34px 24px 26px;
+  }
+  .masthead h1 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: .5px; }
+  .subhead {
+    background: var(--band);
+    color: #fff;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 10px 24px;
+    margin-bottom: 32px;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 26px; font-size: 14.5px; }
+  td, th { padding: 9px 14px; vertical-align: top; }
+  tbody tr:nth-child(odd) { background: var(--band-soft); }
+  tbody tr:nth-child(even) { background: var(--paper); }
+  tbody tr { border-bottom: 1px solid var(--line); }
+
+  .meta td:first-child { font-weight: 700; color: var(--navy); width: 130px; white-space: nowrap; }
+
+  .st {
+    width: 128px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+  .ok   { background: var(--ok-bg)   !important; color: var(--ok-fg); }
+  .part { background: var(--part-bg) !important; color: var(--part-fg); }
+  .no   { background: var(--no-bg)   !important; color: var(--no-fg); }
+
+  .section-band {
+    background: var(--band);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 7px 14px;
+    margin: 32px 0 14px;
+  }
+  .section-note {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: -6px 0 14px;
+    padding: 0 4px;
+  }
+  .section-note.no-note { margin-bottom: 6px; }
+
+  h3 {
+    color: var(--navy);
+    font-size: 15.5px;
+    font-weight: 700;
+    margin: 20px 0 8px;
+    border-bottom: 2px solid var(--band);
+    padding-bottom: 4px;
+  }
+
+  .highlights {
+    background: var(--band-soft);
+    border-right: 4px solid var(--band);
+    padding: 14px 18px;
+    margin: 12px 0 22px;
+  }
+  .highlights ul { margin: 0; padding-right: 20px; }
+  .highlights li { margin: 6px 0; }
+
+  .legend {
+    display: flex;
+    gap: 12px;
+    margin: 8px 0 24px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .legend span {
+    padding: 4px 12px;
+    border-radius: 3px;
+  }
+
+  .closing {
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+  .closing .thanks { font-size: 14.5px; line-height: 1.8; color: var(--ink-soft); }
+  .closing .sig { font-weight: 700; color: var(--navy); margin-top: 18px; }
+  .closing .date { font-size: 13px; color: var(--ink-soft); }
+
+  .toolbar {
+    max-width: 880px;
+    margin: 16px auto 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .toolbar button {
+    background: var(--navy);
+    color: #fff;
+    border: 0;
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .toolbar button:hover { background: var(--band); }
+
+  @media print {
+    html, body { background: #fff !important; }
+    .report {
+      box-shadow: none !important;
+      margin: 0 !important;
+      max-width: 100% !important;
+      border-radius: 0 !important;
+    }
+    .inner { padding: 0 16px 24px !important; }
+    .toolbar { display: none !important; }
+    .page-break { page-break-before: always; }
+    tbody tr:nth-child(odd) { background: #f2f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .masthead, .subhead, .section-band { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .ok, .part, .no { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+
+<div class="toolbar"><button type="button" onclick="window.print()">🖨 Print / PDF</button></div>
+
+<div class="report" lang="ar">
+  <div class="masthead"><h1>تقرير حالة المشروع — التقرير الرابع</h1></div>
+  <div class="subhead">منصة ديار — سوق إلكتروني للأثاث والخدمات المنزلية ومنظومة الشحن المعتمدة وتجربة الشراء المتقدمة</div>
+
+  <div class="inner">
+    <table class="meta">
+      <tbody>
+        <tr><td>المشروع:</td><td>منصة ديار — المملكة العربية السعودية</td></tr>
+        <tr><td>تاريخ التقرير:</td><td>28/10/2026</td></tr>
+        <tr><td>التقرير السابق:</td><td>14/10/2026 — التقرير الثالث</td></tr>
+        <tr><td>التقرير الثاني:</td><td>14/09/2026 — التقرير الثاني</td></tr>
+        <tr><td>التقرير الأول:</td><td>27/08/2026 — التقرير الأول</td></tr>
+      </tbody>
+    </table>
+
+    <p style="font-weight:700; color:var(--navy); margin-bottom:6px;">دلالة الألوان في هذا التقرير:</p>
+    <div class="legend">
+      <span class="ok">منجز</span>
+      <span class="part">جزئي</span>
+      <span class="no">غير منجز</span>
+    </div>
+
+    <div class="section-band">عن المنصة ومسار التقدم</div>
+    <p>منصة ديار سوق إلكتروني متكامل موجّه للسوق السعودي بالعملة المحلية وضريبة القيمة المضافة 15%. يجمع النظام التجاري للأثاث بين التصفح، والشراء، وخدمات التصميم، ومصمم الغرف ثلاثي الأبعاد، ولوحات تحكم مستقلة ومخصصة لكافة الشركاء (العميل، البائع، مقدم الخدمة، المسوّق، والإدارة المركزية).</p>
+    <p>شهدت الفترة الممتدة من التقرير الثالث (14 أكتوبر 2026) وحتى اليوم (28 أكتوبر 2026) مرحلة تطويرية نوعية ركّزت على <b>الارتقاء بتجربة العميل والتاجر، وبناء منظومة الشحن المباشرة</b>، و<b>تحسين المظهر العام وتوافق شاشات الهواتف والأجهزة اللوحية</b>، و<b>الالتزام الصارم بجودة الكود ومطابقة الفحوصات الآلية (CI/CD) بنسبة 100%</b>.</p>
+
+    <div class="section-band">أبرز ما أُنجز منذ التقرير الثالث</div>
+    <div class="highlights">
+      <ul>
+        <li><b>بوابة وتكامل شركات الشحن المعتمدة بالمملكة:</b> بناء منظومة متطورة للشحن تربط المنصة مباشرة مع شركات النقل المعتمدة (مثل أي مكان AyMakan) لتمكين التجار من الاختيار بين الشحن بأسطولهم اليدوي أو إصدار بوليصات الشحن المباشرة آلياً مع التتبع اللحظي.</li>
+        <li><b>إعادة تصميم شاشة إعدادات الشحن للتاجر:</b> تطوير واجهة اختيار تفاعلية أنيقة وتصميم بطاقات مرن يمنع تمدد وانهيار القوائم المجاورة مع استقرار وسلاسة كاملة عند تفعيل الشحن المتقدم.</li>
+        <li><b>قسم «الأكثر تفاعلاً ونشاطاً» المباشر:</b> تعزيز الصفحة الرئيسية بقسم تفاعلي مبهر يعرض إحصائيات حية (المشاهدات، الإعجابات، والحفظ في المفضلة) مع مؤشر تفاعل ونشاط فوري للمنتجات الأكثر جذباً للمتسوقين.</li>
+        <li><b>تصحيح عرض بطاقات المتاجر وأعداد المنتجات:</b> إبراز أسماء المتاجر المعتمدة وأعداد المنتجات المتاحة بتصميم أنيق ومقروء يمنع تداخل النصوص على شاشات الهواتف والكمبيوتر.</li>
+        <li><b>تحسين القوائم الجانبية وسلاسة التمرير في لوحات التحكم:</b> إتاحة شريط تمرير نحيف وخفيف يتناغم مع الهوية البصرية للوحات التحكم (التاجر، مقدم الخدمة، الإدارة) مع استجابة تامة لإخفاء وإظهار القائمة على الهواتف والأجهزة اللوحية.</li>
+        <li><b>الاجتياز الكامل لفحوصات ومعايير الجودة (CI/CD):</b> معالجة كافة تحذيرات وتدقيقات التنسيق البرمجي (ESLint في الواجهة الأمامية و Laravel Pint في الواجهة الخلفية)، مما يضمن خلو المنصة تماماً من الأخطاء والتحذيرات.</li>
+      </ul>
+    </div>
+
+    <div class="section-band">ما أُضيف وما تغيّر منذ التقرير الثالث</div>
+    <div class="section-note">ملخّص التحولات الجوهرية (14 أكتوبر — 28 أكتوبر 2026)</div>
+
+    <h3>ميزات وأنظمة جديدة كلياً</h3>
+    <table><tbody>
+      <tr><td>منظومة الربط الآلي مع شركات الشحن — خيارات الشحن المعتمدة وإصدار البوالص المباشرة والتتبع</td><td class="st ok">منجز وموثق</td></tr>
+      <tr><td>قسم الأكثر تفاعلاً المباشر بالصفحة الرئيسية — مؤشرات ونسب التفاعل وإحصائيات المشاهدة والإعجاب</td><td class="st ok">منجز ومُعرب</td></tr>
+      <tr><td>عرض إحصائيات التفاعل على بطاقة المنتج — عدد المشاهدات، الإعجابات، والحفظ بشكل أنيق ومنظم</td><td class="st ok">منجز</td></tr>
+      <tr><td>أشرطة التمرير العصرية للوحات التحكم — تحسين مظهر شريط التمرير ليصبح خفيفاً وناعماً ومتوافقاً مع هوية المنصة</td><td class="st ok">منجز</td></tr>
+    </tbody></table>
+
+    <h3>تحسينات وتعديلات تمت على الأنظمة القائمة</h3>
+    <table><tbody>
+      <tr><td>لوحة إعدادات الشحن للبائع — فصل نمط الشحن اليدوي والربط الآلي عبر محوّل تفاعلي أنيق دون تمدد الكروت</td><td class="st ok">مُحسَّن ومُحدَّث</td></tr>
+      <tr><td>عرض بطاقات المتاجر المعتمدة (Verified Stores) — إبراز أسماء المتاجر وعدد المنتجات في شارات منفصلة وواضحة</td><td class="st ok">مُحسَّن</td></tr>
+      <tr><td>القوائم الجانبية للوحات التحكم — توافق تام مع الهواتف والأجهزة اللوحية وتجاوب سلس للقفل والفتح</td><td class="st ok">مُحسَّن ومضبوط</td></tr>
+      <tr><td>فحوصات الجودة البرمجية — تصحيح كافة الملفات غير المتطابقة مع معايير Laravel Pint و ESLint بنجاح تام</td><td class="st ok">مطابق 100%</td></tr>
+    </tbody></table>
+
+    <div class="section-band">ملخص حالة المنصة الحالية</div>
+    <div class="table-wrap">
+    <table>
+      <tbody>
+        <tr><td>الموقع الإلكتروني والمتجر العام</td><td class="st ok">منجز ومستقر — تم تحسين الصفحة الرئيسية، بطاقات المنتجات والمتاجر، والتفاعل</td></tr>
+        <tr><td>مصمم الغرف ثلاثي الأبعاد وتجربة الأثاث</td><td class="st ok">منجز ومستقر — تصميم ثنائي وثلاثي الأبعاد، تجربة بالصورة، وربط مباشر بالمتجر</td></tr>
+        <tr><td>منظومة الشحن وتتبع الطلبات</td><td class="st ok">منجز — دعم الأسطول الخاص والربط الآلي مع شركات الشحن لإصدار البوالص</td></tr>
+        <tr><td>لوحة البائع ومقدّم الخدمة والمسوق</td><td class="st ok">منجز — واجهات محسنة، قوائم جانبية سلسة ومتجاوبة، وإدارة متكاملة للعمليات</td></tr>
+        <tr><td>لوحة الإدارة الشاملة</td><td class="st ok">منجز — متابعة دقيقة لكافة المسارات، إعدادات الشحن، الرقابة، والملاحظات</td></tr>
+        <tr><td>الجودة البرمجية والاختبارات الآلية</td><td class="st ok">منجز 100% — اجتياز فحوصات ESLint و Laravel Pint وخلو تام من أي تحذيرات أو أخطاء</td></tr>
+        <tr><td>خادم الإنتاج والتشغيل الحي</td><td class="st part">جاهز تقنياً بالكامل — بانتظار تسليم بيانات الوصول وحسم مفاتيح الدفع والرسائل الحية</td></tr>
+        <tr><td>تطبيقات الجوال المستقلة</td><td class="st part">البنية الخلفية جاهزة بالكامل — بانتظار تأكيد الموافقة على التصاميم للبدء بالتنفيذ</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="closing">
+      <p class="thanks">تواصل منصة ديار تقدمها الثابت نحو الجاهزية التشغيلية القصوى. يركّز العمل حالياً على ضمان أعلى مستويات سهولة الاستخدام للمتسوقين والتجار، وضبط التكامل مع الخدمات اللوجستية، مع الحفاظ على أعلى معايير الجودة التقنية والأداء السريع.</p>
+      <p class="sig">تقرير حالة المشروع (التقرير الرابع) — منصة ديار</p>
+      <p class="date">28 أكتوبر 2026</p>
+    </div>
+  </div>
+</div>
+</html>

@@ -247,7 +247,7 @@ final class ServiceOfferService
                 'actor_type' => 'provider',
                 'actor_id' => $user->id,
                 'title' => 'تم تقديم عرض جديد',
-                'notes' => 'قدم ' . ($provider->business_name ?? 'مزود الخدمة') . ' عرضاً بقيمة ' . $price . ' ريال.',
+                'notes' => 'قدم '.($provider->business_name ?? 'مزود الخدمة').' عرضاً بقيمة '.$price.' ريال.',
                 'metadata' => [
                     'offer_id' => $offer->id,
                     'proposed_price' => (string) $price,

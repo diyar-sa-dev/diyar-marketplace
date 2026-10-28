@@ -1,5 +1,19 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle2, ChevronRight, HelpCircle, Info, MapPin, Package, Save, Sparkles, Truck, X } from 'lucide-react';
+import {
+  Boxes,
+  CheckCircle2,
+  ChevronRight,
+  HelpCircle,
+  Info,
+  MapPin,
+  Package,
+  Save,
+  ShieldCheck,
+  Sparkles,
+  Truck,
+  X,
+  Zap,
+} from 'lucide-react';
 import { useLocale } from '../../../../hooks/useLocale.ts';
 import { useToast } from '../../../../hooks/useToast.ts';
 import {
@@ -71,7 +85,7 @@ export function VendorShippingSettingsPanel() {
           {t('shipping.availableMethodsTitle')}
         </h3>
 
-        <div className="grid grid-cols-1 gap-6 pt-2 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 items-start gap-6 pt-2 md:grid-cols-2 lg:grid-cols-3">
           <ShippingMethodOptionCard
             selected={form.carrier_enabled}
             icon={Truck}
@@ -131,54 +145,96 @@ export function VendorShippingSettingsPanel() {
                 onChange={(event) => update('use_advanced_rules', event.target.checked)}
                 className="rounded text-diyar-brown focus:ring-diyar-brown"
               />
-              <label htmlFor="use-advanced-rules" className="text-xs font-medium text-gray-700">
+              <label htmlFor="use-advanced-rules" className="text-xs font-medium text-gray-700 cursor-pointer">
                 {t('shipping.useAdvancedRules')}
               </label>
             </div>
+
             {form.use_advanced_rules ? (
-              <div className="space-y-4 pt-3 border-t border-gray-100 animate-in fade-in duration-200">
-                <p className="text-[11px] text-gray-500 leading-normal">
+              <div className="space-y-3.5 pt-3 border-t border-gray-100 animate-in fade-in duration-200">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-gray-800">
+                    {locale === 'ar' ? 'نمط إدارة الشحن والتسعير' : 'Fulfillment & Dispatch Mode'}
+                  </span>
+                  <span className="text-[10px] text-amber-700 font-semibold bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Sparkles size={11} />
+                    {locale === 'ar' ? 'خيارات متقدمة' : 'Advanced'}
+                  </span>
+                </div>
+
+                <p className="text-[11px] text-gray-500 leading-relaxed">
                   {locale === 'ar'
-                    ? 'اختر وضع التشغيل المعتمد لمتجرك: إما الشحن اليدوي عبر أسطولك أو ناقلي المنصة، أو الربط المباشر مع شركات الشحن لإصدار البوالص آلياً.'
-                    : 'Choose your fulfillment mode: either manual courier fleet or automated carrier gateway with live waybill issuance.'}
+                    ? 'اختر طريقة احتساب الشحن والتنفيذ المناسبة لمتجرك:'
+                    : 'Choose your fulfillment and dispatch mode:'}
                 </p>
 
-                {/* 2 Exclusive Cards: Manual vs Automated Carrier */}
-                <div className="grid grid-cols-1 gap-3">
-                  {/* Card 1: Manual / Fleet Shipping */}
-                  <div
-                    className={`relative rounded-xl border p-3.5 transition-all ${
+                {/* Segmented / Interactive Card Switcher */}
+                <div className="grid grid-cols-2 gap-2 p-1 bg-gray-100/80 rounded-xl border border-gray-200/70">
+                  {/* Mode 1 Tab: Manual */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      update('fulfillment_type', 'manual');
+                      update('selected_carrier_code', 'manual');
+                    }}
+                    className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-lg text-xs font-medium transition-all ${
                       (form.fulfillment_type ?? 'manual') === 'manual'
-                        ? 'border-diyar-brown/60 bg-diyar-cream/20 shadow-sm'
-                        : 'border-gray-200 bg-gray-50/50 hover:border-gray-300'
+                        ? 'bg-white text-diyar-brown font-bold shadow-sm border border-diyar-brown/20'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <Truck size={15} className={(form.fulfillment_type ?? 'manual') === 'manual' ? 'text-diyar-brown' : 'text-gray-400'} />
+                      <span>{locale === 'ar' ? 'شحن يدوي' : 'Manual'}</span>
+                    </div>
+                    <span className="text-[10px] text-gray-400 font-normal">
+                      {locale === 'ar' ? 'أسطول المتجر' : 'Store Fleet'}
+                    </span>
+                  </button>
+
+                  {/* Mode 2 Tab: Automated Carrier */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      update('fulfillment_type', 'carrier');
+                      const firstActive = data?.availableCarriers?.[0]?.carrier_code;
+                      if (firstActive) {
+                        update('selected_carrier_code', firstActive);
+                      }
+                    }}
+                    className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-2 rounded-lg text-xs font-medium transition-all ${
+                      (form.fulfillment_type ?? 'manual') === 'carrier'
+                        ? 'bg-white text-amber-800 font-bold shadow-sm border border-amber-300'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <Zap size={15} className={(form.fulfillment_type ?? 'manual') === 'carrier' ? 'text-amber-600' : 'text-gray-400'} />
+                      <span>{locale === 'ar' ? 'ربط آلي V2' : 'Auto Carrier'}</span>
+                    </div>
+                    <span className="text-[10px] text-amber-600/90 font-medium bg-amber-100/60 px-1.5 rounded">
+                      {locale === 'ar' ? 'بوالص AWB' : 'Live AWB'}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Active Mode Configuration Container */}
+                {(form.fulfillment_type ?? 'manual') === 'manual' ? (
+                  <div className="rounded-xl border border-diyar-brown/30 bg-diyar-cream/20 p-3.5 space-y-3 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          id="fulfillment-manual"
-                          name="fulfillment_type"
-                          checked={(form.fulfillment_type ?? 'manual') === 'manual'}
-                          onChange={() => {
-                            update('fulfillment_type', 'manual');
-                            update('selected_carrier_code', 'manual');
-                          }}
-                          className="text-diyar-brown focus:ring-diyar-brown mt-0.5"
-                        />
+                        <div className="p-1 rounded-md bg-diyar-brown/10 text-diyar-brown">
+                          <Truck size={15} />
+                        </div>
                         <div>
-                          <label
-                            htmlFor="fulfillment-manual"
-                            className="text-xs font-bold text-gray-900 cursor-pointer block"
-                          >
+                          <h5 className="text-xs font-bold text-gray-900">
                             {locale === 'ar' ? 'الشحن اليدوي / أسطول المتجر' : 'Manual Shipping / Dedicated Fleet'}
-                          </label>
-                          <span className="text-[10px] text-gray-500">
+                          </h5>
+                          <p className="text-[10px] text-gray-500">
                             {locale === 'ar' ? 'توصيل عبر ناقلي المتجر أو مندوبيكم المعتمدين' : 'Delivery via store messengers or manual carriers'}
-                          </span>
+                          </p>
                         </div>
                       </div>
-
                       <button
                         type="button"
                         onClick={() => setModalType('manual')}
@@ -189,96 +245,73 @@ export function VendorShippingSettingsPanel() {
                       </button>
                     </div>
 
-                    {(form.fulfillment_type ?? 'manual') === 'manual' ? (
-                      <div className="mt-3 pt-2.5 border-t border-gray-100/80 space-y-2 animate-in fade-in duration-150">
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-semibold text-gray-700">
-                            {locale === 'ar' ? 'الناقل المعتمد المختار:' : 'Selected Manual Carrier:'}
-                          </label>
-                          <select
-                            value={form.selected_carrier_code === 'manual' || !form.selected_carrier_code ? 'manual' : form.selected_carrier_code}
-                            onChange={(e) => update('selected_carrier_code', e.target.value)}
-                            className="w-full rounded-lg border border-gray-200 bg-white p-2 text-xs focus:border-diyar-brown focus:outline-none"
-                          >
-                            <option value="manual">
-                              {locale === 'ar' ? 'الأسطول الخاص بالمتجر (افتراضي)' : 'Store Dedicated Fleet (Default)'}
+                    <div className="pt-2 border-t border-diyar-brown/15 space-y-2">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-semibold text-gray-700">
+                          {locale === 'ar' ? 'الناقل المعتمد المختار:' : 'Selected Manual Carrier:'}
+                        </label>
+                        <select
+                          value={form.selected_carrier_code === 'manual' || !form.selected_carrier_code ? 'manual' : form.selected_carrier_code}
+                          onChange={(e) => update('selected_carrier_code', e.target.value)}
+                          className="w-full rounded-lg border border-gray-200 bg-white p-2 text-xs focus:border-diyar-brown focus:outline-none shadow-xs"
+                        >
+                          <option value="manual">
+                            {locale === 'ar' ? 'الأسطول الخاص بالمتجر (افتراضي)' : 'Store Dedicated Fleet (Default)'}
+                          </option>
+                          {(data?.manualCarriers ?? []).map((carrier) => (
+                            <option key={carrier.id} value={carrier.code}>
+                              {carrier.name} ({carrier.code})
                             </option>
-                            {(data?.manualCarriers ?? []).map((carrier) => (
-                              <option key={carrier.id} value={carrier.code}>
-                                {carrier.name} ({carrier.code})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        {data?.manualCarriers && data.manualCarriers.length > 0 ? (
-                          <div className="flex items-center justify-between text-[11px] text-emerald-700 bg-emerald-50/70 p-2 rounded-lg">
-                            <span>
-                              {locale === 'ar'
-                                ? `يتوفر ${data.manualCarriers.length} ناقل مهيأ من قِبل الإدارة`
-                                : `${data.manualCarriers.length} carrier(s) configured by admin`}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => setModalType('manual')}
-                              className="underline font-bold hover:text-emerald-900"
-                            >
-                              {locale === 'ar' ? 'عرض الأسعار' : 'View Rates'}
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="text-[11px] text-gray-500 bg-white/70 p-2 rounded-lg border border-dashed border-gray-200">
-                            {locale === 'ar'
-                              ? 'لم يتم تهيئة ناقلين يدويين محددين من الإدارة، سيتم الاعتماد على التسعيرة الثابتة.'
-                              : 'No manual carriers configured by admin; flat rate will apply.'}
-                          </div>
-                        )}
+                          ))}
+                        </select>
                       </div>
-                    ) : null}
-                  </div>
 
-                  {/* Card 2: Automated Saudi Carrier Companies */}
-                  <div
-                    className={`relative rounded-xl border p-3.5 transition-all ${
-                      (form.fulfillment_type ?? 'manual') === 'carrier'
-                        ? 'border-amber-400 bg-amber-50/40 shadow-sm'
-                        : 'border-gray-200 bg-gray-50/50 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
+                      {data?.manualCarriers && data.manualCarriers.length > 0 ? (
+                        <div className="flex items-center justify-between text-[11px] text-emerald-800 bg-emerald-50/80 border border-emerald-200/50 p-2 rounded-lg">
+                          <span className="flex items-center gap-1.5">
+                            <ShieldCheck size={13} className="text-emerald-600" />
+                            {locale === 'ar'
+                              ? `يتوفر ${data.manualCarriers.length} ناقل مهيأ من الإدارة`
+                              : `${data.manualCarriers.length} carrier(s) configured by admin`}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setModalType('manual')}
+                            className="underline font-bold text-emerald-900 hover:text-emerald-950"
+                          >
+                            {locale === 'ar' ? 'عرض الأسعار' : 'View Rates'}
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="text-[11px] text-gray-500 bg-white/80 p-2 rounded-lg border border-dashed border-gray-200">
+                          {locale === 'ar'
+                            ? 'لم يتم تهيئة ناقلين يدويين محددين من الإدارة، سيتم الاعتماد على التسعيرة الثابتة.'
+                            : 'No manual carriers configured by admin; flat rate will apply.'}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-amber-300 bg-amber-50/40 p-3.5 space-y-3 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          id="fulfillment-carrier"
-                          name="fulfillment_type"
-                          checked={(form.fulfillment_type ?? 'manual') === 'carrier'}
-                          onChange={() => {
-                            update('fulfillment_type', 'carrier');
-                            const firstActive = data?.availableCarriers?.[0]?.carrier_code;
-                            if (firstActive) {
-                              update('selected_carrier_code', firstActive);
-                            }
-                          }}
-                          className="text-amber-600 focus:ring-amber-500 mt-0.5"
-                        />
+                        <div className="p-1 rounded-md bg-amber-100 text-amber-700">
+                          <Zap size={15} />
+                        </div>
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <label
-                              htmlFor="fulfillment-carrier"
-                              className="text-xs font-bold text-gray-900 cursor-pointer block"
-                            >
+                            <h5 className="text-xs font-bold text-gray-900">
                               {locale === 'ar' ? 'شركات الشحن المعتمدة (الربط الآلي)' : 'Approved Courier Companies (Automated)'}
-                            </label>
-                            <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded">
-                              {locale === 'ar' ? 'بوليصات AWB' : 'Live AWB'}
+                            </h5>
+                            <span className="text-[9px] bg-amber-200/80 text-amber-900 font-bold px-1.5 py-0.5 rounded">
+                              Live
                             </span>
                           </div>
-                          <span className="text-[10px] text-gray-500">
+                          <p className="text-[10px] text-gray-500">
                             {locale === 'ar' ? 'إصدار وتتبع آلي مع شركات النقل المعتمدة في المملكة' : 'Automated waybill creation & tracking with Saudi providers'}
-                          </span>
+                          </p>
                         </div>
                       </div>
-
                       <button
                         type="button"
                         onClick={() => setModalType('carrier')}
@@ -289,52 +322,50 @@ export function VendorShippingSettingsPanel() {
                       </button>
                     </div>
 
-                    {(form.fulfillment_type ?? 'manual') === 'carrier' ? (
-                      <div className="mt-3 pt-2.5 border-t border-amber-200/60 space-y-2 animate-in fade-in duration-150">
-                        {(data?.availableCarriers && data.availableCarriers.length > 0) ? (
-                          <>
-                            <div className="space-y-1">
-                              <label className="text-[11px] font-semibold text-gray-700">
-                                {locale === 'ar' ? 'اختر شركة الشحن الآلية المعتمدة:' : 'Select Approved Provider:'}
-                              </label>
-                              <select
-                                value={form.selected_carrier_code ?? data.availableCarriers[0].carrier_code}
-                                onChange={(e) => update('selected_carrier_code', e.target.value)}
-                                className="w-full rounded-lg border border-gray-200 bg-white p-2 text-xs focus:border-amber-500 focus:outline-none"
-                              >
-                                {data.availableCarriers.map((carrier) => (
-                                  <option key={carrier.carrier_code} value={carrier.carrier_code}>
-                                    {carrier.name} {carrier.is_sandbox ? (locale === 'ar' ? '(بيئة تجريبية)' : '(Sandbox)') : ''}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="flex items-center justify-between text-[11px] text-amber-800 bg-amber-100/60 p-2 rounded-lg">
-                              <span>
-                                {locale === 'ar'
-                                  ? `الناقل النشط حالياً: ${data.availableCarriers.find(c => c.carrier_code === form.selected_carrier_code)?.name ?? data.availableCarriers[0].name}`
-                                  : `Active Provider: ${data.availableCarriers.find(c => c.carrier_code === form.selected_carrier_code)?.name ?? data.availableCarriers[0].name}`}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => setModalType('carrier')}
-                                className="underline font-bold hover:text-amber-900"
-                              >
-                                {locale === 'ar' ? 'التفاصيل والربط' : 'Details'}
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="text-[11px] text-rose-600 bg-rose-50 p-2.5 rounded-lg border border-rose-200">
-                            {locale === 'ar'
-                              ? 'لا توجد شركات شحن آلية مفعلة حالياً من قبل الإدارة. يرجى مراجعة إدارة المنصة أو استخدام الشحن اليدوي.'
-                              : 'No automated carriers are currently active from Admin. Please contact platform management or use manual fleet.'}
+                    <div className="pt-2 border-t border-amber-200/60 space-y-2">
+                      {(data?.availableCarriers && data.availableCarriers.length > 0) ? (
+                        <>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-semibold text-gray-700">
+                              {locale === 'ar' ? 'اختر شركة الشحن الآلية المعتمدة:' : 'Select Approved Provider:'}
+                            </label>
+                            <select
+                              value={form.selected_carrier_code ?? data.availableCarriers[0].carrier_code}
+                              onChange={(e) => update('selected_carrier_code', e.target.value)}
+                              className="w-full rounded-lg border border-gray-200 bg-white p-2 text-xs focus:border-amber-500 focus:outline-none shadow-xs"
+                            >
+                              {data.availableCarriers.map((carrier) => (
+                                <option key={carrier.carrier_code} value={carrier.carrier_code}>
+                                  {carrier.name} {carrier.is_sandbox ? (locale === 'ar' ? '(بيئة تجريبية)' : '(Sandbox)') : ''}
+                                </option>
+                              ))}
+                            </select>
                           </div>
-                        )}
-                      </div>
-                    ) : null}
+                          <div className="flex items-center justify-between text-[11px] text-amber-900 bg-amber-100/70 border border-amber-200/70 p-2 rounded-lg">
+                            <span className="truncate pe-1">
+                              {locale === 'ar'
+                                ? `النشط: ${data.availableCarriers.find(c => c.carrier_code === form.selected_carrier_code)?.name ?? data.availableCarriers[0].name}`
+                                : `Active: ${data.availableCarriers.find(c => c.carrier_code === form.selected_carrier_code)?.name ?? data.availableCarriers[0].name}`}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setModalType('carrier')}
+                              className="shrink-0 underline font-bold hover:text-amber-950"
+                            >
+                              {locale === 'ar' ? 'التفاصيل والربط' : 'Details'}
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-[11px] text-rose-700 bg-rose-50 p-2.5 rounded-lg border border-rose-200">
+                          {locale === 'ar'
+                            ? 'لا توجد شركات شحن آلية مفعلة حالياً من قبل الإدارة. يرجى مراجعة إدارة المنصة أو استخدام الشحن اليدوي.'
+                            : 'No automated carriers are currently active from Admin. Please contact platform management or use manual fleet.'}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ) : null}
           </ShippingMethodOptionCard>

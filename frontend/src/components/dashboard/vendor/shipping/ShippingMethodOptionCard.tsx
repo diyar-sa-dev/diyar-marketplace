@@ -11,6 +11,7 @@ type ShippingMethodOptionCardProps = {
   onSelect?: () => void;
   children?: React.ReactNode;
   badge?: string;
+  className?: string;
 };
 
 export function ShippingMethodOptionCard({
@@ -23,6 +24,7 @@ export function ShippingMethodOptionCard({
   onSelect,
   children,
   badge,
+  className = '',
 }: ShippingMethodOptionCardProps) {
   return (
     <div
@@ -32,7 +34,7 @@ export function ShippingMethodOptionCard({
           : selected
             ? 'cursor-pointer border-diyar-brown bg-amber-50/10'
             : 'cursor-pointer border-gray-200 bg-white hover:border-diyar-brown/50'
-      }`}
+      } ${className}`}
       onClick={disabled ? undefined : onSelect}
       onKeyDown={
         disabled || !onSelect

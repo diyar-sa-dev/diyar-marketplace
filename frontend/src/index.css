@@ -56,6 +56,26 @@
   .chat-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: rgb(148 121 97 / 0.55);
   }
+  /* Modern sleek dashboard sidebar scrollbar */
+  .dashboard-scrollbar {
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
+  .dashboard-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+  .dashboard-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .dashboard-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-radius: 9999px;
+    transition: background-color 0.2s ease;
+  }
+  .dashboard-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.38);
+  }
   .chat-typing-dot {
     width: 0.4rem;
     height: 0.4rem;

@@ -474,10 +474,10 @@ try {
 
     DB::commit();
     echo "=== Transaction committed successfully. ===\n";
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     DB::rollBack();
-    echo "ERROR: Fixture provisioning failed: " . $e->getMessage() . "\n";
-    echo $e->getTraceAsString() . "\n";
+    echo 'ERROR: Fixture provisioning failed: '.$e->getMessage()."\n";
+    echo $e->getTraceAsString()."\n";
     exit(1);
 }
 
@@ -504,10 +504,10 @@ echo "\nSummary of table counts (Before -> After):\n";
 foreach ($afterCounts as $tbl => $cnt) {
     $before = $beforeCounts[$tbl];
     $diff = $cnt - $before;
-    $diffStr = $diff > 0 ? "+{$diff}" : "0";
+    $diffStr = $diff > 0 ? "+{$diff}" : '0';
     echo "  - {$tbl}: {$before} -> {$cnt} ({$diffStr})\n";
 }
 
 echo "\nCreated Entity Identifiers:\n";
-echo json_encode($createdEntities, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+echo json_encode($createdEntities, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n";
 echo "=== Provisioning Complete ===\n";

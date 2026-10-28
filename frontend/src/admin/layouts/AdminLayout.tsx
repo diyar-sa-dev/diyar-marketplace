@@ -70,7 +70,7 @@ export default function AdminLayout() {
             </Link>
           </div>
 
-          <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-3 space-y-0.5">
+          <nav className="dashboard-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-3 space-y-0.5 pe-1">
             {visibleItems.map(({ to, end, icon: Icon, labelKey }) => (
               <NavLink
                 key={to}

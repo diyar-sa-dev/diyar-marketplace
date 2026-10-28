@@ -4,7 +4,6 @@ namespace App\Domains\ServicesMarketplace\Jobs;
 
 use App\Domains\Notifications\Services\NotificationDispatcher;
 use App\Enums\NotificationType;
-use App\Models\ProviderAccount;
 use App\Models\Service;
 use App\Models\ServiceRequest;
 use App\Models\User;
@@ -23,7 +22,7 @@ final class NotifyMatchingProvidersJob implements ShouldQueue
     use SerializesModels;
 
     /**
-     * @param list<string> $categoryIds
+     * @param  list<string>  $categoryIds
      */
     public function __construct(
         public readonly string $serviceRequestId,

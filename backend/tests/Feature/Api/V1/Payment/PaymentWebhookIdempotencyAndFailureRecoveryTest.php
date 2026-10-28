@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1\Payment;
 
-use App\Domains\Payments\Exceptions\PaymentGatewayException;
-use App\Domains\Payments\Services\PaymentGatewayManager;
 use App\Domains\Payments\Services\PaymentWebhookEventProcessor;
 use App\Domains\Payments\Services\PaymentWebhookProcessor;
 use App\Enums\PaymentStatus;
@@ -15,6 +13,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentWebhookEvent;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
@@ -248,7 +247,7 @@ class PaymentWebhookIdempotencyAndFailureRecoveryTest extends TestCase
     }
 
     /**
-     * @return array{0: \App\Models\User, 1: Order}
+     * @return array{0: User, 1: Order}
      */
     private function createPayableOrder(): array
     {

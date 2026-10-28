@@ -57,6 +57,11 @@ export interface ProductCard {
   model_3d_url?: string | null;
   /** Server-computed estimate from admin loyalty rules */
   loyalty_points_estimate?: number;
+  /** Engagement counters */
+  views_count?: number;
+  likes_count?: number;
+  saves_count?: number;
+  interaction_rate?: number;
 }
 
 export interface ProductColor {

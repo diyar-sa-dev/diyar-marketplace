@@ -5,7 +5,7 @@ namespace App\Domains\Shipping\DTO;
 final class CarrierTrackingResponse
 {
     /**
-     * @param list<array{raw_status: string, normalized_status: string, timestamp: string, location: ?string, description: ?string}> $milestones
+     * @param  list<array{raw_status: string, normalized_status: string, timestamp: string, location: ?string, description: ?string}>  $milestones
      */
     public function __construct(
         public readonly string $trackingNumber,

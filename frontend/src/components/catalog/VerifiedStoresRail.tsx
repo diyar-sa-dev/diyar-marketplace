@@ -51,18 +51,18 @@ function StoreCardBody({ vendor, size }: { vendor: VerifiedStoreItem; size: 'sm'
   const { t } = useLocale();
 
   return (
-    <div className="flex h-full w-full min-w-0 flex-col items-center justify-between gap-1">
+    <div className="flex h-full w-full min-w-0 flex-col items-center justify-between gap-1.5 py-0.5">
       <StoreAvatar vendor={vendor} size={size} />
-      <div className="flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-0.5">
+      <div className="flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-1 text-center">
         <p
-          className="w-full truncate text-center text-xs font-bold leading-tight text-diyar-dark"
+          className="w-full truncate text-xs font-bold leading-tight text-diyar-dark group-hover:text-diyar-brown transition-colors"
           title={vendor.store_name}
         >
           {vendor.store_name}
         </p>
-        <p className="w-full truncate text-center text-[10px] leading-tight text-gray-400">
+        <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-medium leading-none group-hover:bg-amber-50 group-hover:text-diyar-brown transition-colors">
           {t('catalog.category.productCount', { count: vendor.product_count ?? 0 })}
-        </p>
+        </span>
       </div>
     </div>
   );

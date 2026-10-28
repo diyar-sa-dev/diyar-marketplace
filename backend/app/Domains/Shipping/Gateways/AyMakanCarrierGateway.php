@@ -8,6 +8,7 @@ use App\Domains\Shipping\DTO\CarrierBookingResponse;
 use App\Domains\Shipping\DTO\CarrierQuoteRequest;
 use App\Domains\Shipping\DTO\CarrierQuoteResponse;
 use App\Domains\Shipping\DTO\CarrierTrackingResponse;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -136,7 +137,7 @@ final class AyMakanCarrierGateway implements CarrierGatewayInterface
                 bookingStatus: 'failed',
                 errorMessage: $response->body(),
             );
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+        } catch (ConnectionException $e) {
             return new CarrierBookingResponse(
                 isSuccess: false,
                 bookingStatus: 'unknown_outcome',

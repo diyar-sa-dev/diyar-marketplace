@@ -5,6 +5,7 @@ namespace Tests\Unit\Services\Visualization;
 use App\Domains\VisualSearch\Services\Providers\NullVisualizationProvider;
 use App\Domains\VisualSearch\Services\Providers\StubVisualizationProvider;
 use App\Domains\VisualSearch\Services\VisualizationCapability;
+use App\Domains\VisualSearch\Services\VisualizationPrivacyGate;
 use App\Domains\VisualSearch\Services\VisualizationProviderRegistry;
 use App\Models\TryInRoomJob;
 use App\Models\User;
@@ -64,9 +65,9 @@ class VisualizationProvidersTest extends TestCase
     {
         Storage::fake('try_in_room');
 
-        $gate = \Mockery::mock(\App\Domains\VisualSearch\Services\VisualizationPrivacyGate::class);
+        $gate = \Mockery::mock(VisualizationPrivacyGate::class);
         $gate->shouldReceive('allowsExternalImageTransfer')->andReturn(true);
-        $this->app->instance(\App\Domains\VisualSearch\Services\VisualizationPrivacyGate::class, $gate);
+        $this->app->instance(VisualizationPrivacyGate::class, $gate);
 
         $user = User::factory()->create();
         $job = new TryInRoomJob(['user_id' => $user->id, 'product_id' => null]);

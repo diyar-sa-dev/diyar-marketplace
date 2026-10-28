@@ -23,6 +23,10 @@ export interface UiProductCard {
   loyalty_points_estimate?: number;
   userSaved?: boolean;
   isOwnStore?: boolean;
+  viewsCount?: number;
+  likesCount?: number;
+  savesCount?: number;
+  interactionRate?: number;
 }
 
 /** Estimated loyalty earn on purchase: floor(price / sarPerPoint) * pointsPerUnit (admin-configurable). */
@@ -81,6 +85,10 @@ export function mapProductCard(
     loyalty_points_estimate: product.loyalty_points_estimate,
     userSaved: product.user_saved,
     isOwnStore: product.is_own_store,
+    viewsCount: product.views_count,
+    likesCount: product.likes_count,
+    savesCount: product.saves_count,
+    interactionRate: product.interaction_rate,
   };
 }
 

@@ -22,6 +22,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -143,7 +144,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, Request $request) {
+        $exceptions->render(function (PostTooLargeException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return ApiResponse::error(
                     'حجم الملفات المرفوعة يتجاوز الحد المسموح به (الحد الأقصى 25 ميجابايت)',
