@@ -3798,6 +3798,7 @@ export const ar = {
       viewsShort: 'مشاهدة',
       likesShort: 'إعجاب',
       savesShort: 'حفظ',
+      interactionShort: 'تفاعل',
     },
     category: {
       clearFilters: 'مسح فلاتر البحث',

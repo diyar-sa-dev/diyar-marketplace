@@ -3859,6 +3859,7 @@ export const en = {
       viewsShort: 'Views',
       likesShort: 'Likes',
       savesShort: 'Saves',
+      interactionShort: 'Engagement',
     },
     category: {
       clearFilters: 'Clear search filters',

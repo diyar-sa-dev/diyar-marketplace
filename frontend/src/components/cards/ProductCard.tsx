@@ -317,29 +317,42 @@ const ProductCard: React.FC<{ product: CardInput; layout?: 'grid' | 'list' }> = 
           <div className={layout === 'list' ? 'mb-1' : 'mb-2'} />
         )}
 
-        {(item.viewsCount != null || item.likesCount != null || item.savesCount != null) && (
+        {((item.likesCount != null && item.likesCount > 0) ||
+          item.interactionRate != null ||
+          (item.savesCount != null && item.savesCount > 0)) && (
           <div className="mb-2.5 flex items-center justify-between rounded-lg bg-gray-50/90 px-2 py-1 text-[10px] text-gray-500 border border-gray-100/80">
             <span className="inline-flex items-center gap-1 font-medium text-gray-600">
-              <Eye size={11} className="text-gray-400 shrink-0" />
-              <span className="tabular-nums font-bold text-gray-700">{item.viewsCount ?? 0}</span>
-              <span className="text-[9px] text-gray-400">
-                {t('catalog.product.viewsShort') || 'مشاهدة'}
-              </span>
-            </span>
-            <span className="inline-flex items-center gap-1 font-medium text-gray-600">
-              <Heart size={11} className="text-rose-400 shrink-0" fill="currentColor" />
+              <Heart size={11} className="text-rose-500 shrink-0" fill="currentColor" />
               <span className="tabular-nums font-bold text-gray-700">{item.likesCount ?? 0}</span>
               <span className="text-[9px] text-gray-400">
                 {t('catalog.product.likesShort') || 'إعجاب'}
               </span>
             </span>
-            <span className="inline-flex items-center gap-1 font-medium text-gray-600">
-              <Bookmark size={11} className="text-amber-500 shrink-0" />
-              <span className="tabular-nums font-bold text-gray-700">{item.savesCount ?? 0}</span>
-              <span className="text-[9px] text-gray-400">
-                {t('catalog.product.savesShort') || 'حفظ'}
+
+            {item.interactionRate != null && (
+              <span className="inline-flex items-center gap-1 font-bold text-amber-700 bg-amber-50/80 px-1.5 py-0.5 rounded border border-amber-200/50">
+                <span className="text-[10px]">🔥</span>
+                <span className="tabular-nums">{item.interactionRate}%</span>
+                <span className="text-[9px] font-medium text-amber-800">
+                  {t('catalog.product.interactionShort') || 'تفاعل'}
+                </span>
               </span>
-            </span>
+            )}
+
+            {item.savesCount != null && item.savesCount > 0 ? (
+              <span className="inline-flex items-center gap-1 font-medium text-gray-600">
+                <Bookmark size={11} className="text-amber-500 shrink-0" />
+                <span className="tabular-nums font-bold text-gray-700">{item.savesCount}</span>
+                <span className="text-[9px] text-gray-400">
+                  {t('catalog.product.savesShort') || 'حفظ'}
+                </span>
+              </span>
+            ) : item.interactionRate != null ? (
+              <span className="inline-flex items-center gap-1 font-semibold text-emerald-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[9px]">{t('home.mostInteractive.activeNow') || 'نشط'}</span>
+              </span>
+            ) : null}
           </div>
         )}
 
